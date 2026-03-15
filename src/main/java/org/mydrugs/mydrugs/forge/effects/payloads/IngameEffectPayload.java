@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.forge;
+package org.mydrugs.mydrugs.forge.effects.payloads;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -7,30 +7,30 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.DrugEffect;
-import org.mydrugs.mydrugs.core.EffectType;
+import org.mydrugs.mydrugs.core.Effect;
 
-public record EffectPayload(DrugEffect effect) implements CustomPacketPayload {
-    public static final Type<EffectPayload> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "effect"));
+public record IngameEffectPayload(DrugEffect effect) implements CustomPacketPayload {
+    public static final Type<IngameEffectPayload> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "ingame_effect"));
 
-    private static final StreamCodec<ByteBuf, EffectType> EFFECT_TYPE_CODEC =
+    private static final StreamCodec<ByteBuf, Effect> EFFECT_TYPE_CODEC =
             ByteBufCodecs.VAR_INT.map(
-                    id -> EffectType.values()[id],
-                    EffectType::ordinal
+                    id -> Effect.values()[id],
+                    Effect::ordinal
             );
 
     public static final StreamCodec<ByteBuf, DrugEffect> DRUG_EFFECT_CODEC =
             StreamCodec.composite(
                     EFFECT_TYPE_CODEC,
-                    DrugEffect::getEffectType,
+                    DrugEffect::getEffect,
                     DrugEffect::new
             );
 
-    public static final StreamCodec<ByteBuf, EffectPayload> STREAM_CODEC =
+    public static final StreamCodec<ByteBuf, IngameEffectPayload> STREAM_CODEC =
             StreamCodec.composite(
                     DRUG_EFFECT_CODEC,
-                    EffectPayload::effect,
-                    EffectPayload::new
+                    IngameEffectPayload::effect,
+                    IngameEffectPayload::new
             );
 
     @Override

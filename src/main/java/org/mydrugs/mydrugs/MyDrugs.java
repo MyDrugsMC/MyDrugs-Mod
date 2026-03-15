@@ -14,6 +14,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.mydrugs.mydrugs.forge.ModItems;
+import org.mydrugs.mydrugs.forge.client.shaders.ShaderManager;
 import org.slf4j.Logger;
 
 @Mod(MyDrugs.MODID)
@@ -25,6 +26,7 @@ public class MyDrugs {
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
         ModItems.ITEMS.register(modEventBus);
+        ShaderManager.registerShaders();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

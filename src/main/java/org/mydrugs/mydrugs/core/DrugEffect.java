@@ -1,13 +1,13 @@
 package org.mydrugs.mydrugs.core;
 
 public class DrugEffect {
-    private final EffectType effectType;
+    private final Effect effect;
 
-    public DrugEffect(EffectType effectType) {
-        this.effectType = effectType;
+    public DrugEffect(Effect effect) {
+        this.effect = effect;
     }
 
-    public EffectType getEffectType() {
-        return effectType;
+    public Effect getEffect() {
+        return effect;
     }
 }

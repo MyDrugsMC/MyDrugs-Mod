@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.forge.items.WeedLeafItem;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MyDrugs.MODID);
