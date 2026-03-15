@@ -1,5 +1,3 @@
 {
-  "itemGroup.mydrugs": "Example Mod Tab",
-  "block.mydrugs.example_block": "Example Block",
-  "item.mydrugs.example_item": "Example Item"
+  "item.mydrugs.weed_leaf": "Weed Leaf"
 }
