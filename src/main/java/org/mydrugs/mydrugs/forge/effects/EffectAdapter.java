@@ -17,11 +17,12 @@ public class EffectAdapter extends EffectPort {
     @Override
     protected void applyShader(DrugEffect effect) {
         int duration = 10*20;
+        ShaderManager shaderManager = ShaderManager.INSTANCE;
         switch (effect.getEffect()) {
-            case FOG -> ShaderManager.start(duration, FogShader.class);
-            case ACID_WARP -> ShaderManager.start(duration, AcidWarpShader.class);
-            case VOID_PULSE -> ShaderManager.start(duration, VoidPulseShader.class);
-            case CHROMATIC_DREAM -> ShaderManager.start(duration, ChromaticDreamShader.class);
+            case FOG -> shaderManager.start(duration, FogShader.class);
+            case ACID_WARP -> shaderManager.start(duration, AcidWarpShader.class);
+            case VOID_PULSE -> shaderManager.start(duration, VoidPulseShader.class);
+            case CHROMATIC_DREAM -> shaderManager.start(duration, ChromaticDreamShader.class);
         }
     }
 

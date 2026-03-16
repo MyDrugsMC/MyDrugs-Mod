@@ -18,7 +18,7 @@ public final class FogShader extends AnimatedShader {
     private final float fogSpeed = 1.0F;
 
     private FogShader() {
-        super("fog", "FogUniforms");
+        super("fog");
     }
 
     @Override

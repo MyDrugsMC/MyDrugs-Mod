@@ -8,30 +8,25 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.mydrugs.mydrugs.MyDrugs;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.mydrugs.mydrugs.core.ClientShaderManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
-public final class ShaderManager {
-    private static final List<AnimatedShader> SHADERS = new ArrayList<>();
-    private static float ticksLeft = 0f;
-    private static AnimatedShader currentShader = null;
+public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
+    public static final ShaderManager INSTANCE = new ShaderManager();
 
-    public static void registerShaders() {
+    private ShaderManager() {}
+
+    public void registerShaders() {
         register(FogShader.INSTANCE);
         register(AcidWarpShader.INSTANCE);
         register(ChromaticDreamShader.INSTANCE);
         register(VoidPulseShader.INSTANCE);
     }
 
-    public static void register(AnimatedShader shader) {
-        SHADERS.add(shader);
-    }
-
     @SubscribeEvent
     public static void onRegisterRenderPipelines(RegisterRenderPipelinesEvent event) {
-        for (AnimatedShader shader : SHADERS) {
+        for (AnimatedShader shader : INSTANCE.getShaders()) {
+            System.out.println("registering shader " + shader.getClass() + "...");
             shader.buildPipeline();
             event.registerPipeline(shader.getRenderPipeline());
         }
@@ -40,41 +35,22 @@ public final class ShaderManager {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        for (AnimatedShader shader : SHADERS) {
+
+        for (AnimatedShader shader : INSTANCE.getShaders()) {
             shader.tick(mc);
         }
-        if (mc.player == null) return;
 
-        if (ticksLeft > 0) {
-            ticksLeft--;
-
-            if (currentShader == null) return;
-
-            if (ticksLeft == 0) {
-                currentShader.setEnabled(false);
-                currentShader = null;
-            }
+        if (mc.player != null) {
+            INSTANCE.tick();
         }
     }
 
     @SubscribeEvent
     public static void onRenderGuiLayer(RenderLevelStageEvent.AfterLevel event) {
         Minecraft mc = Minecraft.getInstance();
-        for (AnimatedShader shader : SHADERS) {
+
+        for (AnimatedShader shader : INSTANCE.getShaders()) {
             shader.render(mc);
         }
     }
-
-    public static void start(int durationTicks, Class<? extends AnimatedShader> clazz) {
-        ticksLeft = durationTicks;
-        for (AnimatedShader shader : SHADERS) {
-            if (shader.getClass() == clazz) {
-                currentShader = shader;
-                currentShader.setEnabled(true);
-                return;
-            }
-        }
-    }
-
-    private ShaderManager() {}
 }

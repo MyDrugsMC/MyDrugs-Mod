@@ -26,7 +26,7 @@ public class MyDrugs {
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
         ModItems.ITEMS.register(modEventBus);
-        ShaderManager.registerShaders();
+        ShaderManager.INSTANCE.registerShaders();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -47,5 +47,9 @@ public class MyDrugs {
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
+    }
+
+    public static Logger getLOGGER() {
+        return LOGGER;
     }
 }

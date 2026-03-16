@@ -15,33 +15,28 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.Shader;
 
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-public abstract class AnimatedShader {
+public abstract class AnimatedShader extends Shader {
     private final String name;
-    private final String uniformsName;
     private final int uboSize;
 
     private MappableRingBuffer ubo;
     private GpuBuffer quadVertexBuffer;
-    private boolean quadVertexBufferInitialized = false;
 
     private RenderPipeline renderPipeline;
-
-    private boolean enabled = false;
-    private float time = 0.0F;
-    private float deltaTime = 0.05F;
 
     private RenderTarget copiedInputTarget;
     private int copiedInputWidth = -1;
     private int copiedInputHeight = -1;
 
-    protected AnimatedShader(String shaderName, String shaderUniformsName) {
+    protected AnimatedShader(String shaderName) {
+        super(shaderName);
         this.name = shaderName;
-        this.uniformsName = shaderUniformsName;
 
         Std140SizeCalculator calc = new Std140SizeCalculator()
                 .putFloat() // Time
@@ -54,9 +49,6 @@ public abstract class AnimatedShader {
         return name;
     }
 
-    public final String getUniformsName() {
-        return uniformsName;
-    }
 
     public final RenderPipeline getRenderPipeline() {
         return renderPipeline;
@@ -67,7 +59,7 @@ public abstract class AnimatedShader {
                 .withLocation(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name))
                 .withVertexShader(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "core/" + name))
                 .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "core/" + name))
-                .withUniform(uniformsName, UniformType.UNIFORM_BUFFER)
+                .withUniform(getFormattedUniformName(), UniformType.UNIFORM_BUFFER)
                 .withVertexFormat(
                         DefaultVertexFormat.POSITION_TEX,
                         useFullscreenTriangle() ? VertexFormat.Mode.TRIANGLES : VertexFormat.Mode.QUADS
@@ -85,18 +77,6 @@ public abstract class AnimatedShader {
         configurePipeline(builder);
 
         this.renderPipeline = builder.build();
-    }
-
-    public void setEnabled(boolean value) {
-        this.enabled = value;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setDeltaTime(float deltaTime) {
-        this.deltaTime = deltaTime;
     }
 
     public void tick(Minecraft mc) {
@@ -134,9 +114,6 @@ public abstract class AnimatedShader {
             return;
         }
 
-//        float width = mc.getWindow().getWidth();
-//        float height = mc.getWindow().getHeight();
-
         float width = mainTarget.width;
         float height = mainTarget.height;
 
@@ -162,7 +139,7 @@ public abstract class AnimatedShader {
                 pass.bindSampler("InSampler", inputTarget.getColorTextureView());
             }
             bindExtraSamplers(pass, mainTarget, inputTarget);
-            pass.setUniform(uniformsName, getUbo().currentBuffer());
+            pass.setUniform(getFormattedUniformName(), getUbo().currentBuffer());
             if (useFullscreenTriangle()) {
                 pass.draw(0, 3);
             } else {
@@ -313,7 +290,6 @@ public abstract class AnimatedShader {
         if (quadVertexBuffer != null) {
             quadVertexBuffer.close();
             quadVertexBuffer = null;
-            quadVertexBufferInitialized = false;
         }
     }
 

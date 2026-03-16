@@ -12,7 +12,7 @@ public class ChromaticDreamShader extends AnimatedShader {
     float zoom = 0.015F;
     float saturation = 1.35F;
     protected ChromaticDreamShader() {
-        super("chromatic_dream", "ChromaticDreamUniforms");
+        super("chromatic_dream");
     }
 
     @Override

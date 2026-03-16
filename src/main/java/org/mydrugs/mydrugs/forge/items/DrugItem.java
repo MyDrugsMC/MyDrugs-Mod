@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.forge.effects;
+package org.mydrugs.mydrugs.forge.items;
 
 import org.mydrugs.mydrugs.core.DrugModel;
 
