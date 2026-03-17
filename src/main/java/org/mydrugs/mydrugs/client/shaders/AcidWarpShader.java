@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.forge.client.shaders;
+package org.mydrugs.mydrugs.client.shaders;
 
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;

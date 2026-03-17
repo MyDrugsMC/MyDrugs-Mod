@@ -1,8 +1,9 @@
-package org.mydrugs.mydrugs.forge.items;
+package org.mydrugs.mydrugs.items;
 
 import net.minecraft.world.item.Item;
-import org.mydrugs.mydrugs.core.DrugModel;
-import org.mydrugs.mydrugs.core.DrugRegistry;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.DrugModel;
+import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 
 public class WeedLeafItem extends Item implements DrugItem {
     public WeedLeafItem(Properties properties) {
@@ -11,6 +12,6 @@ public class WeedLeafItem extends Item implements DrugItem {
 
     @Override
     public DrugModel model() {
-        return DrugRegistry.WEED;
+        return DrugRegistry.getDrug(DrugId.WEED);
     }
 }

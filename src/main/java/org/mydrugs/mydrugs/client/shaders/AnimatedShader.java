@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.forge.client.shaders;
+package org.mydrugs.mydrugs.client.shaders;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
@@ -15,7 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.core.Shader;
+import org.mydrugs.mydrugs.core.client.shader.Shader;
 
 import java.util.List;
 import java.util.OptionalDouble;
@@ -80,7 +80,7 @@ public abstract class AnimatedShader extends Shader {
     }
 
     public void tick(Minecraft mc) {
-        if (!enabled || mc.isPaused()) return;
+        if (mc.isPaused()) return;
         time += deltaTime;
         if (time > 1000.0F) {
             time -= 1000.0F;
@@ -92,7 +92,7 @@ public abstract class AnimatedShader extends Shader {
     }
 
     public void render(Minecraft mc) {
-        if (!enabled || mc.level == null) {
+        if (mc.level == null) {
             return;
         }
         if (renderPipeline == null) {
@@ -102,7 +102,7 @@ public abstract class AnimatedShader extends Shader {
         try {
             renderInternal(mc);
         } catch (Throwable t) {
-            enabled = false;
+            MyDrugs.CLIENT_STATE.setShader(null);
             t.printStackTrace();
         }
     }

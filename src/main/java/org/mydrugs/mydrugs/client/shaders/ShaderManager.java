@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.forge.client.shaders;
+package org.mydrugs.mydrugs.client.shaders;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -8,25 +8,30 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.core.ClientShaderManager;
+import org.mydrugs.mydrugs.core.client.ClientState;
+import org.mydrugs.mydrugs.core.client.shader.ClientShaderManager;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
-    public static final ShaderManager INSTANCE = new ShaderManager();
+    public static final ShaderManager INSTANCE = new ShaderManager(MyDrugs.CLIENT_STATE);
 
-    private ShaderManager() {}
+    public ShaderManager(ClientState clientState) {
+        super(clientState);
+    }
 
     public void registerShaders() {
-        register(FogShader.INSTANCE);
-        register(AcidWarpShader.INSTANCE);
-        register(ChromaticDreamShader.INSTANCE);
-        register(VoidPulseShader.INSTANCE);
+        register(EffectType.FOG, FogShader.INSTANCE);
+        register(EffectType.ACID_WARP, AcidWarpShader.INSTANCE);
+        register(EffectType.CHROMATIC_DREAM, ChromaticDreamShader.INSTANCE);
+        register(EffectType.VOID_PULSE, VoidPulseShader.INSTANCE);
     }
 
     @SubscribeEvent
     public static void onRegisterRenderPipelines(RegisterRenderPipelinesEvent event) {
         for (AnimatedShader shader : INSTANCE.getShaders()) {
-            System.out.println("registering shader " + shader.getClass() + "...");
+            MyDrugs.getLOGGER().info("registering shader {}...", shader.getClass());
             shader.buildPipeline();
             event.registerPipeline(shader.getRenderPipeline());
         }
@@ -36,7 +41,9 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
 
-        for (AnimatedShader shader : INSTANCE.getShaders()) {
+        AnimatedShader shader = (AnimatedShader) MyDrugs.CLIENT_STATE.getShader();
+
+        if (shader != null) {
             shader.tick(mc);
         }
 
@@ -49,7 +56,9 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     public static void onRenderGuiLayer(RenderLevelStageEvent.AfterLevel event) {
         Minecraft mc = Minecraft.getInstance();
 
-        for (AnimatedShader shader : INSTANCE.getShaders()) {
+        AnimatedShader shader = (AnimatedShader) MyDrugs.CLIENT_STATE.getShader();
+
+        if (shader != null) {
             shader.render(mc);
         }
     }
