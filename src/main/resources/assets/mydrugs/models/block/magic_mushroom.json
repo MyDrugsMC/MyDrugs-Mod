@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "mydrugs:block/magic_mushroom"
+  },
+  "render_type": "cutout"
+}

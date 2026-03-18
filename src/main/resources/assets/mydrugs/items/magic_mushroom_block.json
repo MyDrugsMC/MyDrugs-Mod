@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mydrugs:block/magic_mushroom_block_inventory"
+  }
+}

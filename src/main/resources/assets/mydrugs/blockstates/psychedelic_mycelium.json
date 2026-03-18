@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "snowy=false": {
+      "model": "mydrugs:block/psychedelic_mycelium"
+    },
+    "snowy=true": {
+      "model": "mydrugs:block/psychedelic_mycelium_snowy"
+    }
+  }
+}

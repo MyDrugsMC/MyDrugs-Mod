@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mydrugs:block/psychedelic_grass_top",
+    "bottom": "minecraft:block/dirt",
+    "side": "mydrugs:block/psychedelic_grass_side"
+  }
+}

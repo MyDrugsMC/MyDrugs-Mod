@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "snowy=false": {
+      "model": "mydrugs:block/psychedelic_grass"
+    },
+    "snowy=true": {
+      "model": "mydrugs:block/psychedelic_grass_snowy"
+    }
+  }
+}

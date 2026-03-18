@@ -1,7 +1,9 @@
 package org.mydrugs.mydrugs;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.realmsclient.gui.screens.configuration.RealmsSettingsTab;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -13,13 +15,18 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.core.client.ClientState;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.DrugService;
 import org.mydrugs.mydrugs.effects.EffectAdapter;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.worldgen.biomes.ModRegions;
+import org.mydrugs.mydrugs.worldgen.biomes.ModSurfaceRules;
 import org.slf4j.Logger;
+import terrablender.api.Regions;
+import terrablender.api.SurfaceRuleManager;
 
 @Mod(MyDrugs.MODID)
 public class MyDrugs {
@@ -31,6 +38,7 @@ public class MyDrugs {
     public MyDrugs(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
+        ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ShaderManager.INSTANCE.registerShaders();
         DrugRegistry.registerDrugs();
@@ -40,6 +48,14 @@ public class MyDrugs {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("HELLO FROM COMMON SETUP");
+        event.enqueueWork(() -> {
+            Regions.register(new ModRegions(ResourceLocation.fromNamespaceAndPath(MODID, "overworld"), 2));
+            SurfaceRuleManager.addSurfaceRules(
+                    SurfaceRuleManager.RuleCategory.OVERWORLD,
+                    MODID,
+                    ModSurfaceRules.makeRules()
+            );
+        });
     }
 
     @SubscribeEvent

@@ -125,7 +125,7 @@ public abstract class AnimatedShader extends Shader {
         RenderTarget inputTarget = resolveInputTarget(mc, encoder, mainTarget, (int) width, (int) height);
 
         try (RenderPass pass = encoder.createRenderPass(
-                () -> "wecrazy_" + name + "_pass",
+                () -> "mydrugs_" + name + "_pass",
                 mainTarget.getColorTextureView(),
                 OptionalInt.empty(),
                 mainTarget.getDepthTextureView(),
@@ -192,7 +192,7 @@ public abstract class AnimatedShader extends Shader {
     private MappableRingBuffer getUbo() {
         if (ubo == null) {
             ubo = new MappableRingBuffer(
-                    () -> "wecrazy_" + name + "_uniforms",
+                    () -> "mydrugs_" + name + "_uniforms",
                     GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_MAP_WRITE,
                     uboSize
             );
@@ -216,7 +216,7 @@ public abstract class AnimatedShader extends Shader {
 
             try {
                 quadVertexBuffer = RenderSystem.getDevice().createBuffer(
-                        () -> "wecrazy_" + name + "_quad_vbo",
+                        () -> "mydrugs_" + name + "_quad_vbo",
                         GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_COPY_DST,
                         mesh.vertexBuffer()
                 );
@@ -323,7 +323,7 @@ public abstract class AnimatedShader extends Shader {
 
             try {
                 triangleVertexBuffer = RenderSystem.getDevice().createBuffer(
-                        () -> "wecrazy_" + name + "_triangle_vbo",
+                        () -> "mydrugs_" + name + "_triangle_vbo",
                         GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_COPY_DST,
                         mesh.vertexBuffer()
                 );

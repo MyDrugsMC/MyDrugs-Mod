@@ -1,3 +1,16 @@
 {
-  "item.mydrugs.weed_leaf": "Weed Leaf"
+  "item.mydrugs.lsd_bottle": "LSD Bottle",
+  "item.mydrugs.lsd_drop": "LSD Drop",
+  "item.mydrugs.meth_powder": "Meth Powder",
+  "item.mydrugs.meth_shard": "Meth Shard",
+  "item.mydrugs.weed_leaf": "Weed Leaf",
+  "item.mydrugs.weed_powder": "Weed Powder",
+  "item.mydrugs.weed_seeds": "Weed Seeds",
+  "block.mydrugs.psychedelic_grass": "Psychedelic Grass Block",
+  "block.mydrugs.psychedelic_mycelium": "Psychedelic Mycelium",
+  "block.mydrugs.rye": "Rye",
+  "block.mydrugs.magic_mushroom": "Magic Mushroom",
+  "block.mydrugs.magic_mushroom_block": "Magic Mushroom Block",
+  "block.mydrugs.magic_mushroom_stem": "Magic Mushroom Stem",
+  "item.mydrugs.ergot": "Ergot"
 }

@@ -1,0 +1,9 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "mydrugs:psychedelic_mushroom_valley",
+  "features": [
+    "mydrugs:patch_magic_mushroom",
+    "mydrugs:huge_magic_mushroom"
+  ],
+  "step": "vegetal_decoration"
+}
