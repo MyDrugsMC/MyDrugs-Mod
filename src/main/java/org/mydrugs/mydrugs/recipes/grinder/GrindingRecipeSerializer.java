@@ -14,14 +14,14 @@ public class GrindingRecipeSerializer implements RecipeSerializer<GrindingRecipe
     public static final MapCodec<GrindingRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Ingredient.CODEC.fieldOf("ingredient").forGetter(GrindingRecipe::ingredient),
             ItemStack.CODEC.fieldOf("result").forGetter(GrindingRecipe::result),
-            Codec.INT.fieldOf("clicks_required").forGetter(GrindingRecipe::clicksRequired)
+            Codec.INT.fieldOf("work").forGetter(GrindingRecipe::work)
     ).apply(inst, GrindingRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, GrindingRecipe> STREAM_CODEC =
             StreamCodec.composite(
                     Ingredient.CONTENTS_STREAM_CODEC, GrindingRecipe::ingredient,
                     ItemStack.STREAM_CODEC, GrindingRecipe::result,
-                    ByteBufCodecs.INT, GrindingRecipe::clicksRequired,
+                    ByteBufCodecs.INT, GrindingRecipe::work,
                     GrindingRecipe::new
             );
 

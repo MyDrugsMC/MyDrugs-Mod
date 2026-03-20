@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.recipes.stompcrafting;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,7 +16,9 @@ public class StompCraftingRecipeSerializer implements RecipeSerializer<StompCraf
                             .fieldOf("ingredients")
                             .forGetter(StompCraftingRecipe::ingredients),
                     ItemStack.CODEC.fieldOf("result")
-                            .forGetter(StompCraftingRecipe::result)
+                            .forGetter(StompCraftingRecipe::result),
+                    Codec.INT.fieldOf("work")
+                            .forGetter(StompCraftingRecipe::work)
             ).apply(instance, StompCraftingRecipe::new)
     );
 
@@ -25,6 +28,8 @@ public class StompCraftingRecipeSerializer implements RecipeSerializer<StompCraf
                     StompCraftingRecipe::ingredients,
                     ItemStack.STREAM_CODEC,
                     StompCraftingRecipe::result,
+                    ByteBufCodecs.INT,
+                    StompCraftingRecipe::work,
                     StompCraftingRecipe::new
             );
 

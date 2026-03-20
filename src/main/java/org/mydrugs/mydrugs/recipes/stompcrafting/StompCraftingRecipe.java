@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.recipes.stompcrafting;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -14,10 +15,12 @@ import java.util.List;
 public class StompCraftingRecipe implements Recipe<StompCraftingInput> {
     private final List<CountedIngredient> ingredients;
     private final ItemStack result;
+    private final int work;
 
-    public StompCraftingRecipe(List<CountedIngredient> ingredients, ItemStack result) {
+    public StompCraftingRecipe(List<CountedIngredient> ingredients, ItemStack result, int work) {
         this.ingredients = List.copyOf(ingredients);
         this.result = result.copy();
+        this.work = work;
     }
 
     public List<CountedIngredient> ingredients() {
@@ -26,6 +29,14 @@ public class StompCraftingRecipe implements Recipe<StompCraftingInput> {
 
     public ItemStack result() {
         return result;
+    }
+
+    public int work() {
+        return work;
+    }
+
+    public int clampedWork() {
+        return Mth.clamp(work, 1, 10);
     }
 
     public List<Ingredient> expandedIngredients() {

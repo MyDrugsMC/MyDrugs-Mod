@@ -7,7 +7,7 @@ import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 
-public record GrindingRecipe(Ingredient ingredient, ItemStack result, int clicksRequired)
+public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
         implements Recipe<SingleRecipeInput> {
 
     @Override
@@ -22,7 +22,11 @@ public record GrindingRecipe(Ingredient ingredient, ItemStack result, int clicks
 
     @Override
     public ItemStack result() {
-        return result;
+        return result.copy();
+    }
+
+    public int clampedWork() {
+        return Math.clamp(work, 1, 10);
     }
 
     @Override

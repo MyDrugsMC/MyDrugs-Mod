@@ -9,53 +9,37 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
-import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingInput;
-import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
+import org.mydrugs.mydrugs.recipes.StompCrafterRecipeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class StompCrafterBlockEntity extends BlockEntity {
     private static final int MAX_SLOTS = 32;
+    private static final int DEFAULT_REQUIRED_WORK = 100;
 
     private final List<ItemStack> insertedItems = new ArrayList<>();
     private ItemStack displayStack = ItemStack.EMPTY;
+
+    // raw work progress
     private int progress = 0;
+    private int requiredWork = DEFAULT_REQUIRED_WORK;
 
     public StompCrafterBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.STOMP_CRAFTER.get(), pos, state);
     }
 
-    public List<ItemStack> getInsertedItems() {
-        return this.insertedItems;
-    }
-
-    public int getContainerSize() {
-        return MAX_SLOTS;
-    }
-
-    public ItemStack getItem(int slot) {
-        if (slot < 0 || slot >= this.insertedItems.size()) {
-            return ItemStack.EMPTY;
+    // For rendering: always expose 0..100
+    public int getProgressPercent() {
+        if (this.requiredWork <= 0) {
+            return 0;
         }
-        return this.insertedItems.get(slot);
-    }
-
-    public ItemStack getDisplayStack() {
-        return this.displayStack;
-    }
-
-    public int getProgress() {
-        return this.progress;
+        return Mth.clamp((this.progress * 100) / this.requiredWork, 0, 100);
     }
 
     public boolean isFull() {
@@ -84,26 +68,6 @@ public class StompCrafterBlockEntity extends BlockEntity {
         return result;
     }
 
-    public boolean tryInsertItem(ServerLevel level, ItemStack heldStack) {
-        if (heldStack.isEmpty() || this.isFull()) {
-            return false;
-        }
-
-        ItemStack one = heldStack.copyWithCount(1);
-        List<ItemStack> test = new ArrayList<>(this.insertedItems);
-        test.add(one);
-
-        if (!canStillMatchAnyRecipe(level, test)) {
-            return false;
-        }
-
-        this.insertedItems.add(one);
-        this.displayStack = buildDisplayStackFor(this.insertedItems, one);
-        this.progress = 0;
-        this.markUpdated();
-        return true;
-    }
-
     private static ItemStack buildDisplayStackFor(List<ItemStack> items, ItemStack basis) {
         int count = 0;
         for (ItemStack stack : items) {
@@ -117,41 +81,22 @@ public class StompCrafterBlockEntity extends BlockEntity {
         return shown;
     }
 
-    private boolean canStillMatchAnyRecipe(ServerLevel level, List<ItemStack> testItems) {
-        for (RecipeHolder<?> rawHolder : level.recipeAccess().recipeMap().byType(ModRecipeTypes.STOMP_CRAFTING.get())) {
-            if (rawHolder.value() instanceof StompCraftingRecipe recipe) {
-                if (recipe.canAcceptPartial(testItems)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public @Nullable RecipeHolder<StompCraftingRecipe> getCurrentRecipe(ServerLevel level) {
-        StompCraftingInput input = new StompCraftingInput(this.insertedItems);
-
-        Optional<RecipeHolder<StompCraftingRecipe>> found =
-                level.recipeAccess().getRecipeFor(ModRecipeTypes.STOMP_CRAFTING.get(), input, level);
-
-        return found.orElse(null);
-    }
-
     public void addProgressFromFall(ServerLevel level, double fallDistance) {
-        RecipeHolder<StompCraftingRecipe> holder = getCurrentRecipe(level);
-        if (holder == null) {
+        StompCrafterRecipeResolver.ProcessMatch match =
+                StompCrafterRecipeResolver.findExactMatch(level, this.insertedItems);
+
+        if (match == null) {
             return;
         }
 
+        this.requiredWork = Math.max(1, match.requiredWork());
+
         int gained = Math.max(1, (int) Math.floor(fallDistance * 12.0D));
-        this.progress = Mth.clamp(this.progress + gained, 0, 100);
+        this.progress = Mth.clamp(this.progress + gained, 0, this.requiredWork);
         this.markUpdated();
 
-        if (this.progress >= 100) {
-            ItemStack result = holder.value().assemble(
-                    new StompCraftingInput(this.insertedItems),
-                    level.registryAccess()
-            );
+        if (this.progress >= this.requiredWork) {
+            ItemStack result = match.assemble(level, this.insertedItems);
 
             Containers.dropItemStack(
                     level,
@@ -169,6 +114,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
         this.insertedItems.clear();
         this.displayStack = ItemStack.EMPTY;
         this.progress = 0;
+        this.requiredWork = DEFAULT_REQUIRED_WORK;
         this.markUpdated();
     }
 
@@ -185,6 +131,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
         super.loadAdditional(input);
 
         this.progress = input.getIntOr("progress", 0);
+        this.requiredWork = input.getIntOr("required_work", DEFAULT_REQUIRED_WORK);
 
         this.insertedItems.clear();
         this.insertedItems.addAll(input.read("items", ItemStack.CODEC.listOf()).orElse(List.of()));
@@ -201,6 +148,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
         super.saveAdditional(output);
 
         output.putInt("progress", this.progress);
+        output.putInt("required_work", this.requiredWork);
         output.store("items", ItemStack.CODEC.listOf(), this.insertedItems);
 
         if (!this.displayStack.isEmpty()) {
@@ -252,15 +200,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
         List<ItemStack> test = new ArrayList<>(this.insertedItems);
         test.add(heldStack.copyWithCount(1));
 
-        for (RecipeHolder<?> rawHolder : level.recipeAccess().recipeMap().byType(ModRecipeTypes.STOMP_CRAFTING.get())) {
-            if (rawHolder.value() instanceof StompCraftingRecipe recipe) {
-                if (recipe.canAcceptPartial(test)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return StompCrafterRecipeResolver.canAcceptPartial(level, test);
     }
 
     public void insertAcceptedItem(ItemStack oneItem) {
@@ -272,6 +212,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
         this.insertedItems.add(inserted);
         this.displayStack = buildDisplayStackFor(this.insertedItems, inserted);
         this.progress = 0;
+        this.requiredWork = DEFAULT_REQUIRED_WORK;
         this.markUpdated();
     }
 }

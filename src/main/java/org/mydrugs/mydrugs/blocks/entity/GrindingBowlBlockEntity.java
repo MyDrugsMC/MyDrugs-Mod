@@ -56,7 +56,7 @@ public class GrindingBowlBlockEntity extends BlockEntity {
 
         if (this.level instanceof ServerLevel serverLevel) {
             GrindingRecipe recipe = GrindingRecipes.get(this.storedStack, serverLevel);
-            this.maxProgress = recipe != null ? recipe.clicksRequired() : 0;
+            this.maxProgress = recipe != null ? recipe.work() : 0;
         } else {
             this.maxProgress = 0;
         }
@@ -77,7 +77,7 @@ public class GrindingBowlBlockEntity extends BlockEntity {
 
         this.progress++;
 
-        if (this.progress >= recipe.clicksRequired()) {
+        if (this.progress >= recipe.work()) {
             this.storedStack = recipe.result().copy();
             this.progress = 0;
         }

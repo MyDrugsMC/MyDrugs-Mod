@@ -79,7 +79,7 @@ public class StompCrafterRenderer implements BlockEntityRenderer<StompCrafterBlo
 
         renderState.exampleStacks.clear();
         renderState.exampleStacks.addAll(blockEntity.getUniqueExampleStacks());
-        renderState.progress = blockEntity.getProgress();
+        renderState.progress = blockEntity.getProgressPercent();
 
         if (blockEntity.getLevel() != null) {
             renderState.lightCoords = LevelRenderer.getLightColor(

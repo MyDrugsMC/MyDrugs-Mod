@@ -1,0 +1,12 @@
+{
+  "type": "mydrugs:stomp_crafting",
+  "ingredients": [
+    { "ingredient": "mydrugs:rye", "count": 16 },
+    { "ingredient": "minecraft:glass_bottle", "count": 1 }
+  ],
+  "result": {
+    "id": "mydrugs:lsd_bottle",
+    "count": 1
+  },
+  "work": 8
+}
