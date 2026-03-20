@@ -37,19 +37,19 @@ public class ModBlocks {
             BLOCKS.register("psychedelic_mycelium",
                     registryName
                             -> new MyceliumBlock(
-                                    BlockBehaviour.Properties
-                                            .ofFullCopy(Blocks.MYCELIUM)
-                                            .setId(ResourceKey.create(Registries.BLOCK, registryName)))
+                            BlockBehaviour.Properties
+                                    .ofFullCopy(Blocks.MYCELIUM)
+                                    .setId(ResourceKey.create(Registries.BLOCK, registryName)))
             );
 
     public static final DeferredBlock<MushroomBlock> MAGIC_MUSHROOM =
             BLOCKS.register("magic_mushroom", registryName ->
                     // In some mappings/setups the constructor order may appear reversed in your IDE.
                     // If that happens, swap the two arguments.
-                    new MushroomBlock(
-                            ModWorldGenKeys.HUGE_MAGIC_MUSHROOM,
+                    new MagicMushroomBlock(
                             BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM)
-                                    .setId(ResourceKey.create(Registries.BLOCK, registryName))
+                                    .setId(ResourceKey.create(Registries.BLOCK, registryName)),
+                            ModWorldGenKeys.HUGE_MAGIC_MUSHROOM
                     )
             );
 
@@ -67,5 +67,32 @@ public class ModBlocks {
                     prop -> BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM)
             );
 
-    private ModBlocks() {}
+    public static final DeferredBlock<Block> GRINDING_BOWL = BLOCKS.registerBlock(
+            "grinding_bowl",
+            GrindingBowlBlock::new,
+            () -> BlockBehaviour.Properties.of()
+                    .strength(1.2F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+    );
+
+
+    public static final DeferredBlock<Block> STOMP_CRAFTER = BLOCKS.registerBlock(
+            "stomp_crafter",
+            StompCrafterBlock::new,
+            () -> BlockBehaviour.Properties.of()
+                    .strength(3.0F)
+                    .requiresCorrectToolForDrops()
+    );
+
+    public static final DeferredBlock<Block> STOMP_PLATE_BLOCK =
+            BLOCKS.registerBlock(
+                    "stomp_plate_block",
+                    Block::new,
+                    prop -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()
+            );
+
+
+    private ModBlocks() {
+    }
 }

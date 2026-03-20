@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "mydrugs:block/stomp_plate_block"
+    }
+  }
+}

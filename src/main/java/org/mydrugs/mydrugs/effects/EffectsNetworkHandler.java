@@ -24,7 +24,7 @@ public final class EffectsNetworkHandler {
                     DrugEffect effect = payload.effect();
                     int baseDuration = effect.getBaseDuration();
                     int basePotency = effect.getBasePotency();
-                    switch (effect.getType()) {
+                    switch (effect.getEffectType()) {
                         case NAUSEA -> player.addEffect(
                                 new MobEffectInstance(
                                         MobEffects.NAUSEA,

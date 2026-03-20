@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "texture": "mydrugs:block/stomp_plate"
+  },
+  "elements": [
+    {
+      "from": [2, 0, 2],
+      "to":   [14, 2, 14],
+      "faces": {
+        "down":  { "texture": "#texture" },
+        "up":    { "texture": "#texture" },
+        "north": { "texture": "#texture" },
+        "south": { "texture": "#texture" },
+        "west":  { "texture": "#texture" },
+        "east":  { "texture": "#texture" }
+      }
+    }
+  ]
+}

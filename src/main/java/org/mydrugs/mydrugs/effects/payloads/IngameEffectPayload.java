@@ -22,7 +22,7 @@ public record IngameEffectPayload(DrugEffect effect) implements CustomPacketPayl
     public static final StreamCodec<ByteBuf, DrugEffect> DRUG_EFFECT_CODEC =
             StreamCodec.composite(
                     EFFECT_TYPE_CODEC,
-                    DrugEffect::getType,
+                    DrugEffect::getEffectType,
                     ByteBufCodecs.VAR_INT,
                     DrugEffect::getBaseDuration,
                     ByteBufCodecs.VAR_INT,

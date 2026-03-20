@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:weed_leaf",
+  "result": {
+    "id": "mydrugs:weed_powder",
+    "count": 2
+  },
+  "clicks_required": 3
+}

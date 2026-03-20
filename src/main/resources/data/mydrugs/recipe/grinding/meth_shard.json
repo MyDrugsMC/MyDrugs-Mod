@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:meth_shard",
+  "result": {
+    "id": "mydrugs:meth_powder",
+    "count": 2
+  },
+  "clicks_required": 8
+}

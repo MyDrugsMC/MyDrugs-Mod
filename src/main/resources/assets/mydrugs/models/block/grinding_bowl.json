@@ -1,0 +1,17 @@
+{
+  "loader": "neoforge:obj",
+  "model": "mydrugs:models/block/grinding_bowl.obj",
+  "mtl_override": "mydrugs:models/block/grinding_bowl.mtl",
+  "textures": {
+    "texture0": "mydrugs:block/grinding_bowl",
+    "particle": "mydrugs:block/grinding_bowl"
+  },
+  "automatic_culling": false,
+  "shade_quads": false,
+  "ambientocclusion": false,
+  "flip_v": true,
+  "transform": {
+    "translation": [0.5, 0.0, 0.5],
+    "origin": "center"
+  }
+}

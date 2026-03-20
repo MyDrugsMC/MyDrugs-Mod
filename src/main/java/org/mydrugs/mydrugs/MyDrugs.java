@@ -15,6 +15,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.core.client.ClientState;
@@ -22,6 +23,9 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.DrugService;
 import org.mydrugs.mydrugs.effects.EffectAdapter;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.menu.ModMenus;
+import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
+import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.worldgen.biomes.ModRegions;
 import org.mydrugs.mydrugs.worldgen.biomes.ModSurfaceRules;
 import org.slf4j.Logger;
@@ -41,6 +45,11 @@ public class MyDrugs {
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ShaderManager.INSTANCE.registerShaders();
+        ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
+        ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
+        ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
+
         DrugRegistry.registerDrugs();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

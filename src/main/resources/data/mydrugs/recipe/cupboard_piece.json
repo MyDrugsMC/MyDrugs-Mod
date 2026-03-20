@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AA",
+    "AA"
+  ],
+  "key": {
+    "A": "minecraft:sugar_cane"
+  },
+  "result": {
+    "id": "mydrugs:cupboard_piece",
+    "count": 1
+  }
+}

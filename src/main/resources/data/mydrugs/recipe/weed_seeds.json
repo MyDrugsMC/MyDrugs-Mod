@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AB",
+    "BA"
+  ],
+  "key": {
+    "A": "minecraft:dirt",
+    "B": "minecraft:wheat_seeds"
+  },
+  "result": {
+    "id": "mydrugs:weed_seeds",
+    "count": 4
+  }
+}

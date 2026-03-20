@@ -12,5 +12,10 @@
   "block.mydrugs.magic_mushroom": "Magic Mushroom",
   "block.mydrugs.magic_mushroom_block": "Magic Mushroom Block",
   "block.mydrugs.magic_mushroom_stem": "Magic Mushroom Stem",
-  "item.mydrugs.ergot": "Ergot"
+  "item.mydrugs.ergot": "Ergot",
+  "item.mydrugs.magic_mushroom": "Magic Mushroom",
+  "item.mydrugs.portable_grinder": "Portable Grinder",
+  "item.mydrugs.bang": "Bang",
+  "item.mydrugs.grinding_tool": "Grinding Tool",
+  "block.mydrugs.grinding_bowl": "Grinding Bowl"
 }

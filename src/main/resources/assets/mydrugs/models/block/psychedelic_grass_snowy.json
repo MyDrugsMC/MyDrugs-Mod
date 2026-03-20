@@ -3,6 +3,6 @@
   "textures": {
     "top": "minecraft:block/snow",
     "bottom": "minecraft:block/dirt",
-    "side": "minecraft:block/psychedelic_grass_side_snowed"
+    "side": "minecraft:block/grass_block_snow"
   }
 }

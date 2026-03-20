@@ -1,28 +1,31 @@
 package org.mydrugs.mydrugs.items.drugs;
 
 import net.minecraft.world.item.Item;
+import org.mydrugs.mydrugs.core.drug.DrugHolder;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
+import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 
-public abstract class DrugItem extends Item {
+import java.util.List;
 
+public abstract class DrugItem extends Item implements DrugHolder {
     private final DrugModel model;
+    private final List<ConsumptionStrategy> strategies;
 
-    public DrugItem(Properties properties, DrugId drugId) {
+    public DrugItem(Properties properties, DrugId id, ConsumptionStrategy... strategy) {
         super(properties);
-        this.model = DrugRegistry.getDrug(drugId);
+        this.model = DrugRegistry.getDrug(id);
+        this.strategies = List.of(strategy);
     }
 
-    public DrugModel getModel() {
+    @Override
+    public DrugModel getDrugModel() {
         return model;
     }
 
-    public boolean isSmokable() {
-        return false;
-    }
-
-    public boolean isCrushable() {
-        return false;
+    @Override
+    public List<ConsumptionStrategy> getConsumptionStrategies() {
+        return strategies;
     }
 }
