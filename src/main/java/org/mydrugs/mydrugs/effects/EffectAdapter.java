@@ -12,10 +12,10 @@ public class EffectAdapter implements EffectPort {
     @Override
     public void applyEffect(DrugEffect drugEffect, ConsumptionStrategy strategy) {
         ShaderManager shaderManager = ShaderManager.INSTANCE;
-        switch (drugEffect.getEffectType()) {
-            case FOG, ACID_WARP, VOID_PULSE, CHROMATIC_DREAM
+        switch (drugEffect.getEffectType().getCategory()) {
+            case SHADER
                     -> shaderManager.start(strategy.getNewDuration(drugEffect), drugEffect.getEffectType());
-            case NAUSEA, SLOWNESS -> ClientPacketDistributor.sendToServer(new IngameEffectPayload(drugEffect));
+            case INGAME_TEMPORARY_EFFECT -> ClientPacketDistributor.sendToServer(new IngameEffectPayload(drugEffect));
         }
     }
 }

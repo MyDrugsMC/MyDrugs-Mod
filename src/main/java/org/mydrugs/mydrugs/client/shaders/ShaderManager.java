@@ -26,6 +26,13 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         register(EffectType.ACID_WARP, AcidWarpShader.INSTANCE);
         register(EffectType.CHROMATIC_DREAM, ChromaticDreamShader.INSTANCE);
         register(EffectType.VOID_PULSE, VoidPulseShader.INSTANCE);
+        register(EffectType.LUCID_DREAM, LucidDreamShader.INSTANCE); //BIEN
+        register(EffectType.MELT_REALITY, MeltRealityShader.INSTANCE); //OK
+        register(EffectType.EVENT_HORIZON, EventHorizonShader.INSTANCE); // Faudrait faire l'inverse, les cotés en Noir
+        register(EffectType.OPAL_WAVE, OpalWaveShader.INSTANCE); //OK
+        register(EffectType.QUANTUM_FLOWER, QuantumFlowerShader.INSTANCE); //OK
+        register(EffectType.AURORA_RIBBONS, AuroraRibbonsShader.INSTANCE); //BIEN
+        register(EffectType.SPECTRAL_POSTER, SpectralPosterShader.INSTANCE); //BIEN INCROYABLE
     }
 
     @SubscribeEvent

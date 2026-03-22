@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:magic_mushroom",
+  "result": {
+    "id": "mydrugs:magic_mushroom_powder",
+    "count": 2
+  },
+  "work": 2
+}

@@ -61,7 +61,11 @@ public class ModItems {
 
     public static final DeferredItem<BlockItem> MAGIC_MUSHROOM =
             ITEMS.registerItem("magic_mushroom",
-                    prop -> new MagicMushroomItem(ModBlocks.MAGIC_MUSHROOM.get(), prop, DrugId.MUSHROOMS));
+                    prop -> new MagicMushroomItem(ModBlocks.MAGIC_MUSHROOM.get(), prop, DrugId.MUSHROOMS, new EatingStrategy()));
+
+    public static final DeferredItem<Item> MAGIC_MUSHROOM_POWDER =
+            ITEMS.registerItem("magic_mushroom_powder", prop -> new MagicMushroomPowderItem(prop, DrugId.MUSHROOMS, new EatingStrategy()));
+
 
     public static final DeferredItem<BlockItem> MAGIC_MUSHROOM_BLOCK =
             ITEMS.registerSimpleBlockItem(ModBlocks.MAGIC_MUSHROOM_BLOCK);

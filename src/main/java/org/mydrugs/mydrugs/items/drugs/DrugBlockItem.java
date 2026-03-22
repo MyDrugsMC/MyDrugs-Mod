@@ -16,7 +16,7 @@ public abstract class DrugBlockItem extends BlockItem implements DrugHolder {
     private final List<ConsumptionStrategy> strategies;
 
     public DrugBlockItem(Block block, Properties properties, DrugId id, ConsumptionStrategy... strategy) {
-        super(block, properties);
+        super(block, DrugItemProperties.prepare(properties, strategy));
         model = DrugRegistry.getDrug(id);
         this.strategies = List.of(strategy);
     }
