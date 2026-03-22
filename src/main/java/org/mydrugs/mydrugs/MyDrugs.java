@@ -26,6 +26,7 @@ import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
+import org.mydrugs.mydrugs.registry.ModDataComponents;
 import org.mydrugs.mydrugs.worldgen.biomes.ModRegions;
 import org.mydrugs.mydrugs.worldgen.biomes.ModSurfaceRules;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class MyDrugs {
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
-
+        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         DrugRegistry.registerDrugs();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

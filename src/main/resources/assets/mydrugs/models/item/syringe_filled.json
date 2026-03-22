@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mydrugs:item/syringe_filled_base",
+    "layer1": "mydrugs:item/syringe_blood_mask"
+  }
+}

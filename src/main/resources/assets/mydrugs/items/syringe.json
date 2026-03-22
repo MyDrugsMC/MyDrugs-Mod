@@ -1,0 +1,24 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "mydrugs:filled",
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "mydrugs:item/syringe_filled",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": 16777215
+        },
+        {
+          "type": "minecraft:dye",
+          "default": 9371904
+        }
+      ]
+    },
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "mydrugs:item/syringe_empty"
+    }
+  }
+}

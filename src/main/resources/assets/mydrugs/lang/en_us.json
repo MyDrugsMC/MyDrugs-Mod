@@ -59,5 +59,12 @@
   "item.mydrugs.space_spider_eye": "Space Spider Eye",
   "item.mydrugs.space_suspicious_stew": "Space Suspicious Stew",
   "item.mydrugs.space_sweet_berries": "Space Sweet Berries",
-  "item.mydrugs.space_tropical_fish": "Space Tropical Fish"
+  "item.mydrugs.space_tropical_fish": "Space Tropical Fish",
+  "item.mydrugs.syringe": "Syringe",
+  "death.attack.blood_draw": "%1$s dis à lavie qu'il clc. Son discord : lavie9999",
+  "death.attack.blood_draw.player": "%1$s was hurt by %2$s during a blood draw",
+  "tooltip.mydrugs.syringe.empty": "Empty",
+  "tooltip.mydrugs.syringe.filled": "Filled with blood",
+  "tooltip.mydrugs.syringe.source_player": "Source: %s",
+  "tooltip.mydrugs.syringe.source_entity": "Source: %s"
 }

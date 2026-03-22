@@ -1,0 +1,7 @@
+{
+  "message_id": "blood_draw",
+  "scaling": "never",
+  "exhaustion": 0.0,
+  "effects": "poking",
+  "death_message_type": "default"
+}

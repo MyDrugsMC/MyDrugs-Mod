@@ -104,6 +104,9 @@ public class ModItems {
     public static final DeferredItem<Item> STOMP_PLATE =
             ITEMS.registerSimpleItem("stomp_plate");
 
+    public static final DeferredItem<Item> SYRINGE =
+            ITEMS.registerItem("syringe", SyringeItem::new, props -> props.stacksTo(1));
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
 

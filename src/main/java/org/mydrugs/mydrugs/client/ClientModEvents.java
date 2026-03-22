@@ -4,10 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
+import net.neoforged.neoforge.client.event.*;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.GrindingBowlRenderer;
@@ -34,6 +31,14 @@ public class ClientModEvents {
         event.register(
                 ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "space_overlay"),
                 SpaceOverlayItemModel.Unbaked.MAP_CODEC
+        );
+    }
+
+    @SubscribeEvent
+    public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "filled"),
+                FilledProperty.MAP_CODEC
         );
     }
 }
