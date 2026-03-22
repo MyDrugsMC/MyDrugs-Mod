@@ -1,14 +1,18 @@
 package org.mydrugs.mydrugs.client;
 
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.GrindingBowlRenderer;
 import org.mydrugs.mydrugs.client.ber.StompCrafterRenderer;
+import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.menu.client.SingleSlotMenuScreen;
 
@@ -23,5 +27,13 @@ public class ClientModEvents {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.GRINDING_BOWL.get(), ctx -> new GrindingBowlRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.STOMP_CRAFTER.get(), StompCrafterRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerItemModels(RegisterItemModelsEvent event) {
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "space_overlay"),
+                SpaceOverlayItemModel.Unbaked.MAP_CODEC
+        );
     }
 }

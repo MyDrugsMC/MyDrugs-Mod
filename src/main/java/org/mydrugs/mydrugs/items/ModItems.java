@@ -1,19 +1,29 @@
 package org.mydrugs.mydrugs.items;
 
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.BangSmokingStrategy;
-import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.JointSmokingStrategy;
 import org.mydrugs.mydrugs.items.drugs.*;
+
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MyDrugs.MODID);
@@ -93,4 +103,65 @@ public class ModItems {
 
     public static final DeferredItem<Item> STOMP_PLATE =
             ITEMS.registerSimpleItem("stomp_plate");
+
+    public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
+    public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
+
+    static {
+        registerSpaceFoods();
+    }
+
+    private static void registerSpaceFoods() {
+        for (Item baseFood : BuiltInRegistries.ITEM) {
+            ResourceLocation baseId = BuiltInRegistries.ITEM.getKey(baseFood);
+
+            if (!"minecraft".equals(baseId.getNamespace())) continue;
+            if (!isSupportedBaseFood(baseFood)) continue;
+
+            String regName = "space_" + baseId.getPath();
+
+            DeferredItem<SpaceFoodItem> holder = ITEMS.register(regName, resourceLocation -> createSpaceFood(baseFood, resourceLocation));
+
+            SPACE_FOODS_BY_BASE_ID.put(baseId, holder);
+            SPACE_FOODS_BY_BASE_ITEM.put(baseFood, holder);
+        }
+    }
+
+    private static boolean isSupportedBaseFood(Item item) {
+        ItemStack prototype = item.getDefaultInstance();
+        return prototype.get(DataComponents.FOOD) != null
+                && prototype.get(DataComponents.CONSUMABLE) != null;
+    }
+
+    private static SpaceFoodItem createSpaceFood(Item baseFood, ResourceLocation resourceLocation) {
+        ItemStack prototype = baseFood.getDefaultInstance();
+
+        Item.Properties props = new Item.Properties()
+                .stacksTo(baseFood.getDefaultMaxStackSize())
+                .setId(ResourceKey.create(Registries.ITEM, resourceLocation));
+
+        copyIfPresent(prototype, props, DataComponents.FOOD);
+        copyIfPresent(prototype, props, DataComponents.CONSUMABLE);
+
+        // Important for soups / bottles / bowls when applicable
+        copyIfPresent(prototype, props, DataComponents.USE_REMAINDER);
+
+        // Optional extras you may also want to preserve
+        copyIfPresent(prototype, props, DataComponents.RARITY);
+
+        return new SpaceFoodItem(baseFood, props);
+    }
+
+    private static <T> void copyIfPresent(ItemStack from, Item.Properties props, DataComponentType<T> type) {
+        T value = from.get(type);
+        if (value != null) {
+            props.component(type, value);
+        }
+    }
+
+    @Nullable
+    public static Item getSpaceVariant(Item baseFood) {
+        DeferredItem<SpaceFoodItem> holder = SPACE_FOODS_BY_BASE_ITEM.get(baseFood);
+        return holder == null ? null : holder.get();
+    }
 }
