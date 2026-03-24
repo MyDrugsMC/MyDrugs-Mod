@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mydrugs:item/glass_bottle_liquid_00"
+  }
+}
