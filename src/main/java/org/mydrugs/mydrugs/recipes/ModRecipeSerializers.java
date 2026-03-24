@@ -5,10 +5,10 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipeSerializer;
+import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
-import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipeSerializer;
 
 import java.util.function.Supplier;
 
@@ -17,8 +17,16 @@ public class ModRecipeSerializers {
             DeferredRegister.create(Registries.RECIPE_SERIALIZER, MyDrugs.MODID);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<GrindingRecipe>> GRINDING =
-            RECIPE_SERIALIZERS.register("grinding", GrindingRecipeSerializer::new);
+            RECIPE_SERIALIZERS.register("grinding", GrindingRecipe.Serializer::new);
 
     public static final Supplier<RecipeSerializer<StompCraftingRecipe>> STOMP_CRAFTING =
-            RECIPE_SERIALIZERS.register("stomp_crafting", StompCraftingRecipeSerializer::new);
+            RECIPE_SERIALIZERS.register("stomp_crafting", StompCraftingRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<AdvancedFurnaceRecipe>> ADVANCED_FURNACE =
+            RECIPE_SERIALIZERS.register("advanced_furnace", AdvancedFurnaceRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<MixingVatRecipe>> MIXING_VAT =
+            RECIPE_SERIALIZERS.register("mixing_vat", MixingVatRecipe.Serializer::new);
+
+    private ModRecipeSerializers() {}
 }

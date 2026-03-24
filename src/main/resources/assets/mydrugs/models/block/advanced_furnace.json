@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mydrugs:block/advanced_furnace_top",
+    "bottom": "mydrugs:block/advanced_furnace_bottom",
+    "side": "mydrugs:block/advanced_furnace_side"
+  }
+}

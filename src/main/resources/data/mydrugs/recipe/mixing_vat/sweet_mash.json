@@ -1,0 +1,12 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "fluid_input": {
+    "fluid": "mydrugs:sweet_mash",
+    "amount": 100
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:fermented_mash",
+    "amount": 200
+  },
+  "required_stirs": 6
+}

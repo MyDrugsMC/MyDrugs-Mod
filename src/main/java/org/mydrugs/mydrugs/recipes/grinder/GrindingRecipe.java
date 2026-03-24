@@ -1,11 +1,18 @@
 package org.mydrugs.mydrugs.recipes.grinder;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
+import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 
 public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
         implements Recipe<SingleRecipeInput> {
@@ -47,5 +54,31 @@ public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
     @Override
     public RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    public static class Serializer implements RecipeSerializer<GrindingRecipe> {
+        public static final MapCodec<GrindingRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(GrindingRecipe::ingredient),
+                ItemStack.CODEC.fieldOf("result").forGetter(GrindingRecipe::result),
+                Codec.INT.fieldOf("work").forGetter(GrindingRecipe::work)
+        ).apply(inst, GrindingRecipe::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, GrindingRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        Ingredient.CONTENTS_STREAM_CODEC, GrindingRecipe::ingredient,
+                        ItemStack.STREAM_CODEC, GrindingRecipe::result,
+                        ByteBufCodecs.INT, GrindingRecipe::work,
+                        GrindingRecipe::new
+                );
+
+        @Override
+        public MapCodec<GrindingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, GrindingRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
     }
 }

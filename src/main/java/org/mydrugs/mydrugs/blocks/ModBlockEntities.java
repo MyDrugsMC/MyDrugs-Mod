@@ -4,7 +4,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.blocks.entity.AdvancedFurnaceBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.GrindingBowlBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.MixingVatBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.StompCrafterBlockEntity;
 
 import java.util.function.Supplier;
@@ -30,4 +32,20 @@ public final class ModBlockEntities {
                             false,
                             ModBlocks.STOMP_CRAFTER.get()
                     ));
+
+    public static final Supplier<BlockEntityType<AdvancedFurnaceBlockEntity>> ADVANCED_FURNACE_BE =
+            BLOCK_ENTITY_TYPES.register(
+                    "advanced_furnace",
+                    () -> new BlockEntityType<>(
+                            AdvancedFurnaceBlockEntity::new,
+                            false,
+                            ModBlocks.ADVANCED_FURNACE.get()
+                    )
+            );
+
+    public static final Supplier<BlockEntityType<MixingVatBlockEntity>> MIXING_VAT =
+            BLOCK_ENTITY_TYPES.register(
+                    "mixing_vat",
+                    () -> new BlockEntityType<>(MixingVatBlockEntity::new, false, ModBlocks.MIXING_VAT.get())
+            );
 }

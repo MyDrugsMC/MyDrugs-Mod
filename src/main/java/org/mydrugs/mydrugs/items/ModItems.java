@@ -6,10 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +16,8 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.BangSmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.JointSmokingStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
+import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
 
 import java.util.IdentityHashMap;
@@ -28,20 +27,20 @@ import java.util.Map;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MyDrugs.MODID);
 
-    public static final DeferredItem<BlockItem> WEED_SEEDS =
+    public static final DeferredItem<BlockItem> CANNABIS_SEEDS =
             ITEMS.registerItem(
-                    "weed_seeds",
-                    props -> new BlockItem(ModBlocks.WEED_CROP.get(), props)
+                    "cannabis_seeds",
+                    props -> new BlockItem(ModBlocks.CANNABIS_CROP.get(), props)
             );
 
-    public static final DeferredItem<Item> WEED_LEAF =
-            ITEMS.registerItem("weed_leaf", props ->
-                    new WeedLeafItem(props, DrugId.WEED, new EatingStrategy())
+    public static final DeferredItem<Item> CANNABIS_LEAF =
+            ITEMS.registerItem("cannabis_leaf", props ->
+                    new CannabisLeafItem(props, DrugId.WEED, new EatingStrategy())
             );
 
-    public static final DeferredItem<Item> WEED_POWDER =
-            ITEMS.registerItem("weed_powder",
-                    prop -> new WeedPowderItem(prop, DrugId.WEED, new BangSmokingStrategy(), new JointSmokingStrategy()));
+    public static final DeferredItem<Item> CANNABIS_POWDER =
+            ITEMS.registerItem("cannabis_powder",
+                    prop -> new CannabisPowderItem(prop, DrugId.WEED, new BangSmokingStrategy(), new JointSmokingStrategy()));
 
     public static final DeferredItem<Item> METH_SHARD =
             ITEMS.registerItem("meth_shard", prop -> new MethShardItem(prop, DrugId.METH));
@@ -106,6 +105,51 @@ public class ModItems {
 
     public static final DeferredItem<Item> SYRINGE =
             ITEMS.registerItem("syringe", SyringeItem::new, props -> props.stacksTo(1));
+
+    public static final DeferredItem<Item> CANNABIS_RESIN =
+            ITEMS.registerSimpleItem("cannabis_resin");
+
+    public static final DeferredItem<Item> HASH_BRICK =
+            ITEMS.registerSimpleItem("hash_brick");
+
+    public static final DeferredItem<Item> HASH_PIECE =
+            ITEMS.registerItem("hash_piece", prop -> new HashPieceItem(prop, DrugId.HASH, new BangSmokingStrategy(), new JointSmokingStrategy()));
+
+    public static final DeferredItem<Item> COCA_LEAF =
+            ITEMS.registerSimpleItem("coca_leaf");
+
+    public static final DeferredItem<Item> COCAINE_DUST =
+            ITEMS.registerItem("cocaine_dust", prop -> new HashPieceItem(prop, DrugId.COCAINE, new SniffingStrategy()));
+
+    public static final DeferredItem<Item> CRACK_SHARD =
+            ITEMS.registerItem("crack_shard", prop -> new HashPieceItem(prop, DrugId.CRACK, new BangSmokingStrategy()));
+
+    public static final DeferredItem<Item> GLASS_BOTTLE =
+            ITEMS.registerItem("glass_bottle",
+                    GlassBottleItem::new,
+                    properties -> properties.stacksTo(1));
+
+    public static final DeferredItem<Item> FULL_AMMONIAC_BOTTLE =
+            ITEMS.registerItem("full_ammoniac_bottle", Item::new,
+                    props -> props.stacksTo(1));
+
+    public static final DeferredItem<Item> ALCOHOL_BOTTLE =
+            ITEMS.registerItem("alcohol_bottle", prop -> new HashPieceItem(prop, DrugId.ALCOHOL, new BangSmokingStrategy()));
+
+    public static final DeferredItem<Item> TOBACCO_BAG =
+            ITEMS.registerItem("tobacco_bag", prop -> new HashPieceItem(prop, DrugId.TOBACCO, new BangSmokingStrategy()));
+
+    public static final DeferredItem<BlockItem> ADVANCED_FURNACE_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_FURNACE);
+
+    public static final DeferredItem<BlockItem> MIXING_VAT =
+            ITEMS.registerSimpleBlockItem(ModBlocks.MIXING_VAT);
+
+    public static final DeferredItem<Item> FLOUR =
+            ITEMS.registerSimpleItem("flour");
+
+    public static final DeferredItem<Item> MIXING_SPATULA =
+            ITEMS.registerSimpleItem("mixing_spatula");
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

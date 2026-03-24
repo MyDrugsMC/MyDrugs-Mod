@@ -12,6 +12,12 @@ public final class ModDataGenerators {
     public static void gatherData(GatherDataEvent.Client event) {
         event.createProvider(SpaceFoodModelProvider::new);
         event.createProvider(SpaceFoodOverlayTextureProvider::new);
+        event.createProvider(ModFluidClientItemProvider::new);
+        event.createProvider(ModSimpleClientItemProvider::new);
+        event.createProvider(ModLangProvider::new);
+        event.createProvider(ModLootTableProvider::new);
+        event.createProvider(ModRecipeProvider.Runner::new);
+        event.createProvider(ModFluidBlockStateProvider::new);
     }
 
     private ModDataGenerators() {}

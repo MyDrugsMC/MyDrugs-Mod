@@ -13,10 +13,10 @@ public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS =
             DeferredRegister.createBlocks(MyDrugs.MODID);
 
-    public static final DeferredBlock<WeedCropBlock> WEED_CROP =
+    public static final DeferredBlock<CannabisCropBlock> CANNABIS_CROP =
             BLOCKS.registerBlock(
-                    "weed_crop",
-                    WeedCropBlock::new,
+                    "cannabis_crop",
+                    CannabisCropBlock::new,
                     () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
             );
 
@@ -91,6 +91,18 @@ public class ModBlocks {
                     Block::new,
                     prop -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()
             );
+
+
+    public static final DeferredBlock<Block> ADVANCED_FURNACE =
+            BLOCKS.registerBlock("advanced_furnace",
+                    AdvancedFurnaceBlock::new,
+                    props -> props.strength(3.5f));
+
+    public static final DeferredBlock<Block> MIXING_VAT = BLOCKS.registerBlock(
+            "mixing_vat",
+            MixingVatBlock::new,
+            props -> props.strength(2.5f).noOcclusion()
+    );
 
 
     private ModBlocks() {

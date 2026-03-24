@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "minecraft:wheat",
+  "result": {
+    "id": "mydrugs:flour",
+    "count": 2
+  },
+  "work": 3
+}

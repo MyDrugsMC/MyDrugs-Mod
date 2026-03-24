@@ -1,0 +1,11 @@
+{
+  "type": "mydrugs:advanced_furnace",
+  "input_a": "minecraft:potato",
+  "result_a": {
+    "id": "minecraft:baked_potato",
+    "count": 1
+  },
+  "fluid_output": "mydrugs:starch_mash",
+  "fluid_amount": 100,
+  "cook_time": 200
+}

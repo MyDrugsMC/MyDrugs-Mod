@@ -1,7 +1,6 @@
 package org.mydrugs.mydrugs;
 
 import com.mojang.logging.LogUtils;
-import com.mojang.realmsclient.gui.screens.configuration.RealmsSettingsTab;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -13,6 +12,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
@@ -23,6 +24,8 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.DrugService;
 import org.mydrugs.mydrugs.effects.EffectAdapter;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.fluids.ModFluids;
+import org.mydrugs.mydrugs.items.bottle.BottleFluidHandler;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
@@ -51,6 +54,10 @@ public class MyDrugs {
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
+        ModFluids.FLUID_TYPES.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
+        ModFluids.FLUID_BLOCKS.register(modEventBus);
+        ModFluids.FLUID_ITEMS.register(modEventBus);
         DrugRegistry.registerDrugs();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

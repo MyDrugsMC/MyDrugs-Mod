@@ -14,4 +14,7 @@ public class ModMenus {
 
     public static final Supplier<MenuType<SingleSlotMenu>> BANG_CONTAINER =
             MENUS.register("bang_container", () -> new MenuType<>(SingleSlotMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<AdvancedFurnaceMenu>> ADVANCED_FURNACE =
+            MENUS.register("advanced_furnace", () -> new MenuType<>(AdvancedFurnaceMenu::new, FeatureFlags.DEFAULT_FLAGS));
 }

@@ -21,9 +21,10 @@ import org.mydrugs.mydrugs.registry.ModDataComponents;
 import java.util.function.Consumer;
 
 public class SyringeItem extends Item {
+    public static final int CAPACITY_MB = 100;
 
     private static final int FULL_CHARGE_TICKS = 20;
-    private static final float BLOOD_DRAW_DAMAGE = 0.5F; // quarter heart
+    private static final float BLOOD_DRAW_DAMAGE = 0.5F;
     private static final int DEFAULT_BLOOD_COLOR = 0x8E1B1B;
 
     public SyringeItem(Properties properties) {
@@ -35,7 +36,6 @@ public class SyringeItem extends Item {
         ItemStack handStack = player.getItemInHand(hand);
 
         if (hasBlood(handStack)) {
-            // optional: sneak-right-click in air to empty it
             if (player.isShiftKeyDown()) {
                 if (!level.isClientSide()) {
                     clearBlood(handStack);
@@ -104,8 +104,9 @@ public class SyringeItem extends Item {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
 
         BloodSample sample = stack.get(ModDataComponents.BLOOD_SAMPLE.get());
+        int amount = stack.getOrDefault(ModDataComponents.BLOOD_AMOUNT.get(), 0);
 
-        if (!Boolean.TRUE.equals(stack.get(ModDataComponents.FILLED.get())) || sample == null) {
+        if (amount <= 0 || sample == null) {
             tooltipAdder.accept(
                     Component.translatable("tooltip.mydrugs.syringe.empty")
                             .withStyle(ChatFormatting.GRAY)
@@ -116,6 +117,10 @@ public class SyringeItem extends Item {
         tooltipAdder.accept(
                 Component.translatable("tooltip.mydrugs.syringe.filled")
                         .withStyle(ChatFormatting.RED)
+        );
+        tooltipAdder.accept(
+                Component.literal(amount + " / " + CAPACITY_MB + " mB blood")
+                        .withStyle(ChatFormatting.DARK_RED)
         );
 
         if (sample.isPlayerSource()) {
@@ -139,17 +144,20 @@ public class SyringeItem extends Item {
     }
 
     private static boolean hasBlood(ItemStack stack) {
-        return Boolean.TRUE.equals(stack.get(ModDataComponents.FILLED.get()));
+        return stack.getOrDefault(ModDataComponents.BLOOD_AMOUNT.get(), 0) > 0
+                && stack.get(ModDataComponents.BLOOD_SAMPLE.get()) != null;
     }
 
     private static void fillFromTarget(ItemStack stack, LivingEntity target) {
-        stack.set(ModDataComponents.FILLED.get(), true);
+        stack.set(ModDataComponents.FILLED.get(), true); // optional backward compatibility
+        stack.set(ModDataComponents.BLOOD_AMOUNT.get(), CAPACITY_MB);
         stack.set(ModDataComponents.BLOOD_SAMPLE.get(), BloodSample.fromEntity(target));
         stack.set(DataComponents.DYED_COLOR, new DyedItemColor(DEFAULT_BLOOD_COLOR));
     }
 
     private static void clearBlood(ItemStack stack) {
         stack.remove(ModDataComponents.FILLED.get());
+        stack.remove(ModDataComponents.BLOOD_AMOUNT.get());
         stack.remove(ModDataComponents.BLOOD_SAMPLE.get());
         stack.remove(DataComponents.DYED_COLOR);
     }

@@ -1,6 +1,12 @@
 package org.mydrugs.mydrugs.recipes.stompcrafting;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -158,5 +164,40 @@ public class StompCraftingRecipe implements Recipe<StompCraftingInput> {
     @Override
     public RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    public static class Serializer implements RecipeSerializer<StompCraftingRecipe> {
+        public static final MapCodec<StompCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        CountedIngredient.MAP_CODEC.codec().listOf()
+                                .fieldOf("ingredients")
+                                .forGetter(StompCraftingRecipe::ingredients),
+                        ItemStack.CODEC.fieldOf("result")
+                                .forGetter(StompCraftingRecipe::result),
+                        Codec.INT.fieldOf("work")
+                                .forGetter(StompCraftingRecipe::work)
+                ).apply(instance, StompCraftingRecipe::new)
+        );
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, StompCraftingRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        CountedIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                        StompCraftingRecipe::ingredients,
+                        ItemStack.STREAM_CODEC,
+                        StompCraftingRecipe::result,
+                        ByteBufCodecs.INT,
+                        StompCraftingRecipe::work,
+                        StompCraftingRecipe::new
+                );
+
+        @Override
+        public MapCodec<StompCraftingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, StompCraftingRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
     }
 }

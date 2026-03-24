@@ -1,0 +1,13 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:flour",
+  "fluid_input": {
+    "fluid": "minecraft:water",
+    "amount": 100
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:wild_yeast",
+    "amount": 150
+  },
+  "required_stirs": 3
+}

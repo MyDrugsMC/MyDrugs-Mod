@@ -1,8 +1,8 @@
 {
   "type": "mydrugs:grinding",
-  "ingredient": "mydrugs:weed_leaf",
+  "ingredient": "mydrugs:cannabis_leaf",
   "result": {
-    "id": "mydrugs:weed_powder",
+    "id": "mydrugs:cannabis_powder",
     "count": 2
   },
   "work": 3
