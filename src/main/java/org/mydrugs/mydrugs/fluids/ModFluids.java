@@ -3,11 +3,8 @@ package org.mydrugs.mydrugs.fluids;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -38,7 +35,9 @@ public final class ModFluids {
             new FluidEntryDef("wild_yeast",     0xFFDDD9A6),
             new FluidEntryDef("fermented_mash", 0xFFB98E57),
             new FluidEntryDef("raw_alcohol",    0xCCF2F2FF),
-            new FluidEntryDef("vodka",          0xCCEAF6FF)
+            new FluidEntryDef("vodka",          0xCCEAF6FF),
+            new FluidEntryDef("ammoniac",       0xFFCFE17A),
+            new FluidEntryDef("blood",          0xFF8E1B1B)
     );
 
     public static final Map<String, FluidEntry> ALL = new LinkedHashMap<>();
@@ -49,6 +48,8 @@ public final class ModFluids {
     public static final FluidEntry FERMENTED_MASH;
     public static final FluidEntry RAW_ALCOHOL;
     public static final FluidEntry VODKA;
+    public static final FluidEntry AMMONIAC;
+    public static final FluidEntry BLOOD;
 
     static {
         STARCH_MASH    = register(new FluidEntryDef("starch_mash",    0xFFD2B07A));
@@ -57,6 +58,8 @@ public final class ModFluids {
         FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFFB98E57));
         RAW_ALCOHOL    = register(new FluidEntryDef("raw_alcohol",    0xCCF2F2FF));
         VODKA          = register(new FluidEntryDef("vodka",          0xCCEAF6FF));
+        AMMONIAC       = register(new FluidEntryDef("ammoniac",       0xFFCFE17A));
+        BLOOD          = register(new FluidEntryDef("blood",          0xFF8E1B1B));
     }
 
     private ModFluids() {
@@ -67,9 +70,7 @@ public final class ModFluids {
 
         entry.setType(FLUID_TYPES.register(
                 def.name() + "_type",
-                () -> new SimpleTintedFluidType(
-                        FluidType.Properties.create()
-                )
+                () -> new SimpleTintedFluidType(FluidType.Properties.create())
         ));
 
         BaseFlowingFluid.Properties properties = new BaseFlowingFluid.Properties(

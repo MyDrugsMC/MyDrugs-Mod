@@ -1,29 +1,39 @@
 package org.mydrugs.mydrugs.fluids;
 
+import net.minecraft.resources.ResourceLocation;
+
 public final class ModBottleLiquids {
-    public static final String AMMONIAC = "mydrugs:ammoniac";
-    public static final String WATER = "minecraft:water";
-    public static final String BLOOD = "mydrugs:blood";
+    public static final ResourceLocation AMMONIAC = ModFluids.rl("ammoniac");
+    public static final ResourceLocation WATER = ResourceLocation.withDefaultNamespace("water");
+    public static final ResourceLocation BLOOD = ModFluids.rl("blood");
 
     private ModBottleLiquids() {}
 
-    public static int getArgb(String liquidId, int fallbackRgb) {
-        int rgb = switch (liquidId) {
-            case AMMONIAC -> 0xCFE17A;
-            case WATER -> 0x3F76E4;
-            case BLOOD -> 0x8E1B1B;
-            default -> fallbackRgb;
-        };
+    public static int getArgb(ResourceLocation liquidId, int fallbackRgb) {
+        int rgb;
+        if (AMMONIAC.equals(liquidId)) {
+            rgb = 0xCFE17A;
+        } else if (WATER.equals(liquidId)) {
+            rgb = 0x3F76E4;
+        } else if (BLOOD.equals(liquidId)) {
+            rgb = 0x8E1B1B;
+        } else {
+            rgb = fallbackRgb;
+        }
 
         return 0xFF000000 | (rgb & 0x00FFFFFF);
     }
 
-    public static String getDisplayName(String liquidId) {
-        return switch (liquidId) {
-            case AMMONIAC -> "Ammoniac";
-            case WATER -> "Water";
-            case BLOOD -> "Blood";
-            default -> liquidId;
-        };
+    public static String getDisplayName(ResourceLocation liquidId) {
+        if (AMMONIAC.equals(liquidId)) {
+            return "Ammoniac";
+        }
+        if (WATER.equals(liquidId)) {
+            return "Water";
+        }
+        if (BLOOD.equals(liquidId)) {
+            return "Blood";
+        }
+        return liquidId.toString();
     }
 }

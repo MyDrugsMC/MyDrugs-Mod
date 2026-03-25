@@ -38,7 +38,6 @@ public class ModFluidClientItemProvider implements DataProvider {
         JsonObject model = new JsonObject();
         JsonArray models = new JsonArray();
 
-        // Fluid layer first
         JsonObject fluidLayer = new JsonObject();
         fluidLayer.addProperty("type", "minecraft:model");
         fluidLayer.addProperty("model", MyDrugs.MODID + ":item/bucket_fluid_mask");
@@ -50,7 +49,6 @@ public class ModFluidClientItemProvider implements DataProvider {
         tints.add(tint);
         fluidLayer.add("tints", tints);
 
-        // Bucket shell second
         JsonObject shellLayer = new JsonObject();
         shellLayer.addProperty("type", "minecraft:model");
         shellLayer.addProperty("model", "minecraft:item/bucket");

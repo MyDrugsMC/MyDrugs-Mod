@@ -6,8 +6,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -15,11 +17,33 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.MixingVatBlockEntity;
 
 public class MixingVatBlock extends BaseEntityBlock {
     public static final MapCodec<MixingVatBlock> CODEC = simpleCodec(MixingVatBlock::new);
+    private static final VoxelShape SHAPE = Shapes.or(
+            Block.box(1, 0, 1, 15, 3, 15),   // base
+            Block.box(1, 3, 1, 15, 10, 3),   // north wall
+            Block.box(1, 3, 13, 15, 10, 15), // south wall
+            Block.box(1, 3, 3, 3, 10, 13),   // west wall
+            Block.box(13, 3, 3, 15, 10, 13)  // east wall
+    );
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
 
     public MixingVatBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -41,7 +65,8 @@ public class MixingVatBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                          Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof MixingVatBlockEntity vat)) {
             return InteractionResult.PASS;
@@ -51,12 +76,15 @@ public class MixingVatBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        if (vat.tryExtractFluidToHeld(player, hand, stack)) {
-            return InteractionResult.SUCCESS;
-        }
+        ItemAccess access = ItemAccess.forPlayerInteraction(player, hand).oneByOne();
+        var fluidHandler = access.getCapability(Capabilities.Fluid.ITEM);
 
-        if (vat.tryInsertFluidFromHeld(player, hand, stack)) {
-            return InteractionResult.SUCCESS;
+        if (fluidHandler != null) {
+            if (vat.tryExtractFluidToHeld(player, hand, stack)) return InteractionResult.SUCCESS;
+            if (vat.tryInsertFluidFromHeld(player, hand, stack)) return InteractionResult.SUCCESS;
+
+            // let empty-hand fallback happen if appropriate
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         if (vat.insertOneItem(stack)) {
@@ -66,21 +94,25 @@ public class MixingVatBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.PASS;
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        System.out.println("use");
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof MixingVatBlockEntity vat)) {
+            System.out.println(1);
             return InteractionResult.PASS;
         }
 
         if (level.isClientSide()) {
+            System.out.println(2);
             return InteractionResult.SUCCESS;
         }
 
         if (vat.takeResultItem(player)) {
+            System.out.println("ta mere");
             return InteractionResult.SUCCESS;
         }
 

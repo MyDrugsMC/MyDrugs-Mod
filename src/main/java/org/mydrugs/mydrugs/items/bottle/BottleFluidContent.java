@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public record BottleFluidContent(ResourceLocation fluidId, int amountMb) {
     public static final Codec<BottleFluidContent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("fluid_id").forGetter(BottleFluidContent::fluidId),
-            Codec.intRange(1, 100).fieldOf("amount_mb").forGetter(BottleFluidContent::amountMb)
+            Codec.intRange(1, GlassBottleItem.CAPACITY_MB).fieldOf("amount_mb").forGetter(BottleFluidContent::amountMb)
     ).apply(instance, BottleFluidContent::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BottleFluidContent> STREAM_CODEC =
