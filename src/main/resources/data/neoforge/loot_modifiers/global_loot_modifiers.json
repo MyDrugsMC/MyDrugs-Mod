@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "entries": [
+    "mydrugs:short_grass_extra_seeds",
+    "mydrugs:fern_extra_seeds",
+    "mydrugs:tall_grass_extra_seeds",
+    "mydrugs:large_fern_extra_seeds"
+  ]
+}

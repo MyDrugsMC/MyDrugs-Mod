@@ -27,6 +27,18 @@ import java.util.Map;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MyDrugs.MODID);
 
+    public static final DeferredItem<BlockItem> RYE_SEEDS =
+            ITEMS.registerItem(
+                    "rye_seeds",
+                    props -> new BlockItem(ModBlocks.RYE_CROP.get(), props)
+            );
+
+    public static final DeferredItem<BlockItem> MALT_SEEDS =
+            ITEMS.registerItem(
+                    "malt_seeds",
+                    props -> new BlockItem(ModBlocks.MALT_CROP.get(), props)
+            );
+
     public static final DeferredItem<BlockItem> CANNABIS_SEEDS =
             ITEMS.registerItem(
                     "cannabis_seeds",
@@ -67,6 +79,10 @@ public class ModItems {
 
     public static final DeferredItem<BlockItem> RYE =
             ITEMS.registerSimpleBlockItem(ModBlocks.RYE);
+
+    public static final DeferredItem<Item> MALT = ITEMS.registerSimpleItem("malt");
+
+    public static final DeferredItem<Item> MALT_POWDER = ITEMS.registerSimpleItem("malt_powder");
 
     public static final DeferredItem<BlockItem> MAGIC_MUSHROOM =
             ITEMS.registerItem("magic_mushroom",

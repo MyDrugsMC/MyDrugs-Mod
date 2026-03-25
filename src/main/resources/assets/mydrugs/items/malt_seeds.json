@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mydrugs:item/rye"
+    "model": "mydrugs:item/malt_seeds"
   }
 }

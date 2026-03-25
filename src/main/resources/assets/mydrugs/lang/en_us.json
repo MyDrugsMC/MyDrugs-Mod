@@ -97,5 +97,11 @@
   "item.mydrugs.starch_mash_bucket": "Starch Mash Bucket",
   "item.mydrugs.sweet_mash_bucket": "Sweet Mash Bucket",
   "item.mydrugs.vodka_bucket": "Vodka Bucket",
-  "item.mydrugs.wild_yeast_bucket": "Wild Yeast Bucket"
+  "item.mydrugs.wild_yeast_bucket": "Wild Yeast Bucket",
+  "item.mydrugs.malt": "Malt",
+  "item.mydrugs.rye": "Rye",
+  "item.mydrugs.malt_seeds": "Malt Seeds",
+  "item.mydrugs.rye_seeds": "Rye Seeds",
+  "block.mydrugs.malt_crop": "Malt Crop",
+  "block.mydrugs.rye_crop": "Rye Crop"
 }

@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:mixing_vat",
   "item_1": "mydrugs:flour",
-  "fluid_input": {
+  "fluid_input_1": {
     "fluid": "minecraft:water",
     "amount": 100
   },

@@ -13,6 +13,20 @@ public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS =
             DeferredRegister.createBlocks(MyDrugs.MODID);
 
+    public static final DeferredBlock<RyeCropBlock> RYE_CROP =
+            BLOCKS.registerBlock(
+                    "rye_crop",
+                    RyeCropBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+            );
+
+    public static final DeferredBlock<MaltCropBlock> MALT_CROP =
+            BLOCKS.registerBlock(
+                    "malt_crop",
+                    MaltCropBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+            );
+
     public static final DeferredBlock<CannabisCropBlock> CANNABIS_CROP =
             BLOCKS.registerBlock(
                     "cannabis_crop",

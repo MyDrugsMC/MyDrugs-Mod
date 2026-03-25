@@ -7,7 +7,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -23,7 +22,9 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
     private final Optional<Ingredient> item2;
     private final Optional<Ingredient> item3;
     private final Optional<Ingredient> item4;
-    private final Optional<MixingVatFluidStack> fluidInput;
+
+    private final Optional<MixingVatFluidStack> fluidInput1;
+    private final Optional<MixingVatFluidStack> fluidInput2;
 
     private final ItemStack resultItem;
     private final Optional<MixingVatFluidStack> resultFluid;
@@ -34,7 +35,8 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
             Optional<Ingredient> item2,
             Optional<Ingredient> item3,
             Optional<Ingredient> item4,
-            Optional<MixingVatFluidStack> fluidInput,
+            Optional<MixingVatFluidStack> fluidInput1,
+            Optional<MixingVatFluidStack> fluidInput2,
             ItemStack resultItem,
             Optional<MixingVatFluidStack> resultFluid,
             int requiredStirs
@@ -43,7 +45,8 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
         this.item2 = item2;
         this.item3 = item3;
         this.item4 = item4;
-        this.fluidInput = fluidInput;
+        this.fluidInput1 = fluidInput1;
+        this.fluidInput2 = fluidInput2;
         this.resultItem = resultItem;
         this.resultFluid = resultFluid;
         this.requiredStirs = requiredStirs;
@@ -53,9 +56,13 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
     public Optional<Ingredient> item2() { return item2; }
     public Optional<Ingredient> item3() { return item3; }
     public Optional<Ingredient> item4() { return item4; }
-    public Optional<MixingVatFluidStack> fluidInput() { return fluidInput; }
+
+    public Optional<MixingVatFluidStack> fluidInput1() { return fluidInput1; }
+    public Optional<MixingVatFluidStack> fluidInput2() { return fluidInput2; }
+
     public ItemStack resultItem() { return resultItem; }
     public Optional<MixingVatFluidStack> resultFluid() { return resultFluid; }
+
     public int requiredStirs() {
         return requiredStirs;
     }
@@ -69,39 +76,68 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
         return list;
     }
 
+    public List<MixingVatFluidStack> requiredFluids() {
+        List<MixingVatFluidStack> list = new ArrayList<>();
+        fluidInput1.ifPresent(list::add);
+        fluidInput2.ifPresent(list::add);
+        return list;
+    }
+
     @Override
     public boolean matches(MixingVatRecipeInput input, Level level) {
-        if (fluidInput.isPresent()) {
-            MixingVatFluidStack required = fluidInput.get();
-            if (input.fluidId() == null) return false;
-            if (!required.fluid().equals(input.fluidId())) return false;
-            if (input.fluidAmount() < required.amount()) return false;
-        } else if (input.fluidAmount() > 0) {
+        List<MixingVatFluidStack> requiredFluids = requiredFluids();
+        List<MixingVatFluidStack> presentFluids = input.fluids().stream()
+                .filter(fluid -> fluid.amount() > 0)
+                .toList();
+
+        if (presentFluids.size() != requiredFluids.size()) {
             return false;
         }
 
-        List<Ingredient> required = requiredItems();
+        boolean[] usedFluids = new boolean[presentFluids.size()];
+
+        for (MixingVatFluidStack required : requiredFluids) {
+            boolean matched = false;
+
+            for (int i = 0; i < presentFluids.size(); i++) {
+                MixingVatFluidStack present = presentFluids.get(i);
+
+                if (!usedFluids[i]
+                        && required.fluid().equals(present.fluid())
+                        && present.amount() >= required.amount()) {
+                    usedFluids[i] = true;
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched) {
+                return false;
+            }
+        }
+
+        List<Ingredient> requiredItems = requiredItems();
 
         int totalItems = input.items().stream()
                 .filter(stack -> !stack.isEmpty())
                 .mapToInt(ItemStack::getCount)
                 .sum();
 
-        if (totalItems != required.size()) {
+        if (totalItems != requiredItems.size()) {
             return false;
         }
 
-        int[] used = new int[input.items().size()];
+        int[] usedItems = new int[input.items().size()];
 
-        for (Ingredient ingredient : required) {
+        for (Ingredient ingredient : requiredItems) {
             boolean matched = false;
 
             for (int i = 0; i < input.items().size(); i++) {
                 ItemStack stack = input.items().get(i);
                 if (stack.isEmpty()) continue;
 
-                if (used[i] < stack.getCount() && ingredient.test(stack)) {
-                    used[i]++;
+                if (usedItems[i] < stack.getCount() && ingredient.test(stack)) {
+                    usedItems[i]++;
                     matched = true;
                     break;
                 }
@@ -151,7 +187,8 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                 Ingredient.CODEC.optionalFieldOf("item_2").forGetter(MixingVatRecipe::item2),
                 Ingredient.CODEC.optionalFieldOf("item_3").forGetter(MixingVatRecipe::item3),
                 Ingredient.CODEC.optionalFieldOf("item_4").forGetter(MixingVatRecipe::item4),
-                MixingVatFluidStack.CODEC.optionalFieldOf("fluid_input").forGetter(MixingVatRecipe::fluidInput),
+                MixingVatFluidStack.CODEC.optionalFieldOf("fluid_input_1").forGetter(MixingVatRecipe::fluidInput1),
+                MixingVatFluidStack.CODEC.optionalFieldOf("fluid_input_2").forGetter(MixingVatRecipe::fluidInput2),
                 ItemStack.CODEC.optionalFieldOf("result_item", ItemStack.EMPTY).forGetter(MixingVatRecipe::resultItem),
                 MixingVatFluidStack.CODEC.optionalFieldOf("result_fluid").forGetter(MixingVatRecipe::resultFluid),
                 Codec.INT.optionalFieldOf("required_stirs", 4).forGetter(MixingVatRecipe::requiredStirs)
@@ -163,7 +200,8 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                         Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item2,
                         Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item3,
                         Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item4,
-                        MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput,
+                        MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput1,
+                        MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput2,
                         ItemStack.STREAM_CODEC, MixingVatRecipe::resultItem,
                         MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::resultFluid,
                         ByteBufCodecs.VAR_INT, MixingVatRecipe::requiredStirs,

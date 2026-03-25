@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:malt",
+  "result": {
+    "id": "mydrugs:malt_powder",
+    "count": 2
+  },
+  "work": 3
+}

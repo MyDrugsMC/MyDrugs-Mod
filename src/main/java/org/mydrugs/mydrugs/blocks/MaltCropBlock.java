@@ -1,0 +1,25 @@
+package org.mydrugs.mydrugs.blocks;
+
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.CropBlock;
+import org.mydrugs.mydrugs.items.ModItems;
+
+
+public class MaltCropBlock extends CropBlock {
+    public static final MapCodec<MaltCropBlock> CODEC = simpleCodec(MaltCropBlock::new);
+
+    public MaltCropBlock(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public MapCodec<MaltCropBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    protected ItemLike getBaseSeedId() {
+        return ModItems.MALT_SEEDS.get();
+    }
+}
