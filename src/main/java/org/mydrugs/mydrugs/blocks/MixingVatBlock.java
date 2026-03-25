@@ -99,20 +99,16 @@ public class MixingVatBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        System.out.println("use");
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof MixingVatBlockEntity vat)) {
-            System.out.println(1);
             return InteractionResult.PASS;
         }
 
         if (level.isClientSide()) {
-            System.out.println(2);
             return InteractionResult.SUCCESS;
         }
 
         if (vat.takeResultItem(player)) {
-            System.out.println("ta mere");
             return InteractionResult.SUCCESS;
         }
 

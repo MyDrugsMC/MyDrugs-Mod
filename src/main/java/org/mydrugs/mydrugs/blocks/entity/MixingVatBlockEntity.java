@@ -405,16 +405,12 @@ public class MixingVatBlockEntity extends BlockEntity {
             return false;
         }
 
-        System.out.println("Trying to stir...");
-
         if (hasPendingResult()) {
-            System.out.println("Wait...");
             return false;
         }
 
         Optional<RecipeHolder<MixingVatRecipe>> recipeHolder = getCurrentRecipe((ServerLevel) level);
         if (recipeHolder.isEmpty()) {
-            System.out.println("No recipe");
             resetMixingProgress();
             notifyUpdate();
             return false;

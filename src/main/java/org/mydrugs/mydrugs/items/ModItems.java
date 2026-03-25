@@ -129,13 +129,6 @@ public class ModItems {
                     GlassBottleItem::new,
                     properties -> properties.stacksTo(1));
 
-    public static final DeferredItem<Item> FULL_AMMONIAC_BOTTLE =
-            ITEMS.registerItem("full_ammoniac_bottle", Item::new,
-                    props -> props.stacksTo(1));
-
-    public static final DeferredItem<Item> ALCOHOL_BOTTLE =
-            ITEMS.registerItem("alcohol_bottle", prop -> new HashPieceItem(prop, DrugId.ALCOHOL, new BangSmokingStrategy()));
-
     public static final DeferredItem<Item> TOBACCO_BAG =
             ITEMS.registerItem("tobacco_bag", prop -> new HashPieceItem(prop, DrugId.TOBACCO, new BangSmokingStrategy()));
 
