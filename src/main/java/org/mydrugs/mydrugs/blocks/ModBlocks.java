@@ -112,6 +112,13 @@ public class ModBlocks {
                     AdvancedFurnaceBlock::new,
                     props -> props.strength(3.5f));
 
+
+    public static final DeferredBlock<Block> DISTILLER =
+            BLOCKS.registerBlock("distiller",
+                    DistillerBlock::new,
+                    props -> props.strength(3.5f));
+
+
     public static final DeferredBlock<Block> MIXING_VAT = BLOCKS.registerBlock(
             "mixing_vat",
             MixingVatBlock::new,

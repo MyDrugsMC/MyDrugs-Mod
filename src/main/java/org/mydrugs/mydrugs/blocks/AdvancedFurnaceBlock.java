@@ -67,6 +67,6 @@ public class AdvancedFurnaceBlock extends BaseEntityBlock {
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, ModBlockEntities.ADVANCED_FURNACE_BE.get(), AdvancedFurnaceBlockEntity::tick);
+        return createTickerHelper(type, ModBlockEntities.ADVANCED_FURNACE.get(), AdvancedFurnaceBlockEntity::tick);
     }
 }

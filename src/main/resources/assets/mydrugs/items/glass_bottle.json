@@ -3,10 +3,6 @@
     "type": "minecraft:composite",
     "models": [
       {
-        "type": "minecraft:model",
-        "model": "mydrugs:item/glass_bottle_shell"
-      },
-      {
         "type": "minecraft:range_dispatch",
         "property": "mydrugs:bottle_fill",
         "scale": 1.0,
@@ -269,6 +265,10 @@
             }
           }
         ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mydrugs:item/glass_bottle_shell"
       }
     ]
   }

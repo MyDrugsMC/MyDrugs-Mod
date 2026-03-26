@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
+import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
@@ -32,6 +33,9 @@ public class ModRecipeTypes {
 
     public static final Supplier<RecipeType<MixingVatRecipe>> MIXING_VAT =
             RECIPE_TYPES.register("mixing_vat", RecipeType::simple);
+
+    public static final Supplier<RecipeType<DistillerRecipe>> DISTILLER =
+            RECIPE_TYPES.register("distiller", RecipeType::simple);
 
     private ModRecipeTypes() {}
 }

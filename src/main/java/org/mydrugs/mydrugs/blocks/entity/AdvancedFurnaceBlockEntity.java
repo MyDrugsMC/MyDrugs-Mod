@@ -88,7 +88,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     };
 
     public AdvancedFurnaceBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.ADVANCED_FURNACE_BE.get(), pos, state);
+        super(ModBlockEntities.ADVANCED_FURNACE.get(), pos, state);
     }
 
     @Override
@@ -368,4 +368,6 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             tankFluidId = null;
         }
     }
+
+    //tg dark
 }

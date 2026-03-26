@@ -15,5 +15,8 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<AdvancedFurnaceBlock>> ADVANCED_FURNACE_CODEC =
             BLOCK_TYPES.register("advanced_furnace", () -> Block.simpleCodec(AdvancedFurnaceBlock::new));
 
+    public static final Supplier<MapCodec<DistillerBlock>> DISTILLER_CODEC =
+            BLOCK_TYPES.register("distiller", () -> Block.simpleCodec(DistillerBlock::new));
+
     private ModBlockTypes() {}
 }

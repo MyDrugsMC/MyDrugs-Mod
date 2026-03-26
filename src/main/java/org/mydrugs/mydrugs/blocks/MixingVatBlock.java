@@ -29,10 +29,10 @@ public class MixingVatBlock extends BaseEntityBlock {
     public static final MapCodec<MixingVatBlock> CODEC = simpleCodec(MixingVatBlock::new);
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(1, 0, 1, 15, 3, 15),   // base
-            Block.box(1, 3, 1, 15, 10, 3),   // north wall
-            Block.box(1, 3, 13, 15, 10, 15), // south wall
-            Block.box(1, 3, 3, 3, 10, 13),   // west wall
-            Block.box(13, 3, 3, 15, 10, 13)  // east wall
+            Block.box(1, 3, 1, 15, 16, 3),   // north wall
+            Block.box(1, 3, 13, 15, 16, 15), // south wall
+            Block.box(1, 3, 3, 3, 16, 13),   // west wall
+            Block.box(13, 3, 3, 15, 16, 13)  // east wall
     );
 
     @Override
@@ -113,6 +113,10 @@ public class MixingVatBlock extends BaseEntityBlock {
         }
 
         if (vat.stirOnce()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        if (vat.takeFirstIngredientItem(player)) {
             return InteractionResult.SUCCESS;
         }
 

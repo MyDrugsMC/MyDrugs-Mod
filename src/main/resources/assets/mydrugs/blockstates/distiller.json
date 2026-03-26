@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "mydrugs:block/distiller" },
+    "facing=east":  { "model": "mydrugs:block/distiller", "y": 90 },
+    "facing=south": { "model": "mydrugs:block/distiller", "y": 180 },
+    "facing=west":  { "model": "mydrugs:block/distiller", "y": 270 }
+  }
+}

@@ -103,5 +103,9 @@
   "item.mydrugs.malt_seeds": "Malt Seeds",
   "item.mydrugs.rye_seeds": "Rye Seeds",
   "block.mydrugs.malt_crop": "Malt Crop",
-  "block.mydrugs.rye_crop": "Rye Crop"
+  "block.mydrugs.rye_crop": "Rye Crop",
+  "item.mydrugs.flour": "Flour",
+  "item.mydrugs.malt_powder": "Malt Powder",
+  "container.mydrugs.distiller": "Distiller",
+  "blocks.mydrugs.distiller": "Distiller"
 }

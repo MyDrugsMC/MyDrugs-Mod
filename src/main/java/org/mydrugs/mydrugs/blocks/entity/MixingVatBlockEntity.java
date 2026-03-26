@@ -419,6 +419,28 @@ public class MixingVatBlockEntity extends BlockEntity {
         return true;
     }
 
+    public boolean takeFirstIngredientItem(Player player) {
+        for (int i = MAX_ITEM_TYPES-1; i >= 0; i--) {
+            ItemStack item = inputItems.get(i);
+
+            if (item.isEmpty()) continue;
+
+            ItemStack toGive = item.copy();
+
+            if (!player.addItem(toGive)) {
+                Containers.dropItemStack(level, worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5, toGive);
+            }
+
+            inputItems.set(i, ItemStack.EMPTY);
+
+            resetMixingProgress();
+            notifyUpdate();
+
+            return true;
+        }
+        return false;
+    }
+
     private void notifyUpdate() {
         setChanged();
         if (level != null && !level.isClientSide()) {

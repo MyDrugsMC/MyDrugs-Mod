@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.client.item.LiquidColorTintSource;
 import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.menu.client.AdvancedFurnaceScreen;
+import org.mydrugs.mydrugs.menu.client.DistillerScreen;
 import org.mydrugs.mydrugs.menu.client.SingleSlotMenuScreen;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
@@ -23,6 +24,7 @@ public class ClientModEvents {
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.BANG_CONTAINER.get(), SingleSlotMenuScreen::new);
         event.register(ModMenus.ADVANCED_FURNACE.get(), AdvancedFurnaceScreen::new);
+        event.register(ModMenus.DISTILLER.get(), DistillerScreen::new);
     }
 
     @SubscribeEvent

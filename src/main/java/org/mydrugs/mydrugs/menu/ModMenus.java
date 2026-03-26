@@ -17,4 +17,7 @@ public class ModMenus {
 
     public static final Supplier<MenuType<AdvancedFurnaceMenu>> ADVANCED_FURNACE =
             MENUS.register("advanced_furnace", () -> new MenuType<>(AdvancedFurnaceMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<DistillerMenu>> DISTILLER =
+            MENUS.register("distiller", () -> new MenuType<>(DistillerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 }

@@ -151,6 +151,9 @@ public class ModItems {
     public static final DeferredItem<BlockItem> ADVANCED_FURNACE_ITEM =
             ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_FURNACE);
 
+    public static final DeferredItem<BlockItem> DISTILLER_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.DISTILLER);
+
     public static final DeferredItem<BlockItem> MIXING_VAT =
             ITEMS.registerSimpleBlockItem(ModBlocks.MIXING_VAT);
 

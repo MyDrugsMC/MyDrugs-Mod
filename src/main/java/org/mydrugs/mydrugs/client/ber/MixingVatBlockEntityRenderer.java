@@ -187,7 +187,8 @@ public class MixingVatBlockEntityRenderer implements BlockEntityRenderer<MixingV
 
         float angle = renderState.stirPhase * 360.0f;
         float radius = 0.18f;
-        float y = renderState.hasFluid ? 11.0f / 16.0f : 6.0f / 16.0f;
+//        float y = renderState.hasFluid ? 11.0f / 16.0f : 6.0f / 16.0f;
+        float y = 1.0f;
 
         poseStack.pushPose();
         poseStack.translate(0.5f, y, 0.5f);
