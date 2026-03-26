@@ -29,17 +29,6 @@ public final class ModFluids {
     public static final DeferredRegister.Items FLUID_ITEMS =
             DeferredRegister.createItems(MyDrugs.MODID);
 
-    public static final List<FluidEntryDef> DEFINITIONS = List.of(
-            new FluidEntryDef("starch_mash",    0xFFD2B07A),
-            new FluidEntryDef("sweet_mash",     0xFFE2C070),
-            new FluidEntryDef("wild_yeast",     0xFFDDD9A6),
-            new FluidEntryDef("fermented_mash", 0xFFB98E57),
-            new FluidEntryDef("raw_alcohol",    0xCCF2F2FF),
-            new FluidEntryDef("vodka",          0xCCEAF6FF),
-            new FluidEntryDef("ammoniac",       0xFFCFE17A),
-            new FluidEntryDef("blood",          0xFF8E1B1B)
-    );
-
     public static final Map<String, FluidEntry> ALL = new LinkedHashMap<>();
 
     public static final FluidEntry STARCH_MASH;

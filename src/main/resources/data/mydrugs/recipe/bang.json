@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "A",
-    "A",
-    "A"
+    "  A",
+    " A ",
+    "AA "
   ],
   "key": {
-    "A": "minecraft:bamboo"
+    "A": "minecraft:glass"
   },
   "result": {
     "id": "mydrugs:bang",

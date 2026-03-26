@@ -97,6 +97,7 @@ public class ModBlocks {
             () -> BlockBehaviour.Properties.of()
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
+                    .noOcclusion()
     );
 
     public static final DeferredBlock<Block> STOMP_PLATE_BLOCK =

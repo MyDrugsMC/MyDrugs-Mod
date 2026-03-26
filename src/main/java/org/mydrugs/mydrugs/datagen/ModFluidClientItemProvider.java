@@ -54,8 +54,8 @@ public class ModFluidClientItemProvider implements DataProvider {
         shellLayer.addProperty("model", "minecraft:item/bucket");
 
         model.addProperty("type", "minecraft:composite");
-        models.add(fluidLayer);
         models.add(shellLayer);
+        models.add(fluidLayer);
         model.add("models", models);
 
         root.add("model", model);

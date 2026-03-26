@@ -208,7 +208,7 @@ public class ModItems {
         // Optional extras you may also want to preserve
         copyIfPresent(prototype, props, DataComponents.RARITY);
 
-        return new SpaceFoodItem(baseFood, props);
+        return new SpaceFoodItem(baseFood, props, DrugId.WEED);
     }
 
     private static <T> void copyIfPresent(ItemStack from, Item.Properties props, DataComponentType<T> type) {

@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -14,10 +15,12 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import org.mydrugs.mydrugs.items.data.BloodSample;
 import org.mydrugs.mydrugs.registry.ModDataComponents;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SyringeItem extends Item {
@@ -73,6 +76,19 @@ public class SyringeItem extends Item {
         if (hasBlood(handStack)) {
             return InteractionResult.FAIL;
         }
+
+        if (List.of(EntityType.SKELETON_HORSE,
+                EntityType.SKELETON,
+                EntityType.WITHER_SKELETON,
+                EntityType.STRAY,
+                EntityType.IRON_GOLEM,
+                EntityType.COPPER_GOLEM,
+                EntityType.SNOW_GOLEM,
+                EntityType.ALLAY,
+                EntityType.VEX,
+                EntityType.BOGGED,
+                EntityType.CREAKING
+        ).contains(target.getType())) return InteractionResult.FAIL;
 
         if (!player.level().isClientSide()) {
             fillFromTarget(handStack, target);
