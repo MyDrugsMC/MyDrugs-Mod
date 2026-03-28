@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": { "layer0": "mydrugs:item/dried_cannabis_leaf" }
+}

@@ -56,4 +56,15 @@ public final class ModBlockEntities {
                     "mixing_vat",
                     () -> new BlockEntityType<>(MixingVatBlockEntity::new, false, ModBlocks.MIXING_VAT.get())
             );
+
+    public static final Supplier<BlockEntityType<DryerBlockEntity>> DRYER = BLOCK_ENTITY_TYPES.register(
+            "dryer",
+            () -> new BlockEntityType<>(DryerBlockEntity::new, false, ModBlocks.DRYER.get())
+    );
+
+    public static final Supplier<BlockEntityType<SieveBlockEntity>> SIEVE = BLOCK_ENTITY_TYPES.register(
+            "sieve",
+            () -> new BlockEntityType<>(SieveBlockEntity::new, false, ModBlocks.SIEVE.get())
+    );
+
 }

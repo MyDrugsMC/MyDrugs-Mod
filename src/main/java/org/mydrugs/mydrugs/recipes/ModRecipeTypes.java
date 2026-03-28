@@ -8,8 +8,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
+import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
 
 import java.util.function.Supplier;
@@ -36,6 +38,12 @@ public class ModRecipeTypes {
 
     public static final Supplier<RecipeType<DistillerRecipe>> DISTILLER =
             RECIPE_TYPES.register("distiller", RecipeType::simple);
+
+    public static final Supplier<RecipeType<DryingRecipe>> DRYING_TYPE =
+            RECIPE_TYPES.register("drying", RecipeType::simple);
+
+    public static final Supplier<RecipeType<SieveRecipe>> SIEVING_TYPE =
+            RECIPE_TYPES.register("sieving", RecipeType::simple);
 
     private ModRecipeTypes() {}
 }

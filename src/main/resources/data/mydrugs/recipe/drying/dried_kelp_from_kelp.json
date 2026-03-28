@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:drying",
+  "ingredient":  "minecraft:kelp",
+  "result": {
+    "id": "minecraft:dried_kelp",
+    "count": 1
+  },
+  "dry_time": 200
+}

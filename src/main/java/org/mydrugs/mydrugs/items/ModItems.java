@@ -49,9 +49,7 @@ public class ModItems {
             );
 
     public static final DeferredItem<Item> CANNABIS_LEAF =
-            ITEMS.registerItem("cannabis_leaf", props ->
-                    new CannabisLeafItem(props, DrugId.WEED, new EatingStrategy())
-            );
+            ITEMS.registerSimpleItem("cannabis_leaf");
 
     public static final DeferredItem<Item> CANNABIS_POWDER =
             ITEMS.registerItem("cannabis_powder",
@@ -125,6 +123,12 @@ public class ModItems {
     public static final DeferredItem<Item> SYRINGE =
             ITEMS.registerItem("syringe", SyringeItem::new, props -> props.stacksTo(1));
 
+    public static final DeferredItem<Item> CURED_CANNABIS_LEAF =
+            ITEMS.registerSimpleItem("cured_cannabis_leaf");
+
+    public static final DeferredItem<Item> DRIED_CANNABIS_LEAF =
+            ITEMS.registerSimpleItem("dried_cannabis_leaf");
+
     public static final DeferredItem<Item> CANNABIS_RESIN =
             ITEMS.registerSimpleItem("cannabis_resin");
 
@@ -157,7 +161,7 @@ public class ModItems {
     public static final DeferredItem<BlockItem> DISTILLER_ITEM =
             ITEMS.registerSimpleBlockItem(ModBlocks.DISTILLER);
 
-    public static final DeferredItem<BlockItem> MIXING_VAT =
+    public static final DeferredItem<BlockItem> MIXING_VAT_ITEM =
             ITEMS.registerSimpleBlockItem(ModBlocks.MIXING_VAT);
 
     public static final DeferredItem<Item> FLOUR =
@@ -165,6 +169,10 @@ public class ModItems {
 
     public static final DeferredItem<Item> MIXING_SPATULA =
             ITEMS.registerSimpleItem("mixing_spatula");
+
+    public static final DeferredItem<BlockItem> DRYER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.DRYER);
+
+    public static final DeferredItem<BlockItem> SIEVE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.SIEVE);
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

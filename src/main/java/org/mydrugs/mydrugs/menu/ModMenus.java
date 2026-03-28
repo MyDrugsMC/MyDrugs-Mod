@@ -20,4 +20,7 @@ public class ModMenus {
 
     public static final Supplier<MenuType<DistillerMenu>> DISTILLER =
             MENUS.register("distiller", () -> new MenuType<>(DistillerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<SieveMenu>> SIEVE =
+            MENUS.register("sieve", () -> new MenuType<>(SieveMenu::new, FeatureFlags.DEFAULT_FLAGS));
 }

@@ -114,5 +114,12 @@
   "item.mydrugs.starch_mash_bucket": "Starch Mash Bucket",
   "item.mydrugs.sweet_mash_bucket": "Sweet Mash Bucket",
   "item.mydrugs.vodka_bucket": "Vodka Bucket",
-  "item.mydrugs.wild_yeast_bucket": "Wild Yeast Bucket"
+  "item.mydrugs.wild_yeast_bucket": "Wild Yeast Bucket",
+  "block.modid.dryer": "Dryer",
+  "item.mydrugs.cured_cannabis_leaf": "Cured Cannabis Leaf",
+  "block.mydrugs.sieve": "Sieve",
+  "menu.title.mydrugs.sieve": "Sieve",
+  "item.mydrugs.dried_cannabis_leaf": "Dried Cannabis Leaf",
+  "item.mydrugs.cannabis_resin": "Cannabis Resin",
+  "block.mydrugs.dryer": "Dryer"
 }

@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:sieving",
+  "ingredient": "minecraft:gravel",
+  "result": {
+    "id": "minecraft:flint",
+    "count": 1
+  },
+  "bonus_result": {
+    "id": "minecraft:iron_nugget",
+    "count": 1
+  },
+  "bonus_chance": 0.15,
+  "sieve_time": 160
+}

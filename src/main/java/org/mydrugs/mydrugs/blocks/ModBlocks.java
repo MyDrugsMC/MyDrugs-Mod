@@ -127,6 +127,26 @@ public class ModBlocks {
     );
 
 
+    public static final DeferredBlock<DryerBlock> DRYER = BLOCKS.registerBlock(
+            "dryer",
+            DryerBlock::new,
+            props -> props
+                            .strength(2.0F)
+                            .sound(SoundType.WOOD)
+                            .noOcclusion()
+    );
+
+
+    public static final DeferredBlock<SieveBlock> SIEVE = BLOCKS.registerBlock(
+            "sieve",
+            SieveBlock::new,
+            prop -> prop
+                    .strength(2.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()
+    );
+
+
     private ModBlocks() {
     }
 }

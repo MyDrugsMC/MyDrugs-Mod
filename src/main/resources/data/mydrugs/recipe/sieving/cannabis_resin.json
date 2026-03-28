@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:sieving",
+  "ingredient": "mydrugs:cured_cannabis_leaf",
+  "result": {
+    "id": "mydrugs:dried_cannabis_leaf",
+    "count": 1
+  },
+  "bonus_result": {
+    "id": "mydrugs:cannabis_resin",
+    "count": 1
+  },
+  "bonus_chance": 0.2,
+  "sieve_time": 160
+}

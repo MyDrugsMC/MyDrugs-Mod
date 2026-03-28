@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:drying",
+  "ingredient":  "mydrugs:cannabis_leaf",
+  "result": {
+    "id": "mydrugs:cured_cannabis_leaf",
+    "count": 1
+  },
+  "dry_time": 200
+}

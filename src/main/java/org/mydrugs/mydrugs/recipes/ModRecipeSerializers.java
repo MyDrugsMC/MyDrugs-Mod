@@ -7,8 +7,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
+import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
 
 import java.util.function.Supplier;
@@ -31,6 +33,12 @@ public class ModRecipeSerializers {
 
     public static final Supplier<RecipeSerializer<DistillerRecipe>> DISTILLER =
             RECIPE_SERIALIZERS.register("distiller", DistillerRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<DryingRecipe>> DRYING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("drying", DryingRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<SieveRecipe>> SIEVING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("sieving", SieveRecipe.Serializer::new);
 
     private ModRecipeSerializers() {}
 }

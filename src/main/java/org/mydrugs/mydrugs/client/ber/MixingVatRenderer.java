@@ -3,8 +3,6 @@ package org.mydrugs.mydrugs.client.ber;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -20,12 +18,8 @@ import net.minecraft.client.resources.model.MaterialSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
@@ -36,7 +30,7 @@ import org.mydrugs.mydrugs.items.ModItems;
 
 import java.util.List;
 
-public class MixingVatBlockEntityRenderer implements BlockEntityRenderer<MixingVatBlockEntity, MixingVatRenderState> {
+public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEntity, MixingVatRenderState> {
     private static final float INNER_MIN = 3.05f / 16.0f;
     private static final float INNER_MAX = 12.95f / 16.0f;
     private static final float FLUID_FLOOR_Y = 3.02f / 16.0f;
@@ -47,7 +41,7 @@ public class MixingVatBlockEntityRenderer implements BlockEntityRenderer<MixingV
     private final ItemStack spatulaStack = new ItemStack(ModItems.MIXING_SPATULA.get());
 
 
-    public MixingVatBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public MixingVatRenderer(BlockEntityRendererProvider.Context context) {
         this.itemModelResolver = context.itemModelResolver();
         this.materials = context.materials();
     }
