@@ -58,6 +58,7 @@ public class MyDrugs {
         ModFluids.FLUIDS.register(modEventBus);
         ModFluids.FLUID_BLOCKS.register(modEventBus);
         ModFluids.FLUID_ITEMS.register(modEventBus);
+        ModSounds.SOUND_EVENTS.register(modEventBus);
         DrugRegistry.registerDrugs();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

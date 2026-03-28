@@ -15,7 +15,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import org.mydrugs.mydrugs.items.data.BloodSample;
 import org.mydrugs.mydrugs.registry.ModDataComponents;
@@ -32,6 +31,35 @@ public class SyringeItem extends Item {
 
     public SyringeItem(Properties properties) {
         super(properties);
+    }
+
+    private static boolean hasBlood(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.BLOOD_AMOUNT.get(), 0) > 0
+                && stack.get(ModDataComponents.BLOOD_SAMPLE.get()) != null;
+    }
+
+    private static void fillFromTarget(ItemStack stack, LivingEntity target) {
+        stack.set(ModDataComponents.FILLED.get(), true); // optional backward compatibility
+        stack.set(ModDataComponents.BLOOD_AMOUNT.get(), CAPACITY_MB);
+        stack.set(ModDataComponents.BLOOD_SAMPLE.get(), BloodSample.fromEntity(target));
+        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(DEFAULT_BLOOD_COLOR));
+    }
+
+    private static void clearBlood(ItemStack stack) {
+        stack.remove(ModDataComponents.FILLED.get());
+        stack.remove(ModDataComponents.BLOOD_AMOUNT.get());
+        stack.remove(ModDataComponents.BLOOD_SAMPLE.get());
+        stack.remove(DataComponents.DYED_COLOR);
+    }
+
+    private static void hurtForBloodDraw(LivingEntity target, LivingEntity causer) {
+        if (target instanceof Player player) {
+            if (player.isCreative() || player.isSpectator()) {
+                return;
+            }
+        }
+
+        target.hurt(ModDamageTypes.bloodDraw(causer), BLOOD_DRAW_DAMAGE);
     }
 
     @Override
@@ -157,34 +185,5 @@ public class SyringeItem extends Item {
                 );
             }
         }
-    }
-
-    private static boolean hasBlood(ItemStack stack) {
-        return stack.getOrDefault(ModDataComponents.BLOOD_AMOUNT.get(), 0) > 0
-                && stack.get(ModDataComponents.BLOOD_SAMPLE.get()) != null;
-    }
-
-    private static void fillFromTarget(ItemStack stack, LivingEntity target) {
-        stack.set(ModDataComponents.FILLED.get(), true); // optional backward compatibility
-        stack.set(ModDataComponents.BLOOD_AMOUNT.get(), CAPACITY_MB);
-        stack.set(ModDataComponents.BLOOD_SAMPLE.get(), BloodSample.fromEntity(target));
-        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(DEFAULT_BLOOD_COLOR));
-    }
-
-    private static void clearBlood(ItemStack stack) {
-        stack.remove(ModDataComponents.FILLED.get());
-        stack.remove(ModDataComponents.BLOOD_AMOUNT.get());
-        stack.remove(ModDataComponents.BLOOD_SAMPLE.get());
-        stack.remove(DataComponents.DYED_COLOR);
-    }
-
-    private static void hurtForBloodDraw(LivingEntity target, LivingEntity causer) {
-        if (target instanceof Player player) {
-            if (player.isCreative() || player.isSpectator()) {
-                return;
-            }
-        }
-
-        target.hurt(ModDamageTypes.bloodDraw(causer), BLOOD_DRAW_DAMAGE);
     }
 }

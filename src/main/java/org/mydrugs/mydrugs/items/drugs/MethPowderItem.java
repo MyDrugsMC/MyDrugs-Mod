@@ -1,7 +1,6 @@
 package org.mydrugs.mydrugs.items.drugs;
 
 import org.mydrugs.mydrugs.core.drug.DrugId;
-import org.mydrugs.mydrugs.core.drug.strategy.BangSmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 
 public class MethPowderItem extends DrugItem {

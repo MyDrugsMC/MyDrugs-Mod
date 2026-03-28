@@ -15,6 +15,10 @@ public class BottleFluidHandler extends ItemAccessResourceHandler<FluidResource>
         super(itemAccess, 1);
     }
 
+    private static BottleFluidContent getContent(ItemResource accessResource) {
+        return accessResource.toStack().get(org.mydrugs.mydrugs.registry.ModDataComponents.BOTTLE_CONTENT.get());
+    }
+
     @Override
     protected FluidResource getResourceFrom(ItemResource accessResource, int index) {
         BottleFluidContent content = getContent(accessResource);
@@ -66,9 +70,5 @@ public class BottleFluidHandler extends ItemAccessResourceHandler<FluidResource>
         }
 
         return GlassBottleItem.isFluidBottlable(resource.getFluid());
-    }
-
-    private static BottleFluidContent getContent(ItemResource accessResource) {
-        return accessResource.toStack().get(org.mydrugs.mydrugs.registry.ModDataComponents.BOTTLE_CONTENT.get());
     }
 }

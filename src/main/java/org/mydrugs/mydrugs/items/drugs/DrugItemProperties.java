@@ -6,7 +6,8 @@ import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 
 public final class DrugItemProperties {
-    private DrugItemProperties() {}
+    private DrugItemProperties() {
+    }
 
     public static Item.Properties prepare(Item.Properties properties, ConsumptionStrategy... strategies) {
         for (ConsumptionStrategy strategy : strategies) {

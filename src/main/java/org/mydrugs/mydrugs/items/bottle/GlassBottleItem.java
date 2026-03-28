@@ -4,12 +4,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -18,6 +23,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.drug.DrugModel;
+import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
+import org.mydrugs.mydrugs.fluids.FluidTypesEx;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.registry.ModDataComponents;
@@ -29,6 +38,7 @@ public class GlassBottleItem extends Item {
 
     private static final int COMPOSTER_FILL_AMOUNT_MB = 5;
     private static final ResourceLocation AMMONIAC_ID = ModFluids.rl("ammoniac");
+
     public GlassBottleItem(Properties properties) {
         super(properties);
     }
@@ -114,15 +124,62 @@ public class GlassBottleItem extends Item {
         stack.set(ModDataComponents.BOTTLE_CONTENT.get(), new BottleFluidContent(fluidId, clamped));
     }
 
+    private static boolean isReadyComposter(BlockState state) {
+        return state.is(Blocks.COMPOSTER)
+                && state.hasProperty(ComposterBlock.LEVEL)
+                && state.getValue(ComposterBlock.LEVEL) == ComposterBlock.READY;
+    }
+
+    public static boolean isFluidBottlable(Fluid fluid) {
+        return fluid != Fluids.EMPTY && fluid.defaultFluidState().is(ModFluidTags.BOTTLABLE);
+    }
+
+    public static boolean isDrinkable(ItemStack stack) {
+        BottleFluidContent content = getContent(stack);
+        if (content == null || content.amountMb() <= 0) {
+            return false;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(content.fluidId());
+        return fluid != null && FluidTypesEx.isDrinkable(fluid);
+    }
+
+    public static @Nullable DrugModel getBottleDrug(ItemStack stack) {
+        BottleFluidContent content = getContent(stack);
+        if (content == null || content.amountMb() <= 0) {
+            return null;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(content.fluidId());
+        return fluid == null ? null : FluidTypesEx.getDrugModel(fluid);
+    }
+
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+
+        if (!isDrinkable(stack)) {
+            return InteractionResult.PASS;
+        }
+
+        player.startUsingItem(hand);
+        return InteractionResult.CONSUME;
+    }
+
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
-        if (context.getPlayer() == null || !context.getPlayer().isShiftKeyDown()) {
+        if (context.getPlayer() == null) {
             return InteractionResult.PASS;
         }
 
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
+
+        if (!context.getPlayer().isShiftKeyDown()) {
+            return InteractionResult.PASS;
+        }
 
         if (!isReadyComposter(state)) {
             return InteractionResult.PASS;
@@ -166,13 +223,30 @@ public class GlassBottleItem extends Item {
         tooltipAdder.accept(Component.literal(content.amountMb() + " / " + CAPACITY_MB + " mB"));
     }
 
-    private static boolean isReadyComposter(BlockState state) {
-        return state.is(Blocks.COMPOSTER)
-                && state.hasProperty(ComposterBlock.LEVEL)
-                && state.getValue(ComposterBlock.LEVEL) == ComposterBlock.READY;
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+        if (!isDrinkable(stack)) {
+            return stack;
+        }
+
+        boolean crea = (livingEntity instanceof Player player) && player.gameMode() == GameType.CREATIVE;
+
+        if (!level.isClientSide() && !crea) {
+            drain(stack, getStoredFluidId(stack), getStoredAmount(stack)); // or some smaller amount if one sip
+        }
+
+        MyDrugs.DRUG_SERVICE.consume(getBottleDrug(stack), new EatingStrategy());
+
+        return stack;
     }
 
-    public static boolean isFluidBottlable(Fluid fluid) {
-        return fluid != Fluids.EMPTY && fluid.defaultFluidState().is(ModFluidTags.BOTTLABLE);
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return isDrinkable(stack) ? ItemUseAnimation.DRINK : ItemUseAnimation.NONE;
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return isDrinkable(stack) ? 40 : 0;
     }
 }

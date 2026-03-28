@@ -21,7 +21,8 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipes;
 
 public class PortableGrinderItem extends Item implements SingleSlotContainerItem {
-    private int FULL_CHARGE_TICKS = 40;
+    private final int FULL_CHARGE_TICKS = 40;
+
     public PortableGrinderItem(Properties properties) {
         super(properties);
     }
@@ -80,7 +81,7 @@ public class PortableGrinderItem extends Item implements SingleSlotContainerItem
         super.onUseTick(level, living, bang, remainingUseDuration);
 
         int usedTicks = this.getUseDuration(bang, living) - remainingUseDuration;
-        if (usedTicks-1 % 20 == 0) {
+        if (usedTicks - 1 % 20 == 0) {
             level.playSound(
                     null,
                     living.getX(),
@@ -93,7 +94,7 @@ public class PortableGrinderItem extends Item implements SingleSlotContainerItem
             );
         }
 
-        if (usedTicks < FULL_CHARGE_TICKS-1) {
+        if (usedTicks < FULL_CHARGE_TICKS - 1) {
             return;
         }
         if (!level.isClientSide()) {

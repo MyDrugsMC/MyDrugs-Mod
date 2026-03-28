@@ -91,7 +91,7 @@ public class BangItem extends Item implements SingleSlotContainerItem {
 
         int usedTicks = this.getUseDuration(bang, living) - remainingUseDuration;
 
-        if (usedTicks < FULL_CHARGE_TICKS-1) {
+        if (usedTicks < FULL_CHARGE_TICKS - 1) {
             return;
         }
         if (!level.isClientSide()) {

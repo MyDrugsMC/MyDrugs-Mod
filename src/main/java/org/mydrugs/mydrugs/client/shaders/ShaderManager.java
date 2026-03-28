@@ -33,6 +33,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         register(EffectType.QUANTUM_FLOWER, QuantumFlowerShader.INSTANCE); //OK
         register(EffectType.AURORA_RIBBONS, AuroraRibbonsShader.INSTANCE); //BIEN
         register(EffectType.SPECTRAL_POSTER, SpectralPosterShader.INSTANCE); //BIEN INCROYABLE
+        register(EffectType.DRUNK_VISION, DrunkVisionShader.INSTANCE); //BIEN
     }
 
     @SubscribeEvent

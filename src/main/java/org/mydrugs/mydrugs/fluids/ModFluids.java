@@ -11,9 +11,9 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class ModFluids {
@@ -41,14 +41,14 @@ public final class ModFluids {
     public static final FluidEntry BLOOD;
 
     static {
-        STARCH_MASH    = register(new FluidEntryDef("starch_mash",    0xFFD2B07A));
-        SWEET_MASH     = register(new FluidEntryDef("sweet_mash",     0xFFE2C070));
-        WILD_YEAST     = register(new FluidEntryDef("wild_yeast",     0xFFDDD9A6));
-        FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFFB98E57));
-        RAW_ALCOHOL    = register(new FluidEntryDef("raw_alcohol",    0xCCF2F2FF));
-        VODKA          = register(new FluidEntryDef("vodka",          0xCCEAF6FF));
-        AMMONIAC       = register(new FluidEntryDef("ammoniac",       0xFFCFE17A));
-        BLOOD          = register(new FluidEntryDef("blood",          0xFF8E1B1B));
+        STARCH_MASH    = register(new FluidEntryDef("starch_mash",    0xFFD2B07A, false, null));
+        SWEET_MASH     = register(new FluidEntryDef("sweet_mash",     0xFFE2C070, false, null));
+        WILD_YEAST     = register(new FluidEntryDef("wild_yeast",     0xFFDDD9A6, false, null));
+        FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFFB98E57, false, null));
+        RAW_ALCOHOL    = register(new FluidEntryDef("raw_alcohol",    0xCCF2F2FF, true, DrugId.ALCOHOL));
+        VODKA          = register(new FluidEntryDef("vodka",          0xCCEAF6FF, true, DrugId.ALCOHOL));
+        AMMONIAC       = register(new FluidEntryDef("ammoniac",       0xFFCFE17A, false, null));
+        BLOOD          = register(new FluidEntryDef("blood",          0xFF8E1B1B, false, null));
     }
 
     private ModFluids() {
@@ -59,7 +59,7 @@ public final class ModFluids {
 
         entry.setType(FLUID_TYPES.register(
                 def.name() + "_type",
-                () -> new SimpleTintedFluidType(FluidType.Properties.create())
+                () -> new DrugTintedFluidType(FluidType.Properties.create(), def.drinkable(), def.drugId())
         ));
 
         BaseFlowingFluid.Properties properties = new BaseFlowingFluid.Properties(
