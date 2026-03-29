@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A"
+  ],
+  "key": {
+    "A": "mydrugs:hash_brick"
+  },
+  "result": {
+    "id": "mydrugs:hash_piece",
+    "count": 16
+  }
+}

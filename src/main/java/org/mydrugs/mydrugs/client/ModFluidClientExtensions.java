@@ -22,7 +22,8 @@ public final class ModFluidClientExtensions {
     private static final ResourceLocation UNDERWATER =
             ResourceLocation.fromNamespaceAndPath("minecraft", "textures/misc/underwater.png");
 
-    private ModFluidClientExtensions() {}
+    private ModFluidClientExtensions() {
+    }
 
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {

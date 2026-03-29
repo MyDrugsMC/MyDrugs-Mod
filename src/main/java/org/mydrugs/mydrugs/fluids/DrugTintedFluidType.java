@@ -9,6 +9,7 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 public class DrugTintedFluidType extends FluidType {
     private final boolean drinkable;
     private final @Nullable DrugModel drugModel;
+
     public DrugTintedFluidType(Properties properties, boolean drinkable, @Nullable DrugId drugId) {
         super(properties);
         this.drinkable = drinkable;

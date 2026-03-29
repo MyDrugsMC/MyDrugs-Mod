@@ -3,7 +3,8 @@
   "textures": {
     "top": "minecraft:block/oak_planks",
     "bottom": "minecraft:block/oak_planks",
-    "side": "minecraft:block/oak_planks"
+    "side": "minecraft:block/oak_planks",
+    "particle": "minecraft:block/oak_planks"
   },
   "elements": [
     {

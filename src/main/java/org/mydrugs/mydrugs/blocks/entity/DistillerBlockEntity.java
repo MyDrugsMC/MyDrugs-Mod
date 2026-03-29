@@ -20,7 +20,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -41,7 +40,6 @@ import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipeInput;
 
-import java.lang.ref.Reference;
 import java.util.ArrayDeque;
 import java.util.Optional;
 
@@ -51,24 +49,19 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     private static final int TANK_INPUT = 0;
     private static final int TANK_OUTPUT_A = 1;
     private static final int TANK_OUTPUT_B = 2;
-
+    private final ArrayDeque<Long> recentClicks = new ArrayDeque<>();
     private NonNullList<ItemStack> buckets = NonNullList.withSize(3, ItemStack.EMPTY);
-
     @Nullable
     private ResourceLocation inputFluidId = null;
     @Nullable
     private ResourceLocation outputFluid1Id = null;
     @Nullable
     private ResourceLocation outputFluid2Id = null;
-
     private int inputTankAmount = 0;
     private int outputATankAmount = 0;
     private int outputBTankAmount = 0;
-
     private int progress = 0;
     private int maxProgress = 200;
-
-    private final ArrayDeque<Long> recentClicks = new ArrayDeque<>();
     private int clicksPerSec = 0;
     private int speedPercent = 0;
 
@@ -113,6 +106,10 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
     };
 
+    public DistillerBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.DISTILLER.get(), pos, state);
+    }
+
     private static int encodeFluidForSync(@Nullable ResourceLocation fluidId) {
         if (fluidId == null) {
             return -1;
@@ -130,8 +127,110 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return BuiltInRegistries.FLUID.getId(fluid);
     }
 
-    public DistillerBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.DISTILLER.get(), pos, state);
+    public static void tick(Level level, BlockPos pos, BlockState state, DistillerBlockEntity be) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        boolean changed = false;
+
+        int oldCps = be.clicksPerSec;
+        int oldSpeed = be.speedPercent;
+        int oldProgress = be.progress;
+        int oldMaxProgress = be.maxProgress;
+
+        if (be.tryDrainInputContainerSlot()) {
+            changed = true;
+        }
+
+        if (be.tryFillOutputContainerSlot(DistillerMenu.OUTPUT_A_CONTAINER_SLOT, TANK_OUTPUT_A)) {
+            changed = true;
+        }
+
+        if (be.tryFillOutputContainerSlot(DistillerMenu.OUTPUT_B_CONTAINER_SLOT, TANK_OUTPUT_B)) {
+            changed = true;
+        }
+
+        be.refreshClickStats(level.getGameTime());
+
+        if (be.clicksPerSec != oldCps || be.speedPercent != oldSpeed) {
+            changed = true;
+        }
+
+        Optional<RecipeHolder<DistillerRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
+        if (recipeHolder.isEmpty()) {
+            if (be.progress != 0) {
+                be.progress = 0;
+                changed = true;
+            }
+
+            if (changed) {
+                be.sync();
+            }
+            return;
+        }
+
+        DistillerRecipe recipe = recipeHolder.get().value();
+        be.maxProgress = recipe.baseTicks();
+
+        if (be.maxProgress != oldMaxProgress) {
+            changed = true;
+        }
+
+        if (!be.canCraft(recipe)) {
+            if (be.progress != 0) {
+                be.progress = 0;
+                changed = true;
+            }
+
+            if (changed) {
+                be.sync();
+            }
+            return;
+        }
+
+        int progressPerTick = be.getProgressPerTickFromCps();
+        if (progressPerTick > 0) {
+            be.progress += progressPerTick;
+            changed = true;
+
+            if (be.progress >= be.maxProgress) {
+                be.craft(recipe);
+                be.progress = 0;
+            }
+        }
+
+        if (be.progress != oldProgress) {
+            changed = true;
+        }
+
+        if (changed) {
+            be.sync();
+        }
+    }
+
+    @Nullable
+    private static ResourceLocation readFluidId(ValueInput input, String key) {
+        String value = input.getStringOr(key, "");
+        return value.isEmpty() ? null : ResourceLocation.parse(value);
+    }
+
+    private static void writeFluidId(ValueOutput output, String key, @Nullable ResourceLocation fluidId, int amount) {
+        if (fluidId != null && amount > 0) {
+            output.putString(key, fluidId.toString());
+        }
+    }
+
+    public static boolean isFluidContainer(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        if (stack.getItem() instanceof GlassBottleItem) {
+            return true;
+        }
+
+        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
     }
 
     @Override
@@ -316,88 +415,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return true;
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, DistillerBlockEntity be) {
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-        boolean changed = false;
-
-        int oldCps = be.clicksPerSec;
-        int oldSpeed = be.speedPercent;
-        int oldProgress = be.progress;
-        int oldMaxProgress = be.maxProgress;
-
-        if (be.tryDrainInputContainerSlot()) {
-            changed = true;
-        }
-
-        if (be.tryFillOutputContainerSlot(DistillerMenu.OUTPUT_A_CONTAINER_SLOT, TANK_OUTPUT_A)) {
-            changed = true;
-        }
-
-        if (be.tryFillOutputContainerSlot(DistillerMenu.OUTPUT_B_CONTAINER_SLOT, TANK_OUTPUT_B)) {
-            changed = true;
-        }
-
-        be.refreshClickStats(level.getGameTime());
-
-        if (be.clicksPerSec != oldCps || be.speedPercent != oldSpeed) {
-            changed = true;
-        }
-
-        Optional<RecipeHolder<DistillerRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
-        if (recipeHolder.isEmpty()) {
-            if (be.progress != 0) {
-                be.progress = 0;
-                changed = true;
-            }
-
-            if (changed) {
-                be.sync();
-            }
-            return;
-        }
-
-        DistillerRecipe recipe = recipeHolder.get().value();
-        be.maxProgress = recipe.baseTicks();
-
-        if (be.maxProgress != oldMaxProgress) {
-            changed = true;
-        }
-
-        if (!be.canCraft(recipe)) {
-            if (be.progress != 0) {
-                be.progress = 0;
-                changed = true;
-            }
-
-            if (changed) {
-                be.sync();
-            }
-            return;
-        }
-
-        int progressPerTick = be.getProgressPerTickFromCps();
-        if (progressPerTick > 0) {
-            be.progress += progressPerTick;
-            changed = true;
-
-            if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
-                be.progress = 0;
-            }
-        }
-
-        if (be.progress != oldProgress) {
-            changed = true;
-        }
-
-        if (changed) {
-            be.sync();
-        }
-    }
-
     private Optional<RecipeHolder<DistillerRecipe>> getCurrentRecipe(ServerLevel level) {
         if (this.inputFluidId == null || this.inputTankAmount <= 0) {
             return Optional.empty();
@@ -552,18 +569,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
     }
 
-    @Nullable
-    private static ResourceLocation readFluidId(ValueInput input, String key) {
-        String value = input.getStringOr(key, "");
-        return value.isEmpty() ? null : ResourceLocation.parse(value);
-    }
-
-    private static void writeFluidId(ValueOutput output, String key, @Nullable ResourceLocation fluidId, int amount) {
-        if (fluidId != null && amount > 0) {
-            output.putString(key, fluidId.toString());
-        }
-    }
-
     private void sync() {
         this.setChanged();
         if (this.level != null && !this.level.isClientSide()) {
@@ -579,18 +584,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     @Override
     public int getMaxStackSize() {
         return 1;
-    }
-
-    public static boolean isFluidContainer(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        if (stack.getItem() instanceof GlassBottleItem) {
-            return true;
-        }
-
-        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
     }
 
     private boolean tryDrainInputContainerSlot() {

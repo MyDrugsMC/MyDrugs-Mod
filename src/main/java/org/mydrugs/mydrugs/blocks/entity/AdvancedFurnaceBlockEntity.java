@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.blocks.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -14,11 +15,10 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
@@ -91,101 +91,10 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         super(ModBlockEntities.ADVANCED_FURNACE.get(), pos, state);
     }
 
-    @Override
-    protected Component getDefaultName() {
-        return Component.translatable("container.mydrugs.advanced_furnace");
-    }
-
-    @Override
-    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new AdvancedFurnaceMenu(
-                containerId,
-                inventory,
-                this,
-                this.data,
-                ContainerLevelAccess.create(this.level, this.worldPosition)
-        );
-    }
-
-    @Override
-    protected NonNullList<ItemStack> getItems() {
-        return this.items;
-    }
-
-    @Override
-    protected void setItems(NonNullList<ItemStack> items) {
-        this.items = items;
-    }
-
-    @Override
-    public int getContainerSize() {
-        return SLOT_COUNT;
-    }
-
-    @Override
-    public boolean canPlaceItem(int slot, ItemStack stack) {
-        return switch (slot) {
-            case OUTPUT_A_SLOT, OUTPUT_B_SLOT -> false;
-            case FUEL_SLOT -> getFuelTime(stack) > 0;
-            default -> true;
-        };
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public int getMaxProgress() {
-        return maxProgress;
-    }
-
-    public int getBurnTime() {
-        return burnTime;
-    }
-
-    public int getBurnDuration() {
-        return burnDuration;
-    }
-
-    public int getTankAmount() {
-        return tankAmount;
-    }
-
-    public ResourceLocation getTankFluidId() {
-        return tankFluidId;
-    }
-
     public static int getFuelTime(ItemStack stack) {
         if (stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) return 1600;
         if (stack.is(Items.BLAZE_ROD)) return 2400;
         return 0;
-    }
-
-    @Override
-    public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        this.progress = input.getIntOr("progress", 0);
-        this.maxProgress = input.getIntOr("max_progress", 200);
-        this.burnTime = input.getIntOr("burn_time", 0);
-        this.burnDuration = input.getIntOr("burn_duration", 0);
-
-        String fluidId = input.getStringOr("tank_fluid", "");
-        this.tankFluidId = fluidId.isEmpty() ? null : ResourceLocation.parse(fluidId);
-        this.tankAmount = input.getIntOr("tank_amount", 0);
-    }
-
-    @Override
-    public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
-        output.putInt("progress", this.progress);
-        output.putInt("max_progress", this.maxProgress);
-        output.putInt("burn_time", this.burnTime);
-        output.putInt("burn_duration", this.burnDuration);
-        output.putInt("tank_amount", this.tankAmount);
-
-        if (this.tankFluidId != null && this.tankAmount > 0) {
-            output.putString("tank_fluid", this.tankFluidId.toString());
-        }
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, AdvancedFurnaceBlockEntity be) {
@@ -254,6 +163,104 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         }
     }
 
+    private static boolean canInsertItem(ItemStack existing, ItemStack result) {
+        if (result.isEmpty()) return true;
+        if (existing.isEmpty()) return true;
+        if (!ItemStack.isSameItemSameComponents(existing, result)) return false;
+        return existing.getCount() + result.getCount() <= existing.getMaxStackSize();
+    }
+
+    @Override
+    protected Component getDefaultName() {
+        return Component.translatable("container.mydrugs.advanced_furnace");
+    }
+
+    @Override
+    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
+        return new AdvancedFurnaceMenu(
+                containerId,
+                inventory,
+                this,
+                this.data,
+                ContainerLevelAccess.create(this.level, this.worldPosition)
+        );
+    }
+
+    @Override
+    protected NonNullList<ItemStack> getItems() {
+        return this.items;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> items) {
+        this.items = items;
+    }
+
+    @Override
+    public int getContainerSize() {
+        return SLOT_COUNT;
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return switch (slot) {
+            case OUTPUT_A_SLOT, OUTPUT_B_SLOT -> false;
+            case FUEL_SLOT -> getFuelTime(stack) > 0;
+            default -> true;
+        };
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public int getMaxProgress() {
+        return maxProgress;
+    }
+
+    public int getBurnTime() {
+        return burnTime;
+    }
+
+    public int getBurnDuration() {
+        return burnDuration;
+    }
+
+    public int getTankAmount() {
+        return tankAmount;
+    }
+
+    public ResourceLocation getTankFluidId() {
+        return tankFluidId;
+    }
+
+    @Override
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.progress = input.getIntOr("progress", 0);
+        this.maxProgress = input.getIntOr("max_progress", 200);
+        this.burnTime = input.getIntOr("burn_time", 0);
+        this.burnDuration = input.getIntOr("burn_duration", 0);
+
+        String fluidId = input.getStringOr("tank_fluid", "");
+        this.tankFluidId = fluidId.isEmpty() ? null : ResourceLocation.parse(fluidId);
+        this.tankAmount = input.getIntOr("tank_amount", 0);
+    }
+
+    @Override
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("progress", this.progress);
+        output.putInt("max_progress", this.maxProgress);
+        output.putInt("burn_time", this.burnTime);
+        output.putInt("burn_duration", this.burnDuration);
+        output.putInt("tank_amount", this.tankAmount);
+
+        if (this.tankFluidId != null && this.tankAmount > 0) {
+            output.putString("tank_fluid", this.tankFluidId.toString());
+        }
+    }
+
     private Optional<RecipeHolder<AdvancedFurnaceRecipe>> getCurrentRecipe(ServerLevel level) {
         return level.recipeAccess().getRecipeFor(
                 ModRecipeTypes.ADVANCED_FURNACE.get(),
@@ -266,13 +273,6 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         if (!canInsertItem(this.getItem(OUTPUT_A_SLOT), recipe.resultA())) return false;
         if (!canInsertItem(this.getItem(OUTPUT_B_SLOT), recipe.resultB())) return false;
         return canInsertFluid(recipe.fluidOutput(), recipe.fluidAmount());
-    }
-
-    private static boolean canInsertItem(ItemStack existing, ItemStack result) {
-        if (result.isEmpty()) return true;
-        if (existing.isEmpty()) return true;
-        if (!ItemStack.isSameItemSameComponents(existing, result)) return false;
-        return existing.getCount() + result.getCount() <= existing.getMaxStackSize();
     }
 
     private boolean canInsertFluid(ResourceLocation fluidId, int amount) {

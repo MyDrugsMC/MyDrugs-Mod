@@ -1,0 +1,11 @@
+{
+  "type": "mydrugs:stomp_crafting",
+  "ingredients": [
+    { "ingredient": "mydrugs:cannabis_resin", "count": 10 }
+  ],
+  "result": {
+    "id": "mydrugs:hash_brick",
+    "count": 1
+  },
+  "work": 10
+}

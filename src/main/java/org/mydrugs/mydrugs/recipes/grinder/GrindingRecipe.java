@@ -12,7 +12,6 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 
 public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
         implements Recipe<SingleRecipeInput> {

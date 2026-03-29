@@ -42,54 +42,6 @@ public class SpaceFoodOverlayTextureProvider implements DataProvider {
         );
     }
 
-    @Override
-    public CompletableFuture<?> run(CachedOutput cache) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                BufferedImage overlayStrip = readClasspathPng(SOURCE_OVERLAY_PATH);
-
-                int frameWidth = overlayStrip.getWidth();
-                int totalHeight = overlayStrip.getHeight();
-
-                if (frameWidth <= 0 || totalHeight <= 0 || totalHeight % frameWidth != 0) {
-                    throw new IllegalStateException(
-                            "space_overlay.png must be a vertical strip of square frames. " +
-                                    "Got " + frameWidth + "x" + totalHeight
-                    );
-                }
-
-                List<CompletableFuture<?>> writes = new ArrayList<>();
-
-                ModItems.SPACE_FOODS_BY_BASE_ID.forEach((baseId, holder) -> {
-                    try {
-                        BufferedImage baseTexture = readVanillaItemTexture(baseId);
-                        if (baseTexture == null) {
-                            return;
-                        }
-                        BufferedImage maskedOverlay = maskOverlayByBaseAlpha(overlayStrip, baseTexture);
-
-                        ResourceLocation outId = ResourceLocation.fromNamespaceAndPath(
-                                MyDrugs.MODID,
-                                "space_" + baseId.getPath()
-                        );
-
-                        Path pngPath = texturePath.file(outId, "png");
-                        Path mcmetaPath = texturePath.file(outId, "png.mcmeta");
-
-                        writes.add(writePng(cache, pngPath, maskedOverlay));
-                        writes.add(writeBytes(cache, mcmetaPath, MCMETA_BYTES));
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed generating overlay for " + baseId, e);
-                    }
-                });
-
-                CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new)).join();
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to generate masked space food overlays", e);
-            }
-        });
-    }
-
     private static BufferedImage readVanillaItemTexture(ResourceLocation itemId) throws IOException {
         String path = "/assets/" + itemId.getNamespace() + "/textures/item/" + itemId.getPath() + ".png";
         return readClasspathPng(path);
@@ -179,6 +131,54 @@ public class SpaceFoodOverlayTextureProvider implements DataProvider {
                 cache.writeIfNeeded(path, bytes, hash);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to write file: " + path, e);
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<?> run(CachedOutput cache) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                BufferedImage overlayStrip = readClasspathPng(SOURCE_OVERLAY_PATH);
+
+                int frameWidth = overlayStrip.getWidth();
+                int totalHeight = overlayStrip.getHeight();
+
+                if (frameWidth <= 0 || totalHeight <= 0 || totalHeight % frameWidth != 0) {
+                    throw new IllegalStateException(
+                            "space_overlay.png must be a vertical strip of square frames. " +
+                                    "Got " + frameWidth + "x" + totalHeight
+                    );
+                }
+
+                List<CompletableFuture<?>> writes = new ArrayList<>();
+
+                ModItems.SPACE_FOODS_BY_BASE_ID.forEach((baseId, holder) -> {
+                    try {
+                        BufferedImage baseTexture = readVanillaItemTexture(baseId);
+                        if (baseTexture == null) {
+                            return;
+                        }
+                        BufferedImage maskedOverlay = maskOverlayByBaseAlpha(overlayStrip, baseTexture);
+
+                        ResourceLocation outId = ResourceLocation.fromNamespaceAndPath(
+                                MyDrugs.MODID,
+                                "space_" + baseId.getPath()
+                        );
+
+                        Path pngPath = texturePath.file(outId, "png");
+                        Path mcmetaPath = texturePath.file(outId, "png.mcmeta");
+
+                        writes.add(writePng(cache, pngPath, maskedOverlay));
+                        writes.add(writeBytes(cache, mcmetaPath, MCMETA_BYTES));
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed generating overlay for " + baseId, e);
+                    }
+                });
+
+                CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new)).join();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to generate masked space food overlays", e);
             }
         });
     }

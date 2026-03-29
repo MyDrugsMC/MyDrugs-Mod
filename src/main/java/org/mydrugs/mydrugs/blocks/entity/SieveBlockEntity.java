@@ -11,7 +11,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
-import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -70,10 +69,74 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         }
     };
 
-    private float shakeEnergy = 0.0F;
-    private float extraProgressBuffer = 0.0F;
+    private final float shakeEnergy = 0.0F;
+    private final float extraProgressBuffer = 0.0F;
     private float shakeProgressBuffer = 0.0F;
     private int idleTicks = 0;
+
+    public SieveBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.SIEVE.get(), pos, state);
+    }
+
+    private static boolean canAccept(ItemStack existing, ItemStack incoming, int slotLimit) {
+        if (incoming.isEmpty()) return true;
+
+        if (existing.isEmpty()) {
+            return incoming.getCount() <= Math.min(slotLimit, incoming.getMaxStackSize());
+        }
+
+        if (!ItemStack.isSameItemSameComponents(existing, incoming)) {
+            return false;
+        }
+
+        int max = Math.min(slotLimit, existing.getMaxStackSize());
+        return existing.getCount() + incoming.getCount() <= max;
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, SieveBlockEntity be) {
+        Optional<RecipeHolder<SieveRecipe>> match = be.getRecipe();
+
+        if (match.isEmpty()) {
+            if (be.progress != 0 || be.shakeProgressBuffer != 0.0F) {
+                be.progress = 0;
+                be.shakeProgressBuffer = 0.0F;
+                be.idleTicks = 0;
+                be.markDirtyAndSync();
+            }
+            return;
+        }
+
+        SieveRecipe recipe = match.get().value();
+        be.maxProgress = recipe.sieveTime();
+
+        if (!be.canCraft(recipe)) {
+            if (be.progress != 0 || be.shakeProgressBuffer != 0.0F) {
+                be.progress = 0;
+                be.shakeProgressBuffer = 0.0F;
+                be.idleTicks = 0;
+                be.markDirtyAndSync();
+            }
+            return;
+        }
+
+        // No automatic progress at all.
+        // Only consume buffered shake input.
+        int gained = (int) be.shakeProgressBuffer;
+        if (gained > 0) {
+            be.shakeProgressBuffer -= gained;
+            be.progress += gained;
+            be.idleTicks = 0;
+            be.setChanged();
+        } else {
+            be.idleTicks++;
+        }
+
+        if (be.progress >= be.maxProgress) {
+            be.craft(recipe);
+            be.shakeProgressBuffer = 0.0F;
+            be.idleTicks = 0;
+        }
+    }
 
     public void addShakeImpulse(float impulse) {
         if (!(this.level instanceof ServerLevel)) {
@@ -98,10 +161,6 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         this.shakeProgressBuffer += clamped * 2.8F;
         this.idleTicks = 0;
         this.setChanged();
-    }
-
-    public SieveBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.SIEVE.get(), pos, state);
     }
 
     public ContainerData getData() {
@@ -154,21 +213,6 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         );
     }
 
-    private static boolean canAccept(ItemStack existing, ItemStack incoming, int slotLimit) {
-        if (incoming.isEmpty()) return true;
-
-        if (existing.isEmpty()) {
-            return incoming.getCount() <= Math.min(slotLimit, incoming.getMaxStackSize());
-        }
-
-        if (!ItemStack.isSameItemSameComponents(existing, incoming)) {
-            return false;
-        }
-
-        int max = Math.min(slotLimit, existing.getMaxStackSize());
-        return existing.getCount() + incoming.getCount() <= max;
-    }
-
     private boolean canCraft(SieveRecipe recipe) {
         ItemStack mainOut = recipe.result().copy();
         if (!canAccept(this.items.get(SLOT_RESULT), mainOut, this.getMaxStackSize())) {
@@ -177,9 +221,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         if (recipe.hasBonus()) {
             ItemStack bonusOut = recipe.bonusResult().orElse(ItemStack.EMPTY).copy();
-            if (!canAccept(this.items.get(SLOT_BONUS), bonusOut, this.getMaxStackSize())) {
-                return false;
-            }
+            return canAccept(this.items.get(SLOT_BONUS), bonusOut, this.getMaxStackSize());
         }
 
         return true;
@@ -208,51 +250,6 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         this.progress = 0;
         this.markDirtyAndSync();
-    }
-
-    public static void serverTick(Level level, BlockPos pos, BlockState state, SieveBlockEntity be) {
-        Optional<RecipeHolder<SieveRecipe>> match = be.getRecipe();
-
-        if (match.isEmpty()) {
-            if (be.progress != 0 || be.shakeProgressBuffer != 0.0F) {
-                be.progress = 0;
-                be.shakeProgressBuffer = 0.0F;
-                be.idleTicks = 0;
-                be.markDirtyAndSync();
-            }
-            return;
-        }
-
-        SieveRecipe recipe = match.get().value();
-        be.maxProgress = recipe.sieveTime();
-
-        if (!be.canCraft(recipe)) {
-            if (be.progress != 0 || be.shakeProgressBuffer != 0.0F) {
-                be.progress = 0;
-                be.shakeProgressBuffer = 0.0F;
-                be.idleTicks = 0;
-                be.markDirtyAndSync();
-            }
-            return;
-        }
-
-        // No automatic progress at all.
-        // Only consume buffered shake input.
-        int gained = (int) be.shakeProgressBuffer;
-        if (gained > 0) {
-            be.shakeProgressBuffer -= gained;
-            be.progress += gained;
-            be.idleTicks = 0;
-            be.setChanged();
-        } else {
-            be.idleTicks++;
-        }
-
-        if (be.progress >= be.maxProgress) {
-            be.craft(recipe);
-            be.shakeProgressBuffer = 0.0F;
-            be.idleTicks = 0;
-        }
     }
 
     @Override

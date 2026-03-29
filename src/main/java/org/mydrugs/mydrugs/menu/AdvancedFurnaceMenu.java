@@ -10,15 +10,14 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedFurnaceBlockEntity;
 
 public class AdvancedFurnaceMenu extends AbstractContainerMenu {
-    private final Container container;
-    private final ContainerData data;
-    private final ContainerLevelAccess access;
-
     private static final int MACHINE_SLOT_COUNT = 5;
     private static final int PLAYER_INV_START = 5;
     private static final int PLAYER_INV_END = 32;
     private static final int HOTBAR_START = 32;
     private static final int HOTBAR_END = 41;
+    private final Container container;
+    private final ContainerData data;
+    private final ContainerLevelAccess access;
 
     public AdvancedFurnaceMenu(int containerId, Inventory playerInventory) {
         this(

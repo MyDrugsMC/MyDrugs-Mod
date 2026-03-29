@@ -14,6 +14,7 @@ public class VoidPulseShader extends AnimatedShader {
     float glowR = 0.5F;
     float glowG = 0.1F;
     float glowB = 0.8F;
+
     protected VoidPulseShader() {
         super("void_pulse");
     }

@@ -13,6 +13,19 @@ public class ModLangProvider extends LanguageProvider {
         super(output, MyDrugs.MODID, "en_us");
     }
 
+    private static String pretty(String name) {
+        String[] parts = name.split("_");
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) builder.append(' ');
+            builder.append(Character.toUpperCase(parts[i].charAt(0)));
+            builder.append(parts[i].substring(1));
+        }
+
+        return builder.toString();
+    }
+
     @Override
     protected void addTranslations() {
         ModItems.SPACE_FOODS_BY_BASE_ID.forEach((baseId, item)
@@ -39,18 +52,5 @@ public class ModLangProvider extends LanguageProvider {
             add("item." + MyDrugs.MODID + "." + entry.name() + "_bucket", pretty + " Bucket");
             add("block." + MyDrugs.MODID + "." + entry.name(), pretty);
         }
-    }
-
-    private static String pretty(String name) {
-        String[] parts = name.split("_");
-        StringBuilder builder = new StringBuilder();
-
-        for (int i = 0; i < parts.length; i++) {
-            if (i > 0) builder.append(' ');
-            builder.append(Character.toUpperCase(parts[i].charAt(0)));
-            builder.append(parts[i].substring(1));
-        }
-
-        return builder.toString();
     }
 }

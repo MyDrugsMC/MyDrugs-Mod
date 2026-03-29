@@ -19,6 +19,9 @@ import org.mydrugs.mydrugs.menu.client.SingleSlotMenuScreen;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public class ClientModEvents {
+    private ClientModEvents() {
+    }
+
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.BANG_CONTAINER.get(), SingleSlotMenuScreen::new);
@@ -60,6 +63,4 @@ public class ClientModEvents {
                 LiquidColorTintSource.MAP_CODEC
         );
     }
-
-    private ClientModEvents() {}
 }

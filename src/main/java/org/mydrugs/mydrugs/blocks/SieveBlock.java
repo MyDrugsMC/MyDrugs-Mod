@@ -31,6 +31,15 @@ public final class SieveBlock extends BaseEntityBlock implements EntityBlock {
         super(properties);
     }
 
+    private static void open(Level level, BlockPos pos, Player player) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            MenuProvider provider = level.getBlockState(pos).getMenuProvider(level, pos);
+            if (provider != null) {
+                serverPlayer.openMenu(provider);
+            }
+        }
+    }
+
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return ModBlockTypes.SIEVE_CODEC.get();
@@ -66,15 +75,6 @@ public final class SieveBlock extends BaseEntityBlock implements EntityBlock {
     public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         return blockEntity instanceof MenuProvider provider ? provider : null;
-    }
-
-    private static void open(Level level, BlockPos pos, Player player) {
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            MenuProvider provider = level.getBlockState(pos).getMenuProvider(level, pos);
-            if (provider != null) {
-                serverPlayer.openMenu(provider);
-            }
-        }
     }
 
     @Override

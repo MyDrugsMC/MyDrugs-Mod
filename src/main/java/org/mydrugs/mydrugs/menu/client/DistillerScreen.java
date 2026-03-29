@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,6 +66,51 @@ public class DistillerScreen extends AbstractContainerScreen<DistillerMenu> {
         this.imageHeight = TEXTURE_H;
         this.inventoryLabelX = 16;
         this.inventoryLabelY = 96;
+    }
+
+    private static int getFluidColor(Fluid fluid) {
+        if (fluid == Fluids.EMPTY) {
+            return 0;
+        }
+
+        int color = IClientFluidTypeExtensions.of(fluid).getTintColor();
+        if ((color >>> 24) == 0) {
+            color |= 0xFF000000;
+        }
+        return color;
+    }
+
+    private static String getFluidName(Fluid fluid) {
+        if (fluid == Fluids.EMPTY) {
+            return "empty";
+        }
+        return fluid.getFluidType().getDescription().getString();
+    }
+
+    private static int darken(int argb, float factor) {
+        int a = (argb >>> 24) & 0xFF;
+        int r = (argb >>> 16) & 0xFF;
+        int g = (argb >>> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        r = Math.max(0, Math.min(255, (int) (r * factor)));
+        g = Math.max(0, Math.min(255, (int) (g * factor)));
+        b = Math.max(0, Math.min(255, (int) (b * factor)));
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    private static int lighten(int argb, float factor) {
+        int a = (argb >>> 24) & 0xFF;
+        int r = (argb >>> 16) & 0xFF;
+        int g = (argb >>> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        r = Math.max(0, Math.min(255, (int) (r * factor)));
+        g = Math.max(0, Math.min(255, (int) (g * factor)));
+        b = Math.max(0, Math.min(255, (int) (b * factor)));
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     @Override
@@ -313,51 +357,6 @@ public class DistillerScreen extends AbstractContainerScreen<DistillerMenu> {
         int x = this.leftPos + localX;
         int y = this.topPos + localY;
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
-    }
-
-    private static int getFluidColor(Fluid fluid) {
-        if (fluid == Fluids.EMPTY) {
-            return 0;
-        }
-
-        int color = IClientFluidTypeExtensions.of(fluid).getTintColor();
-        if ((color >>> 24) == 0) {
-            color |= 0xFF000000;
-        }
-        return color;
-    }
-
-    private static String getFluidName(Fluid fluid) {
-        if (fluid == Fluids.EMPTY) {
-            return "empty";
-        }
-        return fluid.getFluidType().getDescription().getString();
-    }
-
-    private static int darken(int argb, float factor) {
-        int a = (argb >>> 24) & 0xFF;
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        r = Math.max(0, Math.min(255, (int) (r * factor)));
-        g = Math.max(0, Math.min(255, (int) (g * factor)));
-        b = Math.max(0, Math.min(255, (int) (b * factor)));
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
-    }
-
-    private static int lighten(int argb, float factor) {
-        int a = (argb >>> 24) & 0xFF;
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        r = Math.max(0, Math.min(255, (int) (r * factor)));
-        g = Math.max(0, Math.min(255, (int) (g * factor)));
-        b = Math.max(0, Math.min(255, (int) (b * factor)));
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     private void renderTooltipLines(GuiGraphics graphics, int mouseX, int mouseY, Component... lines) {

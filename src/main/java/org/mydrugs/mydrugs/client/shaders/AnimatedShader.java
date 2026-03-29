@@ -33,6 +33,7 @@ public abstract class AnimatedShader extends Shader {
     private RenderTarget copiedInputTarget;
     private int copiedInputWidth = -1;
     private int copiedInputHeight = -1;
+    private GpuBuffer triangleVertexBuffer;
 
     protected AnimatedShader(String shaderName) {
         super(shaderName);
@@ -48,7 +49,6 @@ public abstract class AnimatedShader extends Shader {
     public final String getName() {
         return name;
     }
-
 
     public final RenderPipeline getRenderPipeline() {
         return renderPipeline;
@@ -208,9 +208,9 @@ public abstract class AnimatedShader extends Shader {
                     new BufferBuilder(byteBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
             bufferBuilder.addVertex(-1.0F, -1.0F, 0.0F).setUv(0.0F, 0.0F);
-            bufferBuilder.addVertex( 1.0F, -1.0F, 0.0F).setUv(1.0F, 0.0F);
-            bufferBuilder.addVertex( 1.0F,  1.0F, 0.0F).setUv(1.0F, 1.0F);
-            bufferBuilder.addVertex(-1.0F,  1.0F, 0.0F).setUv(0.0F, 1.0F);
+            bufferBuilder.addVertex(1.0F, -1.0F, 0.0F).setUv(1.0F, 0.0F);
+            bufferBuilder.addVertex(1.0F, 1.0F, 0.0F).setUv(1.0F, 1.0F);
+            bufferBuilder.addVertex(-1.0F, 1.0F, 0.0F).setUv(0.0F, 1.0F);
 
             MeshData mesh = bufferBuilder.buildOrThrow();
 
@@ -306,8 +306,6 @@ public abstract class AnimatedShader extends Shader {
         return false;
     }
 
-    private GpuBuffer triangleVertexBuffer;
-
     private GpuBuffer getTriangleVertexBuffer() {
         if (triangleVertexBuffer == null) {
             ByteBufferBuilder byteBuilder =
@@ -316,8 +314,8 @@ public abstract class AnimatedShader extends Shader {
                     new BufferBuilder(byteBuilder, VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX);
 
             bufferBuilder.addVertex(-1.0F, -1.0F, 0.0F).setUv(0.0F, 0.0F);
-            bufferBuilder.addVertex( 3.0F, -1.0F, 0.0F).setUv(2.0F, 0.0F);
-            bufferBuilder.addVertex(-1.0F,  3.0F, 0.0F).setUv(0.0F, 2.0F);
+            bufferBuilder.addVertex(3.0F, -1.0F, 0.0F).setUv(2.0F, 0.0F);
+            bufferBuilder.addVertex(-1.0F, 3.0F, 0.0F).setUv(0.0F, 2.0F);
 
             MeshData mesh = bufferBuilder.buildOrThrow();
 

@@ -131,9 +131,9 @@ public class ModBlocks {
             "dryer",
             DryerBlock::new,
             props -> props
-                            .strength(2.0F)
-                            .sound(SoundType.WOOD)
-                            .noOcclusion()
+                    .strength(2.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()
     );
 
 

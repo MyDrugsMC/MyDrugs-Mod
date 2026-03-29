@@ -11,6 +11,7 @@ public class ChromaticDreamShader extends AnimatedShader {
     float speed = 1.0F;
     float zoom = 0.015F;
     float saturation = 1.35F;
+
     protected ChromaticDreamShader() {
         super("chromatic_dream");
     }

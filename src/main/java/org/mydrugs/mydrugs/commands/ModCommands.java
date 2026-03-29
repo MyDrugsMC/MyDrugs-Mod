@@ -3,7 +3,6 @@ package org.mydrugs.mydrugs.commands;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -34,7 +33,7 @@ public final class ModCommands {
                                         .executes(context -> {
                                             String name = StringArgumentType.getString(context, "name");
                                             EffectType type = EffectType.valueOf(name);
-                                            ShaderManager.INSTANCE.start(5*20, type);
+                                            ShaderManager.INSTANCE.add(5 * 20, type);
                                             context.getSource().sendSuccess(
                                                     () -> Component.literal("You selected: " + name),
                                                     false

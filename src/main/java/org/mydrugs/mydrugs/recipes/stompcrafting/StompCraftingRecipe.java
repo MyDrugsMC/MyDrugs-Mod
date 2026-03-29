@@ -29,6 +29,59 @@ public class StompCraftingRecipe implements Recipe<StompCraftingInput> {
         this.work = work;
     }
 
+    private static boolean canAssign(List<ItemStack> items, List<Ingredient> slots) {
+        if (items.size() > slots.size()) {
+            return false;
+        }
+
+        // slotToItem[slot] = which item is currently assigned to this slot, or -1 if none
+        int[] slotToItem = new int[slots.size()];
+        Arrays.fill(slotToItem, -1);
+
+        for (int itemIndex = 0; itemIndex < items.size(); itemIndex++) {
+            boolean[] visited = new boolean[slots.size()];
+            if (!tryAssign(itemIndex, items, slots, visited, slotToItem)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean tryAssign(int itemIndex,
+                                     List<ItemStack> items,
+                                     List<Ingredient> slots,
+                                     boolean[] visited,
+                                     int[] slotToItem) {
+        ItemStack stack = items.get(itemIndex);
+
+        for (int slotIndex = 0; slotIndex < slots.size(); slotIndex++) {
+            if (visited[slotIndex]) {
+                continue;
+            }
+
+            if (!slots.get(slotIndex).test(stack)) {
+                continue;
+            }
+
+            visited[slotIndex] = true;
+
+            // If slot is free, take it
+            if (slotToItem[slotIndex] == -1) {
+                slotToItem[slotIndex] = itemIndex;
+                return true;
+            }
+
+            // Otherwise try to move the currently assigned item elsewhere
+            if (tryAssign(slotToItem[slotIndex], items, slots, visited, slotToItem)) {
+                slotToItem[slotIndex] = itemIndex;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public List<CountedIngredient> ingredients() {
         return ingredients;
     }
@@ -82,59 +135,6 @@ public class StompCraftingRecipe implements Recipe<StompCraftingInput> {
         }
 
         return canAssign(items, expanded);
-    }
-
-    private static boolean canAssign(List<ItemStack> items, List<Ingredient> slots) {
-        if (items.size() > slots.size()) {
-            return false;
-        }
-
-        // slotToItem[slot] = which item is currently assigned to this slot, or -1 if none
-        int[] slotToItem = new int[slots.size()];
-        Arrays.fill(slotToItem, -1);
-
-        for (int itemIndex = 0; itemIndex < items.size(); itemIndex++) {
-            boolean[] visited = new boolean[slots.size()];
-            if (!tryAssign(itemIndex, items, slots, visited, slotToItem)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static boolean tryAssign(int itemIndex,
-                                     List<ItemStack> items,
-                                     List<Ingredient> slots,
-                                     boolean[] visited,
-                                     int[] slotToItem) {
-        ItemStack stack = items.get(itemIndex);
-
-        for (int slotIndex = 0; slotIndex < slots.size(); slotIndex++) {
-            if (visited[slotIndex]) {
-                continue;
-            }
-
-            if (!slots.get(slotIndex).test(stack)) {
-                continue;
-            }
-
-            visited[slotIndex] = true;
-
-            // If slot is free, take it
-            if (slotToItem[slotIndex] == -1) {
-                slotToItem[slotIndex] = itemIndex;
-                return true;
-            }
-
-            // Otherwise try to move the currently assigned item elsewhere
-            if (tryAssign(slotToItem[slotIndex], items, slots, visited, slotToItem)) {
-                slotToItem[slotIndex] = itemIndex;
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @Override

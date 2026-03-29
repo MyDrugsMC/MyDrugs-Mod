@@ -5,40 +5,35 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:alternatives",
-          "children": [
+          "type": "minecraft:item",
+          "name": "mydrugs:cannabis_leaf",
+          "conditions": [
             {
-              "type": "minecraft:item",
-              "name": "mydrugs:cannabis_leaf",
-              "conditions": [
-                {
-                  "condition": "minecraft:block_state_property",
-                  "block": "mydrugs:cannabis_crop",
-                  "properties": {
-                    "age": "7"
-                  }
-                }
-              ],
-              "functions": [
-                {
-                  "function": "minecraft:set_count",
-                  "count": {
-                    "type": "minecraft:uniform",
-                    "min": 2,
-                    "max": 5
-                  }
-                }
-              ]
-            },
+              "condition": "minecraft:block_state_property",
+              "block": "mydrugs:cannabis_crop",
+              "properties": {
+                "age": "7"
+              }
+            }
+          ],
+          "functions": [
             {
-              "type": "minecraft:item",
-              "name": "mydrugs:cannabis_seeds",
-              "functions": [
-                {
-                  "function": "minecraft:set_count",
-                  "count": 1
-                }
-              ]
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 5
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mydrugs:cannabis_seeds",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
             }
           ]
         }

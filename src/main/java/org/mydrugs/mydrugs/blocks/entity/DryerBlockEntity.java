@@ -20,7 +20,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import java.util.List;
+
 import java.util.Optional;
 
 public final class DryerBlockEntity extends BlockEntity {
@@ -32,53 +32,6 @@ public final class DryerBlockEntity extends BlockEntity {
 
     public DryerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.DRYER.get(), pos, state);
-    }
-
-    public ItemStack getStack(int slot) {
-        return this.stacks.get(slot);
-    }
-
-    public boolean canInsert(int slot, ItemStack stack) {
-        if (slot < 0 || slot >= SLOT_COUNT) return false;
-        if (stack.isEmpty()) return false;
-        if (!this.stacks.get(slot).isEmpty()) return false;
-        return this.getRecipe(stack).isPresent();
-    }
-
-    public boolean insert(int slot, ItemStack stack) {
-        if (!this.canInsert(slot, stack)) return false;
-
-        this.stacks.set(slot, stack.copy());
-        this.progress[slot] = 0;
-        this.maxProgress[slot] = 0;
-        this.setChanged();
-        this.sync();
-        return true;
-    }
-
-    public ItemStack extract(int slot) {
-        if (slot < 0 || slot >= SLOT_COUNT) return ItemStack.EMPTY;
-
-        ItemStack stack = this.stacks.get(slot);
-        if (stack.isEmpty()) return ItemStack.EMPTY;
-
-        this.stacks.set(slot, ItemStack.EMPTY);
-        this.progress[slot] = 0;
-        this.maxProgress[slot] = 0;
-        this.setChanged();
-        this.sync();
-        return stack;
-    }
-
-    private Optional<RecipeHolder<DryingRecipe>> getRecipe(ItemStack stack) {
-        if (this.level == null || stack.isEmpty()) return Optional.empty();
-        if (this.level.isClientSide()) return Optional.empty();
-        ServerLevel serverLevel = (ServerLevel) this.level;
-        return serverLevel.recipeAccess().getRecipeFor(
-                ModRecipeTypes.DRYING_TYPE.get(),
-                new SingleRecipeInput(stack),
-                serverLevel
-        );
     }
 
     private static boolean canTransformWholeStack(ItemStack inputStack, DryingRecipe recipe) {
@@ -143,6 +96,53 @@ public final class DryerBlockEntity extends BlockEntity {
         if (shouldSync) {
             be.sync();
         }
+    }
+
+    public ItemStack getStack(int slot) {
+        return this.stacks.get(slot);
+    }
+
+    public boolean canInsert(int slot, ItemStack stack) {
+        if (slot < 0 || slot >= SLOT_COUNT) return false;
+        if (stack.isEmpty()) return false;
+        if (!this.stacks.get(slot).isEmpty()) return false;
+        return this.getRecipe(stack).isPresent();
+    }
+
+    public boolean insert(int slot, ItemStack stack) {
+        if (!this.canInsert(slot, stack)) return false;
+
+        this.stacks.set(slot, stack.copy());
+        this.progress[slot] = 0;
+        this.maxProgress[slot] = 0;
+        this.setChanged();
+        this.sync();
+        return true;
+    }
+
+    public ItemStack extract(int slot) {
+        if (slot < 0 || slot >= SLOT_COUNT) return ItemStack.EMPTY;
+
+        ItemStack stack = this.stacks.get(slot);
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+
+        this.stacks.set(slot, ItemStack.EMPTY);
+        this.progress[slot] = 0;
+        this.maxProgress[slot] = 0;
+        this.setChanged();
+        this.sync();
+        return stack;
+    }
+
+    private Optional<RecipeHolder<DryingRecipe>> getRecipe(ItemStack stack) {
+        if (this.level == null || stack.isEmpty()) return Optional.empty();
+        if (this.level.isClientSide()) return Optional.empty();
+        ServerLevel serverLevel = (ServerLevel) this.level;
+        return serverLevel.recipeAccess().getRecipeFor(
+                ModRecipeTypes.DRYING_TYPE.get(),
+                new SingleRecipeInput(stack),
+                serverLevel
+        );
     }
 
     public void sync() {

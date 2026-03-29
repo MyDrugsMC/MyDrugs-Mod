@@ -6,13 +6,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.SimpleContainerData;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
@@ -112,6 +107,10 @@ public class DistillerMenu extends AbstractContainerMenu {
         this.addDataSlots(data);
     }
 
+    private static Fluid decodeFluid(int syncId) {
+        return syncId < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(syncId);
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.DISTILLER.get());
@@ -182,10 +181,6 @@ public class DistillerMenu extends AbstractContainerMenu {
 
     public Fluid getOutputBFluid() {
         return decodeFluid(this.getOutputBFluidSyncId());
-    }
-
-    private static Fluid decodeFluid(int syncId) {
-        return syncId < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(syncId);
     }
 
     public Component getInputFluidIdText() {

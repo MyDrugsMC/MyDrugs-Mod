@@ -41,14 +41,14 @@ public final class ModFluids {
     public static final FluidEntry BLOOD;
 
     static {
-        STARCH_MASH    = register(new FluidEntryDef("starch_mash",    0xFFD2B07A, false, null));
-        SWEET_MASH     = register(new FluidEntryDef("sweet_mash",     0xFFE2C070, false, null));
-        WILD_YEAST     = register(new FluidEntryDef("wild_yeast",     0xFFDDD9A6, false, null));
+        STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFD2B07A, false, null));
+        SWEET_MASH = register(new FluidEntryDef("sweet_mash", 0xFFE2C070, false, null));
+        WILD_YEAST = register(new FluidEntryDef("wild_yeast", 0xFFDDD9A6, false, null));
         FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFFB98E57, false, null));
-        RAW_ALCOHOL    = register(new FluidEntryDef("raw_alcohol",    0xCCF2F2FF, true, DrugId.ALCOHOL));
-        VODKA          = register(new FluidEntryDef("vodka",          0xCCEAF6FF, true, DrugId.ALCOHOL));
-        AMMONIAC       = register(new FluidEntryDef("ammoniac",       0xFFCFE17A, false, null));
-        BLOOD          = register(new FluidEntryDef("blood",          0xFF8E1B1B, false, null));
+        RAW_ALCOHOL = register(new FluidEntryDef("raw_alcohol", 0xCCF2F2FF, true, DrugId.ALCOHOL));
+        VODKA = register(new FluidEntryDef("vodka", 0xCCEAF6FF, true, DrugId.ALCOHOL));
+        AMMONIAC = register(new FluidEntryDef("ammoniac", 0xFFCFE17A, false, null));
+        BLOOD = register(new FluidEntryDef("blood", 0xFF8E1B1B, false, null));
     }
 
     private ModFluids() {

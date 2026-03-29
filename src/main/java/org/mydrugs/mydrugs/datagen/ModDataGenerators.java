@@ -12,6 +12,9 @@ import java.util.concurrent.CompletableFuture;
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class ModDataGenerators {
 
+    private ModDataGenerators() {
+    }
+
     @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {
         event.createProvider(SpaceFoodModelProvider::new);
@@ -30,6 +33,4 @@ public final class ModDataGenerators {
                 new ModFluidTagProvider(output, lookupProvider)
         );
     }
-
-    private ModDataGenerators() {}
 }

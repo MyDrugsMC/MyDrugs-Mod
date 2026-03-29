@@ -13,6 +13,9 @@ public final class ModDamageTypes {
             ResourceLocation.fromNamespaceAndPath("mydrugs", "blood_draw")
     );
 
+    private ModDamageTypes() {
+    }
+
     public static DamageSource bloodDraw(Entity causer) {
         return new DamageSource(
                 causer.level().registryAccess()
@@ -21,6 +24,4 @@ public final class ModDamageTypes {
                 causer
         );
     }
-
-    private ModDamageTypes() {}
 }

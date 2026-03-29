@@ -26,13 +26,13 @@ public record CountedIngredient(Ingredient ingredient, int count) {
                     CountedIngredient::new
             );
 
-    public boolean test(ItemStack stack) {
-        return ingredient.test(stack);
-    }
-
     public CountedIngredient {
         if (count < 1) {
             throw new IllegalArgumentException("count must be >= 1");
         }
+    }
+
+    public boolean test(ItemStack stack) {
+        return ingredient.test(stack);
     }
 }

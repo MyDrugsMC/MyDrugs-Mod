@@ -10,12 +10,13 @@ public final class ModWorldGenKeys {
     public static final ResourceKey<ConfiguredFeature<?, ?>> HUGE_MAGIC_MUSHROOM =
             configured("huge_magic_mushroom");
 
+    private ModWorldGenKeys() {
+    }
+
     private static ResourceKey<ConfiguredFeature<?, ?>> configured(String name) {
         return ResourceKey.create(
                 Registries.CONFIGURED_FEATURE,
                 ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name)
         );
     }
-
-    private ModWorldGenKeys() {}
 }

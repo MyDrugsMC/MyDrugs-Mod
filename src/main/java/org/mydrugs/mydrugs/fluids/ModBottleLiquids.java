@@ -7,7 +7,8 @@ public final class ModBottleLiquids {
     public static final ResourceLocation WATER = ResourceLocation.withDefaultNamespace("water");
     public static final ResourceLocation BLOOD = ModFluids.rl("blood");
 
-    private ModBottleLiquids() {}
+    private ModBottleLiquids() {
+    }
 
     public static int getArgb(ResourceLocation liquidId, int fallbackRgb) {
         int rgb;

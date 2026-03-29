@@ -6,7 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 
 public final class FluidTypesEx {
-    private FluidTypesEx() {}
+    private FluidTypesEx() {
+    }
 
     public static boolean isDrinkable(Fluid fluid) {
         FluidType type = fluid.getFluidType();

@@ -13,6 +13,7 @@ public class AcidWarpShader extends AnimatedShader {
     float tintR = 1.2F;
     float tintG = 0.9F;
     float tintB = 1.3F;
+
     protected AcidWarpShader() {
         super("acid_warp");
     }

@@ -24,7 +24,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -43,34 +42,35 @@ import java.util.Optional;
 public class MixingVatBlockEntity extends BlockEntity {
     public static final int MAX_ITEM_TYPES = 4;
     public static final int FLUID_CAPACITY = 4000;
-
+    public static final int STIR_ANIMATION_TICKS = 8;
     private final NonNullList<ItemStack> inputItems = NonNullList.withSize(MAX_ITEM_TYPES, ItemStack.EMPTY);
-
     @Nullable
     private ResourceLocation inputFluid1Id = null;
     private int inputFluid1Amount = 0;
-
     @Nullable
     private ResourceLocation inputFluid2Id = null;
     private int inputFluid2Amount = 0;
-
     private ItemStack resultItem = ItemStack.EMPTY;
-
     @Nullable
     private ResourceLocation resultFluidId = null;
     private int resultFluidAmount = 0;
-
     private int progress = 0;
     private int maxProgress = 100;
-
-    public static final int STIR_ANIMATION_TICKS = 8;
-
     private int currentStirs = 0;
     private int requiredStirs = 0;
     private int stirAnimationTicks = 0;
 
     public MixingVatBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MIXING_VAT.get(), pos, state);
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, MixingVatBlockEntity be) {
+        if (be.stirAnimationTicks > 0) {
+            be.stirAnimationTicks--;
+            if (!level.isClientSide()) {
+                be.setChanged();
+            }
+        }
     }
 
     public List<ItemStack> getVisualItems() {
@@ -420,7 +420,7 @@ public class MixingVatBlockEntity extends BlockEntity {
     }
 
     public boolean takeFirstIngredientItem(Player player) {
-        for (int i = MAX_ITEM_TYPES-1; i >= 0; i--) {
+        for (int i = MAX_ITEM_TYPES - 1; i >= 0; i--) {
             ItemStack item = inputItems.get(i);
 
             if (item.isEmpty()) continue;
@@ -494,8 +494,7 @@ public class MixingVatBlockEntity extends BlockEntity {
     }
 
     private boolean consumeInputFluid(MixingVatFluidStack required) {
-        if (inputFluid1Id != null
-                && inputFluid1Amount >= required.amount()
+        if (inputFluid1Amount >= required.amount()
                 && required.fluid().equals(inputFluid1Id)) {
             inputFluid1Amount -= required.amount();
             if (inputFluid1Amount <= 0) {
@@ -505,8 +504,7 @@ public class MixingVatBlockEntity extends BlockEntity {
             return true;
         }
 
-        if (inputFluid2Id != null
-                && inputFluid2Amount >= required.amount()
+        if (inputFluid2Amount >= required.amount()
                 && required.fluid().equals(inputFluid2Id)) {
             inputFluid2Amount -= required.amount();
             if (inputFluid2Amount <= 0) {
@@ -537,15 +535,6 @@ public class MixingVatBlockEntity extends BlockEntity {
         } else {
             resultFluidId = null;
             resultFluidAmount = 0;
-        }
-    }
-
-    public static void tick(Level level, BlockPos pos, BlockState state, MixingVatBlockEntity be) {
-        if (be.stirAnimationTicks > 0) {
-            be.stirAnimationTicks--;
-            if (!level.isClientSide()) {
-                be.setChanged();
-            }
         }
     }
 

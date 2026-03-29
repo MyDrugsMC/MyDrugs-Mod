@@ -52,16 +52,37 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
         this.requiredStirs = requiredStirs;
     }
 
-    public Optional<Ingredient> item1() { return item1; }
-    public Optional<Ingredient> item2() { return item2; }
-    public Optional<Ingredient> item3() { return item3; }
-    public Optional<Ingredient> item4() { return item4; }
+    public Optional<Ingredient> item1() {
+        return item1;
+    }
 
-    public Optional<MixingVatFluidStack> fluidInput1() { return fluidInput1; }
-    public Optional<MixingVatFluidStack> fluidInput2() { return fluidInput2; }
+    public Optional<Ingredient> item2() {
+        return item2;
+    }
 
-    public ItemStack resultItem() { return resultItem; }
-    public Optional<MixingVatFluidStack> resultFluid() { return resultFluid; }
+    public Optional<Ingredient> item3() {
+        return item3;
+    }
+
+    public Optional<Ingredient> item4() {
+        return item4;
+    }
+
+    public Optional<MixingVatFluidStack> fluidInput1() {
+        return fluidInput1;
+    }
+
+    public Optional<MixingVatFluidStack> fluidInput2() {
+        return fluidInput2;
+    }
+
+    public ItemStack resultItem() {
+        return resultItem;
+    }
+
+    public Optional<MixingVatFluidStack> resultFluid() {
+        return resultFluid;
+    }
 
     public int requiredStirs() {
         return requiredStirs;

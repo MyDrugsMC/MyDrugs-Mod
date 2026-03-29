@@ -9,40 +9,58 @@ import net.minecraft.world.entity.player.Player;
 public class SoundInstance extends AbstractTickableSoundInstance {
     private final Player player;
     private boolean stoppedFlag = false;
-    private float ticksLeft;
+    private int ticksLeft;
 
     public SoundInstance(SoundEvent event, Player player, int durationTicks) {
-        super(event, SoundSource.NEUTRAL, RandomSource.create());
+        super(event, SoundSource.PLAYERS, RandomSource.create());
+
         this.player = player;
+        this.ticksLeft = durationTicks;
+
         this.looping = true;
         this.delay = 0;
         this.volume = 1.0F;
         this.pitch = 1.0F;
-        this.x = player.getX();
-        this.y = player.getY();
-        this.z = player.getZ();
-        this.ticksLeft = durationTicks;
+
+        // Keep the sound local to the player instead of relying on world attenuation.
+        this.relative = true;
+        this.attenuation = net.minecraft.client.resources.sounds.SoundInstance.Attenuation.NONE;
+
+        this.x = 0.0D;
+        this.y = 0.0D;
+        this.z = 0.0D;
     }
 
     @Override
     public void tick() {
+        if (stoppedFlag) {
+            return;
+        }
+
+        if (player.isRemoved() || !player.isAlive()) {
+            stopNow();
+            return;
+        }
+
+        if (ticksLeft > 0) {
+            ticksLeft--;
+        }
+
         if (ticksLeft <= 0) {
-            return;
+            stopNow();
         }
-
-        ticksLeft--;
-
-        if (ticksLeft <= 0 || player.isRemoved() || !player.isAlive()) {
-            this.stop();
-            this.stoppedFlag = true;
-            return;
-        }
-
-        this.x = player.getX();
-        this.y = player.getY();
-        this.z = player.getZ();
     }
 
+    public void refreshDuration(int durationTicks) {
+        if (durationTicks > this.ticksLeft) {
+            this.ticksLeft = durationTicks;
+        }
+    }
+
+    private void stopNow() {
+        this.stop();
+        this.stoppedFlag = true;
+    }
 
     public boolean isStoppedFlag() {
         return stoppedFlag;

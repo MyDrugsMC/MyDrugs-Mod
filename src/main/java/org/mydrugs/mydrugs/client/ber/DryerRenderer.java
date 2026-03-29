@@ -10,9 +10,9 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.DryerBlockEntity;
@@ -63,7 +63,7 @@ public final class DryerRenderer implements BlockEntityRenderer<DryerBlockEntity
             if (stack.isEmpty()) continue;
 
             poseStack.pushPose();
-            poseStack.translate(SLOT_POSITIONS[i][0], 0.76F, SLOT_POSITIONS[i][1]-0.1);
+            poseStack.translate(SLOT_POSITIONS[i][0], 0.76F, SLOT_POSITIONS[i][1] - 0.1);
             poseStack.mulPose(Axis.XP.rotationDegrees(90.0f));
             poseStack.scale(0.70F, 0.70F, 0.70F);
 

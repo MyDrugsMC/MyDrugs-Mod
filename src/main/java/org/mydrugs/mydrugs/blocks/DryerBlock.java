@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -27,6 +27,15 @@ public final class DryerBlock extends BaseEntityBlock implements EntityBlock {
 
     public DryerBlock(BlockBehaviour.Properties properties) {
         super(properties);
+    }
+
+    private static int slotFromHit(BlockHitResult hit, BlockPos pos) {
+        double localX = hit.getLocation().x - pos.getX();
+        double localZ = hit.getLocation().z - pos.getZ();
+
+        int col = localX < 0.5 ? 0 : 1;
+        int row = localZ < 0.5 ? 0 : 1;
+        return row * 2 + col;
     }
 
     @Override
@@ -54,15 +63,6 @@ public final class DryerBlock extends BaseEntityBlock implements EntityBlock {
         return level.isClientSide()
                 ? null
                 : createTickerHelper(type, ModBlockEntities.DRYER.get(), DryerBlockEntity::serverTick);
-    }
-
-    private static int slotFromHit(BlockHitResult hit, BlockPos pos) {
-        double localX = hit.getLocation().x - pos.getX();
-        double localZ = hit.getLocation().z - pos.getZ();
-
-        int col = localX < 0.5 ? 0 : 1;
-        int row = localZ < 0.5 ? 0 : 1;
-        return row * 2 + col;
     }
 
     @Override

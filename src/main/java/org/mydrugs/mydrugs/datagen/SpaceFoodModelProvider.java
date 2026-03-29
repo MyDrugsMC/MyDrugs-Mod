@@ -26,27 +26,6 @@ public class SpaceFoodModelProvider implements DataProvider {
         this.itemModelPath = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "models/item");
     }
 
-    @Override
-    public CompletableFuture<?> run(CachedOutput cache) {
-        List<CompletableFuture<?>> futures = new ArrayList<>();
-
-        ModItems.SPACE_FOODS_BY_BASE_ID.forEach((baseId, holder) -> {
-            String spacePath = "space_" + baseId.getPath();
-            ResourceLocation spaceId = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, spacePath);
-
-            JsonObject modelJson = makeModelJson(baseId);
-            JsonObject clientItemJson = makeClientItemJson(spacePath);
-
-            Path modelPath = this.itemModelPath.json(spaceId);
-            Path clientItemPath = this.itemClientPath.json(spaceId);
-
-            futures.add(DataProvider.saveStable(cache, modelJson, modelPath));
-            futures.add(DataProvider.saveStable(cache, clientItemJson, clientItemPath));
-        });
-
-        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
-    }
-
     private static JsonObject makeModelJson(ResourceLocation baseFoodId) {
         JsonObject root = new JsonObject();
         root.addProperty("parent", "minecraft:item/generated");
@@ -85,6 +64,27 @@ public class SpaceFoodModelProvider implements DataProvider {
         tint.addProperty("type", "minecraft:constant");
         tint.addProperty("value", color);
         return tint;
+    }
+
+    @Override
+    public CompletableFuture<?> run(CachedOutput cache) {
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+
+        ModItems.SPACE_FOODS_BY_BASE_ID.forEach((baseId, holder) -> {
+            String spacePath = "space_" + baseId.getPath();
+            ResourceLocation spaceId = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, spacePath);
+
+            JsonObject modelJson = makeModelJson(baseId);
+            JsonObject clientItemJson = makeClientItemJson(spacePath);
+
+            Path modelPath = this.itemModelPath.json(spaceId);
+            Path clientItemPath = this.itemClientPath.json(spaceId);
+
+            futures.add(DataProvider.saveStable(cache, modelJson, modelPath));
+            futures.add(DataProvider.saveStable(cache, clientItemJson, clientItemPath));
+        });
+
+        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }
 
     @Override

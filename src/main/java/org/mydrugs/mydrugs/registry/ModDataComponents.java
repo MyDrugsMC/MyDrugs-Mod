@@ -8,7 +8,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.items.bottle.BottleFluidContent;
 import org.mydrugs.mydrugs.items.data.BloodSample;
-import org.mydrugs.mydrugs.fluids.BottleLiquid;
 
 import java.util.function.Supplier;
 
@@ -49,5 +48,6 @@ public class ModDataComponents {
                             .build()
             );
 
-    private ModDataComponents() {}
+    private ModDataComponents() {
+    }
 }

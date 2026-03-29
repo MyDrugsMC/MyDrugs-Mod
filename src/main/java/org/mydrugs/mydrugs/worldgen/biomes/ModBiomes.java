@@ -10,9 +10,10 @@ public class ModBiomes {
     public static final ResourceKey<Biome> PSYCHEDELIC_VALLEY = key("psychedelic_valley");
     public static final ResourceKey<Biome> PSYCHEDELIC_MUSHROOM_VALLEY = key("psychedelic_mushroom_valley");
 
+    private ModBiomes() {
+    }
+
     private static ResourceKey<Biome> key(String name) {
         return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name));
     }
-
-    private ModBiomes() {}
 }

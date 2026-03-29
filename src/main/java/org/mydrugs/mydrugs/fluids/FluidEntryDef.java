@@ -7,4 +7,5 @@ public record FluidEntryDef(
         int tint,
         boolean drinkable,
         DrugId drugId
-) {}
+) {
+}

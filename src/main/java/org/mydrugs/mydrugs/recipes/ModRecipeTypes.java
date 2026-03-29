@@ -20,7 +20,7 @@ public class ModRecipeTypes {
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES =
             DeferredRegister.create(Registries.RECIPE_TYPE, MyDrugs.MODID);
 
-    public static final DeferredHolder<RecipeType<?>,RecipeType<GrindingRecipe>> GRINDING =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<GrindingRecipe>> GRINDING =
             RECIPE_TYPES.register("grinding", () -> RecipeType.simple(
                     ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "grinding")
             ));
@@ -45,5 +45,6 @@ public class ModRecipeTypes {
     public static final Supplier<RecipeType<SieveRecipe>> SIEVING_TYPE =
             RECIPE_TYPES.register("sieving", RecipeType::simple);
 
-    private ModRecipeTypes() {}
+    private ModRecipeTypes() {
+    }
 }

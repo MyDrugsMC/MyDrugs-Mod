@@ -24,5 +24,6 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<SieveBlock>> SIEVE_CODEC =
             BLOCK_TYPES.register("dryer", () -> Block.simpleCodec(SieveBlock::new));
 
-    private ModBlockTypes() {}
+    private ModBlockTypes() {
+    }
 }

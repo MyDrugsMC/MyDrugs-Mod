@@ -16,7 +16,8 @@ public final class StompCrafterRecipeResolver {
 
     private static final int WORK_UNIT_SCALE = 10;
 
-    private StompCrafterRecipeResolver() {}
+    private StompCrafterRecipeResolver() {
+    }
 
     public static boolean canAcceptPartial(ServerLevel level, List<ItemStack> partialItems) {
         List<ItemStack> items = normalize(partialItems);
@@ -101,6 +102,7 @@ public final class StompCrafterRecipeResolver {
 
     public sealed interface ProcessMatch permits GrindingMatch, StompMatch {
         int requiredWork();
+
         ItemStack assemble(ServerLevel level, List<ItemStack> items);
     }
 
@@ -109,6 +111,7 @@ public final class StompCrafterRecipeResolver {
         public int requiredWork() {
             return holder.value().clampedWork() * WORK_UNIT_SCALE;
         }
+
         @Override
         public ItemStack assemble(ServerLevel level, List<ItemStack> items) {
             return holder.value().assemble(
@@ -123,6 +126,7 @@ public final class StompCrafterRecipeResolver {
         public int requiredWork() {
             return holder.value().clampedWork() * WORK_UNIT_SCALE;
         }
+
         @Override
         public ItemStack assemble(ServerLevel level, List<ItemStack> items) {
             return holder.value().assemble(

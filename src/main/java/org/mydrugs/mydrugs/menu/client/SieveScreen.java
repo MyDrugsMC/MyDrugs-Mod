@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.menu.client;
 
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -225,7 +226,8 @@ public class SieveScreen extends AbstractContainerScreen<SieveMenu> {
             float impulse = Math.min(Math.abs(dy) * 0.30F, 4.0F);
             this.queueImpulse(impulse);
             this.flushPendingImpulse(false);
-            return true;
+            if (Minecraft.getInstance())
+                return true;
         }
 
         return super.mouseDragged(event, dragX, dragY);

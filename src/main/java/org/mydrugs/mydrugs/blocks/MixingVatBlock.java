@@ -35,6 +35,10 @@ public class MixingVatBlock extends BaseEntityBlock {
             Block.box(13, 3, 3, 15, 16, 13)  // east wall
     );
 
+    public MixingVatBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+    }
+
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
@@ -43,10 +47,6 @@ public class MixingVatBlock extends BaseEntityBlock {
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
-    }
-
-    public MixingVatBlock(BlockBehaviour.Properties properties) {
-        super(properties);
     }
 
     @Override

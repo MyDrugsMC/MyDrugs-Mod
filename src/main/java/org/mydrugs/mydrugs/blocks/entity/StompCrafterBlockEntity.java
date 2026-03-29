@@ -34,6 +34,19 @@ public class StompCrafterBlockEntity extends BlockEntity {
         super(ModBlockEntities.STOMP_CRAFTER.get(), pos, state);
     }
 
+    private static ItemStack buildDisplayStackFor(List<ItemStack> items, ItemStack basis) {
+        int count = 0;
+        for (ItemStack stack : items) {
+            if (ItemStack.isSameItemSameComponents(stack, basis)) {
+                count++;
+            }
+        }
+
+        ItemStack shown = basis.copy();
+        shown.setCount(Math.min(count, shown.getMaxStackSize()));
+        return shown;
+    }
+
     // For rendering: always expose 0..100
     public int getProgressPercent() {
         if (this.requiredWork <= 0) {
@@ -66,19 +79,6 @@ public class StompCrafterBlockEntity extends BlockEntity {
         }
 
         return result;
-    }
-
-    private static ItemStack buildDisplayStackFor(List<ItemStack> items, ItemStack basis) {
-        int count = 0;
-        for (ItemStack stack : items) {
-            if (ItemStack.isSameItemSameComponents(stack, basis)) {
-                count++;
-            }
-        }
-
-        ItemStack shown = basis.copy();
-        shown.setCount(Math.min(count, shown.getMaxStackSize()));
-        return shown;
     }
 
     public void addProgressFromFall(ServerLevel level, double fallDistance) {

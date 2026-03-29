@@ -105,7 +105,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    implementation("io.github.mydrugs:mydrugs-core:1.0.22")
+    implementation("io.github.mydrugs:mydrugs-core:1.0.23")
     implementation "com.github.glitchfiend:TerraBlender-neoforge:1.21.10-21.10.0.0"
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime

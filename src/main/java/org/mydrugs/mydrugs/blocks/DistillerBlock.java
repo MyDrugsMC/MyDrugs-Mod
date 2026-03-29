@@ -23,15 +23,14 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import org.mydrugs.mydrugs.blocks.entity.AdvancedFurnaceBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.DistillerBlockEntity;
 
 public class DistillerBlock extends BaseEntityBlock {
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+
     public DistillerBlock(Properties props) {
         super(props);
     }
-
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {

@@ -4,7 +4,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.world.level.material.Fluids;
-import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;

@@ -40,5 +40,6 @@ public class ModRecipeSerializers {
     public static final Supplier<RecipeSerializer<SieveRecipe>> SIEVING_SERIALIZER =
             RECIPE_SERIALIZERS.register("sieving", SieveRecipe.Serializer::new);
 
-    private ModRecipeSerializers() {}
+    private ModRecipeSerializers() {
+    }
 }
