@@ -1,0 +1,11 @@
+{
+  "type": "mydrugs:advanced_furnace",
+  "input_a": "minecraft:coal",
+  "result_a": {
+    "id": "minecraft:cobblestone",
+    "count": 1
+  },
+  "fluid_output": "mydrugs:coal_tar",
+  "fluid_amount": 100,
+  "cook_time": 200
+}

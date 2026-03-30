@@ -5,7 +5,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 
 public class MagicMushroomItem extends DrugBlockItem {
-    public MagicMushroomItem(Block block, Properties properties, DrugId id, ConsumptionStrategy... strategy) {
+    public MagicMushroomItem(Block block, Properties properties, DrugId id, ConsumptionStrategy strategy) {
         super(block, properties, id, strategy);
     }
 

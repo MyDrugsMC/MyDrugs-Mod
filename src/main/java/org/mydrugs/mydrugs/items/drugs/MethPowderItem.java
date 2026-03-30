@@ -4,12 +4,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 
 public class MethPowderItem extends DrugItem {
-    public MethPowderItem(Properties properties, DrugId drugId, ConsumptionStrategy... strategy) {
+    public MethPowderItem(Properties properties, DrugId drugId, ConsumptionStrategy strategy) {
         super(properties, drugId, strategy);
-    }
-
-    @Override
-    public boolean isCrushable() {
-        return false;
     }
 }

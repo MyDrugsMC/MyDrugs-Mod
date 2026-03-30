@@ -6,22 +6,21 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.Consumable;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.ModSounds;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.DrugId;
-import org.mydrugs.mydrugs.core.drug.strategy.BangSmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
-import org.mydrugs.mydrugs.core.drug.strategy.JointSmokingStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
+import org.mydrugs.mydrugs.items.rolling.RollerItem;
 
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -42,24 +41,36 @@ public class ModItems {
                     props -> new BlockItem(ModBlocks.MALT_CROP.get(), props)
             );
 
+    public static final DeferredItem<BlockItem> TOBACCO_SEEDS =
+            ITEMS.registerItem(
+                    "tobacco_seeds",
+                    props -> new BlockItem(ModBlocks.TOBACCO_CROP.get(), props)
+            );
+
     public static final DeferredItem<BlockItem> CANNABIS_SEEDS =
             ITEMS.registerItem(
                     "cannabis_seeds",
                     props -> new BlockItem(ModBlocks.CANNABIS_CROP.get(), props)
             );
 
+    public static final DeferredItem<Item> TOBACCO_LEAF =
+            ITEMS.registerSimpleItem("tobacco_leaf");
+
+    public static final DeferredItem<Item> DRIED_TOBACCO_LEAF =
+            ITEMS.registerSimpleItem("dried_tobacco_leaf");
+
     public static final DeferredItem<Item> CANNABIS_LEAF =
             ITEMS.registerSimpleItem("cannabis_leaf");
 
     public static final DeferredItem<Item> CANNABIS_POWDER =
             ITEMS.registerItem("cannabis_powder",
-                    prop -> new CannabisPowderItem(prop, DrugId.WEED, new BangSmokingStrategy(), new JointSmokingStrategy()));
+                    prop -> new CannabisPowderItem(prop, DrugId.WEED, new SmokingStrategy(true, true)));
 
     public static final DeferredItem<Item> METH_SHARD =
-            ITEMS.registerItem("meth_shard", prop -> new MethShardItem(prop, DrugId.METH));
+            ITEMS.registerItem("meth_shard", prop -> new MethShardItem(prop, DrugId.METH, null));
 
     public static final DeferredItem<Item> METH_POWDER =
-            ITEMS.registerItem("meth_powder", prop -> new MethPowderItem(prop, DrugId.METH, new BangSmokingStrategy()));
+            ITEMS.registerItem("meth_powder", prop -> new MethPowderItem(prop, DrugId.METH, new SmokingStrategy(true, false)));
 
     public static final DeferredItem<Item> LSD_BOTTLE =
             ITEMS.registerItem("lsd_bottle",
@@ -136,24 +147,37 @@ public class ModItems {
             ITEMS.registerSimpleItem("hash_brick");
 
     public static final DeferredItem<Item> HASH_PIECE =
-            ITEMS.registerItem("hash_piece", prop -> new HashPieceItem(prop, DrugId.HASH, new BangSmokingStrategy(), new JointSmokingStrategy()));
+            ITEMS.registerItem("hash_piece", prop -> new HashPieceItem(prop, DrugId.HASH, new SmokingStrategy(true, true)));
 
     public static final DeferredItem<Item> COCA_LEAF =
             ITEMS.registerSimpleItem("coca_leaf");
+
+    public static final DeferredItem<Item> FILTER =
+            ITEMS.registerSimpleItem("filter");
 
     public static final DeferredItem<Item> COCAINE_DUST =
             ITEMS.registerItem("cocaine_dust", prop -> new HashPieceItem(prop, DrugId.COCAINE, new SniffingStrategy()));
 
     public static final DeferredItem<Item> CRACK_SHARD =
-            ITEMS.registerItem("crack_shard", prop -> new HashPieceItem(prop, DrugId.CRACK, new BangSmokingStrategy()));
+            ITEMS.registerItem("crack_shard", prop -> new HashPieceItem(prop, DrugId.CRACK, new SmokingStrategy(true, false)));
 
     public static final DeferredItem<Item> GLASS_BOTTLE =
             ITEMS.registerItem("glass_bottle",
                     GlassBottleItem::new,
                     properties -> properties.stacksTo(1));
 
-    public static final DeferredItem<Item> TOBACCO_BAG =
-            ITEMS.registerItem("tobacco_bag", prop -> new HashPieceItem(prop, DrugId.TOBACCO, new BangSmokingStrategy()));
+    public static final DeferredItem<Item> TOBACCO_HANDFUL =
+            ITEMS.registerItem("tobacco_handful", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
+
+    public static final DeferredItem<Item> CIGARETTE =
+            ITEMS.registerItem("cigaret",
+                    prop -> new CigaretteItem(prop, DrugId.TOBACCO, new SmokingStrategy(false, true)));
+
+    public static final DeferredItem<Item> JOINT =
+            ITEMS.registerItem("joint",
+                    prop -> new JointItem(prop, null, new SmokingStrategy(false, true)));
+
+    public static final DeferredItem<Item> ROLLER = ITEMS.registerItem("roller", RollerItem::new);
 
     public static final DeferredItem<BlockItem> ADVANCED_FURNACE_ITEM =
             ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_FURNACE);
@@ -219,7 +243,7 @@ public class ModItems {
         // Optional extras you may also want to preserve
         copyIfPresent(prototype, props, DataComponents.RARITY);
 
-        return new SpaceFoodItem(baseFood, props, DrugId.WEED);
+        return new SpaceFoodItem(baseFood, props, DrugId.WEED, new EatingStrategy());
     }
 
     private static <T> void copyIfPresent(ItemStack from, Item.Properties props, DataComponentType<T> type) {

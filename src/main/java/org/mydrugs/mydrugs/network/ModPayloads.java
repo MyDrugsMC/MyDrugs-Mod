@@ -20,6 +20,11 @@ public final class ModPayloads {
                 SieveShakePayload.STREAM_CODEC,
                 ModPayloads::handleSieveShake
         );
+        registrar.playToServer(
+                RollerDragPayload.TYPE,
+                RollerDragPayload.STREAM_CODEC,
+                RollerDragPayload::handleOnServer
+        );
     }
 
     private static void handleSieveShake(SieveShakePayload payload, IPayloadContext context) {

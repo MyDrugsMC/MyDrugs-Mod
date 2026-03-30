@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.blocks;
+package org.mydrugs.mydrugs.blocks.crops;
 
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.CropBlock;

@@ -5,13 +5,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.menu.SieveLayout;
 import org.mydrugs.mydrugs.menu.SieveMenu;
 import org.mydrugs.mydrugs.network.SieveShakePayload;
+
+import java.util.logging.Level;
 
 public class SieveScreen extends AbstractContainerScreen<SieveMenu> {
     private static final int KNOB_RADIUS = 5;
@@ -226,8 +232,13 @@ public class SieveScreen extends AbstractContainerScreen<SieveMenu> {
             float impulse = Math.min(Math.abs(dy) * 0.30F, 4.0F);
             this.queueImpulse(impulse);
             this.flushPendingImpulse(false);
-            if (Minecraft.getInstance())
-                return true;
+            ClientLevel level = Minecraft.getInstance().level;
+            Player player = Minecraft.getInstance().player;
+
+            if (level != null && player != null && (level.getDayTime() % 10 == 0)) {
+                player.playSound(SoundEvents.SAND_HIT, 0.7F, 0.8F);
+            }
+            return true;
         }
 
         return super.mouseDragged(event, dragX, dragY);

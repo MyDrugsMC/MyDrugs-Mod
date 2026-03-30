@@ -12,10 +12,7 @@ import org.mydrugs.mydrugs.client.item.BottleFillProperty;
 import org.mydrugs.mydrugs.client.item.LiquidColorTintSource;
 import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
 import org.mydrugs.mydrugs.menu.ModMenus;
-import org.mydrugs.mydrugs.menu.client.AdvancedFurnaceScreen;
-import org.mydrugs.mydrugs.menu.client.DistillerScreen;
-import org.mydrugs.mydrugs.menu.client.SieveScreen;
-import org.mydrugs.mydrugs.menu.client.SingleSlotMenuScreen;
+import org.mydrugs.mydrugs.menu.client.*;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public class ClientModEvents {
@@ -28,6 +25,7 @@ public class ClientModEvents {
         event.register(ModMenus.ADVANCED_FURNACE.get(), AdvancedFurnaceScreen::new);
         event.register(ModMenus.DISTILLER.get(), DistillerScreen::new);
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
+        event.register(ModMenus.ROLLER.get(), RollerScreen::new);
     }
 
     @SubscribeEvent

@@ -3,8 +3,11 @@ package org.mydrugs.mydrugs.datagen;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
+import net.minecraft.data.tags.TagAppender;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.fluids.FluidEntry;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 
@@ -20,16 +23,11 @@ public class ModFluidTagProvider extends FluidTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        this.tag(ModFluidTags.BOTTLABLE)
-                .add(Fluids.WATER)
-                .add(ModFluids.AMMONIAC.source().get())
-                .add(ModFluids.BLOOD.source().get())
-                .add(ModFluids.VODKA.source().get())
-                .add(ModFluids.RAW_ALCOHOL.source().get())
-                .add(ModFluids.STARCH_MASH.source().get())
-                .add(ModFluids.SWEET_MASH.source().get())
-                .add(ModFluids.WILD_YEAST.source().get())
-                .add(ModFluids.FERMENTED_MASH.source().get());
+        TagAppender<Fluid, Fluid> tag = this.tag(ModFluidTags.BOTTLABLE);
+        for (FluidEntry entry : ModFluids.ALL.values()) {
+            tag.add(entry.source().get());
+        }
+        tag.add(Fluids.WATER);
 
         // Optional examples:
         // this.tag(Tags.Fluids.WATER).add(ModFluids.SOME_WATERLIKE_FLUID.source().get());

@@ -17,7 +17,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugHolder;
-import org.mydrugs.mydrugs.core.drug.strategy.BangSmokingStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.menu.SingleSlotItemContainer;
 import org.mydrugs.mydrugs.menu.SingleSlotMenu;
 
@@ -98,7 +98,7 @@ public class BangItem extends Item implements SingleSlotContainerItem {
             ItemStack consumed = consumeLoadedContent(bang);
             if (!consumed.isEmpty()) {
                 if (consumed.getItem() instanceof DrugHolder drugHolder) {
-                    MyDrugs.DRUG_SERVICE.consume(drugHolder.getDrugModel(), new BangSmokingStrategy());
+                    MyDrugs.DRUG_SERVICE.consume(drugHolder.getDrugModel(), drugHolder.getConsumptionStrategy());
                 }
                 level.playSound(
                         null,
@@ -148,8 +148,6 @@ public class BangItem extends Item implements SingleSlotContainerItem {
     @Override
     public boolean mayPlace(ItemStack itemStack, ServerLevel level) {
         if (!(itemStack.getItem() instanceof DrugHolder holder)) return false;
-        return holder.getConsumptionStrategies()
-                .stream()
-                .anyMatch(strat -> strat.getClass() == BangSmokingStrategy.class);
+        return holder.getConsumptionStrategy() instanceof SmokingStrategy;
     }
 }

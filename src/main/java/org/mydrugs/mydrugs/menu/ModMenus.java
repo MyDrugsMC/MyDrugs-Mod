@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.menu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 
@@ -23,4 +24,8 @@ public class ModMenus {
 
     public static final Supplier<MenuType<SieveMenu>> SIEVE =
             MENUS.register("sieve", () -> new MenuType<>(SieveMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<RollerMenu>> ROLLER =
+            MENUS.register("roller", () -> new MenuType<>(RollerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
 }

@@ -7,6 +7,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.blocks.crops.CannabisCropBlock;
+import org.mydrugs.mydrugs.blocks.crops.MaltCropBlock;
+import org.mydrugs.mydrugs.blocks.crops.RyeCropBlock;
+import org.mydrugs.mydrugs.blocks.crops.TobaccoCropBlock;
 import org.mydrugs.mydrugs.worldgen.ModWorldGenKeys;
 
 public class ModBlocks {
@@ -24,6 +28,13 @@ public class ModBlocks {
             BLOCKS.registerBlock(
                     "malt_crop",
                     MaltCropBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+            );
+
+    public static final DeferredBlock<TobaccoCropBlock> TOBACCO_CROP =
+            BLOCKS.registerBlock(
+                    "tobacco_crop",
+                    TobaccoCropBlock::new,
                     () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
             );
 

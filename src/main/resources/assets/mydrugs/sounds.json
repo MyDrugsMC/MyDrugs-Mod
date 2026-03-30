@@ -3,5 +3,10 @@
     "sounds": [
       "mydrugs:heartbeat"
     ]
+  },
+  "smoke": {
+    "sounds": [
+      "mydrugs:smoke"
+    ]
   }
 }

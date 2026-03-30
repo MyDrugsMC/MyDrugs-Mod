@@ -9,6 +9,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.fluids.FluidEntry;
+import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
@@ -27,14 +28,9 @@ public final class ModFluidClientExtensions {
 
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        register(event, ModFluids.STARCH_MASH);
-        register(event, ModFluids.SWEET_MASH);
-        register(event, ModFluids.WILD_YEAST);
-        register(event, ModFluids.FERMENTED_MASH);
-        register(event, ModFluids.RAW_ALCOHOL);
-        register(event, ModFluids.VODKA);
-        register(event, ModFluids.AMMONIAC);
-        register(event, ModFluids.BLOOD);
+        for (FluidEntry entry : ModFluids.ALL.values()) {
+            register(event, entry);
+        }
     }
 
     private static void register(RegisterClientExtensionsEvent event, FluidEntry entry) {

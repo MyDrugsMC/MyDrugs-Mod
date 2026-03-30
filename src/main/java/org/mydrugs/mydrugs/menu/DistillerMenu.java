@@ -6,7 +6,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.*;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -27,15 +31,6 @@ public class DistillerMenu extends AbstractContainerMenu {
     public static final int DUMP_OUTPUT_B_BUTTON_ID = 3;
 
     public static final int TANK_CAPACITY = 4000;
-
-    public static final int INPUT_SLOT_X = 24;
-    public static final int INPUT_SLOT_Y = 82;
-
-    public static final int OUTPUT_A_SLOT_X = 140;
-    public static final int OUTPUT_A_SLOT_Y = 82;
-
-    public static final int OUTPUT_B_SLOT_X = 164;
-    public static final int OUTPUT_B_SLOT_Y = 82;
 
     private static final int PLAYER_INV_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INV_END = PLAYER_INV_START + 27;
@@ -67,7 +62,12 @@ public class DistillerMenu extends AbstractContainerMenu {
 
         container.startOpen(playerInventory.player);
 
-        this.addSlot(new Slot(container, INPUT_CONTAINER_SLOT, INPUT_SLOT_X, INPUT_SLOT_Y) {
+        this.addSlot(new Slot(
+                container,
+                INPUT_CONTAINER_SLOT,
+                DistillerLayout.INPUT_SLOT_X,
+                DistillerLayout.INPUT_SLOT_Y
+        ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return DistillerBlockEntity.isFluidContainer(stack);
@@ -79,7 +79,12 @@ public class DistillerMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addSlot(new Slot(container, OUTPUT_A_CONTAINER_SLOT, OUTPUT_A_SLOT_X, OUTPUT_A_SLOT_Y) {
+        this.addSlot(new Slot(
+                container,
+                OUTPUT_A_CONTAINER_SLOT,
+                DistillerLayout.OUTPUT_A_SLOT_X,
+                DistillerLayout.OUTPUT_A_SLOT_Y
+        ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return DistillerBlockEntity.isFluidContainer(stack);
@@ -91,7 +96,12 @@ public class DistillerMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addSlot(new Slot(container, OUTPUT_B_CONTAINER_SLOT, OUTPUT_B_SLOT_X, OUTPUT_B_SLOT_Y) {
+        this.addSlot(new Slot(
+                container,
+                OUTPUT_B_CONTAINER_SLOT,
+                DistillerLayout.OUTPUT_B_SLOT_X,
+                DistillerLayout.OUTPUT_B_SLOT_Y
+        ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return DistillerBlockEntity.isFluidContainer(stack);
@@ -103,7 +113,26 @@ public class DistillerMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addStandardInventorySlots(playerInventory, 18, 108);
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        DistillerLayout.PLAYER_INV_X + col * DistillerLayout.SLOT_SIZE,
+                        DistillerLayout.PLAYER_INV_Y + row * DistillerLayout.SLOT_SIZE
+                ));
+            }
+        }
+
+        for (int col = 0; col < 9; col++) {
+            this.addSlot(new Slot(
+                    playerInventory,
+                    col,
+                    DistillerLayout.HOTBAR_X + col * DistillerLayout.SLOT_SIZE,
+                    DistillerLayout.HOTBAR_Y
+            ));
+        }
+
         this.addDataSlots(data);
     }
 
@@ -114,6 +143,12 @@ public class DistillerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.DISTILLER.get());
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.container.stopOpen(player);
     }
 
     @Override

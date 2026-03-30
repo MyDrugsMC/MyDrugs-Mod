@@ -19,6 +19,13 @@ public class ModSounds {
                     )
             );
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> SMOKE =
+            SOUND_EVENTS.register("smoke",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "smoke")
+                    )
+            );
+
     public static SoundEvent fromEffectType(EffectType effectType) {
         if (effectType.getCategory() != EffectCategory.SOUND_EFFECT) return null;
         return switch (effectType) {

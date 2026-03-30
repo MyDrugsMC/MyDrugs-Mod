@@ -39,6 +39,7 @@ public final class ModFluids {
     public static final FluidEntry VODKA;
     public static final FluidEntry AMMONIAC;
     public static final FluidEntry BLOOD;
+    public static final FluidEntry COAL_TAR;
 
     static {
         STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFD2B07A, false, null));
@@ -49,6 +50,7 @@ public final class ModFluids {
         VODKA = register(new FluidEntryDef("vodka", 0xCCEAF6FF, true, DrugId.ALCOHOL));
         AMMONIAC = register(new FluidEntryDef("ammoniac", 0xFFCFE17A, false, null));
         BLOOD = register(new FluidEntryDef("blood", 0xFF8E1B1B, false, null));
+        COAL_TAR = register(new FluidEntryDef("coal_tar", 0xFF000000, false, null));
     }
 
     private ModFluids() {

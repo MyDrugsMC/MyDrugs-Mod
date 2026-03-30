@@ -8,6 +8,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.items.bottle.BottleFluidContent;
 import org.mydrugs.mydrugs.items.data.BloodSample;
+import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
 
 import java.util.function.Supplier;
 
@@ -46,6 +47,14 @@ public class ModDataComponents {
                             .networkSynchronized(BottleFluidContent.STREAM_CODEC)
                             .cacheEncoding()
                             .build()
+            );
+
+    public static final Supplier<DataComponentType<RolledDrugContent>> ROLLED_CONTENT =
+            DATA_COMPONENTS.registerComponentType(
+                    "rolled_content",
+                    builder -> builder
+                            .persistent(RolledDrugContent.CODEC)
+                            .networkSynchronized(RolledDrugContent.STREAM_CODEC)
             );
 
     private ModDataComponents() {

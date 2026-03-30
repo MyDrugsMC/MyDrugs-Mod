@@ -12,12 +12,12 @@ import java.util.List;
 
 public abstract class DrugBlockItem extends BlockItem implements DrugHolder {
     private final DrugModel model;
-    private final List<ConsumptionStrategy> strategies;
+    private final ConsumptionStrategy strategy;
 
-    public DrugBlockItem(Block block, Properties properties, DrugId id, ConsumptionStrategy... strategy) {
+    public DrugBlockItem(Block block, Properties properties, DrugId id, ConsumptionStrategy strategy) {
         super(block, DrugItemProperties.prepare(properties, strategy));
         model = DrugRegistry.getDrug(id);
-        this.strategies = List.of(strategy);
+        this.strategy = strategy;
     }
 
     @Override
@@ -26,7 +26,7 @@ public abstract class DrugBlockItem extends BlockItem implements DrugHolder {
     }
 
     @Override
-    public List<ConsumptionStrategy> getConsumptionStrategies() {
-        return strategies;
+    public ConsumptionStrategy getConsumptionStrategy() {
+        return strategy;
     }
 }

@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:dried_tobacco_leaf",
+  "result": {
+    "id": "mydrugs:tobacco_handful",
+    "count": 2
+  },
+  "work": 1
+}
