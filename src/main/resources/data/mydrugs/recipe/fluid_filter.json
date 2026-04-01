@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SPS",
+    "PCP",
+    "SPS"
+  ],
+  "key": {
+    "P": "minecraft:paper",
+    "S":  "minecraft:string",
+    "C": [
+      "minecraft:coal",
+      "minecraft:charcoal"
+    ]
+  },
+  "result": {
+    "id": "mydrugs:filter",
+    "count": 1
+  }
+}

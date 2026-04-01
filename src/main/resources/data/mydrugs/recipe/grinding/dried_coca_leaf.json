@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:dried_coca_leaf",
+  "result": {
+    "id": "mydrugs:coca_paste",
+    "count": 1
+  },
+  "work": 10
+}

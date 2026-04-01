@@ -26,6 +26,8 @@ public class ClientModEvents {
         event.register(ModMenus.DISTILLER.get(), DistillerScreen::new);
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);
+        event.register(ModMenus.FLUID_FILTERER.get(), FluidFiltererScreen::new);
+
     }
 
     @SubscribeEvent

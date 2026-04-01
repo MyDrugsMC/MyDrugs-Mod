@@ -152,6 +152,12 @@ public class ModItems {
     public static final DeferredItem<Item> COCA_LEAF =
             ITEMS.registerSimpleItem("coca_leaf");
 
+    public static final DeferredItem<Item> DRIED_COCA_LEAF =
+            ITEMS.registerSimpleItem("dried_coca_leaf");
+
+    public static final DeferredItem<Item> COCA_PASTE =
+            ITEMS.registerSimpleItem("coca_paste");
+
     public static final DeferredItem<Item> FILTER =
             ITEMS.registerSimpleItem("filter");
 
@@ -191,6 +197,9 @@ public class ModItems {
     public static final DeferredItem<Item> FLOUR =
             ITEMS.registerSimpleItem("flour");
 
+    public static final DeferredItem<Item> PLANT_WASTE =
+            ITEMS.registerSimpleItem("plant_waste");
+
     public static final DeferredItem<Item> MIXING_SPATULA =
             ITEMS.registerSimpleItem("mixing_spatula");
 
@@ -198,8 +207,17 @@ public class ModItems {
 
     public static final DeferredItem<BlockItem> SIEVE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.SIEVE);
 
+    public static final DeferredItem<BlockItem> FLUID_FILTERER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.FLUID_FILTERER);
+
+    public static final DeferredItem<Item> FLUID_FILTER = ITEMS.registerItem(
+            "fluid_filter",
+            prop -> new Item(prop.durability(128))
+    );
+
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
+
 
     static {
         registerSpaceFoods();

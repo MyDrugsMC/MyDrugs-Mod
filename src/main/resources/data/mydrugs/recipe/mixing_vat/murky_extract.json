@@ -1,0 +1,13 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:coca_paste",
+  "fluid_input_1": {
+    "fluid": "mydrugs:raw_alcohol",
+    "amount": 100
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:murky_extract",
+    "amount": 150
+  },
+  "required_stirs": 3
+}

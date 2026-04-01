@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.mydrugs.mydrugs.menu.RollerLayout;
+import org.mydrugs.mydrugs.menu.layout.RollerLayout;
 import org.mydrugs.mydrugs.menu.RollerMenu;
 import org.mydrugs.mydrugs.network.RollerDragPayload;
 

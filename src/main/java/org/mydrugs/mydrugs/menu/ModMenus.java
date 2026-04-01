@@ -28,4 +28,9 @@ public class ModMenus {
     public static final Supplier<MenuType<RollerMenu>> ROLLER =
             MENUS.register("roller", () -> new MenuType<>(RollerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+
+    public static final Supplier<MenuType<FluidFiltererMenu>> FLUID_FILTERER = MENUS.register(
+            "fluid_filterer",
+            () -> new MenuType<>(FluidFiltererMenu::new, FeatureFlags.DEFAULT_FLAGS)
+    );
 }

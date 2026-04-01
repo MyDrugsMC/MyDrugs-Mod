@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "mydrugs:block/fluid_filterer_top",
+    "bottom": "mydrugs:block/fluid_filterer_bottom",
+    "side": "mydrugs:block/fluid_filterer_side",
+    "front": "mydrugs:block/fluid_filterer_front"
+  }
+}

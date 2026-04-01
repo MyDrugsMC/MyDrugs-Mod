@@ -8,6 +8,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
+import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
@@ -39,6 +40,9 @@ public class ModRecipeSerializers {
 
     public static final Supplier<RecipeSerializer<SieveRecipe>> SIEVING_SERIALIZER =
             RECIPE_SERIALIZERS.register("sieving", SieveRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<FluidFiltererRecipe>> FLUID_FILTERING =
+            RECIPE_SERIALIZERS.register("fluid_filtering", FluidFiltererRecipe.Serializer::new);
 
     private ModRecipeSerializers() {
     }

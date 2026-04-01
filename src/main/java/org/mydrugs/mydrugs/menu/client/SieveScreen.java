@@ -8,16 +8,13 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.mydrugs.mydrugs.menu.SieveLayout;
+import org.mydrugs.mydrugs.menu.layout.SieveLayout;
 import org.mydrugs.mydrugs.menu.SieveMenu;
 import org.mydrugs.mydrugs.network.SieveShakePayload;
-
-import java.util.logging.Level;
 
 public class SieveScreen extends AbstractContainerScreen<SieveMenu> {
     private static final int KNOB_RADIUS = 5;

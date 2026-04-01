@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import org.mydrugs.mydrugs.menu.DistillerLayout;
+import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 import org.mydrugs.mydrugs.menu.DistillerMenu;
 
 import java.util.ArrayList;

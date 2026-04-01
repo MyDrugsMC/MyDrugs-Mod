@@ -137,6 +137,12 @@ public class ModBlocks {
             props -> props.strength(2.5f).noOcclusion()
     );
 
+    public static final DeferredBlock<Block> FLUID_FILTERER  = BLOCKS.registerBlock(
+            "fluid_filterer",
+            FluidFiltererBlock::new,
+            props -> props.strength(3.5f).noOcclusion()
+    );
+
 
     public static final DeferredBlock<DryerBlock> DRYER = BLOCKS.registerBlock(
             "dryer",

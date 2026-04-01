@@ -67,4 +67,11 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(SieveBlockEntity::new, false, ModBlocks.SIEVE.get())
     );
 
+    public static final Supplier<BlockEntityType<FluidFiltererBlockEntity>> FLUID_FILTERER = BLOCK_ENTITY_TYPES.register(
+            "fluid_filterer",
+            () -> new BlockEntityType<>(
+                    FluidFiltererBlockEntity::new,
+                    ModBlocks.FLUID_FILTERER.get()
+            )
+    );
 }

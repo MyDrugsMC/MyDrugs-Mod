@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:drying",
+  "ingredient":  "mydrugs:tobacco_leaf",
+  "result": {
+    "id": "mydrugs:dried_tobacco_leaf",
+    "count": 1
+  },
+  "dry_time": 200
+}

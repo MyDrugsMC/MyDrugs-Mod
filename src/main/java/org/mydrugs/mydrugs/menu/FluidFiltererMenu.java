@@ -15,21 +15,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.DistillerBlockEntity;
-import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
+import org.mydrugs.mydrugs.blocks.entity.FluidFiltererBlockEntity;
+import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 
-public class DistillerMenu extends AbstractContainerMenu {
+public class FluidFiltererMenu extends AbstractContainerMenu {
     public static final int INPUT_CONTAINER_SLOT = 0;
     public static final int OUTPUT_A_CONTAINER_SLOT = 1;
     public static final int OUTPUT_B_CONTAINER_SLOT = 2;
+    public static final int FILTER_SLOT = 3;
+    public static final int RESIDUE_SLOT = 4;
 
-    public static final int MACHINE_SLOT_COUNT = 3;
-    public static final int DATA_COUNT = 10;
+    public static final int MACHINE_SLOT_COUNT = 5;
+    public static final int DATA_COUNT = 9;
 
-    public static final int RUN_BUTTON_ID = 0;
-    public static final int DUMP_INPUT_BUTTON_ID = 1;
-    public static final int DUMP_OUTPUT_A_BUTTON_ID = 2;
-    public static final int DUMP_OUTPUT_B_BUTTON_ID = 3;
+    public static final int RUN_BUTTON_START_ID = 0;
+    public static final int RUN_BUTTON_STOP_ID = 1;
+    public static final int DUMP_INPUT_BUTTON_ID = 2;
+    public static final int DUMP_OUTPUT_A_BUTTON_ID = 3;
+    public static final int DUMP_OUTPUT_B_BUTTON_ID = 4;
 
     public static final int TANK_CAPACITY = 4000;
 
@@ -42,7 +46,7 @@ public class DistillerMenu extends AbstractContainerMenu {
     private final ContainerData data;
     private final ContainerLevelAccess access;
 
-    public DistillerMenu(int containerId, Inventory playerInventory) {
+    public FluidFiltererMenu(int containerId, Inventory playerInventory) {
         this(
                 containerId,
                 playerInventory,
@@ -52,8 +56,8 @@ public class DistillerMenu extends AbstractContainerMenu {
         );
     }
 
-    public DistillerMenu(int containerId, Inventory playerInventory, Container container, ContainerData data, ContainerLevelAccess access) {
-        super(ModMenus.DISTILLER.get(), containerId);
+    public FluidFiltererMenu(int containerId, Inventory playerInventory, Container container, ContainerData data, ContainerLevelAccess access) {
+        super(ModMenus.FLUID_FILTERER.get(), containerId);
         checkContainerSize(container, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, DATA_COUNT);
 
@@ -66,12 +70,12 @@ public class DistillerMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(
                 container,
                 INPUT_CONTAINER_SLOT,
-                DistillerLayout.INPUT_SLOT_X,
-                DistillerLayout.INPUT_SLOT_Y
+                FluidFiltererLayout.INPUT_SLOT_X,
+                FluidFiltererLayout.INPUT_SLOT_Y
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return DistillerBlockEntity.isFluidContainer(stack);
+                return FluidFiltererBlockEntity.isFluidContainer(stack);
             }
 
             @Override
@@ -83,12 +87,12 @@ public class DistillerMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(
                 container,
                 OUTPUT_A_CONTAINER_SLOT,
-                DistillerLayout.OUTPUT_A_SLOT_X,
-                DistillerLayout.OUTPUT_A_SLOT_Y
+                FluidFiltererLayout.OUTPUT_A_SLOT_X,
+                FluidFiltererLayout.OUTPUT_A_SLOT_Y
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return DistillerBlockEntity.isFluidContainer(stack);
+                return FluidFiltererBlockEntity.isFluidContainer(stack);
             }
 
             @Override
@@ -100,12 +104,12 @@ public class DistillerMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(
                 container,
                 OUTPUT_B_CONTAINER_SLOT,
-                DistillerLayout.OUTPUT_B_SLOT_X,
-                DistillerLayout.OUTPUT_B_SLOT_Y
+                FluidFiltererLayout.OUTPUT_B_SLOT_X,
+                FluidFiltererLayout.OUTPUT_B_SLOT_Y
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return DistillerBlockEntity.isFluidContainer(stack);
+                return FluidFiltererBlockEntity.isFluidContainer(stack);
             }
 
             @Override
@@ -114,13 +118,42 @@ public class DistillerMenu extends AbstractContainerMenu {
             }
         });
 
+        this.addSlot(new Slot(
+                container,
+                FILTER_SLOT,
+                FluidFiltererLayout.FILTER_SLOT_X,
+                FluidFiltererLayout.FILTER_SLOT_Y
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.is(ModItems.FLUID_FILTER.get());
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+
+        this.addSlot(new Slot(
+                container,
+                RESIDUE_SLOT,
+                FluidFiltererLayout.RESIDUE_SLOT_X,
+                FluidFiltererLayout.RESIDUE_SLOT_Y
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false;
+            }
+        });
+
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new Slot(
                         playerInventory,
                         col + row * 9 + 9,
-                        DistillerLayout.PLAYER_INV_X + col * DistillerLayout.SLOT_SIZE,
-                        DistillerLayout.PLAYER_INV_Y + row * DistillerLayout.SLOT_SIZE
+                        FluidFiltererLayout.PLAYER_INV_X + col * FluidFiltererLayout.SLOT_SIZE,
+                        FluidFiltererLayout.PLAYER_INV_Y + row * FluidFiltererLayout.SLOT_SIZE
                 ));
             }
         }
@@ -129,8 +162,8 @@ public class DistillerMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(
                     playerInventory,
                     col,
-                    DistillerLayout.HOTBAR_X + col * DistillerLayout.SLOT_SIZE,
-                    DistillerLayout.HOTBAR_Y
+                    FluidFiltererLayout.HOTBAR_X + col * FluidFiltererLayout.SLOT_SIZE,
+                    FluidFiltererLayout.HOTBAR_Y
             ));
         }
 
@@ -143,7 +176,7 @@ public class DistillerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.DISTILLER.get());
+        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.FLUID_FILTERER.get());
     }
 
     @Override
@@ -154,12 +187,10 @@ public class DistillerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (this.container instanceof DistillerButtonHandler handler) {
+        if (this.container instanceof FluidFiltererButtonHandler handler) {
             return switch (id) {
-                case RUN_BUTTON_ID,
-                     DUMP_INPUT_BUTTON_ID,
-                     DUMP_OUTPUT_A_BUTTON_ID,
-                     DUMP_OUTPUT_B_BUTTON_ID -> handler.onDistillerButtonPressed(player, id);
+                case RUN_BUTTON_START_ID, RUN_BUTTON_STOP_ID -> handler.onFiltererButtonPressed(player, id);
+                case DUMP_INPUT_BUTTON_ID, DUMP_OUTPUT_A_BUTTON_ID, DUMP_OUTPUT_B_BUTTON_ID -> handler.onDumpButtonPressed(player, id);
                 default -> false;
             };
         }
@@ -187,24 +218,20 @@ public class DistillerMenu extends AbstractContainerMenu {
         return this.data.get(4);
     }
 
-    public int getClicksPerSecond() {
+    public int getInputFluidSyncId() {
         return this.data.get(5);
     }
 
-    public int getSpeedPercent() {
+    public int getOutputAFluidSyncId() {
         return this.data.get(6);
     }
 
-    public int getInputFluidSyncId() {
+    public int getOutputBFluidSyncId() {
         return this.data.get(7);
     }
 
-    public int getOutputAFluidSyncId() {
-        return this.data.get(8);
-    }
-
-    public int getOutputBFluidSyncId() {
-        return this.data.get(9);
+    public boolean isButtonHeld() {
+        return this.data.get(8) != 0;
     }
 
     public Fluid getInputFluid() {
@@ -219,23 +246,19 @@ public class DistillerMenu extends AbstractContainerMenu {
         return decodeFluid(this.getOutputBFluidSyncId());
     }
 
-    public Component getInputFluidIdText() {
+    public Component getInputFluidText() {
         Fluid fluid = this.getInputFluid();
         return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
     }
 
-    public Component getOutputAFluidIdText() {
+    public Component getOutputAFluidText() {
         Fluid fluid = this.getOutputAFluid();
         return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
     }
 
-    public Component getOutputBFluidIdText() {
+    public Component getOutputBFluidText() {
         Fluid fluid = this.getOutputBFluid();
         return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
-    }
-
-    public boolean isWorking() {
-        return this.getProgress() > 0 && this.getMaxProgress() > 0;
     }
 
     public int getScaledProgress(int pixels) {
@@ -270,7 +293,15 @@ public class DistillerMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
-                if (!this.moveItemStackTo(rawStack, 0, MACHINE_SLOT_COUNT, false)) {
+                if (rawStack.is(ModItems.FLUID_FILTER.get())) {
+                    if (!this.moveItemStackTo(rawStack, FILTER_SLOT, FILTER_SLOT + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (FluidFiltererBlockEntity.isFluidContainer(rawStack)) {
+                    if (!this.moveItemStackTo(rawStack, INPUT_CONTAINER_SLOT, FILTER_SLOT, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else {
                     return ItemStack.EMPTY;
                 }
             } else {
@@ -293,7 +324,8 @@ public class DistillerMenu extends AbstractContainerMenu {
         return quickMovedStack;
     }
 
-    public interface DistillerButtonHandler {
-        boolean onDistillerButtonPressed(Player player, int buttonId);
+    public interface FluidFiltererButtonHandler {
+        boolean onFiltererButtonPressed(Player player, int buttonId);
+        boolean onDumpButtonPressed(Player player, int buttonId);
     }
 }

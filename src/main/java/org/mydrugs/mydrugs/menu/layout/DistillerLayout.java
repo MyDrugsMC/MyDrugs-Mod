@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.menu;
+package org.mydrugs.mydrugs.menu.layout;
 
 public final class DistillerLayout {
     public static final int GUI_WIDTH = 196;
@@ -11,7 +11,7 @@ public final class DistillerLayout {
 
     public static final int INVENTORY_PANEL_X = 15;
     public static final int INVENTORY_PANEL_Y = 104;
-    public static final int INVENTORY_PANEL_W = 166;
+    public static final int INVENTORY_PANEL_W = 164;
     public static final int INVENTORY_PANEL_H = 76;
 
     public static final int INPUT_TANK_X = 22;

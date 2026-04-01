@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "mydrugs:block/fluid_filterer", "y": 0 },
+    "facing=east":  { "model": "mydrugs:block/fluid_filterer", "y": 90 },
+    "facing=south": { "model": "mydrugs:block/fluid_filterer", "y": 180 },
+    "facing=west":  { "model": "mydrugs:block/fluid_filterer", "y": 270 }
+  }
+}

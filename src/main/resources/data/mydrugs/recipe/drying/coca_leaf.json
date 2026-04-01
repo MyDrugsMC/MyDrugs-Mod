@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:drying",
+  "ingredient":  "mydrugs:coca_leaf",
+  "result": {
+    "id": "mydrugs:dried_coca_leaf",
+    "count": 1
+  },
+  "dry_time": 200
+}

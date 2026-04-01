@@ -1,7 +1,8 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "texture": "mydrugs:block/stomp_plate"
+    "texture": "mydrugs:block/stomp_plate",
+    "particle": "mydrugs:block/stomp_plate"
   },
   "elements": [
     {

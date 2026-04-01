@@ -39,6 +39,8 @@ public final class ModFluids {
     public static final FluidEntry VODKA;
     public static final FluidEntry AMMONIAC;
     public static final FluidEntry BLOOD;
+    public static final FluidEntry MURKY_EXTRACT;
+    public static final FluidEntry FILTERED_EXTRACT;
     public static final FluidEntry COAL_TAR;
 
     static {
@@ -50,6 +52,8 @@ public final class ModFluids {
         VODKA = register(new FluidEntryDef("vodka", 0xCCEAF6FF, true, DrugId.ALCOHOL));
         AMMONIAC = register(new FluidEntryDef("ammoniac", 0xFFCFE17A, false, null));
         BLOOD = register(new FluidEntryDef("blood", 0xFF8E1B1B, false, null));
+        MURKY_EXTRACT = register(new FluidEntryDef("murky_extract", 0xFF17960C, false, null));
+        FILTERED_EXTRACT = register(new FluidEntryDef("filtered_extract", 0xFF92F78D, false, null));
         COAL_TAR = register(new FluidEntryDef("coal_tar", 0xFF000000, false, null));
     }
 

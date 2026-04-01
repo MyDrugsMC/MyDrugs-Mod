@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
+import org.mydrugs.mydrugs.menu.layout.SieveLayout;
 import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
 public final class SieveMenu extends AbstractContainerMenu {

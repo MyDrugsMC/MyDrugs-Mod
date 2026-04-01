@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.menu;
+package org.mydrugs.mydrugs.menu.layout;
 
 public final class RollerLayout {
     public static final int GUI_WIDTH = 176;

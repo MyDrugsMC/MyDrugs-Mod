@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.items.rolling.RollerLogic;
+import org.mydrugs.mydrugs.menu.layout.RollerLayout;
 import org.mydrugs.mydrugs.menu.slot.RollerMachineSlot;
 import org.mydrugs.mydrugs.menu.slot.RollerOutputSlot;
 
