@@ -27,6 +27,9 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<FluidFiltererBlock>> FLUID_FILTERER_CODEC =
             BLOCK_TYPES.register("fluid_filterer", () -> Block.simpleCodec(FluidFiltererBlock::new));
 
+    public static final Supplier<MapCodec<EvaporationTrayBlock>> EVAPORATION_TRAY_CODEC =
+            BLOCK_TYPES.register("evaporation_tray", () -> Block.simpleCodec(EvaporationTrayBlock::new));
+
     private ModBlockTypes() {
     }
 }

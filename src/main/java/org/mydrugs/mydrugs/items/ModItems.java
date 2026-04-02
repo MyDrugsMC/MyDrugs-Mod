@@ -53,6 +53,12 @@ public class ModItems {
                     props -> new BlockItem(ModBlocks.CANNABIS_CROP.get(), props)
             );
 
+    public static final DeferredItem<BlockItem> COCA_SEEDS =
+            ITEMS.registerItem(
+                    "coca_seeds",
+                    props -> new BlockItem(ModBlocks.COCA_CROP.get(), props)
+            );
+
     public static final DeferredItem<Item> TOBACCO_LEAF =
             ITEMS.registerSimpleItem("tobacco_leaf");
 
@@ -203,6 +209,15 @@ public class ModItems {
     public static final DeferredItem<Item> MIXING_SPATULA =
             ITEMS.registerSimpleItem("mixing_spatula");
 
+    public static final DeferredItem<Item> PLANT_BIOMASS =
+            ITEMS.registerSimpleItem("plant_biomass");
+
+    public static final DeferredItem<Item> TRYPTOPHAN =
+            ITEMS.registerSimpleItem("tryptophan");
+
+    public static final DeferredItem<Item> ERGOTAMINE =
+            ITEMS.registerSimpleItem("ergotamine");
+
     public static final DeferredItem<BlockItem> DRYER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.DRYER);
 
     public static final DeferredItem<BlockItem> SIEVE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.SIEVE);
@@ -214,6 +229,10 @@ public class ModItems {
             prop -> new Item(prop.durability(128))
     );
 
+    public static final DeferredItem<Item> COCAINE_PLATE =
+            ITEMS.registerSimpleItem("cocaine_plate");
+
+    public static final DeferredItem<BlockItem> EVAPORATION_TRAY_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.EVAPORATION_TRAY);
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

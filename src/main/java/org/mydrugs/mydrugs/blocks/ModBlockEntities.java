@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.blocks;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.entity.*;
@@ -74,4 +75,11 @@ public final class ModBlockEntities {
                     ModBlocks.FLUID_FILTERER.get()
             )
     );
+
+    public static final Supplier<BlockEntityType<EvaporationTrayBlockEntity>> EVAPORATION_TRAY =
+            BLOCK_ENTITY_TYPES.register("evaporation_tray",
+                    () -> new BlockEntityType<>(
+                            EvaporationTrayBlockEntity::new,
+                            ModBlocks.EVAPORATION_TRAY.get()
+                    ));
 }

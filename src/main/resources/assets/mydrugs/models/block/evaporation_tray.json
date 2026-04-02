@@ -1,0 +1,64 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "all": "mydrugs:block/evaporation_tray"
+  },
+  "elements": [
+    {
+      "from": [1, 0, 1],
+      "to": [15, 2, 15],
+      "faces": {
+        "down":  { "texture": "#all" },
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    },
+    {
+      "from": [1, 2, 1],
+      "to": [15, 5, 2],
+      "faces": {
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    },
+    {
+      "from": [1, 2, 14],
+      "to": [15, 5, 15],
+      "faces": {
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    },
+    {
+      "from": [1, 2, 2],
+      "to": [2, 5, 14],
+      "faces": {
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    },
+    {
+      "from": [14, 2, 2],
+      "to": [15, 5, 14],
+      "faces": {
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    }
+  ]
+}

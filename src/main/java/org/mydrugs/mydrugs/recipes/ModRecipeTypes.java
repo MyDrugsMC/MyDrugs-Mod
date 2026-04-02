@@ -9,6 +9,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
+import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
@@ -48,6 +49,9 @@ public class ModRecipeTypes {
 
     public static final Supplier<RecipeType<FluidFiltererRecipe>> FLUID_FILTERING =
             RECIPE_TYPES.register("fluid_filtering", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<EvaporationTrayRecipe>> EVAPORATION_TRAY =
+            RECIPE_TYPES.register("evaporation_tray", RecipeType::simple);
 
     private ModRecipeTypes() {
     }

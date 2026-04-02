@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "mydrugs:malt_crop",
-    "mydrugs:rye_crop"
+    "mydrugs:rye_crop",
+    "mydrugs:cannabis_crop",
+    "mydrugs:coca_crop"
   ]
 }

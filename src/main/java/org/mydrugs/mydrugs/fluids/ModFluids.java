@@ -42,6 +42,7 @@ public final class ModFluids {
     public static final FluidEntry MURKY_EXTRACT;
     public static final FluidEntry FILTERED_EXTRACT;
     public static final FluidEntry COAL_TAR;
+    public static final FluidEntry AMINO_ACID;
 
     static {
         STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFD2B07A, false, null));
@@ -55,6 +56,7 @@ public final class ModFluids {
         MURKY_EXTRACT = register(new FluidEntryDef("murky_extract", 0xFF17960C, false, null));
         FILTERED_EXTRACT = register(new FluidEntryDef("filtered_extract", 0xFF92F78D, false, null));
         COAL_TAR = register(new FluidEntryDef("coal_tar", 0xFF000000, false, null));
+        AMINO_ACID = register(new FluidEntryDef("amino_acid", 0xFFDDDDAA, false, null));
     }
 
     private ModFluids() {

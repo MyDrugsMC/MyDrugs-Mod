@@ -8,6 +8,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
+import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
@@ -43,6 +44,9 @@ public class ModRecipeSerializers {
 
     public static final Supplier<RecipeSerializer<FluidFiltererRecipe>> FLUID_FILTERING =
             RECIPE_SERIALIZERS.register("fluid_filtering", FluidFiltererRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EvaporationTrayRecipe>> EVAPORATION_TRAY =
+            RECIPE_SERIALIZERS.register("evaporation_tray", EvaporationTrayRecipe.Serializer::new);
 
     private ModRecipeSerializers() {
     }

@@ -150,5 +150,8 @@
   "item.mydrugs.murky_extract_bucket": "Murky Extract Bucket",
   "item.mydrugs.dried_coca_leaf": "Dried Coca Leaf",
   "item.mydrugs.coca_leaf": "Coca Leaf",
-  "item.mydrugs.plant_waste": "Plant Waste"
+  "item.mydrugs.plant_waste": "Plant Waste",
+  "item.mydrugs.cocaine_plate": "Cocaine Plate",
+  "item.mydrugs.cocaine_dust": "Cocaine Dust",
+  "item.mydrugs.hash_brick": "Hash Brick"
 }

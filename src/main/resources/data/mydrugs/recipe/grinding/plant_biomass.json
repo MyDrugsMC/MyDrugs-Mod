@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "minecraft:wheat_seeds",
+  "result": {
+    "id": "mydrugs:plant_biomass",
+    "count": 6
+  },
+  "work": 3
+}

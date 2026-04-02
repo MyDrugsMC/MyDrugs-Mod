@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:cocaine_plate",
+  "result": {
+    "id": "mydrugs:cocaine_dust",
+    "count": 6
+  },
+  "work": 3
+}

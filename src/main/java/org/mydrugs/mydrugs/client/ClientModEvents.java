@@ -37,7 +37,7 @@ public class ClientModEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.MIXING_VAT.get(), MixingVatRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DRYER.get(), DryerRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SIEVE.get(), SieveRenderer::new);
-
+        event.registerBlockEntityRenderer(ModBlockEntities.EVAPORATION_TRAY.get(), EvaporationTrayRenderer::new);
     }
 
     @SubscribeEvent

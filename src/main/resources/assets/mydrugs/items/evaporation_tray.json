@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mydrugs:item/cocaine_dust"
+    "model": "mydrugs:block/evaporation_tray"
   }
 }

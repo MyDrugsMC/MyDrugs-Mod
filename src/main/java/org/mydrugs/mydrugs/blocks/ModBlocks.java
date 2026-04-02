@@ -7,10 +7,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.blocks.crops.CannabisCropBlock;
-import org.mydrugs.mydrugs.blocks.crops.MaltCropBlock;
-import org.mydrugs.mydrugs.blocks.crops.RyeCropBlock;
-import org.mydrugs.mydrugs.blocks.crops.TobaccoCropBlock;
+import org.mydrugs.mydrugs.blocks.crops.*;
 import org.mydrugs.mydrugs.worldgen.ModWorldGenKeys;
 
 public class ModBlocks {
@@ -42,6 +39,13 @@ public class ModBlocks {
             BLOCKS.registerBlock(
                     "cannabis_crop",
                     CannabisCropBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+            );
+
+    public static final DeferredBlock<CocaCropBlock> COCA_CROP =
+            BLOCKS.registerBlock(
+                    "coca_crop",
+                    CocaCropBlock::new,
                     () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
             );
 
@@ -160,6 +164,16 @@ public class ModBlocks {
             prop -> prop
                     .strength(2.0F)
                     .sound(SoundType.WOOD)
+                    .noOcclusion()
+    );
+
+
+    public static final DeferredBlock<EvaporationTrayBlock> EVAPORATION_TRAY = BLOCKS.registerBlock(
+            "evaporation_tray",
+            EvaporationTrayBlock::new,
+            props -> props
+                    .strength(1.5F)
+                    .sound(SoundType.STONE)
                     .noOcclusion()
     );
 

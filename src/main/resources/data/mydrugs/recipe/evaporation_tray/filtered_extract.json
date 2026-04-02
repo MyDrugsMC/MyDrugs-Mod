@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:filtered_extract",
+  "input_amount": 1000,
+  "result": {
+    "id": "mydrugs:cocaine_plate",
+    "count": 1
+  },
+  "processing_time": 200
+}

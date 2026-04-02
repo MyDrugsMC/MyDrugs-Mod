@@ -74,6 +74,58 @@
               "function": "minecraft:explosion_decay"
             }
           ],
+          "name": "mydrugs:cannabis_seeds"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "minecraft:survives_explosion"
+            },
+            {
+              "chance": 0.125,
+              "condition": "minecraft:random_chance"
+            }
+          ],
+          "functions": [
+            {
+              "enchantment": "minecraft:fortune",
+              "formula": "minecraft:uniform_bonus_count",
+              "function": "minecraft:apply_bonus",
+              "parameters": {
+                "bonusMultiplier": 2
+              }
+            },
+            {
+              "function": "minecraft:explosion_decay"
+            }
+          ],
+          "name": "mydrugs:coca_seeds"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "minecraft:survives_explosion"
+            },
+            {
+              "chance": 0.125,
+              "condition": "minecraft:random_chance"
+            }
+          ],
+          "functions": [
+            {
+              "enchantment": "minecraft:fortune",
+              "formula": "minecraft:uniform_bonus_count",
+              "function": "minecraft:apply_bonus",
+              "parameters": {
+                "bonusMultiplier": 2
+              }
+            },
+            {
+              "function": "minecraft:explosion_decay"
+            }
+          ],
           "name": "mydrugs:tobacco_seeds"
         },
         {
