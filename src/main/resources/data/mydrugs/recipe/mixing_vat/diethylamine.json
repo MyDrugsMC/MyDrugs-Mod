@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "fluid_input_1": {
+    "fluid": "mydrugs:raw_alcohol",
+    "amount": 500
+  },
+  "fluid_input_2": {
+    "fluid": "mydrugs:ammoniac",
+    "amount": 500
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:diethylamine",
+    "amount": 800
+  },
+  "required_stirs": 3
+}

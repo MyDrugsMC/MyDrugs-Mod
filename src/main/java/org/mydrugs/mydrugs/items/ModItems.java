@@ -78,10 +78,6 @@ public class ModItems {
     public static final DeferredItem<Item> METH_POWDER =
             ITEMS.registerItem("meth_powder", prop -> new MethPowderItem(prop, DrugId.METH, new SmokingStrategy(true, false)));
 
-    public static final DeferredItem<Item> LSD_BOTTLE =
-            ITEMS.registerItem("lsd_bottle",
-                    prop -> new LsdBottleItem(prop.craftRemainder(Items.GLASS_BOTTLE), DrugId.LSD, new EatingStrategy()));
-
     public static final DeferredItem<Item> LSD_DROP =
             ITEMS.registerItem("lsd_drop",
                     prop -> new LsdDropItem(prop, DrugId.LSD, new EatingStrategy()));
@@ -89,14 +85,17 @@ public class ModItems {
     public static final DeferredItem<Item> ERGOT =
             ITEMS.registerSimpleItem("ergot");
 
-    public static final DeferredItem<BlockItem> PSYCHEDELIC_GRASS_BLOCK =
-            ITEMS.registerSimpleBlockItem(ModBlocks.PSYCHEDELIC_GRASS_BLOCK);
+    public static final DeferredItem<Item> FUNGAL_FIBER =
+            ITEMS.registerSimpleItem("fungal_fiber");
+
+    public static final DeferredItem<Item> FUNGAL_CULTURE =
+            ITEMS.registerSimpleItem("fungal_culture");
 
     public static final DeferredItem<BlockItem> PSYCHEDELIC_MYCELIUM =
             ITEMS.registerSimpleBlockItem(ModBlocks.PSYCHEDELIC_MYCELIUM);
 
-    public static final DeferredItem<BlockItem> RYE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.RYE);
+    public static final DeferredItem<Item> RYE =
+            ITEMS.registerSimpleItem("rye");
 
     public static final DeferredItem<Item> MALT = ITEMS.registerSimpleItem("malt");
 
@@ -206,18 +205,23 @@ public class ModItems {
     public static final DeferredItem<Item> PLANT_WASTE =
             ITEMS.registerSimpleItem("plant_waste");
 
+    public static final DeferredItem<Item> INFECTED_RYE =
+            ITEMS.registerSimpleItem("infected_rye");
+
     public static final DeferredItem<Item> MIXING_SPATULA =
             ITEMS.registerSimpleItem("mixing_spatula");
 
     public static final DeferredItem<Item> PLANT_BIOMASS =
             ITEMS.registerSimpleItem("plant_biomass");
 
-    public static final DeferredItem<Item> TRYPTOPHAN =
-            ITEMS.registerSimpleItem("tryptophan");
-
     public static final DeferredItem<Item> ERGOTAMINE =
             ITEMS.registerSimpleItem("ergotamine");
 
+    public static final DeferredItem<BlockItem> BIOCHEMICAL_REACTOR = ITEMS.registerSimpleBlockItem(
+            ModBlocks.BIOCHEMICAL_REACTOR
+    );
+
+    public static final DeferredItem<Item> TRYPTOPHAN = ITEMS.registerSimpleItem("tryptophan");
     public static final DeferredItem<BlockItem> DRYER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.DRYER);
 
     public static final DeferredItem<BlockItem> SIEVE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.SIEVE);
@@ -233,6 +237,10 @@ public class ModItems {
             ITEMS.registerSimpleItem("cocaine_plate");
 
     public static final DeferredItem<BlockItem> EVAPORATION_TRAY_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.EVAPORATION_TRAY);
+
+    public static final DeferredItem<BlockItem> CENTRIFUGE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.CENTRIFUGE);
+
+    public static final DeferredItem<BlockItem> GROWTH_CHAMBER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GROWTH_CHAMBER);
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

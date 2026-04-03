@@ -7,11 +7,14 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
+import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
+import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
@@ -52,6 +55,15 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<EvaporationTrayRecipe>> EVAPORATION_TRAY =
             RECIPE_TYPES.register("evaporation_tray", RecipeType::simple);
+
+    public static final Supplier<RecipeType<CentrifugeRecipe>> CENTRIFUGE =
+            RECIPE_TYPES.register("centrifuge", RecipeType::simple);
+
+    public static final Supplier<RecipeType<GrowthChamberRecipe>> GROWTH_CHAMBER =
+            RECIPE_TYPES.register("growth_chamber", RecipeType::simple);
+
+    public static final Supplier<RecipeType<BiochemicalReactorRecipe>> BIOCHEMICAL_REACTOR =
+            RECIPE_TYPES.register("biochemical_reactor", RecipeType::simple);
 
     private ModRecipeTypes() {
     }

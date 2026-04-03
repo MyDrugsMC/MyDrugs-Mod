@@ -82,4 +82,28 @@ public final class ModBlockEntities {
                             EvaporationTrayBlockEntity::new,
                             ModBlocks.EVAPORATION_TRAY.get()
                     ));
+
+    public static final Supplier<BlockEntityType<CentrifugeBlockEntity>> CENTRIFUGE =
+            BLOCK_ENTITY_TYPES.register("centrifuge",
+                    () -> new BlockEntityType<>(
+                            CentrifugeBlockEntity::new,
+                            ModBlocks.CENTRIFUGE.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<GrowthChamberBlockEntity>> GROWTH_CHAMBER =
+            BLOCK_ENTITY_TYPES.register("growth_chamber",
+                    () -> new BlockEntityType<>(
+                            GrowthChamberBlockEntity::new,
+                            false,
+                            ModBlocks.GROWTH_CHAMBER.get()
+                    ));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BiochemicalReactorBlockEntity>> BIOCHEMICAL_REACTOR =
+            BLOCK_ENTITY_TYPES.register(
+                    "biochemical_reactor",
+                    () -> new BlockEntityType<>(
+                            BiochemicalReactorBlockEntity::new,
+                            ModBlocks.BIOCHEMICAL_REACTOR.get()
+                    )
+            );
 }

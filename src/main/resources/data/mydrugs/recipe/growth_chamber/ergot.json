@@ -1,0 +1,22 @@
+{
+  "type": "mydrugs:growth_chamber",
+  "input": {
+    "item": "mydrugs:fungal_culture",
+    "count": 1
+  },
+  "biomass_input": {
+    "item": "mydrugs:rye_seeds",
+    "count": 1
+  },
+  "middle_result": {
+    "item": "mydrugs:infected_rye",
+    "count": 1
+  },
+  "final_result": {
+    "item": "mydrugs:ergot",
+    "count": 4
+  },
+  "water": 250,
+  "biomass": 1,
+  "base_ticks": 200
+}

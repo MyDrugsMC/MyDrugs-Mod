@@ -6,11 +6,15 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
+import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipeSerializer;
+import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
+import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
@@ -47,6 +51,15 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EvaporationTrayRecipe>> EVAPORATION_TRAY =
             RECIPE_SERIALIZERS.register("evaporation_tray", EvaporationTrayRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CentrifugeRecipe>> CENTRIFUGE =
+            RECIPE_SERIALIZERS.register("centrifuge", CentrifugeRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<GrowthChamberRecipe>> GROWTH_CHAMBER =
+            RECIPE_SERIALIZERS.register("growth_chamber", GrowthChamberRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BiochemicalReactorRecipe>> BIOCHEMICAL_REACTOR =
+            RECIPE_SERIALIZERS.register("biochemical_reactor", BiochemicalReactorRecipeSerializer::new);
 
     private ModRecipeSerializers() {
     }

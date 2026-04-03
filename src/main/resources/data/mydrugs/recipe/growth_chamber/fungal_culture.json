@@ -1,0 +1,22 @@
+{
+  "type": "mydrugs:growth_chamber",
+  "input": {
+    "item": "mydrugs:ergot",
+    "count": 1
+  },
+  "biomass_input": {
+    "item": "mydrugs:plant_biomass",
+    "count": 1
+  },
+  "middle_result": {
+    "item": "mydrugs:fungal_fiber",
+    "count": 1
+  },
+  "final_result": {
+    "item": "mydrugs:fungal_culture",
+    "count": 1
+  },
+  "water": 250,
+  "biomass": 1,
+  "base_ticks": 200
+}

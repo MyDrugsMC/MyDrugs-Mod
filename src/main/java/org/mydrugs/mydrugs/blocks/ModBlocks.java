@@ -49,19 +49,6 @@ public class ModBlocks {
                     () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
             );
 
-    public static final DeferredBlock<RyeBlock> RYE =
-            BLOCKS.registerBlock(
-                    "rye",
-                    RyeBlock::new,
-                    properties -> properties.noCollision().instabreak().sound(SoundType.GRASS)
-            );
-
-    public static final DeferredBlock<PsychedelicGrassBlock> PSYCHEDELIC_GRASS_BLOCK =
-            BLOCKS.registerBlock(
-                    "psychedelic_grass",
-                    PsychedelicGrassBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GRASS_BLOCK));
-
     public static final DeferredBlock<Block> PSYCHEDELIC_MYCELIUM =
             BLOCKS.register("psychedelic_mycelium",
                     registryName
@@ -177,6 +164,32 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
+    public static final DeferredBlock<CentrifugeBlock> CENTRIFUGE = BLOCKS.registerBlock(
+            "centrifuge",
+            CentrifugeBlock::new,
+            props -> props
+                    .strength(1.5F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+    );
+
+    public static final DeferredBlock<GrowthChamberBlock> GROWTH_CHAMBER = BLOCKS.registerBlock(
+            "growth_chamber",
+            GrowthChamberBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+    );
+
+    public static final DeferredBlock<Block> BIOCHEMICAL_REACTOR = BLOCKS.register(
+            "biochemical_reactor",
+            registryName -> new BiochemicalReactorBlock(
+                    BlockBehaviour.Properties.of()
+                            .strength(3.5f)
+                            .requiresCorrectToolForDrops()
+                            .setId(ResourceKey.create(Registries.BLOCK, registryName))
+            )
+    );
 
     private ModBlocks() {
     }

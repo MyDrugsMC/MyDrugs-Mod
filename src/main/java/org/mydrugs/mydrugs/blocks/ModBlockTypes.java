@@ -30,6 +30,12 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<EvaporationTrayBlock>> EVAPORATION_TRAY_CODEC =
             BLOCK_TYPES.register("evaporation_tray", () -> Block.simpleCodec(EvaporationTrayBlock::new));
 
+    public static final Supplier<MapCodec<CentrifugeBlock>> CENTRIFUGE_CODEC =
+            BLOCK_TYPES.register("centrifuge", () -> Block.simpleCodec(CentrifugeBlock::new));
+
+    public static final Supplier<MapCodec<GrowthChamberBlock>> GROWTH_CHAMBER_CODEC =
+            BLOCK_TYPES.register("growth_chamber", () -> Block.simpleCodec(GrowthChamberBlock::new));
+
     private ModBlockTypes() {
     }
 }

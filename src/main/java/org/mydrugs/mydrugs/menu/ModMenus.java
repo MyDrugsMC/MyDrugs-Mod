@@ -33,4 +33,17 @@ public class ModMenus {
             "fluid_filterer",
             () -> new MenuType<>(FluidFiltererMenu::new, FeatureFlags.DEFAULT_FLAGS)
     );
+
+    public static final Supplier<MenuType<CentrifugeMenu>> CENTRIFUGE =
+            MENUS.register("centrifuge", () -> new MenuType<>(CentrifugeMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<GrowthChamberMenu>> GROWTH_CHAMBER =
+            MENUS.register("growth_chamber",
+                    () -> new MenuType<>(GrowthChamberMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<BiochemicalReactorMenu>> BIOCHEMICAL_REACTOR =
+            MENUS.register(
+                    "biochemical_reactor",
+                    () -> new MenuType<>(BiochemicalReactorMenu::new, FeatureFlags.DEFAULT_FLAGS)
+            );
 }

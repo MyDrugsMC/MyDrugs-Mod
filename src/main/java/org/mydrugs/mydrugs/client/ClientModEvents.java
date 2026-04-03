@@ -27,7 +27,9 @@ public class ClientModEvents {
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);
         event.register(ModMenus.FLUID_FILTERER.get(), FluidFiltererScreen::new);
-
+        event.register(ModMenus.CENTRIFUGE.get(), CentrifugeScreen::new);
+        event.register(ModMenus.GROWTH_CHAMBER.get(), GrowthChamberScreen::new);
+        event.register(ModMenus.BIOCHEMICAL_REACTOR.get(), BiochemicalReactorScreen::new);
     }
 
     @SubscribeEvent

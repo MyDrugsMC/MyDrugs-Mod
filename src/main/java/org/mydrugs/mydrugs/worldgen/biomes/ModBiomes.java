@@ -7,7 +7,6 @@ import net.minecraft.world.level.biome.Biome;
 import org.mydrugs.mydrugs.MyDrugs;
 
 public class ModBiomes {
-    public static final ResourceKey<Biome> PSYCHEDELIC_VALLEY = key("psychedelic_valley");
     public static final ResourceKey<Biome> PSYCHEDELIC_MUSHROOM_VALLEY = key("psychedelic_mushroom_valley");
 
     private ModBiomes() {

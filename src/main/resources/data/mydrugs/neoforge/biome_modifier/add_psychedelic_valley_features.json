@@ -1,6 +1,0 @@
-{
-  "type": "neoforge:add_features",
-  "biomes": "mydrugs:psychedelic_valley",
-  "features": "mydrugs:patch_rye",
-  "step": "vegetal_decoration"
-}
