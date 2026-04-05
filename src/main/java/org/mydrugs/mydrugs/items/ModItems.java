@@ -242,6 +242,26 @@ public class ModItems {
 
     public static final DeferredItem<BlockItem> GROWTH_CHAMBER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GROWTH_CHAMBER);
 
+    public static final DeferredItem<BlockItem> SALT_BLOCK_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.SALT_BLOCK);
+
+    public static final DeferredItem<BlockItem> SULFUR_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.SULFUR_ORE);
+
+    public static final DeferredItem<BlockItem> DEEPSLATE_SULFUR_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.DEEPSLATE_SULFUR_ORE);
+
+    public static final DeferredItem<BlockItem> GAS_TANK_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GAS_TANK);
+
+    public static final DeferredItem<BlockItem> GAS_PUMP_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GAS_PUMP);
+
+    public static final DeferredItem<Item> SALT_POWDER = ITEMS.registerSimpleItem("salt_powder");
+    public static final DeferredItem<Item> SULFUR_POWDER = ITEMS.registerSimpleItem("sulfur_powder");
+
+    public static final DeferredItem<BlockItem> CHEMICAL_REACTOR_ITEM = ITEMS.registerSimpleBlockItem(
+            ModBlocks.CHEMICAL_REACTOR
+    );
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
 

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "mydrugs:block/advanced_mixing_vat", "y": 0 },
+    "facing=east":  { "model": "mydrugs:block/advanced_mixing_vat", "y": 90 },
+    "facing=south": { "model": "mydrugs:block/advanced_mixing_vat", "y": 180 },
+    "facing=west":  { "model": "mydrugs:block/advanced_mixing_vat", "y": 270 }
+  }
+}

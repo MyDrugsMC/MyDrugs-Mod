@@ -191,6 +191,62 @@ public class ModBlocks {
             )
     );
 
+    public static final DeferredBlock<Block> SALT_BLOCK = BLOCKS.registerSimpleBlock(
+            "salt_block",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.CLAY)
+    );
+
+    public static final DeferredBlock<Block> SULFUR_ORE = BLOCKS.registerSimpleBlock(
+            "sulfur_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_ORE)
+    );
+
+    public static final DeferredBlock<Block> DEEPSLATE_SULFUR_ORE = BLOCKS.registerSimpleBlock(
+            "deepslate_sulfur_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)
+    );
+
+    public static final DeferredBlock<GasTankBlock> GAS_TANK = BLOCKS.registerBlock(
+            "gas_tank",
+            GasTankBlock::new,
+            props -> props.strength(3.0F)
+    );
+
+    public static final DeferredBlock<GasPumpBlock> GAS_PUMP = BLOCKS.registerBlock(
+            "gas_pump",
+            GasPumpBlock::new,
+            props -> props.strength(2.0F)
+    );
+
+    public static final DeferredBlock<GasifierBlock> GASIFIER = BLOCKS.register(
+            "gasifier",
+            () -> new GasifierBlock(
+                    BlockBehaviour.Properties.of()
+                            .strength(3.5F)
+                            .requiresCorrectToolForDrops()
+            )
+    );
+
+    public static final DeferredBlock<Block> CHEMICAL_REACTOR =
+            BLOCKS.register("chemical_reactor",
+                    () -> new ChemicalReactorBlock(
+                            BlockBehaviour.Properties.of()
+                                    .strength(3.5F)
+                                    .requiresCorrectToolForDrops()
+                                    .sound(SoundType.METAL)
+                    ));
+
+    public static final DeferredBlock<AdvancedMixingVatBlock> ADVANCED_MIXING_VAT =
+            BLOCKS.register(
+                    "advanced_mixing_vat",
+                    () -> new AdvancedMixingVatBlock(
+                            BlockBehaviour.Properties.of()
+                                    .strength(3.5F)
+                                    .requiresCorrectToolForDrops()
+                                    .sound(net.minecraft.world.level.block.SoundType.METAL)
+                    )
+            );
+
     private ModBlocks() {
     }
 }

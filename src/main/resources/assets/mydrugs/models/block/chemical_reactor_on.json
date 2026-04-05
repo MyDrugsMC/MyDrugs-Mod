@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "mydrugs:block/chemical_reactor_top",
+    "front": "mydrugs:block/chemical_reactor_front_on",
+    "side": "mydrugs:block/chemical_reactor_side",
+    "bottom": "mydrugs:block/chemical_reactor_bottom"
+  }
+}

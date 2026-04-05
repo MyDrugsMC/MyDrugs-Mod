@@ -46,4 +46,20 @@ public class ModMenus {
                     "biochemical_reactor",
                     () -> new MenuType<>(BiochemicalReactorMenu::new, FeatureFlags.DEFAULT_FLAGS)
             );
+
+    public static final Supplier<MenuType<GasifierMenu>> GASIFIER =
+            MENUS.register(
+                    "gasifier",
+                    () -> new MenuType<>(GasifierMenu::new, FeatureFlags.DEFAULT_FLAGS)
+            );
+
+    public static final Supplier<MenuType<ChemicalReactorMenu>> CHEMICAL_REACTOR =
+            MENUS.register("chemical_reactor",
+                    () -> IMenuTypeExtension.create(ChemicalReactorMenu::new));
+
+    public static final Supplier<MenuType<AdvancedMixingVatMenu>> ADVANCED_MIXING_VAT =
+            MENUS.register(
+                    "advanced_mixing_vat",
+                    () -> new MenuType<>(AdvancedMixingVatMenu::new, FeatureFlags.DEFAULT_FLAGS)
+            );
 }

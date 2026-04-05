@@ -106,4 +106,50 @@ public final class ModBlockEntities {
                             ModBlocks.BIOCHEMICAL_REACTOR.get()
                     )
             );
+
+    public static final Supplier<BlockEntityType<GasTankBlockEntity>> GAS_TANK = BLOCK_ENTITY_TYPES.register(
+            "gas_tank",
+            () -> new BlockEntityType<>(
+                    GasTankBlockEntity::new,
+                    false,
+                    ModBlocks.GAS_TANK.get()
+            )
+    );
+
+    public static final Supplier<BlockEntityType<GasPumpBlockEntity>> GAS_PUMP = BLOCK_ENTITY_TYPES.register(
+            "gas_pump",
+            () -> new BlockEntityType<>(
+                    GasPumpBlockEntity::new,
+                    false,
+                    ModBlocks.GAS_PUMP.get()
+            )
+    );
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GasifierBlockEntity>> GASIFIER =
+            BLOCK_ENTITY_TYPES.register(
+                    "gasifier",
+                    () -> new BlockEntityType<>(
+                            GasifierBlockEntity::new,
+                            false,
+                            ModBlocks.GASIFIER.get()
+                    )
+            );
+
+    public static final Supplier<BlockEntityType<ChemicalReactorBlockEntity>> CHEMICAL_REACTOR =
+            BLOCK_ENTITY_TYPES.register("chemical_reactor",
+                    () -> new BlockEntityType<>(
+                            ChemicalReactorBlockEntity::new,
+                            false,
+                            ModBlocks.CHEMICAL_REACTOR.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<AdvancedMixingVatBlockEntity>> ADVANCED_MIXING_VAT_BE =
+            BLOCK_ENTITY_TYPES.register(
+                    "advanced_mixing_vat",
+                    () -> new BlockEntityType<>(
+                            AdvancedMixingVatBlockEntity::new,
+                            false,
+                            ModBlocks.ADVANCED_MIXING_VAT.get()
+                    )
+            );
 }

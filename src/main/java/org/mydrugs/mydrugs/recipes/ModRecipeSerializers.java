@@ -6,13 +6,16 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
+import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipeSerializer;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
+import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
+import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
@@ -60,6 +63,19 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BiochemicalReactorRecipe>> BIOCHEMICAL_REACTOR =
             RECIPE_SERIALIZERS.register("biochemical_reactor", BiochemicalReactorRecipeSerializer::new);
+
+    public static final Supplier<RecipeSerializer<ChemicalReactorRecipe>> CHEMICAL_REACTOR =
+            RECIPE_SERIALIZERS.register("chemical_reactor",
+                    ChemicalReactorRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<GasifierRecipe>> GASIFIER =
+            RECIPE_SERIALIZERS.register("gasifier", GasifierRecipe.Serializer::new);
+
+    public static final Supplier<RecipeSerializer<AdvancedMixingVatRecipe>> ADVANCED_MIXING_VAT_RECIPE_SERIALIZER =
+            RECIPE_SERIALIZERS.register(
+                    "advanced_mixing_vat",
+                    AdvancedMixingVatRecipe.Serializer::new
+            );
 
     private ModRecipeSerializers() {
     }

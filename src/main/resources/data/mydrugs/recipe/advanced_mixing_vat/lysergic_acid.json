@@ -1,0 +1,22 @@
+{
+  "type": "mydrugs:advanced_mixing_vat",
+  "fluid_inputs": [
+    {
+      "fluid": "mydrugs:ergotamine",
+      "amount": 750
+    },
+    {
+      "fluid": "mydrugs:hydrochloric",
+      "amount": 750
+    },
+    {
+      "fluid": "minecraft:water",
+      "amount": 750
+    }
+  ],
+  "output": {
+    "fluid": "mydrugs:lysergic_acid",
+    "amount": 1000
+  },
+  "processing_time": 100
+}

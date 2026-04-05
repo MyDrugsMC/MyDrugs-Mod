@@ -30,6 +30,9 @@ public class ClientModEvents {
         event.register(ModMenus.CENTRIFUGE.get(), CentrifugeScreen::new);
         event.register(ModMenus.GROWTH_CHAMBER.get(), GrowthChamberScreen::new);
         event.register(ModMenus.BIOCHEMICAL_REACTOR.get(), BiochemicalReactorScreen::new);
+        event.register(ModMenus.GASIFIER.get(), GasifierScreen::new);
+        event.register(ModMenus.CHEMICAL_REACTOR.get(), ChemicalReactorScreen::new);
+        event.register(ModMenus.ADVANCED_MIXING_VAT.get(), AdvancedMixingVatScreen::new);
     }
 
     @SubscribeEvent

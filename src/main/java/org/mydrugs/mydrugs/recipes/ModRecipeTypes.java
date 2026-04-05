@@ -7,12 +7,15 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
+import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
+import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
+import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
@@ -64,6 +67,15 @@ public class ModRecipeTypes {
 
     public static final Supplier<RecipeType<BiochemicalReactorRecipe>> BIOCHEMICAL_REACTOR =
             RECIPE_TYPES.register("biochemical_reactor", RecipeType::simple);
+
+    public static final Supplier<RecipeType<ChemicalReactorRecipe>> CHEMICAL_REACTOR =
+            RECIPE_TYPES.register("chemical_reactor", RecipeType::simple);
+
+    public static final Supplier<RecipeType<GasifierRecipe>> GASIFIER =
+            RECIPE_TYPES.register("gasifier", RecipeType::simple);
+
+    public static final Supplier<RecipeType<AdvancedMixingVatRecipe>> ADVANCED_MIXING_VAT_RECIPE_TYPE =
+            RECIPE_TYPES.register("advanced_mixing_vat", RecipeType::simple);
 
     private ModRecipeTypes() {
     }

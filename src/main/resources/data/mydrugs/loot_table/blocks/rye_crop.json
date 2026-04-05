@@ -7,6 +7,7 @@
   ],
   "pools": [
     {
+      "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
         {
@@ -16,30 +17,47 @@
               "type": "minecraft:item",
               "conditions": [
                 {
-                  "block": "mydrugs:rye_crop",
                   "condition": "minecraft:block_state_property",
+                  "block": "mydrugs:rye_crop",
                   "properties": {
                     "age": "7"
                   }
                 }
               ],
-              "name": "mydrugs:rye"
+              "name": "mydrugs:rye",
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 1.0,
+                    "max": 2.0
+                  }
+                }
+              ]
             },
             {
               "type": "minecraft:item",
-              "name": "mydrugs:rye_seeds"
+              "name": "mydrugs:rye_seeds",
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": 1
+                }
+              ]
             }
           ]
         }
       ],
-      "rolls": 1.0
+      "random_sequence": "mydrugs:blocks/rye_crop_main"
     },
     {
+      "rolls": 1.0,
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "block": "mydrugs:rye_crop",
           "condition": "minecraft:block_state_property",
+          "block": "mydrugs:rye_crop",
           "properties": {
             "age": "7"
           }
@@ -48,22 +66,46 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "name": "mydrugs:rye_seeds",
           "functions": [
             {
-              "enchantment": "minecraft:fortune",
-              "formula": "minecraft:binomial_with_bonus_count",
-              "function": "minecraft:apply_bonus",
-              "parameters": {
-                "extra": 3,
-                "probability": 0.5714286
-              }
+              "function": "minecraft:set_count",
+              "count": 1
             }
-          ],
-          "name": "mydrugs:rye_seeds"
+          ]
         }
       ],
-      "rolls": 1.0
+      "random_sequence": "mydrugs:blocks/rye_crop_seed"
+    },
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "mydrugs:rye_crop",
+          "properties": {
+            "age": "7"
+          }
+        },
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.001
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mydrugs:ergot",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "random_sequence": "mydrugs:blocks/rye_crop_ergot"
     }
-  ],
-  "random_sequence": "mydrugs:blocks/rye_crop"
+  ]
 }

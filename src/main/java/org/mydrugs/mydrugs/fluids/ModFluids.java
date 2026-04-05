@@ -45,9 +45,13 @@ public final class ModFluids {
     public static final FluidEntry AMINO_ACID;
     public static final FluidEntry TRYPTOPHAN;
     public static final FluidEntry WASTE_BIOMASS;
-    public static final FluidEntry LYSERGIC_ACID; //Diéthylamine
+    public static final FluidEntry LYSERGIC_ACID;
     public static final FluidEntry DIETHYLAMINE;
     public static final FluidEntry ERGOTAMINE;
+    public static final FluidEntry LSD;
+    public static final FluidEntry HYDROCHLORIC_ACID;
+    public static final FluidEntry ACTIVATING_AGENT;
+    public static final FluidEntry ACTIVATED_LYSERGIC_ACID;
 
 
     static {
@@ -68,6 +72,10 @@ public final class ModFluids {
         LYSERGIC_ACID = register(new FluidEntryDef("lysergic_acid", 0xFFFFFFFF, false, null));
         DIETHYLAMINE = register(new FluidEntryDef("diethylamine", 0xFFFEFFD1, false, null));
         ERGOTAMINE = register(new FluidEntryDef("ergotamine", 0xFFFFFFFF, false, null));
+        LSD = register(new FluidEntryDef("lsd", 0xFFFFFFFF, true, DrugId.LSD));
+        HYDROCHLORIC_ACID = register(new FluidEntryDef("hydrochloric_acid", 0xFFFFFFFF, false, null));
+        ACTIVATING_AGENT = register(new FluidEntryDef("activating_agent", 0xFFFFFFFF, false, null));
+        ACTIVATED_LYSERGIC_ACID = register(new FluidEntryDef("activated_lysergic_acid", 0xFFFFFFFF, false, null));
     }
 
     private ModFluids() {

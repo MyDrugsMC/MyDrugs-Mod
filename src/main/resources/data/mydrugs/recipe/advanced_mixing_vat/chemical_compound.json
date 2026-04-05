@@ -1,0 +1,18 @@
+{
+  "type": "mydrugs:advanced_mixing_vat",
+  "fluid_inputs": [
+    {
+      "fluid": "minecraft:water",
+      "amount": 750
+    }
+  ],
+  "gas_input": {
+    "gas": "mydrugs:reactive",
+    "amount": 250
+  },
+  "output": {
+    "fluid": "mydrugs:chemical_compound",
+    "amount": 1000
+  },
+  "processing_time": 100
+}

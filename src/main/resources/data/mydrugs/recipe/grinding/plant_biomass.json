@@ -3,7 +3,7 @@
   "ingredient": "minecraft:wheat_seeds",
   "result": {
     "id": "mydrugs:plant_biomass",
-    "count": 6
+    "count": 1
   },
   "work": 3
 }

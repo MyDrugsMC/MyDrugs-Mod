@@ -1,12 +1,20 @@
 package org.mydrugs.mydrugs.datagen;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.worldgen.ModBiomeModifiers;
+import org.mydrugs.mydrugs.worldgen.ModConfiguredFeatures;
+import org.mydrugs.mydrugs.worldgen.ModPlacedFeatures;
 
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
@@ -32,5 +40,12 @@ public final class ModDataGenerators {
                 true,
                 new ModFluidTagProvider(output, lookupProvider)
         );
+
+        RegistrySetBuilder builder = new RegistrySetBuilder()
+                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
+                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
+                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
+
+        event.createDatapackRegistryObjects(builder);
     }
 }
