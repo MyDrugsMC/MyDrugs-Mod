@@ -26,11 +26,6 @@ public final class ModGasCapabilityRegistration {
                 (be, side) -> be.getGasHandler(side)
         );
 
-        event.registerBlockEntity(
-                Capabilities.Item.BLOCK,
-                ModBlockEntities.CHEMICAL_REACTOR.get(),
-                (blockEntity, side) -> blockEntity.getGasHandler(side)
-        );
 
         event.registerBlockEntity(
                 Capabilities.Fluid.BLOCK,

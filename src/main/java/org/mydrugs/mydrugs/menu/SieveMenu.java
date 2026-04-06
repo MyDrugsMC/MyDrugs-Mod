@@ -11,7 +11,7 @@ import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
 import org.mydrugs.mydrugs.menu.layout.SieveLayout;
 import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
-public final class SieveMenu extends AbstractContainerMenu {
+public final class SieveMenu extends AbstractMachineMenu {
     public static final int INPUT_SLOT = SieveBlockEntity.SLOT_INPUT;
     public static final int RESULT_SLOT = SieveBlockEntity.SLOT_RESULT;
     public static final int BONUS_SLOT = SieveBlockEntity.SLOT_BONUS;
@@ -56,20 +56,7 @@ public final class SieveMenu extends AbstractContainerMenu {
         this.addSlot(new OutputSlot(container, RESULT_SLOT, SieveLayout.RESULT_X, SieveLayout.RESULT_Y));
         this.addSlot(new OutputSlot(container, BONUS_SLOT, SieveLayout.BONUS_X, SieveLayout.BONUS_Y));
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        SieveLayout.PLAYER_INV_X + 2 + col * 18,
-                        SieveLayout.PLAYER_INV_Y + 2 + row * 18
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, SieveLayout.HOTBAR_Y + 2));
-        }
+        this.addPlayerInventorySlots(playerInventory, SieveLayout.PLAYER_INV_X, SieveLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

@@ -11,20 +11,22 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.GasifierBlockEntity;
 import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 import org.mydrugs.mydrugs.menu.layout.GasifierLayout;
 
-import javax.annotation.Nullable;
-
-public class GasifierMenu extends AbstractContainerMenu {
+public class GasifierMenu extends AbstractMachineMenu {
     public static final int INPUT_SLOT = 0;
-    public static final int EXPORT_SLOT = 1;
+    public static final int FUEL_SLOT = 1;
+    public static final int EXPORT_SLOT = 2;
 
-    public static final int MACHINE_SLOT_COUNT = 2;
-    public static final int DATA_COUNT = 4;
+    public static final int MACHINE_SLOT_COUNT = 3;
+    public static final int DATA_COUNT = 6;
 
     public static final int TANK_CAPACITY = GasifierBlockEntity.TANK_CAPACITY;
 
@@ -36,6 +38,7 @@ public class GasifierMenu extends AbstractContainerMenu {
     private final Container container;
     private final ContainerData data;
     private final ContainerLevelAccess access;
+    private final Level level;
 
     public GasifierMenu(int containerId, Inventory playerInventory) {
         this(
@@ -55,6 +58,7 @@ public class GasifierMenu extends AbstractContainerMenu {
         this.container = container;
         this.data = data;
         this.access = access;
+        this.level = playerInventory.player.level();
 
         container.startOpen(playerInventory.player);
 
@@ -67,6 +71,23 @@ public class GasifierMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return GasifierBlockEntity.isValidInput(stack, playerInventory.player.level());
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 64;
+            }
+        });
+
+        this.addSlot(new Slot(
+                container,
+                FUEL_SLOT,
+                GasifierLayout.FUEL_SLOT_X,
+                GasifierLayout.FUEL_SLOT_Y
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return GasifierBlockEntity.isFuel(stack, level);
             }
 
             @Override
@@ -92,25 +113,7 @@ public class GasifierMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        GasifierLayout.PLAYER_INV_X + col * GasifierLayout.SLOT_SIZE,
-                        GasifierLayout.PLAYER_INV_Y + row * GasifierLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    GasifierLayout.HOTBAR_X + col * GasifierLayout.SLOT_SIZE,
-                    GasifierLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, GasifierLayout.PLAYER_INV_X, GasifierLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }
@@ -138,12 +141,24 @@ public class GasifierMenu extends AbstractContainerMenu {
         return this.data.get(2);
     }
 
-    public boolean isExportArmed() {
-        return this.container.getItem(EXPORT_SLOT).is(ModBlocks.GAS_TANK.get().asItem());
-    }
-
     public int getGasSyncId() {
         return this.data.get(3);
+    }
+
+    public int getFuelLeft() {
+        return this.data.get(4);
+    }
+
+    public int getFuelTotal() {
+        return this.data.get(5);
+    }
+
+    public boolean isLit() {
+        return this.getFuelLeft() > 0;
+    }
+
+    public boolean isExportArmed() {
+        return this.container.getItem(EXPORT_SLOT).is(ModBlocks.GAS_TANK.get().asItem());
     }
 
     public @Nullable GasType getGasType() {
@@ -153,18 +168,33 @@ public class GasifierMenu extends AbstractContainerMenu {
     public Component getGasName() {
         GasType gas = this.getGasType();
         return gas == null
-                ? Component.literal("empty")
+                ? Component.literal("Empty")
                 : Component.literal(gas.id().toString());
     }
 
     public int getScaledGasTank(int pixels) {
-        return TANK_CAPACITY > 0 ? this.getGasAmount() * pixels / TANK_CAPACITY : 0;
+        if (TANK_CAPACITY <= 0 || this.getGasAmount() <= 0) {
+            return 0;
+        }
+        return Math.max(1, this.getGasAmount() * pixels / TANK_CAPACITY);
     }
 
     public int getScaledProgress(int pixels) {
         int progress = this.getProgress();
         int max = this.getMaxProgress();
-        return max > 0 ? progress * pixels / max : 0;
+        if (progress <= 0 || max <= 0) {
+            return 0;
+        }
+        return Math.max(1, progress * pixels / max);
+    }
+
+    public int getScaledFuel(int pixels) {
+        int left = this.getFuelLeft();
+        int total = this.getFuelTotal();
+        if (left <= 0 || total <= 0) {
+            return 0;
+        }
+        return Math.max(1, left * pixels / total);
     }
 
     @Override
@@ -183,6 +213,10 @@ public class GasifierMenu extends AbstractContainerMenu {
             } else if (quickMovedSlotIndex < HOTBAR_END) {
                 if (GasifierBlockEntity.isValidInput(rawStack, player.level())) {
                     if (!this.moveItemStackTo(rawStack, INPUT_SLOT, INPUT_SLOT + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (GasifierBlockEntity.isFuel(rawStack, this.level)) {
+                    if (!this.moveItemStackTo(rawStack, FUEL_SLOT, FUEL_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else if (rawStack.is(ModBlocks.GAS_TANK.get().asItem())) {

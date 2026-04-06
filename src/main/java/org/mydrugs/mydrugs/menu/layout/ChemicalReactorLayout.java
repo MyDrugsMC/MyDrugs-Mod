@@ -2,18 +2,11 @@ package org.mydrugs.mydrugs.menu.layout;
 
 public final class ChemicalReactorLayout {
     public static final int GUI_WIDTH = 176;
-    public static final int GUI_HEIGHT = 186;
-    public static final int SLOT_SIZE = 18;
 
     public static final int MACHINE_PANEL_X = 8;
     public static final int MACHINE_PANEL_Y = 8;
     public static final int MACHINE_PANEL_W = 160;
     public static final int MACHINE_PANEL_H = 78;
-
-    public static final int INVENTORY_PANEL_X = 8;
-    public static final int INVENTORY_PANEL_Y = 96;
-    public static final int INVENTORY_PANEL_W = 160;
-    public static final int INVENTORY_PANEL_H = 82;
 
     public static final int PRIMARY_GAS_TANK_X = 16;
     public static final int PRIMARY_GAS_TANK_Y = 18;
@@ -62,10 +55,10 @@ public final class ChemicalReactorLayout {
     public static final int FUEL_SLOT_X = 79;
     public static final int FUEL_SLOT_Y = 61;
 
-    public static final int PLAYER_INV_X = 8;
-    public static final int PLAYER_INV_Y = 104;
-    public static final int HOTBAR_X = 8;
-    public static final int HOTBAR_Y = 162;
+    public static final int PLAYER_INV_X = LayoutMath.centered(GUI_WIDTH, StandardInventoryLayout.PLAYER_INV_PANEL_W);
+    public static final int PLAYER_INV_Y = MACHINE_PANEL_Y + MACHINE_PANEL_H + StandardInventoryLayout.INV_UPPER_MARGIN;
+
+    public static final int GUI_HEIGHT = MACHINE_PANEL_Y + MACHINE_PANEL_H + StandardInventoryLayout.INV_UPPER_MARGIN + StandardInventoryLayout.TOTAL_H + MACHINE_PANEL_Y;
 
     private ChemicalReactorLayout() {
     }

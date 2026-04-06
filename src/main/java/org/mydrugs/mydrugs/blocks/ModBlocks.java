@@ -218,33 +218,32 @@ public class ModBlocks {
             props -> props.strength(2.0F)
     );
 
-    public static final DeferredBlock<GasifierBlock> GASIFIER = BLOCKS.register(
+    public static final DeferredBlock<GasifierBlock> GASIFIER = BLOCKS.registerBlock(
             "gasifier",
-            () -> new GasifierBlock(
-                    BlockBehaviour.Properties.of()
+            GasifierBlock::new,
+            props -> props
                             .strength(3.5F)
                             .requiresCorrectToolForDrops()
-            )
     );
 
     public static final DeferredBlock<Block> CHEMICAL_REACTOR =
-            BLOCKS.register("chemical_reactor",
-                    () -> new ChemicalReactorBlock(
-                            BlockBehaviour.Properties.of()
+            BLOCKS.registerBlock("chemical_reactor",
+                    ChemicalReactorBlock::new,
+                    props -> props
                                     .strength(3.5F)
                                     .requiresCorrectToolForDrops()
                                     .sound(SoundType.METAL)
-                    ));
+                    );
 
     public static final DeferredBlock<AdvancedMixingVatBlock> ADVANCED_MIXING_VAT =
-            BLOCKS.register(
+            BLOCKS.registerBlock(
                     "advanced_mixing_vat",
-                    () -> new AdvancedMixingVatBlock(
-                            BlockBehaviour.Properties.of()
+                    AdvancedMixingVatBlock::new,
+                    props -> props
                                     .strength(3.5F)
                                     .requiresCorrectToolForDrops()
-                                    .sound(net.minecraft.world.level.block.SoundType.METAL)
-                    )
+                                    .sound(SoundType.METAL)
+
             );
 
     private ModBlocks() {

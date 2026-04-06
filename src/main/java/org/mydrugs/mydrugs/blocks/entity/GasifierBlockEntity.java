@@ -20,6 +20,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,9 +36,6 @@ import org.mydrugs.mydrugs.gas.GasTank;
 import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.ModGases;
 import org.mydrugs.mydrugs.menu.GasifierMenu;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
-import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 
@@ -44,8 +43,9 @@ import java.util.Objects;
 
 public class GasifierBlockEntity extends BlockEntity implements Container, MenuProvider {
     public static final int SLOT_INPUT = 0;
-    public static final int SLOT_EXPORT = 1;
-    public static final int SLOT_COUNT = 2;
+    public static final int SLOT_FUEL = 1;
+    public static final int SLOT_EXPORT = 2;
+    public static final int SLOT_COUNT = 3;
 
     public static final int TANK_CAPACITY = 4_000;
 
@@ -54,11 +54,14 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     private final GasTank outputTank = new GasTank(
             TANK_CAPACITY,
             Objects::nonNull,
-            this::onMachineChanged
+            this::setChanged
     );
 
     private int progress = 0;
     private int maxProgress = 100;
+
+    private int burnTimeRemaining = 0;
+    private int burnTimeTotal = 0;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -68,6 +71,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                 case 1 -> progress;
                 case 2 -> maxProgress;
                 case 3 -> ModGases.getSyncId(outputTank.getGasType());
+                case 4 -> burnTimeRemaining;
+                case 5 -> burnTimeTotal;
                 default -> 0;
             };
         }
@@ -79,12 +84,14 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                 case 1 -> progress = value;
                 case 2 -> maxProgress = value;
                 case 3 -> outputTank.loadStored(ModGases.bySyncId(value), outputTank.getAmount());
+                case 4 -> burnTimeRemaining = value;
+                case 5 -> burnTimeTotal = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 4;
+            return 6;
         }
     };
 
@@ -93,15 +100,19 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, GasifierBlockEntity be) {
-        if (level.isClientSide()) {
-            return;
+        if (!level.isClientSide()) {
+            be.tickServer();
         }
-
-        be.tickServer();
     }
 
     private void tickServer() {
-        boolean changed = false;
+        boolean dirty = false;
+        boolean sync = false;
+
+        if (this.burnTimeRemaining > 0) {
+            this.burnTimeRemaining--;
+            dirty = true;
+        }
 
         RecipeHolder<GasifierRecipe> holder = this.getCurrentRecipe();
         GasifierRecipe recipe = holder == null ? null : holder.value();
@@ -109,29 +120,46 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         if (canProcess(recipe)) {
             if (this.progress == 0 || this.maxProgress != recipe.processTime()) {
                 this.maxProgress = recipe.processTime();
-                changed = true;
+                dirty = true;
             }
 
-            this.progress++;
+            if (!this.isLit() && this.consumeFuel()) {
+                dirty = true;
+                sync = true;
+            }
 
-            if (this.progress >= this.maxProgress) {
-                craft(recipe);
+            if (this.isLit()) {
+                this.progress++;
+                dirty = true;
+
+                if (this.progress >= this.maxProgress) {
+                    this.craft(recipe);
+                    this.progress = 0;
+                    dirty = true;
+                    sync = true;
+                }
+            } else if (this.progress != 0) {
                 this.progress = 0;
-                changed = true;
+                dirty = true;
             }
         } else if (this.progress != 0) {
             this.progress = 0;
-            changed = true;
+            dirty = true;
         }
 
         long before = this.outputTank.getAmount();
         this.tryExportToFrontTank();
         if (before != this.outputTank.getAmount()) {
-            changed = true;
+            dirty = true;
+            sync = true;
         }
 
-        if (changed) {
-            this.onMachineChanged();
+        if (dirty) {
+            this.setChanged();
+        }
+
+        if (sync) {
+            this.syncToClient();
         }
     }
 
@@ -149,7 +177,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         }
 
         return this.outputTank.fill(
-                org.mydrugs.mydrugs.gas.GasStack.of(recipe.gas(), recipe.gasAmount()),
+                GasStack.of(recipe.gas(), recipe.gasAmount()),
                 true
         ) == recipe.gasAmount();
     }
@@ -161,7 +189,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         }
 
         this.outputTank.fill(
-                org.mydrugs.mydrugs.gas.GasStack.of(recipe.gas(), recipe.gasAmount()),
+                GasStack.of(recipe.gas(), recipe.gasAmount()),
                 false
         );
 
@@ -171,12 +199,31 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         }
     }
 
+    private boolean consumeFuel() {
+        ItemStack fuelStack = this.items.get(SLOT_FUEL);
+        int burnTime = getFuelBurnDuration(fuelStack, this.level);
+        if (burnTime <= 0) {
+            return false;
+        }
+
+        this.burnTimeRemaining = burnTime;
+        this.burnTimeTotal = burnTime;
+
+        ItemStack remainder = fuelStack.getCraftingRemainder();
+        fuelStack.shrink(1);
+
+        if (fuelStack.isEmpty()) {
+            this.items.set(SLOT_FUEL, remainder.isEmpty() ? ItemStack.EMPTY : remainder.copy());
+        }
+
+        return true;
+    }
+
     private void tryExportToFrontTank() {
         if (this.level == null || this.outputTank.isEmpty()) {
             return;
         }
 
-        // "Link/export" slot must contain your Gas Tank block item.
         ItemStack exportStack = this.items.get(SLOT_EXPORT);
         if (!exportStack.is(ModBlocks.GAS_TANK.get().asItem())) {
             return;
@@ -196,12 +243,14 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         }
     }
 
-    private void onMachineChanged() {
-        this.setChanged();
-
+    private void syncToClient() {
         if (this.level != null && !this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
         }
+    }
+
+    public boolean isLit() {
+        return this.burnTimeRemaining > 0;
     }
 
     public GasTank getOutputTank() {
@@ -212,18 +261,26 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         return this.data;
     }
 
-    public static boolean isValidInput(ItemStack stack, Level level) {
+    public static boolean isValidInput(ItemStack stack, @Nullable Level level) {
         if (level == null || stack.isEmpty() || level.isClientSide()) {
             return false;
         }
 
-        return ((ServerLevel) level).recipeAccess()
+        return ((ServerLevel)level).recipeAccess()
                 .getRecipeFor(
                         ModRecipeTypes.GASIFIER.get(),
                         new SingleRecipeInput(stack),
                         level
                 )
                 .isPresent();
+    }
+
+    public static boolean isFuel(ItemStack stack, Level level) {
+        return !stack.isEmpty() && stack.getBurnTime(null, level.fuelValues()) > 0;
+    }
+
+    public static int getFuelBurnDuration(ItemStack stack, Level level) {
+        return stack.isEmpty() ? 0 : stack.getBurnTime(null, level.fuelValues());
     }
 
     @Override
@@ -266,7 +323,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     public ItemStack removeItem(int slot, int amount) {
         ItemStack stack = ContainerHelper.removeItem(this.items, slot, amount);
         if (!stack.isEmpty()) {
-            this.onMachineChanged();
+            this.setChanged();
+            this.syncToClient();
         }
         return stack;
     }
@@ -288,7 +346,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
             this.progress = 0;
         }
 
-        this.onMachineChanged();
+        this.setChanged();
+        this.syncToClient();
     }
 
     @Override
@@ -310,6 +369,10 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
             return isValidInput(stack, this.level);
         }
 
+        if (slot == SLOT_FUEL) {
+            return isFuel(stack, this.level);
+        }
+
         if (slot == SLOT_EXPORT) {
             return stack.is(ModBlocks.GAS_TANK.get().asItem());
         }
@@ -320,7 +383,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     @Override
     public void clearContent() {
         this.items.clear();
-        this.onMachineChanged();
+        this.setChanged();
+        this.syncToClient();
     }
 
     @Override
@@ -341,6 +405,9 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
 
         this.progress = input.getIntOr("progress", 0);
         this.maxProgress = input.getIntOr("max_progress", 100);
+
+        this.burnTimeRemaining = input.getIntOr("burn_time_remaining", 0);
+        this.burnTimeTotal = input.getIntOr("burn_time_total", 0);
 
         String gasId = input.getStringOr("gas_id", "");
         long gasAmount = input.getLongOr("gas_amount", 0L);
@@ -368,6 +435,9 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         output.putInt("progress", this.progress);
         output.putInt("max_progress", this.maxProgress);
 
+        output.putInt("burn_time_remaining", this.burnTimeRemaining);
+        output.putInt("burn_time_total", this.burnTimeTotal);
+
         GasType gas = this.outputTank.getGasType();
         output.putString("gas_id", gas == null ? "" : gas.id().toString());
         output.putLong("gas_amount", this.outputTank.getAmount());
@@ -388,7 +458,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
             return null;
         }
 
-        return ((ServerLevel) this.level).recipeAccess()
+        return ((ServerLevel)this.level).recipeAccess()
                 .getRecipeFor(
                         ModRecipeTypes.GASIFIER.get(),
                         new SingleRecipeInput(this.items.get(SLOT_INPUT)),

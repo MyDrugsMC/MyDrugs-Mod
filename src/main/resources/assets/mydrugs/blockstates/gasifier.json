@@ -1,6 +1,8 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "mydrugs:block/gasifier"
+  "variants": {
+    "facing=north": { "model": "mydrugs:block/gasifier" },
+    "facing=south": { "model": "mydrugs:block/gasifier", "y": 180 },
+    "facing=west":  { "model": "mydrugs:block/gasifier", "y": 270 },
+    "facing=east":  { "model": "mydrugs:block/gasifier", "y": 90 }
   }
 }

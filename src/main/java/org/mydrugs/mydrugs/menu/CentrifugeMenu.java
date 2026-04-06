@@ -18,7 +18,7 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.CentrifugeBlockEntity;
 import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
 
-public class CentrifugeMenu extends AbstractContainerMenu {
+public class CentrifugeMenu extends AbstractMachineMenu {
     public static final int INPUT_CONTAINER_SLOT = 0;
     public static final int OUTPUT_A_CONTAINER_SLOT = 1;
     public static final int OUTPUT_B_CONTAINER_SLOT = 2;
@@ -126,25 +126,7 @@ public class CentrifugeMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        CentrifugeLayout.PLAYER_INV_X + col * CentrifugeLayout.SLOT_SIZE,
-                        CentrifugeLayout.PLAYER_INV_Y + row * CentrifugeLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    CentrifugeLayout.HOTBAR_X + col * CentrifugeLayout.SLOT_SIZE,
-                    CentrifugeLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, CentrifugeLayout.PLAYER_INV_X, CentrifugeLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

@@ -18,7 +18,7 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.BiochemicalReactorBlockEntity;
 import org.mydrugs.mydrugs.menu.layout.BiochemicalReactorLayout;
 
-public class BiochemicalReactorMenu extends AbstractContainerMenu {
+public class BiochemicalReactorMenu extends AbstractMachineMenu {
     public static final int OUTPUT_CONTAINER_SLOT = 3;
     public static final int MACHINE_SLOT_COUNT = 4;
     public static final int DATA_COUNT = 10;
@@ -114,25 +114,7 @@ public class BiochemicalReactorMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        BiochemicalReactorLayout.PLAYER_INV_X + col * BiochemicalReactorLayout.SLOT_SIZE,
-                        BiochemicalReactorLayout.PLAYER_INV_Y + row * BiochemicalReactorLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    BiochemicalReactorLayout.HOTBAR_X + col * BiochemicalReactorLayout.SLOT_SIZE,
-                    BiochemicalReactorLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, BiochemicalReactorLayout.PLAYER_INV_X, BiochemicalReactorLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

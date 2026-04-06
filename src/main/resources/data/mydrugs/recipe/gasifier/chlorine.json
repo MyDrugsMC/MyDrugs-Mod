@@ -1,8 +1,6 @@
 {
   "type": "mydrugs:gasifier",
-  "input": {
-    "item": "mydrugs:salt_powder"
-  },
+  "input": "mydrugs:salt_powder",
   "gas_output": "mydrugs:chlorine",
   "gas_amount": 100,
   "process_time": 80

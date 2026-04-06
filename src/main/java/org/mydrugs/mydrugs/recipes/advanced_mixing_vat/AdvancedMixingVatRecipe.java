@@ -51,7 +51,7 @@ public class AdvancedMixingVatRecipe implements Recipe<AdvancedMixingVatRecipeIn
         if (itemInputs.size() > 4) {
             throw new IllegalArgumentException("Advanced Mixing Vat supports at most 4 item ingredients.");
         }
-        if (fluidInputs.size() > 2) {
+        if (fluidInputs.size() > 3) {
             throw new IllegalArgumentException("Advanced Mixing Vat supports at most 2 fluid ingredients.");
         }
 
@@ -206,34 +206,73 @@ public class AdvancedMixingVatRecipe implements Recipe<AdvancedMixingVatRecipeIn
                 || (first.matches(b) && second.matches(a));
     }
 
-    public static void consumeFluids(List<FluidRequirement> requirements, NonNullList<FluidStack> tankA, NonNullList<FluidStack> tankB) {
+    public static void consumeFluids(
+            List<FluidRequirement> requirements,
+            NonNullList<FluidStack> tankA,
+            NonNullList<FluidStack> tankB,
+            NonNullList<FluidStack> tankC
+    ) {
         if (requirements.isEmpty()) {
             return;
         }
 
-        FluidStack a = tankA.get(0);
-        FluidStack b = tankB.get(0);
+        if (requirements.size() > 3) {
+            throw new IllegalArgumentException("AdvancedMixingVat supports at most 3 fluid requirements");
+        }
 
-        if (requirements.size() == 1) {
-            FluidRequirement req = requirements.get(0);
-            if (req.matches(a)) {
-                shrinkFluid(tankA, req.amount());
-            } else if (req.matches(b)) {
-                shrinkFluid(tankB, req.amount());
-            }
+        NonNullList<FluidStack>[] tanks = new NonNullList[] { tankA, tankB, tankC };
+        FluidStack[] fluids = new FluidStack[] { tankA.get(0), tankB.get(0), tankC.get(0) };
+
+        int[] assignment = new int[requirements.size()];
+        for (int i = 0; i < assignment.length; i++) {
+            assignment[i] = -1;
+        }
+
+        boolean[] usedTanks = new boolean[3];
+
+        if (!assignFluidRequirements(requirements, fluids, 0, usedTanks, assignment)) {
             return;
         }
 
-        FluidRequirement first = requirements.get(0);
-        FluidRequirement second = requirements.get(1);
-
-        if (first.matches(a) && second.matches(b)) {
-            shrinkFluid(tankA, first.amount());
-            shrinkFluid(tankB, second.amount());
-        } else {
-            shrinkFluid(tankA, second.amount());
-            shrinkFluid(tankB, first.amount());
+        for (int i = 0; i < requirements.size(); i++) {
+            shrinkFluid(tanks[assignment[i]], requirements.get(i).amount());
         }
+    }
+
+    private static boolean assignFluidRequirements(
+            List<FluidRequirement> requirements,
+            FluidStack[] fluids,
+            int requirementIndex,
+            boolean[] usedTanks,
+            int[] assignment
+    ) {
+        if (requirementIndex >= requirements.size()) {
+            return true;
+        }
+
+        FluidRequirement requirement = requirements.get(requirementIndex);
+
+        for (int tankIndex = 0; tankIndex < fluids.length; tankIndex++) {
+            if (usedTanks[tankIndex]) {
+                continue;
+            }
+
+            if (!requirement.matches(fluids[tankIndex])) {
+                continue;
+            }
+
+            usedTanks[tankIndex] = true;
+            assignment[requirementIndex] = tankIndex;
+
+            if (assignFluidRequirements(requirements, fluids, requirementIndex + 1, usedTanks, assignment)) {
+                return true;
+            }
+
+            usedTanks[tankIndex] = false;
+            assignment[requirementIndex] = -1;
+        }
+
+        return false;
     }
 
     private static void shrinkFluid(NonNullList<FluidStack> tank, int amount) {

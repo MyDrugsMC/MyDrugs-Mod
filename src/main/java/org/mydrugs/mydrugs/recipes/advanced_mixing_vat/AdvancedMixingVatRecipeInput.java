@@ -11,6 +11,7 @@ public record AdvancedMixingVatRecipeInput(
         List<ItemStack> items,
         FluidStack inputA,
         FluidStack inputB,
+        FluidStack inputC,
         GasStack gas
 ) implements RecipeInput {
     @Override

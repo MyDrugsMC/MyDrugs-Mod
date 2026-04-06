@@ -11,11 +11,12 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.items.rolling.RollerLogic;
+import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 import org.mydrugs.mydrugs.menu.layout.RollerLayout;
 import org.mydrugs.mydrugs.menu.slot.RollerMachineSlot;
 import org.mydrugs.mydrugs.menu.slot.RollerOutputSlot;
 
-public class RollerMenu extends AbstractContainerMenu {
+public class RollerMenu extends AbstractMachineMenu {
     public static final int PAPER_SLOT = 0;
     public static final int FILTER_SLOT = 1;
     public static final int INGREDIENT_1_SLOT = 2;
@@ -55,25 +56,7 @@ public class RollerMenu extends AbstractContainerMenu {
         this.addSlot(new RollerMachineSlot(this, machine, INGREDIENT_3_SLOT, RollerLayout.INGREDIENT_3_X, RollerLayout.INGREDIENT_3_Y));
         this.addSlot(new RollerOutputSlot(this, machine, OUTPUT_SLOT, RollerLayout.OUTPUT_X, RollerLayout.OUTPUT_Y));
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        RollerLayout.PLAYER_INV_X + 2 + col * 18,
-                        RollerLayout.PLAYER_INV_Y + 2 + row * 18
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    RollerLayout.HOTBAR_X + 2 + col * 18,
-                    RollerLayout.HOTBAR_Y + 2
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, RollerLayout.PLAYER_INV_X, RollerLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

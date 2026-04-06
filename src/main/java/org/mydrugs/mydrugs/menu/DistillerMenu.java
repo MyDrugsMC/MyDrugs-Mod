@@ -16,9 +16,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.DistillerBlockEntity;
+import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 
-public class DistillerMenu extends AbstractContainerMenu {
+public class DistillerMenu extends AbstractMachineMenu {
     public static final int INPUT_CONTAINER_SLOT = 0;
     public static final int OUTPUT_A_CONTAINER_SLOT = 1;
     public static final int OUTPUT_B_CONTAINER_SLOT = 2;
@@ -114,25 +115,7 @@ public class DistillerMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        DistillerLayout.PLAYER_INV_X + col * DistillerLayout.SLOT_SIZE,
-                        DistillerLayout.PLAYER_INV_Y + row * DistillerLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    DistillerLayout.HOTBAR_X + col * DistillerLayout.SLOT_SIZE,
-                    DistillerLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, DistillerLayout.PLAYER_INV_X, DistillerLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

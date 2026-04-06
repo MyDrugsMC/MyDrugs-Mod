@@ -14,9 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.GrowthChamberBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
-public class GrowthChamberMenu extends AbstractContainerMenu {
+public class GrowthChamberMenu extends AbstractMachineMenu {
     public static final int INPUT_SLOT = 0;
     public static final int BIOMASS_SLOT = 1;
     public static final int MIDDLE_SLOT = 2;
@@ -84,25 +85,7 @@ public class GrowthChamberMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        GrowthChamberLayout.PLAYER_INV_X + col * GrowthChamberLayout.SLOT_SIZE,
-                        GrowthChamberLayout.PLAYER_INV_Y + row * GrowthChamberLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    GrowthChamberLayout.HOTBAR_X + col * GrowthChamberLayout.SLOT_SIZE,
-                    GrowthChamberLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, GrowthChamberLayout.PLAYER_INV_X, GrowthChamberLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

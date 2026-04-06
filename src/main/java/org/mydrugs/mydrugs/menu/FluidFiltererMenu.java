@@ -17,9 +17,10 @@ import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.FluidFiltererBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 
-public class FluidFiltererMenu extends AbstractContainerMenu {
+public class FluidFiltererMenu extends AbstractMachineMenu {
     public static final int INPUT_CONTAINER_SLOT = 0;
     public static final int OUTPUT_A_CONTAINER_SLOT = 1;
     public static final int OUTPUT_B_CONTAINER_SLOT = 2;
@@ -147,25 +148,7 @@ public class FluidFiltererMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        FluidFiltererLayout.PLAYER_INV_X + col * FluidFiltererLayout.SLOT_SIZE,
-                        FluidFiltererLayout.PLAYER_INV_Y + row * FluidFiltererLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    FluidFiltererLayout.HOTBAR_X + col * FluidFiltererLayout.SLOT_SIZE,
-                    FluidFiltererLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, FluidFiltererLayout.PLAYER_INV_X, FluidFiltererLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }

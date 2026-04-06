@@ -16,8 +16,8 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
 import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
 
-public class AdvancedMixingVatMenu extends AbstractContainerMenu {
-    public static final int MACHINE_SLOT_COUNT = 4;
+public class AdvancedMixingVatMenu extends AbstractMachineMenu {
+    public static final int MACHINE_SLOT_COUNT = AdvancedMixingVatBlockEntity.ITEM_SLOT_COUNT;
 
     private final ItemStacksResourceHandler itemHandler;
     private final ContainerData data;
@@ -32,7 +32,7 @@ public class AdvancedMixingVatMenu extends AbstractContainerMenu {
         this(
                 containerId,
                 playerInventory,
-                new ItemStacksResourceHandler(MACHINE_SLOT_COUNT),
+                new ItemStacksResourceHandler(AdvancedMixingVatBlockEntity.ITEM_SLOT_COUNT),
                 new SimpleContainerData(AdvancedMixingVatBlockEntity.DATA_COUNT),
                 ContainerLevelAccess.NULL
         );
@@ -47,16 +47,71 @@ public class AdvancedMixingVatMenu extends AbstractContainerMenu {
     ) {
         super(ModMenus.ADVANCED_MIXING_VAT.get(), containerId);
 
+        checkContainerDataCount(data, AdvancedMixingVatBlockEntity.DATA_COUNT);
+
         this.itemHandler = itemHandler;
         this.data = data;
         this.access = access;
 
-        this.addSlot(new ResourceHandlerSlot(itemHandler, itemHandler::set, 0, AdvancedMixingVatLayout.ITEM_0_X, AdvancedMixingVatLayout.ITEM_0_Y));
-        this.addSlot(new ResourceHandlerSlot(itemHandler, itemHandler::set, 1, AdvancedMixingVatLayout.ITEM_1_X, AdvancedMixingVatLayout.ITEM_1_Y));
-        this.addSlot(new ResourceHandlerSlot(itemHandler, itemHandler::set, 2, AdvancedMixingVatLayout.ITEM_2_X, AdvancedMixingVatLayout.ITEM_2_Y));
-        this.addSlot(new ResourceHandlerSlot(itemHandler, itemHandler::set, 3, AdvancedMixingVatLayout.ITEM_3_X, AdvancedMixingVatLayout.ITEM_3_Y));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_RECIPE_0,
+                AdvancedMixingVatLayout.ITEM_0_X,
+                AdvancedMixingVatLayout.ITEM_0_Y
+        ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_RECIPE_1,
+                AdvancedMixingVatLayout.ITEM_1_X,
+                AdvancedMixingVatLayout.ITEM_1_Y
+        ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_RECIPE_2,
+                AdvancedMixingVatLayout.ITEM_2_X,
+                AdvancedMixingVatLayout.ITEM_2_Y
+        ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_RECIPE_3,
+                AdvancedMixingVatLayout.ITEM_3_X,
+                AdvancedMixingVatLayout.ITEM_3_Y
+        ));
 
-        this.addStandardInventorySlots(playerInventory, AdvancedMixingVatLayout.PLAYER_INV_X, AdvancedMixingVatLayout.PLAYER_INV_Y);
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_TANK_INPUT_A,
+                AdvancedMixingVatLayout.TANK_A_SLOT_X,
+                AdvancedMixingVatLayout.TANK_SLOT_Y
+        ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_TANK_INPUT_B,
+                AdvancedMixingVatLayout.TANK_B_SLOT_X,
+                AdvancedMixingVatLayout.TANK_SLOT_Y
+        ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_TANK_INPUT_C,
+                AdvancedMixingVatLayout.TANK_C_SLOT_X,
+                AdvancedMixingVatLayout.TANK_SLOT_Y
+        ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_TANK_OUTPUT,
+                AdvancedMixingVatLayout.OUTPUT_SLOT_X,
+                AdvancedMixingVatLayout.TANK_SLOT_Y
+        ));
+
+        this.addPlayerInventorySlots(playerInventory, AdvancedMixingVatLayout.PLAYER_INV_X, AdvancedMixingVatLayout.PLAYER_INV_Y);
         this.addDataSlots(data);
     }
 
@@ -73,40 +128,48 @@ public class AdvancedMixingVatMenu extends AbstractContainerMenu {
         return this.data.get(1);
     }
 
-    public int getOutputTankAmount() {
+    public int getInputCTankAmount() {
         return this.data.get(2);
     }
 
-    public int getGasAmount() {
+    public int getOutputTankAmount() {
         return this.data.get(3);
     }
 
-    public int getProgress() {
+    public int getGasAmount() {
         return this.data.get(4);
     }
 
-    public int getMaxProgress() {
+    public int getProgress() {
         return this.data.get(5);
     }
 
-    public int getInputAFluidSyncId() {
+    public int getMaxProgress() {
         return this.data.get(6);
     }
 
-    public int getInputBFluidSyncId() {
+    public int getInputAFluidSyncId() {
         return this.data.get(7);
     }
 
-    public int getOutputFluidSyncId() {
+    public int getInputBFluidSyncId() {
         return this.data.get(8);
     }
 
-    public int getGasSyncId() {
+    public int getInputCFluidSyncId() {
         return this.data.get(9);
     }
 
+    public int getOutputFluidSyncId() {
+        return this.data.get(10);
+    }
+
+    public int getGasSyncId() {
+        return this.data.get(11);
+    }
+
     public boolean hasValidRecipe() {
-        return this.data.get(10) == 1;
+        return this.data.get(12) == 1;
     }
 
     public Fluid getInputAFluid() {
@@ -115,6 +178,10 @@ public class AdvancedMixingVatMenu extends AbstractContainerMenu {
 
     public Fluid getInputBFluid() {
         return decodeFluid(this.getInputBFluidSyncId());
+    }
+
+    public Fluid getInputCFluid() {
+        return decodeFluid(this.getInputCFluidSyncId());
     }
 
     public Fluid getOutputFluid() {
@@ -176,5 +243,10 @@ public class AdvancedMixingVatMenu extends AbstractContainerMenu {
         }
 
         return quickMovedStack;
+    }
+
+    @Override
+    public void setData(int id, int value) {
+        super.setData(id, value);
     }
 }

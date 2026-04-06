@@ -15,9 +15,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
+import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
-public class ChemicalReactorMenu extends AbstractContainerMenu {
+public class ChemicalReactorMenu extends AbstractMachineMenu {
     public static final int FUEL_SLOT = 0;
     public static final int MACHINE_SLOT_COUNT = 1;
     public static final int DATA_COUNT = 13;
@@ -62,25 +63,7 @@ public class ChemicalReactorMenu extends AbstractContainerMenu {
             }
         });
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        ChemicalReactorLayout.PLAYER_INV_X + col * ChemicalReactorLayout.SLOT_SIZE,
-                        ChemicalReactorLayout.PLAYER_INV_Y + row * ChemicalReactorLayout.SLOT_SIZE
-                ));
-            }
-        }
-
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    ChemicalReactorLayout.HOTBAR_X + col * ChemicalReactorLayout.SLOT_SIZE,
-                    ChemicalReactorLayout.HOTBAR_Y
-            ));
-        }
+        this.addPlayerInventorySlots(playerInventory, ChemicalReactorLayout.PLAYER_INV_X, ChemicalReactorLayout.PLAYER_INV_Y);
 
         this.addDataSlots(data);
     }
