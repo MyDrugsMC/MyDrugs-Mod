@@ -39,6 +39,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
         drawSlotFrame(graphics, AdvancedMixingVatLayout.TANK_A_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
         drawSlotFrame(graphics, AdvancedMixingVatLayout.TANK_B_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
         drawSlotFrame(graphics, AdvancedMixingVatLayout.TANK_C_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
+        drawSlotFrame(graphics, AdvancedMixingVatLayout.GAS_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
         drawSlotFrame(graphics, AdvancedMixingVatLayout.OUTPUT_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
 
         drawTankFrame(

@@ -6,10 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -23,11 +20,14 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.machine.MachineSync;
+import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
+import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
+import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
+import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
+import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.menu.AdvancedFurnaceMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
@@ -35,18 +35,22 @@ import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipeInput;
 
 import java.util.Optional;
 
-
 public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     public static final int INPUT_A_SLOT = 0;
     public static final int INPUT_B_SLOT = 1;
     public static final int FUEL_SLOT = 2;
     public static final int OUTPUT_A_SLOT = 3;
     public static final int OUTPUT_B_SLOT = 4;
-    public static final int SLOT_COUNT = 5;
+    public static final int OUTPUT_FLUID_CONTAINER_SLOT = 5;
+    public static final int SLOT_COUNT = 6;
 
     public static final int TANK_CAPACITY = 4000;
 
+    private static final FuelResolver ADVANCED_FURNACE_FUEL = MachineFuelUtil.VANILLA;
+
     private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
+
+    private final StoredFluidTank outputTank = new StoredFluidTank(TANK_CAPACITY, this::sync);
 
     private int progress = 0;
     private int maxProgress = 200;
@@ -54,18 +58,16 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     private int burnTime = 0;
     private int burnDuration = 0;
 
-    private ResourceLocation tankFluidId = null;
-    private int tankAmount = 0;
-
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> AdvancedFurnaceBlockEntity.this.progress;
-                case 1 -> AdvancedFurnaceBlockEntity.this.maxProgress;
-                case 2 -> AdvancedFurnaceBlockEntity.this.burnTime;
-                case 3 -> AdvancedFurnaceBlockEntity.this.burnDuration;
-                case 4 -> AdvancedFurnaceBlockEntity.this.tankAmount;
+                case 0 -> progress;
+                case 1 -> maxProgress;
+                case 2 -> burnTime;
+                case 3 -> burnDuration;
+                case 4 -> outputTank.getAmount();
+                case 5 -> outputTank.encodeFluidSyncId();
                 default -> 0;
             };
         }
@@ -73,17 +75,16 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> AdvancedFurnaceBlockEntity.this.progress = value;
-                case 1 -> AdvancedFurnaceBlockEntity.this.maxProgress = value;
-                case 2 -> AdvancedFurnaceBlockEntity.this.burnTime = value;
-                case 3 -> AdvancedFurnaceBlockEntity.this.burnDuration = value;
-                case 4 -> AdvancedFurnaceBlockEntity.this.tankAmount = value;
+                case 0 -> progress = value;
+                case 1 -> maxProgress = value;
+                case 2 -> burnTime = value;
+                case 3 -> burnDuration = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 6;
         }
     };
 
@@ -91,75 +92,120 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         super(ModBlockEntities.ADVANCED_FURNACE.get(), pos, state);
     }
 
-    public static int getFuelTime(ItemStack stack) {
-        if (stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) return 1600;
-        if (stack.is(Items.BLAZE_ROD)) return 2400;
-        return 0;
-    }
-
     public static void tick(Level level, BlockPos pos, BlockState state, AdvancedFurnaceBlockEntity be) {
-        if (level.isClientSide()) {
+        if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
 
         boolean changed = false;
+
+        if (FluidTransferUtil.tryFillOutputSlot(be, OUTPUT_FLUID_CONTAINER_SLOT, be.outputTank)) {
+            changed = true;
+        }
 
         if (be.burnTime > 0) {
             be.burnTime--;
             changed = true;
         }
 
-        Optional<RecipeHolder<AdvancedFurnaceRecipe>> recipeHolder = be.getCurrentRecipe((ServerLevel) level);
+        Optional<RecipeHolder<AdvancedFurnaceRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
 
-        if (recipeHolder.isPresent()) {
-            AdvancedFurnaceRecipe recipe = recipeHolder.get().value();
-            be.maxProgress = recipe.cookTime();
-
-            boolean canCraft = be.canCraft(recipe);
-
-            if (canCraft) {
-                if (be.burnTime <= 0) {
-                    ItemStack fuelStack = be.getItem(FUEL_SLOT);
-                    int fuelTime = getFuelTime(fuelStack);
-
-                    if (fuelTime > 0) {
-                        be.burnTime = fuelTime;
-                        be.burnDuration = fuelTime;
-                        fuelStack.shrink(1);
-                        changed = true;
-                    }
-                }
-
-                if (be.burnTime > 0) {
-                    be.progress++;
-                    changed = true;
-
-                    if (be.progress >= be.maxProgress) {
-                        be.craft(recipe);
-                        be.progress = 0;
-                        changed = true;
-                    }
-                } else {
-                    if (be.progress != 0) {
-                        be.progress = 0;
-                        changed = true;
-                    }
-                }
-            } else {
-                if (be.progress != 0) {
-                    be.progress = 0;
-                    changed = true;
-                }
-            }
-        } else {
+        if (recipeHolder.isEmpty()) {
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
             }
+
+            if (changed) {
+                be.sync();
+            }
+            return;
+        }
+
+        AdvancedFurnaceRecipe recipe = recipeHolder.get().value();
+        be.maxProgress = recipe.cookTime();
+
+        if (!be.canCraft(recipe)) {
+            if (be.progress != 0) {
+                be.progress = 0;
+                changed = true;
+            }
+
+            if (changed) {
+                be.sync();
+            }
+            return;
+        }
+
+        if (be.burnTime <= 0 && be.consumeFuel()) {
+            changed = true;
+        }
+
+        if (be.burnTime > 0) {
+            be.progress++;
+            changed = true;
+
+            if (be.progress >= be.maxProgress) {
+                be.craft(recipe);
+                be.progress = 0;
+                changed = true;
+            }
+        } else if (be.progress != 0) {
+            be.progress = 0;
+            changed = true;
         }
 
         if (changed) {
-            be.setChanged();
+            be.sync();
+        }
+    }
+
+    private boolean consumeFuel() {
+        MachineFuelUtil.FuelUse fuelUse = MachineFuelUtil.consumeOne(
+                this.getItem(FUEL_SLOT),
+                this.level,
+                ADVANCED_FURNACE_FUEL
+        );
+
+        if (!fuelUse.consumed()) {
+            return false;
+        }
+
+        this.burnTime = fuelUse.burnTime();
+        this.burnDuration = fuelUse.burnTime();
+        this.setItem(FUEL_SLOT, fuelUse.remainingStack());
+        return true;
+    }
+
+    private Optional<RecipeHolder<AdvancedFurnaceRecipe>> getCurrentRecipe(ServerLevel level) {
+        return level.recipeAccess().getRecipeFor(
+                ModRecipeTypes.ADVANCED_FURNACE.get(),
+                new AdvancedFurnaceRecipeInput(this.getItem(INPUT_A_SLOT), this.getItem(INPUT_B_SLOT)),
+                level
+        );
+    }
+
+    private boolean canCraft(AdvancedFurnaceRecipe recipe) {
+        if (!canInsertItem(this.getItem(OUTPUT_A_SLOT), recipe.resultA())) return false;
+        if (!canInsertItem(this.getItem(OUTPUT_B_SLOT), recipe.resultB())) return false;
+
+        FluidStack recipeFluid = toFluidStack(recipe.fluidOutput(), recipe.fluidAmount());
+        return recipeFluid.isEmpty() || this.outputTank.getAddableAmount(recipeFluid) >= recipeFluid.getAmount();
+    }
+
+    private void craft(AdvancedFurnaceRecipe recipe) {
+        this.removeItem(INPUT_A_SLOT, 1);
+
+        if (recipe.inputB().isPresent()) {
+            this.removeItem(INPUT_B_SLOT, 1);
+        }
+
+        insertItem(OUTPUT_A_SLOT, recipe.resultA());
+        insertItem(OUTPUT_B_SLOT, recipe.resultB());
+
+        FluidStack recipeFluid = toFluidStack(recipe.fluidOutput(), recipe.fluidAmount());
+        if (!recipeFluid.isEmpty()) {
+            this.outputTank.insert(recipeFluid, false);
         }
     }
 
@@ -168,6 +214,35 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         if (existing.isEmpty()) return true;
         if (!ItemStack.isSameItemSameComponents(existing, result)) return false;
         return existing.getCount() + result.getCount() <= existing.getMaxStackSize();
+    }
+
+    private void insertItem(int slot, ItemStack result) {
+        if (result.isEmpty()) return;
+
+        ItemStack existing = this.getItem(slot);
+        if (existing.isEmpty()) {
+            this.setItem(slot, result.copy());
+        } else {
+            existing.grow(result.getCount());
+            this.setItem(slot, existing);
+        }
+    }
+
+    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
+        if (amount <= 0) {
+            return FluidStack.EMPTY;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, amount);
+    }
+
+    private void sync() {
+        MachineSync.sync(this);
     }
 
     @Override
@@ -205,33 +280,10 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return switch (slot) {
             case OUTPUT_A_SLOT, OUTPUT_B_SLOT -> false;
-            case FUEL_SLOT -> getFuelTime(stack) > 0;
+            case FUEL_SLOT -> MachineFuelUtil.isFuel(stack, this.level, ADVANCED_FURNACE_FUEL);
+            case OUTPUT_FLUID_CONTAINER_SLOT -> MachineItemUtil.isFluidContainer(stack);
             default -> true;
         };
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public int getMaxProgress() {
-        return maxProgress;
-    }
-
-    public int getBurnTime() {
-        return burnTime;
-    }
-
-    public int getBurnDuration() {
-        return burnDuration;
-    }
-
-    public int getTankAmount() {
-        return tankAmount;
-    }
-
-    public ResourceLocation getTankFluidId() {
-        return tankFluidId;
     }
 
     @Override
@@ -241,10 +293,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         this.maxProgress = input.getIntOr("max_progress", 200);
         this.burnTime = input.getIntOr("burn_time", 0);
         this.burnDuration = input.getIntOr("burn_duration", 0);
-
-        String fluidId = input.getStringOr("tank_fluid", "");
-        this.tankFluidId = fluidId.isEmpty() ? null : ResourceLocation.parse(fluidId);
-        this.tankAmount = input.getIntOr("tank_amount", 0);
+        this.outputTank.load(input, "output_tank");
     }
 
     @Override
@@ -254,120 +303,6 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         output.putInt("max_progress", this.maxProgress);
         output.putInt("burn_time", this.burnTime);
         output.putInt("burn_duration", this.burnDuration);
-        output.putInt("tank_amount", this.tankAmount);
-
-        if (this.tankFluidId != null && this.tankAmount > 0) {
-            output.putString("tank_fluid", this.tankFluidId.toString());
-        }
+        this.outputTank.save(output, "output_tank");
     }
-
-    private Optional<RecipeHolder<AdvancedFurnaceRecipe>> getCurrentRecipe(ServerLevel level) {
-        return level.recipeAccess().getRecipeFor(
-                ModRecipeTypes.ADVANCED_FURNACE.get(),
-                new AdvancedFurnaceRecipeInput(this.getItem(INPUT_A_SLOT), this.getItem(INPUT_B_SLOT)),
-                level
-        );
-    }
-
-    private boolean canCraft(AdvancedFurnaceRecipe recipe) {
-        if (!canInsertItem(this.getItem(OUTPUT_A_SLOT), recipe.resultA())) return false;
-        if (!canInsertItem(this.getItem(OUTPUT_B_SLOT), recipe.resultB())) return false;
-        return canInsertFluid(recipe.fluidOutput(), recipe.fluidAmount());
-    }
-
-    private boolean canInsertFluid(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) return true;
-        if (this.tankAmount == 0) {
-            return amount <= TANK_CAPACITY;
-        }
-        if (!fluidId.equals(this.tankFluidId)) {
-            return false;
-        }
-        return this.tankAmount + amount <= TANK_CAPACITY;
-    }
-
-    private void craft(AdvancedFurnaceRecipe recipe) {
-        this.removeItem(INPUT_A_SLOT, 1);
-
-        if (recipe.inputB().isPresent()) {
-            this.removeItem(INPUT_B_SLOT, 1);
-        }
-
-        insertItem(OUTPUT_A_SLOT, recipe.resultA());
-        insertItem(OUTPUT_B_SLOT, recipe.resultB());
-        insertFluid(recipe.fluidOutput(), recipe.fluidAmount());
-    }
-
-    private void insertItem(int slot, ItemStack result) {
-        if (result.isEmpty()) return;
-
-        ItemStack existing = this.getItem(slot);
-        if (existing.isEmpty()) {
-            this.setItem(slot, result.copy());
-        } else {
-            existing.grow(result.getCount());
-            this.setItem(slot, existing);
-        }
-    }
-
-    private void insertFluid(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) return;
-
-        if (this.tankAmount == 0) {
-            this.tankFluidId = fluidId;
-            this.tankAmount = amount;
-            return;
-        }
-
-        if (fluidId.equals(this.tankFluidId)) {
-            this.tankAmount = Mth.clamp(this.tankAmount + amount, 0, TANK_CAPACITY);
-        }
-    }
-
-    public boolean tryExtractFluid(Player player, InteractionHand hand, ItemStack held) {
-        if (held.isEmpty()) return false;
-
-        ResourceLocation sourceId;
-        int sourceAmount;
-
-        if (tankFluidId != null && tankAmount > 0) {
-            sourceId = tankFluidId;
-            sourceAmount = tankAmount;
-        } else {
-            return false;
-        }
-
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(sourceId);
-        if (fluid == null || fluid == Fluids.EMPTY) return false;
-
-        ItemAccess access = ItemAccess.forPlayerInteraction(player, hand).oneByOne();
-        var handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null || handler.size() <= 0) return false;
-
-        FluidResource resource = FluidResource.of(fluid);
-
-        int transferred;
-        try (var tx = Transaction.openRoot()) {
-            transferred = handler.insert(resource, sourceAmount, tx);
-            if (transferred <= 0) {
-                return false;
-            }
-
-            tx.commit();
-        }
-
-        removeFromTank(transferred);
-        setChanged(); // or setChanged() + sendBlockUpdated(...)
-        return true;
-    }
-
-    private void removeFromTank(int amount) {
-        tankAmount -= amount;
-        if (tankAmount <= 0) {
-            tankAmount = 0;
-            tankFluidId = null;
-        }
-    }
-
-    //tg dark
 }

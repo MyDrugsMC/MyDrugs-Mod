@@ -6,6 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public record MixingVatFluidStack(ResourceLocation fluid, int amount) {
     public static final Codec<MixingVatFluidStack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -19,4 +20,9 @@ public record MixingVatFluidStack(ResourceLocation fluid, int amount) {
                     ByteBufCodecs.VAR_INT, MixingVatFluidStack::amount,
                     MixingVatFluidStack::new
             );
+
+    @Override
+    public @NotNull String toString() {
+        return fluid.toString() + " " + amount;
+    }
 }

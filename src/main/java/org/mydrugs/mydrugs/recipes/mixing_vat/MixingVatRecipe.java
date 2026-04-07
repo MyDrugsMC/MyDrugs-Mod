@@ -111,7 +111,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                 .filter(fluid -> fluid.amount() > 0)
                 .toList();
 
-        if (presentFluids.size() != requiredFluids.size()) {
+        if (presentFluids.size() < requiredFluids.size()) {
             return false;
         }
 
@@ -144,7 +144,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                 .mapToInt(ItemStack::getCount)
                 .sum();
 
-        if (totalItems != requiredItems.size()) {
+        if (totalItems < requiredItems.size()) {
             return false;
         }
 
@@ -155,7 +155,9 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
 
             for (int i = 0; i < input.items().size(); i++) {
                 ItemStack stack = input.items().get(i);
-                if (stack.isEmpty()) continue;
+                if (stack.isEmpty()) {
+                    continue;
+                }
 
                 if (usedItems[i] < stack.getCount() && ingredient.test(stack)) {
                     usedItems[i]++;

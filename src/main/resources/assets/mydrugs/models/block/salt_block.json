@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "mydrugs:block/salt_block",
+    "particle": "mydrugs:block/salt_block"
+  }
+}

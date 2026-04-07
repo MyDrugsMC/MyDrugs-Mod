@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "mydrugs:block/sulfur_ore",
+    "particle": "mydrugs:block/sulfur_ore"
+  }
+}

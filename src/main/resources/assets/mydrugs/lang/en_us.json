@@ -207,5 +207,27 @@
   "tooltip.mydrugs.advanced_mixing_vat.input_b": "Fluid Input B",
   "tooltip.mydrugs.advanced_mixing_vat.gas_input": "Gas Input",
   "tooltip.mydrugs.advanced_mixing_vat.output": "Fluid Output",
-  "tooltip.mydrugs.advanced_mixing_vat.progress": "Mixing Progress"
+  "tooltip.mydrugs.advanced_mixing_vat.progress": "Mixing Progress",
+  "block.mydrugs.activated_lysergic_acid": "Activated Lysergic Acid",
+  "block.mydrugs.activating_agent": "Activating Agent",
+  "block.mydrugs.hydrochloric_acid": "Hydrochloric Acid",
+  "fluid_type.mydrugs.activated_lysergic_acid": "Activated Lysergic Acid",
+  "fluid_type.mydrugs.activated_lysergic_acid_type": "Activated Lysergic Acid",
+  "fluid_type.mydrugs.activating_agent": "Activating Agent",
+  "fluid_type.mydrugs.activating_agent_type": "Activating Agent",
+  "fluid_type.mydrugs.hydrochloric_acid": "Hydrochloric Acid",
+  "fluid_type.mydrugs.hydrochloric_acid_type": "Hydrochloric Acid",
+  "item.mydrugs.activated_lysergic_acid_bucket": "Activated Lysergic Acid Bucket",
+  "item.mydrugs.activating_agent_bucket": "Activating Agent Bucket",
+  "item.mydrugs.hydrochloric_acid_bucket": "Hydrochloric Acid Bucket",
+  "item.mydrugs.gas_tank": "Gas Tank",
+
+  "tooltip.mydrugs.empty": "Empty",
+  "tooltip.mydrugs.gas": "Gas: %s",
+  "tooltip.mydrugs.amount": "Stored: %s / %s mB",
+
+  "gas.mydrugs.chlorine": "Chlorine",
+  "gas.mydrugs.hydrochloric": "Hydrochloric Gas",
+  "gas.mydrugs.reactive": "Reactive Gas",
+  "gas.mydrugs.sulfur": "Sulfur Gas"
 }

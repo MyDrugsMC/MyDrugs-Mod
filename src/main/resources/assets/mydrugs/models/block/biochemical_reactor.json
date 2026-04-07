@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "mydrugs:block/biochemical_reactor_bottom",
+    "up": "mydrugs:block/biochemical_reactor_top",
+    "north": "mydrugs:block/biochemical_reactor_front",
+    "south": "mydrugs:block/biochemical_reactor_side",
+    "west": "mydrugs:block/biochemical_reactor_side",
+    "east": "mydrugs:block/biochemical_reactor_side",
+    "particle": "mydrugs:block/biochemical_reactor_side"
+  }
+}

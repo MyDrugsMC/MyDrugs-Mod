@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedFurnaceBlockEntity;
+import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
 
 public class AdvancedFurnaceMenu extends AbstractContainerMenu {
     private static final int MACHINE_SLOT_COUNT = 5;
@@ -47,7 +48,7 @@ public class AdvancedFurnaceMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(container, AdvancedFurnaceBlockEntity.FUEL_SLOT, 53, 53) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return AdvancedFurnaceBlockEntity.getFuelTime(stack) > 0;
+                return MachineFuelUtil.getBurnTime(stack, playerInventory.player.level(), MachineFuelUtil.VANILLA) > 0;
             }
         });
 
@@ -131,7 +132,7 @@ public class AdvancedFurnaceMenu extends AbstractContainerMenu {
             }
             // player inventory -> machine
             else if (quickMovedSlotIndex >= PLAYER_INV_START && quickMovedSlotIndex < HOTBAR_END) {
-                if (AdvancedFurnaceBlockEntity.getFuelTime(rawStack) > 0) {
+                if (MachineFuelUtil.getBurnTime(rawStack, player.level(), MachineFuelUtil.VANILLA) > 0) {
                     if (!this.moveItemStackTo(rawStack, AdvancedFurnaceBlockEntity.FUEL_SLOT, AdvancedFurnaceBlockEntity.FUEL_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }

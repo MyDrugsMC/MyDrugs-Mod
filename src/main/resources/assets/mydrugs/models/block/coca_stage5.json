@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "mydrugs:block/coca_stage5",
+    "particle": "mydrugs:block/coca_stage5"
+  }
+}

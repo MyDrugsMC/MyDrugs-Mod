@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.GrowthChamberBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
 import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
@@ -22,8 +23,9 @@ public class GrowthChamberMenu extends AbstractMachineMenu {
     public static final int BIOMASS_SLOT = 1;
     public static final int MIDDLE_SLOT = 2;
     public static final int FINAL_SLOT = 3;
+    public static final int WATER_INPUT_SLOT = 4;
 
-    public static final int MACHINE_SLOT_COUNT = 4;
+    public static final int MACHINE_SLOT_COUNT = 5;
     public static final int DATA_COUNT = 5;
     public static final int TANK_CAPACITY = 4000;
 
@@ -56,6 +58,13 @@ public class GrowthChamberMenu extends AbstractMachineMenu {
         this.access = access;
 
         container.startOpen(playerInventory.player);
+
+        this.addSlot(new Slot(container, WATER_INPUT_SLOT, GrowthChamberLayout.WATER_INPUT_SLOT_X, GrowthChamberLayout.WATER_INPUT_SLOT_Y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return MachineItemUtil.isFluidContainer(stack);
+            }
+        });
 
         this.addSlot(new Slot(container, INPUT_SLOT, GrowthChamberLayout.INPUT_SLOT_X, GrowthChamberLayout.INPUT_SLOT_Y) {
             @Override

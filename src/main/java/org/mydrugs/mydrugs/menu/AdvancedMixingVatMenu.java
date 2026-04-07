@@ -14,6 +14,7 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
+import org.mydrugs.mydrugs.gas.ModGasCapabilities;
 import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
 
 public class AdvancedMixingVatMenu extends AbstractMachineMenu {
@@ -103,6 +104,23 @@ public class AdvancedMixingVatMenu extends AbstractMachineMenu {
                 AdvancedMixingVatLayout.TANK_C_SLOT_X,
                 AdvancedMixingVatLayout.TANK_SLOT_Y
         ));
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                AdvancedMixingVatBlockEntity.SLOT_GAS_TRANSFER,
+                AdvancedMixingVatLayout.GAS_SLOT_X,
+                AdvancedMixingVatLayout.TANK_SLOT_Y
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getCapability(ModGasCapabilities.ITEM, null) != null;
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
         this.addSlot(new ResourceHandlerSlot(
                 itemHandler,
                 itemHandler::set,
@@ -216,7 +234,16 @@ public class AdvancedMixingVatMenu extends AbstractMachineMenu {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (!this.moveItemStackTo(rawStack, 0, MACHINE_SLOT_COUNT, false)) {
+                if (rawStack.getCapability(ModGasCapabilities.ITEM, null) != null) {
+                    if (!this.moveItemStackTo(
+                            rawStack,
+                            AdvancedMixingVatBlockEntity.SLOT_GAS_TRANSFER,
+                            AdvancedMixingVatBlockEntity.SLOT_GAS_TRANSFER + 1,
+                            false
+                    )) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (!this.moveItemStackTo(rawStack, 0, MACHINE_SLOT_COUNT, false)) {
                     if (quickMovedSlotIndex < PLAYER_INV_END) {
                         if (!this.moveItemStackTo(rawStack, HOTBAR_START, HOTBAR_END, false)) {
                             return ItemStack.EMPTY;

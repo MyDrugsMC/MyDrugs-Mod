@@ -6,6 +6,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.items.ModItems;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class ModGasCapabilityRegistration {
@@ -37,6 +38,12 @@ public final class ModGasCapabilityRegistration {
                 ModGasCapabilities.BLOCK,
                 ModBlockEntities.CHEMICAL_REACTOR.get(),
                 (blockEntity, side) -> blockEntity.getGasHandler(side)
+        );
+
+        event.registerItem(
+                ModGasCapabilities.ITEM,
+                (stack, itemAccess) -> new GasTankItemHandler(stack),
+                ModItems.GAS_TANK_ITEM.get()
         );
     }
 }

@@ -31,10 +31,12 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.GasifierBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.gas.GasStack;
-import org.mydrugs.mydrugs.gas.GasTank;
-import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.gas.*;
+import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
+import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
+import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.GasifierMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
@@ -48,6 +50,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     public static final int SLOT_COUNT = 3;
 
     public static final int TANK_CAPACITY = 4_000;
+
+    private static final FuelResolver FUEL = MachineFuelUtil.VANILLA;
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
 
@@ -147,9 +151,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
             dirty = true;
         }
 
-        long before = this.outputTank.getAmount();
-        this.tryExportToFrontTank();
-        if (before != this.outputTank.getAmount()) {
+        long moved = GasTransferUtil.tryFillOutputSlot(this.items, SLOT_EXPORT, this.outputTank) ? 1L : 0L;
+        if (moved > 0) {
             dirty = true;
             sync = true;
         }
@@ -200,47 +203,38 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     }
 
     private boolean consumeFuel() {
-        ItemStack fuelStack = this.items.get(SLOT_FUEL);
-        int burnTime = getFuelBurnDuration(fuelStack, this.level);
-        if (burnTime <= 0) {
+        MachineFuelUtil.FuelUse fuelUse = MachineFuelUtil.consumeOne(
+                this.items.get(SLOT_FUEL),
+                this.level,
+                FUEL
+        );
+
+        if (!fuelUse.consumed()) {
             return false;
         }
 
-        this.burnTimeRemaining = burnTime;
-        this.burnTimeTotal = burnTime;
-
-        ItemStack remainder = fuelStack.getCraftingRemainder();
-        fuelStack.shrink(1);
-
-        if (fuelStack.isEmpty()) {
-            this.items.set(SLOT_FUEL, remainder.isEmpty() ? ItemStack.EMPTY : remainder.copy());
-        }
-
+        this.burnTimeRemaining = fuelUse.burnTime();
+        this.burnTimeTotal = fuelUse.burnTime();
+        this.items.set(SLOT_FUEL, fuelUse.remainingStack());
         return true;
     }
 
-    private void tryExportToFrontTank() {
-        if (this.level == null || this.outputTank.isEmpty()) {
-            return;
+    private long tryFillExportSlotTank() {
+        if (this.outputTank.isEmpty()) {
+            return 0;
         }
 
         ItemStack exportStack = this.items.get(SLOT_EXPORT);
-        if (!exportStack.is(ModBlocks.GAS_TANK.get().asItem())) {
-            return;
+        if (exportStack.isEmpty()) {
+            return 0;
         }
 
-        Direction facing = this.getBlockState().getValue(GasifierBlock.FACING);
-        BlockPos targetPos = this.worldPosition.relative(facing);
-
-        if (!(this.level.getBlockEntity(targetPos) instanceof GasTankBlockEntity gasTankBe)) {
-            return;
+        IGasHandler itemTank = exportStack.getCapability(ModGasCapabilities.ITEM, null);
+        if (itemTank == null) {
+            return 0;
         }
 
-        GasStack stored = this.outputTank.getGasInTank(0);
-        long moved = gasTankBe.getTank().fill(stored, false);
-        if (moved > 0) {
-            this.outputTank.drain(moved, false);
-        }
+        return GasTransport.move(this.outputTank, itemTank, this.outputTank.getAmount());
     }
 
     private void syncToClient() {
@@ -276,11 +270,11 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
     }
 
     public static boolean isFuel(ItemStack stack, Level level) {
-        return !stack.isEmpty() && stack.getBurnTime(null, level.fuelValues()) > 0;
+        return MachineFuelUtil.isFuel(stack, level, FUEL);
     }
 
     public static int getFuelBurnDuration(ItemStack stack, Level level) {
-        return stack.isEmpty() ? 0 : stack.getBurnTime(null, level.fuelValues());
+        return MachineFuelUtil.getBurnTime(stack, level, FUEL);
     }
 
     @Override
@@ -370,11 +364,11 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         }
 
         if (slot == SLOT_FUEL) {
-            return isFuel(stack, this.level);
+            return isFuel(stack, level);
         }
 
         if (slot == SLOT_EXPORT) {
-            return stack.is(ModBlocks.GAS_TANK.get().asItem());
+            return stack.is(ModItems.GAS_TANK_ITEM.get());
         }
 
         return false;

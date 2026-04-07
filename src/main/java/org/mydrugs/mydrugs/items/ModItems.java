@@ -18,9 +18,11 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
+import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
 import org.mydrugs.mydrugs.items.rolling.RollerItem;
+import org.mydrugs.mydrugs.registry.ModDataComponents;
 
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -251,8 +253,16 @@ public class ModItems {
     public static final DeferredItem<BlockItem> DEEPSLATE_SULFUR_ORE_ITEM =
             ITEMS.registerSimpleBlockItem(ModBlocks.DEEPSLATE_SULFUR_ORE);
 
-    public static final DeferredItem<BlockItem> GAS_TANK_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GAS_TANK);
-
+    public static final DeferredItem<GasTankItem> GAS_TANK_ITEM = ITEMS.register(
+            "gas_tank",
+            registryName -> new GasTankItem(
+                    ModBlocks.GAS_TANK.get(),
+                    new Item.Properties()
+                            .setId(ResourceKey.create(Registries.ITEM, registryName))
+                            .stacksTo(1)
+                            .component(ModDataComponents.GAS_TANK_CONTENTS.get(), GasTankContents.EMPTY)
+            )
+    );
     public static final DeferredItem<BlockItem> GAS_PUMP_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GAS_PUMP);
 
     public static final DeferredItem<Item> SALT_POWDER = ITEMS.registerSimpleItem("salt_powder");
@@ -261,6 +271,10 @@ public class ModItems {
     public static final DeferredItem<BlockItem> CHEMICAL_REACTOR_ITEM = ITEMS.registerSimpleBlockItem(
             ModBlocks.CHEMICAL_REACTOR
     );
+
+    public static final DeferredItem<BlockItem> ADVANCED_MIXING_VAT_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_MIXING_VAT);
+
+    public static final DeferredItem<BlockItem> GASIFIER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GASIFIER);
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

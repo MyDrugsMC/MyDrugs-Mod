@@ -65,62 +65,64 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                 ChemicalReactorLayout.TANK_INNER_H
         );
 
-        ChemicalReactorBlockEntity blockEntity = getBlockEntity();
-        if (blockEntity != null) {
-            drawTankFillShaded(
-                    graphics,
-                    ChemicalReactorLayout.PRIMARY_GAS_TANK_X,
-                    ChemicalReactorLayout.PRIMARY_GAS_TANK_Y,
-                    ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_W,
-                    ChemicalReactorLayout.TANK_INNER_H,
-                    blockEntity.getScaledPrimaryGas(ChemicalReactorLayout.TANK_INNER_H),
-                    blockEntity.getPrimaryGasColor()
-            );
+        drawTankFillShaded(
+                graphics,
+                ChemicalReactorLayout.PRIMARY_GAS_TANK_X,
+                ChemicalReactorLayout.PRIMARY_GAS_TANK_Y,
+                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_W,
+                ChemicalReactorLayout.TANK_INNER_H,
+                this.menu.getScaledPrimaryGas(ChemicalReactorLayout.TANK_INNER_H),
+                this.menu.getPrimaryGasColor()
+        );
 
-            int secondaryPixels = blockEntity.isSecondaryFluidMode()
-                    ? blockEntity.getScaledSecondaryFluid(ChemicalReactorLayout.TANK_INNER_H)
-                    : blockEntity.getScaledSecondaryGas(ChemicalReactorLayout.TANK_INNER_H);
+        int secondaryPixels = this.menu.isSecondaryFluidMode()
+                ? this.menu.getScaledSecondaryFluid(ChemicalReactorLayout.TANK_INNER_H)
+                : this.menu.getScaledSecondaryGas(ChemicalReactorLayout.TANK_INNER_H);
 
-            int secondaryColor = blockEntity.isSecondaryFluidMode()
-                    ? getFluidColor(blockEntity.getSecondaryFluid())
-                    : blockEntity.getSecondaryGasColor();
+        int secondaryColor = this.menu.isSecondaryFluidMode()
+                ? getFluidColor(this.menu.getSecondaryFluid())
+                : this.menu.getSecondaryGasColor();
 
-            drawTankFillShaded(
-                    graphics,
-                    ChemicalReactorLayout.SECONDARY_TANK_X,
-                    ChemicalReactorLayout.SECONDARY_TANK_Y,
-                    ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_W,
-                    ChemicalReactorLayout.TANK_INNER_H,
-                    secondaryPixels,
-                    secondaryColor
-            );
+        drawTankFillShaded(
+                graphics,
+                ChemicalReactorLayout.SECONDARY_TANK_X,
+                ChemicalReactorLayout.SECONDARY_TANK_Y,
+                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_W,
+                ChemicalReactorLayout.TANK_INNER_H,
+                secondaryPixels,
+                secondaryColor
+        );
 
-            int outputPixels = blockEntity.isOutputFluidMode()
-                    ? blockEntity.getScaledOutputFluid(ChemicalReactorLayout.TANK_INNER_H)
-                    : blockEntity.getScaledOutputGas(ChemicalReactorLayout.TANK_INNER_H);
+        int outputPixels = this.menu.isOutputFluidMode()
+                ? this.menu.getScaledOutputFluid(ChemicalReactorLayout.TANK_INNER_H)
+                : this.menu.getScaledOutputGas(ChemicalReactorLayout.TANK_INNER_H);
 
-            int outputColor = blockEntity.isOutputFluidMode()
-                    ? getFluidColor(blockEntity.getOutputFluid())
-                    : blockEntity.getOutputGasColor();
+        int outputColor = this.menu.isOutputFluidMode()
+                ? getFluidColor(this.menu.getOutputFluid())
+                : this.menu.getOutputGasColor();
 
-            drawTankFillShaded(
-                    graphics,
-                    ChemicalReactorLayout.OUTPUT_TANK_X,
-                    ChemicalReactorLayout.OUTPUT_TANK_Y,
-                    ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_W,
-                    ChemicalReactorLayout.TANK_INNER_H,
-                    outputPixels,
-                    outputColor
-            );
-        }
+        drawTankFillShaded(
+                graphics,
+                ChemicalReactorLayout.OUTPUT_TANK_X,
+                ChemicalReactorLayout.OUTPUT_TANK_Y,
+                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_W,
+                ChemicalReactorLayout.TANK_INNER_H,
+                outputPixels,
+                outputColor
+        );
 
         drawSlotFrame(graphics, ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y);
+        drawSlotFrame(graphics, primaryTransferSlotX(), transferSlotY());
+        drawSlotFrame(graphics, secondaryTransferSlotX(), transferSlotY());
+        drawSlotFrame(graphics, secondaryTransferSlotX(), transferSlotY() + 20);
+        drawSlotFrame(graphics, outputTransferSlotX(), transferSlotY());
+        drawSlotFrame(graphics, outputTransferSlotX(), transferSlotY() + 20);
 
         drawHorizontalBar(
                 graphics,
@@ -182,29 +184,24 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
 
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        ChemicalReactorBlockEntity blockEntity = getBlockEntity();
-        if (blockEntity == null) {
-            return;
-        }
-
         if (isHoveringBox(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.PRIMARY_GAS_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
                     Component.literal("Primary gas"),
-                    Component.literal(blockEntity.getPrimaryGasName()),
-                    Component.literal(blockEntity.getPrimaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
+                    Component.literal(this.menu.getPrimaryGasName()),
+                    Component.literal(this.menu.getPrimaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
             );
         } else if (isHoveringBox(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H, mouseX, mouseY)) {
-            if (blockEntity.isSecondaryFluidMode()) {
+            if (this.menu.isSecondaryFluidMode()) {
                 renderTooltipLines(
                         graphics,
                         mouseX,
                         mouseY,
                         Component.literal("Secondary fluid"),
-                        Component.literal(getFluidName(blockEntity.getSecondaryFluid().getFluid())),
-                        Component.literal(blockEntity.getSecondaryFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
+                        Component.literal(getFluidName(this.menu.getSecondaryFluid())),
+                        Component.literal(this.menu.getSecondaryFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
                 );
             } else {
                 renderTooltipLines(
@@ -212,19 +209,19 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         mouseX,
                         mouseY,
                         Component.literal("Secondary gas"),
-                        Component.literal(blockEntity.getSecondaryGasName()),
-                        Component.literal(blockEntity.getSecondaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
+                        Component.literal(this.menu.getSecondaryGasName()),
+                        Component.literal(this.menu.getSecondaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
                 );
             }
         } else if (isHoveringBox(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H, mouseX, mouseY)) {
-            if (blockEntity.isOutputFluidMode()) {
+            if (this.menu.isOutputFluidMode()) {
                 renderTooltipLines(
                         graphics,
                         mouseX,
                         mouseY,
                         Component.literal("Output fluid"),
-                        Component.literal(getFluidName(blockEntity.getOutputFluid().getFluid())),
-                        Component.literal(blockEntity.getOutputFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
+                        Component.literal(getFluidName(this.menu.getOutputFluid())),
+                        Component.literal(this.menu.getOutputFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
                 );
             } else {
                 renderTooltipLines(
@@ -232,8 +229,8 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         mouseX,
                         mouseY,
                         Component.literal("Output gas"),
-                        Component.literal(blockEntity.getOutputGasName()),
-                        Component.literal(blockEntity.getOutputGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
+                        Component.literal(this.menu.getOutputGasName()),
+                        Component.literal(this.menu.getOutputGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
                 );
             }
         } else if (isHoveringBox(ChemicalReactorLayout.PROGRESS_X, ChemicalReactorLayout.PROGRESS_Y, ChemicalReactorLayout.PROGRESS_W, ChemicalReactorLayout.PROGRESS_H, mouseX, mouseY)) {
@@ -271,10 +268,19 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
         }
     }
 
-    private ChemicalReactorBlockEntity getBlockEntity() {
-        if (this.minecraft == null || this.minecraft.player == null) {
-            return null;
-        }
-        return this.menu.getBlockEntity(this.minecraft.player);
+    private static int transferSlotY() {
+        return ChemicalReactorLayout.PRIMARY_GAS_TANK_Y + ChemicalReactorLayout.TANK_H + 6;
+    }
+
+    private static int primaryTransferSlotX() {
+        return ChemicalReactorLayout.PRIMARY_GAS_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
+    }
+
+    private static int secondaryTransferSlotX() {
+        return ChemicalReactorLayout.SECONDARY_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
+    }
+
+    private static int outputTransferSlotX() {
+        return ChemicalReactorLayout.OUTPUT_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
     }
 }

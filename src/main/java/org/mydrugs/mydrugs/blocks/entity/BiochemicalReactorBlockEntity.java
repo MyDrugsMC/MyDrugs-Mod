@@ -1,15 +1,12 @@
 package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
@@ -18,7 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -30,16 +26,14 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.mydrugs.mydrugs.blocks.BiochemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.MachineSync;
+import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
+import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
+import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.menu.BiochemicalReactorMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
@@ -64,9 +58,10 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
     private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
 
-    @Nullable
-    private ResourceLocation outputFluidId = null;
-    private int outputTankAmount = 0;
+    private final StoredFluidTank outputTank = new StoredFluidTank(
+            OUTPUT_TANK_CAPACITY,
+            this::sync
+    );
 
     private int progressUnits = 0;
     private int maxProgressUnits = 0;
@@ -85,9 +80,9 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
                 case 3 -> MAX_HEAT;
                 case 4 -> manualEnergy;
                 case 5 -> MAX_MANUAL_ENERGY;
-                case 6 -> outputTankAmount;
+                case 6 -> outputTank.getAmount();
                 case 7 -> OUTPUT_TANK_CAPACITY;
-                case 8 -> encodeFluidForSync(outputFluidId);
+                case 8 -> outputTank.encodeFluidSyncId();
                 case 9 -> isWorking() ? 1 : 0;
                 default -> 0;
             };
@@ -99,12 +94,10 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
                 case 0 -> progressUnits = value;
                 case 1 -> maxProgressUnits = value;
                 case 2 -> heat = value;
-                case 3 -> { }
                 case 4 -> manualEnergy = value;
-                case 5 -> { }
-                case 6 -> outputTankAmount = value;
-                case 7 -> { }
-                case 8, 9 -> { }
+                default -> {
+                    // client dummy menu only
+                }
             }
         }
 
@@ -129,7 +122,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         changed |= be.handleFuelAndHeat(serverLevel);
         changed |= be.handleManualDecay(serverLevel);
 
-        if (be.tryFillOutputContainerSlot()) {
+        if (FluidTransferUtil.tryFillOutputSlot(be, SLOT_OUTPUT_CONTAINER, be.outputTank)) {
             changed = true;
         }
 
@@ -140,6 +133,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
                 changed = true;
             }
             changed |= be.updateLitState(false);
+
             if (changed) {
                 be.sync();
             }
@@ -155,6 +149,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
                 changed = true;
             }
             changed |= be.updateLitState(false);
+
             if (changed) {
                 be.sync();
             }
@@ -180,86 +175,6 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
         if (changed) {
             be.sync();
-        }
-    }
-
-    private boolean tryFillOutputContainerSlot() {
-        ItemStack stack = this.getItem(SLOT_OUTPUT_CONTAINER);
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        if (this.outputTankAmount <= 0 || this.outputFluidId == null) {
-            return false;
-        }
-
-        var itemHandler = VanillaContainerWrapper.of(this);
-        ItemAccess access = ItemAccess
-                .forHandlerIndexStrict(itemHandler, SLOT_OUTPUT_CONTAINER)
-                .oneByOne();
-
-        var handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null || handler.size() <= 0) {
-            return false;
-        }
-
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(this.outputFluidId);
-        if (fluid == null || fluid == Fluids.EMPTY) {
-            return false;
-        }
-
-        FluidResource resource = FluidResource.of(fluid);
-        if (resource.isEmpty()) {
-            return false;
-        }
-
-        int itemAmount = handler.getAmountAsInt(0);
-        FluidResource itemResource = handler.getResource(0);
-
-        if (!itemResource.isEmpty()) {
-            ResourceLocation itemFluidId = BuiltInRegistries.FLUID.getKey(itemResource.getFluid());
-            if (!this.outputFluidId.equals(itemFluidId)) {
-                return false;
-            }
-        }
-
-        int request;
-        if (stack.getItem() instanceof BucketItem || stack.is(Items.BUCKET)) {
-            if (this.outputTankAmount < FluidType.BUCKET_VOLUME) {
-                return false;
-            }
-            request = FluidType.BUCKET_VOLUME;
-        } else {
-            int capacity = handler.getCapacityAsInt(0, resource);
-            int remainingSpace = capacity - itemAmount;
-            if (remainingSpace <= 0) {
-                return false;
-            }
-
-            request = Math.min(this.outputTankAmount, remainingSpace);
-        }
-
-        try (var tx = Transaction.openRoot()) {
-            int inserted = handler.insert(resource, request, tx);
-            if (inserted <= 0) {
-                return false;
-            }
-
-            tx.commit();
-            this.removeFluidFromTank(inserted);
-            return true;
-        }
-    }
-
-    private void removeFluidFromTank(int amount) {
-        if (amount <= 0) {
-            return;
-        }
-
-        this.outputTankAmount -= amount;
-        if (this.outputTankAmount <= 0) {
-            this.outputTankAmount = 0;
-            this.outputFluidId = null;
         }
     }
 
@@ -346,39 +261,22 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
             return false;
         }
 
-        ResourceLocation recipeFluidId = recipe.fluidOutput().fluidId();
-        int recipeAmount = recipe.fluidOutput().amount();
-
-        if (this.outputTankAmount <= 0) {
-            return recipeAmount <= OUTPUT_TANK_CAPACITY;
-        }
-
-        if (!recipeFluidId.equals(this.outputFluidId)) {
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(recipe.fluidOutput().fluidId());
+        if (fluid == null || fluid == Fluids.EMPTY) {
             return false;
         }
 
-        return this.outputTankAmount + recipeAmount <= OUTPUT_TANK_CAPACITY;
+        FluidStack result = new FluidStack(fluid, recipe.fluidOutput().amount());
+        return this.outputTank.getAddableAmount(result) >= result.getAmount();
     }
 
     private void finishRecipe(BiochemicalReactorRecipe recipe) {
         this.removeItem(SLOT_ERGOT, recipe.ergot().count());
         this.removeItem(SLOT_TRYPTOPHAN, recipe.tryptophan().count());
-        this.addFluidToTank(recipe.fluidOutput().fluidId(), recipe.fluidOutput().amount());
-    }
 
-    private void addFluidToTank(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) {
-            return;
-        }
-
-        if (this.outputTankAmount <= 0 || this.outputFluidId == null) {
-            this.outputFluidId = fluidId;
-            this.outputTankAmount = Math.min(OUTPUT_TANK_CAPACITY, amount);
-            return;
-        }
-
-        if (this.outputFluidId.equals(fluidId)) {
-            this.outputTankAmount = Math.min(OUTPUT_TANK_CAPACITY, this.outputTankAmount + amount);
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(recipe.fluidOutput().fluidId());
+        if (fluid != null && fluid != Fluids.EMPTY) {
+            this.outputTank.insert(new FluidStack(fluid, recipe.fluidOutput().amount()), false);
         }
     }
 
@@ -409,32 +307,11 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
     }
 
     private void sync() {
-        this.setChanged();
-        if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
-        }
-    }
-
-    private static int encodeFluidForSync(@Nullable ResourceLocation fluidId) {
-        if (fluidId == null) {
-            return -1;
-        }
-
-        Optional<Holder.Reference<Fluid>> optional = BuiltInRegistries.FLUID.get(fluidId);
-        if (optional.isEmpty()) {
-            return -1;
-        }
-
-        Fluid fluid = optional.get().value();
-        if (fluid == Fluids.EMPTY) {
-            return -1;
-        }
-
-        return BuiltInRegistries.FLUID.getId(fluid);
+        MachineSync.sync(this);
     }
 
     public int getComparatorOutput() {
-        return Mth.clamp((this.outputTankAmount * 15) / OUTPUT_TANK_CAPACITY, 0, 15);
+        return Mth.clamp((this.outputTank.getAmount() * 15) / OUTPUT_TANK_CAPACITY, 0, 15);
     }
 
     public boolean isWorking() {
@@ -504,7 +381,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
             case SLOT_ERGOT -> isErgot(stack);
             case SLOT_TRYPTOPHAN -> isTryptophan(stack);
             case SLOT_CHARCOAL -> isCharcoal(stack);
-            case SLOT_OUTPUT_CONTAINER -> isFluidContainer(stack);
+            case SLOT_OUTPUT_CONTAINER -> MachineItemUtil.isFluidContainer(stack);
             default -> false;
         };
     }
@@ -512,12 +389,11 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(input, this.items);
 
-        String fluidString = input.getStringOr("OutputFluid", "");
-        this.outputFluidId = fluidString.isEmpty() ? null : ResourceLocation.parse(fluidString);
-        this.outputTankAmount = input.getIntOr("OutputTankAmount", 0);
+        this.outputTank.load(input, "output_tank");
 
         this.progressUnits = input.getIntOr("ProgressUnits", 0);
         this.maxProgressUnits = input.getIntOr("MaxProgressUnits", 0);
@@ -529,13 +405,10 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+
         ContainerHelper.saveAllItems(output, this.items);
+        this.outputTank.save(output, "output_tank");
 
-        if (this.outputFluidId != null && this.outputTankAmount > 0) {
-            output.putString("OutputFluid", this.outputFluidId.toString());
-        }
-
-        output.putInt("OutputTankAmount", this.outputTankAmount);
         output.putInt("ProgressUnits", this.progressUnits);
         output.putInt("MaxProgressUnits", this.maxProgressUnits);
         output.putInt("Heat", this.heat);
@@ -551,13 +424,5 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    public static boolean isFluidContainer(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
     }
 }

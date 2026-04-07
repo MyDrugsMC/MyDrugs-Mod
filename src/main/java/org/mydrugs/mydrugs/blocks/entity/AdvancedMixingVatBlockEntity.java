@@ -2,58 +2,57 @@ package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Containers;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.AdvancedMixingVatBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.GasStack;
 import org.mydrugs.mydrugs.gas.GasTank;
+import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.IGasHandler;
 import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.machine.MachineSync;
+import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
+import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.AdvancedMixingVatMenu;
-import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipeInput;
+import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatFluidStack;
+import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
-public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements MenuProvider {
+public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements net.minecraft.world.MenuProvider {
     public static final int RECIPE_ITEM_SLOT_COUNT = 4;
 
     public static final int SLOT_RECIPE_0 = 0;
@@ -65,8 +64,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
     public static final int SLOT_TANK_INPUT_B = 5;
     public static final int SLOT_TANK_INPUT_C = 6;
     public static final int SLOT_TANK_OUTPUT = 7;
+    public static final int SLOT_GAS_TRANSFER = 8;
 
-    public static final int ITEM_SLOT_COUNT = 8;
+    public static final int ITEM_SLOT_COUNT = 9;
 
     public static final int INPUT_TANK_CAPACITY = 4000;
     public static final int OUTPUT_TANK_CAPACITY = 4000;
@@ -95,37 +95,34 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             this::onMachineChanged
     );
 
-    private final IGasHandler gasInputOnly = new IGasHandler() {
-        @Override
-        public int getTanks() {
-            return gasTank.getTanks();
-        }
+    private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(3);
+    private final LockedTransferSlots gasTransferLocks = new LockedTransferSlots(1);
 
-        @Override
-        public GasStack getGasInTank(int tank) {
-            return gasTank.getGasInTank(tank);
-        }
+    private boolean suppressTransferModeReset = false;
 
-        @Override
-        public long getTankCapacity(int tank) {
-            return gasTank.getTankCapacity(tank);
-        }
+    private final FluidTankAccess inputATank = FluidTankAccess.of(
+            INPUT_TANK_CAPACITY,
+            () -> this.inputAStacks.get(0),
+            stack -> this.inputAStacks.set(0, stack)
+    );
 
-        @Override
-        public boolean isGasValid(int tank, GasStack stack) {
-            return gasTank.isGasValid(tank, stack);
-        }
+    private final FluidTankAccess inputBTank = FluidTankAccess.of(
+            INPUT_TANK_CAPACITY,
+            () -> this.inputBStacks.get(0),
+            stack -> this.inputBStacks.set(0, stack)
+    );
 
-        @Override
-        public long fill(GasStack resource, boolean simulate) {
-            return gasTank.fill(resource, simulate);
-        }
+    private final FluidTankAccess inputCTank = FluidTankAccess.of(
+            INPUT_TANK_CAPACITY,
+            () -> this.inputCStacks.get(0),
+            stack -> this.inputCStacks.set(0, stack)
+    );
 
-        @Override
-        public GasStack drain(long amount, boolean simulate) {
-            return GasStack.EMPTY;
-        }
-    };
+    private final FluidTankAccess outputTank = FluidTankAccess.of(
+            OUTPUT_TANK_CAPACITY,
+            () -> this.outputStacks.get(0),
+            stack -> this.outputStacks.set(0, stack)
+    );
 
     private int progress = 0;
     private int maxProgress = 100;
@@ -177,23 +174,59 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         boolean changed = false;
 
-        if (be.tryDrainInputContainerSlot(SLOT_TANK_INPUT_A, be.inputAHandler, be.inputAStacks)) {
-            changed = true;
-        }
+        changed |= be.runTransferWithoutReset(() ->
+                FluidTransferUtil.tryProcessTransferSlot(
+                        be.itemHandler,
+                        be.itemStacks,
+                        SLOT_TANK_INPUT_A,
+                        be.inputATank,
+                        be.fluidInputLocks,
+                        0
+                )
+        );
 
-        if (be.tryDrainInputContainerSlot(SLOT_TANK_INPUT_B, be.inputBHandler, be.inputBStacks)) {
-            changed = true;
-        }
+        changed |= be.runTransferWithoutReset(() ->
+                FluidTransferUtil.tryProcessTransferSlot(
+                        be.itemHandler,
+                        be.itemStacks,
+                        SLOT_TANK_INPUT_B,
+                        be.inputBTank,
+                        be.fluidInputLocks,
+                        1
+                )
+        );
 
-        if (be.tryDrainInputContainerSlot(SLOT_TANK_INPUT_C, be.inputCHandler, be.inputCStacks)) {
-            changed = true;
-        }
+        changed |= be.runTransferWithoutReset(() ->
+                FluidTransferUtil.tryProcessTransferSlot(
+                        be.itemHandler,
+                        be.itemStacks,
+                        SLOT_TANK_INPUT_C,
+                        be.inputCTank,
+                        be.fluidInputLocks,
+                        2
+                )
+        );
 
-        if (be.tryFillOutputContainerSlot(SLOT_TANK_OUTPUT, be.outputHandler, be.outputStacks)) {
-            changed = true;
-        }
+        changed |= be.runTransferWithoutReset(() ->
+                GasTransferUtil.tryProcessTransferSlot(
+                        be.itemStacks,
+                        SLOT_GAS_TRANSFER,
+                        be.gasTank,
+                        be.gasTransferLocks,
+                        0
+                )
+        );
 
-        Optional<RecipeHolder<AdvancedMixingVatRecipe>> match = be.findMatchingRecipe();
+        changed |= FluidTransferUtil.tryFillOutputSlot(
+                be.itemHandler,
+                be.itemStacks,
+                SLOT_TANK_OUTPUT,
+                be.outputTank
+        );
+
+        // Keep your current recipe logic here unchanged.
+        // ---------------------------------------------
+        Optional<ResolvedRecipe> match = be.findMatchingRecipe();
 
         if (match.isEmpty()) {
             if (be.progress != 0 || be.hasRecipe) {
@@ -208,10 +241,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             return;
         }
 
-        AdvancedMixingVatRecipe recipe = match.get().value();
-        FluidStack result = recipe.resultStack();
+        ResolvedRecipe recipe = match.get();
 
-        if (!be.canAcceptOutput(result)) {
+        if (!be.canAcceptOutput(recipe.result())) {
             if (be.progress != 0 || be.hasRecipe) {
                 be.progress = 0;
                 be.hasRecipe = false;
@@ -236,8 +268,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         changed = true;
 
         if (be.progress >= be.maxProgress) {
-            if (be.findMatchingRecipe().isPresent() && be.canAcceptOutput(result)) {
-                be.finishRecipe(recipe, result);
+            Optional<ResolvedRecipe> verify = be.findMatchingRecipe();
+            if (verify.isPresent() && be.canAcceptOutput(verify.get().result())) {
+                be.finishResolvedRecipe(verify.get());
             }
             be.progress = 0;
             changed = true;
@@ -248,165 +281,172 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         }
     }
 
-    private boolean tryDrainInputContainerSlot(
-            int itemSlot,
-            VatInputFluidHandler tankHandler,
-            NonNullList<FluidStack> backingTank
-    ) {
-        ItemStack stack = this.itemStacks.get(itemSlot);
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        ItemAccess access = ItemAccess
-                .forHandlerIndexStrict(this.itemHandler, itemSlot)
-                .oneByOne();
-
-        ResourceHandler<FluidResource> handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null || handler.size() <= 0) {
-            return false;
-        }
-
-        FluidResource resource = handler.getResource(0);
-        int containedAmount = handler.getAmountAsInt(0);
-
-        if (resource.isEmpty() || containedAmount <= 0) {
-            return false;
-        }
-
-        FluidStack tankFluid = backingTank.get(0);
-        int tankAmount = tankFluid.isEmpty() ? 0 : tankFluid.getAmount();
-
-        int freeSpace = INPUT_TANK_CAPACITY - tankAmount;
-        if (freeSpace <= 0) {
-            return false;
-        }
-
-        if (!tankFluid.isEmpty()) {
-            FluidStack incoming = resource.toStack(containedAmount);
-            if (!FluidStack.isSameFluidSameComponents(tankFluid, incoming)) {
-                return false;
-            }
-        }
-
-        int toMove = Math.min(containedAmount, freeSpace);
-
-        if (stack.getItem() instanceof BucketItem && toMove < FluidType.BUCKET_VOLUME) {
-            return false;
-        }
-
-        int request = stack.getItem() instanceof BucketItem
-                ? FluidType.BUCKET_VOLUME
-                : toMove;
-
-        try (Transaction tx = Transaction.openRoot()) {
-            int inserted = tankHandler.insert(0, resource, request, tx);
-            if (inserted != request) {
-                return false;
-            }
-
-            int extracted = handler.extract(resource, request, tx);
-            if (extracted != request) {
-                return false;
-            }
-
-            tx.commit();
-            return true;
+    private void finishResolvedRecipe(ResolvedRecipe recipe) {
+        if (recipe.isAdvanced()) {
+            finishAdvancedRecipe(recipe.advancedRecipe(), recipe.result());
+        } else {
+            finishMixingVatRecipe(recipe.mixingRecipe(), recipe.mixingFluidAssignment(), recipe.result());
         }
     }
 
+    private void finishAdvancedRecipe(AdvancedMixingVatRecipe recipe, FluidStack result) {
+        AdvancedMixingVatRecipe.consumeItems(recipe.itemInputs(), this.itemStacks);
+        AdvancedMixingVatRecipe.consumeFluids(recipe.fluidInputs(), this.inputAStacks, this.inputBStacks, this.inputCStacks);
 
-    private boolean tryFillOutputContainerSlot(
-            int itemSlot,
-            VatOutputFluidHandler tankHandler,
-            NonNullList<FluidStack> backingTank
-    ) {
-        ItemStack stack = this.itemStacks.get(itemSlot);
-        if (stack.isEmpty()) {
-            return false;
+        if (recipe.gasInput() != null) {
+            this.gasTank.drain(recipe.gasInput().amount(), false);
         }
 
-        FluidStack stored = backingTank.get(0);
-        if (stored.isEmpty() || stored.getAmount() <= 0) {
-            return false;
-        }
+        addToOutputTank(result);
+    }
 
-        ItemAccess access = ItemAccess
-                .forHandlerIndexStrict(this.itemHandler, itemSlot)
-                .oneByOne();
-
-        ResourceHandler<FluidResource> handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null || handler.size() <= 0) {
-            return false;
-        }
-
-        FluidResource resource = FluidResource.of(stored.getFluidHolder());
-
-        int request;
-        if (stack.is(net.minecraft.world.item.Items.BUCKET)) {
-            if (stored.getAmount() < FluidType.BUCKET_VOLUME) {
-                return false;
-            }
-            request = FluidType.BUCKET_VOLUME;
+    private void addToOutputTank(FluidStack result) {
+        FluidStack stored = this.outputStacks.get(0);
+        if (stored.isEmpty()) {
+            this.outputStacks.set(0, result.copy());
         } else {
-            int itemAmount = handler.getAmountAsInt(0);
-            FluidResource itemResource = handler.getResource(0);
+            this.outputStacks.set(0, stored.copyWithAmount(stored.getAmount() + result.getAmount()));
+        }
+    }
 
-            if (!itemResource.isEmpty()) {
-                FluidStack itemFluid = itemResource.toStack(itemAmount);
-                if (!FluidStack.isSameFluidSameComponents(stored, itemFluid)) {
-                    return false;
+    private void finishMixingVatRecipe(MixingVatRecipe recipe, int[] tankIndices, FluidStack result) {
+        consumeMixingVatItems(recipe.requiredItems());
+        consumeMixingVatFluids(recipe.requiredFluids(), tankIndices);
+
+        FluidStack stored = this.outputStacks.get(0);
+        if (stored.isEmpty()) {
+            this.outputStacks.set(0, result.copy());
+        } else {
+            this.outputStacks.set(0, stored.copyWithAmount(stored.getAmount() + result.getAmount()));
+        }
+    }
+
+    private void consumeMixingVatItems(List<Ingredient> requirements) {
+        for (Ingredient ingredient : requirements) {
+            for (int i = 0; i < RECIPE_ITEM_SLOT_COUNT; i++) {
+                ItemStack stack = this.itemStacks.get(i);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+
+                if (ingredient.test(stack)) {
+                    stack.shrink(1);
+                    if (stack.isEmpty()) {
+                        this.itemStacks.set(i, ItemStack.EMPTY);
+                    }
+                    break;
                 }
             }
-
-            int capacity = handler.getCapacityAsInt(0, resource);
-            int remainingSpace = capacity - itemAmount;
-            if (remainingSpace <= 0) {
-                return false;
-            }
-
-            request = Math.min(stored.getAmount(), remainingSpace);
-        }
-
-        try (Transaction tx = Transaction.openRoot()) {
-            int inserted = handler.insert(resource, request, tx);
-            if (inserted <= 0) {
-                return false;
-            }
-
-            int extracted = tankHandler.extract(0, resource, inserted, tx);
-            if (extracted != inserted) {
-                return false;
-            }
-
-            tx.commit();
-            return true;
         }
     }
 
-    private Optional<RecipeHolder<AdvancedMixingVatRecipe>> findMatchingRecipe() {
-        if (this.level == null || level.isClientSide()) {
-            return Optional.empty();
+    private void consumeMixingVatFluids(List<MixingVatFluidStack> requirements, int[] tankIndices) {
+        if (requirements.isEmpty()) {
+            return;
         }
 
-        List<ItemStack> snapshot = new ArrayList<>(RECIPE_ITEM_SLOT_COUNT);
-        for (int i = 0; i < RECIPE_ITEM_SLOT_COUNT; i++) {
-            snapshot.add(this.itemStacks.get(i).copy());
+        FluidStack[] available = new FluidStack[tankIndices.length];
+        for (int i = 0; i < tankIndices.length; i++) {
+            available[i] = getInputTank(tankIndices[i]);
         }
 
-        AdvancedMixingVatRecipeInput input = new AdvancedMixingVatRecipeInput(
-                snapshot,
-                this.inputAStacks.get(0).copy(),
-                this.inputBStacks.get(0).copy(),
-                this.inputCStacks.get(0).copy(),
-                this.gasTank.getGasInTank(0)
-        );
+        int[] assignment = new int[requirements.size()];
+        for (int i = 0; i < assignment.length; i++) {
+            assignment[i] = -1;
+        }
 
-        return ((ServerLevel) this.level).recipeAccess().getRecipeFor(
-                ModRecipeTypes.ADVANCED_MIXING_VAT_RECIPE_TYPE.get(),
-                input,
-                this.level
-        );
+        boolean[] used = new boolean[available.length];
+
+        if (!assignMixingFluidRequirements(requirements, available, 0, used, assignment)) {
+            return;
+        }
+
+        for (int i = 0; i < requirements.size(); i++) {
+            NonNullList<FluidStack> tank = getInputTankList(tankIndices[assignment[i]]);
+            shrinkFluid(tank, requirements.get(i).amount());
+        }
+    }
+
+    private NonNullList<FluidStack> getInputTankList(int tankIndex) {
+        return switch (tankIndex) {
+            case 0 -> this.inputAStacks;
+            case 1 -> this.inputBStacks;
+            case 2 -> this.inputCStacks;
+            default -> throw new IllegalArgumentException("Invalid tank index: " + tankIndex);
+        };
+    }
+
+    private boolean assignMixingFluidRequirements(
+            List<MixingVatFluidStack> requirements,
+            FluidStack[] available,
+            int requirementIndex,
+            boolean[] used,
+            int[] assignment
+    ) {
+        if (requirementIndex >= requirements.size()) {
+            return true;
+        }
+
+        MixingVatFluidStack requirement = requirements.get(requirementIndex);
+
+        for (int i = 0; i < available.length; i++) {
+            if (used[i]) {
+                continue;
+            }
+
+            FluidStack present = available[i];
+            if (present.isEmpty()) {
+                continue;
+            }
+
+            var presentId = BuiltInRegistries.FLUID.getKey(present.getFluid());
+            if (presentId == null) {
+                continue;
+            }
+
+            if (!requirement.fluid().equals(presentId)) {
+                continue;
+            }
+
+            if (present.getAmount() < requirement.amount()) {
+                continue;
+            }
+
+            used[i] = true;
+            assignment[requirementIndex] = i;
+
+            if (assignMixingFluidRequirements(requirements, available, requirementIndex + 1, used, assignment)) {
+                return true;
+            }
+
+            used[i] = false;
+            assignment[requirementIndex] = -1;
+        }
+
+        return false;
+    }
+
+    private void shrinkFluid(NonNullList<FluidStack> tank, int amount) {
+        FluidStack current = tank.get(0);
+        if (current.isEmpty() || amount <= 0) {
+            return;
+        }
+
+        int remaining = current.getAmount() - amount;
+        if (remaining <= 0) {
+            tank.set(0, FluidStack.EMPTY);
+        } else {
+            tank.set(0, current.copyWithAmount(remaining));
+        }
+    }
+
+    private FluidStack getInputTank(int tankIndex) {
+        return switch (tankIndex) {
+            case 0 -> this.inputAStacks.get(0);
+            case 1 -> this.inputBStacks.get(0);
+            case 2 -> this.inputCStacks.get(0);
+            default -> FluidStack.EMPTY;
+        };
     }
 
     private boolean canAcceptOutput(FluidStack result) {
@@ -423,58 +463,30 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                 && stored.getAmount() + result.getAmount() <= OUTPUT_TANK_CAPACITY;
     }
 
-    private void finishRecipe(AdvancedMixingVatRecipe recipe, FluidStack result) {
-        AdvancedMixingVatRecipe.consumeItems(recipe.itemInputs(), this.itemStacks);
-        AdvancedMixingVatRecipe.consumeFluids(recipe.fluidInputs(), this.inputAStacks, this.inputBStacks, this.inputCStacks);
-
-        if (recipe.gasInput() != null) {
-            this.gasTank.drain(recipe.gasInput().amount(), false);
-        }
-
-        FluidStack stored = this.outputStacks.get(0);
-        if (stored.isEmpty()) {
-            this.outputStacks.set(0, result.copy());
-        } else {
-            this.outputStacks.set(0, stored.copyWithAmount(stored.getAmount() + result.getAmount()));
+    private boolean runTransferWithoutReset(BooleanSupplier action) {
+        this.suppressTransferModeReset = true;
+        try {
+            return action.getAsBoolean();
+        } finally {
+            this.suppressTransferModeReset = false;
         }
     }
 
-    public void dropAllItems() {
-        if (this.level == null) {
-            return;
-        }
-
-        for (ItemStack stack : this.itemStacks) {
-            if (!stack.isEmpty()) {
-                Containers.dropItemStack(
-                        this.level,
-                        this.worldPosition.getX(),
-                        this.worldPosition.getY(),
-                        this.worldPosition.getZ(),
-                        stack
-                );
-            }
-        }
-
-        for (int i = 0; i < this.itemStacks.size(); i++) {
-            this.itemStacks.set(i, ItemStack.EMPTY);
+    private void resetTransferLockForSlot(int slot) {
+        switch (slot) {
+            case SLOT_TANK_INPUT_A -> this.fluidInputLocks.reset(0);
+            case SLOT_TANK_INPUT_B -> this.fluidInputLocks.reset(1);
+            case SLOT_TANK_INPUT_C -> this.fluidInputLocks.reset(2);
+            case SLOT_GAS_TRANSFER -> this.gasTransferLocks.reset(0);
         }
     }
 
     private void onMachineChanged() {
-        this.setChanged();
-
-        if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
-            this.level.invalidateCapabilities(this.worldPosition);
-        }
+        MachineSync.syncAndInvalidateCaps(this);
     }
 
     private void sync() {
-        this.setChanged();
-        if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
-        }
+        MachineSync.sync(this);
     }
 
     public ItemStacksResourceHandler getMenuItemHandler() {
@@ -498,18 +510,10 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         Direction left = front.getCounterClockWise();
         Direction right = front.getClockWise();
 
-        if (side == left) {
-            return this.inputAHandler;
-        }
-        if (side == right) {
-            return this.inputBHandler;
-        }
-        if (side == Direction.UP) {
-            return this.inputCHandler;
-        }
-        if (side == front) {
-            return this.outputHandler;
-        }
+        if (side == left) return this.inputAHandler;
+        if (side == right) return this.inputBHandler;
+        if (side == Direction.UP) return this.inputCHandler;
+        if (side == front) return this.outputHandler;
 
         return null;
     }
@@ -521,7 +525,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         Direction front = this.getBlockState().getValue(AdvancedMixingVatBlock.FACING);
         Direction back = front.getOpposite();
-        return side == back ? this.gasInputOnly : null;
+        return side == back ? this.gasTank : null;
     }
 
     @Override
@@ -548,9 +552,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         ValueOutput.ValueOutputList itemList = output.childrenList("items");
         for (int i = 0; i < this.itemStacks.size(); i++) {
             ItemStack stack = this.itemStacks.get(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
+            if (stack.isEmpty()) continue;
 
             ValueOutput child = itemList.addChild();
             child.putInt("slot", i);
@@ -596,12 +598,16 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         int gasId = input.getIntOr("gas", -1);
         long gasAmount = input.getLongOr("gas_amount", 0L);
         if (gasId != -1 && gasAmount > 0) {
-            this.gasTank.loadStored(ModGases.bySyncId(gasId), gasAmount);
+            GasType gas = ModGases.bySyncId(gasId);
+            this.gasTank.loadStored(gas, gasAmount);
         }
 
         this.progress = input.getIntOr("progress", 0);
         this.maxProgress = input.getIntOr("max_progress", 100);
         this.hasRecipe = input.getBooleanOr("has_recipe", false);
+
+        this.fluidInputLocks.resetAll();
+        this.gasTransferLocks.resetAll();
     }
 
     private final class VatItemHandler extends ItemStacksResourceHandler {
@@ -615,6 +621,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousStack) {
+            if (!suppressTransferModeReset) {
+                resetTransferLockForSlot(index);
+            }
             onMachineChanged();
         }
     }
@@ -656,13 +665,311 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         }
     }
 
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return this.saveWithoutMetadata(registries);
+    // -----------------------------
+    // Keep all your current recipe methods below:
+    // - findMatchingRecipe
+    // - findMatchingAdvancedRecipe
+    // - findMatchingMixingVatRecipe
+    // - canAcceptOutput
+    // - finishResolvedRecipe
+    // - finishAdvancedRecipe
+    // - finishMixingVatRecipe
+    // - consumeMixingVatItems
+    // - consumeMixingVatFluids
+    // - addToOutputTank
+    // - ResolvedRecipe inner class
+    // -----------------------------
+    private static final class ResolvedRecipe {
+        @Nullable
+        private final AdvancedMixingVatRecipe advancedRecipe;
+        @Nullable
+        private final MixingVatRecipe mixingRecipe;
+        @Nullable
+        private final int[] mixingFluidAssignment;
+
+        private final FluidStack result;
+        private final int processingTime;
+
+        private ResolvedRecipe(
+                @Nullable AdvancedMixingVatRecipe advancedRecipe,
+                @Nullable MixingVatRecipe mixingRecipe,
+                @Nullable int[] mixingFluidAssignment,
+                FluidStack result,
+                int processingTime
+        ) {
+            this.advancedRecipe = advancedRecipe;
+            this.mixingRecipe = mixingRecipe;
+            this.mixingFluidAssignment = mixingFluidAssignment;
+            this.result = result;
+            this.processingTime = processingTime;
+        }
+
+        public static ResolvedRecipe advanced(AdvancedMixingVatRecipe recipe) {
+            return new ResolvedRecipe(
+                    recipe,
+                    null,
+                    null,
+                    recipe.resultStack().copy(),
+                    Math.max(1, recipe.processingTime() * 5)
+            );
+        }
+
+        public static ResolvedRecipe mixing(MixingVatRecipe recipe, int[] fluidAssignment, FluidStack result) {
+            return new ResolvedRecipe(
+                    null,
+                    recipe,
+                    fluidAssignment,
+                    result.copy(),
+                    Math.max(1, recipe.requiredStirs())
+            );
+        }
+
+        public boolean isAdvanced() {
+            return this.advancedRecipe != null;
+        }
+
+        public AdvancedMixingVatRecipe advancedRecipe() {
+            return this.advancedRecipe;
+        }
+
+        public MixingVatRecipe mixingRecipe() {
+            return this.mixingRecipe;
+        }
+
+        public int[] mixingFluidAssignment() {
+            return this.mixingFluidAssignment;
+        }
+
+        public FluidStack result() {
+            return this.result;
+        }
+
+        public int processingTime() {
+            return this.processingTime;
+        }
     }
 
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    private Optional<ResolvedRecipe> findMatchingRecipe() {
+        Optional<RecipeHolder<AdvancedMixingVatRecipe>> advanced = findMatchingAdvancedRecipe();
+        if (advanced.isPresent()) {
+            return Optional.of(ResolvedRecipe.advanced(advanced.get().value()));
+        }
+
+        return findMatchingMixingVatRecipe();
+    }
+
+    private Optional<ResolvedRecipe> findMatchingMixingVatRecipe() {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            return Optional.empty();
+        }
+
+        for (RecipeHolder<MixingVatRecipe> holder : serverLevel.recipeAccess().getRecipes()
+                .stream()
+                .filter(pred -> pred.value() instanceof MixingVatRecipe)
+                .map(pred -> (RecipeHolder<MixingVatRecipe>) pred)
+                .toList()) {
+            MixingVatRecipe recipe = holder.value();
+
+            if (recipe.resultFluid().isEmpty()) {
+                continue;
+            }
+
+            if (!recipe.resultItem().isEmpty()) {
+                continue;
+            }
+
+            if (!matchesMixingVatItems(recipe)) {
+                continue;
+            }
+
+            int[] fluidAssignment = matchMixingVatFluids(recipe);
+            if (fluidAssignment == null) {
+                continue;
+            }
+
+            FluidStack result = toNeoFluidStack(recipe.resultFluid().get());
+            if (result.isEmpty()) {
+                continue;
+            }
+
+            return Optional.of(ResolvedRecipe.mixing(recipe, fluidAssignment, result));
+        }
+
+        return Optional.empty();
+    }
+
+    private FluidStack toNeoFluidStack(MixingVatFluidStack stack) {
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(stack.fluid());
+        if (fluid == Fluids.EMPTY || stack.amount() <= 0) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, stack.amount());
+    }
+
+    @Nullable
+    private int[] matchMixingVatFluids(MixingVatRecipe recipe) {
+        List<MixingVatFluidStack> requiredFluids = recipe.requiredFluids();
+
+        if (requiredFluids.size() > 3) {
+            return null;
+        }
+
+        FluidStack[] available = new FluidStack[] {
+                this.inputAStacks.get(0),
+                this.inputBStacks.get(0),
+                this.inputCStacks.get(0)
+        };
+
+        int[] assignment = new int[requiredFluids.size()];
+        for (int i = 0; i < assignment.length; i++) {
+            assignment[i] = -1;
+        }
+
+        boolean[] usedTanks = new boolean[available.length];
+
+        return assignMixingVatFluids(requiredFluids, available, 0, usedTanks, assignment)
+                ? assignment
+                : null;
+    }
+
+    private boolean assignMixingVatFluids(
+            List<MixingVatFluidStack> requiredFluids,
+            FluidStack[] available,
+            int requirementIndex,
+            boolean[] usedTanks,
+            int[] assignment
+    ) {
+        if (requirementIndex >= requiredFluids.size()) {
+            return true;
+        }
+
+        MixingVatFluidStack required = requiredFluids.get(requirementIndex);
+
+        for (int tankIndex = 0; tankIndex < available.length; tankIndex++) {
+            if (usedTanks[tankIndex]) {
+                continue;
+            }
+
+            FluidStack present = available[tankIndex];
+            if (present.isEmpty()) {
+                continue;
+            }
+
+            var presentId = BuiltInRegistries.FLUID.getKey(present.getFluid());
+            if (presentId == null) {
+                continue;
+            }
+
+            if (!required.fluid().equals(presentId)) {
+                continue;
+            }
+
+            if (present.getAmount() < required.amount()) {
+                continue;
+            }
+
+            usedTanks[tankIndex] = true;
+            assignment[requirementIndex] = tankIndex;
+
+            if (assignMixingVatFluids(requiredFluids, available, requirementIndex + 1, usedTanks, assignment)) {
+                return true;
+            }
+
+            usedTanks[tankIndex] = false;
+            assignment[requirementIndex] = -1;
+        }
+
+        return false;
+    }
+
+    private Optional<RecipeHolder<AdvancedMixingVatRecipe>> findMatchingAdvancedRecipe() {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            return Optional.empty();
+        }
+
+        List<ItemStack> snapshot = new ArrayList<>(RECIPE_ITEM_SLOT_COUNT);
+        for (int i = 0; i < RECIPE_ITEM_SLOT_COUNT; i++) {
+            snapshot.add(this.itemStacks.get(i).copy());
+        }
+
+        FluidStack a = this.inputAStacks.get(0).copy();
+        FluidStack b = this.inputBStacks.get(0).copy();
+        FluidStack c = this.inputCStacks.get(0).copy();
+        GasStack gas = this.gasTank.getGasInTank(0);
+
+        FluidStack[][] permutations = new FluidStack[][]{
+                {a, b, c},
+                {a, c, b},
+                {b, a, c},
+                {b, c, a},
+                {c, a, b},
+                {c, b, a}
+        };
+
+        for (RecipeHolder<AdvancedMixingVatRecipe> holder : serverLevel.recipeAccess().getRecipes()
+                .stream()
+                .filter(pred -> pred.value() instanceof AdvancedMixingVatRecipe)
+                .map(pred -> (RecipeHolder<AdvancedMixingVatRecipe>) pred)
+                .toList()) {
+            AdvancedMixingVatRecipe recipe = holder.value();
+
+            for (FluidStack[] permutation : permutations) {
+                AdvancedMixingVatRecipeInput input = new AdvancedMixingVatRecipeInput(
+                        snapshot,
+                        permutation[0].copy(),
+                        permutation[1].copy(),
+                        permutation[2].copy(),
+                        gas
+                );
+
+                if (recipe.matches(input, serverLevel)) {
+                    return Optional.of(holder);
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean matchesMixingVatItems(MixingVatRecipe recipe) {
+        List<Ingredient> requiredItems = recipe.requiredItems();
+
+        int totalItems = 0;
+        for (int i = 0; i < RECIPE_ITEM_SLOT_COUNT; i++) {
+            ItemStack stack = this.itemStacks.get(i);
+            if (!stack.isEmpty()) {
+                totalItems += stack.getCount();
+            }
+        }
+
+        if (totalItems < requiredItems.size()) {
+            return false;
+        }
+
+        int[] usedItems = new int[RECIPE_ITEM_SLOT_COUNT];
+
+        for (Ingredient ingredient : requiredItems) {
+            boolean matched = false;
+
+            for (int i = 0; i < RECIPE_ITEM_SLOT_COUNT; i++) {
+                ItemStack stack = this.itemStacks.get(i);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+
+                if (usedItems[i] < stack.getCount() && ingredient.test(stack)) {
+                    usedItems[i]++;
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

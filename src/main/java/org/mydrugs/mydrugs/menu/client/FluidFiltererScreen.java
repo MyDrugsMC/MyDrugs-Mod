@@ -11,7 +11,6 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
     private boolean holdingRunButton = false;
     private InvisibleButton dumpInputButton;
     private InvisibleButton dumpOutputAButton;
-    private InvisibleButton dumpOutputBButton;
 
     public FluidFiltererScreen(FluidFiltererMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, FluidFiltererLayout.GUI_WIDTH, FluidFiltererLayout.GUI_HEIGHT);
@@ -39,14 +38,6 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                 FluidFiltererLayout.DUMP_BUTTON_SIZE,
                 FluidFiltererLayout.DUMP_BUTTON_SIZE,
                 button -> pressMenuButton(FluidFiltererMenu.DUMP_OUTPUT_A_BUTTON_ID)
-        ));
-
-        this.dumpOutputBButton = this.addRenderableWidget(new InvisibleButton(
-                guiX(FluidFiltererLayout.DUMP_OUTPUT_B_X),
-                guiY(FluidFiltererLayout.DUMP_BUTTON_Y),
-                FluidFiltererLayout.DUMP_BUTTON_SIZE,
-                FluidFiltererLayout.DUMP_BUTTON_SIZE,
-                button -> pressMenuButton(FluidFiltererMenu.DUMP_OUTPUT_B_BUTTON_ID)
         ));
     }
 
@@ -91,17 +82,6 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                 FluidFiltererLayout.TANK_INNER_W,
                 FluidFiltererLayout.TANK_INNER_H
         );
-        drawTankFrame(
-                graphics,
-                FluidFiltererLayout.OUTPUT_B_TANK_X,
-                FluidFiltererLayout.OUTPUT_B_TANK_Y,
-                FluidFiltererLayout.TANK_W,
-                FluidFiltererLayout.TANK_H,
-                FluidFiltererLayout.TANK_INNER_X_OFFSET,
-                FluidFiltererLayout.TANK_INNER_Y_OFFSET,
-                FluidFiltererLayout.TANK_INNER_W,
-                FluidFiltererLayout.TANK_INNER_H
-        );
 
         drawTankFillShaded(
                 graphics,
@@ -127,21 +107,8 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                 getFluidColor(this.menu.getOutputAFluid())
         );
 
-        drawTankFillShaded(
-                graphics,
-                FluidFiltererLayout.OUTPUT_B_TANK_X,
-                FluidFiltererLayout.OUTPUT_B_TANK_Y,
-                FluidFiltererLayout.TANK_INNER_X_OFFSET,
-                FluidFiltererLayout.TANK_INNER_Y_OFFSET,
-                FluidFiltererLayout.TANK_INNER_W,
-                FluidFiltererLayout.TANK_INNER_H,
-                this.menu.getScaledOutputBTank(FluidFiltererLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputBFluid())
-        );
-
         drawSlotFrame(graphics, FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y);
         drawSlotFrame(graphics, FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(graphics, FluidFiltererLayout.OUTPUT_B_SLOT_X, FluidFiltererLayout.OUTPUT_B_SLOT_Y);
         drawSlotFrame(graphics, FluidFiltererLayout.FILTER_SLOT_X, FluidFiltererLayout.FILTER_SLOT_Y);
         drawSlotFrame(graphics, FluidFiltererLayout.RESIDUE_SLOT_X, FluidFiltererLayout.RESIDUE_SLOT_Y);
 
@@ -174,15 +141,6 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                 this.menu.getOutputATankAmount() > 0
         );
 
-        drawDumpButton(
-                graphics,
-                FluidFiltererLayout.DUMP_OUTPUT_B_X,
-                FluidFiltererLayout.DUMP_BUTTON_Y,
-                FluidFiltererLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
-                this.menu.getOutputBTankAmount() > 0
-        );
-
         renderRunButton(graphics, mouseX, mouseY);
 
         if (this.menu.getMaxProgress() > 0) {
@@ -205,9 +163,7 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
         if (isHoveringBox(FluidFiltererLayout.DUMP_INPUT_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, FluidFiltererLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
             renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank"));
         } else if (isHoveringBox(FluidFiltererLayout.DUMP_OUTPUT_A_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, FluidFiltererLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank A"));
-        } else if (isHoveringBox(FluidFiltererLayout.DUMP_OUTPUT_B_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, FluidFiltererLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank B"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank"));
         } else if (isHoveringBox(FluidFiltererLayout.INPUT_TANK_X, FluidFiltererLayout.INPUT_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
@@ -222,25 +178,14 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output tank A"),
+                    Component.literal("Output tank"),
                     Component.literal(getFluidName(this.menu.getOutputAFluid())),
                     Component.literal(this.menu.getOutputATankAmount() + " / " + FluidFiltererMenu.TANK_CAPACITY + " mB")
-            );
-        } else if (isHoveringBox(FluidFiltererLayout.OUTPUT_B_TANK_X, FluidFiltererLayout.OUTPUT_B_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H, mouseX, mouseY)) {
-            renderTooltipLines(
-                    graphics,
-                    mouseX,
-                    mouseY,
-                    Component.literal("Output tank B"),
-                    Component.literal(getFluidName(this.menu.getOutputBFluid())),
-                    Component.literal(this.menu.getOutputBTankAmount() + " / " + FluidFiltererMenu.TANK_CAPACITY + " mB")
             );
         } else if (isHoveringBox(FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y, 18, 18, mouseX, mouseY)) {
             renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Input fluid container"));
         } else if (isHoveringBox(FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Output container A"));
-        } else if (isHoveringBox(FluidFiltererLayout.OUTPUT_B_SLOT_X, FluidFiltererLayout.OUTPUT_B_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Output container B"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Output container"));
         } else if (isHoveringBox(FluidFiltererLayout.PROGRESS_X, FluidFiltererLayout.PROGRESS_Y, FluidFiltererLayout.PROGRESS_W, FluidFiltererLayout.PROGRESS_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,

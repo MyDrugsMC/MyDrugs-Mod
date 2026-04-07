@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.BottleFluidContent;
 import org.mydrugs.mydrugs.items.data.BloodSample;
 import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
@@ -55,6 +56,12 @@ public class ModDataComponents {
                     builder -> builder
                             .persistent(RolledDrugContent.CODEC)
                             .networkSynchronized(RolledDrugContent.STREAM_CODEC)
+            );
+
+    public static final Supplier<DataComponentType<GasTankContents>> GAS_TANK_CONTENTS =
+            DATA_COMPONENTS.registerComponentType(
+                    "gas_tank_contents",
+                    builder -> builder.persistent(GasTankContents.CODEC)
             );
 
     private ModDataComponents() {

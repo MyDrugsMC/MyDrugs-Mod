@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
@@ -21,17 +22,19 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
+import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.GrowthChamberMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberItemStack;
 import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Optional;
 
@@ -42,10 +45,19 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
     public static final int BIOMASS_SLOT = 1;
     public static final int MIDDLE_SLOT = 2;
     public static final int FINAL_SLOT = 3;
+    public static final int WATER_INPUT_SLOT = 4;
 
-    private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
+    public static final int SLOT_COUNT = 5;
 
-    private int waterAmount = 0;
+    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
+
+    private final LockedTransferSlots waterTransferLocks = new LockedTransferSlots(1);
+
+    private final StoredFluidTank waterTank = new StoredFluidTank(
+            WATER_CAPACITY,
+            this::sync,
+            stack -> !stack.isEmpty() && stack.getFluid() == Fluids.WATER
+    );
 
     private int growthProgress = 0;
     private int growthMaxProgress = 200;
@@ -57,7 +69,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> waterAmount;
+                case 0 -> waterTank.getAmount();
                 case 1 -> growthProgress;
                 case 2 -> growthMaxProgress;
                 case 3 -> matureProgress;
@@ -69,11 +81,12 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> waterAmount = value;
                 case 1 -> growthProgress = value;
                 case 2 -> growthMaxProgress = value;
                 case 3 -> matureProgress = value;
                 case 4 -> matureMaxProgress = value;
+                default -> {
+                }
             }
         }
 
@@ -94,13 +107,21 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
 
         boolean changed = false;
 
-        // -------------------------
-        // 1) GROWTH STEP
-        // -------------------------
+        if (FluidTransferUtil.tryProcessTransferSlot(
+                be,
+                WATER_INPUT_SLOT,
+                be.waterTank,
+                be.waterTransferLocks,
+                0
+        )) {
+            changed = true;
+        }
+
         Optional<RecipeHolder<GrowthChamberRecipe>> stage1Holder = be.getStage1Recipe(serverLevel);
 
         if (stage1Holder.isPresent()) {
             GrowthChamberRecipe recipe = stage1Holder.get().value();
+
             if (be.growthMaxProgress != recipe.baseTicks()) {
                 be.growthMaxProgress = recipe.baseTicks();
                 changed = true;
@@ -130,14 +151,11 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
             }
         }
 
-        // -------------------------
-        // 2) MATURING STEP
-        // -------------------------
-        // Re-query AFTER growth so fresh middle items can start maturing immediately.
         Optional<RecipeHolder<GrowthChamberRecipe>> stage2Holder = be.getStage2Recipe(serverLevel);
 
         if (stage2Holder.isPresent()) {
             GrowthChamberRecipe recipe = stage2Holder.get().value();
+
             if (be.matureMaxProgress != recipe.baseTicks()) {
                 be.matureMaxProgress = recipe.baseTicks();
                 changed = true;
@@ -220,7 +238,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
             return false;
         }
 
-        if (this.waterAmount < recipe.water()) {
+        if (this.waterTank.getAmount() < recipe.water()) {
             return false;
         }
 
@@ -256,11 +274,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         removeItems(INPUT_SLOT, recipe.input().count());
         removeItems(BIOMASS_SLOT, recipe.biomassInput().count());
 
-        this.waterAmount -= recipe.water();
-        if (this.waterAmount < 0) {
-            this.waterAmount = 0;
-        }
-
+        this.waterTank.extract(recipe.water(), false);
         addResult(MIDDLE_SLOT, recipe.middleResult());
     }
 
@@ -308,32 +322,40 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
             return false;
         }
 
-        int freeSpace = WATER_CAPACITY - this.waterAmount;
-        if (freeSpace <= 0) {
+        FluidStack incoming = new FluidStack(Fluids.WATER, containedAmount);
+        int requested = this.waterTank.insert(incoming, true);
+        if (requested <= 0) {
             return false;
         }
 
-        int request = Math.min(containedAmount, freeSpace);
-
-        if (held.getItem() instanceof BucketItem) {
-            if (freeSpace < FluidType.BUCKET_VOLUME) {
-                return false;
-            }
-            request = FluidType.BUCKET_VOLUME;
+        if (held.getItem() instanceof BucketItem && requested < FluidType.BUCKET_VOLUME) {
+            return false;
         }
 
+        int extractAmount = held.getItem() instanceof BucketItem
+                ? FluidType.BUCKET_VOLUME
+                : requested;
+
         try (var tx = Transaction.openRoot()) {
-            int extracted = handler.extract(resource, request, tx);
-            if (extracted != request) {
+            int extracted = handler.extract(resource, extractAmount, tx);
+            if (extracted != extractAmount) {
                 return false;
             }
 
             tx.commit();
-            this.waterAmount = Math.min(WATER_CAPACITY, this.waterAmount + extracted);
+            this.waterTank.insert(incoming.copyWithAmount(extracted), false);
         }
 
         sync();
         return true;
+    }
+
+    public static boolean isFluidContainer(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
     }
 
     @Override
@@ -364,7 +386,16 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
 
     @Override
     public int getContainerSize() {
-        return 4;
+        return SLOT_COUNT;
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+        super.setItem(slot, stack);
+
+        if (slot == WATER_INPUT_SLOT) {
+            this.waterTransferLocks.reset(0);
+        }
     }
 
     @Override
@@ -373,13 +404,15 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(input, this.items);
 
-        this.waterAmount = input.getIntOr("WaterAmount", 0);
+        this.waterTank.load(input, "water_tank");
 
         this.growthProgress = input.getIntOr("GrowthProgress", 0);
         this.growthMaxProgress = input.getIntOr("GrowthMaxProgress", 200);
 
         this.matureProgress = input.getIntOr("MatureProgress", 0);
         this.matureMaxProgress = input.getIntOr("MatureMaxProgress", 200);
+
+        this.waterTransferLocks.resetAll();
     }
 
     @Override
@@ -387,7 +420,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         super.saveAdditional(output);
         ContainerHelper.saveAllItems(output, this.items);
 
-        output.putInt("WaterAmount", this.waterAmount);
+        this.waterTank.save(output, "water_tank");
 
         output.putInt("GrowthProgress", this.growthProgress);
         output.putInt("GrowthMaxProgress", this.growthMaxProgress);
@@ -400,6 +433,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return switch (slot) {
             case INPUT_SLOT, BIOMASS_SLOT -> true;
+            case WATER_INPUT_SLOT -> isFluidContainer(stack);
             case MIDDLE_SLOT, FINAL_SLOT -> false;
             default -> false;
         };

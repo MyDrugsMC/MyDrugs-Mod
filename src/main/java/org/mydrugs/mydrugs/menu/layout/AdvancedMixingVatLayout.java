@@ -45,6 +45,7 @@ public final class AdvancedMixingVatLayout {
     public static final int TANK_A_SLOT_X = TANK_A_X;
     public static final int TANK_B_SLOT_X = TANK_B_X;
     public static final int TANK_C_SLOT_X = TANK_C_X;
+    public static final int GAS_SLOT_X = GAS_X;
     public static final int OUTPUT_SLOT_X = OUTPUT_X;
 
     private AdvancedMixingVatLayout() {

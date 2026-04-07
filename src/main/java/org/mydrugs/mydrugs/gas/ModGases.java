@@ -14,6 +14,7 @@ public final class ModGases {
     public static final GasType HYDROCHLORIC = register("hydrochloric", 0xFFD6E86A, true, false);
     public static final GasType REACTIVE = register("reactive", 0xFFD6E86A, true, false);
     public static final GasType SULFUR = register("sulfur", 0xFFD6E86A, true, false);
+    public static final GasType AIR = register("air", 0xFFFFFFFF, false, false);
 
     private ModGases() {}
 
@@ -43,5 +44,12 @@ public final class ModGases {
 
     public static Collection<GasType> values() {
         return Collections.unmodifiableCollection(BY_ID.values());
+    }
+
+    public static @Nullable GasType getNullable(String id) {
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+        return get(ResourceLocation.parse(id));
     }
 }

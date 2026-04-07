@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "mydrugs:block/gas_pump_bottom",
+    "up": "mydrugs:block/gas_pump_top",
+    "north": "mydrugs:block/gas_pump_front",
+    "south": "mydrugs:block/gas_pump_side",
+    "west": "mydrugs:block/gas_pump_side",
+    "east": "mydrugs:block/gas_pump_side",
+    "particle": "mydrugs:block/gas_pump_side"
+  }
+}

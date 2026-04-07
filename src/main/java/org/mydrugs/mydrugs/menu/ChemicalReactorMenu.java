@@ -1,34 +1,47 @@
 package org.mydrugs.mydrugs.menu;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
-import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
+import org.mydrugs.mydrugs.gas.GasType;
+import org.mydrugs.mydrugs.gas.ModGasCapabilities;
+import org.mydrugs.mydrugs.gas.ModGases;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
 public class ChemicalReactorMenu extends AbstractMachineMenu {
-    public static final int FUEL_SLOT = 0;
-    public static final int MACHINE_SLOT_COUNT = 1;
-    public static final int DATA_COUNT = 13;
+    public static final int SLOT_FUEL = ChemicalReactorBlockEntity.SLOT_FUEL;
+    public static final int SLOT_PRIMARY_GAS_TRANSFER = ChemicalReactorBlockEntity.SLOT_PRIMARY_GAS_TRANSFER;
+    public static final int SLOT_SECONDARY_GAS_TRANSFER = ChemicalReactorBlockEntity.SLOT_SECONDARY_GAS_TRANSFER;
+    public static final int SLOT_SECONDARY_FLUID_TRANSFER = ChemicalReactorBlockEntity.SLOT_SECONDARY_FLUID_TRANSFER;
+    public static final int SLOT_GAS_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_GAS_OUTPUT_TRANSFER;
+    public static final int SLOT_FLUID_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_FLUID_OUTPUT_TRANSFER;
+
+    public static final int MACHINE_SLOT_COUNT = ChemicalReactorBlockEntity.SLOT_COUNT;
+    public static final int DATA_COUNT = 20;
 
     private static final int PLAYER_INV_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INV_END = PLAYER_INV_START + 27;
     private static final int HOTBAR_START = PLAYER_INV_END;
     private static final int HOTBAR_END = HOTBAR_START + 9;
 
-    private final Container container;
+    private final ItemStacksResourceHandler itemHandler;
     private final ContainerData data;
     private final ContainerLevelAccess access;
     private final BlockPos blockPos;
@@ -37,34 +50,133 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         this(
                 containerId,
                 playerInventory,
-                new SimpleContainer(MACHINE_SLOT_COUNT),
+                new ItemStacksResourceHandler(MACHINE_SLOT_COUNT),
                 new SimpleContainerData(DATA_COUNT),
                 ContainerLevelAccess.NULL,
                 buf.readBlockPos()
         );
     }
 
-    public ChemicalReactorMenu(int containerId, Inventory playerInventory, Container container, ContainerData data, ContainerLevelAccess access, BlockPos blockPos) {
+    public ChemicalReactorMenu(
+            int containerId,
+            Inventory playerInventory,
+            ItemStacksResourceHandler itemHandler,
+            ContainerData data,
+            ContainerLevelAccess access,
+            BlockPos blockPos
+    ) {
         super(ModMenus.CHEMICAL_REACTOR.get(), containerId);
-        checkContainerSize(container, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, DATA_COUNT);
 
-        this.container = container;
+        this.itemHandler = itemHandler;
         this.data = data;
         this.access = access;
         this.blockPos = blockPos;
 
-        container.startOpen(playerInventory.player);
-
-        this.addSlot(new Slot(container, FUEL_SLOT, ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y) {
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                SLOT_FUEL,
+                ChemicalReactorLayout.FUEL_SLOT_X,
+                ChemicalReactorLayout.FUEL_SLOT_Y
+        ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.is(Items.CHARCOAL);
             }
         });
 
-        this.addPlayerInventorySlots(playerInventory, ChemicalReactorLayout.PLAYER_INV_X, ChemicalReactorLayout.PLAYER_INV_Y);
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                SLOT_PRIMARY_GAS_TRANSFER,
+                primaryTransferSlotX(),
+                transferSlotY()
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isGasContainer(stack);
+            }
 
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                SLOT_SECONDARY_GAS_TRANSFER,
+                secondaryTransferSlotX(),
+                transferSlotY()
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isGasContainer(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                SLOT_SECONDARY_FLUID_TRANSFER,
+                secondaryTransferSlotX(),
+                transferSlotY() + 20
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isFluidContainer(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                SLOT_GAS_OUTPUT_TRANSFER,
+                outputTransferSlotX(),
+                transferSlotY()
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isGasContainer(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+
+        this.addSlot(new ResourceHandlerSlot(
+                itemHandler,
+                itemHandler::set,
+                SLOT_FLUID_OUTPUT_TRANSFER,
+                outputTransferSlotX(),
+                transferSlotY() + 20
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isFluidContainer(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+
+        this.addPlayerInventorySlots(playerInventory, ChemicalReactorLayout.PLAYER_INV_X, ChemicalReactorLayout.PLAYER_INV_Y);
         this.addDataSlots(data);
     }
 
@@ -74,13 +186,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.CHEMICAL_REACTOR.get());
-    }
-
-    @Override
-    public void removed(Player player) {
-        super.removed(player);
-        this.container.stopOpen(player);
+        return stillValid(this.access, player, ModBlocks.CHEMICAL_REACTOR.get());
     }
 
     public int getPrimaryGasAmount() {
@@ -135,6 +241,34 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         return this.data.get(12);
     }
 
+    public int getPrimaryGasSyncId() {
+        return this.data.get(13);
+    }
+
+    public int getSecondaryGasSyncId() {
+        return this.data.get(14);
+    }
+
+    public int getSecondaryFluidSyncId() {
+        return this.data.get(15);
+    }
+
+    public int getOutputGasSyncId() {
+        return this.data.get(16);
+    }
+
+    public int getOutputFluidSyncId() {
+        return this.data.get(17);
+    }
+
+    public boolean isSecondaryFluidMode() {
+        return this.data.get(18) != 0;
+    }
+
+    public boolean isOutputFluidMode() {
+        return this.data.get(19) != 0;
+    }
+
     public boolean isLit() {
         return this.getBurnTimeRemaining() > 0;
     }
@@ -159,10 +293,118 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         return max > 0 ? this.getManualEnergy() * pixels / max : 0;
     }
 
+    public int getScaledPrimaryGas(int pixels) {
+        return ChemicalReactorBlockEntity.GAS_TANK_CAPACITY > 0
+                ? this.getPrimaryGasAmount() * pixels / ChemicalReactorBlockEntity.GAS_TANK_CAPACITY
+                : 0;
+    }
+
+    public int getScaledSecondaryGas(int pixels) {
+        return ChemicalReactorBlockEntity.GAS_TANK_CAPACITY > 0
+                ? this.getSecondaryGasAmount() * pixels / ChemicalReactorBlockEntity.GAS_TANK_CAPACITY
+                : 0;
+    }
+
+    public int getScaledSecondaryFluid(int pixels) {
+        return ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY > 0
+                ? this.getSecondaryFluidAmount() * pixels / ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY
+                : 0;
+    }
+
+    public int getScaledOutputGas(int pixels) {
+        return ChemicalReactorBlockEntity.GAS_TANK_CAPACITY > 0
+                ? this.getOutputGasAmount() * pixels / ChemicalReactorBlockEntity.GAS_TANK_CAPACITY
+                : 0;
+    }
+
+    public int getScaledOutputFluid(int pixels) {
+        return ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY > 0
+                ? this.getOutputFluidAmount() * pixels / ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY
+                : 0;
+    }
+
+    public @Nullable GasType getPrimaryGasType() {
+        return ModGases.bySyncId(this.getPrimaryGasSyncId());
+    }
+
+    public @Nullable GasType getSecondaryGasType() {
+        return ModGases.bySyncId(this.getSecondaryGasSyncId());
+    }
+
+    public @Nullable GasType getOutputGasType() {
+        return ModGases.bySyncId(this.getOutputGasSyncId());
+    }
+
+    public Fluid getSecondaryFluid() {
+        return decodeFluid(this.getSecondaryFluidSyncId());
+    }
+
+    public Fluid getOutputFluid() {
+        return decodeFluid(this.getOutputFluidSyncId());
+    }
+
+    public int getPrimaryGasColor() {
+        GasType gas = this.getPrimaryGasType();
+        return gas == null ? 0 : gas.tint();
+    }
+
+    public int getSecondaryGasColor() {
+        GasType gas = this.getSecondaryGasType();
+        return gas == null ? 0 : gas.tint();
+    }
+
+    public int getOutputGasColor() {
+        GasType gas = this.getOutputGasType();
+        return gas == null ? 0 : gas.tint();
+    }
+
+    public String getPrimaryGasName() {
+        GasType gas = this.getPrimaryGasType();
+        return gas == null ? "empty" : gas.name();
+    }
+
+    public String getSecondaryGasName() {
+        GasType gas = this.getSecondaryGasType();
+        return gas == null ? "empty" : gas.name();
+    }
+
+    public String getOutputGasName() {
+        GasType gas = this.getOutputGasType();
+        return gas == null ? "empty" : gas.name();
+    }
+
+    private static Fluid decodeFluid(int syncId) {
+        return syncId < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(syncId);
+    }
+
+    private static boolean isFluidContainer(ItemStack stack) {
+        return !stack.isEmpty() && ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    private static boolean isGasContainer(ItemStack stack) {
+        return !stack.isEmpty() && stack.getCapability(ModGasCapabilities.ITEM, null) != null;
+    }
+
+    private static int transferSlotY() {
+        return ChemicalReactorLayout.PRIMARY_GAS_TANK_Y + ChemicalReactorLayout.TANK_H + 6;
+    }
+
+    private static int primaryTransferSlotX() {
+        return ChemicalReactorLayout.PRIMARY_GAS_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
+    }
+
+    private static int secondaryTransferSlotX() {
+        return ChemicalReactorLayout.SECONDARY_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
+    }
+
+    private static int outputTransferSlotX() {
+        return ChemicalReactorLayout.OUTPUT_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
+    }
+
     @Override
     public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
         ItemStack quickMovedStack = ItemStack.EMPTY;
-        Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex);
+        var quickMovedSlot = this.slots.get(quickMovedSlotIndex);
 
         if (quickMovedSlot != null && quickMovedSlot.hasItem()) {
             ItemStack rawStack = quickMovedSlot.getItem();
@@ -172,24 +414,33 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
                 if (!this.moveItemStackTo(rawStack, PLAYER_INV_START, HOTBAR_END, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (quickMovedSlotIndex < HOTBAR_END) {
-                if (rawStack.is(Items.CHARCOAL)) {
-                    if (!this.moveItemStackTo(rawStack, FUEL_SLOT, FUEL_SLOT + 1, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (quickMovedSlotIndex < PLAYER_INV_END) {
-                    if (!this.moveItemStackTo(rawStack, HOTBAR_START, HOTBAR_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (quickMovedSlotIndex < HOTBAR_END) {
-                    if (!this.moveItemStackTo(rawStack, PLAYER_INV_START, PLAYER_INV_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else {
-                    return ItemStack.EMPTY;
-                }
             } else {
-                return ItemStack.EMPTY;
+                boolean moved = false;
+
+                if (rawStack.is(Items.CHARCOAL)) {
+                    moved = this.moveItemStackTo(rawStack, SLOT_FUEL, SLOT_FUEL + 1, false);
+                } else if (isGasContainer(rawStack)) {
+                    moved = this.moveItemStackTo(rawStack, SLOT_PRIMARY_GAS_TRANSFER, SLOT_PRIMARY_GAS_TRANSFER + 1, false)
+                            || this.moveItemStackTo(rawStack, SLOT_SECONDARY_GAS_TRANSFER, SLOT_SECONDARY_GAS_TRANSFER + 1, false)
+                            || this.moveItemStackTo(rawStack, SLOT_GAS_OUTPUT_TRANSFER, SLOT_GAS_OUTPUT_TRANSFER + 1, false);
+                } else if (isFluidContainer(rawStack)) {
+                    moved = this.moveItemStackTo(rawStack, SLOT_SECONDARY_FLUID_TRANSFER, SLOT_SECONDARY_FLUID_TRANSFER + 1, false)
+                            || this.moveItemStackTo(rawStack, SLOT_FLUID_OUTPUT_TRANSFER, SLOT_FLUID_OUTPUT_TRANSFER + 1, false);
+                }
+
+                if (!moved) {
+                    if (quickMovedSlotIndex < PLAYER_INV_END) {
+                        if (!this.moveItemStackTo(rawStack, HOTBAR_START, HOTBAR_END, false)) {
+                            return ItemStack.EMPTY;
+                        }
+                    } else if (quickMovedSlotIndex < HOTBAR_END) {
+                        if (!this.moveItemStackTo(rawStack, PLAYER_INV_START, PLAYER_INV_END, false)) {
+                            return ItemStack.EMPTY;
+                        }
+                    } else {
+                        return ItemStack.EMPTY;
+                    }
+                }
             }
 
             if (rawStack.isEmpty()) {
@@ -206,12 +457,5 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         }
 
         return quickMovedStack;
-    }
-
-    public ChemicalReactorBlockEntity getBlockEntity(Player player) {
-        if (player.level().getBlockEntity(this.blockPos) instanceof ChemicalReactorBlockEntity blockEntity) {
-            return blockEntity;
-        }
-        return null;
     }
 }

@@ -59,6 +59,7 @@ public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu
         drawSlotFrame(graphics, GrowthChamberLayout.BIOMASS_SLOT_X, GrowthChamberLayout.BIOMASS_SLOT_Y);
         drawSlotFrame(graphics, GrowthChamberLayout.MIDDLE_SLOT_X, GrowthChamberLayout.MIDDLE_SLOT_Y);
         drawSlotFrame(graphics, GrowthChamberLayout.FINAL_SLOT_X, GrowthChamberLayout.FINAL_SLOT_Y);
+        drawSlotFrame(graphics, GrowthChamberLayout.WATER_INPUT_SLOT_X, GrowthChamberLayout.WATER_INPUT_SLOT_Y);
 
         drawHorizontalBar(
                 graphics,

@@ -17,24 +17,21 @@ import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.FluidFiltererBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 
 public class FluidFiltererMenu extends AbstractMachineMenu {
     public static final int INPUT_CONTAINER_SLOT = 0;
     public static final int OUTPUT_A_CONTAINER_SLOT = 1;
-    public static final int OUTPUT_B_CONTAINER_SLOT = 2;
-    public static final int FILTER_SLOT = 3;
-    public static final int RESIDUE_SLOT = 4;
+    public static final int FILTER_SLOT = 2;
+    public static final int RESIDUE_SLOT = 3;
 
-    public static final int MACHINE_SLOT_COUNT = 5;
-    public static final int DATA_COUNT = 9;
+    public static final int MACHINE_SLOT_COUNT = 4;
+    public static final int DATA_COUNT = 7;
 
     public static final int RUN_BUTTON_START_ID = 0;
     public static final int RUN_BUTTON_STOP_ID = 1;
     public static final int DUMP_INPUT_BUTTON_ID = 2;
     public static final int DUMP_OUTPUT_A_BUTTON_ID = 3;
-    public static final int DUMP_OUTPUT_B_BUTTON_ID = 4;
 
     public static final int TANK_CAPACITY = 4000;
 
@@ -104,23 +101,6 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
 
         this.addSlot(new Slot(
                 container,
-                OUTPUT_B_CONTAINER_SLOT,
-                FluidFiltererLayout.OUTPUT_B_SLOT_X,
-                FluidFiltererLayout.OUTPUT_B_SLOT_Y
-        ) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return FluidFiltererBlockEntity.isFluidContainer(stack);
-            }
-
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        });
-
-        this.addSlot(new Slot(
-                container,
                 FILTER_SLOT,
                 FluidFiltererLayout.FILTER_SLOT_X,
                 FluidFiltererLayout.FILTER_SLOT_Y
@@ -149,7 +129,6 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
         });
 
         this.addPlayerInventorySlots(playerInventory, FluidFiltererLayout.PLAYER_INV_X, FluidFiltererLayout.PLAYER_INV_Y);
-
         this.addDataSlots(data);
     }
 
@@ -173,7 +152,7 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
         if (this.container instanceof FluidFiltererButtonHandler handler) {
             return switch (id) {
                 case RUN_BUTTON_START_ID, RUN_BUTTON_STOP_ID -> handler.onFiltererButtonPressed(player, id);
-                case DUMP_INPUT_BUTTON_ID, DUMP_OUTPUT_A_BUTTON_ID, DUMP_OUTPUT_B_BUTTON_ID -> handler.onDumpButtonPressed(player, id);
+                case DUMP_INPUT_BUTTON_ID, DUMP_OUTPUT_A_BUTTON_ID -> handler.onDumpButtonPressed(player, id);
                 default -> false;
             };
         }
@@ -189,32 +168,24 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
         return this.data.get(1);
     }
 
-    public int getOutputBTankAmount() {
+    public int getProgress() {
         return this.data.get(2);
     }
 
-    public int getProgress() {
+    public int getMaxProgress() {
         return this.data.get(3);
     }
 
-    public int getMaxProgress() {
+    public int getInputFluidSyncId() {
         return this.data.get(4);
     }
 
-    public int getInputFluidSyncId() {
+    public int getOutputAFluidSyncId() {
         return this.data.get(5);
     }
 
-    public int getOutputAFluidSyncId() {
-        return this.data.get(6);
-    }
-
-    public int getOutputBFluidSyncId() {
-        return this.data.get(7);
-    }
-
     public boolean isButtonHeld() {
-        return this.data.get(8) != 0;
+        return this.data.get(6) != 0;
     }
 
     public Fluid getInputFluid() {
@@ -225,10 +196,6 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
         return decodeFluid(this.getOutputAFluidSyncId());
     }
 
-    public Fluid getOutputBFluid() {
-        return decodeFluid(this.getOutputBFluidSyncId());
-    }
-
     public Component getInputFluidText() {
         Fluid fluid = this.getInputFluid();
         return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
@@ -236,11 +203,6 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
 
     public Component getOutputAFluidText() {
         Fluid fluid = this.getOutputAFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
-    }
-
-    public Component getOutputBFluidText() {
-        Fluid fluid = this.getOutputBFluid();
         return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
     }
 
@@ -256,10 +218,6 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
 
     public int getScaledOutputATank(int pixels) {
         return TANK_CAPACITY > 0 ? this.getOutputATankAmount() * pixels / TANK_CAPACITY : 0;
-    }
-
-    public int getScaledOutputBTank(int pixels) {
-        return TANK_CAPACITY > 0 ? this.getOutputBTankAmount() * pixels / TANK_CAPACITY : 0;
     }
 
     @Override

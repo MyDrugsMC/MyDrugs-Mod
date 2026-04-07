@@ -50,9 +50,9 @@ public class AdvancedFurnaceBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        if (furnace.tryExtractFluid(player, hand, stack)) {
-            return InteractionResult.SUCCESS;
-        }
+//        if (furnace..tryExtractFluid(player, hand, stack)) {
+//            return InteractionResult.SUCCESS;
+//        }
 
         return InteractionResult.TRY_WITH_EMPTY_HAND;
     }

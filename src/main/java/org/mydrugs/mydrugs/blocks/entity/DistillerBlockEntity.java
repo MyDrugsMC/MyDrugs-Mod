@@ -1,7 +1,6 @@
 package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -16,7 +15,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -27,14 +25,17 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
+import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.DistillerMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
@@ -46,20 +47,15 @@ import java.util.Optional;
 public class DistillerBlockEntity extends BaseContainerBlockEntity implements DistillerMenu.DistillerButtonHandler {
     public static final int FLUID_CAPACITY = 4000;
 
-    private static final int TANK_INPUT = 0;
-    private static final int TANK_OUTPUT_A = 1;
-    private static final int TANK_OUTPUT_B = 2;
     private final ArrayDeque<Long> recentClicks = new ArrayDeque<>();
     private NonNullList<ItemStack> buckets = NonNullList.withSize(3, ItemStack.EMPTY);
-    @Nullable
-    private ResourceLocation inputFluidId = null;
-    @Nullable
-    private ResourceLocation outputFluid1Id = null;
-    @Nullable
-    private ResourceLocation outputFluid2Id = null;
-    private int inputTankAmount = 0;
-    private int outputATankAmount = 0;
-    private int outputBTankAmount = 0;
+
+    private final LockedTransferSlots inputTransferLocks = new LockedTransferSlots(1);
+
+    private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
+    private final StoredFluidTank outputATank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
+    private final StoredFluidTank outputBTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
+
     private int progress = 0;
     private int maxProgress = 200;
     private int clicksPerSec = 0;
@@ -69,16 +65,16 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> inputTankAmount;
-                case 1 -> outputATankAmount;
-                case 2 -> outputBTankAmount;
+                case 0 -> inputTank.getAmount();
+                case 1 -> outputATank.getAmount();
+                case 2 -> outputBTank.getAmount();
                 case 3 -> progress;
                 case 4 -> maxProgress;
                 case 5 -> clicksPerSec;
                 case 6 -> speedPercent;
-                case 7 -> encodeFluidForSync(inputFluidId);
-                case 8 -> encodeFluidForSync(outputFluid1Id);
-                case 9 -> encodeFluidForSync(outputFluid2Id);
+                case 7 -> inputTank.encodeFluidSyncId();
+                case 8 -> outputATank.encodeFluidSyncId();
+                case 9 -> outputBTank.encodeFluidSyncId();
                 default -> 0;
             };
         }
@@ -86,16 +82,12 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> inputTankAmount = value;
-                case 1 -> outputATankAmount = value;
-                case 2 -> outputBTankAmount = value;
                 case 3 -> progress = value;
                 case 4 -> maxProgress = value;
                 case 5 -> clicksPerSec = value;
                 case 6 -> speedPercent = value;
-
-                // client dummy menu only; server doesn't need these written back
-                case 7, 8, 9 -> {
+                default -> {
+                    // client-only sync fields
                 }
             }
         }
@@ -110,23 +102,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         super(ModBlockEntities.DISTILLER.get(), pos, state);
     }
 
-    private static int encodeFluidForSync(@Nullable ResourceLocation fluidId) {
-        if (fluidId == null) {
-            return -1;
-        }
-
-        Optional<Holder.Reference<Fluid>> optional = BuiltInRegistries.FLUID.get(fluidId);
-
-        if (optional.isEmpty()) return -1;
-
-        Fluid fluid = optional.get().value();
-        if (fluid == Fluids.EMPTY) {
-            return -1;
-        }
-
-        return BuiltInRegistries.FLUID.getId(fluid);
-    }
-
     public static void tick(Level level, BlockPos pos, BlockState state, DistillerBlockEntity be) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
@@ -139,15 +114,29 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         int oldProgress = be.progress;
         int oldMaxProgress = be.maxProgress;
 
-        if (be.tryDrainInputContainerSlot()) {
+        if (FluidTransferUtil.tryProcessTransferSlot(
+                be,
+                DistillerMenu.INPUT_CONTAINER_SLOT,
+                be.inputTank,
+                be.inputTransferLocks,
+                0
+        )) {
             changed = true;
         }
 
-        if (be.tryFillOutputContainerSlot(DistillerMenu.OUTPUT_A_CONTAINER_SLOT, TANK_OUTPUT_A)) {
+        if (FluidTransferUtil.tryFillOutputSlot(
+                be,
+                DistillerMenu.OUTPUT_A_CONTAINER_SLOT,
+                be.outputATank
+        )) {
             changed = true;
         }
 
-        if (be.tryFillOutputContainerSlot(DistillerMenu.OUTPUT_B_CONTAINER_SLOT, TANK_OUTPUT_B)) {
+        if (FluidTransferUtil.tryFillOutputSlot(
+                be,
+                DistillerMenu.OUTPUT_B_CONTAINER_SLOT,
+                be.outputBTank
+        )) {
             changed = true;
         }
 
@@ -197,6 +186,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             if (be.progress >= be.maxProgress) {
                 be.craft(recipe);
                 be.progress = 0;
+                changed = true;
             }
         }
 
@@ -206,18 +196,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         if (changed) {
             be.sync();
-        }
-    }
-
-    @Nullable
-    private static ResourceLocation readFluidId(ValueInput input, String key) {
-        String value = input.getStringOr(key, "");
-        return value.isEmpty() ? null : ResourceLocation.parse(value);
-    }
-
-    private static void writeFluidId(ValueOutput output, String key, @Nullable ResourceLocation fluidId, int amount) {
-        if (fluidId != null && amount > 0) {
-            output.putString(key, fluidId.toString());
         }
     }
 
@@ -265,25 +243,32 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     }
 
     @Override
+    public void setItem(int slot, ItemStack stack) {
+        super.setItem(slot, stack);
+
+        if (slot == DistillerMenu.INPUT_CONTAINER_SLOT) {
+            this.inputTransferLocks.reset(0);
+        }
+    }
+
+    @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+
         this.buckets = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(input, this.buckets);
 
-        this.inputFluidId = readFluidId(input, "InputFluid");
-        this.outputFluid1Id = readFluidId(input, "OutputFluid1");
-        this.outputFluid2Id = readFluidId(input, "OutputFluid2");
+        this.inputTank.load(input, "input_tank");
+        this.outputATank.load(input, "output_a_tank");
+        this.outputBTank.load(input, "output_b_tank");
 
-        this.inputTankAmount = input.getIntOr("InputTank", 0);
-        this.outputATankAmount = input.getIntOr("OutputATank", 0);
-        this.outputBTankAmount = input.getIntOr("OutputBTank", 0);
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 200);
 
-        // transient runtime values
         this.clicksPerSec = 0;
         this.speedPercent = 0;
         this.recentClicks.clear();
+        this.inputTransferLocks.resetAll();
     }
 
     @Override
@@ -291,13 +276,10 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         super.saveAdditional(output);
         ContainerHelper.saveAllItems(output, this.buckets);
 
-        writeFluidId(output, "InputFluid", this.inputFluidId, this.inputTankAmount);
-        writeFluidId(output, "OutputFluid1", this.outputFluid1Id, this.outputATankAmount);
-        writeFluidId(output, "OutputFluid2", this.outputFluid2Id, this.outputBTankAmount);
+        this.inputTank.save(output, "input_tank");
+        this.outputATank.save(output, "output_a_tank");
+        this.outputBTank.save(output, "output_b_tank");
 
-        output.putInt("InputTank", this.inputTankAmount);
-        output.putInt("OutputATank", this.outputATankAmount);
-        output.putInt("OutputBTank", this.outputBTankAmount);
         output.putInt("Progress", this.progress);
         output.putInt("MaxProgress", this.maxProgress);
     }
@@ -318,7 +300,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             }
 
             case DistillerMenu.DUMP_INPUT_BUTTON_ID -> {
-                boolean dumped = dumpTank(TANK_INPUT);
+                boolean dumped = dumpTank(this.inputTank);
                 if (dumped) {
                     this.progress = 0;
                     sync();
@@ -327,7 +309,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             }
 
             case DistillerMenu.DUMP_OUTPUT_A_BUTTON_ID -> {
-                boolean dumped = dumpTank(TANK_OUTPUT_A);
+                boolean dumped = dumpTank(this.outputATank);
                 if (dumped) {
                     sync();
                 }
@@ -335,7 +317,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             }
 
             case DistillerMenu.DUMP_OUTPUT_B_BUTTON_ID -> {
-                boolean dumped = dumpTank(TANK_OUTPUT_B);
+                boolean dumped = dumpTank(this.outputBTank);
                 if (dumped) {
                     sync();
                 }
@@ -344,15 +326,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
             default -> false;
         };
-    }
-
-    private boolean dumpTank(int tank) {
-        if (getTankAmount(tank) <= 0) {
-            return false;
-        }
-
-        setTank(tank, null, 0);
-        return true;
     }
 
     public boolean tryInsertFluidFromHeld(Player player, InteractionHand hand, ItemStack held) {
@@ -368,12 +341,18 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 return false;
             }
 
-            int moved = getAddableAmount(TANK_INPUT, incomingId, containedAmount);
+            Fluid fluid = BuiltInRegistries.FLUID.getValue(incomingId);
+            if (fluid == null || fluid == Fluids.EMPTY) {
+                return false;
+            }
+
+            FluidStack incoming = new FluidStack(fluid, containedAmount);
+            int moved = this.inputTank.insert(incoming, true);
             if (moved <= 0) {
                 return false;
             }
 
-            addFluidToTank(TANK_INPUT, incomingId, moved);
+            this.inputTank.insert(incoming.copyWithAmount(moved), false);
             sync();
             return true;
         }
@@ -391,24 +370,28 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             return false;
         }
 
-        ResourceLocation incomingId = BuiltInRegistries.FLUID.getKey(resource.getFluid());
-        if (incomingId == null) {
-            return false;
-        }
-
-        int requested = getAddableAmount(TANK_INPUT, incomingId, containedAmount);
+        FluidStack incoming = resource.toStack(containedAmount);
+        int requested = this.inputTank.insert(incoming, true);
         if (requested <= 0) {
             return false;
         }
 
+        if (held.getItem() instanceof BucketItem && requested < FluidType.BUCKET_VOLUME) {
+            return false;
+        }
+
+        int extractAmount = held.getItem() instanceof BucketItem
+                ? FluidType.BUCKET_VOLUME
+                : requested;
+
         try (var tx = Transaction.openRoot()) {
-            int extracted = handler.extract(resource, requested, tx);
-            if (extracted <= 0) {
+            int extracted = handler.extract(resource, extractAmount, tx);
+            if (extracted != extractAmount) {
                 return false;
             }
 
             tx.commit();
-            addFluidToTank(TANK_INPUT, incomingId, extracted);
+            this.inputTank.insert(incoming.copyWithAmount(extracted), false);
         }
 
         sync();
@@ -416,43 +399,57 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     }
 
     private Optional<RecipeHolder<DistillerRecipe>> getCurrentRecipe(ServerLevel level) {
-        if (this.inputFluidId == null || this.inputTankAmount <= 0) {
+        ResourceLocation inputFluidId = getFluidId(this.inputTank);
+        if (inputFluidId == null || this.inputTank.isEmpty()) {
             return Optional.empty();
         }
 
         return level.recipeAccess().getRecipeFor(
                 ModRecipeTypes.DISTILLER.get(),
-                new DistillerRecipeInput(this.inputFluidId, this.inputTankAmount),
+                new DistillerRecipeInput(inputFluidId, this.inputTank.getAmount()),
                 level
         );
     }
 
     private boolean canCraft(DistillerRecipe recipe) {
-        if (this.inputFluidId == null) {
+        ResourceLocation inputFluidId = getFluidId(this.inputTank);
+        if (inputFluidId == null) {
             return false;
         }
 
-        if (!recipe.input().fluid().equals(this.inputFluidId)) {
+        if (!recipe.input().fluid().equals(inputFluidId)) {
             return false;
         }
 
-        if (this.inputTankAmount < recipe.input().amount()) {
+        if (this.inputTank.getAmount() < recipe.input().amount()) {
             return false;
         }
 
-        if (getAddableAmount(TANK_OUTPUT_A, recipe.output1().fluid(), recipe.output1().amount()) < recipe.output1().amount()) {
+        FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
+        if (outputA.isEmpty() || this.outputATank.getAddableAmount(outputA) < outputA.getAmount()) {
             return false;
         }
 
-        return recipe.output2()
-                .map(output -> getAddableAmount(TANK_OUTPUT_B, output.fluid(), output.amount()) >= output.amount())
-                .orElse(true);
+        return recipe.output2().map(output -> {
+            FluidStack outputB = toFluidStack(output.fluid(), output.amount());
+            return !outputB.isEmpty() && this.outputBTank.getAddableAmount(outputB) >= outputB.getAmount();
+        }).orElse(true);
     }
 
     private void craft(DistillerRecipe recipe) {
-        removeFluidFromTank(TANK_INPUT, recipe.input().amount());
-        addFluidToTank(TANK_OUTPUT_A, recipe.output1().fluid(), recipe.output1().amount());
-        recipe.output2().ifPresent(output -> addFluidToTank(TANK_OUTPUT_B, output.fluid(), output.amount()));
+        this.inputTank.extract(recipe.input().amount(), false);
+
+        FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
+        if (!outputA.isEmpty()) {
+            this.outputATank.insert(outputA, false);
+        }
+
+        recipe.output2().ifPresent(output -> {
+            FluidStack outputB = toFluidStack(output.fluid(), output.amount());
+            if (!outputB.isEmpty()) {
+                this.outputBTank.insert(outputB, false);
+            }
+        });
     }
 
     private void refreshClickStats(long now) {
@@ -476,97 +473,41 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return this.clicksPerSec <= 5 ? 0 : this.clicksPerSec - 5;
     }
 
-    private int getAddableAmount(int tank, ResourceLocation incomingId, int requestedAmount) {
-        if (requestedAmount <= 0) {
-            return 0;
+    private static boolean dumpTank(StoredFluidTank tank) {
+        if (tank.isEmpty()) {
+            return false;
         }
 
-        int currentAmount = getTankAmount(tank);
-        int freeSpace = FLUID_CAPACITY - currentAmount;
-        if (freeSpace <= 0) {
-            return 0;
-        }
-
-        ResourceLocation currentFluid = getTankFluidId(tank);
-        boolean matchesExisting = currentAmount > 0 && incomingId.equals(currentFluid);
-        boolean emptyTank = currentAmount <= 0;
-
-        if (!matchesExisting && !emptyTank) {
-            return 0;
-        }
-
-        return Math.min(requestedAmount, freeSpace);
-    }
-
-    private void addFluidToTank(int tank, ResourceLocation fluidId, int amount) {
-        if (amount <= 0) {
-            return;
-        }
-
-        int currentAmount = getTankAmount(tank);
-        ResourceLocation currentFluid = getTankFluidId(tank);
-
-        if (currentAmount <= 0) {
-            setTank(tank, fluidId, Math.min(FLUID_CAPACITY, amount));
-            return;
-        }
-
-        if (fluidId.equals(currentFluid)) {
-            setTank(tank, currentFluid, Math.min(FLUID_CAPACITY, currentAmount + amount));
-        }
-    }
-
-    private void removeFluidFromTank(int tank, int amount) {
-        if (amount <= 0) {
-            return;
-        }
-
-        int remaining = getTankAmount(tank) - amount;
-        if (remaining <= 0) {
-            setTank(tank, null, 0);
-            return;
-        }
-
-        setTank(tank, getTankFluidId(tank), remaining);
+        tank.setFluid(FluidStack.EMPTY);
+        return true;
     }
 
     @Nullable
-    private ResourceLocation getTankFluidId(int tank) {
-        return switch (tank) {
-            case TANK_INPUT -> this.inputFluidId;
-            case TANK_OUTPUT_A -> this.outputFluid1Id;
-            case TANK_OUTPUT_B -> this.outputFluid2Id;
-            default -> null;
-        };
-    }
-
-    private int getTankAmount(int tank) {
-        return switch (tank) {
-            case TANK_INPUT -> this.inputTankAmount;
-            case TANK_OUTPUT_A -> this.outputATankAmount;
-            case TANK_OUTPUT_B -> this.outputBTankAmount;
-            default -> 0;
-        };
-    }
-
-    private void setTank(int tank, @Nullable ResourceLocation fluidId, int amount) {
-        int clampedAmount = Math.max(0, Math.min(FLUID_CAPACITY, amount));
-        ResourceLocation finalFluid = clampedAmount > 0 ? fluidId : null;
-
-        switch (tank) {
-            case TANK_INPUT -> {
-                this.inputFluidId = finalFluid;
-                this.inputTankAmount = clampedAmount;
-            }
-            case TANK_OUTPUT_A -> {
-                this.outputFluid1Id = finalFluid;
-                this.outputATankAmount = clampedAmount;
-            }
-            case TANK_OUTPUT_B -> {
-                this.outputFluid2Id = finalFluid;
-                this.outputBTankAmount = clampedAmount;
-            }
+    private static ResourceLocation getFluidId(StoredFluidTank tank) {
+        FluidStack stored = tank.getFluid();
+        if (stored.isEmpty()) {
+            return null;
         }
+
+        Fluid fluid = stored.getFluid();
+        if (fluid == Fluids.EMPTY) {
+            return null;
+        }
+
+        return BuiltInRegistries.FLUID.getKey(fluid);
+    }
+
+    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
+        if (amount <= 0) {
+            return FluidStack.EMPTY;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, amount);
     }
 
     private void sync() {
@@ -584,127 +525,5 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     @Override
     public int getMaxStackSize() {
         return 1;
-    }
-
-    private boolean tryDrainInputContainerSlot() {
-        ItemStack stack = this.getItem(DistillerMenu.INPUT_CONTAINER_SLOT);
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        var itemHandler = VanillaContainerWrapper.of(this);
-        ItemAccess access = ItemAccess
-                .forHandlerIndexStrict(itemHandler, DistillerMenu.INPUT_CONTAINER_SLOT)
-                .oneByOne();
-
-        var handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null || handler.size() <= 0) {
-            return false;
-        }
-
-        FluidResource resource = handler.getResource(0);
-        int containedAmount = handler.getAmountAsInt(0);
-
-        if (resource.isEmpty() || containedAmount <= 0) {
-            return false;
-        }
-
-        ResourceLocation incomingId = BuiltInRegistries.FLUID.getKey(resource.getFluid());
-        if (incomingId == null) {
-            return false;
-        }
-
-        int toMove = getAddableAmount(TANK_INPUT, incomingId, containedAmount);
-        if (toMove <= 0) {
-            return false;
-        }
-
-        // Buckets only support full-bucket moves
-        if (stack.getItem() instanceof BucketItem && toMove < FluidType.BUCKET_VOLUME) {
-            return false;
-        }
-
-        int request = stack.getItem() instanceof BucketItem
-                ? FluidType.BUCKET_VOLUME
-                : toMove;
-
-        try (var tx = Transaction.openRoot()) {
-            int extracted = handler.extract(resource, request, tx);
-            if (extracted != request) {
-                return false;
-            }
-
-            tx.commit();
-            addFluidToTank(TANK_INPUT, incomingId, extracted);
-            return true;
-        }
-    }
-
-    private boolean tryFillOutputContainerSlot(int itemSlot, int tank) {
-        ItemStack stack = this.getItem(itemSlot);
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        int tankAmount = getTankAmount(tank);
-        ResourceLocation tankFluidId = getTankFluidId(tank);
-        if (tankAmount <= 0 || tankFluidId == null) {
-            return false;
-        }
-
-        var itemHandler = VanillaContainerWrapper.of(this);
-        ItemAccess access = ItemAccess
-                .forHandlerIndexStrict(itemHandler, itemSlot)
-                .oneByOne();
-
-        var handler = access.getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null || handler.size() <= 0) {
-            return false;
-        }
-
-        FluidResource resource = FluidResource.of(BuiltInRegistries.FLUID.getValue(tankFluidId));
-        if (resource.isEmpty()) {
-            return false;
-        }
-
-        int itemAmount = handler.getAmountAsInt(0);
-        FluidResource itemResource = handler.getResource(0);
-
-        // If the container already contains fluid, it must match the tank fluid
-        if (!itemResource.isEmpty()) {
-            ResourceLocation itemFluidId = BuiltInRegistries.FLUID.getKey(itemResource.getFluid());
-            if (!tankFluidId.equals(itemFluidId)) {
-                return false;
-            }
-        }
-
-        int request;
-
-        // Buckets only support full 1000 mB fills
-        if (stack.is(Items.BUCKET)) {
-            if (tankAmount < FluidType.BUCKET_VOLUME) {
-                return false;
-            }
-            request = FluidType.BUCKET_VOLUME;
-        } else {
-            int capacity = handler.getCapacityAsInt(0, resource);
-            int remainingSpace = capacity - itemAmount;
-            if (remainingSpace <= 0) {
-                return false;
-            }
-
-            request = Math.min(tankAmount, remainingSpace);
-        }
-
-        try (var tx = Transaction.openRoot()) {
-            int inserted = handler.insert(resource, request, tx);
-            if (inserted <= 0) {
-                return false;
-            }
-
-            tx.commit();
-            removeFluidFromTank(tank, inserted);
-            return true;
-        }
     }
 }

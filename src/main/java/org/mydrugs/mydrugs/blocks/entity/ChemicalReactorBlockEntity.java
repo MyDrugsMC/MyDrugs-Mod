@@ -12,9 +12,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -23,21 +21,18 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ChemicalReactorBlock;
@@ -47,6 +42,13 @@ import org.mydrugs.mydrugs.gas.GasTank;
 import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.IGasHandler;
 import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.machine.MachineSync;
+import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
+import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
+import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
+import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
+import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.ChemicalReactorMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
@@ -54,10 +56,16 @@ import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipeInput;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ReactorOutputKind;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
-public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvider {
-    public static final int FUEL_SLOT = 0;
-    public static final int ITEM_SLOTS = 1;
+public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements MenuProvider {
+    public static final int SLOT_FUEL = 0;
+    public static final int SLOT_PRIMARY_GAS_TRANSFER = 1;
+    public static final int SLOT_SECONDARY_GAS_TRANSFER = 2;
+    public static final int SLOT_SECONDARY_FLUID_TRANSFER = 3;
+    public static final int SLOT_GAS_OUTPUT_TRANSFER = 4;
+    public static final int SLOT_FLUID_OUTPUT_TRANSFER = 5;
+    public static final int SLOT_COUNT = 6;
 
     public static final int GAS_TANK_CAPACITY = 4000;
     public static final int FLUID_TANK_CAPACITY = 4000;
@@ -65,47 +73,38 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
     public static final int MAX_MANUAL_ENERGY = 200;
 
     private static final int CHARCOAL_BURN_TIME = 1600;
+    private static final FuelResolver CHARCOAL_FUEL = (stack, level) ->
+            stack.is(Items.CHARCOAL) ? CHARCOAL_BURN_TIME : 0;
 
     private static final int SECONDARY_FLUID_TANK = 0;
     private static final int OUTPUT_FLUID_TANK = 1;
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(ITEM_SLOTS, ItemStack.EMPTY);
-    private final SimpleContainer dropInventory = new SimpleContainer(ITEM_SLOTS);
+    private final ReactorItemHandler itemHandler = new ReactorItemHandler(SLOT_COUNT);
+    private final NonNullList<ItemStack> itemStacks = this.itemHandler.list();
 
     private final GasTank primaryGasTank = new GasTank(GAS_TANK_CAPACITY, gas -> true, this::onContentsChanged);
     private final GasTank secondaryGasTank = new GasTank(GAS_TANK_CAPACITY, gas -> true, this::onContentsChanged);
     private final GasTank gasOutputTank = new GasTank(GAS_TANK_CAPACITY, gas -> true, this::onContentsChanged);
 
-    private final NonNullList<FluidStack> fluidStacks = NonNullList.withSize(2, FluidStack.EMPTY);
+    private final ReactorFluidHandler fluidHandler = new ReactorFluidHandler();
+    private final NonNullList<FluidStack> fluidStacks = this.fluidHandler.list();
 
-    private final ResourceHandler<FluidResource> fluidHandler =
-            new FluidStacksResourceHandler(fluidStacks, FLUID_TANK_CAPACITY) {
-                @Override
-                public boolean isValid(int index, FluidResource resource) {
-                    return index == SECONDARY_FLUID_TANK && !resource.isEmpty();
-                }
+    private final FluidTankAccess secondaryFluidTank = FluidTankAccess.of(
+            FLUID_TANK_CAPACITY,
+            () -> this.fluidStacks.get(SECONDARY_FLUID_TANK),
+            stack -> this.fluidStacks.set(SECONDARY_FLUID_TANK, stack)
+    );
 
-                @Override
-                public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-                    if (index != SECONDARY_FLUID_TANK) {
-                        return 0;
-                    }
-                    return super.insert(index, resource, amount, transaction);
-                }
+    private final FluidTankAccess outputFluidTank = FluidTankAccess.of(
+            FLUID_TANK_CAPACITY,
+            () -> this.fluidStacks.get(OUTPUT_FLUID_TANK),
+            stack -> this.fluidStacks.set(OUTPUT_FLUID_TANK, stack)
+    );
 
-                @Override
-                public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-                    if (index != OUTPUT_FLUID_TANK) {
-                        return 0;
-                    }
-                    return super.extract(index, resource, amount, transaction);
-                }
+    private final LockedTransferSlots gasInputLocks = new LockedTransferSlots(2);
+    private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(1);
 
-                @Override
-                protected void onContentsChanged(int index, FluidStack previousContents) {
-                    ChemicalReactorBlockEntity.this.onFluidContentsChanged();
-                }
-            };
+    private boolean suppressTransferModeReset = false;
 
     private int burnTimeRemaining;
     private int burnTimeTotal;
@@ -118,22 +117,7 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
     private boolean secondaryFluidMode;
     private boolean outputFluidMode;
 
-    @SuppressWarnings("removal")
-    private final ItemStackHandler itemHandler = new ItemStackHandler(ITEM_SLOTS) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            ChemicalReactorBlockEntity.this.items.set(slot, this.getStackInSlot(slot));
-            ChemicalReactorBlockEntity.this.dropInventory.setItem(slot, this.getStackInSlot(slot));
-            ChemicalReactorBlockEntity.this.onContentsChanged();
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == FUEL_SLOT && stack.is(Items.CHARCOAL);
-        }
-    };
-
-    private final IGasHandler gasHandler = new IGasHandler() {
+    private final IGasHandler automationGasHandler = new IGasHandler() {
         @Override
         public int getTanks() {
             return 3;
@@ -161,15 +145,10 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
 
         @Override
         public long fill(GasStack resource, boolean simulate) {
-            if (resource == null || resource.isEmpty()) {
-                return 0;
-            }
-
             long insertedPrimary = primaryGasTank.fill(resource, simulate);
             if (insertedPrimary > 0) {
                 return insertedPrimary;
             }
-
             return secondaryGasTank.fill(resource, simulate);
         }
 
@@ -185,9 +164,9 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
             return switch (index) {
                 case 0 -> (int) primaryGasTank.getAmount();
                 case 1 -> (int) secondaryGasTank.getAmount();
-                case 2 -> getSecondaryFluidAmount();
+                case 2 -> secondaryFluidTank.getAmount();
                 case 3 -> (int) gasOutputTank.getAmount();
-                case 4 -> getOutputFluidAmount();
+                case 4 -> outputFluidTank.getAmount();
                 case 5 -> progress;
                 case 6 -> maxProgress;
                 case 7 -> heat;
@@ -196,6 +175,13 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
                 case 10 -> burnTimeTotal;
                 case 11 -> manualEnergy;
                 case 12 -> MAX_MANUAL_ENERGY;
+                case 13 -> primaryGasTank.isEmpty() ? -1 : ModGases.getSyncId(primaryGasTank.getGasType());
+                case 14 -> secondaryGasTank.isEmpty() ? -1 : ModGases.getSyncId(secondaryGasTank.getGasType());
+                case 15 -> fluidStacks.get(SECONDARY_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(SECONDARY_FLUID_TANK).getFluid());
+                case 16 -> gasOutputTank.isEmpty() ? -1 : ModGases.getSyncId(gasOutputTank.getGasType());
+                case 17 -> fluidStacks.get(OUTPUT_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(OUTPUT_FLUID_TANK).getFluid());
+                case 18 -> secondaryFluidMode ? 1 : 0;
+                case 19 -> outputFluidMode ? 1 : 0;
                 default -> 0;
             };
         }
@@ -209,12 +195,16 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
                 case 9 -> burnTimeRemaining = value;
                 case 10 -> burnTimeTotal = value;
                 case 11 -> manualEnergy = value;
+                case 18 -> secondaryFluidMode = value != 0;
+                case 19 -> outputFluidMode = value != 0;
+                default -> {
+                }
             }
         }
 
         @Override
         public int getCount() {
-            return 13;
+            return 20;
         }
     };
 
@@ -222,71 +212,134 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
         super(ModBlockEntities.CHEMICAL_REACTOR.get(), pos, state);
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, ChemicalReactorBlockEntity blockEntity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, ChemicalReactorBlockEntity be) {
         if (level.isClientSide()) {
             return;
         }
 
         boolean changed = false;
-        boolean wasActive = blockEntity.active;
+        boolean wasActive = be.active;
 
-        changed |= blockEntity.handleFuel();
-        changed |= blockEntity.updateHeat();
+        changed |= be.runTransferWithoutReset(() ->
+                GasTransferUtil.tryProcessTransferSlot(
+                        be.itemStacks,
+                        SLOT_PRIMARY_GAS_TRANSFER,
+                        be.primaryGasTank,
+                        be.gasInputLocks,
+                        0
+                )
+        );
 
-        Optional<RecipeHolder<ChemicalReactorRecipe>> recipeHolder = blockEntity.findMatchingRecipe();
+        changed |= be.runTransferWithoutReset(() ->
+                GasTransferUtil.tryProcessTransferSlot(
+                        be.itemStacks,
+                        SLOT_SECONDARY_GAS_TRANSFER,
+                        be.secondaryGasTank,
+                        be.gasInputLocks,
+                        1
+                )
+        );
+
+        changed |= be.runTransferWithoutReset(() ->
+                FluidTransferUtil.tryProcessTransferSlot(
+                        be.itemHandler,
+                        be.itemStacks,
+                        SLOT_SECONDARY_FLUID_TRANSFER,
+                        be.secondaryFluidTank,
+                        be.fluidInputLocks,
+                        0
+                )
+        );
+
+        changed |= GasTransferUtil.tryFillOutputSlot(
+                be.itemStacks,
+                SLOT_GAS_OUTPUT_TRANSFER,
+                be.gasOutputTank
+        );
+
+        changed |= FluidTransferUtil.tryFillOutputSlot(
+                be.itemHandler,
+                be.itemStacks,
+                SLOT_FLUID_OUTPUT_TRANSFER,
+                be.outputFluidTank
+        );
+
+        changed |= be.handleFuel();
+        changed |= be.updateHeat();
+
+        Optional<RecipeHolder<ChemicalReactorRecipe>> recipeHolder = be.findMatchingRecipe();
         if (recipeHolder.isPresent()) {
             ChemicalReactorRecipe recipe = recipeHolder.get().value();
-            blockEntity.secondaryFluidMode = recipe.secondaryFluid().isPresent();
-            blockEntity.outputFluidMode = recipe.outputKind() == ReactorOutputKind.FLUID;
-            blockEntity.maxProgress = recipe.processTime();
+            be.secondaryFluidMode = recipe.secondaryFluid().isPresent();
+            be.outputFluidMode = recipe.outputKind() == ReactorOutputKind.FLUID;
+            be.maxProgress = recipe.processTime();
 
-            if (blockEntity.canOutput(recipe)) {
-                int speed = blockEntity.getProgressPerTick(recipe);
-                blockEntity.progress += speed;
+            if (be.canOutput(recipe)) {
+                int speed = be.getProgressPerTick(recipe);
+                be.progress += speed;
                 changed = true;
 
-                if (blockEntity.manualEnergy > 0) {
-                    blockEntity.manualEnergy = Math.max(0, blockEntity.manualEnergy - 1);
+                if (be.manualEnergy > 0) {
+                    be.manualEnergy = Math.max(0, be.manualEnergy - 1);
                 }
 
-                if (blockEntity.progress >= blockEntity.maxProgress) {
-                    blockEntity.progress = 0;
-                    blockEntity.processRecipe(recipe);
+                if (be.progress >= be.maxProgress) {
+                    be.progress = 0;
+                    be.processRecipe(recipe);
                     changed = true;
                 }
 
-                blockEntity.active = true;
+                be.active = true;
             } else {
-                if (blockEntity.progress > 0) {
-                    blockEntity.progress = Math.max(0, blockEntity.progress - 2);
+                if (be.progress > 0) {
+                    be.progress = Math.max(0, be.progress - 2);
                     changed = true;
                 }
-                blockEntity.active = false;
+                be.active = false;
             }
         } else {
-            blockEntity.secondaryFluidMode = blockEntity.getSecondaryFluidAmount() > 0;
-            blockEntity.outputFluidMode = blockEntity.getOutputFluidAmount() > 0;
+            be.secondaryFluidMode = be.secondaryFluidTank.getAmount() > 0;
+            be.outputFluidMode = be.outputFluidTank.getAmount() > 0;
 
-            if (blockEntity.progress > 0) {
-                blockEntity.progress = Math.max(0, blockEntity.progress - 2);
+            if (be.progress > 0) {
+                be.progress = Math.max(0, be.progress - 2);
                 changed = true;
             }
 
-            if (blockEntity.manualEnergy > 0) {
-                blockEntity.manualEnergy = Math.max(0, blockEntity.manualEnergy - 1);
+            if (be.manualEnergy > 0) {
+                be.manualEnergy = Math.max(0, be.manualEnergy - 1);
                 changed = true;
             }
 
-            blockEntity.active = false;
+            be.active = false;
         }
 
-        if (wasActive != blockEntity.active) {
+        if (wasActive != be.active) {
+            level.setBlock(pos, state.setValue(ChemicalReactorBlock.ACTIVE, be.active), Block.UPDATE_CLIENTS);
             changed = true;
-            level.setBlock(pos, state.setValue(ChemicalReactorBlock.ACTIVE, blockEntity.active), Block.UPDATE_CLIENTS);
         }
 
         if (changed) {
-            blockEntity.onContentsChanged();
+            be.onContentsChanged();
+        }
+    }
+
+    private boolean runTransferWithoutReset(BooleanSupplier action) {
+        this.suppressTransferModeReset = true;
+        try {
+            return action.getAsBoolean();
+        } finally {
+            this.suppressTransferModeReset = false;
+        }
+    }
+
+    private void resetTransferLockForSlot(int slot) {
+        switch (slot) {
+            case SLOT_PRIMARY_GAS_TRANSFER -> this.gasInputLocks.reset(0);
+            case SLOT_SECONDARY_GAS_TRANSFER -> this.gasInputLocks.reset(1);
+            case SLOT_SECONDARY_FLUID_TRANSFER -> this.fluidInputLocks.reset(0);
+            default -> {
+            }
         }
     }
 
@@ -299,12 +352,16 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
         }
 
         if (this.burnTimeRemaining <= 0 && this.heat < 300) {
-            ItemStack fuel = this.itemHandler.getStackInSlot(FUEL_SLOT);
-            if (fuel.is(Items.CHARCOAL)) {
-                fuel.shrink(1);
-                this.itemHandler.setStackInSlot(FUEL_SLOT, fuel);
-                this.burnTimeTotal = CHARCOAL_BURN_TIME;
-                this.burnTimeRemaining = CHARCOAL_BURN_TIME;
+            MachineFuelUtil.FuelUse fuelUse = MachineFuelUtil.consumeOne(
+                    this.itemStacks.get(SLOT_FUEL),
+                    this.level,
+                    CHARCOAL_FUEL
+            );
+
+            if (fuelUse.consumed()) {
+                this.itemStacks.set(SLOT_FUEL, fuelUse.remainingStack());
+                this.burnTimeTotal = fuelUse.burnTime();
+                this.burnTimeRemaining = fuelUse.burnTime();
                 changed = true;
             }
         }
@@ -326,20 +383,20 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
     }
 
     private Optional<RecipeHolder<ChemicalReactorRecipe>> findMatchingRecipe() {
-        if (this.level == null || this.level.isClientSide()) {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
             return Optional.empty();
         }
 
         ChemicalReactorRecipeInput input = new ChemicalReactorRecipeInput(
                 this.primaryGasTank.getGasInTank(0),
                 this.secondaryGasTank.getGasInTank(0),
-                this.getSecondaryFluid()
+                this.fluidStacks.get(SECONDARY_FLUID_TANK).copy()
         );
 
-        return ((ServerLevel) this.level).recipeAccess().getRecipeFor(
+        return serverLevel.recipeAccess().getRecipeFor(
                 ModRecipeTypes.CHEMICAL_REACTOR.get(),
                 input,
-                this.level
+                serverLevel
         );
     }
 
@@ -373,38 +430,35 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
             return recipe.outputAmount() <= FLUID_TANK_CAPACITY;
         }
 
-        if (!existing.is(outputFluid)) {
-            return false;
-        }
-
-        return existing.getAmount() + recipe.outputAmount() <= FLUID_TANK_CAPACITY;
+        return existing.is(outputFluid) && existing.getAmount() + recipe.outputAmount() <= FLUID_TANK_CAPACITY;
     }
 
     private int getProgressPerTick(ChemicalReactorRecipe recipe) {
-        int progress = 1;
+        int progressPerTick = 1;
+
+        if (this.heat >= 800) {
+            progressPerTick = 4;
+        } else if (this.heat >= 500) {
+            progressPerTick = 3;
+        } else if (this.heat >= 200) {
+            progressPerTick = 2;
+        }
 
         if (this.heat < recipe.minHeat()) {
-            progress = 1;
-        } else if (this.heat >= 800) {
-            progress = 4;
-        } else if (this.heat >= 500) {
-            progress = 3;
-        } else if (this.heat >= 200) {
-            progress = 2;
+            progressPerTick = 1;
         }
 
         if (this.manualEnergy > 0) {
-            progress += 1;
+            progressPerTick += 1;
         }
 
-        return progress;
+        return progressPerTick;
     }
 
     private void processRecipe(ChemicalReactorRecipe recipe) {
         this.primaryGasTank.drain(recipe.primaryGas().amount(), false);
-
         recipe.secondaryGas().ifPresent(req -> this.secondaryGasTank.drain(req.amount(), false));
-        recipe.secondaryFluid().ifPresent(req -> this.removeFluidFromTank(SECONDARY_FLUID_TANK, req.amount()));
+        recipe.secondaryFluid().ifPresent(req -> this.secondaryFluidTank.extract(req.amount(), false));
 
         if (recipe.outputKind() == ReactorOutputKind.GAS) {
             GasType outputType = ModGases.get(recipe.outputId());
@@ -412,56 +466,15 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
                 this.gasOutputTank.fill(GasStack.of(outputType, recipe.outputAmount()), false);
             }
         } else {
-            Fluid fluid = BuiltInRegistries.FLUID.getValue(recipe.outputId());
-            if (fluid != Fluids.EMPTY) {
-                this.addFluidToTank(OUTPUT_FLUID_TANK, new FluidStack(fluid, recipe.outputAmount()));
+            Fluid output = BuiltInRegistries.FLUID.getValue(recipe.outputId());
+            if (output != Fluids.EMPTY) {
+                this.outputFluidTank.insert(new FluidStack(output, recipe.outputAmount()), false);
             }
         }
 
         if (recipe.heatDrain() > 0) {
             this.heat = Math.max(0, this.heat - recipe.heatDrain());
         }
-    }
-
-    private void addFluidToTank(int tank, FluidStack toAdd) {
-        if (toAdd.isEmpty()) {
-            return;
-        }
-
-        FluidStack existing = this.fluidStacks.get(tank);
-        if (existing.isEmpty()) {
-            this.fluidStacks.set(tank, toAdd.copyWithAmount(Math.min(FLUID_TANK_CAPACITY, toAdd.getAmount())));
-            this.onFluidContentsChanged();
-            return;
-        }
-
-        if (!FluidStack.isSameFluidSameComponents(existing, toAdd)) {
-            return;
-        }
-
-        int newAmount = Math.min(FLUID_TANK_CAPACITY, existing.getAmount() + toAdd.getAmount());
-        this.fluidStacks.set(tank, existing.copyWithAmount(newAmount));
-        this.onFluidContentsChanged();
-    }
-
-    private void removeFluidFromTank(int tank, int amount) {
-        if (amount <= 0) {
-            return;
-        }
-
-        FluidStack existing = this.fluidStacks.get(tank);
-        if (existing.isEmpty()) {
-            return;
-        }
-
-        int remaining = existing.getAmount() - amount;
-        if (remaining <= 0) {
-            this.fluidStacks.set(tank, FluidStack.EMPTY);
-        } else {
-            this.fluidStacks.set(tank, existing.copyWithAmount(remaining));
-        }
-
-        this.onFluidContentsChanged();
     }
 
     public void addManualEnergy(int amount) {
@@ -472,15 +485,7 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
         }
     }
 
-    public SimpleContainer getDropInventory() {
-        for (int i = 0; i < ITEM_SLOTS; i++) {
-            this.dropInventory.setItem(i, this.itemHandler.getStackInSlot(i));
-        }
-        return this.dropInventory;
-    }
-
-    @SuppressWarnings("removal")
-    public IItemHandler getItemHandler(@Nullable Direction side) {
+    public ItemStacksResourceHandler getItemHandler(@Nullable Direction side) {
         return this.itemHandler;
     }
 
@@ -489,7 +494,7 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
     }
 
     public IGasHandler getGasHandler(@Nullable Direction side) {
-        return this.gasHandler;
+        return this.automationGasHandler;
     }
 
     public ContainerData getData() {
@@ -507,135 +512,97 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
         return new ChemicalReactorMenu(
                 containerId,
                 playerInventory,
-                new ReactorFuelContainer(),
+                this.itemHandler,
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition),
                 this.worldPosition
         );
     }
 
-    private class ReactorFuelContainer extends SimpleContainer {
-        public ReactorFuelContainer() {
-            super(ITEM_SLOTS);
-            this.setItem(FUEL_SLOT, itemHandler.getStackInSlot(FUEL_SLOT));
+    private final class ReactorItemHandler extends ItemStacksResourceHandler {
+        private ReactorItemHandler(int size) {
+            super(size);
+        }
+
+        protected NonNullList<ItemStack> list() {
+            return this.stacks;
         }
 
         @Override
-        public void setChanged() {
-            super.setChanged();
-            itemHandler.setStackInSlot(FUEL_SLOT, this.getItem(FUEL_SLOT));
+        protected void onContentsChanged(int slot, ItemStack previousStack) {
+            if (!suppressTransferModeReset) {
+                resetTransferLockForSlot(slot);
+            }
             ChemicalReactorBlockEntity.this.onContentsChanged();
         }
+    }
+
+    private final class ReactorFluidHandler extends FluidStacksResourceHandler {
+        private ReactorFluidHandler() {
+            super(2, FLUID_TANK_CAPACITY);
+        }
+
+        protected NonNullList<FluidStack> list() {
+            return this.stacks;
+        }
 
         @Override
-        public boolean canPlaceItem(int index, ItemStack stack) {
-            return index == FUEL_SLOT && stack.is(Items.CHARCOAL);
+        public boolean isValid(int index, FluidResource resource) {
+            return index == SECONDARY_FLUID_TANK && !resource.isEmpty();
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (index != SECONDARY_FLUID_TANK) {
+                return 0;
+            }
+            return super.insert(index, resource, amount, transaction);
+        }
+
+        @Override
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (index != OUTPUT_FLUID_TANK) {
+                return 0;
+            }
+            return super.extract(index, resource, amount, transaction);
+        }
+
+        @Override
+        protected void onContentsChanged(int index, FluidStack previousStack) {
+            ChemicalReactorBlockEntity.this.onContentsChanged();
         }
     }
 
-    public long getPrimaryGasAmount() {
-        return this.primaryGasTank.getAmount();
+    private void onContentsChanged() {
+        MachineSync.syncAndInvalidateCaps(this);
     }
 
-    public long getSecondaryGasAmount() {
-        return this.secondaryGasTank.getAmount();
-    }
+    @Nullable
+    private static GasType readGasType(ValueInput input, String key) {
+        String raw = input.getStringOr(key, "");
+        if (raw.isBlank()) {
+            return null;
+        }
 
-    public int getSecondaryFluidAmount() {
-        return this.fluidStacks.get(SECONDARY_FLUID_TANK).getAmount();
-    }
-
-    public long getOutputGasAmount() {
-        return this.gasOutputTank.getAmount();
-    }
-
-    public int getOutputFluidAmount() {
-        return this.fluidStacks.get(OUTPUT_FLUID_TANK).getAmount();
-    }
-
-    public GasStack getPrimaryGas() {
-        return this.primaryGasTank.getGasInTank(0);
-    }
-
-    public GasStack getSecondaryGas() {
-        return this.secondaryGasTank.getGasInTank(0);
-    }
-
-    public FluidStack getSecondaryFluid() {
-        return this.fluidStacks.get(SECONDARY_FLUID_TANK).copy();
-    }
-
-    public GasStack getOutputGas() {
-        return this.gasOutputTank.getGasInTank(0);
-    }
-
-    public FluidStack getOutputFluid() {
-        return this.fluidStacks.get(OUTPUT_FLUID_TANK).copy();
-    }
-
-    public boolean isSecondaryFluidMode() {
-        return this.secondaryFluidMode;
-    }
-
-    public boolean isOutputFluidMode() {
-        return this.outputFluidMode;
-    }
-
-    public int getScaledPrimaryGas(int pixels) {
-        return (int) (this.primaryGasTank.getAmount() * pixels / GAS_TANK_CAPACITY);
-    }
-
-    public int getScaledSecondaryGas(int pixels) {
-        return (int) (this.secondaryGasTank.getAmount() * pixels / GAS_TANK_CAPACITY);
-    }
-
-    public int getScaledSecondaryFluid(int pixels) {
-        return this.getSecondaryFluidAmount() * pixels / FLUID_TANK_CAPACITY;
-    }
-
-    public int getScaledOutputGas(int pixels) {
-        return (int) (this.gasOutputTank.getAmount() * pixels / GAS_TANK_CAPACITY);
-    }
-
-    public int getScaledOutputFluid(int pixels) {
-        return this.getOutputFluidAmount() * pixels / FLUID_TANK_CAPACITY;
-    }
-
-    public int getPrimaryGasColor() {
-        return getGasColor(this.primaryGasTank.getGasType());
-    }
-
-    public int getSecondaryGasColor() {
-        return getGasColor(this.secondaryGasTank.getGasType());
-    }
-
-    public int getOutputGasColor() {
-        return getGasColor(this.gasOutputTank.getGasType());
-    }
-
-    public String getPrimaryGasName() {
-        return getGasName(this.primaryGasTank.getGasType());
-    }
-
-    public String getSecondaryGasName() {
-        return getGasName(this.secondaryGasTank.getGasType());
-    }
-
-    public String getOutputGasName() {
-        return getGasName(this.gasOutputTank.getGasType());
-    }
-
-    private static int getGasColor(GasType gasType) {
-        return gasType == null ? 0 : gasType.tint();
-    }
-
-    private static String getGasName(GasType gasType) {
-        return gasType == null ? "empty" : gasType.name();
+        ResourceLocation id = ResourceLocation.tryParse(raw);
+        return id == null ? null : ModGases.get(id);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+
+        for (int i = 0; i < this.itemStacks.size(); i++) {
+            this.itemStacks.set(i, ItemStack.EMPTY);
+        }
+
+        for (ValueInput child : input.childrenListOrEmpty("items")) {
+            int slot = child.getIntOr("slot", -1);
+            ItemStack stack = child.read("stack", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+            if (slot >= 0 && slot < this.itemStacks.size()) {
+                this.itemStacks.set(slot, stack);
+            }
+        }
 
         this.burnTimeRemaining = input.getIntOr("BurnTimeRemaining", 0);
         this.burnTimeTotal = input.getIntOr("BurnTimeTotal", 0);
@@ -647,23 +614,13 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
         this.secondaryFluidMode = input.getBooleanOr("SecondaryFluidMode", false);
         this.outputFluidMode = input.getBooleanOr("OutputFluidMode", true);
 
-        ContainerHelper.loadAllItems(input, this.items);
-        for (int i = 0; i < ITEM_SLOTS; i++) {
-            this.itemHandler.setStackInSlot(i, this.items.get(i));
-            this.dropInventory.setItem(i, this.items.get(i));
-        }
+        GasType primaryGas = readGasType(input, "PrimaryGas");
+        GasType secondaryGas = readGasType(input, "SecondaryGas");
+        GasType outputGas = readGasType(input, "OutputGas");
 
-        ResourceLocation primaryGasId = ResourceLocation.tryParse(input.getStringOr("PrimaryGas", ""));
-        ResourceLocation secondaryGasId = ResourceLocation.tryParse(input.getStringOr("SecondaryGas", ""));
-        ResourceLocation outputGasId = ResourceLocation.tryParse(input.getStringOr("OutputGas", ""));
-
-        GasType primaryGas = primaryGasId == null ? null : ModGases.get(primaryGasId);
-        GasType secondaryGas = secondaryGasId == null ? null : ModGases.get(secondaryGasId);
-        GasType outputGas = outputGasId == null ? null : ModGases.get(outputGasId);
-
-        this.primaryGasTank.loadStored(primaryGas, primaryGas == null ? 0 : input.getLongOr("PrimaryGasAmount", 0));
-        this.secondaryGasTank.loadStored(secondaryGas, secondaryGas == null ? 0 : input.getLongOr("SecondaryGasAmount", 0));
-        this.gasOutputTank.loadStored(outputGas, outputGas == null ? 0 : input.getLongOr("OutputGasAmount", 0));
+        this.primaryGasTank.loadStored(primaryGas, input.getLongOr("PrimaryGasAmount", 0));
+        this.secondaryGasTank.loadStored(secondaryGas, input.getLongOr("SecondaryGasAmount", 0));
+        this.gasOutputTank.loadStored(outputGas, input.getLongOr("OutputGasAmount", 0));
 
         this.fluidStacks.set(
                 SECONDARY_FLUID_TANK,
@@ -673,11 +630,27 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
                 OUTPUT_FLUID_TANK,
                 input.read("OutputFluid", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY)
         );
+
+        this.gasInputLocks.resetAll();
+        this.fluidInputLocks.resetAll();
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+
+        ValueOutput.ValueOutputList itemList = output.childrenList("items");
+        for (int i = 0; i < this.itemStacks.size(); i++) {
+            ItemStack stack = this.itemStacks.get(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            ValueOutput child = itemList.addChild();
+            child.putInt("slot", i);
+            child.store("stack", ItemStack.CODEC, stack);
+        }
+
         output.putInt("BurnTimeRemaining", this.burnTimeRemaining);
         output.putInt("BurnTimeTotal", this.burnTimeTotal);
         output.putInt("Heat", this.heat);
@@ -687,11 +660,6 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
         output.putBoolean("Active", this.active);
         output.putBoolean("SecondaryFluidMode", this.secondaryFluidMode);
         output.putBoolean("OutputFluidMode", this.outputFluidMode);
-
-        for (int i = 0; i < ITEM_SLOTS; i++) {
-            this.items.set(i, this.itemHandler.getStackInSlot(i));
-        }
-        ContainerHelper.saveAllItems(output, this.items);
 
         GasType primaryGas = this.primaryGasTank.getGasType();
         GasType secondaryGas = this.secondaryGasTank.getGasType();
@@ -718,23 +686,5 @@ public class ChemicalReactorBlockEntity extends BlockEntity implements MenuProvi
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    private void onFluidContentsChanged() {
-        this.setChanged();
-
-        if (this.level != null && !this.level.isClientSide()) {
-            BlockState state = this.getBlockState();
-            this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_CLIENTS);
-        }
-    }
-
-    private void onContentsChanged() {
-        this.setChanged();
-
-        if (this.level != null && !this.level.isClientSide()) {
-            BlockState state = this.getBlockState();
-            this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_CLIENTS);
-        }
     }
 }

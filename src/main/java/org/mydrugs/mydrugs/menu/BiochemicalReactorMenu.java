@@ -16,6 +16,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.BiochemicalReactorBlockEntity;
+import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
 import org.mydrugs.mydrugs.menu.layout.BiochemicalReactorLayout;
 
 public class BiochemicalReactorMenu extends AbstractMachineMenu {
@@ -105,7 +106,7 @@ public class BiochemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return BiochemicalReactorBlockEntity.isFluidContainer(stack);
+                return MachineItemUtil.isFluidContainer(stack);
             }
 
             @Override
@@ -253,7 +254,7 @@ public class BiochemicalReactorMenu extends AbstractMachineMenu {
                             false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (BiochemicalReactorBlockEntity.isFluidContainer(rawStack)) {
+                } else if (MachineItemUtil.isFluidContainer(rawStack)) {
                     if (!this.moveItemStackTo(rawStack,
                             OUTPUT_CONTAINER_SLOT,
                             OUTPUT_CONTAINER_SLOT + 1,
