@@ -131,8 +131,9 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
         String status = this.menu.isWorking() ? "Processing" : "Idle";
-        graphics.drawString(this.font, status, 58, 22, 0xFFB5BAC5, false);
+        graphics.drawString(this.font, status, 58, BiochemicalReactorLayout.PROGRESS_Y - 10, 0xFFB5BAC5, false);
     }
 
     @Override

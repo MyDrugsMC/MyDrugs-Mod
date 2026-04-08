@@ -6,7 +6,7 @@
   },
   "fluid_input_2": {
     "fluid": "mydrugs:ammoniac",
-    "amount": 500
+    "amount": 300
   },
   "result_fluid": {
     "fluid": "mydrugs:diethylamine",

@@ -4,11 +4,11 @@
   "item_2": "mydrugs:malt",
   "fluid_input_1": {
     "fluid": "minecraft:water",
-    "amount": 1000
+    "amount": 150
   },
   "result_fluid": {
     "fluid": "mydrugs:amino_acid",
-    "amount": 150
+    "amount": 200
   },
   "required_stirs": 3
 }

@@ -9,7 +9,7 @@
     "amount": 250
   },
   "output_kind": "gas",
-  "output_id": "mydrugs:reactive",
+  "output_id": "mydrugs:sulfur_oxide",
   "output_amount": 400,
   "process_time": 180,
   "min_heat": 400,

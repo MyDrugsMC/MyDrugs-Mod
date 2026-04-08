@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:crack",
+  "input_amount": 1000,
+  "result": {
+    "id": "mydrugs:crack_plate",
+    "count": 1
+  },
+  "processing_time": 200
+}

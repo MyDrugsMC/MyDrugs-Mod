@@ -8,6 +8,11 @@ import org.mydrugs.mydrugs.menu.ChemicalReactorMenu;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
 public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactorMenu> {
+    private static final int PANEL_COLOR = 0xFF323232;
+    private static final int DIVIDER_COLOR = 0xFF4A4A4A;
+    private static final int TITLE_COLOR = 0xFFE0E0E0;
+    private static final int LABEL_COLOR = 0xFFB8B8B8;
+
     public ChemicalReactorScreen(ChemicalReactorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, ChemicalReactorLayout.GUI_WIDTH, ChemicalReactorLayout.GUI_HEIGHT);
     }
@@ -22,8 +27,11 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                 ChemicalReactorLayout.MACHINE_PANEL_Y,
                 ChemicalReactorLayout.MACHINE_PANEL_W,
                 ChemicalReactorLayout.MACHINE_PANEL_H,
-                0xFF323232
+                PANEL_COLOR
         );
+
+        //drawSectionDivider(graphics, ChemicalReactorLayout.INPUT_SECTION_DIVIDER_X);
+        //drawSectionDivider(graphics, ChemicalReactorLayout.OUTPUT_SECTION_DIVIDER_X);
 
         drawSieveInventoryPanels(
                 graphics,
@@ -31,48 +39,16 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                 ChemicalReactorLayout.PLAYER_INV_Y
         );
 
-        drawTankFrame(
-                graphics,
-                ChemicalReactorLayout.PRIMARY_GAS_TANK_X,
-                ChemicalReactorLayout.PRIMARY_GAS_TANK_Y,
-                ChemicalReactorLayout.TANK_W,
-                ChemicalReactorLayout.TANK_H,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                ChemicalReactorLayout.SECONDARY_TANK_X,
-                ChemicalReactorLayout.SECONDARY_TANK_Y,
-                ChemicalReactorLayout.TANK_W,
-                ChemicalReactorLayout.TANK_H,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                ChemicalReactorLayout.OUTPUT_TANK_X,
-                ChemicalReactorLayout.OUTPUT_TANK_Y,
-                ChemicalReactorLayout.TANK_W,
-                ChemicalReactorLayout.TANK_H,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H
-        );
+        renderTanks(graphics);
+        renderSlots0(graphics);
+        renderBars(graphics);
+    }
 
-        drawTankFillShaded(
+    private void renderTanks(GuiGraphics graphics) {
+        renderTank(
                 graphics,
                 ChemicalReactorLayout.PRIMARY_GAS_TANK_X,
                 ChemicalReactorLayout.PRIMARY_GAS_TANK_Y,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H,
                 this.menu.getScaledPrimaryGas(ChemicalReactorLayout.TANK_INNER_H),
                 this.menu.getPrimaryGasColor()
         );
@@ -85,14 +61,10 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                 ? getFluidColor(this.menu.getSecondaryFluid())
                 : this.menu.getSecondaryGasColor();
 
-        drawTankFillShaded(
+        renderTank(
                 graphics,
                 ChemicalReactorLayout.SECONDARY_TANK_X,
                 ChemicalReactorLayout.SECONDARY_TANK_Y,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H,
                 secondaryPixels,
                 secondaryColor
         );
@@ -105,25 +77,56 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                 ? getFluidColor(this.menu.getOutputFluid())
                 : this.menu.getOutputGasColor();
 
-        drawTankFillShaded(
+        renderTank(
                 graphics,
                 ChemicalReactorLayout.OUTPUT_TANK_X,
                 ChemicalReactorLayout.OUTPUT_TANK_Y,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H,
                 outputPixels,
                 outputColor
         );
+    }
 
+    private void renderTank(GuiGraphics graphics, int x, int y, int filledPixels, int color) {
+        drawTankFrame(
+                graphics,
+                x,
+                y,
+                ChemicalReactorLayout.TANK_W,
+                ChemicalReactorLayout.TANK_H,
+                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
+                ChemicalReactorLayout.TANK_INNER_W,
+                ChemicalReactorLayout.TANK_INNER_H
+        );
+
+        if (filledPixels > 0) {
+            drawTankFillShaded(
+                    graphics,
+                    x,
+                    y,
+                    ChemicalReactorLayout.TANK_INNER_X_OFFSET,
+                    ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
+                    ChemicalReactorLayout.TANK_INNER_W,
+                    ChemicalReactorLayout.TANK_INNER_H,
+                    filledPixels,
+                    color
+            );
+        }
+    }
+
+    private void renderSlots0(GuiGraphics graphics) {
         drawSlotFrame(graphics, ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y);
-        drawSlotFrame(graphics, primaryTransferSlotX(), transferSlotY());
-        drawSlotFrame(graphics, secondaryTransferSlotX(), transferSlotY());
-        drawSlotFrame(graphics, secondaryTransferSlotX(), transferSlotY() + 20);
-        drawSlotFrame(graphics, outputTransferSlotX(), transferSlotY());
-        drawSlotFrame(graphics, outputTransferSlotX(), transferSlotY() + 20);
 
+        drawSlotFrame(graphics, ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
+
+        drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
+        drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
+
+        drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
+        drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
+    }
+
+    private void renderBars(GuiGraphics graphics) {
         drawHorizontalBar(
                 graphics,
                 ChemicalReactorLayout.PROGRESS_X,
@@ -177,9 +180,55 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
         );
     }
 
+    private void drawSectionDivider(GuiGraphics graphics, int x) {
+        graphics.fill(
+                x,
+                ChemicalReactorLayout.DIVIDER_Y,
+                x + 1,
+                ChemicalReactorLayout.DIVIDER_Y + ChemicalReactorLayout.DIVIDER_H,
+                DIVIDER_COLOR
+        );
+    }
+
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, 0xE0E0E0, false);
+        drawCenteredLabel(graphics, this.title, ChemicalReactorLayout.GUI_WIDTH / 2, 6, TITLE_COLOR);
+
+        drawCenteredLabel(
+                graphics,
+                Component.literal("Input A"),
+                ChemicalReactorLayout.PRIMARY_GAS_TANK_X + ChemicalReactorLayout.TANK_W / 2,
+                ChemicalReactorLayout.LABEL_Y,
+                LABEL_COLOR
+        );
+
+        drawCenteredLabel(
+                graphics,
+                Component.literal("Input B"),
+                ChemicalReactorLayout.SECONDARY_TANK_X + ChemicalReactorLayout.TANK_W / 2,
+                ChemicalReactorLayout.LABEL_Y,
+                LABEL_COLOR
+        );
+
+        drawCenteredLabel(
+                graphics,
+                Component.literal("Process"),
+                ChemicalReactorLayout.PROGRESS_X + ChemicalReactorLayout.PROGRESS_W / 2,
+                ChemicalReactorLayout.LABEL_Y + 6,
+                LABEL_COLOR
+        );
+
+        drawCenteredLabel(
+                graphics,
+                Component.literal("Output"),
+                ChemicalReactorLayout.OUTPUT_TANK_X + ChemicalReactorLayout.TANK_W / 2,
+                ChemicalReactorLayout.LABEL_Y,
+                LABEL_COLOR
+        );
+    }
+
+    private void drawCenteredLabel(GuiGraphics graphics, Component text, int centerX, int y, int color) {
+        graphics.drawString(this.font, text, centerX - this.font.width(text) / 2, y, color, false);
     }
 
     @Override
@@ -189,7 +238,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Primary gas"),
+                    Component.literal("Primary input gas"),
                     Component.literal(this.menu.getPrimaryGasName()),
                     Component.literal(this.menu.getPrimaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
             );
@@ -199,7 +248,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Secondary fluid"),
+                        Component.literal("Secondary input fluid"),
                         Component.literal(getFluidName(this.menu.getSecondaryFluid())),
                         Component.literal(this.menu.getSecondaryFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -208,7 +257,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Secondary gas"),
+                        Component.literal("Secondary input gas"),
                         Component.literal(this.menu.getSecondaryGasName()),
                         Component.literal(this.menu.getSecondaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
                 );
@@ -266,21 +315,5 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     Component.literal(this.menu.getManualEnergy() + " / " + this.menu.getMaxManualEnergy())
             );
         }
-    }
-
-    private static int transferSlotY() {
-        return ChemicalReactorLayout.PRIMARY_GAS_TANK_Y + ChemicalReactorLayout.TANK_H + 6;
-    }
-
-    private static int primaryTransferSlotX() {
-        return ChemicalReactorLayout.PRIMARY_GAS_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
-    }
-
-    private static int secondaryTransferSlotX() {
-        return ChemicalReactorLayout.SECONDARY_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
-    }
-
-    private static int outputTransferSlotX() {
-        return ChemicalReactorLayout.OUTPUT_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.CentrifugeMenu;
 import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
+import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
 public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
     private InvisibleButton dumpInputButton;
@@ -203,6 +204,7 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawCenteredString(this.font, this.title, CentrifugeLayout.GUI_WIDTH / 2, CentrifugeLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
     }
 
     @Override

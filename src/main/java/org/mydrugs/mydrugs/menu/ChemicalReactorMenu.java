@@ -90,7 +90,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
                 itemHandler,
                 itemHandler::set,
                 SLOT_PRIMARY_GAS_TRANSFER,
-                primaryTransferSlotX(),
+                ChemicalReactorLayout.PRIMARY_GAS_TANK_X,
                 transferSlotY()
         ) {
             @Override
@@ -108,7 +108,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
                 itemHandler,
                 itemHandler::set,
                 SLOT_SECONDARY_GAS_TRANSFER,
-                secondaryTransferSlotX(),
+                ChemicalReactorLayout.SECONDARY_TANK_X,
                 transferSlotY()
         ) {
             @Override
@@ -126,7 +126,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
                 itemHandler,
                 itemHandler::set,
                 SLOT_SECONDARY_FLUID_TRANSFER,
-                secondaryTransferSlotX(),
+                ChemicalReactorLayout.SECONDARY_TANK_X,
                 transferSlotY() + 20
         ) {
             @Override
@@ -144,7 +144,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
                 itemHandler,
                 itemHandler::set,
                 SLOT_GAS_OUTPUT_TRANSFER,
-                outputTransferSlotX(),
+                ChemicalReactorLayout.OUTPUT_TANK_X,
                 transferSlotY()
         ) {
             @Override
@@ -162,7 +162,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
                 itemHandler,
                 itemHandler::set,
                 SLOT_FLUID_OUTPUT_TRANSFER,
-                outputTransferSlotX(),
+                ChemicalReactorLayout.OUTPUT_TANK_X,
                 transferSlotY() + 20
         ) {
             @Override
@@ -387,18 +387,6 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
 
     private static int transferSlotY() {
         return ChemicalReactorLayout.PRIMARY_GAS_TANK_Y + ChemicalReactorLayout.TANK_H + 6;
-    }
-
-    private static int primaryTransferSlotX() {
-        return ChemicalReactorLayout.PRIMARY_GAS_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
-    }
-
-    private static int secondaryTransferSlotX() {
-        return ChemicalReactorLayout.SECONDARY_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
-    }
-
-    private static int outputTransferSlotX() {
-        return ChemicalReactorLayout.OUTPUT_TANK_X + (ChemicalReactorLayout.TANK_W - 18) / 2;
     }
 
     @Override

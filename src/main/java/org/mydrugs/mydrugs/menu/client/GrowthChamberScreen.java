@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.GrowthChamberMenu;
+import org.mydrugs.mydrugs.menu.layout.GasifierLayout;
 import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
 public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu> {
@@ -86,7 +87,8 @@ public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, Component.literal("Water"), 16, 15, 0xFF9BB2D1, false);
+        graphics.drawCenteredString(this.font, this.title, GrowthChamberLayout.GUI_WIDTH / 2, GrowthChamberLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawString(this.font, Component.literal("Water"), 16, GrowthChamberLayout.WATER_TANK_Y - 10, 0xFF9BB2D1, false);
         graphics.drawString(this.font, Component.literal("Growing"), GrowthChamberLayout.GROWTH_PROGRESS_X, GrowthChamberLayout.GROWTH_PROGRESS_Y - 10, 0xFFA9D8AC, false);
         graphics.drawString(this.font, Component.literal("Maturing"), GrowthChamberLayout.MATURE_PROGRESS_X, GrowthChamberLayout.MATURE_PROGRESS_Y - 10, 0xFFD7B78E, false);
     }

@@ -1,0 +1,21 @@
+{
+  "type": "mydrugs:advanced_mixing_vat",
+  "item_inputs": [
+    "mydrugs:cocaine_dust"
+  ],
+  "fluid_inputs": [
+    {
+      "fluid": "minecraft:water",
+      "amount": 250
+    },
+    {
+      "fluid": "mydrugs:ammoniac",
+      "amount": 250
+    }
+  ],
+  "output": {
+    "fluid": "mydrugs:crack",
+    "amount": 550
+  },
+  "processing_time": 100
+}

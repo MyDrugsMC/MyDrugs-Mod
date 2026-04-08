@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "fluid_input_1": {
+    "fluid": "mydrugs:activated_lysergic_acid",
+    "amount": 1000
+  },
+  "fluid_input_2": {
+    "fluid": "mydrugs:diethylamine",
+    "amount": 500
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:lsd",
+    "amount": 1500
+  },
+  "required_stirs": 3
+}

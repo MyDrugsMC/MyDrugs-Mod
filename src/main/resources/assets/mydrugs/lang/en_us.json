@@ -229,5 +229,16 @@
   "gas.mydrugs.chlorine": "Chlorine",
   "gas.mydrugs.hydrochloric": "Hydrochloric Gas",
   "gas.mydrugs.reactive": "Reactive Gas",
-  "gas.mydrugs.sulfur": "Sulfur Gas"
+  "gas.mydrugs.sulfur": "Sulfur Gas",
+  "gas.mydrugs.air": "Air",
+  "block.mydrugs.acylating_agent": "Acylating Agent",
+  "block.mydrugs.sulfur_compound": "Sulfur Compound",
+  "fluid_type.mydrugs.acylating_agent": "Acylating Agent",
+  "fluid_type.mydrugs.acylating_agent_type": "Acylating Agent",
+  "fluid_type.mydrugs.sulfur_compound": "Sulfur Compound",
+  "fluid_type.mydrugs.sulfur_compound_type": "Sulfur Compound",
+  "item.mydrugs.acylating_agent_bucket": "Acylating Agent Bucket",
+  "item.mydrugs.sulfur_compound_bucket": "Sulfur Compound Bucket",
+  "container.mydrugs.growth_chamber": "Growth Chamber",
+  "container.mydrugs.centrifuge": "Centrifuge"
 }

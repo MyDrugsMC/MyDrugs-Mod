@@ -3,6 +3,8 @@ package org.mydrugs.mydrugs.blocks.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,10 +15,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.gas.GasTank;
-import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.IGasHandler;
-import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.gas.*;
+import org.mydrugs.mydrugs.registry.ModDataComponents;
 
 public class GasTankBlockEntity extends BlockEntity {
     private final GasTank gasTank = new GasTank(
@@ -35,6 +35,33 @@ public class GasTankBlockEntity extends BlockEntity {
 
     public GasTank getTank() {
         return gasTank;
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter input) {
+        super.applyImplicitComponents(input);
+
+        GasTankContents contents = input.getOrDefault(
+                ModDataComponents.GAS_TANK_CONTENTS.get(),
+                GasTankContents.EMPTY
+        );
+
+        GasType gas = ModGases.getNullable(contents.gasId());
+        gasTank.loadStored(gas, contents.amount());
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+
+        GasType gas = gasTank.getGasType();
+        builder.set(
+                ModDataComponents.GAS_TANK_CONTENTS.get(),
+                new GasTankContents(
+                        gas == null ? "" : gas.id().toString(),
+                        gasTank.getAmount()
+                )
+        );
     }
 
     private void onGasChanged() {

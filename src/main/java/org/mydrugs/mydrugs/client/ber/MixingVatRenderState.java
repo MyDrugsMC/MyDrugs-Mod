@@ -14,9 +14,6 @@ public class MixingVatRenderState extends BlockEntityRenderState {
             new ItemStackRenderState()
     };
 
-    public final ItemStackRenderState spatula = new ItemStackRenderState();
-
-
     public Fluid fluid = Fluids.EMPTY;
     public float fluidRatio;
     public boolean hasFluid;

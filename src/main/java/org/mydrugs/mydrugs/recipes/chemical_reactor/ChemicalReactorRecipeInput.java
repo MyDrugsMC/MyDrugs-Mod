@@ -17,6 +17,11 @@ public record ChemicalReactorRecipeInput(
 
     @Override
     public int size() {
-        return 0;
+        return 1;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return primaryGas.isEmpty() && secondaryGas.isEmpty() && secondaryFluid.isEmpty();
     }
 }

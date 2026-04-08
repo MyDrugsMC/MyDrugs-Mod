@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.registry.ModDataComponents;
 
 public class GasTankItemHandler implements IGasHandler {
-    public static final long CAPACITY = 4_000; // change to 4 if you literally want 4 mB
+    public static final long CAPACITY = 8_000; // change to 4 if you literally want 4 mB
 
     private final ItemStack stack;
 

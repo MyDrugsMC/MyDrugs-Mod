@@ -169,10 +169,13 @@ public class ModItems {
             ITEMS.registerSimpleItem("filter");
 
     public static final DeferredItem<Item> COCAINE_DUST =
-            ITEMS.registerItem("cocaine_dust", prop -> new HashPieceItem(prop, DrugId.COCAINE, new SniffingStrategy()));
+            ITEMS.registerItem("cocaine_dust", prop -> new CocaineDustItem(prop, DrugId.COCAINE, new SniffingStrategy()));
 
     public static final DeferredItem<Item> CRACK_SHARD =
-            ITEMS.registerItem("crack_shard", prop -> new HashPieceItem(prop, DrugId.CRACK, new SmokingStrategy(true, false)));
+            ITEMS.registerItem("crack_shard", prop -> new CrackShardItem(prop, DrugId.CRACK, new SmokingStrategy(true, false)));
+
+    public static final DeferredItem<Item> CRACK_PLATE =
+            ITEMS.registerSimpleItem("crack_plate");
 
     public static final DeferredItem<Item> GLASS_BOTTLE =
             ITEMS.registerItem("glass_bottle",

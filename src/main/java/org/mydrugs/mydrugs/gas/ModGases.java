@@ -12,7 +12,7 @@ public final class ModGases {
 
     public static final GasType CHLORINE = register("chlorine", 0xFFD6E86A, true, false);
     public static final GasType HYDROCHLORIC = register("hydrochloric", 0xFFD6E86A, true, false);
-    public static final GasType REACTIVE = register("reactive", 0xFFD6E86A, true, false);
+    public static final GasType SULFUR_OXIDE = register("sulfur_oxide", 0xFFD6E86A, true, false);
     public static final GasType SULFUR = register("sulfur", 0xFFD6E86A, true, false);
     public static final GasType AIR = register("air", 0xFFFFFFFF, false, false);
 

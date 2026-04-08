@@ -26,7 +26,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.MixingVatBlockEntity;
-import org.mydrugs.mydrugs.items.ModItems;
 
 import java.util.List;
 
@@ -36,10 +35,14 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
     private static final float FLUID_FLOOR_Y = 3.02f / 16.0f;
     private static final float FLUID_MAX_Y = 9.70f / 16.0f;
 
+    // Put a texture at assets/mydrugs/textures/block/mixing_arm.png
+    private static final Material MIXING_ARM_MATERIAL = new Material(
+            TextureAtlas.LOCATION_BLOCKS,
+            ResourceLocation.fromNamespaceAndPath("mydrugs", "block/mixing_arm")
+    );
+
     private final ItemModelResolver itemModelResolver;
     private final MaterialSet materials;
-    private final ItemStack spatulaStack = new ItemStack(ModItems.MIXING_SPATULA.get());
-
 
     public MixingVatRenderer(BlockEntityRendererProvider.Context context) {
         this.itemModelResolver = context.itemModelResolver();
@@ -95,6 +98,81 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                 .setNormal(pose, nx, ny, nz);
     }
 
+    private static void addTexturedBox(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            int light,
+            int color,
+            float minX, float minY, float minZ,
+            float maxX, float maxY, float maxZ
+    ) {
+        float u0 = sprite.getU0();
+        float u1 = sprite.getU1();
+        float v0 = sprite.getV0();
+        float v1 = sprite.getV1();
+
+        // bottom
+        addQuadDoubleSided(
+                consumer, pose, light, color,
+                minX, minY, maxZ, u0, v0,
+                maxX, minY, maxZ, u1, v0,
+                maxX, minY, minZ, u1, v1,
+                minX, minY, minZ, u0, v1,
+                0.0f, -1.0f, 0.0f
+        );
+
+        // top
+        addQuadDoubleSided(
+                consumer, pose, light, color,
+                minX, maxY, minZ, u0, v0,
+                maxX, maxY, minZ, u1, v0,
+                maxX, maxY, maxZ, u1, v1,
+                minX, maxY, maxZ, u0, v1,
+                0.0f, 1.0f, 0.0f
+        );
+
+        // north
+        addQuadDoubleSided(
+                consumer, pose, light, color,
+                minX, minY, minZ, u0, v1,
+                maxX, minY, minZ, u1, v1,
+                maxX, maxY, minZ, u1, v0,
+                minX, maxY, minZ, u0, v0,
+                0.0f, 0.0f, -1.0f
+        );
+
+        // south
+        addQuadDoubleSided(
+                consumer, pose, light, color,
+                maxX, minY, maxZ, u0, v1,
+                minX, minY, maxZ, u1, v1,
+                minX, maxY, maxZ, u1, v0,
+                maxX, maxY, maxZ, u0, v0,
+                0.0f, 0.0f, 1.0f
+        );
+
+        // west
+        addQuadDoubleSided(
+                consumer, pose, light, color,
+                minX, minY, maxZ, u0, v1,
+                minX, minY, minZ, u1, v1,
+                minX, maxY, minZ, u1, v0,
+                minX, maxY, maxZ, u0, v0,
+                -1.0f, 0.0f, 0.0f
+        );
+
+        // east
+        addQuadDoubleSided(
+                consumer, pose, light, color,
+                maxX, minY, minZ, u0, v1,
+                maxX, minY, maxZ, u1, v1,
+                maxX, maxY, maxZ, u1, v0,
+                maxX, maxY, minZ, u0, v0,
+                1.0f, 0.0f, 0.0f
+        );
+    }
+
     @Override
     public MixingVatRenderState createRenderState() {
         return new MixingVatRenderState();
@@ -116,7 +194,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
 
         renderState.stirPhase = blockEntity.getStirAnimationProgress(partialTick);
         renderState.showSpatula = blockEntity.hasContentsToMix() || renderState.stirPhase > 0.0f;
-
 
         ResourceLocation fluidId = blockEntity.getVisualFluidId();
         if (fluidId != null) {
@@ -161,18 +238,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                         0
                 );
             }
-        }
-
-        renderState.spatula.clear();
-        if (renderState.showSpatula) {
-            this.itemModelResolver.updateForTopItem(
-                    renderState.spatula,
-                    spatulaStack,
-                    ItemDisplayContext.GROUND,
-                    blockEntity.getLevel(),
-                    null,
-                    0
-            );
         }
     }
 
@@ -220,41 +285,54 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
             posIndex++;
         }
 
-        submitSpatula(renderState, poseStack, collector);
+        submitMixerArm(renderState, poseStack, collector);
     }
 
-    private void submitSpatula(MixingVatRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector) {
-        if (!renderState.showSpatula || renderState.spatula.isEmpty()) {
+    private void submitMixerArm(MixingVatRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector) {
+        if (!renderState.showSpatula) {
             return;
         }
 
+        TextureAtlasSprite sprite = this.materials.get(MIXING_ARM_MATERIAL);
+        int light = renderState.lightCoords;
+        int color = 0xFFFFFFFF;
+
         float angle = renderState.stirPhase * 360.0f;
-        float radius = 0.18f;
-//        float y = renderState.hasFluid ? 11.0f / 16.0f : 6.0f / 16.0f;
-        float y = 1.0f;
+
+        // geometry size
+        float length = 0.95f;         // total rod length
+        float halfWidth = 0.06f;      // X half-size
+        float halfThickness = 0.02f;  // Z half-size
+
+        // fixed pivot point at the vat bottom center
+        float pivotX = 0.5f;
+        float pivotY = FLUID_FLOOR_Y + 0.01f;
+        float pivotZ = 0.5f;
 
         poseStack.pushPose();
-        poseStack.translate(0.5f, y, 0.5f);
+        poseStack.translate(pivotX, pivotY, pivotZ);
 
-        // Orbit around the vat center
+        // spin around the vat
         poseStack.mulPose(Axis.YP.rotationDegrees(angle));
-        poseStack.translate(radius, 0.0f, 0.0f);
 
-        // Keep the spatula tangent to the circle
-        poseStack.mulPose(Axis.YP.rotationDegrees(angle + 90.0f));
+        // lean outward so the free end goes outside the vat
+        poseStack.mulPose(Axis.ZP.rotationDegrees(-15.0f));
 
-        // Lay it flat inside the vat
-        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f));
+        // optional twist around its own axis
+        // poseStack.mulPose(Axis.YP.rotationDegrees(90.0f));
 
-        // Make it larger than a normal dropped item
-        poseStack.scale(0.85f, 0.85f, 0.85f);
-
-        renderState.spatula.submit(
+        collector.order(1).submitCustomGeometry(
                 poseStack,
-                collector,
-                renderState.lightCoords,
-                OverlayTexture.NO_OVERLAY,
-                0
+                RenderType.solid(), // use cutout() / cutoutMipped() if your texture needs alpha
+                (pose, consumer) -> addTexturedBox(
+                        consumer,
+                        pose,
+                        sprite,
+                        light,
+                        color,
+                        -halfWidth, 0.0f, -halfThickness,
+                        halfWidth, length, halfThickness
+                )
         );
 
         poseStack.popPose();
@@ -292,7 +370,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                     float v0 = sprite.getV0();
                     float v1 = sprite.getV1();
 
-                    // top
                     addQuadDoubleSided(
                             consumer, pose, light, color,
                             minX, maxY, minZ, u0, v0,
@@ -302,7 +379,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                             0.0f, 1.0f, 0.0f
                     );
 
-                    // north
                     addQuadDoubleSided(
                             consumer, pose, light, color,
                             minX, minY, minZ, u0, v1,
@@ -312,7 +388,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                             0.0f, 0.0f, -1.0f
                     );
 
-                    // south
                     addQuadDoubleSided(
                             consumer, pose, light, color,
                             maxX, minY, maxZ, u0, v1,
@@ -322,7 +397,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                             0.0f, 0.0f, 1.0f
                     );
 
-                    // west
                     addQuadDoubleSided(
                             consumer, pose, light, color,
                             minX, minY, maxZ, u0, v1,
@@ -332,7 +406,6 @@ public class MixingVatRenderer implements BlockEntityRenderer<MixingVatBlockEnti
                             -1.0f, 0.0f, 0.0f
                     );
 
-                    // east
                     addQuadDoubleSided(
                             consumer, pose, light, color,
                             maxX, minY, minZ, u0, v1,

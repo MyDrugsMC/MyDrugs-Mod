@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:crack_plate",
+  "result": {
+    "id": "mydrugs:crack_shard",
+    "count": 3
+  },
+  "work": 3
+}

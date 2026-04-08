@@ -61,6 +61,14 @@ public class GasPumpBlockEntity extends BlockEntity {
 
         if (inputHandler != null) {
             GasTransport.move(inputHandler, be.buffer, 250);
+        } else {
+            // no source block: use ambient air
+            if (be.buffer.getGasType() == null || be.buffer.getGasType() == ModGases.AIR) {
+                long newAmount = Math.min(1_000, be.buffer.getAmount() + 250);
+                be.buffer.loadStored(ModGases.AIR, newAmount);
+                be.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+            }
         }
 
         IGasHandler outputHandler = level.getCapability(

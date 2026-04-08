@@ -31,13 +31,18 @@ public final class CentrifugeLayout {
     public static final int DUMP_OUTPUT_A_X = 144;
     public static final int DUMP_OUTPUT_B_X = 168;
 
+    public static final int PROGRESS_X = 60;
+    public static final int PROGRESS_Y = 28;
+    public static final int PROGRESS_W = 76;
+    public static final int PROGRESS_H = 6;
+
     public static final int CENTER_PANEL_X = 72;
-    public static final int CENTER_PANEL_Y = 26;
+    public static final int CENTER_PANEL_Y = PROGRESS_Y + PROGRESS_H + 2;
     public static final int CENTER_PANEL_W = 50;
     public static final int CENTER_PANEL_H = 56;
 
     public static final int FUEL_BAR_X = 91;
-    public static final int FUEL_BAR_Y = 31;
+    public static final int FUEL_BAR_Y = CENTER_PANEL_Y + 5;
     public static final int FUEL_BAR_W = 12;
     public static final int FUEL_BAR_H = 24;
 
@@ -47,12 +52,7 @@ public final class CentrifugeLayout {
     public static final int FUEL_BAR_INNER_H = 20;
 
     public static final int FUEL_SLOT_X = 89;
-    public static final int FUEL_SLOT_Y = 58;
-
-    public static final int PROGRESS_X = 60;
-    public static final int PROGRESS_Y = 18;
-    public static final int PROGRESS_W = 76;
-    public static final int PROGRESS_H = 6;
+    public static final int FUEL_SLOT_Y = FUEL_BAR_Y + FUEL_BAR_H + 3;
 
     public static final int INPUT_SLOT_X = 22;
     public static final int INPUT_SLOT_Y = 82;

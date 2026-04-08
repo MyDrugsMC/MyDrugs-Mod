@@ -710,7 +710,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                     null,
                     null,
                     recipe.resultStack().copy(),
-                    Math.max(1, recipe.processingTime() * 5)
+                    Math.max(1, recipe.processingTime())
             );
         }
 
@@ -720,7 +720,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                     recipe,
                     fluidAssignment,
                     result.copy(),
-                    Math.max(1, recipe.requiredStirs())
+                    Math.max(1, recipe.requiredStirs() * 20)
             );
         }
 

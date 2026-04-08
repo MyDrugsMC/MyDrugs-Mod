@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "fluid_input_1": {
+    "fluid": "mydrugs:lysergic_acid",
+    "amount": 100
+  },
+  "fluid_input_2": {
+    "fluid": "mydrugs:acylating_agent",
+    "amount": 50
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:activated_lysergic_acid",
+    "amount": 150
+  },
+  "required_stirs": 3
+}

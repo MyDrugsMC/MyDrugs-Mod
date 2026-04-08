@@ -7,11 +7,11 @@
     }
   ],
   "gas_input": {
-    "gas": "mydrugs:reactive",
+    "gas": "mydrugs:sulfur_oxide",
     "amount": 250
   },
   "output": {
-    "fluid": "mydrugs:chemical_compound",
+    "fluid": "mydrugs:sulfur_compound",
     "amount": 1000
   },
   "processing_time": 100

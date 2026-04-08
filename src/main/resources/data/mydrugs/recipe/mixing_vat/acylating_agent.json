@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "fluid_input_1": {
+    "fluid": "mydrugs:sulfur_compound",
+    "amount": 100
+  },
+  "fluid_input_2": {
+    "fluid": "mydrugs:hydrochloric_acid",
+    "amount": 100
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:acylating_agent",
+    "amount": 200
+  },
+  "required_stirs": 3
+}

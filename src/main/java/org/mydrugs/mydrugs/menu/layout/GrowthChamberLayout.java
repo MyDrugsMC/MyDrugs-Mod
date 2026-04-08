@@ -9,7 +9,7 @@ public final class GrowthChamberLayout {
     public static final int MACHINE_PANEL_H = 110;
 
     public static final int WATER_TANK_X = 20;
-    public static final int WATER_TANK_Y = 24;
+    public static final int WATER_TANK_Y = 37;
     public static final int TANK_W = 16;
     public static final int TANK_H = 54;
 
@@ -18,7 +18,7 @@ public final class GrowthChamberLayout {
     public static final int TANK_INNER_W = 12;
     public static final int TANK_INNER_H = 50;
 
-    public static final int SLOT_Y = 80;
+    public static final int SLOT_Y = 94;
 
     public static final int WATER_INPUT_SLOT_X = WATER_TANK_X;
     public static final int WATER_INPUT_SLOT_Y = SLOT_Y;
@@ -39,12 +39,12 @@ public final class GrowthChamberLayout {
     public static final int PLAYER_INV_Y = MACHINE_PANEL_Y + MACHINE_PANEL_H + StandardInventoryLayout.INV_UPPER_MARGIN;
 
     public static final int GROWTH_PROGRESS_X = 46;
-    public static final int GROWTH_PROGRESS_Y = 26;
-    public static final int GROWTH_PROGRESS_W = 120;
+    public static final int GROWTH_PROGRESS_Y = WATER_TANK_Y;
+    public static final int GROWTH_PROGRESS_W = MACHINE_PANEL_W - GROWTH_PROGRESS_X - WATER_TANK_X + MACHINE_PANEL_X;
     public static final int GROWTH_PROGRESS_H = 6;
 
     public static final int MATURE_PROGRESS_X = GROWTH_PROGRESS_X;
-    public static final int MATURE_PROGRESS_Y = 44;
+    public static final int MATURE_PROGRESS_Y = WATER_TANK_Y + 20;
     public static final int MATURE_PROGRESS_W = GROWTH_PROGRESS_W;
     public static final int MATURE_PROGRESS_H = GROWTH_PROGRESS_H;
 

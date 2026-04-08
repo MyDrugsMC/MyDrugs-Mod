@@ -50,8 +50,10 @@ public final class ModFluids {
     public static final FluidEntry ERGOTAMINE;
     public static final FluidEntry LSD;
     public static final FluidEntry HYDROCHLORIC_ACID;
-    public static final FluidEntry ACTIVATING_AGENT;
+    public static final FluidEntry ACYLATING_AGENT;
     public static final FluidEntry ACTIVATED_LYSERGIC_ACID;
+    public static final FluidEntry SULFUR_COMPOUND;
+    public static final FluidEntry CRACK;
 
 
     static {
@@ -74,8 +76,10 @@ public final class ModFluids {
         ERGOTAMINE = register(new FluidEntryDef("ergotamine", 0xFFFFFFFF, false, null));
         LSD = register(new FluidEntryDef("lsd", 0xFFFFFFFF, true, DrugId.LSD));
         HYDROCHLORIC_ACID = register(new FluidEntryDef("hydrochloric_acid", 0xFFFFFFFF, false, null));
-        ACTIVATING_AGENT = register(new FluidEntryDef("activating_agent", 0xFFFFFFFF, false, null));
+        ACYLATING_AGENT = register(new FluidEntryDef("acylating_agent", 0xFFFFFFFF, false, null));
         ACTIVATED_LYSERGIC_ACID = register(new FluidEntryDef("activated_lysergic_acid", 0xFFFFFFFF, false, null));
+        SULFUR_COMPOUND = register(new FluidEntryDef("sulfur_compound", 0xFFD6E86A, false, null));
+        CRACK = register(new FluidEntryDef("crack", 0xFFCFE17A, false, null));
     }
 
     private ModFluids() {
