@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "key": {
+    "A": "minecraft:glass_bottle",
+    "B": "minecraft:iron_ingot",
+    "C": "minecraft:furnace"
+  },
+  "result": {
+    "id": "mydrugs:mixing_vat",
+    "count": 1
+  }
+}

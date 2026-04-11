@@ -2,6 +2,7 @@
   "type": "minecraft:block",
   "pools": [
     {
+      "rolls": 1.0,
       "bonus_rolls": 0.0,
       "conditions": [
         {
@@ -16,30 +17,24 @@
           }
         },
         {
-          "block": "minecraft:large_fern",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "half": "lower"
-          }
+          "condition": "minecraft:random_chance",
+          "chance": 0.125
         }
       ],
       "entries": [
         {
           "type": "minecraft:item",
+          "name": "mydrugs:malt_seeds",
           "conditions": [
             {
               "condition": "minecraft:survives_explosion"
-            },
-            {
-              "chance": 0.125,
-              "condition": "minecraft:random_chance"
             }
           ],
           "functions": [
             {
+              "function": "minecraft:apply_bonus",
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:uniform_bonus_count",
-              "function": "minecraft:apply_bonus",
               "parameters": {
                 "bonusMultiplier": 2
               }
@@ -47,25 +42,21 @@
             {
               "function": "minecraft:explosion_decay"
             }
-          ],
-          "name": "mydrugs:malt_seeds"
+          ]
         },
         {
           "type": "minecraft:item",
+          "name": "mydrugs:tobacco_seeds",
           "conditions": [
             {
               "condition": "minecraft:survives_explosion"
-            },
-            {
-              "chance": 0.125,
-              "condition": "minecraft:random_chance"
             }
           ],
           "functions": [
             {
+              "function": "minecraft:apply_bonus",
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:uniform_bonus_count",
-              "function": "minecraft:apply_bonus",
               "parameters": {
                 "bonusMultiplier": 2
               }
@@ -73,25 +64,21 @@
             {
               "function": "minecraft:explosion_decay"
             }
-          ],
-          "name": "mydrugs:cannabis_seeds"
+          ]
         },
         {
           "type": "minecraft:item",
+          "name": "mydrugs:cannabis_seeds",
           "conditions": [
             {
               "condition": "minecraft:survives_explosion"
-            },
-            {
-              "chance": 0.125,
-              "condition": "minecraft:random_chance"
             }
           ],
           "functions": [
             {
+              "function": "minecraft:apply_bonus",
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:uniform_bonus_count",
-              "function": "minecraft:apply_bonus",
               "parameters": {
                 "bonusMultiplier": 2
               }
@@ -99,25 +86,21 @@
             {
               "function": "minecraft:explosion_decay"
             }
-          ],
-          "name": "mydrugs:coca_seeds"
+          ]
         },
         {
           "type": "minecraft:item",
+          "name": "mydrugs:coca_seeds",
           "conditions": [
             {
               "condition": "minecraft:survives_explosion"
-            },
-            {
-              "chance": 0.125,
-              "condition": "minecraft:random_chance"
             }
           ],
           "functions": [
             {
+              "function": "minecraft:apply_bonus",
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:uniform_bonus_count",
-              "function": "minecraft:apply_bonus",
               "parameters": {
                 "bonusMultiplier": 2
               }
@@ -125,25 +108,21 @@
             {
               "function": "minecraft:explosion_decay"
             }
-          ],
-          "name": "mydrugs:tobacco_seeds"
+          ]
         },
         {
           "type": "minecraft:item",
+          "name": "mydrugs:rye_seeds",
           "conditions": [
             {
               "condition": "minecraft:survives_explosion"
-            },
-            {
-              "chance": 0.125,
-              "condition": "minecraft:random_chance"
             }
           ],
           "functions": [
             {
+              "function": "minecraft:apply_bonus",
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:uniform_bonus_count",
-              "function": "minecraft:apply_bonus",
               "parameters": {
                 "bonusMultiplier": 2
               }
@@ -151,11 +130,9 @@
             {
               "function": "minecraft:explosion_decay"
             }
-          ],
-          "name": "mydrugs:rye_seeds"
+          ]
         }
-      ],
-      "rolls": 1.0
+      ]
     }
   ]
 }

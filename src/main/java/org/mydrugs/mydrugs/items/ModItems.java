@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
+import org.mydrugs.mydrugs.effects.addiction.item.*;
 import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
@@ -278,6 +279,27 @@ public class ModItems {
     public static final DeferredItem<BlockItem> ADVANCED_MIXING_VAT_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_MIXING_VAT);
 
     public static final DeferredItem<BlockItem> GASIFIER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GASIFIER);
+
+    public static final DeferredItem<BlockItem> THERAPIST_DESK_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.THERAPIST_DESK);
+
+    public static final DeferredItem<BlockItem> RECOVERY_ANCHOR_ITEM =
+            ITEMS.registerSimpleBlockItem(ModBlocks.RECOVERY_ANCHOR);
+
+    public static final DeferredItem<PersonalDiaryItem> PERSONAL_DIARY =
+            ITEMS.registerItem("personal_diary", PersonalDiaryItem::new);
+
+    public static final DeferredItem<HeadphonesItem> HEADPHONES =
+            ITEMS.registerItem("headphones", HeadphonesItem::new);
+
+    public static final DeferredItem<HerbalTeaItem> HERBAL_TEA =
+            ITEMS.registerItem("herbal_tea", HerbalTeaItem::new);
+
+    public static final DeferredItem<CalmingMixtureItem> CALMING_MIXTURE =
+            ITEMS.registerItem("calming_mixture", CalmingMixtureItem::new);
+
+    public static final DeferredItem<SleepingAidItem> SLEEPING_AID =
+            ITEMS.registerItem("sleeping_aid", SleepingAidItem::new);
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

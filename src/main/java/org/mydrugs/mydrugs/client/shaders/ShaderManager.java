@@ -27,6 +27,8 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
             shader.buildPipeline();
             event.registerPipeline(shader.getRenderPipeline());
         }
+        WithdrawalTunnelShader.INSTANCE.buildPipeline();
+        event.registerPipeline(WithdrawalTunnelShader.INSTANCE.getRenderPipeline());
     }
 
     @SubscribeEvent
@@ -64,5 +66,6 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         register(EffectType.AURORA_RIBBONS, AuroraRibbonsShader.INSTANCE);
         register(EffectType.SPECTRAL_POSTER, SpectralPosterShader.INSTANCE);
         register(EffectType.DRUNK_VISION, DrunkVisionShader.INSTANCE);
+
     }
 }

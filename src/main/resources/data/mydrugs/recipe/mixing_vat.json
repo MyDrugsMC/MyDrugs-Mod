@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A A",
+    "ABA",
+    "AAA"
+  ],
+  "key": {
+    "A": "minecraft:iron_ingot",
+    "B": "minecraft:stick"
+  },
+  "result": {
+    "id": "mydrugs:mixing_vat",
+    "count": 1
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A"
+  ],
+  "key": {
+    "A": "minecraft:book"
+  },
+  "result": {
+    "id": "mydrugs:personal_diary",
+    "count": 1
+  }
+}

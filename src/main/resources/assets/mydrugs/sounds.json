@@ -8,5 +8,54 @@
     "sounds": [
       "mydrugs:smoke"
     ]
+  },
+  "single_heartbeat": {
+    "sounds": [
+      "mydrugs:single_heartbeat"
+    ]
+  },
+  "hallucination_cue": {
+    "sounds": [
+      "mydrugs:hallucination1",
+      "mydrugs:hallucination2",
+      "mydrugs:hallucination3",
+      "mydrugs:hallucination4",
+      "mydrugs:hallucination5",
+      "mydrugs:hallucination6",
+      "mydrugs:hallucination7",
+      "mydrugs:hallucination8",
+      "mydrugs:hallucination9",
+      "mydrugs:hallucination10",
+      "mydrugs:hallucination11",
+      "mydrugs:hallucination12",
+      "mydrugs:hallucination13",
+      "mydrugs:hallucination14",
+      "mydrugs:hallucination15",
+      "mydrugs:hallucination16"
+    ]
+  },
+  "intrusive_whisper": {
+    "sounds": [
+      "mydrugs:whisper1",
+      "mydrugs:whisper2",
+      "mydrugs:whisper3",
+      "mydrugs:whisper4",
+      "mydrugs:whisper5",
+      "mydrugs:whisper6",
+      "mydrugs:whisper7",
+      "mydrugs:whisper8"
+    ]
+  },
+  "goodvibes_music": {
+    "sounds": [
+      {
+        "name": "mydrugs:babydoll",
+        "stream": true
+      },
+      {
+        "name": "mydrugs:lessik",
+        "stream": true
+      }
+    ]
   }
 }

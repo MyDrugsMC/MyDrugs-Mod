@@ -8,6 +8,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.crops.*;
+import org.mydrugs.mydrugs.effects.addiction.block.RecoveryAnchorBlock;
+import org.mydrugs.mydrugs.effects.addiction.block.TherapistDeskBlock;
 import org.mydrugs.mydrugs.worldgen.ModWorldGenKeys;
 
 public class ModBlocks {
@@ -245,6 +247,12 @@ public class ModBlocks {
                                     .sound(SoundType.METAL)
 
             );
+
+    public static final DeferredBlock<TherapistDeskBlock> THERAPIST_DESK =
+            BLOCKS.registerBlock("therapist_desk", props -> new TherapistDeskBlock(props.strength(2.5F)));
+
+    public static final DeferredBlock<RecoveryAnchorBlock> RECOVERY_ANCHOR =
+            BLOCKS.registerBlock("recovery_anchor", props -> new RecoveryAnchorBlock(props.strength(2.0F).lightLevel(state -> 8)));
 
     private ModBlocks() {
     }

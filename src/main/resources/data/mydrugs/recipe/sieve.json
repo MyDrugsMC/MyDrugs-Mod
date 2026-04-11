@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    "BCB",
+    "DDD"
+  ],
+  "key": {
+    "A": "minecraft:string",
+    "B": "minecraft:paper",
+    "C": "minecraft:leather",
+    "D": "#minecraft:planks"
+  },
+  "result": {
+    "id": "mydrugs:sieve",
+    "count": 1
+  }
+}
