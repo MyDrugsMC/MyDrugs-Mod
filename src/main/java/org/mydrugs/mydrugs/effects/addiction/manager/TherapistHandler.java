@@ -9,7 +9,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.registry.ModVillagerProfessions;
 
 public final class TherapistHandler {
-    private TherapistHandler() {}
+    private TherapistHandler() {
+    }
 
     public static boolean isTherapist(Villager villager) {
         return villager.getVillagerData().profession().value() == ModVillagerProfessions.THERAPIST.get();

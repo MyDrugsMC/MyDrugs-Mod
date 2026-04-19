@@ -6,18 +6,38 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 
-import java.util.*;
+import java.util.EnumMap;
 
 public final class PlayerAddictionStats implements ValueIOSerializable {
+    public final EnumMap<DrugCategory, DrugAddictionStats> perDrug = new EnumMap<>(DrugCategory.class);
     public float geneticFactor;
     public float resilience;
     public float stressLevel;
-
-    public final EnumMap<DrugCategory, DrugAddictionStats> perDrug = new EnumMap<>(DrugCategory.class);
     public TemporaryRecoveryEffects temporaryEffects = new TemporaryRecoveryEffects();
 
     public long lastTherapyDay = -1L;
     public long sleepBlockedUntil = 0L;
+    public long lastGeneralHintTick = 0L;
+    public long lastSleepHintTick = 0L;
+    public long lastSafeZoneHintTick = 0L;
+    public long lastFoodHintTick = 0L;
+    public long lastHealthHintTick = 0L;
+    public long lastHintTick = 0L;
+    public long lastAnchorHintTick = 0L;
+    public long lastSocialHintTick = 0L;
+
+    public double lastHintX = 0.0D;
+    public double lastHintY = 0.0D;
+    public double lastHintZ = 0.0D;
+
+    public int lastHintTopicOrdinal = -1;
+    public int lastHintVariantIndex = -1;
+
+    public boolean wasInSafeZoneLastTick = false;
+    public boolean anchorHintShownThisVisit = false;
+
+    public long lastDiaryHintTick = 0L;
+    public long lastHeadphonesHintTick = 0L;
 
     public PlayerAddictionStats() {
         RandomSource random = RandomSource.create();

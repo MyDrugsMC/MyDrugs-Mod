@@ -37,11 +37,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ChemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.gas.GasStack;
-import org.mydrugs.mydrugs.gas.GasTank;
-import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.IGasHandler;
-import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
@@ -103,20 +99,6 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
 
     private final LockedTransferSlots gasInputLocks = new LockedTransferSlots(2);
     private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(1);
-
-    private boolean suppressTransferModeReset = false;
-
-    private int burnTimeRemaining;
-    private int burnTimeTotal;
-    private int heat;
-    private int progress;
-    private int maxProgress = 200;
-    private int manualEnergy;
-    private boolean active;
-
-    private boolean secondaryFluidMode;
-    private boolean outputFluidMode;
-
     private final IGasHandler automationGasHandler = new IGasHandler() {
         @Override
         public int getTanks() {
@@ -157,7 +139,16 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
             return gasOutputTank.drain(amount, simulate);
         }
     };
-
+    private boolean suppressTransferModeReset = false;
+    private int burnTimeRemaining;
+    private int burnTimeTotal;
+    private int heat;
+    private int progress;
+    private int maxProgress = 200;
+    private int manualEnergy;
+    private boolean active;
+    private boolean secondaryFluidMode;
+    private boolean outputFluidMode;
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -177,9 +168,11 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 case 12 -> MAX_MANUAL_ENERGY;
                 case 13 -> primaryGasTank.isEmpty() ? -1 : ModGases.getSyncId(primaryGasTank.getGasType());
                 case 14 -> secondaryGasTank.isEmpty() ? -1 : ModGases.getSyncId(secondaryGasTank.getGasType());
-                case 15 -> fluidStacks.get(SECONDARY_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(SECONDARY_FLUID_TANK).getFluid());
+                case 15 ->
+                        fluidStacks.get(SECONDARY_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(SECONDARY_FLUID_TANK).getFluid());
                 case 16 -> gasOutputTank.isEmpty() ? -1 : ModGases.getSyncId(gasOutputTank.getGasType());
-                case 17 -> fluidStacks.get(OUTPUT_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(OUTPUT_FLUID_TANK).getFluid());
+                case 17 ->
+                        fluidStacks.get(OUTPUT_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(OUTPUT_FLUID_TANK).getFluid());
                 case 18 -> secondaryFluidMode ? 1 : 0;
                 case 19 -> outputFluidMode ? 1 : 0;
                 default -> 0;
@@ -322,6 +315,17 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         if (changed) {
             be.onContentsChanged();
         }
+    }
+
+    @Nullable
+    private static GasType readGasType(ValueInput input, String key) {
+        String raw = input.getStringOr(key, "");
+        if (raw.isBlank()) {
+            return null;
+        }
+
+        ResourceLocation id = ResourceLocation.tryParse(raw);
+        return id == null ? null : ModGases.get(id);
     }
 
     private boolean runTransferWithoutReset(BooleanSupplier action) {
@@ -519,73 +523,8 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         );
     }
 
-    private final class ReactorItemHandler extends ItemStacksResourceHandler {
-        private ReactorItemHandler(int size) {
-            super(size);
-        }
-
-        protected NonNullList<ItemStack> list() {
-            return this.stacks;
-        }
-
-        @Override
-        protected void onContentsChanged(int slot, ItemStack previousStack) {
-            if (!suppressTransferModeReset) {
-                resetTransferLockForSlot(slot);
-            }
-            ChemicalReactorBlockEntity.this.onContentsChanged();
-        }
-    }
-
-    private final class ReactorFluidHandler extends FluidStacksResourceHandler {
-        private ReactorFluidHandler() {
-            super(2, FLUID_TANK_CAPACITY);
-        }
-
-        protected NonNullList<FluidStack> list() {
-            return this.stacks;
-        }
-
-        @Override
-        public boolean isValid(int index, FluidResource resource) {
-            return index == SECONDARY_FLUID_TANK && !resource.isEmpty();
-        }
-
-        @Override
-        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            if (index != SECONDARY_FLUID_TANK) {
-                return 0;
-            }
-            return super.insert(index, resource, amount, transaction);
-        }
-
-        @Override
-        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            if (index != OUTPUT_FLUID_TANK) {
-                return 0;
-            }
-            return super.extract(index, resource, amount, transaction);
-        }
-
-        @Override
-        protected void onContentsChanged(int index, FluidStack previousStack) {
-            ChemicalReactorBlockEntity.this.onContentsChanged();
-        }
-    }
-
     private void onContentsChanged() {
         MachineSync.syncAndInvalidateCaps(this);
-    }
-
-    @Nullable
-    private static GasType readGasType(ValueInput input, String key) {
-        String raw = input.getStringOr(key, "");
-        if (raw.isBlank()) {
-            return null;
-        }
-
-        ResourceLocation id = ResourceLocation.tryParse(raw);
-        return id == null ? null : ModGases.get(id);
     }
 
     @Override
@@ -686,5 +625,59 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    private final class ReactorItemHandler extends ItemStacksResourceHandler {
+        private ReactorItemHandler(int size) {
+            super(size);
+        }
+
+        private NonNullList<ItemStack> list() {
+            return this.stacks;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot, ItemStack previousStack) {
+            if (!suppressTransferModeReset) {
+                resetTransferLockForSlot(slot);
+            }
+            ChemicalReactorBlockEntity.this.onContentsChanged();
+        }
+    }
+
+    private final class ReactorFluidHandler extends FluidStacksResourceHandler {
+        private ReactorFluidHandler() {
+            super(2, FLUID_TANK_CAPACITY);
+        }
+
+        private NonNullList<FluidStack> list() {
+            return this.stacks;
+        }
+
+        @Override
+        public boolean isValid(int index, FluidResource resource) {
+            return index == SECONDARY_FLUID_TANK && !resource.isEmpty();
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (index != SECONDARY_FLUID_TANK) {
+                return 0;
+            }
+            return super.insert(index, resource, amount, transaction);
+        }
+
+        @Override
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (index != OUTPUT_FLUID_TANK) {
+                return 0;
+            }
+            return super.extract(index, resource, amount, transaction);
+        }
+
+        @Override
+        protected void onContentsChanged(int index, FluidStack previousStack) {
+            ChemicalReactorBlockEntity.this.onContentsChanged();
+        }
     }
 }

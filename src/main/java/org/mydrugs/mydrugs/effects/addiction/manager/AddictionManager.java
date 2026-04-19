@@ -10,7 +10,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class AddictionManager {
-    private AddictionManager() {}
+    private AddictionManager() {
+    }
 
     public static void consume(ServerPlayer player, DrugCategory category, float dose) {
         PlayerAddictionStats playerStats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
@@ -80,6 +81,8 @@ public final class AddictionManager {
         StressManager.tick(player, stats, globalSeverity, inCombat, companions, inSafeZone);
         StressDamageManager.tick(player, stats);
         SymptomManager.applyServerSymptoms(player, globalSeverity);
+
+        WithdrawalHintManager.tick(player, globalSeverity, inSafeZone, companions);
 
         if (inSafeZone && globalSeverity > 0.40F && gameTime % 200L == 0L) {
             ResilienceManager.onSafeZoneRecovery(stats);

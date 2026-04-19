@@ -27,7 +27,8 @@ public final class ModPoiTypes {
                     )
             );
 
-    private ModPoiTypes() {}
+    private ModPoiTypes() {
+    }
 
     public static void register(IEventBus modBus) {
         POI_TYPES.register(modBus);

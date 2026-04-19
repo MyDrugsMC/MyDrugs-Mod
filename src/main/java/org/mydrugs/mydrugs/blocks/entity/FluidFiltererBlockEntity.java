@@ -48,14 +48,10 @@ import java.util.Optional;
 
 public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implements FluidFiltererMenu.FluidFiltererButtonHandler {
     public static final int FLUID_CAPACITY = 4000;
-
-    private NonNullList<ItemStack> items = NonNullList.withSize(FluidFiltererMenu.MACHINE_SLOT_COUNT, ItemStack.EMPTY);
-
     private final LockedTransferSlots inputTransferLocks = new LockedTransferSlots(1);
-
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
     private final StoredFluidTank outputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
-
+    private NonNullList<ItemStack> items = NonNullList.withSize(FluidFiltererMenu.MACHINE_SLOT_COUNT, ItemStack.EMPTY);
     private int progress = 0;
     private int maxProgress = 0;
     private boolean buttonHeld = false;
@@ -102,17 +98,13 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
             return;
         }
 
-        boolean changed = false;
-
-        if (FluidTransferUtil.tryProcessTransferSlot(
+        boolean changed = FluidTransferUtil.tryProcessTransferSlot(
                 be,
                 FluidFiltererMenu.INPUT_CONTAINER_SLOT,
                 be.inputTank,
                 be.inputTransferLocks,
                 0
-        )) {
-            changed = true;
-        }
+        );
 
         if (FluidTransferUtil.tryFillOutputSlot(
                 be,
@@ -170,6 +162,28 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         }
 
         return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    private static boolean dumpTank(StoredFluidTank tank) {
+        if (tank.isEmpty()) {
+            return false;
+        }
+
+        tank.setFluid(FluidStack.EMPTY);
+        return true;
+    }
+
+    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
+        if (amount <= 0) {
+            return FluidStack.EMPTY;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, amount);
     }
 
     @Override
@@ -609,28 +623,6 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         }
 
         addResidue(recipe.outputItem());
-    }
-
-    private static boolean dumpTank(StoredFluidTank tank) {
-        if (tank.isEmpty()) {
-            return false;
-        }
-
-        tank.setFluid(FluidStack.EMPTY);
-        return true;
-    }
-
-    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) {
-            return FluidStack.EMPTY;
-        }
-
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
-        if (fluid == null || fluid == Fluids.EMPTY) {
-            return FluidStack.EMPTY;
-        }
-
-        return new FluidStack(fluid, amount);
     }
 
     private void sync() {

@@ -6,13 +6,16 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +37,7 @@ import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipeInput;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     public static final int INPUT_A_SLOT = 0;
@@ -47,11 +51,8 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     public static final int TANK_CAPACITY = 4000;
 
     private static final FuelResolver ADVANCED_FURNACE_FUEL = MachineFuelUtil.VANILLA;
-
-    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
-
     private final StoredFluidTank outputTank = new StoredFluidTank(TANK_CAPACITY, this::sync);
-
+    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private int progress = 0;
     private int maxProgress = 200;
 
@@ -79,6 +80,9 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
                 case 1 -> maxProgress = value;
                 case 2 -> burnTime = value;
                 case 3 -> burnDuration = value;
+                default -> {
+                    // client dummy menu only
+                }
             }
         }
 
@@ -97,24 +101,23 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             return;
         }
 
-        boolean changed = false;
-
-        if (FluidTransferUtil.tryFillOutputSlot(be, OUTPUT_FLUID_CONTAINER_SLOT, be.outputTank)) {
-            changed = true;
-        }
+        boolean changed = FluidTransferUtil.tryFillOutputSlot(be, OUTPUT_FLUID_CONTAINER_SLOT, be.outputTank);
 
         if (be.burnTime > 0) {
             be.burnTime--;
             changed = true;
         }
 
-        Optional<RecipeHolder<AdvancedFurnaceRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
+        Optional<RecipeHolder<AdvancedFurnaceRecipe>> advancedRecipe = be.getAdvancedRecipe(serverLevel);
+        if (advancedRecipe.isPresent()) {
+            AdvancedFurnaceRecipe recipe = advancedRecipe.get().value();
 
-        if (recipeHolder.isEmpty()) {
-            if (be.progress != 0) {
-                be.progress = 0;
-                changed = true;
-            }
+            changed |= processRecipe(
+                    be,
+                    recipe.cookTime(),
+                    () -> be.canCraft(recipe),
+                    () -> be.craft(recipe)
+            );
 
             if (changed) {
                 be.sync();
@@ -122,19 +125,49 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             return;
         }
 
-        AdvancedFurnaceRecipe recipe = recipeHolder.get().value();
-        be.maxProgress = recipe.cookTime();
+        Optional<VanillaRecipeMatch> vanillaRecipe = be.getVanillaRecipe(serverLevel);
+        if (vanillaRecipe.isPresent()) {
+            VanillaRecipeMatch match = vanillaRecipe.get();
 
-        if (!be.canCraft(recipe)) {
-            if (be.progress != 0) {
-                be.progress = 0;
-                changed = true;
-            }
+            changed |= processRecipe(
+                    be,
+                    match.cookTime(),
+                    () -> be.canCraft(match),
+                    () -> be.craft(match)
+            );
 
             if (changed) {
                 be.sync();
             }
             return;
+        }
+
+        if (be.progress != 0) {
+            be.progress = 0;
+            changed = true;
+        }
+
+        if (changed) {
+            be.sync();
+        }
+    }
+
+    private static boolean processRecipe(
+            AdvancedFurnaceBlockEntity be,
+            int cookTime,
+            BooleanSupplier canCraft,
+            Runnable craftAction
+    ) {
+        boolean changed = false;
+
+        be.maxProgress = cookTime;
+
+        if (!canCraft.getAsBoolean()) {
+            if (be.progress != 0) {
+                be.progress = 0;
+                changed = true;
+            }
+            return changed;
         }
 
         if (be.burnTime <= 0 && be.consumeFuel()) {
@@ -146,7 +179,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                craftAction.run();
                 be.progress = 0;
                 changed = true;
             }
@@ -155,9 +188,31 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             changed = true;
         }
 
-        if (changed) {
-            be.sync();
+        return changed;
+    }
+
+    private static int boostedVanillaCookTime(int vanillaCookTime) {
+        return Math.max(1, (vanillaCookTime * 4 + 4) / 5);
+    }
+
+    private static boolean canInsertItem(ItemStack existing, ItemStack result) {
+        if (result.isEmpty()) return true;
+        if (existing.isEmpty()) return true;
+        if (!ItemStack.isSameItemSameComponents(existing, result)) return false;
+        return existing.getCount() + result.getCount() <= existing.getMaxStackSize();
+    }
+
+    private static FluidStack toFluidStack(Optional<ResourceLocation> fluidId, int amount) {
+        if (amount <= 0 || fluidId.isEmpty()) {
+            return FluidStack.EMPTY;
         }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId.get());
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, amount);
     }
 
     private boolean consumeFuel() {
@@ -177,12 +232,50 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         return true;
     }
 
-    private Optional<RecipeHolder<AdvancedFurnaceRecipe>> getCurrentRecipe(ServerLevel level) {
+    private Optional<RecipeHolder<AdvancedFurnaceRecipe>> getAdvancedRecipe(ServerLevel level) {
         return level.recipeAccess().getRecipeFor(
                 ModRecipeTypes.ADVANCED_FURNACE.get(),
                 new AdvancedFurnaceRecipeInput(this.getItem(INPUT_A_SLOT), this.getItem(INPUT_B_SLOT)),
                 level
         );
+    }
+
+    private Optional<VanillaRecipeMatch> getVanillaRecipe(ServerLevel level) {
+        Optional<VanillaRecipeMatch> inputA = this.getVanillaRecipeForSlot(level, INPUT_A_SLOT);
+        if (inputA.isPresent()) {
+            return inputA;
+        }
+
+        return this.getVanillaRecipeForSlot(level, INPUT_B_SLOT);
+    }
+
+    private Optional<VanillaRecipeMatch> getVanillaRecipeForSlot(ServerLevel level, int inputSlot) {
+        ItemStack input = this.getItem(inputSlot);
+        if (input.isEmpty()) {
+            return Optional.empty();
+        }
+
+        SingleRecipeInput recipeInput = new SingleRecipeInput(input);
+        Optional<RecipeHolder<SmeltingRecipe>> holder = level.recipeAccess().getRecipeFor(
+                RecipeType.SMELTING,
+                recipeInput,
+                level
+        );
+
+        if (holder.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ItemStack result = holder.get().value().assemble(recipeInput, level.registryAccess());
+        if (result.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new VanillaRecipeMatch(
+                inputSlot,
+                result.copy(),
+                boostedVanillaCookTime(holder.get().value().cookingTime())
+        ));
     }
 
     private boolean canCraft(AdvancedFurnaceRecipe recipe) {
@@ -191,6 +284,10 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
 
         FluidStack recipeFluid = toFluidStack(recipe.fluidOutput(), recipe.fluidAmount());
         return recipeFluid.isEmpty() || this.outputTank.getAddableAmount(recipeFluid) >= recipeFluid.getAmount();
+    }
+
+    private boolean canCraft(VanillaRecipeMatch match) {
+        return this.findVanillaOutputSlot(match.result()) != -1;
     }
 
     private void craft(AdvancedFurnaceRecipe recipe) {
@@ -209,15 +306,32 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         }
     }
 
-    private static boolean canInsertItem(ItemStack existing, ItemStack result) {
-        if (result.isEmpty()) return true;
-        if (existing.isEmpty()) return true;
-        if (!ItemStack.isSameItemSameComponents(existing, result)) return false;
-        return existing.getCount() + result.getCount() <= existing.getMaxStackSize();
+    private void craft(VanillaRecipeMatch match) {
+        int outputSlot = this.findVanillaOutputSlot(match.result());
+        if (outputSlot == -1) {
+            return;
+        }
+
+        this.removeItem(match.inputSlot(), 1);
+        this.insertItem(outputSlot, match.result());
+    }
+
+    private int findVanillaOutputSlot(ItemStack result) {
+        if (canInsertItem(this.getItem(OUTPUT_A_SLOT), result)) {
+            return OUTPUT_A_SLOT;
+        }
+
+        if (canInsertItem(this.getItem(OUTPUT_B_SLOT), result)) {
+            return OUTPUT_B_SLOT;
+        }
+
+        return -1;
     }
 
     private void insertItem(int slot, ItemStack result) {
-        if (result.isEmpty()) return;
+        if (result.isEmpty()) {
+            return;
+        }
 
         ItemStack existing = this.getItem(slot);
         if (existing.isEmpty()) {
@@ -226,19 +340,6 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             existing.grow(result.getCount());
             this.setItem(slot, existing);
         }
-    }
-
-    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) {
-            return FluidStack.EMPTY;
-        }
-
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
-        if (fluid == null || fluid == Fluids.EMPTY) {
-            return FluidStack.EMPTY;
-        }
-
-        return new FluidStack(fluid, amount);
     }
 
     private void sync() {
@@ -289,6 +390,10 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(input, this.items);
+
         this.progress = input.getIntOr("progress", 0);
         this.maxProgress = input.getIntOr("max_progress", 200);
         this.burnTime = input.getIntOr("burn_time", 0);
@@ -297,12 +402,18 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
     }
 
     @Override
-    public void saveAdditional(ValueOutput output) {
+    protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+
+        ContainerHelper.saveAllItems(output, this.items);
+
         output.putInt("progress", this.progress);
         output.putInt("max_progress", this.maxProgress);
         output.putInt("burn_time", this.burnTime);
         output.putInt("burn_duration", this.burnDuration);
         this.outputTank.save(output, "output_tank");
+    }
+
+    private record VanillaRecipeMatch(int inputSlot, ItemStack result, int cookTime) {
     }
 }

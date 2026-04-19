@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDE"
+  ],
+  "key": {
+    "A": "mydrugs:heat_lining",
+    "B": "mydrugs:pressure_casing",
+    "C": "mydrugs:valve",
+    "D": "mydrugs:advanced_furnace",
+    "E": "mydrugs:iron_axle"
+  },
+  "result": {
+    "id": "mydrugs:gasifier",
+    "count": 1
+  }
+}

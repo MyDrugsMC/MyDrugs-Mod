@@ -5,7 +5,8 @@ import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 
 public final class DissociationCameraEffect {
-    private DissociationCameraEffect() {}
+    private DissociationCameraEffect() {
+    }
 
     public static float yawOffset(float partialTicks) {
         if (!AddictionClientState.has(SymptomFlags.DISSOCIATION)) return 0.0F;

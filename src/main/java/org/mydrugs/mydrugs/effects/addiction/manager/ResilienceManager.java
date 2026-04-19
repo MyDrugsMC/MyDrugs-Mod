@@ -4,7 +4,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class ResilienceManager {
-    private ResilienceManager() {}
+    private ResilienceManager() {
+    }
 
     public static void add(PlayerAddictionStats stats, float amount) {
         stats.resilience = AddictionMath.clamp(stats.resilience + amount, 0.0F, 0.50F);

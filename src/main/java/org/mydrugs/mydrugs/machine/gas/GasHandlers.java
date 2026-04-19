@@ -1,7 +1,6 @@
 package org.mydrugs.mydrugs.machine.gas;
 
 import org.mydrugs.mydrugs.gas.GasStack;
-import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.IGasHandler;
 
 public final class GasHandlers {

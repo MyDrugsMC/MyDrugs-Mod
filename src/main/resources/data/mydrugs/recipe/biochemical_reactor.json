@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDC",
+    " E "
+  ],
+  "key": {
+    "A": "mydrugs:injector_nozzle",
+    "B": "mydrugs:pressure_casing",
+    "C": "mydrugs:pressure_seal",
+    "D": "mydrugs:growth_chamber",
+    "E": "mydrugs:agitator"
+  },
+  "result": {
+    "id": "mydrugs:biochemical_reactor",
+    "count": 1
+  }
+}

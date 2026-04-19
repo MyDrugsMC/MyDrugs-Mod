@@ -20,7 +20,8 @@ public final class SymptomManager {
     private static final ResourceLocation FRAGILITY_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "withdrawal_fragility");
     private static final ResourceLocation FATIGUE_SPEED_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "withdrawal_fatigue_speed");
 
-    private SymptomManager() {}
+    private SymptomManager() {
+    }
 
     public static int buildFlags(float severity) {
         int flags = 0;

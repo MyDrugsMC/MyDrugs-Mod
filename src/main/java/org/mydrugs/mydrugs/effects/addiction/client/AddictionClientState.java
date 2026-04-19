@@ -10,7 +10,8 @@ public final class AddictionClientState {
     public static int symptomFlags;
     public static int insomniaTicksRemaining;
 
-    private AddictionClientState() {}
+    private AddictionClientState() {
+    }
 
     public static void apply(AddictionClientSnapshotPayload payload) {
         globalSeverity = payload.globalSeverity();

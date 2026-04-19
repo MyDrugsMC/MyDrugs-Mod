@@ -48,6 +48,51 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         super(ModBlockEntities.EVAPORATION_TRAY.get(), pos, state);
     }
 
+    public static void tick(Level level, BlockPos pos, BlockState state, EvaporationTrayBlockEntity be) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        if (be.hasResult()) {
+            return;
+        }
+
+        if (be.inputFluidId == null || be.inputFluidAmount <= 0) {
+            if (be.progress != 0) {
+                be.resetProgress();
+                be.notifyUpdate();
+            }
+            return;
+        }
+
+        Optional<RecipeHolder<EvaporationTrayRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
+        if (recipeHolder.isEmpty()) {
+            if (be.progress != 0) {
+                be.resetProgress();
+                be.notifyUpdate();
+            }
+            return;
+        }
+
+        EvaporationTrayRecipe recipe = recipeHolder.get().value();
+        if (!be.canAcceptOutput(recipe.result())) {
+            if (be.progress != 0) {
+                be.resetProgress();
+                be.notifyUpdate();
+            }
+            return;
+        }
+
+        be.maxProgress = recipe.processingTime();
+        be.progress++;
+
+        if (be.progress >= be.maxProgress) {
+            be.craft(recipe);
+        } else {
+            be.setChanged();
+        }
+    }
+
     @Nullable
     public ResourceLocation getVisualFluidId() {
         return inputFluidId;
@@ -164,7 +209,7 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
 
     public boolean tryTakeResult(Player player) {
         if (resultItem.isEmpty()) {
-             return false;
+            return false;
         }
 
         if (level == null || level.isClientSide()) {
@@ -231,51 +276,6 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
 
         resetProgress();
         notifyUpdate();
-    }
-
-    public static void tick(Level level, BlockPos pos, BlockState state, EvaporationTrayBlockEntity be) {
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-        if (be.hasResult()) {
-            return;
-        }
-
-        if (be.inputFluidId == null || be.inputFluidAmount <= 0) {
-            if (be.progress != 0) {
-                be.resetProgress();
-                be.notifyUpdate();
-            }
-            return;
-        }
-
-        Optional<RecipeHolder<EvaporationTrayRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
-        if (recipeHolder.isEmpty()) {
-            if (be.progress != 0) {
-                be.resetProgress();
-                be.notifyUpdate();
-            }
-            return;
-        }
-
-        EvaporationTrayRecipe recipe = recipeHolder.get().value();
-        if (!be.canAcceptOutput(recipe.result())) {
-            if (be.progress != 0) {
-                be.resetProgress();
-                be.notifyUpdate();
-            }
-            return;
-        }
-
-        be.maxProgress = recipe.processingTime();
-        be.progress++;
-
-        if (be.progress >= be.maxProgress) {
-            be.craft(recipe);
-        } else {
-            be.setChanged();
-        }
     }
 
     @Override

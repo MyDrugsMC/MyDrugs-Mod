@@ -19,6 +19,6 @@ public class CocaCropBlock extends CropBlock {
 
     @Override
     protected ItemLike getBaseSeedId() {
-        return ModItems.COCA_SEEDS.get();
+        return ModCrops.COCA_SEEDS.get();
     }
 }

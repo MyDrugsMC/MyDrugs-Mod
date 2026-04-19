@@ -3,7 +3,6 @@ package org.mydrugs.mydrugs.menu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
@@ -178,6 +177,22 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
 
         this.addPlayerInventorySlots(playerInventory, ChemicalReactorLayout.PLAYER_INV_X, ChemicalReactorLayout.PLAYER_INV_Y);
         this.addDataSlots(data);
+    }
+
+    private static Fluid decodeFluid(int syncId) {
+        return syncId < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(syncId);
+    }
+
+    private static boolean isFluidContainer(ItemStack stack) {
+        return !stack.isEmpty() && ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    private static boolean isGasContainer(ItemStack stack) {
+        return !stack.isEmpty() && stack.getCapability(ModGasCapabilities.ITEM, null) != null;
+    }
+
+    private static int transferSlotY() {
+        return ChemicalReactorLayout.PRIMARY_GAS_TANK_Y + ChemicalReactorLayout.TANK_H + 6;
     }
 
     public BlockPos getBlockPos() {
@@ -371,22 +386,6 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
     public String getOutputGasName() {
         GasType gas = this.getOutputGasType();
         return gas == null ? "empty" : gas.name();
-    }
-
-    private static Fluid decodeFluid(int syncId) {
-        return syncId < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(syncId);
-    }
-
-    private static boolean isFluidContainer(ItemStack stack) {
-        return !stack.isEmpty() && ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
-    }
-
-    private static boolean isGasContainer(ItemStack stack) {
-        return !stack.isEmpty() && stack.getCapability(ModGasCapabilities.ITEM, null) != null;
-    }
-
-    private static int transferSlotY() {
-        return ChemicalReactorLayout.PRIMARY_GAS_TANK_Y + ChemicalReactorLayout.TANK_H + 6;
     }
 
     @Override

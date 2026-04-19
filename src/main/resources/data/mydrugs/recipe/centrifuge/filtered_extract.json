@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:centrifuge",
+  "input": {
+    "fluid": "mydrugs:murky_extract",
+    "amount": 1000
+  },
+  "output_1": {
+    "fluid": "mydrugs:filtered_extract",
+    "amount": 850
+  },
+  "output_2": {
+    "fluid": "mydrugs:waste_biomass",
+    "amount": 150
+  },
+  "clicks_required": 14,
+  "hunger_per_tick": 1
+}

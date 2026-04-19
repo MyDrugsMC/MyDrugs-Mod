@@ -5,11 +5,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.SimpleContainerData;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +13,6 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.GasifierBlockEntity;
 import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.ModGases;
-import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 import org.mydrugs.mydrugs.menu.layout.GasifierLayout;
 
 public class GasifierMenu extends AbstractMachineMenu {

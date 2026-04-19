@@ -7,13 +7,11 @@ import net.minecraft.world.phys.Vec3;
 public final class FakeHallucination {
     public final Vec3 position;
     public final long spawnAt;
-    public long expireAt;
-
     public final float scale;
     public final float yOffset;
     public final float phase;
     public final boolean hasEyes;
-
+    public long expireAt;
     public int staredAtTicks;
 
     public FakeHallucination(

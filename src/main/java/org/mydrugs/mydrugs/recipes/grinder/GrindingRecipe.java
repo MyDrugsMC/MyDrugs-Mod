@@ -16,6 +16,15 @@ import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
         implements Recipe<SingleRecipeInput> {
 
+    public GrindingRecipe {
+        if (ingredient.isEmpty()) {
+            throw new IllegalArgumentException("ingredient must not be empty");
+        }
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException("result must not be empty");
+        }
+    }
+
     @Override
     public boolean matches(SingleRecipeInput input, Level level) {
         return ingredient.test(input.item());
@@ -31,10 +40,6 @@ public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
         return result.copy();
     }
 
-    public int clampedWork() {
-        return Math.clamp(work, 1, 10);
-    }
-
     @Override
     public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
         return ModRecipeSerializers.GRINDING.value();
@@ -45,14 +50,24 @@ public record GrindingRecipe(Ingredient ingredient, ItemStack result, int work)
         return ModRecipeTypes.GRINDING.get();
     }
 
+    private static PlacementInfo placementInfo;
+
     @Override
     public PlacementInfo placementInfo() {
-        return PlacementInfo.NOT_PLACEABLE;
+        if (placementInfo == null) {
+            placementInfo = PlacementInfo.create(ingredient);
+        }
+        return placementInfo;
     }
 
     @Override
     public RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public boolean isSpecial() {
+        return true;
     }
 
     public static class Serializer implements RecipeSerializer<GrindingRecipe> {

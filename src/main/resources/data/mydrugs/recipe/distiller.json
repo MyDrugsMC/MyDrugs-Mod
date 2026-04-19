@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDE",
+    " F "
+  ],
+  "key": {
+    "A": "mydrugs:copper_plate",
+    "B": "mydrugs:glass_tube",
+    "C": "mydrugs:glass_tube",
+    "D": "mydrugs:advanced_furnace",
+    "E": "minecraft:bucket",
+    "F": "mydrugs:mechanical_frame"
+  },
+  "result": {
+    "id": "mydrugs:distiller",
+    "count": 1
+  }
+}

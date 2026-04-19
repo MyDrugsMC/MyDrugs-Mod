@@ -11,7 +11,8 @@ public final class SymptomFlags {
     public static final int INTRUSIVE_THOUGHTS = 1 << 7;
     public static final int INSOMNIA = 1 << 8;
 
-    private SymptomFlags() {}
+    private SymptomFlags() {
+    }
 
     public static boolean has(int flags, int flag) {
         return (flags & flag) != 0;

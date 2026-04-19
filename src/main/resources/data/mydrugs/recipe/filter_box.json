@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "key": {
+    "A": "minecraft:iron_ingot",
+    "B": "minecraft:glass"
+  },
+  "result": {
+    "id": "mydrugs:filter_box",
+    "count": 1
+  }
+}

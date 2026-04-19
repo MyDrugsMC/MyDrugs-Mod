@@ -10,16 +10,16 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import java.util.function.Supplier;
 
 public final class ModAttachments {
-    private ModAttachments() {}
-
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MyDrugs.MODID);
-
     public static final Supplier<AttachmentType<PlayerAddictionStats>> PLAYER_ADDICTION =
             ATTACHMENTS.register("player_addiction", () ->
                     AttachmentType.serializable(PlayerAddictionStats::new)
                             .build()
             );
+
+    private ModAttachments() {
+    }
 
     public static void register(IEventBus modBus) {
         ATTACHMENTS.register(modBus);

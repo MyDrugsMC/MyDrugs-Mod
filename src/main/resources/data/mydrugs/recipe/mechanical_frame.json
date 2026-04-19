@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "key": {
+    "A": "mydrugs:heavy_iron",
+    "B": "#minecraft:planks",
+    "C": "minecraft:stick",
+    "D": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "mydrugs:mechanical_frame",
+    "count": 1
+  }
+}

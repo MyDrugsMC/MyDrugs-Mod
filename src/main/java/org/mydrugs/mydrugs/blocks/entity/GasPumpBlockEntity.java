@@ -4,23 +4,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.GasPumpBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.gas.GasTank;
-import org.mydrugs.mydrugs.gas.GasTransport;
-import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.IGasHandler;
-import org.mydrugs.mydrugs.gas.ModGasCapabilities;
-import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.gas.*;
 
 public class GasPumpBlockEntity extends BlockEntity {
     private final GasTank buffer = new GasTank(
@@ -31,18 +26,6 @@ public class GasPumpBlockEntity extends BlockEntity {
 
     public GasPumpBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GAS_PUMP.get(), pos, state);
-    }
-
-    public IGasHandler getGasHandler(Direction side) {
-        return buffer;
-    }
-
-    private void onGasChanged() {
-        this.setChanged();
-
-        if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
-        }
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, GasPumpBlockEntity be) {
@@ -79,6 +62,18 @@ public class GasPumpBlockEntity extends BlockEntity {
 
         if (outputHandler != null) {
             GasTransport.move(be.buffer, outputHandler, 250);
+        }
+    }
+
+    public IGasHandler getGasHandler(Direction side) {
+        return buffer;
+    }
+
+    private void onGasChanged() {
+        this.setChanged();
+
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
         }
     }
 

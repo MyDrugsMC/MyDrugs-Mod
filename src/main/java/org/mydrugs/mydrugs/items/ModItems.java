@@ -6,12 +6,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
-import org.mydrugs.mydrugs.ModSounds;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -31,36 +31,6 @@ import java.util.Map;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MyDrugs.MODID);
-
-    public static final DeferredItem<BlockItem> RYE_SEEDS =
-            ITEMS.registerItem(
-                    "rye_seeds",
-                    props -> new BlockItem(ModBlocks.RYE_CROP.get(), props)
-            );
-
-    public static final DeferredItem<BlockItem> MALT_SEEDS =
-            ITEMS.registerItem(
-                    "malt_seeds",
-                    props -> new BlockItem(ModBlocks.MALT_CROP.get(), props)
-            );
-
-    public static final DeferredItem<BlockItem> TOBACCO_SEEDS =
-            ITEMS.registerItem(
-                    "tobacco_seeds",
-                    props -> new BlockItem(ModBlocks.TOBACCO_CROP.get(), props)
-            );
-
-    public static final DeferredItem<BlockItem> CANNABIS_SEEDS =
-            ITEMS.registerItem(
-                    "cannabis_seeds",
-                    props -> new BlockItem(ModBlocks.CANNABIS_CROP.get(), props)
-            );
-
-    public static final DeferredItem<BlockItem> COCA_SEEDS =
-            ITEMS.registerItem(
-                    "coca_seeds",
-                    props -> new BlockItem(ModBlocks.COCA_CROP.get(), props)
-            );
 
     public static final DeferredItem<Item> TOBACCO_LEAF =
             ITEMS.registerSimpleItem("tobacco_leaf");
@@ -94,9 +64,6 @@ public class ModItems {
     public static final DeferredItem<Item> FUNGAL_CULTURE =
             ITEMS.registerSimpleItem("fungal_culture");
 
-    public static final DeferredItem<BlockItem> PSYCHEDELIC_MYCELIUM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.PSYCHEDELIC_MYCELIUM);
-
     public static final DeferredItem<Item> RYE =
             ITEMS.registerSimpleItem("rye");
 
@@ -111,30 +78,17 @@ public class ModItems {
     public static final DeferredItem<Item> MAGIC_MUSHROOM_POWDER =
             ITEMS.registerItem("magic_mushroom_powder", prop -> new MagicMushroomPowderItem(prop, DrugId.MUSHROOMS, new EatingStrategy()));
 
-
-    public static final DeferredItem<BlockItem> MAGIC_MUSHROOM_BLOCK =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MAGIC_MUSHROOM_BLOCK);
-
-    public static final DeferredItem<BlockItem> MAGIC_MUSHROOM_STEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MAGIC_MUSHROOM_STEM);
-
     public static final DeferredItem<Item> BANG =
             ITEMS.registerItem("bang", BangItem::new);
 
     public static final DeferredItem<Item> GRINDING_TOOL =
             ITEMS.registerSimpleItem("grinding_tool", properties -> properties.stacksTo(1));
 
-    public static final DeferredItem<BlockItem> GRINDING_BOWL =
-            ITEMS.registerSimpleBlockItem(ModBlocks.GRINDING_BOWL);
-
     public static final DeferredItem<Item> PORTABLE_GRINDER =
             ITEMS.registerItem("portable_grinder", PortableGrinderItem::new);
 
     public static final DeferredItem<Item> CUPBOARD_PIECE =
             ITEMS.registerSimpleItem("cupboard_piece");
-
-    public static final DeferredItem<BlockItem> STOMP_CRAFTER_ITEM =
-            ITEMS.registerSimpleBlockItem("stomp_crafter", ModBlocks.STOMP_CRAFTER);
 
     public static final DeferredItem<Item> STOMP_PLATE =
             ITEMS.registerSimpleItem("stomp_plate");
@@ -196,15 +150,6 @@ public class ModItems {
 
     public static final DeferredItem<Item> ROLLER = ITEMS.registerItem("roller", RollerItem::new);
 
-    public static final DeferredItem<BlockItem> ADVANCED_FURNACE_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_FURNACE);
-
-    public static final DeferredItem<BlockItem> DISTILLER_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.DISTILLER);
-
-    public static final DeferredItem<BlockItem> MIXING_VAT_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MIXING_VAT);
-
     public static final DeferredItem<Item> FLOUR =
             ITEMS.registerSimpleItem("flour");
 
@@ -223,16 +168,7 @@ public class ModItems {
     public static final DeferredItem<Item> ERGOTAMINE =
             ITEMS.registerSimpleItem("ergotamine");
 
-    public static final DeferredItem<BlockItem> BIOCHEMICAL_REACTOR = ITEMS.registerSimpleBlockItem(
-            ModBlocks.BIOCHEMICAL_REACTOR
-    );
-
     public static final DeferredItem<Item> TRYPTOPHAN = ITEMS.registerSimpleItem("tryptophan");
-    public static final DeferredItem<BlockItem> DRYER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.DRYER);
-
-    public static final DeferredItem<BlockItem> SIEVE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.SIEVE);
-
-    public static final DeferredItem<BlockItem> FLUID_FILTERER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.FLUID_FILTERER);
 
     public static final DeferredItem<Item> FLUID_FILTER = ITEMS.registerItem(
             "fluid_filter",
@@ -241,21 +177,6 @@ public class ModItems {
 
     public static final DeferredItem<Item> COCAINE_PLATE =
             ITEMS.registerSimpleItem("cocaine_plate");
-
-    public static final DeferredItem<BlockItem> EVAPORATION_TRAY_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.EVAPORATION_TRAY);
-
-    public static final DeferredItem<BlockItem> CENTRIFUGE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.CENTRIFUGE);
-
-    public static final DeferredItem<BlockItem> GROWTH_CHAMBER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GROWTH_CHAMBER);
-
-    public static final DeferredItem<BlockItem> SALT_BLOCK_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.SALT_BLOCK);
-
-    public static final DeferredItem<BlockItem> SULFUR_ORE_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.SULFUR_ORE);
-
-    public static final DeferredItem<BlockItem> DEEPSLATE_SULFUR_ORE_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.DEEPSLATE_SULFUR_ORE);
 
     public static final DeferredItem<GasTankItem> GAS_TANK_ITEM = ITEMS.register(
             "gas_tank",
@@ -267,24 +188,10 @@ public class ModItems {
                             .component(ModDataComponents.GAS_TANK_CONTENTS.get(), GasTankContents.EMPTY)
             )
     );
-    public static final DeferredItem<BlockItem> GAS_PUMP_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GAS_PUMP);
 
     public static final DeferredItem<Item> SALT_POWDER = ITEMS.registerSimpleItem("salt_powder");
+
     public static final DeferredItem<Item> SULFUR_POWDER = ITEMS.registerSimpleItem("sulfur_powder");
-
-    public static final DeferredItem<BlockItem> CHEMICAL_REACTOR_ITEM = ITEMS.registerSimpleBlockItem(
-            ModBlocks.CHEMICAL_REACTOR
-    );
-
-    public static final DeferredItem<BlockItem> ADVANCED_MIXING_VAT_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.ADVANCED_MIXING_VAT);
-
-    public static final DeferredItem<BlockItem> GASIFIER_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.GASIFIER);
-
-    public static final DeferredItem<BlockItem> THERAPIST_DESK_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.THERAPIST_DESK);
-
-    public static final DeferredItem<BlockItem> RECOVERY_ANCHOR_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.RECOVERY_ANCHOR);
 
     public static final DeferredItem<PersonalDiaryItem> PERSONAL_DIARY =
             ITEMS.registerItem("personal_diary", PersonalDiaryItem::new);
@@ -300,6 +207,129 @@ public class ModItems {
 
     public static final DeferredItem<SleepingAidItem> SLEEPING_AID =
             ITEMS.registerItem("sleeping_aid", SleepingAidItem::new);
+
+    public static final DeferredItem<Item> RESIN =
+            ITEMS.registerSimpleItem("resin");
+
+    public static final DeferredItem<Item> STONE_HAMMER =
+            ITEMS.registerSimpleItem("stone_hammer", props -> props.stacksTo(1).durability(20));
+
+    public static final DeferredItem<Item> COPPER_PLATE =
+            ITEMS.registerSimpleItem("copper_plate");
+
+    public static final DeferredItem<Item> COPPER_STRAPPING =
+            ITEMS.registerSimpleItem("copper_strapping");
+
+    public static final DeferredItem<Item> WOODEN_FRAME =
+            ITEMS.registerSimpleItem("wooden_frame");
+
+    public static final DeferredItem<Item> HEAVY_IRON =
+            ITEMS.registerSimpleItem("heavy_iron");
+
+    public static final DeferredItem<Item> IRON_AXLE =
+            ITEMS.registerSimpleItem("iron_axle");
+
+    public static final DeferredItem<Item> IRON_HAMMER =
+            ITEMS.registerSimpleItem("iron_hammer", props -> props.stacksTo(1).durability(192));
+
+    public static final DeferredItem<Item> COAL_DUST =
+            ITEMS.registerSimpleItem("coal_dust");
+
+    public static final DeferredItem<Item> ACTIVATED_COAL =
+            ITEMS.registerSimpleItem("activated_coal");
+
+    public static final DeferredItem<Item> POROUS_CLAY =
+            ITEMS.registerSimpleItem("porous_clay");
+
+    public static final DeferredItem<Item> POROUS_CERAMIC =
+            ITEMS.registerSimpleItem("porous_ceramic");
+
+    public static final DeferredItem<Item> GLASS_TUBE =
+            ITEMS.registerSimpleItem("glass_tube");
+
+    public static final DeferredItem<Item> HAND_CRANK =
+            ITEMS.registerSimpleItem("hand_crank");
+
+    public static final DeferredItem<Item> FILTER_BOX =
+            ITEMS.registerSimpleItem("filter_box");
+
+    public static final DeferredItem<Item> ROTOR =
+            ITEMS.registerSimpleItem("rotor");
+
+    public static final DeferredItem<Item> RAW_THICK_GLASS =
+            ITEMS.registerSimpleItem("raw_thick_glass");
+
+    public static final DeferredItem<Item> THICK_GLASS =
+            ITEMS.registerSimpleItem("thick_glass");
+
+    public static final DeferredItem<Item> SOFT_SEAL =
+            ITEMS.registerSimpleItem("soft_seal");
+
+    public static final DeferredItem<Item> WATERING_CONNECTION =
+            ITEMS.registerSimpleItem("watering_connection");
+
+    public static final DeferredItem<Item> STEEL_BLEND =
+            ITEMS.registerSimpleItem("steel_blend");
+
+    public static final DeferredItem<Item> STEEL_INGOT =
+            ITEMS.registerSimpleItem("steel_ingot");
+
+    public static final DeferredItem<Item> STEEL_HAMMER =
+            ITEMS.registerSimpleItem("steel_hammer", props -> props.stacksTo(1).durability(384));
+
+    public static final DeferredItem<Item> STEEL_PLATE =
+            ITEMS.registerSimpleItem("steel_plate");
+
+    public static final DeferredItem<Item> RAW_RUBBER =
+            ITEMS.registerSimpleItem("raw_rubber");
+
+    public static final DeferredItem<Item> RUBBER =
+            ITEMS.registerSimpleItem("rubber");
+
+    public static final DeferredItem<Item> REFRACTORY_MIX =
+            ITEMS.registerSimpleItem("refractory_mix");
+
+    public static final DeferredItem<Item> REFRACTORY_BRICK =
+            ITEMS.registerSimpleItem("refractory_brick");
+
+    public static final DeferredItem<Item> TIGHT_SEAL =
+            ITEMS.registerSimpleItem("tight_seal");
+
+    public static final DeferredItem<Item> REINFORCED_CASING =
+            ITEMS.registerSimpleItem("reinforced_casing");
+
+    public static final DeferredItem<Item> AGITATOR =
+            ITEMS.registerSimpleItem("agitator");
+
+    public static final DeferredItem<Item> HEAT_LINING =
+            ITEMS.registerSimpleItem("heat_lining");
+
+    public static final DeferredItem<Item> COPPER_TUBE =
+            ITEMS.registerSimpleItem("copper_tube");
+
+    public static final DeferredItem<Item> PRESSURE_SEAL =
+            ITEMS.registerSimpleItem("pressure_seal");
+
+    public static final DeferredItem<Item> VALVE =
+            ITEMS.registerSimpleItem("valve");
+
+    public static final DeferredItem<Item> TANK_WALL =
+            ITEMS.registerSimpleItem("tank_wall");
+
+    public static final DeferredItem<Item> PRESSURE_CASING =
+            ITEMS.registerSimpleItem("pressure_casing");
+
+    public static final DeferredItem<Item> MEMBRANE =
+            ITEMS.registerSimpleItem("membrane");
+
+    public static final DeferredItem<Item> PUMP_HEAD =
+            ITEMS.registerSimpleItem("pump_head");
+
+    public static final DeferredItem<Item> INJECTOR_NOZZLE =
+            ITEMS.registerSimpleItem("injector_nozzle");
+
+    public static final DeferredItem<Item> REACTION_CORE =
+            ITEMS.registerSimpleItem("reaction_core");
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

@@ -12,6 +12,9 @@ import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers.AddFeaturesBiomeModifier;
 
 public final class ModBiomeModifiers {
+    private ModBiomeModifiers() {
+    }
+
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
@@ -34,6 +37,4 @@ public final class ModBiomeModifiers {
                 )
         );
     }
-
-    private ModBiomeModifiers() {}
 }

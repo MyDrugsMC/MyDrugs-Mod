@@ -7,7 +7,8 @@ import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayl
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 
 public final class ClientPayloadHandler {
-    private ClientPayloadHandler() {}
+    private ClientPayloadHandler() {
+    }
 
     public static void handleSnapshot(AddictionClientSnapshotPayload payload, IPayloadContext context) {
         AddictionClientState.apply(payload);

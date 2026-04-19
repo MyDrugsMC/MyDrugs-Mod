@@ -225,7 +225,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                         Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item4,
                         MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput1,
                         MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput2,
-                        ItemStack.STREAM_CODEC, MixingVatRecipe::resultItem,
+                        ItemStack.OPTIONAL_STREAM_CODEC, MixingVatRecipe::resultItem,
                         MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::resultFluid,
                         ByteBufCodecs.VAR_INT, MixingVatRecipe::requiredStirs,
                         MixingVatRecipe::new

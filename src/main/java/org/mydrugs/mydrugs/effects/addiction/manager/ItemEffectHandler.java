@@ -4,11 +4,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
+import org.mydrugs.mydrugs.items.ModItems;
 
 public final class ItemEffectHandler {
     private static final long HEADPHONES_REFRESH_TICKS = 5L;

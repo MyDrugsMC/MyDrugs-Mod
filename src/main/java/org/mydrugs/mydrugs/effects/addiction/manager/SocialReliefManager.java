@@ -7,7 +7,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 
 public final class SocialReliefManager {
-    private SocialReliefManager() {}
+    private SocialReliefManager() {
+    }
 
     public static int countCompanions(ServerPlayer player, double radius) {
         AABB box = player.getBoundingBox().inflate(radius);

@@ -2,13 +2,15 @@ package org.mydrugs.mydrugs.items.drugs;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.core.drug.*;
+import org.mydrugs.mydrugs.core.drug.DrugHolder;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.DrugModel;
+import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
 
@@ -61,8 +63,7 @@ public abstract class DrugItem extends Item implements DrugHolder {
                 MyDrugs.DRUG_SERVICE.consume(drugModel, strategy);
                 AddictionManager.consume(player, drugModel.getDrugCategory(), 1);
             }
-        }
-        else {
+        } else {
             MyDrugs.DRUG_SERVICE.consume(getDrugModel(), strategy);
             AddictionManager.consume(player, getDrugModel().getDrugCategory(), 1);
         }

@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "minecraft:coal",
+  "result": {
+    "id": "mydrugs:coal_dust",
+    "count": 1
+  },
+  "work": 3
+}

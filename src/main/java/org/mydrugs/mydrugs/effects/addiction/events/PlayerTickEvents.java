@@ -9,7 +9,8 @@ import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class PlayerTickEvents {
-    private PlayerTickEvents() {}
+    private PlayerTickEvents() {
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {

@@ -6,7 +6,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
@@ -14,7 +13,6 @@ import org.mydrugs.mydrugs.worldgen.ModBiomeModifiers;
 import org.mydrugs.mydrugs.worldgen.ModConfiguredFeatures;
 import org.mydrugs.mydrugs.worldgen.ModPlacedFeatures;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)

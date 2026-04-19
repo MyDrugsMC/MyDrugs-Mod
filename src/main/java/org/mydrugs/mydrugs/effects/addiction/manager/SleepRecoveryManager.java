@@ -9,7 +9,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class SleepRecoveryManager {
-    private SleepRecoveryManager() {}
+    private SleepRecoveryManager() {
+    }
 
     public static boolean canSleep(ServerPlayer player, float severity) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());

@@ -5,7 +5,8 @@ import net.minecraft.util.Mth;
 public final class HeartbeatPulse {
     private static int ticksSinceBeat = 9999;
 
-    private HeartbeatPulse() {}
+    private HeartbeatPulse() {
+    }
 
     public static void triggerBeat() {
         ticksSinceBeat = 0;
@@ -24,7 +25,7 @@ public final class HeartbeatPulse {
         float decay = (float) Math.exp(-9.5F * t);
 
         // one strong squeeze with a tiny rebound feel
-        float wave = 0.85F + 0.25F * (float)Math.sin(t * 22.0F);
+        float wave = 0.85F + 0.25F * (float) Math.sin(t * 22.0F);
 
         return Mth.clamp(attack * decay * wave, 0.0F, 1.0F);
     }

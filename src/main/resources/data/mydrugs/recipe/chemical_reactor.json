@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDE",
+    " A "
+  ],
+  "key": {
+    "A": "mydrugs:valve",
+    "B": "mydrugs:thick_glass",
+    "C": "mydrugs:glass_tube",
+    "D": "mydrugs:reaction_core",
+    "E": "mydrugs:heat_lining"
+  },
+  "result": {
+    "id": "mydrugs:chemical_reactor",
+    "count": 1
+  }
+}

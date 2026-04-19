@@ -19,7 +19,8 @@ import org.mydrugs.mydrugs.effects.addiction.network.AddictionPayloads;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ClientEventHandler {
-    private ClientEventHandler() {}
+    private ClientEventHandler() {
+    }
 
     @SubscribeEvent
     public static void onRegisterClientPayloads(RegisterClientPayloadHandlersEvent event) {
@@ -28,7 +29,8 @@ public final class ClientEventHandler {
 
     @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
     public static final class Game {
-        private Game() {}
+        private Game() {
+        }
 
         @SubscribeEvent
         public static void onClientTick(ClientTickEvent.Post event) {

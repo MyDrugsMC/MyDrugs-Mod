@@ -11,12 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public interface FluidTankAccess {
-    int capacity();
-
-    FluidStack getFluid();
-
-    void setFluid(FluidStack stack);
-
     static FluidTankAccess of(int capacity, Supplier<FluidStack> getter, Consumer<FluidStack> setter) {
         Objects.requireNonNull(getter);
         Objects.requireNonNull(setter);
@@ -38,6 +32,12 @@ public interface FluidTankAccess {
             }
         };
     }
+
+    int capacity();
+
+    FluidStack getFluid();
+
+    void setFluid(FluidStack stack);
 
     default boolean isEmpty() {
         FluidStack stored = this.getFluid();

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " A ",
+    "ASA",
+    " A "
+  ],
+  "key": {
+    "A": "minecraft:stick",
+    "S": "mydrugs:iron_axle"
+  },
+  "result": {
+    "id": "mydrugs:hand_crank",
+    "count": 1
+  }
+}

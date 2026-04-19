@@ -7,7 +7,8 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 public final class SafeZoneManager {
     private static final int RADIUS = 8;
 
-    private SafeZoneManager() {}
+    private SafeZoneManager() {
+    }
 
     public static boolean isInSafeZone(ServerPlayer player) {
         BlockPos origin = player.blockPosition();

@@ -50,6 +50,11 @@ public class ModSounds {
                     () -> SoundEvent.createVariableRangeEvent(
                             ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "goodvibes_music")));
 
+    public static final Supplier<SoundEvent> WRITE =
+            SOUND_EVENTS.register("write",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "write")));
+
     public static SoundEvent fromEffectType(EffectType effectType) {
         if (effectType.getCategory() != EffectCategory.SOUND_EFFECT) return null;
         return switch (effectType) {

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    " B ",
+    "AAA"
+  ],
+  "key": {
+    "A": "mydrugs:steel_plate",
+    "B": "mydrugs:pressure_seal"
+  },
+  "result": {
+    "id": "mydrugs:tank_wall",
+    "count": 1
+  }
+}

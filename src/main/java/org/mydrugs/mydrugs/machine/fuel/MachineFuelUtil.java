@@ -5,15 +5,15 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public final class MachineFuelUtil {
-    private MachineFuelUtil() {
-    }
-
     public static final FuelResolver VANILLA = (stack, level) -> {
         if (stack.isEmpty() || level == null) {
             return 0;
         }
         return stack.getBurnTime(null, level.fuelValues());
     };
+
+    private MachineFuelUtil() {
+    }
 
     public static boolean isFuel(ItemStack stack, @Nullable Level level, FuelResolver resolver) {
         return resolver.getBurnTime(stack, level) > 0;

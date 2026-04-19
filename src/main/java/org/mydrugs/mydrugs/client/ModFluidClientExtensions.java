@@ -9,7 +9,6 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.fluids.FluidEntry;
-import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)

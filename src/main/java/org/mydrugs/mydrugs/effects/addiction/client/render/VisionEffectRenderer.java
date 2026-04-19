@@ -6,7 +6,8 @@ import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 
 public final class VisionEffectRenderer {
-    private VisionEffectRenderer() {}
+    private VisionEffectRenderer() {
+    }
 
     public static void renderOverlay(GuiGraphics guiGraphics) {
         if (!AddictionClientState.has(SymptomFlags.VISION)) return;

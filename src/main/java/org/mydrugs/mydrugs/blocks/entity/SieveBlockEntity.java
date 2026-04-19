@@ -41,10 +41,10 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
     public static final int SLOT_COUNT = 3;
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
-
+    private final float shakeEnergy = 0.0F;
+    private final float extraProgressBuffer = 0.0F;
     private int progress = 0;
     private int maxProgress = 200;
-
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -68,9 +68,6 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
             return 2;
         }
     };
-
-    private final float shakeEnergy = 0.0F;
-    private final float extraProgressBuffer = 0.0F;
     private float shakeProgressBuffer = 0.0F;
     private int idleTicks = 0;
 

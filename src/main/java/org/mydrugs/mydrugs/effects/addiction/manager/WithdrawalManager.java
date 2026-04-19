@@ -9,7 +9,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class WithdrawalManager {
-    private WithdrawalManager() {}
+    private WithdrawalManager() {
+    }
 
     public static void tickCategory(ServerPlayer player, PlayerAddictionStats playerStats, DrugCategory category, boolean inCombat, int companions, boolean inSafeZone) {
         DrugAddictionStats stats = playerStats.get(category);

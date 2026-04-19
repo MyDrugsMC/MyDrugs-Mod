@@ -1,7 +1,8 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "all": "mydrugs:block/evaporation_tray"
+    "all": "mydrugs:block/evaporation_tray",
+    "particle": "mydrugs:block/evaporation_tray"
   },
   "elements": [
     {

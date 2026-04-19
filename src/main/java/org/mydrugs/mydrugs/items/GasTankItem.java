@@ -9,14 +9,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.gas.GasTankItemHandler;
 import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.ModGases;
 import org.mydrugs.mydrugs.registry.ModDataComponents;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class GasTankItem extends BlockItem {

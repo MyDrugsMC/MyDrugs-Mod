@@ -2,15 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "AAA",
+    "A A",
     "BCB",
-    "DDD"
+    " D "
   ],
   "key": {
-    "A": "minecraft:string",
-    "B": "minecraft:paper",
-    "C": "minecraft:leather",
-    "D": "#minecraft:planks"
+    "A": "minecraft:copper_ingot",
+    "B": "minecraft:stick",
+    "C": "mydrugs:filter",
+    "D": "mydrugs:wooden_frame"
   },
   "result": {
     "id": "mydrugs:sieve",

@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
+import org.mydrugs.mydrugs.ModSounds;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -15,7 +16,6 @@ import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
 import org.mydrugs.mydrugs.registry.ModDataComponents;
-import org.mydrugs.mydrugs.ModSounds;
 
 import java.util.List;
 

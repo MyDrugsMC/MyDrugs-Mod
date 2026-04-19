@@ -21,7 +21,7 @@ public class AdvancedFurnaceRecipe implements Recipe<AdvancedFurnaceRecipeInput>
     private final Optional<Ingredient> inputB;
     private final ItemStack resultA;
     private final ItemStack resultB;
-    private final ResourceLocation fluidOutput;
+    private final Optional<ResourceLocation> fluidOutput;
     private final int fluidAmount;
     private final int cookTime;
 
@@ -30,7 +30,7 @@ public class AdvancedFurnaceRecipe implements Recipe<AdvancedFurnaceRecipeInput>
             Optional<Ingredient> inputB,
             ItemStack resultA,
             ItemStack resultB,
-            ResourceLocation fluidOutput,
+            Optional<ResourceLocation> fluidOutput,
             int fluidAmount,
             int cookTime
     ) {
@@ -59,7 +59,7 @@ public class AdvancedFurnaceRecipe implements Recipe<AdvancedFurnaceRecipeInput>
         return resultB;
     }
 
-    public ResourceLocation fluidOutput() {
+    public Optional<ResourceLocation> fluidOutput() {
         return fluidOutput;
     }
 
@@ -117,8 +117,8 @@ public class AdvancedFurnaceRecipe implements Recipe<AdvancedFurnaceRecipeInput>
                 Ingredient.CODEC.optionalFieldOf("input_b").forGetter(AdvancedFurnaceRecipe::inputB),
                 ItemStack.CODEC.fieldOf("result_a").forGetter(AdvancedFurnaceRecipe::resultA),
                 ItemStack.CODEC.optionalFieldOf("result_b", ItemStack.EMPTY).forGetter(AdvancedFurnaceRecipe::resultB),
-                ResourceLocation.CODEC.fieldOf("fluid_output").forGetter(AdvancedFurnaceRecipe::fluidOutput),
-                Codec.INT.fieldOf("fluid_amount").forGetter(AdvancedFurnaceRecipe::fluidAmount),
+                ResourceLocation.CODEC.optionalFieldOf("fluid_output").forGetter(AdvancedFurnaceRecipe::fluidOutput),
+                Codec.INT.optionalFieldOf("fluid_amount", 0).forGetter(AdvancedFurnaceRecipe::fluidAmount),
                 Codec.INT.optionalFieldOf("cook_time", 200).forGetter(AdvancedFurnaceRecipe::cookTime)
         ).apply(instance, AdvancedFurnaceRecipe::new));
 
@@ -127,8 +127,8 @@ public class AdvancedFurnaceRecipe implements Recipe<AdvancedFurnaceRecipeInput>
                         Ingredient.CONTENTS_STREAM_CODEC, AdvancedFurnaceRecipe::inputA,
                         Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), AdvancedFurnaceRecipe::inputB,
                         ItemStack.STREAM_CODEC, AdvancedFurnaceRecipe::resultA,
-                        ItemStack.STREAM_CODEC, AdvancedFurnaceRecipe::resultB,
-                        ResourceLocation.STREAM_CODEC, AdvancedFurnaceRecipe::fluidOutput,
+                        ItemStack.OPTIONAL_STREAM_CODEC, AdvancedFurnaceRecipe::resultB,
+                        ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional), AdvancedFurnaceRecipe::fluidOutput,
                         ByteBufCodecs.VAR_INT, AdvancedFurnaceRecipe::fluidAmount,
                         ByteBufCodecs.VAR_INT, AdvancedFurnaceRecipe::cookTime,
                         AdvancedFurnaceRecipe::new

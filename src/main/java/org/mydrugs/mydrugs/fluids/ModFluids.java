@@ -54,7 +54,7 @@ public final class ModFluids {
     public static final FluidEntry ACTIVATED_LYSERGIC_ACID;
     public static final FluidEntry SULFUR_COMPOUND;
     public static final FluidEntry CRACK;
-
+    public static final FluidEntry WET_ACTIVATED_COAL;
 
     static {
         STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFD2B07A, false, null));
@@ -80,6 +80,7 @@ public final class ModFluids {
         ACTIVATED_LYSERGIC_ACID = register(new FluidEntryDef("activated_lysergic_acid", 0xFFFFFFFF, false, null));
         SULFUR_COMPOUND = register(new FluidEntryDef("sulfur_compound", 0xFFD6E86A, false, null));
         CRACK = register(new FluidEntryDef("crack", 0xFFCFE17A, false, null));
+        WET_ACTIVATED_COAL = register(new FluidEntryDef("wet_activated_coal", 0xFF000000, false, null));
     }
 
     private ModFluids() {

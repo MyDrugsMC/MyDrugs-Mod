@@ -109,7 +109,7 @@ public final class StompCrafterRecipeResolver {
     public record GrindingMatch(RecipeHolder<GrindingRecipe> holder) implements ProcessMatch {
         @Override
         public int requiredWork() {
-            return holder.value().clampedWork() * WORK_UNIT_SCALE;
+            return holder.value().work() * WORK_UNIT_SCALE;
         }
 
         @Override

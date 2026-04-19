@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    "A A",
+    "AAA"
+  ],
+  "key": {
+    "A": "mydrugs:refractory_brick"
+  },
+  "result": {
+    "id": "mydrugs:heat_lining",
+    "count": 1
+  }
+}

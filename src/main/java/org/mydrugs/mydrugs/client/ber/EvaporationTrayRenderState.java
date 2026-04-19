@@ -6,12 +6,10 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public class EvaporationTrayRenderState extends BlockEntityRenderState {
+    public final ItemStackRenderState item = new ItemStackRenderState();
     @Nullable
     public ResourceLocation fluidStillTexture = null;
-
     public int fluidTint = 0xFFFFFFFF;
     public float fluidRatio = 0.0f;
     public boolean hasFluid = false;
-
-    public final ItemStackRenderState item = new ItemStackRenderState();
 }

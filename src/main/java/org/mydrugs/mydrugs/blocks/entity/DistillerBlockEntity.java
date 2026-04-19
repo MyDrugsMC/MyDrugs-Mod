@@ -48,14 +48,11 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     public static final int FLUID_CAPACITY = 4000;
 
     private final ArrayDeque<Long> recentClicks = new ArrayDeque<>();
-    private NonNullList<ItemStack> buckets = NonNullList.withSize(3, ItemStack.EMPTY);
-
     private final LockedTransferSlots inputTransferLocks = new LockedTransferSlots(1);
-
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
     private final StoredFluidTank outputATank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
     private final StoredFluidTank outputBTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
-
+    private NonNullList<ItemStack> buckets = NonNullList.withSize(3, ItemStack.EMPTY);
     private int progress = 0;
     private int maxProgress = 200;
     private int clicksPerSec = 0;
@@ -209,6 +206,43 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
 
         return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    private static boolean dumpTank(StoredFluidTank tank) {
+        if (tank.isEmpty()) {
+            return false;
+        }
+
+        tank.setFluid(FluidStack.EMPTY);
+        return true;
+    }
+
+    @Nullable
+    private static ResourceLocation getFluidId(StoredFluidTank tank) {
+        FluidStack stored = tank.getFluid();
+        if (stored.isEmpty()) {
+            return null;
+        }
+
+        Fluid fluid = stored.getFluid();
+        if (fluid == Fluids.EMPTY) {
+            return null;
+        }
+
+        return BuiltInRegistries.FLUID.getKey(fluid);
+    }
+
+    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
+        if (amount <= 0) {
+            return FluidStack.EMPTY;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, amount);
     }
 
     @Override
@@ -471,43 +505,6 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
     private int getProgressPerTickFromCps() {
         return this.clicksPerSec <= 5 ? 0 : this.clicksPerSec - 5;
-    }
-
-    private static boolean dumpTank(StoredFluidTank tank) {
-        if (tank.isEmpty()) {
-            return false;
-        }
-
-        tank.setFluid(FluidStack.EMPTY);
-        return true;
-    }
-
-    @Nullable
-    private static ResourceLocation getFluidId(StoredFluidTank tank) {
-        FluidStack stored = tank.getFluid();
-        if (stored.isEmpty()) {
-            return null;
-        }
-
-        Fluid fluid = stored.getFluid();
-        if (fluid == Fluids.EMPTY) {
-            return null;
-        }
-
-        return BuiltInRegistries.FLUID.getKey(fluid);
-    }
-
-    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) {
-            return FluidStack.EMPTY;
-        }
-
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
-        if (fluid == null || fluid == Fluids.EMPTY) {
-            return FluidStack.EMPTY;
-        }
-
-        return new FluidStack(fluid, amount);
     }
 
     private void sync() {

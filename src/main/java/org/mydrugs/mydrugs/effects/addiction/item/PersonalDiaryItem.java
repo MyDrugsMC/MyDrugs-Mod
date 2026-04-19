@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.effects.addiction.item;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemUseAnimation;
+import org.mydrugs.mydrugs.ModSounds;
 import org.mydrugs.mydrugs.effects.addiction.manager.ItemEffectHandler;
 
 import java.util.List;
@@ -29,5 +30,6 @@ public final class PersonalDiaryItem extends AbstractRecoveryItem {
     @Override
     protected void afterUse(ServerPlayer player) {
         player.sendSystemMessage(DIARY_MESSAGES.get(player.getRandom().nextInt(DIARY_MESSAGES.size())));
+        player.playSound(ModSounds.WRITE.get());
     }
 }

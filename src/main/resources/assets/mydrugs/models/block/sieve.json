@@ -4,7 +4,8 @@
   "textures": {
     "top": "mydrugs:block/sieve_top",
     "side": "mydrugs:block/sieve_side",
-    "bottom": "mydrugs:block/sieve_bottom"
+    "bottom": "mydrugs:block/sieve_bottom",
+    "particle": "mydrugs:block/sieve_top"
   },
   "elements": [
     {

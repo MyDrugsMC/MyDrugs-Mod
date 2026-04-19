@@ -8,7 +8,8 @@ import org.mydrugs.mydrugs.effects.addiction.network.AddictionPayloads;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class RegisterPayloadEvents {
-    private RegisterPayloadEvents() {}
+    private RegisterPayloadEvents() {
+    }
 
     @SubscribeEvent
     public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {

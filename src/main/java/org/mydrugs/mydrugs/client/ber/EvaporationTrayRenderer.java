@@ -41,6 +41,45 @@ public class EvaporationTrayRenderer implements BlockEntityRenderer<EvaporationT
         this.materials = context.materials();
     }
 
+    private static void addQuadDoubleSided(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            int light,
+            int color,
+            float x1, float y1, float z1, float u1, float v1,
+            float x2, float y2, float z2, float u2, float v2,
+            float x3, float y3, float z3, float u3, float v3,
+            float x4, float y4, float z4, float u4, float v4,
+            float nx, float ny, float nz
+    ) {
+        vertex(consumer, pose, x1, y1, z1, u1, v1, light, color, nx, ny, nz);
+        vertex(consumer, pose, x2, y2, z2, u2, v2, light, color, nx, ny, nz);
+        vertex(consumer, pose, x3, y3, z3, u3, v3, light, color, nx, ny, nz);
+        vertex(consumer, pose, x4, y4, z4, u4, v4, light, color, nx, ny, nz);
+
+        vertex(consumer, pose, x4, y4, z4, u4, v4, light, color, -nx, -ny, -nz);
+        vertex(consumer, pose, x3, y3, z3, u3, v3, light, color, -nx, -ny, -nz);
+        vertex(consumer, pose, x2, y2, z2, u2, v2, light, color, -nx, -ny, -nz);
+        vertex(consumer, pose, x1, y1, z1, u1, v1, light, color, -nx, -ny, -nz);
+    }
+
+    private static void vertex(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            float x, float y, float z,
+            float u, float v,
+            int light,
+            int color,
+            float nx, float ny, float nz
+    ) {
+        consumer.addVertex(pose, x, y, z)
+                .setColor(color)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, nx, ny, nz);
+    }
+
     @Override
     public EvaporationTrayRenderState createRenderState() {
         return new EvaporationTrayRenderState();
@@ -219,44 +258,5 @@ public class EvaporationTrayRenderer implements BlockEntityRenderer<EvaporationT
                     );
                 }
         );
-    }
-
-    private static void addQuadDoubleSided(
-            VertexConsumer consumer,
-            PoseStack.Pose pose,
-            int light,
-            int color,
-            float x1, float y1, float z1, float u1, float v1,
-            float x2, float y2, float z2, float u2, float v2,
-            float x3, float y3, float z3, float u3, float v3,
-            float x4, float y4, float z4, float u4, float v4,
-            float nx, float ny, float nz
-    ) {
-        vertex(consumer, pose, x1, y1, z1, u1, v1, light, color, nx, ny, nz);
-        vertex(consumer, pose, x2, y2, z2, u2, v2, light, color, nx, ny, nz);
-        vertex(consumer, pose, x3, y3, z3, u3, v3, light, color, nx, ny, nz);
-        vertex(consumer, pose, x4, y4, z4, u4, v4, light, color, nx, ny, nz);
-
-        vertex(consumer, pose, x4, y4, z4, u4, v4, light, color, -nx, -ny, -nz);
-        vertex(consumer, pose, x3, y3, z3, u3, v3, light, color, -nx, -ny, -nz);
-        vertex(consumer, pose, x2, y2, z2, u2, v2, light, color, -nx, -ny, -nz);
-        vertex(consumer, pose, x1, y1, z1, u1, v1, light, color, -nx, -ny, -nz);
-    }
-
-    private static void vertex(
-            VertexConsumer consumer,
-            PoseStack.Pose pose,
-            float x, float y, float z,
-            float u, float v,
-            int light,
-            int color,
-            float nx, float ny, float nz
-    ) {
-        consumer.addVertex(pose, x, y, z)
-                .setColor(color)
-                .setUv(u, v)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(pose, nx, ny, nz);
     }
 }

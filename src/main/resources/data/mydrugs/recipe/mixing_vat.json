@@ -2,13 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "A A",
-    "ABA",
-    "AAA"
+    " A ",
+    "BCB",
+    " D "
   ],
   "key": {
-    "A": "minecraft:iron_ingot",
-    "B": "minecraft:stick"
+    "A": "minecraft:stick",
+    "B": "mydrugs:copper_strapping",
+    "C": "mydrugs:clay_vat",
+    "D": "mydrugs:wooden_frame"
   },
   "result": {
     "id": "mydrugs:mixing_vat",

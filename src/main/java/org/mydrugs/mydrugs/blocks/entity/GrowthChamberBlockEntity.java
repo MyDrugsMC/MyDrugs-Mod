@@ -48,17 +48,13 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
     public static final int WATER_INPUT_SLOT = 4;
 
     public static final int SLOT_COUNT = 5;
-
-    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
-
     private final LockedTransferSlots waterTransferLocks = new LockedTransferSlots(1);
-
     private final StoredFluidTank waterTank = new StoredFluidTank(
             WATER_CAPACITY,
             this::sync,
             stack -> !stack.isEmpty() && stack.getFluid() == Fluids.WATER
     );
-
+    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private int growthProgress = 0;
     private int growthMaxProgress = 200;
 
@@ -105,17 +101,13 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
             return;
         }
 
-        boolean changed = false;
-
-        if (FluidTransferUtil.tryProcessTransferSlot(
+        boolean changed = FluidTransferUtil.tryProcessTransferSlot(
                 be,
                 WATER_INPUT_SLOT,
                 be.waterTank,
                 be.waterTransferLocks,
                 0
-        )) {
-            changed = true;
-        }
+        );
 
         Optional<RecipeHolder<GrowthChamberRecipe>> stage1Holder = be.getStage1Recipe(serverLevel);
 
@@ -188,6 +180,14 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         if (changed) {
             be.sync();
         }
+    }
+
+    public static boolean isFluidContainer(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
     }
 
     private Optional<RecipeHolder<GrowthChamberRecipe>> getStage1Recipe(ServerLevel level) {
@@ -348,14 +348,6 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
 
         sync();
         return true;
-    }
-
-    public static boolean isFluidContainer(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
     }
 
     @Override

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A A",
+    " B ",
+    "A A"
+  ],
+  "key": {
+    "A": "mydrugs:treated_planks",
+    "B": "minecraft:stick"
+  },
+  "result": {
+    "id": "mydrugs:wooden_frame",
+    "count": 1
+  }
+}
