@@ -139,7 +139,7 @@ public final class DryerBlockEntity extends BlockEntity {
         if (this.level.isClientSide()) return Optional.empty();
         ServerLevel serverLevel = (ServerLevel) this.level;
         return serverLevel.recipeAccess().getRecipeFor(
-                ModRecipeTypes.DRYING_TYPE.get(),
+                ModRecipeTypes.DRYING.get(),
                 new SingleRecipeInput(stack),
                 serverLevel
         );

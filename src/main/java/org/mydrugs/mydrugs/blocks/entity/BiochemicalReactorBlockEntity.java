@@ -36,8 +36,8 @@ import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.menu.BiochemicalReactorMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
-import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipeInput;
+import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipeInput;
 
 import java.util.Optional;
 

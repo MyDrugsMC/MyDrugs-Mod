@@ -14,7 +14,7 @@ import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.gas.GasTankItemHandler;
 import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.ModGases;
-import org.mydrugs.mydrugs.registry.ModDataComponents;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 import java.util.List;
 import java.util.function.Consumer;

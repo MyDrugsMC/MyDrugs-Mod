@@ -8,6 +8,8 @@ import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 
 public final class ItemEffectHandler {
@@ -22,7 +24,7 @@ public final class ItemEffectHandler {
 
         stats.temporaryEffects.diaryCalmUntil = now + (20L * 90L);
         stats.temporaryEffects.thoughtSuppressionUntil = now + (20L * 60L);
-        StressManager.reduce(stats, 0.18F);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_DIARY);
     }
 
     public static void applyHeadphones(ServerPlayer player, int durationTicks) {
@@ -109,7 +111,7 @@ public final class ItemEffectHandler {
 
     public static void applyHerbalTea(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        StressManager.reduce(stats, 0.12F);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_HERBAL_TEA);
 
         for (DrugCategory category : DrugCategory.values()) {
             stats.get(category).baseWithdrawalMeter = Math.max(0.0F, stats.get(category).baseWithdrawalMeter - 6.0F);
@@ -120,7 +122,7 @@ public final class ItemEffectHandler {
 
     public static void applyCalmingMixture(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        StressManager.reduce(stats, 0.18F);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_CALMING_MIXTURE);
 
         for (DrugCategory category : DrugCategory.values()) {
             stats.get(category).baseWithdrawalMeter = Math.max(0.0F, stats.get(category).baseWithdrawalMeter - 10.0F);
@@ -135,7 +137,7 @@ public final class ItemEffectHandler {
 
         stats.sleepBlockedUntil = 0L;
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + 20L * 240L;
-        StressManager.reduce(stats, 0.10F);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_SLEEPING_AID);
 
         stats.get(DrugCategory.SEDATIVE).baseWithdrawalMeter =
                 Math.max(0.0F, stats.get(DrugCategory.SEDATIVE).baseWithdrawalMeter - 4.0F);

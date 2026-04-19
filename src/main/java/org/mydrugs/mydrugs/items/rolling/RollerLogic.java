@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.menu.RollerMenu;
-import org.mydrugs.mydrugs.registry.ModDataComponents;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 public final class RollerLogic {
     private RollerLogic() {

@@ -77,12 +77,12 @@ public final class DryingRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public RecipeType<? extends Recipe<SingleRecipeInput>> getType() {
-        return ModRecipeTypes.DRYING_TYPE.get();
+        return ModRecipeTypes.DRYING.get();
     }
 
     @Override
     public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
-        return ModRecipeSerializers.DRYING_SERIALIZER.get();
+        return ModRecipeSerializers.DRYING.get();
     }
 
     public static class Serializer implements RecipeSerializer<DryingRecipe> {

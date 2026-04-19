@@ -7,6 +7,16 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.manager.progression.RelapseManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.progression.WithdrawalManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SocialReliefManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.ResilienceManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressDamageManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.SymptomManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.ToleranceManager;
+import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class AddictionManager {
@@ -30,7 +40,7 @@ public final class AddictionManager {
         drugStats.baseWithdrawalMeter = Math.max(0.0F, drugStats.baseWithdrawalMeter - relief);
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
 
-        playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - 0.03F);
+        playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - AddictionConstants.STRESS_RELIEF_ON_CONSUME);
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -38,8 +48,8 @@ public final class AddictionManager {
 
         ItemEffectHandler.tickHeadphones(player);
 
-        boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < 200;
-        int companions = SocialReliefManager.countCompanions(player, 12.0D);
+        boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < AddictionConstants.COMBAT_DETECTION_TICKS;
+        int companions = SocialReliefManager.countCompanions(player, AddictionConstants.COMPANION_DETECTION_RADIUS);
         boolean inSafeZone = SafeZoneManager.isInSafeZone(player);
         long gameTime = player.level().getGameTime();
 
@@ -81,7 +91,7 @@ public final class AddictionManager {
         StressDamageManager.tick(player, stats);
         SymptomManager.applyServerSymptoms(player, globalSeverity);
 
-        if (inSafeZone && globalSeverity > 0.40F && gameTime % 200L == 0L) {
+        if (inSafeZone && globalSeverity > AddictionConstants.SAFE_ZONE_RECOVERY_THRESHOLD && gameTime % AddictionConstants.SAFE_ZONE_RECOVERY_INTERVAL_TICKS == 0L) {
             ResilienceManager.onSafeZoneRecovery(stats);
         }
 

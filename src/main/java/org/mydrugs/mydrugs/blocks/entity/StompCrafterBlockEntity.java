@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.recipes.stompcrafting.StompCrafterRecipeResolver;
+import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCrafterRecipeResolver;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,7 +17,7 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import org.mydrugs.mydrugs.items.data.BloodSample;
-import org.mydrugs.mydrugs.registry.ModDataComponents;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 import java.util.List;
 import java.util.function.Consumer;
