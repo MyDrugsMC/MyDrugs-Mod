@@ -143,7 +143,7 @@ public final class DryingRackBlockEntity extends BlockEntity {
         }
 
         return serverLevel.recipeAccess().getRecipeFor(
-                ModRecipeTypes.DRYING_TYPE.get(),
+                ModRecipeTypes.DRYING.get(),
                 new SingleRecipeInput(stack),
                 serverLevel
         );

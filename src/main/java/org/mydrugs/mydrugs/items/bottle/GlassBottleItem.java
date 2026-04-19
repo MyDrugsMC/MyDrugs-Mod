@@ -29,7 +29,7 @@ import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.fluids.FluidTypesEx;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.registry.ModDataComponents;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 import java.util.function.Consumer;
 

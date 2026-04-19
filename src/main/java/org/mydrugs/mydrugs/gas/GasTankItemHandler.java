@@ -2,7 +2,7 @@ package org.mydrugs.mydrugs.gas;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import org.mydrugs.mydrugs.registry.ModDataComponents;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 public class GasTankItemHandler implements IGasHandler {
     public static final long CAPACITY = 8_000; // change to 4 if you literally want 4 mB

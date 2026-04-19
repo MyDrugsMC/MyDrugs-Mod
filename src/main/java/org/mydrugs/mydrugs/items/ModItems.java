@@ -23,7 +23,7 @@ import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
 import org.mydrugs.mydrugs.items.rolling.RollerItem;
-import org.mydrugs.mydrugs.registry.ModDataComponents;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;

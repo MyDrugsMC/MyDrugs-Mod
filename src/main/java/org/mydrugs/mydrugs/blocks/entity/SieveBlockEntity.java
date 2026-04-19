@@ -191,7 +191,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         RecipeManager recipes = serverLevel.recipeAccess();
         return recipes.getRecipeFor(
-                ModRecipeTypes.SIEVING_TYPE.get(),
+                ModRecipeTypes.SIEVING.get(),
                 new SingleRecipeInput(input),
                 serverLevel
         );
@@ -204,7 +204,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         RecipeManager recipes = serverLevel.recipeAccess();
         return recipes.getRecipeFor(
-                ModRecipeTypes.SIEVING_TYPE.get(),
+                ModRecipeTypes.SIEVING.get(),
                 new SingleRecipeInput(stack),
                 serverLevel
         );

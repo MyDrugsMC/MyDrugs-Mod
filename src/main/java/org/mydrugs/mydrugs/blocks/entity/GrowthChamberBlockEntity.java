@@ -33,8 +33,8 @@ import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.GrowthChamberMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
-import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberItemStack;
-import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
+import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberItemStack;
+import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 
 import java.util.Optional;
 

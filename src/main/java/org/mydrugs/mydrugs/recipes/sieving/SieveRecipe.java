@@ -99,12 +99,12 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public RecipeType<? extends Recipe<SingleRecipeInput>> getType() {
-        return ModRecipeTypes.SIEVING_TYPE.get();
+        return ModRecipeTypes.SIEVING.get();
     }
 
     @Override
     public RecipeSerializer<? extends Recipe<SingleRecipeInput>> getSerializer() {
-        return ModRecipeSerializers.SIEVING_SERIALIZER.get();
+        return ModRecipeSerializers.SIEVING.get();
     }
 
     public static final class Serializer implements RecipeSerializer<SieveRecipe> {
