@@ -17,7 +17,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -160,6 +162,24 @@ public class MixingVatBlockEntity extends BlockEntity {
 
         float elapsed = (STIR_ANIMATION_TICKS - stirAnimationTicks) + partialTick;
         return Math.min(1.0f, elapsed / (float) STIR_ANIMATION_TICKS);
+    }
+
+    public boolean isHeated() {
+        if (level == null) return false;
+        BlockPos below = worldPosition.below();
+        net.minecraft.world.level.block.state.BlockState belowState = level.getBlockState(below);
+        Block belowBlock = belowState.getBlock();
+
+        if (belowBlock == Blocks.FIRE || belowBlock == Blocks.SOUL_FIRE) {
+            return true;
+        }
+
+        if ((belowBlock == Blocks.CAMPFIRE || belowBlock == Blocks.SOUL_CAMPFIRE)
+                && belowState.getValue(BlockStateProperties.LIT)) {
+            return true;
+        }
+
+        return false;
     }
 
     private void resetMixingProgress() {
@@ -555,6 +575,11 @@ public class MixingVatBlockEntity extends BlockEntity {
         }
 
         MixingVatRecipe recipe = recipeHolder.get().value();
+
+        if (recipe.requiresHeat() && !isHeated()) {
+            return false;
+        }
+
         requiredStirs = recipe.requiredStirs();
 
         currentStirs++;
