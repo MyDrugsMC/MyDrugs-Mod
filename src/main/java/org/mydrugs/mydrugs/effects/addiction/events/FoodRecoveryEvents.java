@@ -10,8 +10,8 @@ import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.manager.ResilienceManager;
-import org.mydrugs.mydrugs.effects.addiction.manager.StressManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.ResilienceManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class FoodRecoveryEvents {

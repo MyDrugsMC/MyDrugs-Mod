@@ -279,12 +279,12 @@ public class AdvancedMixingVatRecipe implements Recipe<AdvancedMixingVatRecipeIn
 
     @Override
     public RecipeSerializer<? extends Recipe<AdvancedMixingVatRecipeInput>> getSerializer() {
-        return ModRecipeSerializers.ADVANCED_MIXING_VAT_RECIPE_SERIALIZER.get();
+        return ModRecipeSerializers.ADVANCED_MIXING_VAT.get();
     }
 
     @Override
     public RecipeType<? extends Recipe<AdvancedMixingVatRecipeInput>> getType() {
-        return ModRecipeTypes.ADVANCED_MIXING_VAT_RECIPE_TYPE.get();
+        return ModRecipeTypes.ADVANCED_MIXING_VAT.get();
     }
 
     public FluidStack resultStack() {

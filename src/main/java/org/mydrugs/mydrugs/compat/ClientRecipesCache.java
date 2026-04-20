@@ -10,7 +10,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.biochemicalreactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
@@ -19,10 +19,10 @@ import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growthchamber.GrowthChamberRecipe;
+import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stompcrafting.StompCraftingRecipe;
+import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +131,7 @@ public final class ClientRecipesCache {
                 .forEach(ADVANCED_FURNACE_RECIPES::add);
 
         event.getRecipeMap()
-                .byType(ModRecipeTypes.ADVANCED_MIXING_VAT_RECIPE_TYPE.get())
+                .byType(ModRecipeTypes.ADVANCED_MIXING_VAT.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(ADVANCED_MIXING_VAT_RECIPES::add);
@@ -161,7 +161,7 @@ public final class ClientRecipesCache {
                 .forEach(DISTILLER_RECIPES::add);
 
         event.getRecipeMap()
-                .byType(ModRecipeTypes.DRYING_TYPE.get())
+                .byType(ModRecipeTypes.DRYING.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(DRYING_RECIPES::add);
@@ -203,7 +203,7 @@ public final class ClientRecipesCache {
                 .forEach(MIXING_VAT_RECIPES::add);
 
         event.getRecipeMap()
-                .byType(ModRecipeTypes.SIEVING_TYPE.get())
+                .byType(ModRecipeTypes.SIEVING.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(SIEVE_RECIPES::add);

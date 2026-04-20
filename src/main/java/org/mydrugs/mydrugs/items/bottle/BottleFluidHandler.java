@@ -9,6 +9,7 @@ import net.neoforged.neoforge.transfer.ItemAccessResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.mydrugs.mydrugs.items.data.ModDataComponents;
 
 public class BottleFluidHandler extends ItemAccessResourceHandler<FluidResource> {
     public BottleFluidHandler(ItemAccess itemAccess) {
@@ -16,7 +17,7 @@ public class BottleFluidHandler extends ItemAccessResourceHandler<FluidResource>
     }
 
     private static BottleFluidContent getContent(ItemResource accessResource) {
-        return accessResource.toStack().get(org.mydrugs.mydrugs.registry.ModDataComponents.BOTTLE_CONTENT.get());
+        return accessResource.toStack().get(ModDataComponents.BOTTLE_CONTENT.get());
     }
 
     @Override
