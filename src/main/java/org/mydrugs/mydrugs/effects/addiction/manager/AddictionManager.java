@@ -1,12 +1,16 @@
 package org.mydrugs.mydrugs.effects.addiction.manager;
 
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.core.drug.AddictionConfigs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.dose.AbsorptionTimes;
+import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.progression.RelapseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.progression.WithdrawalManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SafeZoneManager;
@@ -24,6 +28,13 @@ public final class AddictionManager {
     }
 
     public static void consume(ServerPlayer player, DrugCategory category, float dose) {
+        consume(player, category, dose, null);
+    }
+
+    public static void consume(ServerPlayer player,
+                               DrugCategory category,
+                               float dose,
+                               @Nullable ConsumptionStrategy strategy) {
         PlayerAddictionStats playerStats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         DrugAddictionStats drugStats = playerStats.get(category);
         AddictionCategoryConfig cfg = AddictionConfigs.get(category);
@@ -42,6 +53,9 @@ public final class AddictionManager {
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
 
         playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - AddictionConstants.STRESS_RELIEF_ON_CONSUME);
+
+        // Dose system: bump targetDose; currentDose catches up over the absorption window.
+        DoseManager.onConsume(drugStats, dose, AbsorptionTimes.forStrategy(strategy));
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -77,6 +91,8 @@ public final class AddictionManager {
             drugStats.addictionValue = Math.max(0.0F, drugStats.addictionValue - addictionRecovery);
             RelapseManager.decay(drugStats);
 
+            DoseManager.tickCategory(player, stats, category);
+
             float sev = drugStats.withdrawalNorm();
             if (sev > 0.05F) {
                 active++;
@@ -91,6 +107,7 @@ public final class AddictionManager {
         StressManager.tick(player, stats, globalSeverity, inCombat, companions, inSafeZone);
         StressDamageManager.tick(player, stats);
         SymptomManager.applyServerSymptoms(player, globalSeverity);
+        DoseManager.tickOverdoseTimer(player, stats);
 
         WithdrawalHintManager.tick(player, globalSeverity, inSafeZone, companions);
 

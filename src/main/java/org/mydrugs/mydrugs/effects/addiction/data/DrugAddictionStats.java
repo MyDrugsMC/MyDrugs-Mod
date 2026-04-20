@@ -13,6 +13,14 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     public float relapseMemory;
     public float peakHistoricalAddiction;
 
+    // --- Dose system ---
+    /** What's currently active in the body, drives symptoms/state. */
+    public float currentDose;
+    /** What's been consumed but not yet absorbed. currentDose lerps toward this. */
+    public float targetDose;
+    /** Ticks per unit that currentDose rises toward targetDose (set by last consume). */
+    public float absorptionRatePerTick;
+
     @Override
     public void serialize(ValueOutput output) {
         output.putFloat("addiction_value", addictionValue);
@@ -21,6 +29,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         output.putLong("last_use_time", lastUseTime);
         output.putFloat("relapse_memory", relapseMemory);
         output.putFloat("peak_historical_addiction", peakHistoricalAddiction);
+
+        output.putFloat("current_dose", currentDose);
+        output.putFloat("target_dose", targetDose);
+        output.putFloat("absorption_rate_per_tick", absorptionRatePerTick);
     }
 
     @Override
@@ -31,6 +43,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         lastUseTime = input.getLongOr("last_use_time", 0L);
         relapseMemory = input.getFloatOr("relapse_memory", 0.0F);
         peakHistoricalAddiction = input.getFloatOr("peak_historical_addiction", 0.0F);
+
+        currentDose = input.getFloatOr("current_dose", 0.0F);
+        targetDose = input.getFloatOr("target_dose", 0.0F);
+        absorptionRatePerTick = input.getFloatOr("absorption_rate_per_tick", 0.0F);
     }
 
     public DrugAddictionStats copy() {
@@ -41,6 +57,9 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         copy.lastUseTime = lastUseTime;
         copy.relapseMemory = relapseMemory;
         copy.peakHistoricalAddiction = peakHistoricalAddiction;
+        copy.currentDose = currentDose;
+        copy.targetDose = targetDose;
+        copy.absorptionRatePerTick = absorptionRatePerTick;
         return copy;
     }
 
