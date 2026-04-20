@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "C C",
+    "ABA"
+  ],
+  "key": {
+    "A": "mydrugs:pressure_seal",
+    "B": "mydrugs:thick_glass",
+    "C": "mydrugs:reinforced_casing"
+  },
+  "result": {
+    "id": "mydrugs:pressure_casing",
+    "count": 1
+  }
+}

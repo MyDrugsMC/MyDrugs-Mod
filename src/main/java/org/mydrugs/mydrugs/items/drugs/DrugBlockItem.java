@@ -8,8 +8,6 @@ import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 
-import java.util.List;
-
 public abstract class DrugBlockItem extends BlockItem implements DrugHolder {
     private final DrugModel model;
     private final ConsumptionStrategy strategy;

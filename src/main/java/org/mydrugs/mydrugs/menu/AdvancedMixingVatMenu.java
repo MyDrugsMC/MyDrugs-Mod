@@ -19,15 +19,13 @@ import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
 
 public class AdvancedMixingVatMenu extends AbstractMachineMenu {
     public static final int MACHINE_SLOT_COUNT = AdvancedMixingVatBlockEntity.ITEM_SLOT_COUNT;
-
-    private final ItemStacksResourceHandler itemHandler;
-    private final ContainerData data;
-    private final ContainerLevelAccess access;
-
     private static final int PLAYER_INV_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INV_END = PLAYER_INV_START + 27;
     private static final int HOTBAR_START = PLAYER_INV_END;
     private static final int HOTBAR_END = HOTBAR_START + 9;
+    private final ItemStacksResourceHandler itemHandler;
+    private final ContainerData data;
+    private final ContainerLevelAccess access;
 
     public AdvancedMixingVatMenu(int containerId, Inventory playerInventory) {
         this(
@@ -133,6 +131,10 @@ public class AdvancedMixingVatMenu extends AbstractMachineMenu {
         this.addDataSlots(data);
     }
 
+    private static Fluid decodeFluid(int id) {
+        return id < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(id);
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.ADVANCED_MIXING_VAT.get());
@@ -204,10 +206,6 @@ public class AdvancedMixingVatMenu extends AbstractMachineMenu {
 
     public Fluid getOutputFluid() {
         return decodeFluid(this.getOutputFluidSyncId());
-    }
-
-    private static Fluid decodeFluid(int id) {
-        return id < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(id);
     }
 
     public int getScaledProgress(int pixels) {

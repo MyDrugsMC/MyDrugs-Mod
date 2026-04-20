@@ -5,7 +5,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.CentrifugeMenu;
 import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
-import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
 public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
     private InvisibleButton dumpInputButton;

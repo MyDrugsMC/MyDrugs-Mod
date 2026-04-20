@@ -8,11 +8,12 @@ import org.mydrugs.mydrugs.effects.addiction.client.HeartbeatPulse;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 
 public final class ClientSoundController {
+    private static final java.util.Random RANDOM = new java.util.Random();
     private static long nextHeartbeatAt = 0L;
     private static long nextThoughtAt = 0L;
-    private static final java.util.Random RANDOM = new java.util.Random();
 
-    private ClientSoundController() {}
+    private ClientSoundController() {
+    }
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();

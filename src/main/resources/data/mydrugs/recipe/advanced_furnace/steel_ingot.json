@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:advanced_furnace",
+  "input_a": "mydrugs:steel_blend",
+  "result_a": {
+    "id": "mydrugs:steel_ingot",
+    "count": 1
+  },
+  "cook_time": 200
+}

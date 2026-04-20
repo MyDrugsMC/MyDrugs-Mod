@@ -5,7 +5,8 @@ import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.effects.addiction.data.WithdrawalPhase;
 
 public final class AddictionMath {
-    private AddictionMath() {}
+    private AddictionMath() {
+    }
 
     public static float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));

@@ -6,7 +6,8 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler;
 
 public class AddictionPayloads {
-    private AddictionPayloads() {}
+    private AddictionPayloads() {
+    }
 
     public static void registerCommon(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");

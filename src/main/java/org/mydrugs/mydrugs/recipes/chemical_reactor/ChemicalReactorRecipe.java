@@ -70,11 +70,7 @@ public class ChemicalReactorRecipe implements Recipe<ChemicalReactorRecipeInput>
             return false;
         }
 
-        if (this.secondaryFluid.isPresent() && !this.secondaryFluid.get().test(input.secondaryFluid())) {
-            return false;
-        }
-
-        return true;
+        return this.secondaryFluid.isEmpty() || this.secondaryFluid.get().test(input.secondaryFluid());
     }
 
     @Override
@@ -136,6 +132,11 @@ public class ChemicalReactorRecipe implements Recipe<ChemicalReactorRecipeInput>
 
     public int heatDrain() {
         return heatDrain;
+    }
+
+    @Override
+    public boolean isSpecial() {
+        return true;
     }
 
     public static class Serializer implements RecipeSerializer<ChemicalReactorRecipe> {

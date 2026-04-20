@@ -1,7 +1,6 @@
 package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -28,15 +27,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
-import org.mydrugs.mydrugs.blocks.GasifierBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
 import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
 import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
-import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.GasifierMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
@@ -107,6 +103,28 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         if (!level.isClientSide()) {
             be.tickServer();
         }
+    }
+
+    public static boolean isValidInput(ItemStack stack, @Nullable Level level) {
+        if (level == null || stack.isEmpty() || level.isClientSide()) {
+            return false;
+        }
+
+        return ((ServerLevel) level).recipeAccess()
+                .getRecipeFor(
+                        ModRecipeTypes.GASIFIER.get(),
+                        new SingleRecipeInput(stack),
+                        level
+                )
+                .isPresent();
+    }
+
+    public static boolean isFuel(ItemStack stack, Level level) {
+        return MachineFuelUtil.isFuel(stack, level, FUEL);
+    }
+
+    public static int getFuelBurnDuration(ItemStack stack, Level level) {
+        return MachineFuelUtil.getBurnTime(stack, level, FUEL);
     }
 
     private void tickServer() {
@@ -253,28 +271,6 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
 
     public ContainerData getContainerData() {
         return this.data;
-    }
-
-    public static boolean isValidInput(ItemStack stack, @Nullable Level level) {
-        if (level == null || stack.isEmpty() || level.isClientSide()) {
-            return false;
-        }
-
-        return ((ServerLevel)level).recipeAccess()
-                .getRecipeFor(
-                        ModRecipeTypes.GASIFIER.get(),
-                        new SingleRecipeInput(stack),
-                        level
-                )
-                .isPresent();
-    }
-
-    public static boolean isFuel(ItemStack stack, Level level) {
-        return MachineFuelUtil.isFuel(stack, level, FUEL);
-    }
-
-    public static int getFuelBurnDuration(ItemStack stack, Level level) {
-        return MachineFuelUtil.getBurnTime(stack, level, FUEL);
     }
 
     @Override
@@ -452,7 +448,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
             return null;
         }
 
-        return ((ServerLevel)this.level).recipeAccess()
+        return ((ServerLevel) this.level).recipeAccess()
                 .getRecipeFor(
                         ModRecipeTypes.GASIFIER.get(),
                         new SingleRecipeInput(this.items.get(SLOT_INPUT)),

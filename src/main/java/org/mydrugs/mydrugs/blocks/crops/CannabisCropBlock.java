@@ -11,6 +11,6 @@ public class CannabisCropBlock extends CropBlock {
 
     @Override
     protected ItemLike getBaseSeedId() {
-        return ModItems.CANNABIS_SEEDS.get();
+        return ModCrops.CANNABIS_SEEDS.get();
     }
 }

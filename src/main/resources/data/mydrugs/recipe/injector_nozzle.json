@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " A ",
+    " B "
+  ],
+  "key": {
+    "A": "mydrugs:copper_tube",
+    "B": "mydrugs:valve"
+  },
+  "result": {
+    "id": "mydrugs:injector_nozzle",
+    "count": 1
+  }
+}

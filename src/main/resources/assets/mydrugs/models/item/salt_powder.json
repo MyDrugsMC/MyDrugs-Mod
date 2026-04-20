@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "mydrugs:item/salt_powder"
+    "layer0": "mydrugs:item/cocaine_dust"
   }
 }

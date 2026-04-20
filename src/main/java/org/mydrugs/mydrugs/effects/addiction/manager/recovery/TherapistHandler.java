@@ -12,7 +12,8 @@ import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.worldgen.ModVillagerProfessions;
 
 public final class TherapistHandler {
-    private TherapistHandler() {}
+    private TherapistHandler() {
+    }
 
     public static boolean isTherapist(Villager villager) {
         return villager.getVillagerData().profession().value() == ModVillagerProfessions.THERAPIST.get();

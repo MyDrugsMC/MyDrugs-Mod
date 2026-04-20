@@ -10,10 +10,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerFluidStack;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipeInput;
 
 import java.util.Optional;
 

@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -24,7 +24,6 @@ import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -39,6 +38,7 @@ public final class FakeEntityRenderController {
             ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "textures/misc/hallucination_shadow.png");
     private static final ResourceLocation EYES_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "textures/misc/hallucination_eyes.png");
+    private static final ByteBufferBuilder HALLUCINATION_BUFFER = new ByteBufferBuilder(256 * 1024);
 
     private FakeEntityRenderController() {
     }
@@ -79,8 +79,6 @@ public final class FakeEntityRenderController {
                 hasEyes
         ));
     }
-
-    private static final ByteBufferBuilder HALLUCINATION_BUFFER = new ByteBufferBuilder(256 * 1024);
 
     public static void render(RenderLevelStageEvent event) {
 

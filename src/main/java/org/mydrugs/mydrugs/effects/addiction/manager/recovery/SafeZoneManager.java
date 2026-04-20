@@ -8,7 +8,8 @@ import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 public final class SafeZoneManager {
     private static final int RADIUS = AddictionConstants.SAFE_ZONE_RADIUS;
 
-    private SafeZoneManager() {}
+    private SafeZoneManager() {
+    }
 
     public static boolean isInSafeZone(ServerPlayer player) {
         BlockPos origin = player.blockPosition();

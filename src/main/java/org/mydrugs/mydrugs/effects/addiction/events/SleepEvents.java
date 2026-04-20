@@ -9,6 +9,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.WithdrawalHintManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SleepRecoveryManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
@@ -23,6 +24,7 @@ public final class SleepEvents {
         boolean canSleep = SleepRecoveryManager.canSleep(player, severity);
 
         if (!canSleep) {
+            WithdrawalHintManager.onSleepBlocked(player, severity);
             event.setProblem(Player.BedSleepingProblem.OTHER_PROBLEM);
         }
     }

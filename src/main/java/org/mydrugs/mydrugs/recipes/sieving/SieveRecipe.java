@@ -119,7 +119,7 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
         public static final StreamCodec<RegistryFriendlyByteBuf, SieveRecipe> STREAM_CODEC = StreamCodec.composite(
                 Ingredient.CONTENTS_STREAM_CODEC, SieveRecipe::input,
                 ItemStack.STREAM_CODEC, SieveRecipe::result,
-                ByteBufCodecs.optional(ItemStack.STREAM_CODEC), SieveRecipe::bonusResult,
+                ByteBufCodecs.optional(ItemStack.OPTIONAL_STREAM_CODEC), SieveRecipe::bonusResult,
                 ByteBufCodecs.FLOAT, SieveRecipe::bonusChance,
                 ByteBufCodecs.VAR_INT, SieveRecipe::sieveTime,
                 SieveRecipe::new

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AA",
+    "AA"
+  ],
+  "key": {
+    "A": "minecraft:leather"
+  },
+  "result": {
+    "id": "mydrugs:soft_seal",
+    "count": 1
+  }
+}

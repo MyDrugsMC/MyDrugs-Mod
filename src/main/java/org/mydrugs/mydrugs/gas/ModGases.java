@@ -16,7 +16,8 @@ public final class ModGases {
     public static final GasType SULFUR = register("sulfur", 0xFFD6E86A, true, false);
     public static final GasType AIR = register("air", 0xFFFFFFFF, false, false);
 
-    private ModGases() {}
+    private ModGases() {
+    }
 
     private static GasType register(String path, int tint, boolean toxic, boolean flammable) {
         GasType gas = new GasType(

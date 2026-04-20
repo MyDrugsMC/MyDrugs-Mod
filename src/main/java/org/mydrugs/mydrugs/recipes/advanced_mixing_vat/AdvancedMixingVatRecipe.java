@@ -11,13 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.PlacementInfo;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeBookCategories;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -60,84 +54,6 @@ public class AdvancedMixingVatRecipe implements Recipe<AdvancedMixingVatRecipeIn
         this.gasInput = gasInput;
         this.output = output;
         this.processingTime = Math.max(1, processingTime);
-    }
-
-    public List<CountedIngredient> itemInputs() {
-        return this.itemInputs;
-    }
-
-    public List<FluidRequirement> fluidInputs() {
-        return this.fluidInputs;
-    }
-
-    @Nullable
-    public GasRequirement gasInput() {
-        return this.gasInput;
-    }
-
-    public FluidResult output() {
-        return this.output;
-    }
-
-    public int processingTime() {
-        return this.processingTime;
-    }
-
-    @Override
-    public boolean matches(AdvancedMixingVatRecipeInput input, Level level) {
-        return itemsMatch(this.itemInputs, input.items())
-                && fluidsMatch(this.fluidInputs, input.inputA(), input.inputB())
-                && gasMatches(this.gasInput, input.gas());
-    }
-
-    @Override
-    public ItemStack assemble(AdvancedMixingVatRecipeInput input, HolderLookup.Provider registries) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean isSpecial() {
-        return true;
-    }
-
-    @Override
-    public PlacementInfo placementInfo() {
-        if (this.itemInputs.isEmpty()) {
-            return PlacementInfo.NOT_PLACEABLE;
-        }
-
-        if (this.placementInfo == null) {
-            List<Optional<Ingredient>> optionals = new ArrayList<>(this.itemInputs.size());
-            for (CountedIngredient counted : this.itemInputs) {
-                optionals.add(Optional.of(counted.ingredient()));
-            }
-            this.placementInfo = PlacementInfo.createFromOptionals(optionals);
-        }
-
-        return this.placementInfo;
-    }
-
-    @Override
-    public RecipeBookCategory recipeBookCategory() {
-        return RecipeBookCategories.CRAFTING_MISC;
-    }
-
-    @Override
-    public RecipeSerializer<? extends Recipe<AdvancedMixingVatRecipeInput>> getSerializer() {
-        return ModRecipeSerializers.ADVANCED_MIXING_VAT.get();
-    }
-
-    @Override
-    public RecipeType<? extends Recipe<AdvancedMixingVatRecipeInput>> getType() {
-        return ModRecipeTypes.ADVANCED_MIXING_VAT.get();
-    }
-
-    public FluidStack resultStack() {
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(this.output.fluid());
-        if (fluid == Fluids.EMPTY || this.output.amount() <= 0) {
-            return FluidStack.EMPTY;
-        }
-        return new FluidStack(fluid, this.output.amount());
     }
 
     public static boolean itemsMatch(List<CountedIngredient> requirements, List<ItemStack> available) {
@@ -220,8 +136,8 @@ public class AdvancedMixingVatRecipe implements Recipe<AdvancedMixingVatRecipeIn
             throw new IllegalArgumentException("AdvancedMixingVat supports at most 3 fluid requirements");
         }
 
-        NonNullList<FluidStack>[] tanks = new NonNullList[] { tankA, tankB, tankC };
-        FluidStack[] fluids = new FluidStack[] { tankA.get(0), tankB.get(0), tankC.get(0) };
+        NonNullList<FluidStack>[] tanks = new NonNullList[]{tankA, tankB, tankC};
+        FluidStack[] fluids = new FluidStack[]{tankA.get(0), tankB.get(0), tankC.get(0)};
 
         int[] assignment = new int[requirements.size()];
         for (int i = 0; i < assignment.length; i++) {
@@ -299,6 +215,84 @@ public class AdvancedMixingVatRecipe implements Recipe<AdvancedMixingVatRecipeIn
 
         ResourceLocation availableId = available.type().id();
         return requirement.gas().equals(availableId) && available.amount() >= requirement.amount();
+    }
+
+    public List<CountedIngredient> itemInputs() {
+        return this.itemInputs;
+    }
+
+    public List<FluidRequirement> fluidInputs() {
+        return this.fluidInputs;
+    }
+
+    @Nullable
+    public GasRequirement gasInput() {
+        return this.gasInput;
+    }
+
+    public FluidResult output() {
+        return this.output;
+    }
+
+    public int processingTime() {
+        return this.processingTime;
+    }
+
+    @Override
+    public boolean matches(AdvancedMixingVatRecipeInput input, Level level) {
+        return itemsMatch(this.itemInputs, input.items())
+                && fluidsMatch(this.fluidInputs, input.inputA(), input.inputB())
+                && gasMatches(this.gasInput, input.gas());
+    }
+
+    @Override
+    public ItemStack assemble(AdvancedMixingVatRecipeInput input, HolderLookup.Provider registries) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        if (this.itemInputs.isEmpty()) {
+            return PlacementInfo.NOT_PLACEABLE;
+        }
+
+        if (this.placementInfo == null) {
+            List<Optional<Ingredient>> optionals = new ArrayList<>(this.itemInputs.size());
+            for (CountedIngredient counted : this.itemInputs) {
+                optionals.add(Optional.of(counted.ingredient()));
+            }
+            this.placementInfo = PlacementInfo.createFromOptionals(optionals);
+        }
+
+        return this.placementInfo;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public RecipeSerializer<? extends Recipe<AdvancedMixingVatRecipeInput>> getSerializer() {
+        return ModRecipeSerializers.ADVANCED_MIXING_VAT.get();
+    }
+
+    @Override
+    public RecipeType<? extends Recipe<AdvancedMixingVatRecipeInput>> getType() {
+        return ModRecipeTypes.ADVANCED_MIXING_VAT.get();
+    }
+
+    public FluidStack resultStack() {
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(this.output.fluid());
+        if (fluid == Fluids.EMPTY || this.output.amount() <= 0) {
+            return FluidStack.EMPTY;
+        }
+        return new FluidStack(fluid, this.output.amount());
     }
 
     public record CountedIngredient(Ingredient ingredient, int count) {

@@ -25,7 +25,8 @@ public class GasTankItemHandler implements IGasHandler {
     }
 
     private GasTank loadTankFromStack() {
-        GasTank tank = new GasTank(CAPACITY, gas -> true, () -> {});
+        GasTank tank = new GasTank(CAPACITY, gas -> true, () -> {
+        });
 
         GasTankContents contents = getContents();
         GasType gas = contents.gasId().isBlank()

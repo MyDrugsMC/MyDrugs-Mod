@@ -5,7 +5,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 
 public final class AddictionHudRenderer {
-    private AddictionHudRenderer() {}
+    private AddictionHudRenderer() {
+    }
 
     public static void render(GuiGraphics guiGraphics) {
         Minecraft mc = Minecraft.getInstance();

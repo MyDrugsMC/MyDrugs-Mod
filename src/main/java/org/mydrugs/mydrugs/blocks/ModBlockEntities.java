@@ -58,11 +58,6 @@ public final class ModBlockEntities {
                     () -> new BlockEntityType<>(MixingVatBlockEntity::new, false, ModBlocks.MIXING_VAT.get())
             );
 
-    public static final Supplier<BlockEntityType<DryerBlockEntity>> DRYER = BLOCK_ENTITY_TYPES.register(
-            "dryer",
-            () -> new BlockEntityType<>(DryerBlockEntity::new, false, ModBlocks.DRYER.get())
-    );
-
     public static final Supplier<BlockEntityType<SieveBlockEntity>> SIEVE = BLOCK_ENTITY_TYPES.register(
             "sieve",
             () -> new BlockEntityType<>(SieveBlockEntity::new, false, ModBlocks.SIEVE.get())
@@ -152,4 +147,18 @@ public final class ModBlockEntities {
                             ModBlocks.ADVANCED_MIXING_VAT.get()
                     )
             );
+
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DryingRackBlockEntity>> DRYING_RACK =
+            BLOCK_ENTITY_TYPES.register(
+                    "drying_rack",
+                    () -> new BlockEntityType<>(DryingRackBlockEntity::new, ModBlocks.DRYING_RACK.get())
+            );
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ClayVatBlockEntity>> CLAY_VAT =
+            BLOCK_ENTITY_TYPES.register("clay_vat",
+                    () -> new BlockEntityType<>(
+                            ClayVatBlockEntity::new,
+                            ModBlocks.CLAY_VAT.get()
+                    ));
 }

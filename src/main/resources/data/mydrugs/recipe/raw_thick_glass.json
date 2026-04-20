@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:glass",
+    "minecraft:quartz"
+  ],
+  "result": {
+    "id": "mydrugs:raw_thick_glass",
+    "count": 1
+  }
+}

@@ -27,7 +27,8 @@ public final class ModVillagerProfessions {
                     )
             );
 
-    private ModVillagerProfessions() {}
+    private ModVillagerProfessions() {
+    }
 
     public static void register(IEventBus modBus) {
         PROFESSIONS.register(modBus);

@@ -5,13 +5,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.items.rolling.RollerLogic;
-import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 import org.mydrugs.mydrugs.menu.layout.RollerLayout;
 import org.mydrugs.mydrugs.menu.slot.RollerMachineSlot;
 import org.mydrugs.mydrugs.menu.slot.RollerOutputSlot;
@@ -23,15 +21,12 @@ public class RollerMenu extends AbstractMachineMenu {
     public static final int INGREDIENT_2_SLOT = 3;
     public static final int INGREDIENT_3_SLOT = 4;
     public static final int OUTPUT_SLOT = 5;
-
+    public static final int MAX_PROGRESS = 100;
     private static final int MACHINE_SLOT_COUNT = 6;
     private static final int PLAYER_INV_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INV_END = PLAYER_INV_START + 27;
     private static final int HOTBAR_START = PLAYER_INV_END;
     private static final int HOTBAR_END = HOTBAR_START + 9;
-
-    public static final int MAX_PROGRESS = 100;
-
     private final Container machine;
     private final ContainerData data;
 
@@ -106,6 +101,10 @@ public class RollerMenu extends AbstractMachineMenu {
         return this.data.get(0);
     }
 
+    private void setProgress(int value) {
+        this.data.set(0, Mth.clamp(value, 0, this.getMaxProgress()));
+    }
+
     public int getMaxProgress() {
         int max = this.data.get(1);
         return max <= 0 ? MAX_PROGRESS : max;
@@ -115,10 +114,6 @@ public class RollerMenu extends AbstractMachineMenu {
         int progress = this.getProgress();
         int max = this.getMaxProgress();
         return max <= 0 ? 0 : progress * pixels / max;
-    }
-
-    private void setProgress(int value) {
-        this.data.set(0, Mth.clamp(value, 0, this.getMaxProgress()));
     }
 
     @Override

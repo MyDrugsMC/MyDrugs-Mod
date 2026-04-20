@@ -5,7 +5,8 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 
 public final class RelapseManager {
-    private RelapseManager() {}
+    private RelapseManager() {
+    }
 
     public static void onUse(DrugCategory category, DrugAddictionStats stats) {
         float weight = AddictionConfigs.get(category).relapseWeight();

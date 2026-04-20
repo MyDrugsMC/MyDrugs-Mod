@@ -13,7 +13,8 @@ import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class DamageEvents {
-    private DamageEvents() {}
+    private DamageEvents() {
+    }
 
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Post event) {

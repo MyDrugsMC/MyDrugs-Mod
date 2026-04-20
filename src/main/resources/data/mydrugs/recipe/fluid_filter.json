@@ -1,20 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
-    "SPS",
-    "PCP",
-    "SPS"
+    " A ",
+    "BCB",
+    " D "
   ],
   "key": {
-    "P": "minecraft:paper",
-    "S":  "minecraft:string",
-    "C": [
-      "minecraft:coal",
-      "minecraft:charcoal"
-    ]
+    "A": "mydrugs:porous_ceramic",
+    "B": "minecraft:paper",
+    "C": "mydrugs:activated_coal",
+    "D": "minecraft:string"
   },
   "result": {
-    "id": "mydrugs:filter",
+    "id": "mydrugs:fluid_filter",
     "count": 1
   }
 }

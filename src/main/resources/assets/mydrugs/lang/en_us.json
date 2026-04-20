@@ -241,5 +241,13 @@
   "item.mydrugs.sulfur_compound_bucket": "Sulfur Compound Bucket",
   "container.mydrugs.growth_chamber": "Growth Chamber",
   "container.mydrugs.centrifuge": "Centrifuge",
-  "death.attack.stress_overload": "%1$s was consumed by stress."
+  "death.attack.stress_overload": "%1$s was consumed by stress.",
+  "block.mydrugs.crack": "Crack",
+  "fluid_type.mydrugs.crack": "Crack",
+  "fluid_type.mydrugs.crack_type": "Crack",
+  "item.mydrugs.crack_bucket": "Crack Bucket",
+  "item.mydrugs.coca_paste": "Coca Paste",
+  "item.mydrugs.personal_diary": "Personal Diary",
+  "item.mydrugs.headphones": "Headphones",
+  "block.mydrugs.drying_rack": "Drying Rack"
 }

@@ -6,7 +6,8 @@ import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 public final class ClientInputInterceptor {
     private static final java.util.Random RANDOM = new java.util.Random();
 
-    private ClientInputInterceptor() {}
+    private ClientInputInterceptor() {
+    }
 
     public static boolean shouldFailInput() {
         if (!AddictionClientState.has(SymptomFlags.CONFUSION)) return false;

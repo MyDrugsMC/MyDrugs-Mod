@@ -29,6 +29,11 @@ public class StompCraftingRecipe implements Recipe<StompCraftingInput> {
         this.work = work;
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     private static boolean canAssign(List<ItemStack> items, List<Ingredient> slots) {
         if (items.size() > slots.size()) {
             return false;

@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.entity.GasPumpBlockEntity;
 
 public class GasPumpBlock extends Block implements EntityBlock {
@@ -22,6 +21,14 @@ public class GasPumpBlock extends Block implements EntityBlock {
     public GasPumpBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+    }
+
+    private static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
+            BlockEntityType<A> type,
+            BlockEntityType<E> checkedType,
+            BlockEntityTicker<? super E> ticker
+    ) {
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
     }
 
     @Override
@@ -37,14 +44,6 @@ public class GasPumpBlock extends Block implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new GasPumpBlockEntity(pos, state);
-    }
-
-    private static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
-            BlockEntityType<A> type,
-            BlockEntityType<E> checkedType,
-            BlockEntityTicker<? super E> ticker
-    ) {
-        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
     }
 
     @Override

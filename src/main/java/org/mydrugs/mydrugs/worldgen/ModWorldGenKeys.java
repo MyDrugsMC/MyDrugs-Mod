@@ -28,11 +28,11 @@ public final class ModWorldGenKeys {
     public static final ResourceKey<BiomeModifier> ADD_SULFUR_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_sulfur_ore"));
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, path);
+    private ModWorldGenKeys() {
     }
 
-    private ModWorldGenKeys() {
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, path);
     }
 
     private static ResourceKey<ConfiguredFeature<?, ?>> configured(String name) {

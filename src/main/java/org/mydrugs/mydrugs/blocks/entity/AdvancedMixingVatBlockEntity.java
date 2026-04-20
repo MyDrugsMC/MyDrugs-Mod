@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -31,11 +30,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.AdvancedMixingVatBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.gas.GasStack;
-import org.mydrugs.mydrugs.gas.GasTank;
-import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.IGasHandler;
-import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
@@ -79,51 +74,40 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
     private final VatInputFluidHandler inputAHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
     private final NonNullList<FluidStack> inputAStacks = this.inputAHandler.list();
-
-    private final VatInputFluidHandler inputBHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
-    private final NonNullList<FluidStack> inputBStacks = this.inputBHandler.list();
-
-    private final VatInputFluidHandler inputCHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
-    private final NonNullList<FluidStack> inputCStacks = this.inputCHandler.list();
-
-    private final VatOutputFluidHandler outputHandler = new VatOutputFluidHandler(OUTPUT_TANK_CAPACITY);
-    private final NonNullList<FluidStack> outputStacks = this.outputHandler.list();
-
-    private final GasTank gasTank = new GasTank(
-            GAS_TANK_CAPACITY,
-            gasType -> true,
-            this::onMachineChanged
-    );
-
-    private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(3);
-    private final LockedTransferSlots gasTransferLocks = new LockedTransferSlots(1);
-
-    private boolean suppressTransferModeReset = false;
-
     private final FluidTankAccess inputATank = FluidTankAccess.of(
             INPUT_TANK_CAPACITY,
             () -> this.inputAStacks.get(0),
             stack -> this.inputAStacks.set(0, stack)
     );
-
+    private final VatInputFluidHandler inputBHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
+    private final NonNullList<FluidStack> inputBStacks = this.inputBHandler.list();
     private final FluidTankAccess inputBTank = FluidTankAccess.of(
             INPUT_TANK_CAPACITY,
             () -> this.inputBStacks.get(0),
             stack -> this.inputBStacks.set(0, stack)
     );
-
+    private final VatInputFluidHandler inputCHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
+    private final NonNullList<FluidStack> inputCStacks = this.inputCHandler.list();
     private final FluidTankAccess inputCTank = FluidTankAccess.of(
             INPUT_TANK_CAPACITY,
             () -> this.inputCStacks.get(0),
             stack -> this.inputCStacks.set(0, stack)
     );
-
+    private final VatOutputFluidHandler outputHandler = new VatOutputFluidHandler(OUTPUT_TANK_CAPACITY);
+    private final NonNullList<FluidStack> outputStacks = this.outputHandler.list();
     private final FluidTankAccess outputTank = FluidTankAccess.of(
             OUTPUT_TANK_CAPACITY,
             () -> this.outputStacks.get(0),
             stack -> this.outputStacks.set(0, stack)
     );
-
+    private final GasTank gasTank = new GasTank(
+            GAS_TANK_CAPACITY,
+            gasType -> true,
+            this::onMachineChanged
+    );
+    private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(3);
+    private final LockedTransferSlots gasTransferLocks = new LockedTransferSlots(1);
+    private boolean suppressTransferModeReset = false;
     private int progress = 0;
     private int maxProgress = 100;
     private boolean hasRecipe = false;
@@ -139,10 +123,14 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                 case 4 -> (int) Math.min(Integer.MAX_VALUE, gasTank.getAmount());
                 case 5 -> progress;
                 case 6 -> maxProgress;
-                case 7 -> inputAStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(inputAStacks.get(0).getFluid());
-                case 8 -> inputBStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(inputBStacks.get(0).getFluid());
-                case 9 -> inputCStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(inputCStacks.get(0).getFluid());
-                case 10 -> outputStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(outputStacks.get(0).getFluid());
+                case 7 ->
+                        inputAStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(inputAStacks.get(0).getFluid());
+                case 8 ->
+                        inputBStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(inputBStacks.get(0).getFluid());
+                case 9 ->
+                        inputCStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(inputCStacks.get(0).getFluid());
+                case 10 ->
+                        outputStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(outputStacks.get(0).getFluid());
                 case 11 -> gasTank.isEmpty() ? -1 : ModGases.getSyncId(gasTank.getGasType());
                 case 12 -> hasRecipe ? 1 : 0;
                 default -> 0;
@@ -610,145 +598,6 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         this.gasTransferLocks.resetAll();
     }
 
-    private final class VatItemHandler extends ItemStacksResourceHandler {
-        private VatItemHandler(int size) {
-            super(size);
-        }
-
-        protected NonNullList<ItemStack> list() {
-            return this.stacks;
-        }
-
-        @Override
-        protected void onContentsChanged(int index, ItemStack previousStack) {
-            if (!suppressTransferModeReset) {
-                resetTransferLockForSlot(index);
-            }
-            onMachineChanged();
-        }
-    }
-
-    private abstract class BaseVatFluidHandler extends FluidStacksResourceHandler {
-        private BaseVatFluidHandler(int capacity) {
-            super(1, capacity);
-        }
-
-        protected NonNullList<FluidStack> list() {
-            return this.stacks;
-        }
-
-        @Override
-        protected void onContentsChanged(int index, FluidStack previousStack) {
-            onMachineChanged();
-        }
-    }
-
-    private final class VatInputFluidHandler extends BaseVatFluidHandler {
-        private VatInputFluidHandler(int capacity) {
-            super(capacity);
-        }
-
-        @Override
-        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            return 0;
-        }
-    }
-
-    private final class VatOutputFluidHandler extends BaseVatFluidHandler {
-        private VatOutputFluidHandler(int capacity) {
-            super(capacity);
-        }
-
-        @Override
-        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            return 0;
-        }
-    }
-
-    // -----------------------------
-    // Keep all your current recipe methods below:
-    // - findMatchingRecipe
-    // - findMatchingAdvancedRecipe
-    // - findMatchingMixingVatRecipe
-    // - canAcceptOutput
-    // - finishResolvedRecipe
-    // - finishAdvancedRecipe
-    // - finishMixingVatRecipe
-    // - consumeMixingVatItems
-    // - consumeMixingVatFluids
-    // - addToOutputTank
-    // - ResolvedRecipe inner class
-    // -----------------------------
-    private static final class ResolvedRecipe {
-        @Nullable
-        private final AdvancedMixingVatRecipe advancedRecipe;
-        @Nullable
-        private final MixingVatRecipe mixingRecipe;
-        @Nullable
-        private final int[] mixingFluidAssignment;
-
-        private final FluidStack result;
-        private final int processingTime;
-
-        private ResolvedRecipe(
-                @Nullable AdvancedMixingVatRecipe advancedRecipe,
-                @Nullable MixingVatRecipe mixingRecipe,
-                @Nullable int[] mixingFluidAssignment,
-                FluidStack result,
-                int processingTime
-        ) {
-            this.advancedRecipe = advancedRecipe;
-            this.mixingRecipe = mixingRecipe;
-            this.mixingFluidAssignment = mixingFluidAssignment;
-            this.result = result;
-            this.processingTime = processingTime;
-        }
-
-        public static ResolvedRecipe advanced(AdvancedMixingVatRecipe recipe) {
-            return new ResolvedRecipe(
-                    recipe,
-                    null,
-                    null,
-                    recipe.resultStack().copy(),
-                    Math.max(1, recipe.processingTime())
-            );
-        }
-
-        public static ResolvedRecipe mixing(MixingVatRecipe recipe, int[] fluidAssignment, FluidStack result) {
-            return new ResolvedRecipe(
-                    null,
-                    recipe,
-                    fluidAssignment,
-                    result.copy(),
-                    Math.max(1, recipe.requiredStirs() * 20)
-            );
-        }
-
-        public boolean isAdvanced() {
-            return this.advancedRecipe != null;
-        }
-
-        public AdvancedMixingVatRecipe advancedRecipe() {
-            return this.advancedRecipe;
-        }
-
-        public MixingVatRecipe mixingRecipe() {
-            return this.mixingRecipe;
-        }
-
-        public int[] mixingFluidAssignment() {
-            return this.mixingFluidAssignment;
-        }
-
-        public FluidStack result() {
-            return this.result;
-        }
-
-        public int processingTime() {
-            return this.processingTime;
-        }
-    }
-
     private Optional<ResolvedRecipe> findMatchingRecipe() {
         Optional<RecipeHolder<AdvancedMixingVatRecipe>> advanced = findMatchingAdvancedRecipe();
         if (advanced.isPresent()) {
@@ -815,7 +664,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             return null;
         }
 
-        FluidStack[] available = new FluidStack[] {
+        FluidStack[] available = new FluidStack[]{
                 this.inputAStacks.get(0),
                 this.inputBStacks.get(0),
                 this.inputCStacks.get(0)
@@ -971,5 +820,144 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         }
 
         return true;
+    }
+
+    // -----------------------------
+    // Keep all your current recipe methods below:
+    // - findMatchingRecipe
+    // - findMatchingAdvancedRecipe
+    // - findMatchingMixingVatRecipe
+    // - canAcceptOutput
+    // - finishResolvedRecipe
+    // - finishAdvancedRecipe
+    // - finishMixingVatRecipe
+    // - consumeMixingVatItems
+    // - consumeMixingVatFluids
+    // - addToOutputTank
+    // - ResolvedRecipe inner class
+    // -----------------------------
+    private static final class ResolvedRecipe {
+        @Nullable
+        private final AdvancedMixingVatRecipe advancedRecipe;
+        @Nullable
+        private final MixingVatRecipe mixingRecipe;
+        @Nullable
+        private final int[] mixingFluidAssignment;
+
+        private final FluidStack result;
+        private final int processingTime;
+
+        private ResolvedRecipe(
+                @Nullable AdvancedMixingVatRecipe advancedRecipe,
+                @Nullable MixingVatRecipe mixingRecipe,
+                @Nullable int[] mixingFluidAssignment,
+                FluidStack result,
+                int processingTime
+        ) {
+            this.advancedRecipe = advancedRecipe;
+            this.mixingRecipe = mixingRecipe;
+            this.mixingFluidAssignment = mixingFluidAssignment;
+            this.result = result;
+            this.processingTime = processingTime;
+        }
+
+        public static ResolvedRecipe advanced(AdvancedMixingVatRecipe recipe) {
+            return new ResolvedRecipe(
+                    recipe,
+                    null,
+                    null,
+                    recipe.resultStack().copy(),
+                    Math.max(1, recipe.processingTime())
+            );
+        }
+
+        public static ResolvedRecipe mixing(MixingVatRecipe recipe, int[] fluidAssignment, FluidStack result) {
+            return new ResolvedRecipe(
+                    null,
+                    recipe,
+                    fluidAssignment,
+                    result.copy(),
+                    Math.max(1, recipe.requiredStirs() * 20)
+            );
+        }
+
+        public boolean isAdvanced() {
+            return this.advancedRecipe != null;
+        }
+
+        public AdvancedMixingVatRecipe advancedRecipe() {
+            return this.advancedRecipe;
+        }
+
+        public MixingVatRecipe mixingRecipe() {
+            return this.mixingRecipe;
+        }
+
+        public int[] mixingFluidAssignment() {
+            return this.mixingFluidAssignment;
+        }
+
+        public FluidStack result() {
+            return this.result;
+        }
+
+        public int processingTime() {
+            return this.processingTime;
+        }
+    }
+
+    private final class VatItemHandler extends ItemStacksResourceHandler {
+        private VatItemHandler(int size) {
+            super(size);
+        }
+
+        private NonNullList<ItemStack> list() {
+            return this.stacks;
+        }
+
+        @Override
+        protected void onContentsChanged(int index, ItemStack previousStack) {
+            if (!suppressTransferModeReset) {
+                resetTransferLockForSlot(index);
+            }
+            onMachineChanged();
+        }
+    }
+
+    private abstract class BaseVatFluidHandler extends FluidStacksResourceHandler {
+        private BaseVatFluidHandler(int capacity) {
+            super(1, capacity);
+        }
+
+        protected NonNullList<FluidStack> list() {
+            return this.stacks;
+        }
+
+        @Override
+        protected void onContentsChanged(int index, FluidStack previousStack) {
+            onMachineChanged();
+        }
+    }
+
+    private final class VatInputFluidHandler extends BaseVatFluidHandler {
+        private VatInputFluidHandler(int capacity) {
+            super(capacity);
+        }
+
+        @Override
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
+    }
+
+    private final class VatOutputFluidHandler extends BaseVatFluidHandler {
+        private VatOutputFluidHandler(int capacity) {
+            super(capacity);
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
     }
 }

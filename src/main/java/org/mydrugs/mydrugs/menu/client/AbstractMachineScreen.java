@@ -21,12 +21,12 @@ import java.util.List;
 
 /**
  * Base class for all custom machine screens.
- *
+ * <p>
  * Goal:
  * - keep render()/tooltip/button plumbing in one place
  * - centralize panel/slot/tank/bar drawing
  * - reduce future screen classes to mostly layout + logic
- *
+ * <p>
  * This class does NOT force one exact renderBg() style because some screens are
  * texture-based (AdvancedFurnace) and others are fully drawn with fill().
  */
@@ -38,25 +38,80 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu> ext
     protected static final int WINDOW_INNER_BG = 0xFF252525;
 
     protected static final int PANEL_LIGHT_BORDER = 0xFF5C616B;
-    protected static final int PANEL_DARK_BORDER  = 0xFF0E1014;
+    protected static final int PANEL_DARK_BORDER = 0xFF0E1014;
 
     protected static final int SLOT_FRAME_COLOR = 0xFF8A8F99;
     protected static final int SLOT_INNER_COLOR = 0xFF101216;
 
     protected static final int TANK_FRAME_COLOR = 0xFF7F8590;
-    protected static final int TANK_BODY_COLOR  = 0xFF15171B;
+    protected static final int TANK_BODY_COLOR = 0xFF15171B;
     protected static final int TANK_INNER_COLOR = 0xFF090A0D;
 
     protected static final int BAR_FRAME_COLOR = 0xFF767C88;
-    protected static final int BAR_BG_COLOR    = 0xFF101216;
+    protected static final int BAR_BG_COLOR = 0xFF101216;
     protected static final int BAR_INNER_COLOR = 0xFF090A0D;
 
     protected static final int BUTTON_FRAME_COLOR = 0xFF7C818C;
-    protected static final int BUTTON_FILL_COLOR  = 0xFF181A1F;
+    protected static final int BUTTON_FILL_COLOR = 0xFF181A1F;
 
     protected static final int SIEVE_INV_PANEL_FILL = 0xFF2C2C2C;
     protected static final int SIEVE_INV_PANEL_LIGHT_BORDER = 0xFF595959;
     protected static final int SIEVE_INV_PANEL_DARK_BORDER = 0xFF101010;
+
+    protected AbstractMachineScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
+        super(menu, playerInventory, title);
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+    }
+
+    // -------------------------------------------------
+    // Color / fluid helpers
+    // -------------------------------------------------
+    protected static int getFluidColor(FluidStack stack) {
+        return getFluidColor(stack.getFluid());
+    }
+
+    protected static int getFluidColor(Fluid fluid) {
+        if (fluid == Fluids.EMPTY) {
+            return 0;
+        }
+
+        int color = IClientFluidTypeExtensions.of(fluid).getTintColor();
+        if ((color >>> 24) == 0) {
+            color |= 0xFF000000;
+        }
+        return color;
+    }
+
+    protected static String getFluidName(Fluid fluid) {
+        return fluid == Fluids.EMPTY ? "empty" : fluid.getFluidType().getDescription().getString();
+    }
+
+    protected static int darken(int argb, float factor) {
+        int a = (argb >>> 24) & 0xFF;
+        int r = (argb >>> 16) & 0xFF;
+        int g = (argb >>> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        r = Math.max(0, Math.min(255, (int) (r * factor)));
+        g = Math.max(0, Math.min(255, (int) (g * factor)));
+        b = Math.max(0, Math.min(255, (int) (b * factor)));
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    protected static int lighten(int argb, float factor) {
+        int a = (argb >>> 24) & 0xFF;
+        int r = (argb >>> 16) & 0xFF;
+        int g = (argb >>> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        r = Math.max(0, Math.min(255, (int) (r * factor)));
+        g = Math.max(0, Math.min(255, (int) (g * factor)));
+        b = Math.max(0, Math.min(255, (int) (b * factor)));
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
 
     protected void drawSieveInventoryPanels(GuiGraphics graphics, int inventoryPanelX, int inventoryPanelY) {
         drawPanel(
@@ -84,12 +139,6 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu> ext
 
     protected int standardInventoryLabelY(int inventoryPanelY) {
         return StandardInventoryLayout.inventoryLabelY(inventoryPanelY);
-    }
-
-    protected AbstractMachineScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
-        super(menu, playerInventory, title);
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
     }
 
     // -------------------------------------------------
@@ -642,55 +691,6 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu> ext
                 Component.literal(title),
                 Component.literal(amount + " / " + capacity + " " + unit)
         );
-    }
-
-    // -------------------------------------------------
-    // Color / fluid helpers
-    // -------------------------------------------------
-    protected static int getFluidColor(FluidStack stack) {
-        return getFluidColor(stack.getFluid());
-    }
-
-    protected static int getFluidColor(Fluid fluid) {
-        if (fluid == Fluids.EMPTY) {
-            return 0;
-        }
-
-        int color = IClientFluidTypeExtensions.of(fluid).getTintColor();
-        if ((color >>> 24) == 0) {
-            color |= 0xFF000000;
-        }
-        return color;
-    }
-
-    protected static String getFluidName(Fluid fluid) {
-        return fluid == Fluids.EMPTY ? "empty" : fluid.getFluidType().getDescription().getString();
-    }
-
-    protected static int darken(int argb, float factor) {
-        int a = (argb >>> 24) & 0xFF;
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        r = Math.max(0, Math.min(255, (int) (r * factor)));
-        g = Math.max(0, Math.min(255, (int) (g * factor)));
-        b = Math.max(0, Math.min(255, (int) (b * factor)));
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
-    }
-
-    protected static int lighten(int argb, float factor) {
-        int a = (argb >>> 24) & 0xFF;
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        r = Math.max(0, Math.min(255, (int) (r * factor)));
-        g = Math.max(0, Math.min(255, (int) (g * factor)));
-        b = Math.max(0, Math.min(255, (int) (b * factor)));
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     // -------------------------------------------------

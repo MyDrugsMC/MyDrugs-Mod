@@ -20,6 +20,6 @@ public class MaltCropBlock extends CropBlock {
 
     @Override
     protected ItemLike getBaseSeedId() {
-        return ModItems.MALT_SEEDS.get();
+        return ModCrops.MALT_SEEDS.get();
     }
 }

@@ -19,11 +19,6 @@ public record RollerDragPayload(int menuId, float amount) implements CustomPacke
             RollerDragPayload::new
     );
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void handleOnServer(RollerDragPayload payload, IPayloadContext context) {
         var player = context.player();
         if (player == null) {
@@ -40,5 +35,10 @@ public record RollerDragPayload(int menuId, float amount) implements CustomPacke
 
         float clamped = Math.max(0.0F, Math.min(payload.amount(), 6.0F));
         menu.addRollProgress(clamped);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

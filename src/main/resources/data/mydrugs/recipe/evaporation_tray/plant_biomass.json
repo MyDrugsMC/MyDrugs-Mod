@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:waste_biomass",
+  "input_amount": 500,
+  "result": {
+    "id": "mydrugs:plant_waste",
+    "count": 1
+  },
+  "processing_time": 200
+}

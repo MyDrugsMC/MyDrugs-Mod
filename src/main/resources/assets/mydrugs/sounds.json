@@ -57,5 +57,10 @@
         "stream": true
       }
     ]
+  },
+  "write": {
+    "sounds": [
+      "mydrugs:write"
+    ]
   }
 }

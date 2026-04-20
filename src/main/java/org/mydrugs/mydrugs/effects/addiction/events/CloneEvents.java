@@ -10,7 +10,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class CloneEvents {
-    private CloneEvents() {}
+    private CloneEvents() {
+    }
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {

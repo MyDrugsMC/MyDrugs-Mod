@@ -9,10 +9,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.crafting.display.FluidStackSlotDisplay;
+import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 
+import java.util.List;
 import java.util.Optional;
 
 public class DistillerRecipe implements Recipe<DistillerRecipeInput> {
@@ -62,6 +67,18 @@ public class DistillerRecipe implements Recipe<DistillerRecipeInput> {
     @Override
     public ItemStack assemble(DistillerRecipeInput recipeInput, HolderLookup.Provider registries) {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public List<RecipeDisplay> display() {
+        return List.of(
+                new DistillerRecipeDisplay(
+                        new FluidStackSlotDisplay(input.toFluidStack()),
+                        new FluidStackSlotDisplay(output1.toFluidStack()),
+                        output2.map(o -> new FluidStackSlotDisplay(o.toFluidStack())),
+                        new SlotDisplay.ItemSlotDisplay(ModBlocks.DISTILLER_ITEM.get())
+                )
+        );
     }
 
     @Override

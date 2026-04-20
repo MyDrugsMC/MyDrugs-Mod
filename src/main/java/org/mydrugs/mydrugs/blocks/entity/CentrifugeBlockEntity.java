@@ -17,10 +17,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -48,15 +46,11 @@ import java.util.Optional;
 
 public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements CentrifugeMenu.CentrifugeButtonHandler {
     public static final int FLUID_CAPACITY = 4000;
-
-    private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
-
     private final LockedTransferSlots fluidTransferLocks = new LockedTransferSlots(1);
-
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
     private final StoredFluidTank outputATank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
     private final StoredFluidTank outputBTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
-
+    private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
     private int progress = 0;
     private int maxProgress = 200;
 
@@ -109,17 +103,13 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
             return;
         }
 
-        boolean changed = false;
-
-        if (FluidTransferUtil.tryProcessTransferSlot(
+        boolean changed = FluidTransferUtil.tryProcessTransferSlot(
                 be,
                 CentrifugeMenu.INPUT_CONTAINER_SLOT,
                 be.inputTank,
                 be.fluidTransferLocks,
                 0
-        )) {
-            changed = true;
-        }
+        );
 
         if (FluidTransferUtil.tryFillOutputSlot(
                 be,
@@ -188,6 +178,37 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
         if (changed) {
             be.sync();
         }
+    }
+
+    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
+        if (amount <= 0) {
+            return FluidStack.EMPTY;
+        }
+
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return FluidStack.EMPTY;
+        }
+
+        return new FluidStack(fluid, amount);
+    }
+
+    public static boolean isFluidContainer(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        if (stack.getItem() instanceof GlassBottleItem) {
+            return true;
+        }
+
+        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    public static boolean isFuel(ItemStack stack, @Nullable Level level) {
+        return !stack.isEmpty()
+                && level != null
+                && stack.getBurnTime(null, level.fuelValues()) > 0;
     }
 
     private Optional<RecipeHolder<CentrifugeRecipe>> getCurrentRecipe(ServerLevel level) {
@@ -329,39 +350,8 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
         return true;
     }
 
-    private static FluidStack toFluidStack(ResourceLocation fluidId, int amount) {
-        if (amount <= 0) {
-            return FluidStack.EMPTY;
-        }
-
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(fluidId);
-        if (fluid == null || fluid == Fluids.EMPTY) {
-            return FluidStack.EMPTY;
-        }
-
-        return new FluidStack(fluid, amount);
-    }
-
     private void sync() {
         MachineSync.sync(this);
-    }
-
-    public static boolean isFluidContainer(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        if (stack.getItem() instanceof GlassBottleItem) {
-            return true;
-        }
-
-        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
-    }
-
-    public static boolean isFuel(ItemStack stack, @Nullable Level level) {
-        return !stack.isEmpty()
-                && level != null
-                && stack.getBurnTime(null, level.fuelValues()) > 0;
     }
 
     @Override

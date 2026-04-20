@@ -11,5 +11,6 @@ public final class SymptomThresholds {
     public static final float DISSOCIATION = 0.60F;
     public static final float INSOMNIA = 0.25F;
 
-    private SymptomThresholds() {}
+    private SymptomThresholds() {
+    }
 }

@@ -4,7 +4,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.GrowthChamberMenu;
-import org.mydrugs.mydrugs.menu.layout.GasifierLayout;
 import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
 public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu> {

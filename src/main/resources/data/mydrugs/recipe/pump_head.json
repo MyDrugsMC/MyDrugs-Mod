@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " A ",
+    "BCB"
+  ],
+  "key": {
+    "A": "mydrugs:valve",
+    "B": "mydrugs:copper_tube",
+    "C": "mydrugs:membrane"
+  },
+  "result": {
+    "id": "mydrugs:pump_head",
+    "count": 1
+  }
+}

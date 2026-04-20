@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDE",
+    " A "
+  ],
+  "key": {
+    "A": "mydrugs:tight_seal",
+    "B": "mydrugs:reinforced_casing",
+    "C": "mydrugs:heat_lining",
+    "D": "mydrugs:mixing_vat",
+    "E": "mydrugs:agitator"
+  },
+  "result": {
+    "id": "mydrugs:advanced_mixing_vat",
+    "count": 1
+  }
+}

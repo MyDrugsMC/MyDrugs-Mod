@@ -41,11 +41,10 @@ public final class GrowthChamberLayout {
     public static final int GROWTH_PROGRESS_X = 46;
     public static final int GROWTH_PROGRESS_Y = WATER_TANK_Y;
     public static final int GROWTH_PROGRESS_W = MACHINE_PANEL_W - GROWTH_PROGRESS_X - WATER_TANK_X + MACHINE_PANEL_X;
+    public static final int MATURE_PROGRESS_W = GROWTH_PROGRESS_W;
     public static final int GROWTH_PROGRESS_H = 6;
-
     public static final int MATURE_PROGRESS_X = GROWTH_PROGRESS_X;
     public static final int MATURE_PROGRESS_Y = WATER_TANK_Y + 20;
-    public static final int MATURE_PROGRESS_W = GROWTH_PROGRESS_W;
     public static final int MATURE_PROGRESS_H = GROWTH_PROGRESS_H;
 
     public static final int GUI_HEIGHT = MACHINE_PANEL_Y + MACHINE_PANEL_H + StandardInventoryLayout.INV_UPPER_MARGIN + StandardInventoryLayout.TOTAL_H + MACHINE_PANEL_Y;

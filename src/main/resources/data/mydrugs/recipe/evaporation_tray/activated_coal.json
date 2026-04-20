@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_item": {
+    "item": "mydrugs:coal_dust",
+    "count": 1
+  },
+  "input_fluid": "minecraft:water",
+  "input_amount": 250,
+  "result": {
+    "id": "mydrugs:activated_coal",
+    "count": 1
+  },
+  "processing_time": 120
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "B B",
+    "ABA"
+  ],
+  "key": {
+    "A": "mydrugs:steel_plate",
+    "B": "mydrugs:heavy_iron"
+  },
+  "result": {
+    "id": "mydrugs:reinforced_casing",
+    "count": 1
+  }
+}

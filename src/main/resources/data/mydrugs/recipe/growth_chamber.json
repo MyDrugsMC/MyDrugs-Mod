@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDE",
+    " F "
+  ],
+  "key": {
+    "A": "mydrugs:soft_seal",
+    "B": "mydrugs:thick_glass",
+    "C": "minecraft:glowstone_dust",
+    "D": "mydrugs:mechanical_frame",
+    "E": "mydrugs:watering_connection",
+    "F": "minecraft:bucket"
+  },
+  "result": {
+    "id": "mydrugs:growth_chamber",
+    "count": 1
+  }
+}

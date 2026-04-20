@@ -55,14 +55,11 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
     private static final int BASE_SPEED_UNITS = 25; // 0.25 progress / tick
     private static final int CHARCOAL_HEAT_RESERVE = 1200;
-
-    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
-
     private final StoredFluidTank outputTank = new StoredFluidTank(
             OUTPUT_TANK_CAPACITY,
             this::sync
     );
-
+    private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private int progressUnits = 0;
     private int maxProgressUnits = 0;
 
@@ -176,6 +173,18 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         if (changed) {
             be.sync();
         }
+    }
+
+    public static boolean isErgot(ItemStack stack) {
+        return stack.is(ModItems.ERGOT.get());
+    }
+
+    public static boolean isTryptophan(ItemStack stack) {
+        return stack.is(ModItems.TRYPTOPHAN.get());
+    }
+
+    public static boolean isCharcoal(ItemStack stack) {
+        return stack.is(Items.CHARCOAL);
     }
 
     private boolean handleFuelAndHeat(ServerLevel level) {
@@ -316,18 +325,6 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
     public boolean isWorking() {
         return this.maxProgressUnits > 0 && this.progressUnits > 0;
-    }
-
-    public static boolean isErgot(ItemStack stack) {
-        return stack.is(ModItems.ERGOT.get());
-    }
-
-    public static boolean isTryptophan(ItemStack stack) {
-        return stack.is(ModItems.TRYPTOPHAN.get());
-    }
-
-    public static boolean isCharcoal(ItemStack stack) {
-        return stack.is(Items.CHARCOAL);
     }
 
     @Override

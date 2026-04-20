@@ -10,7 +10,8 @@ import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SafeZoneManager;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class ToleranceManager {
-    private ToleranceManager() {}
+    private ToleranceManager() {
+    }
 
     public static void onUse(PlayerAddictionStats playerStats, DrugCategory category, float dose) {
         DrugAddictionStats stats = playerStats.get(category);

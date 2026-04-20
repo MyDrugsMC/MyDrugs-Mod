@@ -50,7 +50,7 @@ public class AdvancedFurnaceBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-//        if (furnace..tryExtractFluid(player, hand, stack)) {
+//        if (furnace.tryExtractFluid(player, hand, stack)) {
 //            return InteractionResult.SUCCESS;
 //        }
 
