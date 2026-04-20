@@ -29,6 +29,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
     private final ItemStack resultItem;
     private final Optional<MixingVatFluidStack> resultFluid;
     private final int requiredStirs;
+    private final boolean requiresHeat;
 
     public MixingVatRecipe(
             Optional<Ingredient> item1,
@@ -39,7 +40,8 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
             Optional<MixingVatFluidStack> fluidInput2,
             ItemStack resultItem,
             Optional<MixingVatFluidStack> resultFluid,
-            int requiredStirs
+            int requiredStirs,
+            boolean requiresHeat
     ) {
         this.item1 = item1;
         this.item2 = item2;
@@ -50,6 +52,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
         this.resultItem = resultItem;
         this.resultFluid = resultFluid;
         this.requiredStirs = requiredStirs;
+        this.requiresHeat = requiresHeat;
     }
 
     public Optional<Ingredient> item1() {
@@ -86,6 +89,10 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
 
     public int requiredStirs() {
         return requiredStirs;
+    }
+
+    public boolean requiresHeat() {
+        return requiresHeat;
     }
 
     public List<Ingredient> requiredItems() {
@@ -214,21 +221,36 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                 MixingVatFluidStack.CODEC.optionalFieldOf("fluid_input_2").forGetter(MixingVatRecipe::fluidInput2),
                 ItemStack.CODEC.optionalFieldOf("result_item", ItemStack.EMPTY).forGetter(MixingVatRecipe::resultItem),
                 MixingVatFluidStack.CODEC.optionalFieldOf("result_fluid").forGetter(MixingVatRecipe::resultFluid),
-                Codec.INT.optionalFieldOf("required_stirs", 4).forGetter(MixingVatRecipe::requiredStirs)
+                Codec.INT.optionalFieldOf("required_stirs", 4).forGetter(MixingVatRecipe::requiredStirs),
+                Codec.BOOL.optionalFieldOf("requires_heat", false).forGetter(MixingVatRecipe::requiresHeat)
         ).apply(instance, MixingVatRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, MixingVatRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item1,
-                        Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item2,
-                        Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item3,
-                        Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::item4,
-                        MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput1,
-                        MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::fluidInput2,
-                        ItemStack.STREAM_CODEC, MixingVatRecipe::resultItem,
-                        MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional), MixingVatRecipe::resultFluid,
-                        ByteBufCodecs.VAR_INT, MixingVatRecipe::requiredStirs,
-                        MixingVatRecipe::new
+                StreamCodec.of(
+                        (buf, recipe) -> {
+                            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.item1());
+                            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.item2());
+                            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.item3());
+                            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.item4());
+                            MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.fluidInput1());
+                            MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.fluidInput2());
+                            ItemStack.STREAM_CODEC.encode(buf, recipe.resultItem());
+                            MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.resultFluid());
+                            ByteBufCodecs.VAR_INT.encode(buf, recipe.requiredStirs());
+                            ByteBufCodecs.BOOL.encode(buf, recipe.requiresHeat());
+                        },
+                        buf -> new MixingVatRecipe(
+                                Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                ItemStack.STREAM_CODEC.decode(buf),
+                                MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
+                                ByteBufCodecs.VAR_INT.decode(buf),
+                                ByteBufCodecs.BOOL.decode(buf)
+                        )
                 );
 
         @Override
