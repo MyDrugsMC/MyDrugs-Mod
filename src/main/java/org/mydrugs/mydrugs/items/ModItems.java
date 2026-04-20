@@ -208,6 +208,9 @@ public class ModItems {
     public static final DeferredItem<SleepingAidItem> SLEEPING_AID =
             ITEMS.registerItem("sleeping_aid", SleepingAidItem::new);
 
+    public static final DeferredItem<OverdoseAntidoteItem> OVERDOSE_ANTIDOTE =
+            ITEMS.registerItem("overdose_antidote", OverdoseAntidoteItem::new);
+
     public static final DeferredItem<Item> RESIN =
             ITEMS.registerSimpleItem("resin");
 

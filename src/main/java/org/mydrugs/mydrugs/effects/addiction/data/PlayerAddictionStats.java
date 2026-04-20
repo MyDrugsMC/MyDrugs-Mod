@@ -39,6 +39,9 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastDiaryHintTick = 0L;
     public long lastHeadphonesHintTick = 0L;
 
+    /** -1 when no overdose is active; otherwise ticks left until death from overdose. */
+    public int overdoseDeathTimer = -1;
+
     public PlayerAddictionStats() {
         RandomSource random = RandomSource.create();
         rerollLifeTraits(random);
@@ -68,6 +71,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         sleepBlockedUntil = other.sleepBlockedUntil;
         resilience = other.resilience;
         stressLevel = other.stressLevel;
+        overdoseDeathTimer = wasDeath ? -1 : other.overdoseDeathTimer;
 
         if (wasDeath) {
             rerollLifeTraits(random);
@@ -85,6 +89,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         output.putFloat("stress_level", stressLevel);
         output.putLong("last_therapy_day", lastTherapyDay);
         output.putLong("sleep_blocked_until", sleepBlockedUntil);
+        output.putInt("overdose_death_timer", overdoseDeathTimer);
 
         ValueOutput effects = output.child("temporary_effects");
         temporaryEffects.serialize(effects);
@@ -103,6 +108,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         stressLevel = input.getFloatOr("stress_level", 0.15F);
         lastTherapyDay = input.getLongOr("last_therapy_day", -1L);
         sleepBlockedUntil = input.getLongOr("sleep_blocked_until", 0L);
+        overdoseDeathTimer = input.getIntOr("overdose_death_timer", -1);
 
         temporaryEffects = new TemporaryRecoveryEffects();
         temporaryEffects.deserialize(input.childOrEmpty("temporary_effects"));

@@ -18,6 +18,11 @@ public final class ModDamageTypes {
             ResourceLocation.fromNamespaceAndPath("mydrugs", "stress_overload")
     );
 
+    public static final ResourceKey<DamageType> OVERDOSE = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            ResourceLocation.fromNamespaceAndPath("mydrugs", "overdose")
+    );
+
     private ModDamageTypes() {
     }
 
@@ -35,6 +40,14 @@ public final class ModDamageTypes {
                 level.registryAccess()
                         .lookupOrThrow(Registries.DAMAGE_TYPE)
                         .getOrThrow(STRESS_OVERLOAD)
+        );
+    }
+
+    public static DamageSource overdose(Level level) {
+        return new DamageSource(
+                level.registryAccess()
+                        .lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(OVERDOSE)
         );
     }
 }
