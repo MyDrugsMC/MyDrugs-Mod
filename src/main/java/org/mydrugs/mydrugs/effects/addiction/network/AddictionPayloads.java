@@ -13,10 +13,12 @@ public class AddictionPayloads {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(AddictionClientSnapshotPayload.TYPE, AddictionClientSnapshotPayload.STREAM_CODEC);
         registrar.playToClient(HeadphonesStatePayload.TYPE, HeadphonesStatePayload.STREAM_CODEC);
+        registrar.playToClient(DoseSyncPayload.TYPE, DoseSyncPayload.STREAM_CODEC);
     }
 
     public static void registerClient(RegisterClientPayloadHandlersEvent event) {
         event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);
         event.register(HeadphonesStatePayload.TYPE, ClientPayloadHandler::handleHeadphonesState);
+        event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
     }
 }

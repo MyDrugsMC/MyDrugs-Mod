@@ -7,13 +7,21 @@ import net.minecraft.client.Minecraft;
 public class ChromaticDreamShader extends AnimatedShader {
     public static ChromaticDreamShader INSTANCE = new ChromaticDreamShader();
 
-    float strength = 0.006F;
-    float speed = 1.0F;
-    float zoom = 0.015F;
+    private static final float BASE_STRENGTH = 0.006F;
+    private static final float BASE_ZOOM     = 0.015F;
+    float strength  = BASE_STRENGTH;
+    float speed     = 1.0F;
+    float zoom      = BASE_ZOOM;
     float saturation = 1.35F;
 
     protected ChromaticDreamShader() {
         super("chromatic_dream");
+    }
+
+    @Override
+    public void setStrength(float dose) {
+        this.strength = BASE_STRENGTH * dose;
+        this.zoom     = BASE_ZOOM     * dose;
     }
 
     @Override

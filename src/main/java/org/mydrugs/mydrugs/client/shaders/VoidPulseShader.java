@@ -8,8 +8,10 @@ public class VoidPulseShader extends AnimatedShader {
     public static VoidPulseShader INSTANCE = new VoidPulseShader();
 
     float pulseSpeed = 10.0F;
-    float distortionStrength = 0.008F;
-    float darkness = 0.45F;
+    private static final float BASE_DISTORTION = 0.008F;
+    private static final float BASE_DARKNESS = 0.45F;
+    float distortionStrength = BASE_DISTORTION;
+    float darkness = BASE_DARKNESS;
     float depthBoost = 1.0F;
     float glowR = 0.5F;
     float glowG = 0.1F;
@@ -17,6 +19,12 @@ public class VoidPulseShader extends AnimatedShader {
 
     protected VoidPulseShader() {
         super("void_pulse");
+    }
+
+    @Override
+    public void setStrength(float dose) {
+        this.distortionStrength = BASE_DISTORTION * dose;
+        this.darkness = Math.min(0.95f, BASE_DARKNESS * dose);
     }
 
     @Override

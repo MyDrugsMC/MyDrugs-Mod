@@ -249,5 +249,19 @@
   "item.mydrugs.coca_paste": "Coca Paste",
   "item.mydrugs.personal_diary": "Personal Diary",
   "item.mydrugs.headphones": "Headphones",
-  "block.mydrugs.drying_rack": "Drying Rack"
+  "block.mydrugs.drying_rack": "Drying Rack",
+
+  "mydrugs.dose.alcohol.normal_to_drunk": "You feel the alcohol kicking in...",
+  "mydrugs.dose.alcohol.drunk_to_very_drunk": "The room is starting to spin.",
+  "mydrugs.dose.alcohol.very_drunk_to_ethylic_coma": "Everything goes dark...",
+  "mydrugs.dose.alcohol.ethylic_coma_to_very_drunk": "You regain some consciousness.",
+  "mydrugs.dose.alcohol.very_drunk_to_drunk": "You're sobering up a little.",
+  "mydrugs.dose.alcohol.drunk_to_normal": "The alcohol is wearing off.",
+
+  "mydrugs.dose.drug.normal_to_high": "You feel the rush...",
+  "mydrugs.dose.drug.high_to_very_high": "The high is intensifying.",
+  "mydrugs.dose.drug.very_high_to_overdose": "Too much... everything feels wrong.",
+  "mydrugs.dose.drug.overdose_to_very_high": "You're coming back from the edge.",
+  "mydrugs.dose.drug.very_high_to_high": "The effects are subsiding.",
+  "mydrugs.dose.drug.high_to_normal": "You're coming down."
 }

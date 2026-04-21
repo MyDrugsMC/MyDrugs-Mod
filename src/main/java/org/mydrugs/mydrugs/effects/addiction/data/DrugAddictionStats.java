@@ -3,6 +3,11 @@ package org.mydrugs.mydrugs.effects.addiction.data;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import org.mydrugs.mydrugs.effects.addiction.dose.DoseContribution;
+import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class DrugAddictionStats implements ValueIOSerializable {
     public float addictionValue;
@@ -14,12 +19,19 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     public float peakHistoricalAddiction;
 
     // --- Dose system ---
-    /** What's currently active in the body, drives symptoms/state. */
-    public float currentDose;
-    /** What's been consumed but not yet absorbed. currentDose lerps toward this. */
-    public float targetDose;
-    /** Ticks per unit that currentDose rises toward targetDose (set by last consume). */
-    public float absorptionRatePerTick;
+    /** Active dose contributions — each linearly decays to 0 over its duration. */
+    public final List<DoseContribution> doseContributions = new ArrayList<>();
+    /** Last resolved dose state — used to detect threshold crossings for messages. */
+    public DoseState lastDoseState = DoseState.NORMAL;
+
+    /** Computed current dose: sum of all active contributions' current values. */
+    public float currentDose() {
+        float total = 0f;
+        for (DoseContribution c : doseContributions) {
+            total += c.currentValue();
+        }
+        return total;
+    }
 
     @Override
     public void serialize(ValueOutput output) {
@@ -29,10 +41,17 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         output.putLong("last_use_time", lastUseTime);
         output.putFloat("relapse_memory", relapseMemory);
         output.putFloat("peak_historical_addiction", peakHistoricalAddiction);
+        output.putString("last_dose_state", lastDoseState.name());
 
-        output.putFloat("current_dose", currentDose);
-        output.putFloat("target_dose", targetDose);
-        output.putFloat("absorption_rate_per_tick", absorptionRatePerTick);
+        ValueOutput contribs = output.child("dose_contributions");
+        contribs.putInt("count", doseContributions.size());
+        for (int i = 0; i < doseContributions.size(); i++) {
+            DoseContribution c = doseContributions.get(i);
+            ValueOutput child = contribs.child("c" + i);
+            child.putFloat("amount", c.amount);
+            child.putInt("ticks_remaining", c.ticksRemaining);
+            child.putInt("total_duration", c.totalDuration);
+        }
     }
 
     @Override
@@ -44,9 +63,25 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         relapseMemory = input.getFloatOr("relapse_memory", 0.0F);
         peakHistoricalAddiction = input.getFloatOr("peak_historical_addiction", 0.0F);
 
-        currentDose = input.getFloatOr("current_dose", 0.0F);
-        targetDose = input.getFloatOr("target_dose", 0.0F);
-        absorptionRatePerTick = input.getFloatOr("absorption_rate_per_tick", 0.0F);
+        String stateName = input.getStringOr("last_dose_state", "NORMAL");
+        try {
+            lastDoseState = DoseState.valueOf(stateName);
+        } catch (IllegalArgumentException e) {
+            lastDoseState = DoseState.NORMAL;
+        }
+
+        doseContributions.clear();
+        ValueInput contribs = input.childOrEmpty("dose_contributions");
+        int count = contribs.getIntOr("count", 0);
+        for (int i = 0; i < count; i++) {
+            ValueInput child = contribs.childOrEmpty("c" + i);
+            float amount = child.getFloatOr("amount", 0f);
+            int ticksRemaining = child.getIntOr("ticks_remaining", 0);
+            int totalDuration = child.getIntOr("total_duration", 1);
+            if (amount > 0 && ticksRemaining > 0) {
+                doseContributions.add(new DoseContribution(amount, ticksRemaining, totalDuration));
+            }
+        }
     }
 
     public DrugAddictionStats copy() {
@@ -57,9 +92,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         copy.lastUseTime = lastUseTime;
         copy.relapseMemory = relapseMemory;
         copy.peakHistoricalAddiction = peakHistoricalAddiction;
-        copy.currentDose = currentDose;
-        copy.targetDose = targetDose;
-        copy.absorptionRatePerTick = absorptionRatePerTick;
+        copy.lastDoseState = lastDoseState;
+        for (DoseContribution c : doseContributions) {
+            copy.doseContributions.add(new DoseContribution(c.amount, c.ticksRemaining, c.totalDuration));
+        }
         return copy;
     }
 

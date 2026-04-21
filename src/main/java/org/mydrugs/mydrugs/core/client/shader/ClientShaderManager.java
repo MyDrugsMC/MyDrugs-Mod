@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.core.client.shader;
 
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.Core;
 import org.mydrugs.mydrugs.core.client.ClientState;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
@@ -112,6 +113,11 @@ public abstract class ClientShaderManager<T extends Shader> {
 
     public List<T> getShaders() {
         return new ArrayList<>(shaders.values());
+    }
+
+    /** Returns the registered shader for the given type, or {@code null} if not registered. */
+    protected @Nullable T getRegisteredShader(EffectType type) {
+        return shaders.get(type);
     }
 
     private void syncClientState() {

@@ -7,12 +7,16 @@ import net.minecraft.client.Minecraft;
 public class AuroraRibbonsShader extends AnimatedShader {
     public static final AuroraRibbonsShader INSTANCE = new AuroraRibbonsShader();
 
+    private static final float BASE_DRIFT  = 0.0023F;
+    private static final float BASE_GLOW   = 0.0035F;
+    private static final float BASE_CHROMA = 0.0017F;
+
     public float speed = 0.78F;
     public float ribbonStrength = 0.85F;
     public float ribbonScale = 3.2F;
-    public float driftAmount = 0.0023F;
-    public float glowAmount = 0.0035F;
-    public float chromaAmount = 0.0017F;
+    public float driftAmount  = BASE_DRIFT;
+    public float glowAmount   = BASE_GLOW;
+    public float chromaAmount = BASE_CHROMA;
     public float colorAR = 0.95F;
     public float colorAG = 1.12F;
     public float colorAB = 1.30F;
@@ -24,6 +28,13 @@ public class AuroraRibbonsShader extends AnimatedShader {
 
     protected AuroraRibbonsShader() {
         super("aurora_ribbons");
+    }
+
+    @Override
+    public void setStrength(float dose) {
+        this.driftAmount  = BASE_DRIFT  * dose;
+        this.glowAmount   = BASE_GLOW   * dose;
+        this.chromaAmount = BASE_CHROMA * dose;
     }
 
     @Override

@@ -12,4 +12,10 @@ public class SniffingStrategy implements ConsumptionStrategy {
     public int getNewDuration(DrugEffect drugEffect) {
         return (int) Math.round(drugEffect.getBaseDuration() * 0.5);
     }
+
+    /** Sniffing delivers a stronger hit with shorter duration. */
+    @Override
+    public float getNewDose(float baseDose) {
+        return baseDose * 1.3f;
+    }
 }

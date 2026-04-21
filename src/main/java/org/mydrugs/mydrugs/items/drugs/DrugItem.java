@@ -61,11 +61,11 @@ public abstract class DrugItem extends Item implements DrugHolder {
         if (this.model == null) {
             for (DrugModel drugModel : getDrugModels(stack)) {
                 MyDrugs.DRUG_SERVICE.consume(drugModel, strategy);
-                AddictionManager.consume(player, drugModel.getDrugCategory(), 1, strategy);
+                AddictionManager.consume(player, drugModel, 1, strategy);
             }
         } else {
             MyDrugs.DRUG_SERVICE.consume(getDrugModel(), strategy);
-            AddictionManager.consume(player, getDrugModel().getDrugCategory(), 1, strategy);
+            AddictionManager.consume(player, getDrugModel(), 1, strategy);
         }
 
         return super.finishUsingItem(stack, level, livingEntity);

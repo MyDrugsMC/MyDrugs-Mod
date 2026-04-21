@@ -1,74 +1,96 @@
 package org.mydrugs.mydrugs.effects.addiction.manager.dose;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Pose;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugModel;
+import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
+import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import org.mydrugs.mydrugs.effects.addiction.config.DoseConstants;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.dose.DoseContribution;
 import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
 
+import java.util.Iterator;
+
 /**
- * Runs the dose lifecycle for each drug category on every player tick:
- *   1. decay targetDose linearly over time,
- *   2. lerp currentDose toward targetDose at the absorption rate (set on consume),
- *   3. resolve the {@link DoseState} from currentDose + {@link DosePath},
- *   4. apply scaled mob effects for that state,
- *   5. manage the shared overdose death timer on {@link PlayerAddictionStats}.
- *
- * Effects scale linearly with dose between thresholds (user design: "effects
- * increment with the score, not by thresholds — thresholds add new symptoms").
+ * Manages the dose lifecycle:
+ *   1. On consume: add a {@link DoseContribution} that linearly decays to 0 over the
+ *      drug's longest effect duration — multiple consumes simply stack contributions.
+ *   2. Per tick: advance all contributions, remove expired ones, resolve the
+ *      {@link DoseState}, detect threshold crossings and send action-bar messages.
+ *   3. Apply state-specific server effects (ETHYLIC_COMA pose, OVERDOSE death timer).
+ *      All visual effects are removed — the client shader system driven by
+ *      {@link org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload} handles visuals.
  */
 public final class DoseManager {
     private DoseManager() {}
 
-    /** Called by AddictionManager.consume — bumps the target and sets the absorption rate. */
-    public static void onConsume(DrugAddictionStats stats, float doseAmount, int absorptionTicks) {
-        stats.targetDose = Math.max(0.0F, stats.targetDose + doseAmount);
-        int ticks = Math.max(1, absorptionTicks);
-        stats.absorptionRatePerTick = doseAmount / (float) ticks;
+    // -------------------------------------------------------------------------
+    // Consume
+    // -------------------------------------------------------------------------
+
+    /**
+     * Called from {@code AddictionManager.consume} when a drug is used.
+     * Adds a contribution sized by {@code strategy.getNewDose(1.0f)} that decays
+     * over the drug's longest effect duration.
+     */
+    public static void onConsume(DrugAddictionStats stats,
+                                 DrugModel model,
+                                 @Nullable ConsumptionStrategy strategy) {
+        if (DosePath.of(model.getDrugCategory()) == DosePath.NONE) return;
+
+        float doseAmount = (strategy != null) ? strategy.getNewDose(1.0f) : 1.0f;
+
+        int duration = 0;
+        for (DrugEffect effect : model.getDrugEffects()) {
+            int d = (strategy != null) ? strategy.getNewDuration(effect) : effect.getBaseDuration();
+            if (d > duration) duration = d;
+        }
+        if (duration <= 0) duration = DoseConstants.DEFAULT_ABSORPTION_TICKS;
+
+        stats.doseContributions.add(new DoseContribution(doseAmount, duration));
     }
 
-    /** Runs every tick per-category from AddictionManager.tickPlayer. */
+    // -------------------------------------------------------------------------
+    // Per-tick
+    // -------------------------------------------------------------------------
+
+    /** Runs every tick per-category from {@code AddictionManager.tickPlayer}. */
     public static void tickCategory(ServerPlayer player,
                                     PlayerAddictionStats playerStats,
                                     DrugCategory category) {
-        DrugAddictionStats stats = playerStats.get(category);
         DosePath path = DosePath.of(category);
-
-        // (1) Decay targetDose.
-        if (stats.targetDose > 0.0F) {
-            stats.targetDose = Math.max(0.0F, stats.targetDose - DoseConstants.DOSE_DECAY_PER_TICK);
-        }
-
-        // (2) Absorption / catch-up.
-        if (stats.currentDose < stats.targetDose) {
-            float rate = stats.absorptionRatePerTick > 0.0F
-                    ? stats.absorptionRatePerTick
-                    : 1.0F / DoseConstants.DEFAULT_ABSORPTION_TICKS;
-            stats.currentDose = Math.min(stats.targetDose, stats.currentDose + rate);
-        } else if (stats.currentDose > stats.targetDose) {
-            // Target has decayed below current — bring current down with it.
-            stats.currentDose = stats.targetDose;
-        }
-
-        if (stats.currentDose < 0.001F && stats.targetDose < 0.001F) {
-            stats.currentDose = 0.0F;
-            stats.targetDose = 0.0F;
-        }
-
-        // (3) & (4) resolve state and apply effects.
         if (path == DosePath.NONE) return;
 
-        DoseState state = resolveState(path, stats.currentDose);
-        applyStateEffects(player, playerStats, path, state, stats.currentDose);
+        DrugAddictionStats stats = playerStats.get(category);
+
+        // Advance every contribution and remove expired ones.
+        Iterator<DoseContribution> iter = stats.doseContributions.iterator();
+        while (iter.hasNext()) {
+            DoseContribution c = iter.next();
+            c.ticksRemaining--;
+            if (c.isExpired()) iter.remove();
+        }
+
+        float dose = stats.currentDose();
+        DoseState state = resolveState(path, dose);
+
+        // Detect threshold crossing → send action-bar message once per transition.
+        if (state != stats.lastDoseState) {
+            sendStateChangeMessage(player, path, stats.lastDoseState, state);
+            stats.lastDoseState = state;
+        }
+
+        applyStateEffects(player, playerStats, path, state);
     }
 
-    /** Single source of truth: dose + path -> state. */
+    /** Single source of truth: dose + path → state. */
     public static DoseState resolveState(DosePath path, float dose) {
         if (path == DosePath.ALCOHOL) {
             if (dose >= DoseConstants.ETHYLIC_COMA_THRESHOLD) return DoseState.ETHYLIC_COMA;
@@ -88,66 +110,31 @@ public final class DoseManager {
     private static void applyStateEffects(ServerPlayer player,
                                           PlayerAddictionStats playerStats,
                                           DosePath path,
-                                          DoseState state,
-                                          float dose) {
-        // Effect instances are refreshed every 40 ticks so they're effectively continuous.
-        final int refresh = 40;
+                                          DoseState state) {
+        // Visual effects (nausea, slowness, blindness, speed) removed — handled by client shaders.
 
-        if (path == DosePath.ALCOHOL) {
-            // Slowness starts at DRUNK and scales across VERY_DRUNK and beyond.
-            if (dose >= DoseConstants.DRUNK_THRESHOLD) {
-                int amp = (int) Math.floor((dose - DoseConstants.DRUNK_THRESHOLD) / 2.0F);
-                amp = clamp(amp, 0, 3);
-                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, refresh, amp, true, false));
-            }
-
-            // Nausea kicks in at VERY_DRUNK.
-            if (dose >= DoseConstants.VERY_DRUNK_THRESHOLD) {
-                player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, refresh, 0, true, false));
-            }
-
-            // Ethylic coma: immobile, near-blind, flat on the floor.
-            if (state == DoseState.ETHYLIC_COMA) {
-                player.setPose(Pose.SLEEPING);
-                player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, refresh, 0, true, false));
-                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, refresh, 10, true, false));
-            }
+        // Ethylic coma: force sleeping pose so the player lies on the floor.
+        if (path == DosePath.ALCOHOL && state == DoseState.ETHYLIC_COMA) {
+            player.setPose(Pose.SLEEPING);
         }
 
-        if (path == DosePath.DRUG) {
-            // Mild high: speed scales gently from HIGH up.
-            if (dose >= DoseConstants.HIGH_THRESHOLD) {
-                int amp = (int) Math.floor((dose - DoseConstants.HIGH_THRESHOLD) / 4.0F);
-                amp = clamp(amp, 0, 1);
-                player.addEffect(new MobEffectInstance(MobEffects.SPEED, refresh, amp, true, false));
-            }
-
-            // Bad trip: nausea scales across VERY_HIGH.
-            if (dose >= DoseConstants.VERY_HIGH_THRESHOLD) {
-                int amp = (int) Math.floor((dose - DoseConstants.VERY_HIGH_THRESHOLD) / 2.0F);
-                amp = clamp(amp, 0, 2);
-                player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, refresh, amp, true, false));
-            }
-
-            // Overdose: start (or keep) the shared death timer.
-            if (state == DoseState.OVERDOSE) {
-                if (playerStats.overdoseDeathTimer < 0) {
-                    playerStats.overdoseDeathTimer = DoseConstants.OVERDOSE_DEATH_TICKS;
-                }
+        // Overdose: start (or keep) the shared death timer.
+        if (path == DosePath.DRUG && state == DoseState.OVERDOSE) {
+            if (playerStats.overdoseDeathTimer < 0) {
+                playerStats.overdoseDeathTimer = DoseConstants.OVERDOSE_DEATH_TICKS;
             }
         }
     }
 
-    /**
-     * Global per-tick pass: if any drug-path category is still in OVERDOSE, count the
-     * shared death timer down; otherwise cancel it. Called once per player tick from
-     * AddictionManager after the per-category loop.
-     */
+    // -------------------------------------------------------------------------
+    // Overdose timer (called once per player tick after the per-category loop)
+    // -------------------------------------------------------------------------
+
     public static void tickOverdoseTimer(ServerPlayer player, PlayerAddictionStats playerStats) {
         boolean anyOverdosing = false;
         for (DrugCategory category : DrugCategory.values()) {
             if (DosePath.of(category) != DosePath.DRUG) continue;
-            if (playerStats.get(category).currentDose >= DoseConstants.OVERDOSE_THRESHOLD) {
+            if (playerStats.get(category).currentDose() >= DoseConstants.OVERDOSE_THRESHOLD) {
                 anyOverdosing = true;
                 break;
             }
@@ -170,21 +157,76 @@ public final class DoseManager {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Antidote
+    // -------------------------------------------------------------------------
+
     /**
-     * Reduces every drug-path category's dose (current + target) by the antidote amount
+     * Reduces total dose for all DRUG-path categories by {@code ANTIDOTE_DOSE_REDUCTION}
      * and cancels the overdose death timer.
      */
     public static void applyAntidote(PlayerAddictionStats playerStats) {
         for (DrugCategory category : DrugCategory.values()) {
             if (DosePath.of(category) != DosePath.DRUG) continue;
             DrugAddictionStats stats = playerStats.get(category);
-            stats.targetDose = Math.max(0.0F, stats.targetDose - DoseConstants.ANTIDOTE_DOSE_REDUCTION);
-            stats.currentDose = Math.min(stats.currentDose, stats.targetDose);
+
+            float toRemove = DoseConstants.ANTIDOTE_DOSE_REDUCTION;
+            Iterator<DoseContribution> iter = stats.doseContributions.iterator();
+            while (iter.hasNext() && toRemove > 0f) {
+                DoseContribution c = iter.next();
+                float cv = c.currentValue();
+                if (cv <= toRemove) {
+                    toRemove -= cv;
+                    iter.remove();
+                } else {
+                    // Partially drain: back-calculate new ticksRemaining.
+                    float newValue = cv - toRemove;
+                    c.ticksRemaining = (int) (newValue * c.totalDuration / c.amount);
+                    toRemove = 0f;
+                }
+            }
         }
         playerStats.overdoseDeathTimer = -1;
     }
 
-    private static int clamp(int v, int lo, int hi) {
-        return Math.max(lo, Math.min(hi, v));
+    // -------------------------------------------------------------------------
+    // State-change messages
+    // -------------------------------------------------------------------------
+
+    private static void sendStateChangeMessage(ServerPlayer player,
+                                               DosePath path,
+                                               DoseState from,
+                                               DoseState to) {
+        String key = messageKey(path, from, to);
+        if (key != null) {
+            player.displayClientMessage(Component.translatable(key), true);
+        }
+    }
+
+    private static @Nullable String messageKey(DosePath path, DoseState from, DoseState to) {
+        String transition = from.name() + "_" + to.name();
+        if (path == DosePath.ALCOHOL) {
+            return switch (transition) {
+                case "NORMAL_DRUNK"            -> "mydrugs.dose.alcohol.normal_to_drunk";
+                case "DRUNK_VERY_DRUNK"        -> "mydrugs.dose.alcohol.drunk_to_very_drunk";
+                case "VERY_DRUNK_ETHYLIC_COMA" -> "mydrugs.dose.alcohol.very_drunk_to_ethylic_coma";
+                case "ETHYLIC_COMA_VERY_DRUNK" -> "mydrugs.dose.alcohol.ethylic_coma_to_very_drunk";
+                case "VERY_DRUNK_DRUNK"        -> "mydrugs.dose.alcohol.very_drunk_to_drunk";
+                case "DRUNK_NORMAL"            -> "mydrugs.dose.alcohol.drunk_to_normal";
+                default -> null;
+            };
+        }
+        if (path == DosePath.DRUG) {
+            return switch (transition) {
+                case "NORMAL_HIGH"        -> "mydrugs.dose.drug.normal_to_high";
+                case "HIGH_VERY_HIGH"     -> "mydrugs.dose.drug.high_to_very_high";
+                case "VERY_HIGH_OVERDOSE" -> "mydrugs.dose.drug.very_high_to_overdose";
+                case "OVERDOSE_VERY_HIGH" -> "mydrugs.dose.drug.overdose_to_very_high";
+                case "VERY_HIGH_HIGH"     -> "mydrugs.dose.drug.very_high_to_high";
+                case "HIGH_NORMAL"        -> "mydrugs.dose.drug.high_to_normal";
+                default -> null;
+            };
+        }
+        return null;
     }
 }

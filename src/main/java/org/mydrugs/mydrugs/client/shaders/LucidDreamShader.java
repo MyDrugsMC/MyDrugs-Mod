@@ -7,12 +7,18 @@ import net.minecraft.client.Minecraft;
 public class LucidDreamShader extends AnimatedShader {
     public static final LucidDreamShader INSTANCE = new LucidDreamShader();
 
+    private static final float BASE_BREATH = 0.025F;
+    private static final float BASE_LENS   = 0.003F;
+    private static final float BASE_ECHO   = 0.0018F;
+    private static final float BASE_CHROMA = 0.0022F;
+    private static final float BASE_DIFF   = 0.003F;
+
     public float speed = 0.85F;
-    public float breathAmount = 0.025F;
-    public float lensWarp = 0.003F;
-    public float echoAmount = 0.0018F;
-    public float chromaAmount = 0.0022F;
-    public float diffusion = 0.003F;
+    public float breathAmount = BASE_BREATH;
+    public float lensWarp     = BASE_LENS;
+    public float echoAmount   = BASE_ECHO;
+    public float chromaAmount = BASE_CHROMA;
+    public float diffusion    = BASE_DIFF;
     public float tintR = 1.10F;
     public float tintG = 1.04F;
     public float tintB = 1.16F;
@@ -20,6 +26,15 @@ public class LucidDreamShader extends AnimatedShader {
 
     protected LucidDreamShader() {
         super("lucid_dream");
+    }
+
+    @Override
+    public void setStrength(float dose) {
+        this.breathAmount = BASE_BREATH * dose;
+        this.lensWarp     = BASE_LENS   * dose;
+        this.echoAmount   = BASE_ECHO   * dose;
+        this.chromaAmount = BASE_CHROMA * dose;
+        this.diffusion    = BASE_DIFF   * dose;
     }
 
     @Override
