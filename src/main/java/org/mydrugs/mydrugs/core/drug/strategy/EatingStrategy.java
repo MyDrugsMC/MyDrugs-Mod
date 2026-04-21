@@ -12,4 +12,10 @@ public class EatingStrategy implements ConsumptionStrategy {
     public int getNewDuration(DrugEffect drugEffect) {
         return (int) Math.round(drugEffect.getBaseDuration() * 1.7);
     }
+
+    /** Eating has lower bioavailability — slightly reduced dose. */
+    @Override
+    public float getNewDose(float baseDose) {
+        return baseDose * 0.8f;
+    }
 }

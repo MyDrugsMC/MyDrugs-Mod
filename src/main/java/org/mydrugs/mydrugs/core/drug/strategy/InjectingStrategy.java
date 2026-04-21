@@ -12,4 +12,10 @@ public class InjectingStrategy implements ConsumptionStrategy {
     public int getNewDuration(DrugEffect drugEffect) {
         return (int) Math.round(drugEffect.getBaseDuration() * 2.5);
     }
+
+    /** Injecting bypasses first-pass metabolism — highest dose multiplier. */
+    @Override
+    public float getNewDose(float baseDose) {
+        return baseDose * 2.0f;
+    }
 }

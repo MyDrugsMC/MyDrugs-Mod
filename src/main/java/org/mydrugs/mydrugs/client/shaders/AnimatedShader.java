@@ -79,6 +79,16 @@ public abstract class AnimatedShader extends Shader {
         this.renderPipeline = builder.build();
     }
 
+    /**
+     * Called each dose-sync cycle with the current dose for this shader's category.
+     * Subclasses should scale their effect-intensity parameters by {@code dose}
+     * (dose = 1.0 → default parameters; dose = 2.0 → double intensity, etc.).
+     * Speed, color and structural parameters typically stay constant.
+     */
+    public void setStrength(float dose) {
+        // Default: no-op. Subclasses override to scale visual intensity.
+    }
+
     public void tick(Minecraft mc) {
         if (mc.isPaused()) return;
         time += deltaTime;

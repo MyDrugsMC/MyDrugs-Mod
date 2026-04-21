@@ -7,7 +7,8 @@ import net.minecraft.client.Minecraft;
 public class AcidWarpShader extends AnimatedShader {
     public static AcidWarpShader INSTANCE = new AcidWarpShader();
 
-    float strength = 0.01F;
+    private static final float BASE_STRENGTH = 0.01F;
+    float strength = BASE_STRENGTH;
     float speed = 1.2F;
     float frequency = 6.0F;
     float tintR = 1.2F;
@@ -16,6 +17,11 @@ public class AcidWarpShader extends AnimatedShader {
 
     protected AcidWarpShader() {
         super("acid_warp");
+    }
+
+    @Override
+    public void setStrength(float dose) {
+        this.strength = BASE_STRENGTH * dose;
     }
 
     @Override

@@ -1,15 +1,16 @@
 package org.mydrugs.mydrugs.effects.addiction.manager;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.core.drug.AddictionConfigs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.dose.AbsorptionTimes;
 import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.progression.RelapseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.progression.WithdrawalManager;
@@ -21,11 +22,16 @@ import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.ToleranceManager;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class AddictionManager {
     private AddictionManager() {
     }
+
+    // -------------------------------------------------------------------------
+    // Consume – backwards-compat overload (no model, no dose contribution)
+    // -------------------------------------------------------------------------
 
     public static void consume(ServerPlayer player, DrugCategory category, float dose) {
         consume(player, category, dose, null);
@@ -53,10 +59,48 @@ public final class AddictionManager {
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
 
         playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - AddictionConstants.STRESS_RELIEF_ON_CONSUME);
-
-        // Dose system: bump targetDose; currentDose catches up over the absorption window.
-        DoseManager.onConsume(drugStats, dose, AbsorptionTimes.forStrategy(strategy));
+        // No dose contribution without a model — use the DrugModel overload for full tracking.
     }
+
+    // -------------------------------------------------------------------------
+    // Consume – full overload with DrugModel (preferred)
+    // -------------------------------------------------------------------------
+
+    public static void consume(ServerPlayer player, DrugModel model, float baseDose) {
+        consume(player, model, baseDose, null);
+    }
+
+    public static void consume(ServerPlayer player,
+                               DrugModel model,
+                               float baseDose,
+                               @Nullable ConsumptionStrategy strategy) {
+        DrugCategory category = model.getDrugCategory();
+        PlayerAddictionStats playerStats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        DrugAddictionStats drugStats = playerStats.get(category);
+        AddictionCategoryConfig cfg = AddictionConfigs.get(category);
+
+        float baseGain = AddictionMath.computeAddictionGain(baseDose, cfg, playerStats.geneticFactor, drugStats.tolerance);
+        float finalGain = RelapseManager.applyRelapseMultiplier(baseGain, drugStats);
+
+        drugStats.addictionValue = AddictionMath.clamp(drugStats.addictionValue + finalGain, 0.0F, 1000.0F);
+        drugStats.lastUseTime = player.level().getGameTime();
+
+        ToleranceManager.onUse(playerStats, category, baseDose);
+        RelapseManager.onUse(category, drugStats);
+
+        float relief = AddictionMath.computeEffectiveRelief(cfg.reliefStrength(), drugStats.tolerance);
+        drugStats.baseWithdrawalMeter = Math.max(0.0F, drugStats.baseWithdrawalMeter - relief);
+        drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
+
+        playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - AddictionConstants.STRESS_RELIEF_ON_CONSUME);
+
+        // Dose system: add a linearly-decaying contribution for this consume.
+        DoseManager.onConsume(drugStats, model, strategy);
+    }
+
+    // -------------------------------------------------------------------------
+    // Tick
+    // -------------------------------------------------------------------------
 
     public static void tickPlayer(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
@@ -117,7 +161,18 @@ public final class AddictionManager {
 
         if (player.tickCount % 20 == 0) {
             SymptomManager.sync(player, globalSeverity);
+            sendDoseSync(player, stats);
         }
+    }
+
+    /** Sends current dose values for every category to the client (every 20 ticks). */
+    private static void sendDoseSync(ServerPlayer player, PlayerAddictionStats stats) {
+        DrugCategory[] categories = DrugCategory.values();
+        float[] doses = new float[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            doses[i] = stats.get(categories[i]).currentDose();
+        }
+        PacketDistributor.sendToPlayer(player, new DoseSyncPayload(doses));
     }
 
     public static float getGlobalSeverity(ServerPlayer player) {

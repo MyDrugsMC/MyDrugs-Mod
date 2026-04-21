@@ -10,7 +10,8 @@ import java.util.List;
 
 public final class FogShader extends AnimatedShader {
     public static final FogShader INSTANCE = new FogShader();
-    private final float fogStrength = 1.0F;
+    private static final float BASE_FOG_STRENGTH = 1.0F;
+    private float fogStrength = BASE_FOG_STRENGTH;
     private final float fogScale = 2.5F;
     private final float fogR = 0.78F;
     private final float fogG = 0.78F;
@@ -19,6 +20,11 @@ public final class FogShader extends AnimatedShader {
 
     private FogShader() {
         super("fog");
+    }
+
+    @Override
+    public void setStrength(float dose) {
+        this.fogStrength = BASE_FOG_STRENGTH * dose;
     }
 
     @Override
