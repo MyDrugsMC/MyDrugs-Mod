@@ -7,9 +7,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.aromatic_extractor.AromaticExtractorRecipe;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipeSerializer;
+import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
+import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
@@ -56,6 +59,9 @@ public class ModRecipeSerializers {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CentrifugeRecipe>> CENTRIFUGE =
             RECIPE_SERIALIZERS.register("centrifuge", CentrifugeRecipe.Serializer::new);
 
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ElectrolyzerRecipe>> ELECTROLYZER =
+            RECIPE_SERIALIZERS.register("electrolyzer", ElectrolyzerRecipe.Serializer::new);
+
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<GrowthChamberRecipe>> GROWTH_CHAMBER =
             RECIPE_SERIALIZERS.register("growth_chamber", GrowthChamberRecipe.Serializer::new);
 
@@ -74,6 +80,12 @@ public class ModRecipeSerializers {
                     "advanced_mixing_vat",
                     AdvancedMixingVatRecipe.Serializer::new
             );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CatalyticReformerRecipe>> CATALYTIC_REFORMER =
+            RECIPE_SERIALIZERS.register("catalytic_reformer", CatalyticReformerRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AromaticExtractorRecipe>> AROMATIC_EXTRACTOR =
+            RECIPE_SERIALIZERS.register("aromatic_extractor", AromaticExtractorRecipe.Serializer::new);
 
     private ModRecipeSerializers() {
     }

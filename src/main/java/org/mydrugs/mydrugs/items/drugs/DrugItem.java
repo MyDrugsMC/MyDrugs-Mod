@@ -56,18 +56,25 @@ public abstract class DrugItem extends Item implements DrugHolder {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
-        if (level.isClientSide()) return super.finishUsingItem(stack, level, livingEntity);
-        if (!(livingEntity instanceof ServerPlayer player)) return super.finishUsingItem(stack, level, livingEntity);
-        if (this.model == null) {
-            for (DrugModel drugModel : getDrugModels(stack)) {
-                MyDrugs.DRUG_SERVICE.consume(drugModel, strategy);
-                AddictionManager.consume(player, drugModel, 1, strategy);
-            }
-        } else {
-            MyDrugs.DRUG_SERVICE.consume(getDrugModel(), strategy);
-            AddictionManager.consume(player, getDrugModel(), 1, strategy);
+        if (!level.isClientSide() && livingEntity instanceof ServerPlayer player) {
+            consumeFromStack(player, stack);
         }
 
         return super.finishUsingItem(stack, level, livingEntity);
+    }
+
+    protected final void consumeFromStack(ServerPlayer player, ItemStack stack) {
+        if (this.model == null) {
+            for (DrugModel drugModel : getDrugModels(stack)) {
+                consumeDrug(player, drugModel, strategy);
+            }
+        } else {
+            consumeDrug(player, model, strategy);
+        }
+    }
+
+    public static void consumeDrug(ServerPlayer player, DrugModel drugModel, ConsumptionStrategy strategy) {
+        MyDrugs.DRUG_SERVICE.consume(drugModel, strategy);
+        AddictionManager.consume(player, drugModel, 1, strategy);
     }
 }

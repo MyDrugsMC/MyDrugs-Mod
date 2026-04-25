@@ -3,10 +3,9 @@ package org.mydrugs.mydrugs.effects.addiction.manager.recovery;
 import net.minecraft.server.level.ServerPlayer;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
-import org.mydrugs.mydrugs.effects.addiction.config.SymptomThresholds;
-import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.effects.addiction.config.SymptomThresholds;
+import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
@@ -39,8 +38,7 @@ public final class SleepRecoveryManager {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         for (DrugCategory category : DrugCategory.values()) {
-            DrugAddictionStats drug = stats.get(category);
-            drug.baseWithdrawalMeter = Math.max(0.0F, drug.baseWithdrawalMeter - 10.0F);
+            stats.reduceWithdrawalInCategory(category, 10.0F);
         }
 
         StressManager.reduce(stats, AddictionConstants.RELIEF_ON_WAKE_UP);

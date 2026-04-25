@@ -1,0 +1,13 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:salt_powder",
+  "fluid_input_1": {
+    "fluid": "minecraft:water",
+    "amount": 1000
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:brine",
+    "amount": 1000
+  },
+  "required_stirs": 3
+}

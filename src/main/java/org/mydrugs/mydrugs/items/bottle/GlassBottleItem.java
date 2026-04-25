@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,11 +26,13 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
+import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.fluids.FluidTypesEx;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
+import org.mydrugs.mydrugs.items.drugs.DrugItem;
 
 import java.util.function.Consumer;
 
@@ -38,6 +41,8 @@ public class GlassBottleItem extends Item {
 
     private static final int COMPOSTER_FILL_AMOUNT_MB = 5;
     private static final ResourceLocation AMMONIAC_ID = ModFluids.rl("ammoniac");
+
+    private static final ConsumptionStrategy strategy = new EatingStrategy();
 
     public GlassBottleItem(Properties properties) {
         super(properties);
@@ -229,14 +234,15 @@ public class GlassBottleItem extends Item {
             return stack;
         }
 
-        boolean crea = (livingEntity instanceof Player player) && player.gameMode() == GameType.CREATIVE;
+        if (!(livingEntity instanceof ServerPlayer player)) return stack;
+
+        boolean crea = player.gameMode() == GameType.CREATIVE;
 
         if (!level.isClientSide() && !crea) {
             drain(stack, getStoredFluidId(stack), getStoredAmount(stack)); // or some smaller amount if one sip
         }
 
-        MyDrugs.DRUG_SERVICE.consume(getBottleDrug(stack), new EatingStrategy());
-
+        DrugItem.consumeDrug(player, getBottleDrug(stack), strategy);
         return stack;
     }
 

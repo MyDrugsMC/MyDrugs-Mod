@@ -1,0 +1,20 @@
+{
+  "type": "mydrugs:electrolyzer",
+  "input_fluid": {
+    "fluid": "minecraft:brine",
+    "amount": 1000
+  },
+  "output_gas_1": {
+    "gas": "mydrugs:chlorine",
+    "amount": 250
+  },
+  "output_gas_2": {
+    "gas": "mydrugs:hydrogen",
+    "amount": 250
+  },
+  "output_gas_3": {
+    "gas": "mydrugs:sodium_hydroxide",
+    "amount": 250
+  },
+  "base_ticks": 200
+}

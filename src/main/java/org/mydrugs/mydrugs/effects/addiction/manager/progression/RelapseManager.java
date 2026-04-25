@@ -1,15 +1,15 @@
 package org.mydrugs.mydrugs.effects.addiction.manager.progression;
 
 import org.mydrugs.mydrugs.core.drug.AddictionConfigs;
-import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 
 public final class RelapseManager {
     private RelapseManager() {
     }
 
-    public static void onUse(DrugCategory category, DrugAddictionStats stats) {
-        float weight = AddictionConfigs.get(category).relapseWeight();
+    public static void onUse(DrugModel model, DrugAddictionStats stats) {
+        float weight = AddictionConfigs.get(model.getDrugCategory()).relapseWeight();
         stats.relapseMemory = Math.max(stats.relapseMemory, stats.addictionNorm() * weight);
         stats.peakHistoricalAddiction = Math.max(stats.peakHistoricalAddiction, stats.addictionValue);
     }

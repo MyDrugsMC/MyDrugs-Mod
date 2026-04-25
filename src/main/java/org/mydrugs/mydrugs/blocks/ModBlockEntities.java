@@ -85,6 +85,27 @@ public final class ModBlockEntities {
                             ModBlocks.CENTRIFUGE.get()
                     ));
 
+    public static final Supplier<BlockEntityType<BTXFractionationTowerBlockEntity>> BTX_FRACTIONATION_TOWER =
+            BLOCK_ENTITY_TYPES.register("btx_fractionation_tower",
+                    () -> new BlockEntityType<>(
+                            BTXFractionationTowerBlockEntity::new,
+                            ModBlocks.BTX_FRACTIONATION_TOWER.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<AromaticExtractorBlockEntity>> AROMATIC_EXTRACTOR =
+            BLOCK_ENTITY_TYPES.register("aromatic_extractor",
+                    () -> new BlockEntityType<>(
+                            AromaticExtractorBlockEntity::new,
+                            ModBlocks.AROMATIC_EXTRACTOR.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<ElectrolyzerBlockEntity>> ELECTROLYZER =
+            BLOCK_ENTITY_TYPES.register("electrolyzer",
+                    () -> new BlockEntityType<>(
+                            ElectrolyzerBlockEntity::new,
+                            ModBlocks.ELECTROLYZER.get()
+                    ));
+
     public static final Supplier<BlockEntityType<GrowthChamberBlockEntity>> GROWTH_CHAMBER =
             BLOCK_ENTITY_TYPES.register("growth_chamber",
                     () -> new BlockEntityType<>(
@@ -160,5 +181,12 @@ public final class ModBlockEntities {
                     () -> new BlockEntityType<>(
                             ClayVatBlockEntity::new,
                             ModBlocks.CLAY_VAT.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<CatalyticReformerBlockEntity>> CATALYTIC_REFORMER =
+            BLOCK_ENTITY_TYPES.register("catalytic_reformer",
+                    () -> new BlockEntityType<>(
+                            CatalyticReformerBlockEntity::new,
+                            ModBlocks.CATALYTIC_REFORMER.get()
                     ));
 }

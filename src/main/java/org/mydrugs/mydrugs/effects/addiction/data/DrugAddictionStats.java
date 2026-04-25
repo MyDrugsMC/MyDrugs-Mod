@@ -18,19 +18,24 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     public float relapseMemory;
     public float peakHistoricalAddiction;
 
-    // --- Dose system ---
-    /** Active dose contributions — each linearly decays to 0 over its duration. */
     public final List<DoseContribution> doseContributions = new ArrayList<>();
-    /** Last resolved dose state — used to detect threshold crossings for messages. */
     public DoseState lastDoseState = DoseState.NORMAL;
 
-    /** Computed current dose: sum of all active contributions' current values. */
     public float currentDose() {
         float total = 0f;
         for (DoseContribution c : doseContributions) {
             total += c.currentValue();
         }
         return total;
+    }
+
+    public boolean isEmpty() {
+        return addictionValue <= 0.0001F
+                && baseWithdrawalMeter <= 0.0001F
+                && tolerance <= 0.0001F
+                && relapseMemory <= 0.0001F
+                && peakHistoricalAddiction <= 0.0001F
+                && doseContributions.isEmpty();
     }
 
     @Override

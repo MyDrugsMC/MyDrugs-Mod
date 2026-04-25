@@ -55,6 +55,14 @@
       {
         "name": "mydrugs:lessik",
         "stream": true
+      },
+      {
+        "name": "mydrugs:babysaid",
+        "stream": true
+      },
+      {
+        "name": "mydrugs:instantcrush",
+        "stream": true
       }
     ]
   },

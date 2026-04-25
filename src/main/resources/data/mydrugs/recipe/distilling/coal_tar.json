@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:distiller",
+  "input": {
+    "fluid": "mydrugs:coal_tar",
+    "amount": 100
+  },
+  "output_1": {
+    "fluid": "mydrugs:btx_mix",
+    "amount": 40
+  },
+  "output_2": {
+    "fluid": "mydrugs:gasoline_blendstock",
+    "amount": 65
+  },
+  "base_ticks": 200
+}

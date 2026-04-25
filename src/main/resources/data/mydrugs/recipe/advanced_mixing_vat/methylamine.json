@@ -1,0 +1,18 @@
+{
+  "type": "mydrugs:advanced_mixing_vat",
+  "fluid_inputs": [
+    {
+      "fluid": "mydrugs:ammoniac",
+      "amount": 750
+    },
+    {
+      "fluid": "mydrugs:methanol",
+      "amount": 750
+    }
+  ],
+  "output": {
+    "fluid": "mydrugs:methylamine",
+    "amount": 200
+  },
+  "processing_time": 100
+}

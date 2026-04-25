@@ -9,7 +9,6 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
-import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class DamageEvents {
@@ -26,14 +25,13 @@ public final class DamageEvents {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         for (DrugCategory category : DrugCategory.values()) {
-            float addictionNorm = stats.get(category).addictionNorm();
+            float addictionNorm = stats.getCategoryAddictionValue(category) / 100.0F;
             if (addictionNorm <= 0.05F) continue;
 
             float spike = finalDamage * (0.60F + addictionNorm * 0.60F);
             spike *= (1.0F - stats.resilience * 0.40F);
 
-            stats.get(category).baseWithdrawalMeter =
-                    AddictionMath.clamp(stats.get(category).baseWithdrawalMeter + spike, 0.0F, 100.0F);
+            stats.addWithdrawalToCategory(category, spike);
         }
 
         StressManager.onDamage(player, finalDamage);

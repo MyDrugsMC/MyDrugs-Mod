@@ -1,0 +1,33 @@
+{
+  "type": "mydrugs:catalytic_reformer",
+
+  "input_fluid_1": {
+    "fluid": "mydrugs:naphtha",
+    "amount": 100
+  },
+
+  "input_gas_2": {
+    "gas": "mydrugs:hydrogen",
+    "amount": 10
+  },
+
+  "catalyst": "mydrugs:platinium_ingot",
+
+  "output_fluid_1": {
+    "fluid": "mydrugs:reformate",
+    "amount": 60
+  },
+
+  "output_fluid_2": {
+    "fluid": "mydrugs:coke",
+    "amount": 5
+  },
+
+  "output_gas_3": {
+    "gas": "mydrugs:hydrogen",
+    "amount": 5
+  },
+
+  "consume_catalyst": false,
+  "base_ticks": 200
+}

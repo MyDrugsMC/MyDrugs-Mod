@@ -12,6 +12,5 @@
     "fluid": "mydrugs:lsd",
     "amount": 1500
   },
-  "required_stirs": 3,
-  "requires_heat": true
+  "required_stirs": 3
 }

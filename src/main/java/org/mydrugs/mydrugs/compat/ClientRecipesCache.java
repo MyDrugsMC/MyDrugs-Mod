@@ -11,7 +11,9 @@ import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
+import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
@@ -33,6 +35,7 @@ public final class ClientRecipesCache {
     private static final List<AdvancedMixingVatRecipe> ADVANCED_MIXING_VAT_RECIPES = new ArrayList<>();
     private static final List<BiochemicalReactorRecipe> BIOCHEMICAL_REACTOR_RECIPES = new ArrayList<>();
     private static final List<CentrifugeRecipe> CENTRIFUGE_RECIPES = new ArrayList<>();
+    private static final List<ElectrolyzerRecipe> ELECTROLYZER_RECIPES = new ArrayList<>();
     private static final List<ChemicalReactorRecipe> CHEMICAL_REACTOR_RECIPES = new ArrayList<>();
     private static final List<DistillerRecipe> DISTILLER_RECIPES = new ArrayList<>();
     private static final List<DryingRecipe> DRYING_RECIPES = new ArrayList<>();
@@ -44,6 +47,7 @@ public final class ClientRecipesCache {
     private static final List<MixingVatRecipe> MIXING_VAT_RECIPES = new ArrayList<>();
     private static final List<SieveRecipe> SIEVE_RECIPES = new ArrayList<>();
     private static final List<StompCraftingRecipe> STOMP_CRAFTING_RECIPES = new ArrayList<>();
+    private static final List<CatalyticReformerRecipe> CATALYTIC_REFORMER_RECIPES = new ArrayList<>();
 
 
     public static List<AdvancedFurnaceRecipe> getAdvancedFurnaceRecipes() {
@@ -60,6 +64,10 @@ public final class ClientRecipesCache {
 
     public static List<CentrifugeRecipe> getCentrifugeRecipes() {
         return List.copyOf(CENTRIFUGE_RECIPES);
+    }
+
+    public static List<ElectrolyzerRecipe> getElectrolyzerRecipes() {
+        return List.copyOf(ELECTROLYZER_RECIPES);
     }
 
     public static List<ChemicalReactorRecipe> getChemicalReactorRecipes() {
@@ -106,12 +114,17 @@ public final class ClientRecipesCache {
         return List.copyOf(STOMP_CRAFTING_RECIPES);
     }
 
+    public static List<CatalyticReformerRecipe> getCatalyticReformerRecipes() {
+        return List.copyOf(CATALYTIC_REFORMER_RECIPES);
+    }
+
     @SubscribeEvent
     public static void onRecipesReceived(RecipesReceivedEvent event) {
         ADVANCED_FURNACE_RECIPES.clear();
         ADVANCED_MIXING_VAT_RECIPES.clear();
         BIOCHEMICAL_REACTOR_RECIPES.clear();
         CENTRIFUGE_RECIPES.clear();
+        ELECTROLYZER_RECIPES.clear();
         CHEMICAL_REACTOR_RECIPES.clear();
         DISTILLER_RECIPES.clear();
         DRYING_RECIPES.clear();
@@ -123,6 +136,7 @@ public final class ClientRecipesCache {
         MIXING_VAT_RECIPES.clear();
         SIEVE_RECIPES.clear();
         STOMP_CRAFTING_RECIPES.clear();
+        CATALYTIC_REFORMER_RECIPES.clear();
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.ADVANCED_FURNACE.get())
@@ -147,6 +161,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(CENTRIFUGE_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.ELECTROLYZER.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(ELECTROLYZER_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.CHEMICAL_REACTOR.get())
@@ -213,6 +233,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(STOMP_CRAFTING_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.CATALYTIC_REFORMER.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(CATALYTIC_REFORMER_RECIPES::add);
     }
 
     @SubscribeEvent
@@ -221,6 +247,7 @@ public final class ClientRecipesCache {
         ADVANCED_MIXING_VAT_RECIPES.clear();
         BIOCHEMICAL_REACTOR_RECIPES.clear();
         CENTRIFUGE_RECIPES.clear();
+        ELECTROLYZER_RECIPES.clear();
         CHEMICAL_REACTOR_RECIPES.clear();
         DISTILLER_RECIPES.clear();
         DRYING_RECIPES.clear();
@@ -232,5 +259,6 @@ public final class ClientRecipesCache {
         MIXING_VAT_RECIPES.clear();
         SIEVE_RECIPES.clear();
         STOMP_CRAFTING_RECIPES.clear();
+        CATALYTIC_REFORMER_RECIPES.clear();
     }
 }

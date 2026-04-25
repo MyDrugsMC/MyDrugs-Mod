@@ -10,12 +10,12 @@ public final class DoseConstants {
     // --- Alcohol path thresholds ---
     public static final float DRUNK_THRESHOLD = 3.0F;
     public static final float VERY_DRUNK_THRESHOLD = 6.0F;
-    public static final float ETHYLIC_COMA_THRESHOLD = 10.0F;
+    public static final float ETHYLIC_COMA_THRESHOLD = 9.0F;
 
     // --- Drug path thresholds ---
     public static final float HIGH_THRESHOLD = 3.0F;
     public static final float VERY_HIGH_THRESHOLD = 6.0F;
-    public static final float OVERDOSE_THRESHOLD = 10.0F;
+    public static final float OVERDOSE_THRESHOLD = 9.0F;
 
     // --- Absorption ---
     /** Fallback absorption time when no strategy-specific entry exists. */

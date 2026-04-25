@@ -111,7 +111,7 @@ public final class WithdrawalHintManager {
         boolean hasFood = hasEdibleFood(player);
         boolean hasDiary = hasItem(player, ModItems.PERSONAL_DIARY.get());
         boolean hasHeadphones = hasItem(player, ModItems.HEADPHONES.get());
-        boolean diaryActive = stats.temporaryEffects.hasDiaryCalm(now);
+        boolean diaryActive = stats.temporaryEffects.hasCalmRelief(now);
         boolean headphonesActive = stats.temporaryEffects.hasHeadphones(now);
         boolean night = isNight(player);
 
@@ -226,13 +226,7 @@ public final class WithdrawalHintManager {
     }
 
     private static float computeHintPressure(PlayerAddictionStats stats, float globalSeverity) {
-        float maxMeter = 0.0F;
-
-        for (DrugCategory category : DrugCategory.values()) {
-            maxMeter = Math.max(maxMeter, stats.get(category).baseWithdrawalMeter);
-        }
-
-        float meterPressure = Mth.clamp(maxMeter / 100.0F, 0.0F, 1.0F);
+        float meterPressure = Mth.clamp(stats.getMaxWithdrawalMeter() / 100.0F, 0.0F, 1.0F);
         return Math.max(globalSeverity, meterPressure);
     }
 

@@ -7,11 +7,11 @@
     }
   ],
   "gas_input": {
-    "gas": "mydrugs:sulfur_oxide",
+    "gas": "mydrugs:sulfur_trioxide",
     "amount": 250
   },
   "output": {
-    "fluid": "mydrugs:sulfur_compound",
+    "fluid": "mydrugs:sulfuric_acid",
     "amount": 1000
   },
   "processing_time": 100

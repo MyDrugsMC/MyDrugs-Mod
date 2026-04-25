@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:gasifier",
   "input": "mydrugs:sulfur_powder",
-  "gas_output": "mydrugs:sulfur",
+  "gas_output": "mydrugs:sulfur_vapor",
   "gas_amount": 100,
   "process_time": 80
 }

@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:distiller",
+  "input": {
+    "fluid": "mydrugs:crude_c4_mix",
+    "amount": 100
+  },
+  "output_1": {
+    "fluid": "mydrugs:butadiene",
+    "amount": 35
+  },
+  "output_2": {
+    "fluid": "mydrugs:butenes",
+    "amount": 65
+  },
+  "base_ticks": 200
+}

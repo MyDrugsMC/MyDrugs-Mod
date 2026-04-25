@@ -6,6 +6,7 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 public final class TemporaryRecoveryEffects implements ValueIOSerializable {
     public long diaryCalmUntil;
+    public long calmingMixtureUntil;
     public long headphonesUntil;
     public boolean headphonesEnabled;
     public int headphonesTrackNonce;
@@ -15,6 +16,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
     @Override
     public void serialize(ValueOutput output) {
         output.putLong("diary_calm_until", diaryCalmUntil);
+        output.putLong("calming_mixture_until", calmingMixtureUntil);
         output.putLong("headphones_until", headphonesUntil);
         output.putLong("thought_suppression_until", thoughtSuppressionUntil);
         output.putLong("sleep_bonus_until", sleepBonusUntil);
@@ -25,6 +27,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
     @Override
     public void deserialize(ValueInput input) {
         diaryCalmUntil = input.getLongOr("diary_calm_until", 0L);
+        calmingMixtureUntil = input.getLongOr("calming_mixture_until", 0L);
         headphonesUntil = input.getLongOr("headphones_until", 0L);
         thoughtSuppressionUntil = input.getLongOr("thought_suppression_until", 0L);
         sleepBonusUntil = input.getLongOr("sleep_bonus_until", 0L);
@@ -35,6 +38,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
     public TemporaryRecoveryEffects copy() {
         TemporaryRecoveryEffects copy = new TemporaryRecoveryEffects();
         copy.diaryCalmUntil = diaryCalmUntil;
+        copy.calmingMixtureUntil = calmingMixtureUntil;
         copy.headphonesUntil = headphonesUntil;
         copy.thoughtSuppressionUntil = thoughtSuppressionUntil;
         copy.sleepBonusUntil = sleepBonusUntil;
@@ -45,6 +49,14 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
 
     public boolean hasDiaryCalm(long gameTime) {
         return diaryCalmUntil > gameTime;
+    }
+
+    public boolean hasCalmingMixture(long gameTime) {
+        return calmingMixtureUntil > gameTime;
+    }
+
+    public boolean hasCalmRelief(long gameTime) {
+        return hasDiaryCalm(gameTime) || hasCalmingMixture(gameTime);
     }
 
     public boolean hasHeadphones(long gameTime) {

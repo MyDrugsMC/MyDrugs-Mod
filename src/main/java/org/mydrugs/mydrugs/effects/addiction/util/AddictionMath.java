@@ -1,6 +1,5 @@
 package org.mydrugs.mydrugs.effects.addiction.util;
 
-
 import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.effects.addiction.data.WithdrawalPhase;
 
@@ -28,11 +27,21 @@ public final class AddictionMath {
     }
 
     public static float computeAddictionGain(float dose, AddictionCategoryConfig cfg, float geneticFactor, float tolerance) {
-        return dose * cfg.addictionRate() * geneticFactor * (1.0F - tolerance);
+        return computeAddictionGain(dose, cfg, geneticFactor, tolerance, 1.0F);
+    }
+
+    public static float computeAddictionGain(float dose, AddictionCategoryConfig cfg, float geneticFactor, float tolerance, float drugAddictionRate) {
+        float multiplier = Math.max(0.0F, drugAddictionRate);
+        return dose * cfg.addictionRate() * multiplier * geneticFactor * (1.0F - tolerance);
     }
 
     public static float computeToleranceGain(float dose, AddictionCategoryConfig cfg, float addictionNorm) {
-        return dose * cfg.toleranceGainRate() * (0.65F + 0.35F * addictionNorm);
+        return computeToleranceGain(dose, cfg, addictionNorm, 1.0F);
+    }
+
+    public static float computeToleranceGain(float dose, AddictionCategoryConfig cfg, float addictionNorm, float drugAddictionRate) {
+        float multiplier = Math.max(0.0F, drugAddictionRate);
+        return dose * cfg.toleranceGainRate() * multiplier * (0.65F + 0.35F * addictionNorm);
     }
 
     public static float computeToleranceDecayPerSecond(AddictionCategoryConfig cfg, float resilience, boolean sleeping, boolean inSafeZone) {

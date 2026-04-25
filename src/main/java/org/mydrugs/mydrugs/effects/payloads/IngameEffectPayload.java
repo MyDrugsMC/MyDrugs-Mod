@@ -6,10 +6,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 
-public record IngameEffectPayload(DrugEffect effect) implements CustomPacketPayload {
+public record IngameEffectPayload(EffectType effectType, int duration, int potency)
+        implements CustomPacketPayload {
+
     public static final Type<IngameEffectPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "ingame_effect"));
 
@@ -19,21 +20,14 @@ public record IngameEffectPayload(DrugEffect effect) implements CustomPacketPayl
                     EffectType::ordinal
             );
 
-    public static final StreamCodec<ByteBuf, DrugEffect> DRUG_EFFECT_CODEC =
-            StreamCodec.composite(
-                    EFFECT_TYPE_CODEC,
-                    DrugEffect::getEffectType,
-                    ByteBufCodecs.VAR_INT,
-                    DrugEffect::getBaseDuration,
-                    ByteBufCodecs.VAR_INT,
-                    DrugEffect::getBasePotency,
-                    DrugEffect::new
-            );
-
     public static final StreamCodec<ByteBuf, IngameEffectPayload> STREAM_CODEC =
             StreamCodec.composite(
-                    DRUG_EFFECT_CODEC,
-                    IngameEffectPayload::effect,
+                    EFFECT_TYPE_CODEC,
+                    IngameEffectPayload::effectType,
+                    ByteBufCodecs.VAR_INT,
+                    IngameEffectPayload::duration,
+                    ByteBufCodecs.VAR_INT,
+                    IngameEffectPayload::potency,
                     IngameEffectPayload::new
             );
 

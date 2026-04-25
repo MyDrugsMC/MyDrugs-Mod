@@ -35,20 +35,6 @@ public final class DryingRackBlock extends BaseEntityBlock {
     public static final MapCodec<DryingRackBlock> CODEC = simpleCodec(DryingRackBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    // Symmetric rack shape: four legs + top frame + center slat
-    private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(1, 10, 2, 15, 12, 4),   // front top bar
-            Block.box(1, 10, 12, 15, 12, 14), // back top bar
-            Block.box(1, 10, 4, 3, 12, 12),   // left top bar
-            Block.box(13, 10, 4, 15, 12, 12), // right top bar
-            Block.box(7, 10, 4, 9, 12, 12),   // center slat
-
-            Block.box(1, 0, 2, 3, 10, 4),     // front-left leg
-            Block.box(13, 0, 2, 15, 10, 4),   // front-right leg
-            Block.box(1, 0, 12, 3, 10, 14),   // back-left leg
-            Block.box(13, 0, 12, 15, 10, 14)  // back-right leg
-    );
-
     public DryingRackBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
@@ -77,16 +63,6 @@ public final class DryingRackBlock extends BaseEntityBlock {
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
     }
 
     @Override

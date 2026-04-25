@@ -8,8 +8,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.aromatic_extractor.AromaticExtractorRecipe;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
+import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
@@ -60,6 +63,9 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<CentrifugeRecipe>> CENTRIFUGE =
             RECIPE_TYPES.register("centrifuge", RecipeType::simple);
 
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ElectrolyzerRecipe>> ELECTROLYZER =
+            RECIPE_TYPES.register("electrolyzer", RecipeType::simple);
+
     public static final DeferredHolder<RecipeType<?>, RecipeType<GrowthChamberRecipe>> GROWTH_CHAMBER =
             RECIPE_TYPES.register("growth_chamber", RecipeType::simple);
 
@@ -74,6 +80,12 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<AdvancedMixingVatRecipe>> ADVANCED_MIXING_VAT =
             RECIPE_TYPES.register("advanced_mixing_vat", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<CatalyticReformerRecipe>> CATALYTIC_REFORMER =
+            RECIPE_TYPES.register("catalytic_reformer", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<AromaticExtractorRecipe>> AROMATIC_EXTRACTOR =
+            RECIPE_TYPES.register("aromatic_extractor", RecipeType::simple);
 
     private ModRecipeTypes() {
     }

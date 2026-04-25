@@ -34,6 +34,9 @@ public class ModLangProvider extends LanguageProvider {
         // Blocks
         add(ModBlocks.ADVANCED_FURNACE.get(), "Advanced Furnace");
         add(ModBlocks.MIXING_VAT.get(), "Mixing Vat");
+        add(ModBlocks.ELECTROLYZER.get(), "Electrolyzer");
+        add(ModBlocks.BTX_FRACTIONATION_TOWER.get(), "BTX Fractionation Tower");
+        add("container.mydrugs.btx_fractionation_tower", "BTX Fractionation Tower");
 
         // Items
         add(ModItems.GLASS_BOTTLE.get(), "Glass Bottle");

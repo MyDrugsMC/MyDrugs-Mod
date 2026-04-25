@@ -52,9 +52,26 @@ public final class ModFluids {
     public static final FluidEntry HYDROCHLORIC_ACID;
     public static final FluidEntry ACYLATING_AGENT;
     public static final FluidEntry ACTIVATED_LYSERGIC_ACID;
-    public static final FluidEntry SULFUR_COMPOUND;
+    public static final FluidEntry SULFURIC_ACID;
     public static final FluidEntry CRACK;
     public static final FluidEntry WET_ACTIVATED_COAL;
+    public static final FluidEntry METHANOL;
+    public static final FluidEntry METHYLAMINE;
+    public static final FluidEntry BRINE;
+    public static final FluidEntry CRUDE_C4_MIX;
+    public static final FluidEntry BUTADIENE;
+    public static final FluidEntry PETROLEUM;
+    public static final FluidEntry NAPHTHA;
+    public static final FluidEntry INDUSTRIAL_MIX;
+    public static final FluidEntry REFORMATE;
+    public static final FluidEntry BTX_MIX;
+    public static final FluidEntry SULFOLANE;
+    public static final FluidEntry COKE;
+    public static final FluidEntry BUTENES;
+    public static final FluidEntry SULFOLENE;
+    public static final FluidEntry BENZENE;
+    public static final FluidEntry TOLUENE;
+    public static final FluidEntry XYLENE;
 
     static {
         STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFD2B07A, false, null));
@@ -78,9 +95,26 @@ public final class ModFluids {
         HYDROCHLORIC_ACID = register(new FluidEntryDef("hydrochloric_acid", 0xFFFFFFFF, false, null));
         ACYLATING_AGENT = register(new FluidEntryDef("acylating_agent", 0xFFFFFFFF, false, null));
         ACTIVATED_LYSERGIC_ACID = register(new FluidEntryDef("activated_lysergic_acid", 0xFFFFFFFF, false, null));
-        SULFUR_COMPOUND = register(new FluidEntryDef("sulfur_compound", 0xFFD6E86A, false, null));
+        SULFURIC_ACID = register(new FluidEntryDef("sulfuric_acid", 0xFFD6E86A, false, null));
         CRACK = register(new FluidEntryDef("crack", 0xFFCFE17A, false, null));
         WET_ACTIVATED_COAL = register(new FluidEntryDef("wet_activated_coal", 0xFF000000, false, null));
+        METHANOL = register(new FluidEntryDef("methanol", 0xFFFFFFFF, false, null));
+        METHYLAMINE = register(new FluidEntryDef("methylamine", 0xFFFFFFFF, false, null));
+        BRINE = register(new FluidEntryDef("brine", 0xFFFFFFFF, true, null));
+        CRUDE_C4_MIX = register(new FluidEntryDef("crude_c4_mix", 0xFF000000, false, null));
+        BUTADIENE = register(new FluidEntryDef("butadiene", 0xFFFFFFFF, false, null));
+        PETROLEUM = register(new FluidEntryDef("petroleum", 0xFF000000, false, null));
+        NAPHTHA = register(new FluidEntryDef("naphtha", 0xFF000000, false, null));
+        INDUSTRIAL_MIX = register(new FluidEntryDef("industrial_mix", 0xFF000000, false, null));
+        REFORMATE = register(new FluidEntryDef("reformate", 0xFFFFFFFF, false, null));
+        BTX_MIX = register(new FluidEntryDef("btx_mix", 0xFF2E2B24, false, null));
+        SULFOLANE = register(new FluidEntryDef("sulfolane", 0xFFFFFFFF, false, null));
+        COKE = register(new FluidEntryDef("coke", 0xFF000000, false, null));
+        BUTENES = register(new FluidEntryDef("butenes", 0xFF000000, false, null));
+        SULFOLENE = register(new FluidEntryDef("sulfolene", 0xFFFFFFFF, false, null));
+        BENZENE = register(new FluidEntryDef("benzene", 0xFFFFFFFF, false, null));
+        TOLUENE = register(new FluidEntryDef("toluene", 0xFFFFFFFF, false, null));
+        XYLENE = register(new FluidEntryDef("xylene", 0xFFFFFFFF, false, null));
     }
 
     private ModFluids() {

@@ -13,12 +13,29 @@ public class EffectAdapter implements EffectPort {
 
     @Override
     public void applyEffect(DrugEffect drugEffect, ConsumptionStrategy strategy) {
+        int duration = strategy != null
+                ? strategy.getNewDuration(drugEffect)
+                : drugEffect.getBaseDuration();
+
+        int potency = strategy != null
+                ? strategy.getNewPotency(drugEffect)
+                : drugEffect.getBasePotency();
+
         ShaderManager shaderManager = ShaderManager.INSTANCE;
+
         switch (drugEffect.getEffectType().getCategory()) {
-            case SHADER -> shaderManager.add(strategy.getNewDuration(drugEffect), drugEffect.getEffectType());
-            case MINECRAFT_EFFECT -> ClientPacketDistributor.sendToServer(new IngameEffectPayload(drugEffect));
-            case SOUND_EFFECT -> ClientSoundsHandler.setToStart(
-                    ModSounds.fromEffectType(drugEffect.getEffectType()), strategy.getNewDuration(drugEffect));
+            case SHADER -> shaderManager.add(duration, drugEffect.getEffectType());
+
+            case MINECRAFT_EFFECT ->
+                    ClientPacketDistributor.sendToServer(
+                            new IngameEffectPayload(drugEffect.getEffectType(), duration, potency)
+                    );
+
+            case SOUND_EFFECT ->
+                    ClientSoundsHandler.setToStart(
+                            ModSounds.fromEffectType(drugEffect.getEffectType()),
+                            duration
+                    );
         }
     }
 }

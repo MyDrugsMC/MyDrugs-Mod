@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:chemical_reactor",
+  "primary_gas": {
+    "gas": "mydrugs:hydrogen",
+    "amount": 100
+  },
+  "secondary_fluid": {
+    "fluid": "mydrugs:sulfolene",
+    "amount": 100
+  },
+  "output_kind": "fluid",
+  "output_id": "mydrugs:sulfolane",
+  "output_amount": 100,
+  "process_time": 180,
+  "min_heat": 400,
+  "heat_drain": 18
+}

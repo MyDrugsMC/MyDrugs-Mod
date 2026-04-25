@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:brine",
+  "input_amount": 1000,
+  "result": {
+    "id": "mydrugs:salt_powder",
+    "count": 1
+  },
+  "processing_time": 200
+}

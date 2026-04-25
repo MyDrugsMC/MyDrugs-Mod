@@ -37,6 +37,17 @@ public class ModMenus {
     public static final Supplier<MenuType<CentrifugeMenu>> CENTRIFUGE =
             MENUS.register("centrifuge", () -> new MenuType<>(CentrifugeMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<BTXFractionationTowerMenu>> BTX_FRACTIONATION_TOWER =
+            MENUS.register("btx_fractionation_tower",
+                    () -> new MenuType<>(BTXFractionationTowerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<AromaticExtractorMenu>> AROMATIC_EXTRACTOR =
+            MENUS.register("aromatic_extractor",
+                    () -> new MenuType<>(AromaticExtractorMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<ElectrolyzerMenu>> ELECTROLYZER =
+            MENUS.register("electrolyzer", () -> new MenuType<>(ElectrolyzerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
     public static final Supplier<MenuType<GrowthChamberMenu>> GROWTH_CHAMBER =
             MENUS.register("growth_chamber",
                     () -> new MenuType<>(GrowthChamberMenu::new, FeatureFlags.DEFAULT_FLAGS));
@@ -62,4 +73,8 @@ public class ModMenus {
                     "advanced_mixing_vat",
                     () -> new MenuType<>(AdvancedMixingVatMenu::new, FeatureFlags.DEFAULT_FLAGS)
             );
+
+    public static final Supplier<MenuType<CatalyticReformerMenu>> CATALYTIC_REFORMER =
+            MENUS.register("catalytic_reformer",
+                    () -> new MenuType<>(CatalyticReformerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 }

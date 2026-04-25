@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:electrolyzer",
+  "input_fluid": {
+    "fluid": "minecraft:water",
+    "amount": 1000
+  },
+  "output_gas_1": {
+    "gas": "mydrugs:hydrogen",
+    "amount": 200
+  },
+  "output_gas_2": {
+    "gas": "mydrugs:oxygen",
+    "amount": 100
+  },
+  "base_ticks": 200
+}

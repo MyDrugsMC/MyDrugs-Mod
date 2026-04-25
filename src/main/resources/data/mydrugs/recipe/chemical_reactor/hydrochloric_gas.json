@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:chemical_reactor",
   "primary_gas": {
-    "gas": "mydrugs:air",
+    "gas": "mydrugs:hydrogen",
     "amount": 250
   },
   "secondary_gas": {
@@ -9,7 +9,7 @@
     "amount": 250
   },
   "output_kind": "gas",
-  "output_id": "mydrugs:hydrochloric",
+  "output_id": "mydrugs:hydrogen_chloride",
   "output_amount": 400,
   "process_time": 180,
   "min_heat": 400,

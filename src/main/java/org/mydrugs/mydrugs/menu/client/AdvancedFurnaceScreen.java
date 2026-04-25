@@ -17,7 +17,7 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics, 0xFF15171B, 0xFF23262B);
+        drawWindowColored(graphics, 0xFF15171B, 0xFF23262B);
 
         drawPanel(
                 graphics,

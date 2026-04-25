@@ -23,7 +23,7 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics, 0xFF181818, 0xFF262626);
+        drawWindowColored(graphics, 0xFF181818, 0xFF262626);
 
         drawPanel(
                 graphics,

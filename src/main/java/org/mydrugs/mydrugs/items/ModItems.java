@@ -334,6 +334,8 @@ public class ModItems {
     public static final DeferredItem<Item> REACTION_CORE =
             ITEMS.registerSimpleItem("reaction_core");
 
+    public static final DeferredItem<Item> CUP = ITEMS.registerSimpleItem("cup");
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
 

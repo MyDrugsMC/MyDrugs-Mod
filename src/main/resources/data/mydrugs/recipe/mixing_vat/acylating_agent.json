@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:mixing_vat",
   "fluid_input_1": {
-    "fluid": "mydrugs:sulfur_compound",
+    "fluid": "mydrugs:sulfuric_acid",
     "amount": 100
   },
   "fluid_input_2": {

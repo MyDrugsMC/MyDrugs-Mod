@@ -30,7 +30,6 @@ public class DrugModel {
         return drugEffects;
     }
 
-
     public DrugCategory getDrugCategory() {
         return drugCategory;
     }

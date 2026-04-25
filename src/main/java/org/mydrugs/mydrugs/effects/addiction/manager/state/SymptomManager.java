@@ -9,12 +9,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomThresholds;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
+import org.mydrugs.mydrugs.effects.addiction.data.TemporaryRecoveryEffects;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class SymptomManager {
@@ -67,23 +69,44 @@ public final class SymptomManager {
         }
     }
 
-    public static AddictionClientSnapshotPayload buildSnapshot(ServerPlayer player, float globalSeverity) {
+    public static AddictionClientSnapshotPayload buildSnapshot(ServerPlayer player,
+                                                               float globalSeverity,
+                                                               boolean inSafeZone) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        DrugCategory dominant = AddictionManager.getDominantCategory(player);
+        DrugId dominantDrugId = AddictionManager.getDominantDrugId(player);
+        DrugCategory dominantCategory = AddictionManager.getDominantCategory(player);
+        TemporaryRecoveryEffects effects = stats.temporaryEffects;
+        long now = player.level().getGameTime();
+
+        int insomniaRemaining = (int) Math.max(0L, stats.sleepBlockedUntil - now);
         int flags = buildFlags(globalSeverity);
-        int insomniaRemaining = (int) Math.max(0L, stats.sleepBlockedUntil - player.level().getGameTime());
+        if (effects.hasSleepBonus(now)) {
+            flags &= ~SymptomFlags.INSOMNIA;
+        }
+
+        int recoveryFlags = 0;
+        if (inSafeZone) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
+        if (effects.hasDiaryCalm(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_DIARY;
+        if (effects.hasCalmingMixture(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
+        if (effects.hasHeadphones(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
+        if (effects.hasSleepBonus(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
+
+        int overdoseTicksRemaining = Math.max(0, stats.overdoseDeathTimer);
 
         return new AddictionClientSnapshotPayload(
                 globalSeverity,
                 stats.stressLevel,
-                dominant.name(),
+                dominantDrugId != null ? dominantDrugId.name() : "",
+                dominantCategory.name(),
                 flags,
-                insomniaRemaining
+                insomniaRemaining,
+                recoveryFlags,
+                overdoseTicksRemaining
         );
     }
 
-    public static void sync(ServerPlayer player, float globalSeverity) {
-        AddictionClientSnapshotPayload payload = buildSnapshot(player, globalSeverity);
+    public static void sync(ServerPlayer player, float globalSeverity, boolean inSafeZone) {
+        AddictionClientSnapshotPayload payload = buildSnapshot(player, globalSeverity, inSafeZone);
         PacketDistributor.sendToPlayer(player, payload);
     }
 }

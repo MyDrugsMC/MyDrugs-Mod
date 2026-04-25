@@ -1,15 +1,21 @@
 package org.mydrugs.mydrugs.core.drug;
 
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.Core;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class DrugRegistry {
-
     private static final Map<DrugId, DrugModel> drugs = new HashMap<>();
+    private static final EnumMap<DrugCategory, DrugId> representativeDrugs = new EnumMap<>(DrugCategory.class);
 
     private DrugRegistry() {
     }
@@ -166,8 +172,8 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.ALCOHOL)
                 .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 5, 1))
-                .addEffect(new DrugEffect(EffectType.DRUNK_VISION, 20 * 16, 1))
+                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 10, 1))
+                .addEffect(new DrugEffect(EffectType.DRUNK_VISION, 20 * 20, 1))
                 .build()
         );
 
@@ -210,6 +216,8 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 4, 1))
                 .build()
         );
+
+        initializeRepresentativeDrugs();
     }
 
     private static DrugModel addDrug(DrugModel model) {
@@ -222,7 +230,56 @@ public final class DrugRegistry {
         return model;
     }
 
-    public static DrugModel getDrug(DrugId id) {
+    private static void initializeRepresentativeDrugs() {
+        representativeDrugs.clear();
+
+        representativeDrugs.put(DrugCategory.CANNABINOID, DrugId.WEED);
+        representativeDrugs.put(DrugCategory.STIMULANT, DrugId.METH);
+        representativeDrugs.put(DrugCategory.EMPATHOGEN, DrugId.MDMA);
+        representativeDrugs.put(DrugCategory.PSYCHEDELIC, DrugId.LSD);
+        representativeDrugs.put(DrugCategory.OPIOID, DrugId.HEROIN);
+        representativeDrugs.put(DrugCategory.DISSOCIATIVE, DrugId.KETAMINE);
+        representativeDrugs.put(DrugCategory.DEPRESSANT, DrugId.ALCOHOL);
+        representativeDrugs.put(DrugCategory.NICOTINIC, DrugId.TOBACCO);
+        representativeDrugs.put(DrugCategory.CAFFEINE, DrugId.COFFEE);
+        representativeDrugs.put(DrugCategory.INHALANT, DrugId.NITROUS_OXIDE);
+    }
+
+    public static @Nullable DrugModel getDrug(DrugId id) {
         return drugs.get(id);
+    }
+
+    public static DrugCategory getCategory(DrugId id) {
+        DrugModel model = getDrug(id);
+        return model != null ? model.getDrugCategory() : DrugCategory.OTHER;
+    }
+
+    public static Collection<DrugModel> getAllDrugs() {
+        return Collections.unmodifiableCollection(drugs.values());
+    }
+
+    public static List<DrugModel> getDrugsByCategory(DrugCategory category) {
+        List<DrugModel> result = new ArrayList<>();
+        for (DrugModel model : drugs.values()) {
+            if (model.getDrugCategory() == category) {
+                result.add(model);
+            }
+        }
+        return result;
+    }
+
+    public static @Nullable DrugId getRepresentativeDrugId(DrugCategory category) {
+        DrugId direct = representativeDrugs.get(category);
+        if (direct != null) {
+            return direct;
+        }
+
+        for (DrugModel model : drugs.values()) {
+            if (model.getDrugCategory() == category) {
+                return model.getId();
+            }
+        }
+
+        return null;
     }
 }

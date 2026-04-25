@@ -11,10 +11,15 @@ public final class ModGases {
     private static final List<GasType> SYNC_ORDER = new ArrayList<>();
 
     public static final GasType CHLORINE = register("chlorine", 0xFFD6E86A, true, false);
-    public static final GasType HYDROCHLORIC = register("hydrochloric", 0xFFD6E86A, true, false);
-    public static final GasType SULFUR_OXIDE = register("sulfur_oxide", 0xFFD6E86A, true, false);
-    public static final GasType SULFUR = register("sulfur", 0xFFD6E86A, true, false);
+    public static final GasType HYDROGEN_CHLORIDE = register("hydrogen_chloride", 0xFFD6E86A, true, false);
+    public static final GasType SULFUR_DIOXIDE = register("sulfur_dioxide", 0xFFD6E86A, true, false);
+    public static final GasType SULFUR_TRIOXIDE = register("sulfur_trioxide", 0xFFD6E86A, true, false);
+    public static final GasType SULFUR_VAPOR = register("sulfur_vapor", 0xFFD6E86A, true, false);
     public static final GasType AIR = register("air", 0xFFFFFFFF, false, false);
+    public static final GasType METHANE = register("methane", 0xFFA8E6FF, false, true);
+    public static final GasType SODIUM_HYDROXIDE = register("sodium_hydroxide", 0xFFFFFFFF, true, true);
+    public static final GasType OXYGEN = register("oxygen", 0xFFFFFFFF, false, true);
+    public static final GasType HYDROGEN = register("hydrogen", 0xFFFFFFFF, false, true);
 
     private ModGases() {
     }

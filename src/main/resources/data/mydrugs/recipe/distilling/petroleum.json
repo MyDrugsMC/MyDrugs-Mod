@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:distiller",
+  "input": {
+    "fluid": "mydrugs:petroleum",
+    "amount": 100
+  },
+  "output_1": {
+    "fluid": "mydrugs:naphtha",
+    "amount": 20
+  },
+  "output_2": {
+    "fluid": "mydrugs:industrial_mix",
+    "amount": 80
+  },
+  "base_ticks": 200
+}

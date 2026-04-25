@@ -28,11 +28,14 @@ public class ClientModEvents {
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);
         event.register(ModMenus.FLUID_FILTERER.get(), FluidFiltererScreen::new);
         event.register(ModMenus.CENTRIFUGE.get(), CentrifugeScreen::new);
+        event.register(ModMenus.BTX_FRACTIONATION_TOWER.get(), BTXFractionationTowerScreen::new);
+        event.register(ModMenus.ELECTROLYZER.get(), ElectrolyzerScreen::new);
         event.register(ModMenus.GROWTH_CHAMBER.get(), GrowthChamberScreen::new);
         event.register(ModMenus.BIOCHEMICAL_REACTOR.get(), BiochemicalReactorScreen::new);
         event.register(ModMenus.GASIFIER.get(), GasifierScreen::new);
         event.register(ModMenus.CHEMICAL_REACTOR.get(), ChemicalReactorScreen::new);
         event.register(ModMenus.ADVANCED_MIXING_VAT.get(), AdvancedMixingVatScreen::new);
+        event.register(ModMenus.CATALYTIC_REFORMER.get(), CatalyticReformerScreen::new);
     }
 
     @SubscribeEvent

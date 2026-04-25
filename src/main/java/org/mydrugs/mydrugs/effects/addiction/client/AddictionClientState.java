@@ -1,14 +1,28 @@
 package org.mydrugs.mydrugs.effects.addiction.client;
 
+import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
+import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
+import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
+import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
+
+import java.util.Arrays;
 
 public final class AddictionClientState {
     public static float globalSeverity;
     public static float stressLevel;
-    public static String dominantCategory = "CANNABINOID";
+    public static String dominantDrugId = "";
+    public static String dominantCategory = "OTHER";
     public static int symptomFlags;
     public static int insomniaTicksRemaining;
+    public static int recoveryFlags;
+    public static int overdoseTicksRemaining;
+
+    private static final float[] categoryDoses = new float[DrugCategory.values().length];
 
     private AddictionClientState() {
     }
@@ -16,18 +30,171 @@ public final class AddictionClientState {
     public static void apply(AddictionClientSnapshotPayload payload) {
         globalSeverity = payload.globalSeverity();
         stressLevel = payload.stressLevel();
+        dominantDrugId = payload.dominantDrugId();
         dominantCategory = payload.dominantCategory();
         symptomFlags = payload.symptomFlags();
         insomniaTicksRemaining = payload.insomniaTicksRemaining();
+        recoveryFlags = payload.recoveryFlags();
+        overdoseTicksRemaining = payload.overdoseTicksRemaining();
+    }
+
+    public static void applyDoseSync(DoseSyncPayload payload) {
+        Arrays.fill(categoryDoses, 0.0F);
+        float[] incoming = payload.doses();
+        System.arraycopy(incoming, 0, categoryDoses, 0, Math.min(incoming.length, categoryDoses.length));
     }
 
     public static boolean has(int flag) {
         return SymptomFlags.has(symptomFlags, flag);
     }
 
+    public static boolean isSleepBlocked() {
+        return insomniaTicksRemaining > 0;
+    }
+
+    public static boolean hasInsomniaSymptom() {
+        return has(SymptomFlags.INSOMNIA);
+    }
+
+    public static boolean hasInsomnia() {
+        return isSleepBlocked() || hasInsomniaSymptom();
+    }
+
+    public static boolean hasSymptoms() {
+        return symptomFlags != 0;
+    }
+
+    public static boolean isInSafeZone() {
+        return hasRecoveryFlag(AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE);
+    }
+
+    public static boolean hasDiaryCalm() {
+        return hasRecoveryFlag(AddictionClientSnapshotPayload.RECOVERY_DIARY);
+    }
+
+    public static boolean hasHeadphonesCalm() {
+        return hasRecoveryFlag(AddictionClientSnapshotPayload.RECOVERY_HEADPHONES);
+    }
+
+    public static boolean hasCalmingMixture() {
+        return hasRecoveryFlag(AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE);
+    }
+
+    public static boolean hasSleepBonus() {
+        return hasRecoveryFlag(AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS);
+    }
+
+    public static boolean hasActiveRecoverySupport() {
+        return recoveryFlags != 0;
+    }
+
+    public static boolean hasOverdoseTimer() {
+        return overdoseTicksRemaining > 0;
+    }
+
+    public static boolean hasAnyDose() {
+        for (float dose : categoryDoses) {
+            if (dose > 0.001F) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasDangerousDoseState() {
+        return doseSeverity(getDominantDoseState()) > 0 || hasOverdoseTimer();
+    }
+
+    public static float getDose(DrugCategory category) {
+        int ordinal = category.ordinal();
+        return ordinal < categoryDoses.length ? categoryDoses[ordinal] : 0.0F;
+    }
+
+    public static DoseState getDoseState(DrugCategory category) {
+        return DoseManager.resolveState(DosePath.of(category), getDose(category));
+    }
+
+    public static DrugCategory getDisplayedDoseCategory() {
+        DrugCategory dominant = getDominantCategoryEnum();
+        if (DosePath.of(dominant) != DosePath.NONE) {
+            DoseState dominantState = getDoseState(dominant);
+            if (doseSeverity(dominantState) > 0 || getDose(dominant) > 0.001F) {
+                return dominant;
+            }
+        }
+
+        DrugCategory bestCategory = dominant;
+        int bestSeverity = -1;
+        float bestDose = -1.0F;
+        for (DrugCategory category : DrugCategory.values()) {
+            if (DosePath.of(category) == DosePath.NONE) {
+                continue;
+            }
+
+            DoseState state = getDoseState(category);
+            int severity = doseSeverity(state);
+            float dose = getDose(category);
+            if (severity > bestSeverity || (severity == bestSeverity && dose > bestDose)) {
+                bestSeverity = severity;
+                bestDose = dose;
+                bestCategory = category;
+            }
+        }
+        return bestCategory;
+    }
+
+    public static DoseState getDominantDoseState() {
+        DrugCategory category = getDisplayedDoseCategory();
+        return DosePath.of(category) == DosePath.NONE ? DoseState.NORMAL : getDoseState(category);
+    }
+
+    public static DrugCategory getDominantCategoryEnum() {
+        try {
+            return DrugCategory.valueOf(dominantCategory);
+        } catch (IllegalArgumentException ignored) {
+            return DrugCategory.OTHER;
+        }
+    }
+
+    public static @Nullable DrugId getDominantDrugIdEnum() {
+        if (dominantDrugId == null || dominantDrugId.isBlank()) {
+            return null;
+        }
+
+        try {
+            return DrugId.valueOf(dominantDrugId);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    public static boolean shouldRenderHud() {
+        boolean unstable = globalSeverity > 0.01F || stressLevel > 0.05F || hasSymptoms() || isSleepBlocked();
+        boolean doseDanger = hasDangerousDoseState();
+        boolean temporarySupport = hasDiaryCalm() || hasCalmingMixture() || hasHeadphonesCalm() || hasSleepBonus();
+        boolean safeZoneContext = isInSafeZone() && unstable;
+        return unstable || doseDanger || temporarySupport || safeZoneContext;
+    }
+
     public static void tick() {
         if (insomniaTicksRemaining > 0) {
             insomniaTicksRemaining--;
         }
+        if (overdoseTicksRemaining > 0) {
+            overdoseTicksRemaining--;
+        }
+    }
+
+    private static boolean hasRecoveryFlag(int flag) {
+        return (recoveryFlags & flag) != 0;
+    }
+
+    private static int doseSeverity(DoseState state) {
+        return switch (state) {
+            case NORMAL -> 0;
+            case DRUNK, HIGH -> 1;
+            case VERY_DRUNK, VERY_HIGH -> 2;
+            case ETHYLIC_COMA, OVERDOSE -> 3;
+        };
     }
 }

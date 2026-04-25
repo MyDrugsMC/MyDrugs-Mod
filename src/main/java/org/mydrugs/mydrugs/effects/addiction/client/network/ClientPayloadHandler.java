@@ -21,6 +21,7 @@ public final class ClientPayloadHandler {
     }
 
     public static void handleDoseSync(DoseSyncPayload payload, IPayloadContext context) {
+        AddictionClientState.applyDoseSync(payload);
         ShaderManager.INSTANCE.updateDoses(payload);
     }
 }

@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:chemical_reactor",
+  "primary_gas": {
+    "gas": "mydrugs:hydrogen",
+    "amount": 10
+  },
+  "secondary_fluid": {
+    "fluid": "mydrugs:naphtha",
+    "amount": 250
+  },
+  "output_kind": "fluid",
+  "output_id": "mydrugs:methanol",
+  "output_amount": 400,
+  "process_time": 180,
+  "min_heat": 400,
+  "heat_drain": 18
+}

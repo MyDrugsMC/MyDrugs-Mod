@@ -234,7 +234,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                             Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.item4());
                             MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.fluidInput1());
                             MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.fluidInput2());
-                            ItemStack.STREAM_CODEC.encode(buf, recipe.resultItem());
+                            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.resultItem());
                             MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.resultFluid());
                             ByteBufCodecs.VAR_INT.encode(buf, recipe.requiredStirs());
                             ByteBufCodecs.BOOL.encode(buf, recipe.requiresHeat());
@@ -246,7 +246,7 @@ public class MixingVatRecipe implements Recipe<MixingVatRecipeInput> {
                                 Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
                                 MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
                                 MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
-                                ItemStack.STREAM_CODEC.decode(buf),
+                                ItemStack.OPTIONAL_STREAM_CODEC.decode(buf),
                                 MixingVatFluidStack.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf),
                                 ByteBufCodecs.VAR_INT.decode(buf),
                                 ByteBufCodecs.BOOL.decode(buf)

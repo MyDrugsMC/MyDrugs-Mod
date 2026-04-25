@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.items.drugs;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -81,6 +82,12 @@ public class RolledSmokedItem extends DrugItem {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+        ItemStack consumedSnapshot = stack.copy();
+
+        if (!level.isClientSide() && livingEntity instanceof ServerPlayer player) {
+            consumeFromStack(player, consumedSnapshot);
+        }
+
         boolean creative = livingEntity instanceof Player player && player.getAbilities().instabuild;
 
         if (!creative) {
@@ -95,6 +102,6 @@ public class RolledSmokedItem extends DrugItem {
             }
         }
 
-        return super.finishUsingItem(stack, level, livingEntity);
+        return stack;
     }
 }

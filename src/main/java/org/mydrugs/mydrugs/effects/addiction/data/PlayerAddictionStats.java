@@ -4,12 +4,20 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public final class PlayerAddictionStats implements ValueIOSerializable {
-    public final EnumMap<DrugCategory, DrugAddictionStats> perDrug = new EnumMap<>(DrugCategory.class);
+    public final EnumMap<DrugId, DrugAddictionStats> perDrug = new EnumMap<>(DrugId.class);
     public float geneticFactor;
     public float resilience;
     public float stressLevel;
@@ -39,15 +47,11 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastDiaryHintTick = 0L;
     public long lastHeadphonesHintTick = 0L;
 
-    /** -1 when no overdose is active; otherwise ticks left until death from overdose. */
     public int overdoseDeathTimer = -1;
 
     public PlayerAddictionStats() {
         RandomSource random = RandomSource.create();
         rerollLifeTraits(random);
-        for (DrugCategory category : DrugCategory.values()) {
-            perDrug.put(category, new DrugAddictionStats());
-        }
     }
 
     public void rerollLifeTraits(RandomSource random) {
@@ -56,14 +60,217 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         stressLevel = 0.15F;
     }
 
-    public DrugAddictionStats get(DrugCategory category) {
-        return perDrug.computeIfAbsent(category, c -> new DrugAddictionStats());
+    public DrugAddictionStats getOrCreateDrugStats(DrugId drugId) {
+        return perDrug.computeIfAbsent(drugId, ignored -> new DrugAddictionStats());
+    }
+
+    public @Nullable DrugAddictionStats getDrugStats(DrugId drugId) {
+        return perDrug.get(drugId);
+    }
+
+    public Map<DrugId, DrugAddictionStats> getAllDrugStats() {
+        return Collections.unmodifiableMap(perDrug);
+    }
+
+    public List<DrugId> getTrackedDrugIds() {
+        return new ArrayList<>(perDrug.keySet());
+    }
+
+    public boolean removeDrugStatsIfEmpty(DrugId drugId) {
+        DrugAddictionStats stats = perDrug.get(drugId);
+        if (stats == null || !stats.isEmpty()) {
+            return false;
+        }
+
+        perDrug.remove(drugId);
+        return true;
+    }
+
+    public float getCategoryAddictionValue(DrugCategory category) {
+        float total = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) == category) {
+                total += entry.getValue().addictionValue;
+            }
+        }
+        return total;
+    }
+
+    public float getCategoryMaxAddictionValue(DrugCategory category) {
+        float max = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) == category) {
+                max = Math.max(max, entry.getValue().addictionValue);
+            }
+        }
+        return max;
+    }
+
+    public float getCategoryTolerance(DrugCategory category) {
+        float total = 0.0F;
+        int count = 0;
+
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) == category) {
+                total += entry.getValue().tolerance;
+                count++;
+            }
+        }
+
+        return count == 0 ? 0.0F : total / count;
+    }
+
+    public float getCategoryCurrentDose(DrugCategory category) {
+        float total = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) == category) {
+                total += entry.getValue().currentDose();
+            }
+        }
+        return total;
+    }
+
+    public float getCategoryWithdrawalMeter(DrugCategory category) {
+        float max = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) == category) {
+                max = Math.max(max, entry.getValue().baseWithdrawalMeter);
+            }
+        }
+        return max;
+    }
+
+    public float getMaxWithdrawalMeter() {
+        float max = 0.0F;
+        for (DrugAddictionStats stats : perDrug.values()) {
+            max = Math.max(max, stats.baseWithdrawalMeter);
+        }
+        return max;
+    }
+
+    public boolean hasActiveCategory(DrugCategory category) {
+        return getDominantDrugInCategory(category) != null;
+    }
+
+    public @Nullable DrugId getDominantDrugInCategory(DrugCategory category) {
+        DrugId bestId = null;
+        float bestScore = -1.0F;
+        float bestAddiction = -1.0F;
+
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) != category) {
+                continue;
+            }
+
+            DrugAddictionStats stats = entry.getValue();
+            float score = stats.baseWithdrawalMeter;
+            if (score > bestScore || (score == bestScore && stats.addictionValue > bestAddiction)) {
+                bestScore = score;
+                bestAddiction = stats.addictionValue;
+                bestId = entry.getKey();
+            }
+        }
+
+        return bestId;
+    }
+
+    public @Nullable DrugAddictionStats getDominantDrugStatsInCategory(DrugCategory category) {
+        DrugId drugId = getDominantDrugInCategory(category);
+        return drugId != null ? perDrug.get(drugId) : null;
+    }
+
+    public void addWithdrawalToCategory(DrugCategory category, float amount) {
+        if (amount <= 0.0F) {
+            return;
+        }
+
+        List<Map.Entry<DrugId, DrugAddictionStats>> entries = getEntriesForCategory(category);
+        if (entries.isEmpty()) {
+            return;
+        }
+
+        float totalWeight = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+            totalWeight += Math.max(0.001F, entry.getValue().addictionValue);
+        }
+
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+            DrugAddictionStats stats = entry.getValue();
+            float weight = Math.max(0.001F, stats.addictionValue);
+            float share = amount * (weight / totalWeight);
+            stats.baseWithdrawalMeter = Math.min(100.0F, stats.baseWithdrawalMeter + share);
+        }
+    }
+
+    public void reduceWithdrawalInCategory(DrugCategory category, float amount) {
+        if (amount <= 0.0F) {
+            return;
+        }
+
+        List<Map.Entry<DrugId, DrugAddictionStats>> entries = getEntriesForCategory(category);
+        if (entries.isEmpty()) {
+            return;
+        }
+
+        float totalWeight = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+            totalWeight += Math.max(0.001F, entry.getValue().baseWithdrawalMeter);
+        }
+
+        if (totalWeight <= 0.0F) {
+            float equalShare = amount / entries.size();
+            for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+                DrugAddictionStats stats = entry.getValue();
+                stats.baseWithdrawalMeter = Math.max(0.0F, stats.baseWithdrawalMeter - equalShare);
+            }
+            return;
+        }
+
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+            DrugAddictionStats stats = entry.getValue();
+            float weight = Math.max(0.001F, stats.baseWithdrawalMeter);
+            float share = amount * (weight / totalWeight);
+            stats.baseWithdrawalMeter = Math.max(0.0F, stats.baseWithdrawalMeter - share);
+        }
+    }
+
+    public void reduceAddictionInCategory(DrugCategory category, float amount) {
+        if (amount <= 0.0F) {
+            return;
+        }
+
+        List<Map.Entry<DrugId, DrugAddictionStats>> entries = getEntriesForCategory(category);
+        if (entries.isEmpty()) {
+            return;
+        }
+
+        float totalWeight = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+            totalWeight += Math.max(0.001F, entry.getValue().addictionValue);
+        }
+
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : entries) {
+            DrugAddictionStats stats = entry.getValue();
+            float weight = Math.max(0.001F, stats.addictionValue);
+            float share = amount * (weight / totalWeight);
+            stats.addictionValue = Math.max(0.0F, stats.addictionValue - share);
+        }
+    }
+
+    private List<Map.Entry<DrugId, DrugAddictionStats>> getEntriesForCategory(DrugCategory category) {
+        List<Map.Entry<DrugId, DrugAddictionStats>> result = new ArrayList<>();
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            if (DrugRegistry.getCategory(entry.getKey()) == category) {
+                result.add(entry);
+            }
+        }
+        return result;
     }
 
     public void copyFrom(PlayerAddictionStats other, boolean wasDeath, RandomSource random) {
         perDrug.clear();
-        for (DrugCategory category : DrugCategory.values()) {
-            perDrug.put(category, other.get(category).copy());
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : other.perDrug.entrySet()) {
+            perDrug.put(entry.getKey(), entry.getValue().copy());
         }
 
         temporaryEffects = other.temporaryEffects.copy();
@@ -95,9 +302,13 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         temporaryEffects.serialize(effects);
 
         ValueOutput drugs = output.child("drug_stats");
-        for (DrugCategory category : DrugCategory.values()) {
-            ValueOutput child = drugs.child(category.name().toLowerCase(java.util.Locale.ROOT));
-            get(category).serialize(child);
+        drugs.putInt("count", perDrug.size());
+
+        int index = 0;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            ValueOutput child = drugs.child("entry_" + index++);
+            child.putString("drug_id", entry.getKey().name());
+            entry.getValue().serialize(child);
         }
     }
 
@@ -115,10 +326,49 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
 
         perDrug.clear();
         ValueInput drugs = input.childOrEmpty("drug_stats");
+        int count = drugs.getIntOr("count", -1);
+
+        if (count >= 0) {
+            for (int i = 0; i < count; i++) {
+                ValueInput child = drugs.childOrEmpty("entry_" + i);
+                String drugIdName = child.getStringOr("drug_id", "");
+                if (drugIdName.isEmpty()) {
+                    continue;
+                }
+
+                try {
+                    DrugId drugId = DrugId.valueOf(drugIdName);
+                    DrugAddictionStats stats = new DrugAddictionStats();
+                    stats.deserialize(child);
+
+                    if (!stats.isEmpty() || stats.lastUseTime > 0L) {
+                        perDrug.put(drugId, stats);
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            return;
+        }
+
+        migrateLegacyCategoryBuckets(drugs);
+    }
+
+    private void migrateLegacyCategoryBuckets(ValueInput drugs) {
         for (DrugCategory category : DrugCategory.values()) {
+            ValueInput child = drugs.childOrEmpty(category.name().toLowerCase(Locale.ROOT));
             DrugAddictionStats stats = new DrugAddictionStats();
-            stats.deserialize(drugs.childOrEmpty(category.name().toLowerCase(java.util.Locale.ROOT)));
-            perDrug.put(category, stats);
+            stats.deserialize(child);
+
+            if (stats.isEmpty() && stats.lastUseTime <= 0L) {
+                continue;
+            }
+
+            DrugId representative = DrugRegistry.getRepresentativeDrugId(category);
+            if (representative == null) {
+                continue;
+            }
+
+            perDrug.put(representative, stats);
         }
     }
 }

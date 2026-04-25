@@ -18,9 +18,13 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.compat.gas.GasJeiIngredient;
 import org.mydrugs.mydrugs.compat.gas.GasJeiTypes;
+import org.mydrugs.mydrugs.compat.gas.GasJeiUtil;
+import org.mydrugs.mydrugs.menu.client.util.AbstractMachineDrawMethods;
 import org.mydrugs.mydrugs.menu.layout.LayoutMath;
 
-public abstract class AbstractNiceRecipeCategory<T> implements IRecipeCategory<T> {
+import java.util.List;
+
+public abstract class AbstractNiceRecipeCategory<T> implements AbstractMachineDrawMethods, IRecipeCategory<T> {
     protected static final int SLOT = 18;
 
     protected final CategoryMode mode;
@@ -63,13 +67,36 @@ public abstract class AbstractNiceRecipeCategory<T> implements IRecipeCategory<T
             IDrawable icon,
             CategoryMode mode
     ) {
+        this(helper, recipeType, title, icon, mode, mode.scale(176), mode.scale(86));
+    }
+
+    protected AbstractNiceRecipeCategory(
+            IGuiHelper helper,
+            RecipeType<T> recipeType,
+            Component title,
+            IDrawable icon,
+            int width,
+            int height
+    ) {
+        this(helper, recipeType, title, icon, CategoryMode.NORMAL, width, height);
+    }
+
+    protected AbstractNiceRecipeCategory(
+            IGuiHelper helper,
+            RecipeType<T> recipeType,
+            Component title,
+            IDrawable icon,
+            CategoryMode mode,
+            int width,
+            int height
+    ) {
         this.mode = mode;
         this.recipeType = recipeType;
         this.title = title;
         this.icon = icon;
 
-        this.width = mode.scale(176);
-        this.height = mode.scale(86);
+        this.width = width;
+        this.height = height;
 
         this.leftX = mode.scale(8);
         this.leftW = mode.scale(60);
@@ -110,9 +137,72 @@ public abstract class AbstractNiceRecipeCategory<T> implements IRecipeCategory<T
         drawFrame(guiGraphics);
     }
 
+    @Override
+    public List<Component> getTooltipStrings(T recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+        return List.of();
+    }
+
+    protected List<Component> tooltip(Component... lines) {
+        return List.of(lines);
+    }
+
+    protected List<Component> tooltip(String... lines) {
+        Component[] components = new Component[lines.length];
+        for (int i = 0; i < lines.length; i++) {
+            components[i] = Component.literal(lines[i]);
+        }
+        return List.of(components);
+    }
+
+    protected List<Component> fluidTankTooltip(String title, Fluid fluid, int amount, int capacity) {
+        return tooltip(
+                Component.literal(title),
+                Component.literal(fluidName(fluid)),
+                Component.literal(amount + " / " + capacity + " mB")
+        );
+    }
+
+    protected List<Component> fluidTankTooltip(String title, ResourceLocation fluidId, int amount, int capacity) {
+        return fluidTankTooltip(title, JeiCompatUtil.fluid(fluidId), amount, capacity);
+    }
+
+    protected List<Component> gasTankTooltip(String title, ResourceLocation gasId, long amount, long capacity) {
+        return tooltip(
+                Component.literal(title),
+                Component.literal(gasId == null ? "empty" : GasJeiUtil.displayName(gasId)),
+                Component.literal(amount + " / " + capacity)
+        );
+    }
+
+    protected List<Component> gasTankTooltip(String title, ResourceLocation gasId, long amount, long capacity, String unit) {
+        return tooltip(
+                Component.literal(title),
+                Component.literal(gasId == null ? "empty" : GasJeiUtil.displayName(gasId)),
+                Component.literal(amount + " / " + capacity + " " + unit)
+        );
+    }
+
+    protected List<Component> amountTooltip(String title, long amount, long capacity) {
+        return tooltip(
+                Component.literal(title),
+                Component.literal(amount + " / " + capacity)
+        );
+    }
+
+    protected List<Component> amountTooltip(String title, long amount, long capacity, String unit) {
+        return tooltip(
+                Component.literal(title),
+                Component.literal(amount + " / " + capacity + " " + unit)
+        );
+    }
+
+    protected String fluidName(Fluid fluid) {
+        return fluid == null || fluid == Fluids.EMPTY ? "empty" : fluid.getFluidType().getDescription().getString();
+    }
+
     protected void drawFrame(GuiGraphics g) {
-        drawPanel(g, leftX - 3, panelY - 3, leftW + 6, panelH + 6);
-        drawPanel(g, rightX - 3, panelY - 3, rightW + 6, panelH + 6);
+        drawNicePanel(g, leftX - 3, panelY - 3, leftW + 6, panelH + 6);
+        drawNicePanel(g, rightX - 3, panelY - 3, rightW + 6, panelH + 6);
 
         drawCentered(g, "INPUT", leftX, s(6), leftW, LABEL_COLOR);
         drawCentered(g, "OUTPUT", rightX, s(6), rightW, LABEL_COLOR);
@@ -124,18 +214,13 @@ public abstract class AbstractNiceRecipeCategory<T> implements IRecipeCategory<T
         drawArrow(g, arrowX, arrowY);
     }
 
-    private void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
-        g.fill(x, y, x + w, y + h, PANEL_BORDER);
-        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, PANEL_EDGE);
-        g.fill(x + 2, y + 2, x + w - 2, y + h - 2, PANEL_BG);
+    private void drawNicePanel(GuiGraphics g, int x, int y, int w, int h) {
+        g.fill(x, y, x + w, y + h, PANEL_BG);
+        drawBorderAbsolute(g, x, y, w, h, PANEL_LIGHT_BORDER, PANEL_DARK_BORDER);
     }
 
     private void drawArrow(GuiGraphics g, int x, int y) {
-        int shaftW = s(11);
-        int shaftH = Math.max(2, s(2));
-        g.fill(x, y + s(4), x + shaftW, y + s(4) + shaftH, ACCENT_COLOR);
-        g.fill(x + shaftW, y + s(2), x + shaftW + s(3), y + s(8), ACCENT_COLOR);
-        g.fill(x + shaftW + s(3), y, x + shaftW + s(7), y + s(10), ACCENT_COLOR);
+        drawArrow(g, x, y, s(18), s(10), ACCENT_COLOR);
     }
 
     protected int leftInnerX() {
@@ -333,12 +418,14 @@ public abstract class AbstractNiceRecipeCategory<T> implements IRecipeCategory<T
         g.drawString(font, amt, x + Math.max(1, (w - font.width(amt)) / 2), y - 9, 0xFFD7E3FF, false);
     }
 
-    private int gasColor(ResourceLocation id) {
-        int hash = id.toString().hashCode();
-        int r = 90 + (hash & 0x3F);
-        int g = 110 + ((hash >> 6) & 0x3F);
-        int b = 140 + ((hash >> 12) & 0x3F);
-        return 0xC0000000 | (r << 16) | (g << 8) | b;
+    @Override
+    public int drawWidth() {
+        return width;
+    }
+
+    @Override
+    public int drawHeight() {
+        return height;
     }
 
     public int getWidth() {

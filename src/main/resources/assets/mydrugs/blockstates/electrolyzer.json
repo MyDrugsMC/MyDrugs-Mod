@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "mydrugs:block/electrolyzer" },
+    "facing=east":  { "model": "mydrugs:block/electrolyzer", "y": 90 },
+    "facing=south": { "model": "mydrugs:block/electrolyzer", "y": 180 },
+    "facing=west":  { "model": "mydrugs:block/electrolyzer", "y": 270 }
+  }
+}

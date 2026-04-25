@@ -7,7 +7,7 @@
     }
   ],
   "gas_input": {
-    "gas": "mydrugs:hydrochloric",
+    "gas": "mydrugs:hydrogen_chloride",
     "amount": 250
   },
   "output": {

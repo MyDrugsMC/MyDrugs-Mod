@@ -5,8 +5,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.Villager;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
-import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.worldgen.ModVillagerProfessions;
@@ -33,8 +33,8 @@ public final class TherapistHandler {
         stats.lastTherapyDay = day;
 
         for (DrugCategory category : DrugCategory.values()) {
-            stats.get(category).baseWithdrawalMeter = Math.max(0.0F, stats.get(category).baseWithdrawalMeter - 12.0F);
-            stats.get(category).addictionValue = Math.max(0.0F, stats.get(category).addictionValue - 6.0F);
+            stats.reduceWithdrawalInCategory(category, 12.0F);
+            stats.reduceAddictionInCategory(category, 6.0F);
         }
 
         StressManager.reduce(stats, AddictionConstants.RELIEF_THERAPIST);

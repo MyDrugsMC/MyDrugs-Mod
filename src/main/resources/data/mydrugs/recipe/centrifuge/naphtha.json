@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:centrifuge",
+  "input": {
+    "fluid": "mydrugs:naphtha",
+    "amount": 100
+  },
+  "output_1": {
+    "fluid": "mydrugs:crude_c4_mix",
+    "amount": 25
+  },
+  "output_2": {
+    "fluid": "mydrugs:industrial_mix",
+    "amount": 75
+  },
+  "clicks_required": 14,
+  "hunger_per_tick": 1
+}

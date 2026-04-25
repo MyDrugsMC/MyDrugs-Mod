@@ -9,6 +9,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.payloads.IngameEffectPayload;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
@@ -21,10 +22,10 @@ public final class EffectsNetworkHandler {
         registrar.playToServer(IngameEffectPayload.TYPE, IngameEffectPayload.STREAM_CODEC,
                 ((payload, ctx) -> {
                     Player player = ctx.player();
-                    DrugEffect effect = payload.effect();
-                    int baseDuration = effect.getBaseDuration();
-                    int basePotency = effect.getBasePotency();
-                    switch (effect.getEffectType()) {
+                    EffectType effect = payload.effectType();
+                    int baseDuration = payload.duration();
+                    int basePotency = payload.potency();
+                    switch (effect) {
                         case NAUSEA -> player.addEffect(
                                 new MobEffectInstance(
                                         MobEffects.NAUSEA,

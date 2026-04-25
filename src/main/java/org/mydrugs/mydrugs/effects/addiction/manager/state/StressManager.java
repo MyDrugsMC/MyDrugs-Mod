@@ -17,7 +17,7 @@ public final class StressManager {
         if (inCombat) target += AddictionConstants.STRESS_COMBAT_BONUS;
         if (companions == 0) target += AddictionConstants.STRESS_ALONE_BONUS;
         if (inSafeZone) target -= AddictionConstants.STRESS_SAFE_ZONE_REDUCTION;
-        if (stats.temporaryEffects.hasDiaryCalm(player.level().getGameTime())) target -= AddictionConstants.STRESS_DIARY_REDUCTION;
+        if (stats.temporaryEffects.hasCalmRelief(player.level().getGameTime())) target -= AddictionConstants.STRESS_DIARY_REDUCTION;
         if (stats.temporaryEffects.hasHeadphones(player.level().getGameTime())) target -= AddictionConstants.STRESS_HEADPHONES_REDUCTION;
 
         int food = player.getFoodData().getFoodLevel();

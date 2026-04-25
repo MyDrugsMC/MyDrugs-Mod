@@ -165,6 +165,41 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> CENTRIFUGE_ITEM = ITEMS.registerSimpleBlockItem(CENTRIFUGE);
 
+    public static final DeferredBlock<BTXFractionationTowerBlock> BTX_FRACTIONATION_TOWER = BLOCKS.registerBlock(
+            "btx_fractionation_tower",
+            BTXFractionationTowerBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> BTX_FRACTIONATION_TOWER_ITEM =
+            ITEMS.registerSimpleBlockItem(BTX_FRACTIONATION_TOWER);
+
+    public static final DeferredBlock<AromaticExtractorBlock> AROMATIC_EXTRACTOR = BLOCKS.registerBlock(
+            "aromatic_extractor",
+            AromaticExtractorBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> AROMATIC_EXTRACTOR_ITEM = ITEMS.registerSimpleBlockItem(AROMATIC_EXTRACTOR);
+
+    public static final DeferredBlock<ElectrolyzerBlock> ELECTROLYZER = BLOCKS.registerBlock(
+            "electrolyzer",
+            ElectrolyzerBlock::new,
+            props -> props
+                    .strength(1.5F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> ELECTROLYZER_ITEM = ITEMS.registerSimpleBlockItem(ELECTROLYZER);
+
     public static final DeferredBlock<GrowthChamberBlock> GROWTH_CHAMBER = BLOCKS.registerBlock(
             "growth_chamber",
             GrowthChamberBlock::new,
@@ -327,6 +362,17 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> MECHANICAL_FRAME_ITEM = ITEMS.registerSimpleBlockItem(MECHANICAL_FRAME);
 
+
+    public static final DeferredBlock<CatalyticReformerBlock> CATALYTIC_REFORMER = BLOCKS.registerBlock(
+            "catalytic_reformer",
+            CatalyticReformerBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> CATALYTIC_REFORMER_ITEM = ITEMS.registerSimpleBlockItem(CATALYTIC_REFORMER);
 
     private ModBlocks() {
     }

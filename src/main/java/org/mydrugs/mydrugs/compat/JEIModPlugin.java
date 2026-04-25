@@ -26,6 +26,7 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipeCategories(
                 new AdvancedFurnaceRecipeCategory(guiHelper),
                 new CentrifugeRecipeCategory(guiHelper),
+                new ElectrolyzerRecipeCategory(guiHelper),
                 new DistillerRecipeCategory(guiHelper),
                 new DryingRecipeCategory(guiHelper),
                 new EvaporationTrayRecipeCategory(guiHelper),
@@ -38,6 +39,8 @@ public class JEIModPlugin implements IModPlugin {
                 new GrowthChamberRecipeCategory(guiHelper),
                 new MixingVatRecipeCategory(guiHelper),
                 new SieveRecipeCategory(guiHelper),
+                new CatalyticReformerRecipeCategory(guiHelper),
+                new BTXFractionationTowerRecipeCategory(guiHelper),
                 new StompCraftingRecipeCategory(guiHelper)
         );
     }
@@ -46,6 +49,7 @@ public class JEIModPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(AdvancedFurnaceRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getAdvancedFurnaceRecipes"));
         registration.addRecipes(CentrifugeRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCentrifugeRecipes"));
+        registration.addRecipes(ElectrolyzerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getElectrolyzerRecipes"));
         registration.addRecipes(DistillerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getDistillerRecipes"));
         registration.addRecipes(DryingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getDryingRecipes"));
         registration.addRecipes(EvaporationTrayRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getEvaporationTrayRecipes"));
@@ -60,12 +64,15 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipes(MixingVatRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getMixingVatRecipes"));
         registration.addRecipes(SieveRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getSieveRecipes"));
         registration.addRecipes(StompCraftingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getStompCraftingRecipes"));
+        registration.addRecipes(CatalyticReformerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCatalyticReformerRecipes"));
+        registration.addRecipes(BTXFractionationTowerRecipeCategory.TYPE, BTXFractionationTowerRecipeCategory.RECIPES);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         JeiCompatUtil.registerFieldCatalyst(registration, AdvancedFurnaceRecipeCategory.TYPE, ModBlocks.class, "ADVANCED_FURNACE_ITEM", "ADVANCED_FURNACE");
         JeiCompatUtil.registerFieldCatalyst(registration, CentrifugeRecipeCategory.TYPE, ModBlocks.class, "CENTRIFUGE");
+        JeiCompatUtil.registerFieldCatalyst(registration, ElectrolyzerRecipeCategory.TYPE, ModBlocks.class, "ELECTROLYZER");
         JeiCompatUtil.registerFieldCatalyst(registration, DistillerRecipeCategory.TYPE, ModBlocks.class, "DISTILLER");
         JeiCompatUtil.registerFieldCatalyst(registration, DryingRecipeCategory.TYPE, ModBlocks.class, "DRYING_RACK");
         JeiCompatUtil.registerFieldCatalyst(registration, EvaporationTrayRecipeCategory.TYPE, ModBlocks.class, "EVAPORATION_TRAY");
@@ -80,6 +87,8 @@ public class JEIModPlugin implements IModPlugin {
         JeiCompatUtil.registerFieldCatalyst(registration, MixingVatRecipeCategory.TYPE, ModBlocks.class, "MIXING_VAT");
         JeiCompatUtil.registerFieldCatalyst(registration, SieveRecipeCategory.TYPE, ModBlocks.class, "SIEVE", "SIEVING_TABLE");
         JeiCompatUtil.registerFieldCatalyst(registration, StompCraftingRecipeCategory.TYPE, ModItems.class, "STOMP_PLATE");
+        JeiCompatUtil.registerFieldCatalyst(registration, CatalyticReformerRecipeCategory.TYPE, ModBlocks.class, "CATALYTIC_REFORMER");
+        JeiCompatUtil.registerFieldCatalyst(registration, BTXFractionationTowerRecipeCategory.TYPE, ModBlocks.class, "BTX_FRACTIONATION_TOWER_ITEM", "BTX_FRACTIONATION_TOWER");
     }
 
     @Override

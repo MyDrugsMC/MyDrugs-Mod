@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "mydrugs:block/electrolyzer_top",
+    "front": "mydrugs:block/electrolyzer_front",
+    "side": "mydrugs:block/electrolyzer_side",
+    "bottom": "mydrugs:block/electrolyzer_bottom"
+  }
+}
