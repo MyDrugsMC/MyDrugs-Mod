@@ -1,9 +1,11 @@
 package org.mydrugs.mydrugs.menu;
 
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
 
 public abstract class AbstractMachineMenu extends AbstractContainerMenu {
@@ -31,6 +33,45 @@ public abstract class AbstractMachineMenu extends AbstractContainerMenu {
                     StandardInventoryLayout.hotbarSlotY(playerInvY)
             ));
         }
+    }
+
+    protected boolean moveToPlayerInventory(ItemStack stack, int playerInventoryStart, int hotbarEnd) {
+        return this.moveItemStackTo(stack, playerInventoryStart, hotbarEnd, true);
+    }
+
+    protected boolean moveToPlayerInventory(ItemStack stack, int playerInventoryStart, int hotbarEnd, boolean reverse) {
+        return this.moveItemStackTo(stack, playerInventoryStart, hotbarEnd, reverse);
+    }
+
+    protected boolean moveBetweenPlayerInventoryAndHotbar(
+            ItemStack stack,
+            int sourceIndex,
+            int playerInventoryStart,
+            int playerInventoryEnd,
+            int hotbarStart,
+            int hotbarEnd
+    ) {
+        if (sourceIndex < playerInventoryEnd) {
+            return this.moveItemStackTo(stack, hotbarStart, hotbarEnd, false);
+        }
+
+        return sourceIndex < hotbarEnd
+                && this.moveItemStackTo(stack, playerInventoryStart, playerInventoryEnd, false);
+    }
+
+    protected ItemStack finishQuickMove(Player player, Slot sourceSlot, ItemStack sourceStack, ItemStack originalStack) {
+        if (sourceStack.isEmpty()) {
+            sourceSlot.setByPlayer(ItemStack.EMPTY);
+        } else {
+            sourceSlot.setChanged();
+        }
+
+        if (sourceStack.getCount() == originalStack.getCount()) {
+            return ItemStack.EMPTY;
+        }
+
+        sourceSlot.onTake(player, sourceStack);
+        return originalStack;
     }
 
     @Override

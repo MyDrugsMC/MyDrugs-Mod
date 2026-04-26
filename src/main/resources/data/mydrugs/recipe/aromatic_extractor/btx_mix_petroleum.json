@@ -8,7 +8,6 @@
     "fluid": "mydrugs:sulfolane",
     "amount": 500
   },
-  "consume_catalyst": false,
   "output_1": {
     "fluid": "mydrugs:btx_mix",
     "amount": 700

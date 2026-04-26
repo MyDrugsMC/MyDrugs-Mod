@@ -111,16 +111,16 @@ public abstract class AnimatedShader extends Shader {
 
         try {
             renderInternal(mc);
-        } catch (Throwable t) {
+        } catch (RuntimeException e) {
             MyDrugs.CLIENT_STATE.setShader(null);
-            t.printStackTrace();
+            MyDrugs.getLOGGER().error("Disabled shader '{}' after render failure", name, e);
         }
     }
 
     private void renderInternal(Minecraft mc) {
         RenderTarget mainTarget = mc.getMainRenderTarget();
         if (mainTarget == null) {
-            System.out.println("main target");
+            MyDrugs.getLOGGER().warn("Skipping shader '{}' because the main render target is unavailable", name);
             return;
         }
 

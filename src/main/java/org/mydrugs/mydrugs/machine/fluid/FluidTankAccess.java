@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.machine.fluid;
 
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
@@ -31,6 +32,11 @@ public interface FluidTankAccess {
                 setter.accept(stack == null ? FluidStack.EMPTY : stack.copy());
             }
         };
+    }
+
+    static FluidTankAccess of(NonNullList<FluidStack> stacks, int index, int capacity) {
+        Objects.requireNonNull(stacks);
+        return of(capacity, () -> stacks.get(index), stack -> stacks.set(index, stack));
     }
 
     int capacity();

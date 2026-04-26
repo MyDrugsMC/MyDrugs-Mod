@@ -31,11 +31,13 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.AdvancedMixingVatBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
+import org.mydrugs.mydrugs.machine.MachineStorage;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
+import org.mydrugs.mydrugs.machine.transfer.TransferLockSuppressor;
 import org.mydrugs.mydrugs.menu.AdvancedMixingVatMenu;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipeInput;
@@ -45,7 +47,6 @@ import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements net.minecraft.world.MenuProvider {
     public static final int RECIPE_ITEM_SLOT_COUNT = 4;
@@ -74,32 +75,16 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
     private final VatInputFluidHandler inputAHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
     private final NonNullList<FluidStack> inputAStacks = this.inputAHandler.list();
-    private final FluidTankAccess inputATank = FluidTankAccess.of(
-            INPUT_TANK_CAPACITY,
-            () -> this.inputAStacks.get(0),
-            stack -> this.inputAStacks.set(0, stack)
-    );
+    private final FluidTankAccess inputATank = FluidTankAccess.of(this.inputAStacks, 0, INPUT_TANK_CAPACITY);
     private final VatInputFluidHandler inputBHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
     private final NonNullList<FluidStack> inputBStacks = this.inputBHandler.list();
-    private final FluidTankAccess inputBTank = FluidTankAccess.of(
-            INPUT_TANK_CAPACITY,
-            () -> this.inputBStacks.get(0),
-            stack -> this.inputBStacks.set(0, stack)
-    );
+    private final FluidTankAccess inputBTank = FluidTankAccess.of(this.inputBStacks, 0, INPUT_TANK_CAPACITY);
     private final VatInputFluidHandler inputCHandler = new VatInputFluidHandler(INPUT_TANK_CAPACITY);
     private final NonNullList<FluidStack> inputCStacks = this.inputCHandler.list();
-    private final FluidTankAccess inputCTank = FluidTankAccess.of(
-            INPUT_TANK_CAPACITY,
-            () -> this.inputCStacks.get(0),
-            stack -> this.inputCStacks.set(0, stack)
-    );
+    private final FluidTankAccess inputCTank = FluidTankAccess.of(this.inputCStacks, 0, INPUT_TANK_CAPACITY);
     private final VatOutputFluidHandler outputHandler = new VatOutputFluidHandler(OUTPUT_TANK_CAPACITY);
     private final NonNullList<FluidStack> outputStacks = this.outputHandler.list();
-    private final FluidTankAccess outputTank = FluidTankAccess.of(
-            OUTPUT_TANK_CAPACITY,
-            () -> this.outputStacks.get(0),
-            stack -> this.outputStacks.set(0, stack)
-    );
+    private final FluidTankAccess outputTank = FluidTankAccess.of(this.outputStacks, 0, OUTPUT_TANK_CAPACITY);
     private final GasTank gasTank = new GasTank(
             GAS_TANK_CAPACITY,
             gasType -> true,
@@ -451,13 +436,8 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                 && stored.getAmount() + result.getAmount() <= OUTPUT_TANK_CAPACITY;
     }
 
-    private boolean runTransferWithoutReset(BooleanSupplier action) {
-        this.suppressTransferModeReset = true;
-        try {
-            return action.getAsBoolean();
-        } finally {
-            this.suppressTransferModeReset = false;
-        }
+    private boolean runTransferWithoutReset(java.util.function.BooleanSupplier action) {
+        return TransferLockSuppressor.run(value -> this.suppressTransferModeReset = value, action);
     }
 
     private void resetTransferLockForSlot(int slot) {
@@ -537,15 +517,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
 
-        ValueOutput.ValueOutputList itemList = output.childrenList("items");
-        for (int i = 0; i < this.itemStacks.size(); i++) {
-            ItemStack stack = this.itemStacks.get(i);
-            if (stack.isEmpty()) continue;
-
-            ValueOutput child = itemList.addChild();
-            child.putInt("slot", i);
-            child.store("stack", ItemStack.CODEC, stack);
-        }
+        MachineStorage.saveItemStacks(output, "items", this.itemStacks);
 
         output.store("input_a", FluidStack.OPTIONAL_CODEC, this.inputAStacks.get(0));
         output.store("input_b", FluidStack.OPTIONAL_CODEC, this.inputBStacks.get(0));
@@ -566,17 +538,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        for (int i = 0; i < this.itemStacks.size(); i++) {
-            this.itemStacks.set(i, ItemStack.EMPTY);
-        }
-
-        for (ValueInput child : input.childrenListOrEmpty("items")) {
-            int slot = child.getIntOr("slot", -1);
-            ItemStack stack = child.read("stack", ItemStack.CODEC).orElse(ItemStack.EMPTY);
-            if (slot >= 0 && slot < this.itemStacks.size()) {
-                this.itemStacks.set(slot, stack);
-            }
-        }
+        MachineStorage.loadItemStacks(input, "items", this.itemStacks);
 
         this.inputAStacks.set(0, input.read("input_a", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY));
         this.inputBStacks.set(0, input.read("input_b", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY));

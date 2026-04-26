@@ -244,7 +244,7 @@ public class DistillerMenu extends AbstractMachineMenu {
             quickMovedStack = rawStack.copy();
 
             if (quickMovedSlotIndex < MACHINE_SLOT_COUNT) {
-                if (!this.moveItemStackTo(rawStack, PLAYER_INV_START, HOTBAR_END, false)) {
+                if (!this.moveToPlayerInventory(rawStack, PLAYER_INV_START, HOTBAR_END, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
@@ -255,20 +255,10 @@ public class DistillerMenu extends AbstractMachineMenu {
                 return ItemStack.EMPTY;
             }
 
-            if (rawStack.isEmpty()) {
-                quickMovedSlot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                quickMovedSlot.setChanged();
-            }
-
-            if (rawStack.getCount() == quickMovedStack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            quickMovedSlot.onTake(player, rawStack);
+            return this.finishQuickMove(player, quickMovedSlot, rawStack, quickMovedStack);
         }
 
-        return quickMovedStack;
+        return ItemStack.EMPTY;
     }
 
     public interface DistillerButtonHandler {

@@ -41,6 +41,7 @@ import org.mydrugs.mydrugs.blocks.ChemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.MachineStorage;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
@@ -48,6 +49,7 @@ import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
+import org.mydrugs.mydrugs.machine.transfer.TransferLockSuppressor;
 import org.mydrugs.mydrugs.menu.ChemicalReactorMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
@@ -55,7 +57,6 @@ import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipeInput;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ReactorOutputKind;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements MenuProvider {
     public static final int SLOT_FUEL = 0;
@@ -89,17 +90,11 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
     private final ReactorFluidHandler fluidHandler = new ReactorFluidHandler();
     private final NonNullList<FluidStack> fluidStacks = this.fluidHandler.list();
 
-    private final FluidTankAccess secondaryFluidTank = FluidTankAccess.of(
-            FLUID_TANK_CAPACITY,
-            () -> this.fluidStacks.get(SECONDARY_FLUID_TANK),
-            stack -> this.fluidStacks.set(SECONDARY_FLUID_TANK, stack)
-    );
+    private final FluidTankAccess secondaryFluidTank =
+            FluidTankAccess.of(this.fluidStacks, SECONDARY_FLUID_TANK, FLUID_TANK_CAPACITY);
 
-    private final FluidTankAccess outputFluidTank = FluidTankAccess.of(
-            FLUID_TANK_CAPACITY,
-            () -> this.fluidStacks.get(OUTPUT_FLUID_TANK),
-            stack -> this.fluidStacks.set(OUTPUT_FLUID_TANK, stack)
-    );
+    private final FluidTankAccess outputFluidTank =
+            FluidTankAccess.of(this.fluidStacks, OUTPUT_FLUID_TANK, FLUID_TANK_CAPACITY);
 
     private final LockedTransferSlots gasInputLocks = new LockedTransferSlots(2);
     private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(1);
@@ -364,13 +359,8 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         };
     }
 
-    private boolean runTransferWithoutReset(BooleanSupplier action) {
-        this.suppressTransferModeReset = true;
-        try {
-            return action.getAsBoolean();
-        } finally {
-            this.suppressTransferModeReset = false;
-        }
+    private boolean runTransferWithoutReset(java.util.function.BooleanSupplier action) {
+        return TransferLockSuppressor.run(value -> this.suppressTransferModeReset = value, action);
     }
 
     private boolean setOutputFluidMode(boolean mode) {
@@ -657,21 +647,14 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        for (int i = 0; i < this.itemStacks.size(); i++) {
-            this.itemStacks.set(i, ItemStack.EMPTY);
-        }
-
         boolean alreadyHybridSchema = input.getIntOr("SlotSchema", 0) >= SLOT_SCHEMA_HYBRID_SECONDARY;
-
-        for (ValueInput child : input.childrenListOrEmpty("items")) {
-            int savedSlot = child.getIntOr("slot", -1);
-            int slot = mapLoadedSlot(savedSlot, alreadyHybridSchema);
-            ItemStack stack = child.read("stack", ItemStack.CODEC).orElse(ItemStack.EMPTY);
-
-            if (slot >= 0 && slot < this.itemStacks.size() && this.itemStacks.get(slot).isEmpty()) {
-                this.itemStacks.set(slot, stack);
-            }
-        }
+        MachineStorage.loadItemStacks(
+                input,
+                "items",
+                this.itemStacks,
+                savedSlot -> mapLoadedSlot(savedSlot, alreadyHybridSchema),
+                true
+        );
 
         this.burnTimeRemaining = input.getIntOr("BurnTimeRemaining", 0);
         this.burnTimeTotal = input.getIntOr("BurnTimeTotal", 0);
@@ -711,17 +694,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
 
         output.putInt("SlotSchema", SLOT_SCHEMA_HYBRID_SECONDARY);
 
-        ValueOutput.ValueOutputList itemList = output.childrenList("items");
-        for (int i = 0; i < this.itemStacks.size(); i++) {
-            ItemStack stack = this.itemStacks.get(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-
-            ValueOutput child = itemList.addChild();
-            child.putInt("slot", i);
-            child.store("stack", ItemStack.CODEC, stack);
-        }
+        MachineStorage.saveItemStacks(output, "items", this.itemStacks);
 
         output.putInt("BurnTimeRemaining", this.burnTimeRemaining);
         output.putInt("BurnTimeTotal", this.burnTimeTotal);

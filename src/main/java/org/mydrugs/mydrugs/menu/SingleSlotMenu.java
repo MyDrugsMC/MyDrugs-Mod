@@ -5,14 +5,12 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.items.SingleSlotContainerItem;
 import org.mydrugs.mydrugs.menu.layout.SingleSlotMenuLayout;
-import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
 
-public class SingleSlotMenu extends AbstractContainerMenu {
+public class SingleSlotMenu extends AbstractMachineMenu {
     private static final int BANG_SLOT = 0;
     private static final int PLAYER_INV_START = 1;
     private static final int PLAYER_INV_END = 28;
@@ -54,27 +52,7 @@ public class SingleSlotMenu extends AbstractContainerMenu {
             }
         });
 
-        // player inventory
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        playerInv,
-                        col + row * 9 + 9,
-                        StandardInventoryLayout.playerSlotX(SingleSlotMenuLayout.PLAYER_INV_X, col),
-                        StandardInventoryLayout.playerSlotY(SingleSlotMenuLayout.PLAYER_INV_Y, row)
-                ));
-            }
-        }
-
-        // hotbar
-        for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    playerInv,
-                    col,
-                    StandardInventoryLayout.hotbarSlotX(SingleSlotMenuLayout.PLAYER_INV_X, col),
-                    StandardInventoryLayout.hotbarSlotY(SingleSlotMenuLayout.PLAYER_INV_Y)
-            ));
-        }
+        this.addPlayerInventorySlots(playerInv, SingleSlotMenuLayout.PLAYER_INV_X, SingleSlotMenuLayout.PLAYER_INV_Y);
     }
 
     @Override
@@ -96,32 +74,23 @@ public class SingleSlotMenu extends AbstractContainerMenu {
             quickMoved = raw.copy();
 
             if (index == BANG_SLOT) {
-                if (!this.moveItemStackTo(raw, PLAYER_INV_START, HOTBAR_END, true)) {
+                if (!this.moveToPlayerInventory(raw, PLAYER_INV_START, HOTBAR_END)) {
                     return ItemStack.EMPTY;
                 }
-            } else {
-                if (!this.moveItemStackTo(raw, BANG_SLOT, BANG_SLOT + 1, false)) {
-                    if (index < HOTBAR_START) {
-                        if (!this.moveItemStackTo(raw, HOTBAR_START, HOTBAR_END, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else if (!this.moveItemStackTo(raw, PLAYER_INV_START, PLAYER_INV_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
+            } else if (!this.moveItemStackTo(raw, BANG_SLOT, BANG_SLOT + 1, false)) {
+                if (!this.moveBetweenPlayerInventoryAndHotbar(
+                        raw,
+                        index,
+                        PLAYER_INV_START,
+                        PLAYER_INV_END,
+                        HOTBAR_START,
+                        HOTBAR_END
+                )) {
+                    return ItemStack.EMPTY;
                 }
             }
 
-            if (raw.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
-
-            if (raw.getCount() == quickMoved.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot.onTake(player, raw);
+            return this.finishQuickMove(player, slot, raw, quickMoved);
         }
 
         return quickMoved;

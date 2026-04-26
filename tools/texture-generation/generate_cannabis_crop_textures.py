@@ -1,7 +1,9 @@
 from PIL import Image, ImageDraw, ImageFilter
 import math, random, os, zipfile, textwrap
+from pathlib import Path
 
-outdir = "/mnt/data/cannabis_crop_textures"
+SCRIPT_DIR = Path(__file__).resolve().parent
+outdir = SCRIPT_DIR / "generated" / "cannabis_crop_textures"
 os.makedirs(outdir, exist_ok=True)
 
 SCRIPT = r'''
@@ -220,11 +222,11 @@ for i, img in enumerate(images):
             draw.rectangle((x+xx, y+yy, x+xx+7, y+yy+7), fill=(c, c, c, 255))
     sheet.alpha_composite(img, (x, y))
     draw.text((x, y + 34), f"Stage {i+1}", fill=(230, 230, 230, 255))
-preview_path = "/mnt/data/cannabis_crop_preview.png"
+preview_path = SCRIPT_DIR / "generated" / "cannabis_crop_preview.png"
 sheet.save(preview_path)
 
 # zip files
-zip_path = "/mnt/data/cannabis_crop_textures.zip"
+zip_path = SCRIPT_DIR / "generated" / "cannabis_crop_textures.zip"
 with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
     for i in range(7):
         zf.write(os.path.join(outdir, f"cannabis_stage_{i}.png"), arcname=f"cannabis_stage_{i}.png")

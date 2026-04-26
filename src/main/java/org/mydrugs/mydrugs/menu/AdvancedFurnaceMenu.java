@@ -193,7 +193,7 @@ public final class AdvancedFurnaceMenu extends AbstractMachineMenu {
         quickMoved = sourceStack.copy();
 
         if (index < MACHINE_SLOT_COUNT) {
-            if (!this.moveItemStackTo(sourceStack, PLAYER_INV_START, HOTBAR_END, true)) {
+            if (!this.moveToPlayerInventory(sourceStack, PLAYER_INV_START, HOTBAR_END)) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -227,31 +227,19 @@ public final class AdvancedFurnaceMenu extends AbstractMachineMenu {
             }
 
             if (!movedToMachine) {
-                if (index < PLAYER_INV_END) {
-                    if (!this.moveItemStackTo(sourceStack, HOTBAR_START, HOTBAR_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index < HOTBAR_END) {
-                    if (!this.moveItemStackTo(sourceStack, PLAYER_INV_START, PLAYER_INV_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else {
+                if (!this.moveBetweenPlayerInventoryAndHotbar(
+                        sourceStack,
+                        index,
+                        PLAYER_INV_START,
+                        PLAYER_INV_END,
+                        HOTBAR_START,
+                        HOTBAR_END
+                )) {
                     return ItemStack.EMPTY;
                 }
             }
         }
 
-        if (sourceStack.isEmpty()) {
-            sourceSlot.setByPlayer(ItemStack.EMPTY);
-        } else {
-            sourceSlot.setChanged();
-        }
-
-        if (sourceStack.getCount() == quickMoved.getCount()) {
-            return ItemStack.EMPTY;
-        }
-
-        sourceSlot.onTake(player, sourceStack);
-        return quickMoved;
+        return this.finishQuickMove(player, sourceSlot, sourceStack, quickMoved);
     }
 }

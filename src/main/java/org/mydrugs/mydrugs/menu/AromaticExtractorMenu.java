@@ -323,7 +323,7 @@ public class AromaticExtractorMenu extends AbstractMachineMenu {
             quickMovedStack = rawStack.copy();
 
             if (quickMovedSlotIndex < MACHINE_SLOT_COUNT) {
-                if (!this.moveItemStackTo(rawStack, PLAYER_INV_START, HOTBAR_END, false)) {
+                if (!this.moveToPlayerInventory(rawStack, PLAYER_INV_START, HOTBAR_END, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
@@ -335,35 +335,24 @@ public class AromaticExtractorMenu extends AbstractMachineMenu {
                     if (!this.moveItemStackTo(rawStack, FUEL_SLOT, FUEL_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (quickMovedSlotIndex < PLAYER_INV_END) {
-                    if (!this.moveItemStackTo(rawStack, HOTBAR_START, HOTBAR_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (quickMovedSlotIndex < HOTBAR_END) {
-                    if (!this.moveItemStackTo(rawStack, PLAYER_INV_START, PLAYER_INV_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else {
+                } else if (!this.moveBetweenPlayerInventoryAndHotbar(
+                        rawStack,
+                        quickMovedSlotIndex,
+                        PLAYER_INV_START,
+                        PLAYER_INV_END,
+                        HOTBAR_START,
+                        HOTBAR_END
+                )) {
                     return ItemStack.EMPTY;
                 }
             } else {
                 return ItemStack.EMPTY;
             }
 
-            if (rawStack.isEmpty()) {
-                quickMovedSlot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                quickMovedSlot.setChanged();
-            }
-
-            if (rawStack.getCount() == quickMovedStack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            quickMovedSlot.onTake(player, rawStack);
+            return this.finishQuickMove(player, quickMovedSlot, rawStack, quickMovedStack);
         }
 
-        return quickMovedStack;
+        return ItemStack.EMPTY;
     }
 
     public interface AromaticExtractorButtonHandler {

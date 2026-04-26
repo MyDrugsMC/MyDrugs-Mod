@@ -4,15 +4,18 @@ import json
 
 # ---------- CONFIG ----------
 MODID = "mydrugs"
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent.parent
+INPUT_DIR = SCRIPT_DIR / "inputs"
 
 # Input textures
-MASK_PATH = Path("glass_bottle_liquid_mask.png")   # your white mask
-SHELL_PATH = Path("glass_bottle_shell.png")        # your bottle shell, only used for previews
+MASK_PATH = INPUT_DIR / "glass_bottle_liquid_mask.png"   # white mask
+SHELL_PATH = INPUT_DIR / "glass_bottle_shell.png"        # bottle shell, only used for previews
 
 # Output folders
-OUT_TEXTURES = Path("src/main/resources/assets/mydrugs/textures/item")
-OUT_MODELS = Path("src/main/resources/assets/mydrugs/models/item")
-OUT_PREVIEWS = Path("generated_previews")
+OUT_TEXTURES = REPO_ROOT / "src/main/resources/assets/mydrugs/textures/item"
+OUT_MODELS = REPO_ROOT / "src/main/resources/assets/mydrugs/models/item"
+OUT_PREVIEWS = SCRIPT_DIR / "generated_previews"
 
 # Output name prefix
 PREFIX = "glass_bottle_liquid"
@@ -127,7 +130,7 @@ def write_range_dispatch_snippet():
             }
         })
 
-    with open("generated_range_dispatch_entries.json", "w", encoding="utf-8") as f:
+    with open(SCRIPT_DIR / "generated_range_dispatch_entries.json", "w", encoding="utf-8") as f:
         json.dump(snippet, f, indent=2)
 
 
