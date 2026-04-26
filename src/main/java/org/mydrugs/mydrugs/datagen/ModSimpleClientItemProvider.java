@@ -26,6 +26,8 @@ public class ModSimpleClientItemProvider implements DataProvider {
         List<CompletableFuture<?>> futures = new ArrayList<>();
 
         futures.add(saveFlatItem(cachedOutput, "mixing_spatula", "mydrugs:item/mixing_spatula"));
+        futures.add(saveFlatItem(cachedOutput, "raw_platinum", "mydrugs:item/raw_platinum"));
+        futures.add(saveFlatItem(cachedOutput, "platinum_ingot", "mydrugs:item/platinum_ingot"));
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

@@ -336,6 +336,12 @@ public class ModItems {
 
     public static final DeferredItem<Item> CUP = ITEMS.registerSimpleItem("cup");
 
+    public static final DeferredItem<Item> RAW_PLATINUM =
+            ITEMS.registerSimpleItem("raw_platinum");
+
+    public static final DeferredItem<Item> PLATINUM_INGOT =
+            ITEMS.registerSimpleItem("platinum_ingot");
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
 

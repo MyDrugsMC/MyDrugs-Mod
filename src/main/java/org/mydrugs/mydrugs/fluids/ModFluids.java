@@ -43,7 +43,6 @@ public final class ModFluids {
     public static final FluidEntry FILTERED_EXTRACT;
     public static final FluidEntry COAL_TAR;
     public static final FluidEntry AMINO_ACID;
-    public static final FluidEntry TRYPTOPHAN;
     public static final FluidEntry WASTE_BIOMASS;
     public static final FluidEntry LYSERGIC_ACID;
     public static final FluidEntry DIETHYLAMINE;
@@ -86,7 +85,6 @@ public final class ModFluids {
         FILTERED_EXTRACT = register(new FluidEntryDef("filtered_extract", 0xFF92F78D, false, null));
         COAL_TAR = register(new FluidEntryDef("coal_tar", 0xFF000000, false, null));
         AMINO_ACID = register(new FluidEntryDef("amino_acid", 0xFFDDDDAA, false, null));
-        TRYPTOPHAN = register(new FluidEntryDef("tryptophan", 0xC3EBE8, false, null));
         WASTE_BIOMASS = register(new FluidEntryDef("waste_biomass", 0xFF035700, false, null));
         LYSERGIC_ACID = register(new FluidEntryDef("lysergic_acid", 0xFFFFFFFF, false, null));
         DIETHYLAMINE = register(new FluidEntryDef("diethylamine", 0xFFFEFFD1, false, null));

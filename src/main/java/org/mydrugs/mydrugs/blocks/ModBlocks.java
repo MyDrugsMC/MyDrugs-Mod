@@ -10,7 +10,6 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.blocks.crops.*;
 import org.mydrugs.mydrugs.effects.addiction.block.RecoveryAnchorBlock;
 import org.mydrugs.mydrugs.effects.addiction.block.TherapistDeskBlock;
 import org.mydrugs.mydrugs.worldgen.ModWorldGenKeys;
@@ -373,6 +372,22 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> CATALYTIC_REFORMER_ITEM = ITEMS.registerSimpleBlockItem(CATALYTIC_REFORMER);
+
+    public static final DeferredBlock<Block> PLATINUM_ORE = BLOCKS.registerSimpleBlock(
+            "platinum_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_ORE)
+    );
+
+    public static final DeferredItem<BlockItem> PLATINUM_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(PLATINUM_ORE);
+
+    public static final DeferredBlock<Block> DEEPSLATE_PLATINUM_ORE = BLOCKS.registerSimpleBlock(
+            "deepslate_platinum_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_DIAMOND_ORE)
+    );
+
+    public static final DeferredItem<BlockItem> DEEPSLATE_PLATINUM_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(DEEPSLATE_PLATINUM_ORE);
 
     private ModBlocks() {
     }

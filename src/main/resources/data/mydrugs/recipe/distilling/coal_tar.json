@@ -5,11 +5,11 @@
     "amount": 100
   },
   "output_1": {
-    "fluid": "mydrugs:btx_mix",
+    "fluid": "mydrugs:light_oil",
     "amount": 40
   },
   "output_2": {
-    "fluid": "mydrugs:gasoline_blendstock",
+    "fluid": "mydrugs:industrial_mix",
     "amount": 65
   },
   "base_ticks": 200

@@ -45,5 +45,34 @@ public final class ModPlacedFeatures {
                         )
                 )
         );
+
+        context.register(
+                ModWorldGenKeys.PLATINUM_ORE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.PLATINUM_ORE),
+                        List.of(
+                                CountPlacement.of(7),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.triangle(
+                                        VerticalAnchor.aboveBottom(-80),
+                                        VerticalAnchor.aboveBottom(80)
+                                ),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.PETROLEUM_LAKE_SURFACE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.PETROLEUM_LAKE),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(200),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
     }
 }

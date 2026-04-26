@@ -1,0 +1,21 @@
+{
+  "type": "mydrugs:aromatic_extractor",
+  "input": {
+    "fluid": "mydrugs:reformate",
+    "amount": 1000
+  },
+  "catalyst": {
+    "fluid": "mydrugs:sulfolane",
+    "amount": 500
+  },
+  "consume_catalyst": false,
+  "output_1": {
+    "fluid": "mydrugs:btx_mix",
+    "amount": 700
+  },
+  "output_2": {
+    "fluid": "mydrugs:industrial_mix",
+    "amount": 300
+  },
+  "base_ticks": 240
+}

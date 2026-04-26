@@ -50,15 +50,15 @@ public final class CatalyticReformerLayout {
     public static final int DUMP_OUTPUT_2_X = LayoutMath.dumpButtonX(OUTPUT_2_TANK_X, TANK_W, DUMP_BUTTON_SIZE);
     public static final int DUMP_OUTPUT_3_X = LayoutMath.dumpButtonX(OUTPUT_3_TANK_X, TANK_W, DUMP_BUTTON_SIZE);
 
-    public static final int CENTER_PANEL_W = 44;
-    public static final int CENTER_PANEL_H = 52;
+    public static final int CENTER_PANEL_W = 45;
+    public static final int CENTER_PANEL_H = 45;
     public static final int CENTER_PANEL_X = LayoutMath.centeredBetween(INPUT_2_TANK_X + TANK_W, OUTPUT_1_TANK_X, CENTER_PANEL_W);
     public static final int CENTER_PANEL_Y = MACHINE_PANEL_Y + 31;
 
-    public static final int CATALYST_SLOT_X = LayoutMath.centeredAt(CENTER_PANEL_X, CENTER_PANEL_W, StandardInventoryLayout.SLOT_SIZE);
+    public static final int CATALYST_SLOT_X = LayoutMath.centeredAt(CENTER_PANEL_X, CENTER_PANEL_W, StandardInventoryLayout.SLOT_SIZE) + 1;
     public static final int CATALYST_SLOT_Y = CENTER_PANEL_Y + 8;
 
-    public static final int PROGRESS_W = 36;
+    public static final int PROGRESS_W = 37;
     public static final int PROGRESS_H = 6;
     public static final int PROGRESS_X = LayoutMath.centeredAt(CENTER_PANEL_X, CENTER_PANEL_W, PROGRESS_W);
     public static final int PROGRESS_Y = CENTER_PANEL_Y + 34;

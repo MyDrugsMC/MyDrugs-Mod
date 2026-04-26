@@ -6,9 +6,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.common.world.BiomeModifiers.AddFeaturesBiomeModifier;
 
 public final class ModBiomeModifiers {
@@ -34,6 +36,25 @@ public final class ModBiomeModifiers {
                         biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
                         HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.SULFUR_ORE_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.ADD_PLATINUM_ORE,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.PLATINUM_ORE_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES
+                )
+        );
+
+        // Vanilla desert only.
+        context.register(
+                ModWorldGenKeys.ADD_PETROLEUM_LAKES_TO_DESERTS,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        HolderSet.direct(biomes.getOrThrow(Biomes.DESERT)),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.PETROLEUM_LAKE_SURFACE_PLACED)),
+                        GenerationStep.Decoration.LAKES
                 )
         );
     }

@@ -86,7 +86,16 @@ final class AdvancedFurnaceRecipeCategory extends AbstractNiceRecipeCategory<Adv
                 0xFF0E1116
         );
 
-        drawPanel(g, 63, 18, 40, 52, 0xFF1B1F25, 0xFF505862, 0xFF0A0C10);
+        drawPanel(
+                g,
+                AdvancedFurnaceLayout.CENTER_PANEL_X,
+                AdvancedFurnaceLayout.CENTER_PANEL_Y,
+                AdvancedFurnaceLayout.CENTER_PANEL_W,
+                AdvancedFurnaceLayout.CENTER_PANEL_H,
+                0xFF1B1F25,
+                0xFF505862,
+                0xFF0A0C10
+        );
 
         drawSlotFrame(g, AdvancedFurnaceLayout.INPUT_A_X, AdvancedFurnaceLayout.INPUT_A_Y);
         drawSlotFrame(g, AdvancedFurnaceLayout.INPUT_B_X, AdvancedFurnaceLayout.INPUT_B_Y);
@@ -103,8 +112,8 @@ final class AdvancedFurnaceRecipeCategory extends AbstractNiceRecipeCategory<Adv
                 drawFluidTankPreview(g, fluid, recipe.fluidAmount(), AdvancedFurnaceLayout.TANK_X, AdvancedFurnaceLayout.TANK_Y, StandardTankLayout.INNER_X, StandardTankLayout.INNER_Y, StandardTankLayout.INNER_W, StandardTankLayout.INNER_H)
         );
 
-        drawCentered(g, getTitle().getString(), AdvancedFurnaceLayout.MACHINE_PANEL_X, 4, AdvancedFurnaceLayout.MACHINE_PANEL_W, 0xFFF0F3F8);
-        drawCentered(g, "Heat", 63, 44, 40, 0xFFE0B58A);
+        drawTitle(g);
+        drawCentered(g, "Heat", AdvancedFurnaceLayout.HEAT_LABEL_X, AdvancedFurnaceLayout.HEAT_LABEL_Y, 40, 0xFFE0B58A);
 
         String footer = "Time: " + recipe.cookTime() + "t";
         if (recipe.fluidOutput().isPresent()) {
@@ -311,7 +320,7 @@ final class AdvancedMixingVatRecipeCategory extends AbstractNiceRecipeCategory<A
             drawSlotCount(g, itemX[i], itemY[i], JeiCompatUtil.countOf(itemInputs.get(i)));
         }
 
-        drawCentered(g, getTitle().getString(), 8, 6, width - 16, 0xCFCFCF);
+        drawTitle(g);
         drawBottomInfo(g, "No heat required  |  Time: " + recipe.processingTime() + "t");
     }
 
@@ -410,7 +419,7 @@ final class CentrifugeRecipeCategory extends AbstractNiceRecipeCategory<Centrifu
         drawDumpButton(g, CentrifugeLayout.DUMP_OUTPUT_A_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, false, true);
         drawDumpButton(g, CentrifugeLayout.DUMP_OUTPUT_B_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, false, recipe.output2().isPresent());
 
-        drawCentered(g, getTitle().getString(), 0, CentrifugeLayout.MACHINE_PANEL_Y + 4, width, 0xFFFFFFFF);
+        drawTitle(g);
     }
 
     @Override
@@ -514,7 +523,7 @@ final class ElectrolyzerRecipeCategory extends AbstractNiceRecipeCategory<Electr
         drawDumpButton(g, ElectrolyzerLayout.DUMP_OUTPUT_2_X, ElectrolyzerLayout.DUMP_BUTTON_Y, ElectrolyzerLayout.DUMP_BUTTON_SIZE, false, recipe.outputFluid2().isPresent() || recipe.outputGas2().isPresent());
         drawDumpButton(g, ElectrolyzerLayout.DUMP_OUTPUT_3_X, ElectrolyzerLayout.DUMP_BUTTON_Y, ElectrolyzerLayout.DUMP_BUTTON_SIZE, false, recipe.outputFluid3().isPresent() || recipe.outputGas3().isPresent());
 
-        drawCentered(g, getTitle().getString(), 0, ElectrolyzerLayout.MACHINE_PANEL_Y + 4, width, 0xFFFFFFFF);
+        drawTitle(g);
     }
 
     @Override
@@ -617,7 +626,7 @@ final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<Distiller
 
         drawReactor(g, DistillerLayout.RUN_BUTTON_X, DistillerLayout.RUN_BUTTON_Y, false, true, false);
 
-        drawCentered(g, getTitle().getString(), 0, DistillerLayout.TITLE_Y, width, 0xFFFFFFFF);
+        drawTitle(g);
     }
 
     @Override
@@ -776,7 +785,7 @@ final class BiochemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<
         drawSlotCount(g, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y, JeiCompatUtil.countOf(recipe.ergot()));
         drawSlotCount(g, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y, JeiCompatUtil.countOf(recipe.tryptophan()));
 
-        drawCentered(g, getTitle().getString(), BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.MACHINE_PANEL_Y + 4, 120, 0xFFFFFFFF);
+        drawTitle(g);
         drawPanelLabel(g, "Processing", BiochemicalReactorLayout.PROGRESS_X, BiochemicalReactorLayout.PROGRESS_Y - 10, BiochemicalReactorLayout.PROGRESS_W);
         drawBottomInfo(g, "Heat ≥ " + recipe.minimumHeat() + "  |  Time: " + recipe.processingTime() + "t");
     }
@@ -937,20 +946,20 @@ final class ChemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<Che
         drawSlotFrame(g, ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y);
         drawSlotFrame(g, ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
         drawSlotFrame(g, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-        drawSlotFrame(g, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
+//        drawSlotFrame(g, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
         drawSlotFrame(g, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-        drawSlotFrame(g, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
+//        drawSlotFrame(g, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
 
         drawHorizontalBar(g, ChemicalReactorLayout.PROGRESS_X, ChemicalReactorLayout.PROGRESS_Y, ChemicalReactorLayout.PROGRESS_W, ChemicalReactorLayout.PROGRESS_H, ChemicalReactorLayout.PROGRESS_W, 0xFF85A6C9, 0xFFC6DCF2);
         drawVerticalBar(g, ChemicalReactorLayout.HEAT_BAR_X, ChemicalReactorLayout.HEAT_BAR_Y, ChemicalReactorLayout.HEAT_BAR_W, ChemicalReactorLayout.HEAT_BAR_H, ChemicalReactorLayout.HEAT_BAR_INNER_X_OFFSET, ChemicalReactorLayout.HEAT_BAR_INNER_Y_OFFSET, ChemicalReactorLayout.HEAT_BAR_INNER_W, ChemicalReactorLayout.HEAT_BAR_INNER_H, ChemicalReactorLayout.HEAT_BAR_INNER_H, 0xFFE35C3F, 0xFFFFB870);
         drawVerticalBar(g, ChemicalReactorLayout.FUEL_BAR_X, ChemicalReactorLayout.FUEL_BAR_Y, ChemicalReactorLayout.FUEL_BAR_W, ChemicalReactorLayout.FUEL_BAR_H, ChemicalReactorLayout.FUEL_BAR_INNER_X_OFFSET, ChemicalReactorLayout.FUEL_BAR_INNER_Y_OFFSET, ChemicalReactorLayout.FUEL_BAR_INNER_W, ChemicalReactorLayout.FUEL_BAR_INNER_H, ChemicalReactorLayout.FUEL_BAR_INNER_H, 0xFFE38D3F, 0xFFFFC270);
         drawHorizontalBar(g, ChemicalReactorLayout.MANUAL_BAR_X, ChemicalReactorLayout.MANUAL_BAR_Y, ChemicalReactorLayout.MANUAL_BAR_W, ChemicalReactorLayout.MANUAL_BAR_H, ChemicalReactorLayout.MANUAL_BAR_W, 0xFF63B36D, 0xFFA8E4AF);
 
-        drawCentered(g, getTitle().getString(), 0, 6, width, 0xFFE0E0E0);
-        drawCentered(g, "Input A", ChemicalReactorLayout.PRIMARY_GAS_TANK_X - 16, ChemicalReactorLayout.LABEL_Y, 48, 0xFFB8B8B8);
-        drawCentered(g, "Input B", ChemicalReactorLayout.SECONDARY_TANK_X - 16, ChemicalReactorLayout.LABEL_Y, 48, 0xFFB8B8B8);
+        drawTitle(g);
+//        drawCentered(g, "Input A", ChemicalReactorLayout.PRIMARY_GAS_TANK_X - 16, ChemicalReactorLayout.LABEL_Y, 48, 0xFFB8B8B8);
+//        drawCentered(g, "Input B", ChemicalReactorLayout.SECONDARY_TANK_X - 16, ChemicalReactorLayout.LABEL_Y, 48, 0xFFB8B8B8);
         drawCentered(g, "Process", ChemicalReactorLayout.PROGRESS_X, ChemicalReactorLayout.LABEL_Y + 6, ChemicalReactorLayout.PROGRESS_W, 0xFFB8B8B8);
-        drawCentered(g, "Output", ChemicalReactorLayout.OUTPUT_TANK_X - 16, ChemicalReactorLayout.LABEL_Y, 48, 0xFFB8B8B8);
+//        drawCentered(g, "Output", ChemicalReactorLayout.OUTPUT_TANK_X - 16, ChemicalReactorLayout.LABEL_Y, 48, 0xFFB8B8B8);
         drawBottomInfo(g, "Heat ≥ " + recipe.minHeat() + "  |  Time: " + recipe.processTime() + "t");
     }
 
@@ -1078,7 +1087,7 @@ final class FluidFiltererRecipeCategory extends AbstractNiceRecipeCategory<Fluid
         drawDumpButton(g, FluidFiltererLayout.DUMP_OUTPUT_A_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, false, true);
         drawHoldButton(g, FluidFiltererLayout.RUN_BUTTON_X, FluidFiltererLayout.RUN_BUTTON_Y, FluidFiltererLayout.RUN_BUTTON_W, FluidFiltererLayout.RUN_BUTTON_H, false, false, "HOLD", "FILTERING...");
 
-        drawCentered(g, getTitle().getString(), 0, FluidFiltererLayout.TITLE_Y, width, 0xFFFFFFFF);
+        drawTitle(g);
         drawBottomInfo(g, "Clicks: " + recipe.clicksRequired() + "  |  Hunger/tick: " + recipe.hungerPerTick());
     }
     @Override
@@ -1156,7 +1165,7 @@ final class GasifierRecipeCategory extends AbstractNiceRecipeCategory<GasifierRe
         drawTankFrame(g, GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_W, GasifierLayout.TANK_H, GasifierLayout.TANK_INNER_X_OFFSET, GasifierLayout.TANK_INNER_Y_OFFSET, GasifierLayout.TANK_INNER_W, GasifierLayout.TANK_INNER_H);
         drawGasTankPreview(g, recipe.gasOutput(), recipe.gasAmount(), GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_INNER_X_OFFSET, GasifierLayout.TANK_INNER_Y_OFFSET, GasifierLayout.TANK_INNER_W, GasifierLayout.TANK_INNER_H);
 
-        drawCentered(g, getTitle().getString(), GasifierLayout.MACHINE_PANEL_X, 4, GasifierLayout.MACHINE_PANEL_W, 0xFFFFFF);
+        drawTitle(g);
         drawBottomInfo(g, "Time: " + recipe.processTime() + "t");
     }
     @Override
@@ -1272,7 +1281,7 @@ final class GrowthChamberRecipeCategory extends AbstractNiceRecipeCategory<Growt
                 0xFFE4C18F
         );
 
-        drawCentered(g, getTitle().getString(), GrowthChamberLayout.MACHINE_PANEL_X, GrowthChamberLayout.MACHINE_PANEL_Y + 4, GrowthChamberLayout.MACHINE_PANEL_W, 0xFFFFFFFF);
+        drawTitle(g);
         g.drawString(net.minecraft.client.Minecraft.getInstance().font, "Water", 16, GrowthChamberLayout.WATER_TANK_Y - 10, 0xFF9BB2D1, false);
         g.drawString(net.minecraft.client.Minecraft.getInstance().font, "Growing", GrowthChamberLayout.GROWTH_PROGRESS_X, GrowthChamberLayout.GROWTH_PROGRESS_Y - 10, 0xFFA9D8AC, false);
         g.drawString(net.minecraft.client.Minecraft.getInstance().font, "Maturing", GrowthChamberLayout.MATURE_PROGRESS_X, GrowthChamberLayout.MATURE_PROGRESS_Y - 10, 0xFFD7B78E, false);
@@ -1381,6 +1390,7 @@ final class MixingVatRecipeCategory extends AbstractNiceRecipeCategory<MixingVat
         drawPanelLabel(g, "ITEMS", leftInnerX(), panelY + s(2), leftInnerW() - SLOT - s(8));
         drawPanelLabel(g, "FLUIDS", leftX + leftW - SLOT - s(12), panelY + s(2), SLOT + s(10));
         drawBottomInfo(g, "Required stirs: " + recipe.requiredStirs());
+        drawTitle(g);
     }
 }
 
@@ -1431,7 +1441,7 @@ final class SieveRecipeCategory extends AbstractNiceRecipeCategory<SieveRecipe> 
 
         drawShakeWidget(g);
 
-        drawCentered(g, getTitle().getString(), SieveLayout.MACHINE_PANEL_X, 4, SieveLayout.MACHINE_PANEL_W, 0xFFFFFF);
+        drawTitle(g);
 
         String footer = "Time: " + recipe.sieveTime() + "t";
         if (recipe.hasBonus()) {
@@ -1659,7 +1669,7 @@ final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<C
         drawDumpButton(g, CatalyticReformerLayout.DUMP_OUTPUT_2_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
         drawDumpButton(g, CatalyticReformerLayout.DUMP_OUTPUT_3_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
 
-        drawCentered(g, getTitle().getString(), CatalyticReformerLayout.MACHINE_PANEL_X, CatalyticReformerLayout.MACHINE_PANEL_Y + 4, CatalyticReformerLayout.MACHINE_PANEL_W, 0xFFFFFFFF);
+        drawTitle(g);
         drawBottomInfo(g, "Time: " + recipe.baseTicks() + "t" + (recipe.consumeCatalyst() ? "  |  Consumes catalyst" : ""));
     }
 
@@ -1852,7 +1862,7 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
         drawDumpButton(g, BTXFractionationTowerLayout.DUMP_TOLUENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, false, recipe.tolueneAmount() > 0);
         drawDumpButton(g, BTXFractionationTowerLayout.DUMP_XYLENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, false, recipe.xyleneAmount() > 0);
 
-        drawCentered(g, getTitle().getString(), BTXFractionationTowerLayout.MACHINE_PANEL_X, BTXFractionationTowerLayout.MACHINE_PANEL_Y + 4, BTXFractionationTowerLayout.MACHINE_PANEL_W, 0xFFFFFFFF);
+        drawTitle(g);
         drawBottomInfo(g, "Uses any Minecraft fuel  |  Time: " + recipe.processingTime() + "t");
     }
 

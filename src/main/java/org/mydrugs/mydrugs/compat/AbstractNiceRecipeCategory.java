@@ -309,6 +309,10 @@ public abstract class AbstractNiceRecipeCategory<T> implements AbstractMachineDr
         g.drawString(font, text, drawX, y, color, false);
     }
 
+    protected void drawTitle(GuiGraphics g) {
+        drawCentered(g, getTitle().getString(), 0, 5, width, 0xFFFFFFFF);
+    }
+
     protected void drawPanelLabel(GuiGraphics g, String text, int x, int y, int width) {
         drawCentered(g, text, x, y, width, LABEL_COLOR);
     }
@@ -319,7 +323,7 @@ public abstract class AbstractNiceRecipeCategory<T> implements AbstractMachineDr
         }
         var font = Minecraft.getInstance().font;
         String clipped = font.plainSubstrByWidth(text, width - 10);
-        drawCentered(g, clipped, 5, height - 11, width - 10, TEXT_COLOR);
+        drawCentered(g, clipped, 5, height - 12, width - 10, TEXT_COLOR);
     }
 
     protected void drawRightInfo(GuiGraphics g, String text, int y) {
