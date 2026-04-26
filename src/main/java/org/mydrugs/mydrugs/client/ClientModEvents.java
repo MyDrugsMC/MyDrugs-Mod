@@ -36,6 +36,7 @@ public class ClientModEvents {
         event.register(ModMenus.CHEMICAL_REACTOR.get(), ChemicalReactorScreen::new);
         event.register(ModMenus.ADVANCED_MIXING_VAT.get(), AdvancedMixingVatScreen::new);
         event.register(ModMenus.CATALYTIC_REFORMER.get(), CatalyticReformerScreen::new);
+        event.register(ModMenus.AROMATIC_EXTRACTOR.get(), AromaticExtractorScreen::new);
     }
 
     @SubscribeEvent

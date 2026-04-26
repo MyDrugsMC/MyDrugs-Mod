@@ -12,23 +12,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
 import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.ModGasCapabilities;
 import org.mydrugs.mydrugs.gas.ModGases;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
 public class ChemicalReactorMenu extends AbstractMachineMenu {
     public static final int SLOT_FUEL = ChemicalReactorBlockEntity.SLOT_FUEL;
     public static final int SLOT_PRIMARY_GAS_TRANSFER = ChemicalReactorBlockEntity.SLOT_PRIMARY_GAS_TRANSFER;
-    public static final int SLOT_SECONDARY_GAS_TRANSFER = ChemicalReactorBlockEntity.SLOT_SECONDARY_GAS_TRANSFER;
-    public static final int SLOT_SECONDARY_FLUID_TRANSFER = ChemicalReactorBlockEntity.SLOT_SECONDARY_FLUID_TRANSFER;
+    public static final int SLOT_SECONDARY_TRANSFER = ChemicalReactorBlockEntity.SLOT_SECONDARY_TRANSFER;
     public static final int SLOT_GAS_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_GAS_OUTPUT_TRANSFER;
     public static final int SLOT_FLUID_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_FLUID_OUTPUT_TRANSFER;
 
@@ -94,7 +90,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return isGasContainer(stack);
+                return ChemicalReactorBlockEntity.isGasContainer(stack);
             }
 
             @Override
@@ -106,31 +102,13 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         this.addSlot(new ResourceHandlerSlot(
                 itemHandler,
                 itemHandler::set,
-                SLOT_SECONDARY_GAS_TRANSFER,
+                SLOT_SECONDARY_TRANSFER,
                 ChemicalReactorLayout.SECONDARY_TANK_X,
                 transferSlotY()
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return isGasContainer(stack);
-            }
-
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        });
-
-        this.addSlot(new ResourceHandlerSlot(
-                itemHandler,
-                itemHandler::set,
-                SLOT_SECONDARY_FLUID_TRANSFER,
-                ChemicalReactorLayout.SECONDARY_TANK_X,
-                transferSlotY() + 20
-        ) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return isFluidContainer(stack);
+                return ChemicalReactorBlockEntity.isSecondaryTransferContainer(stack);
             }
 
             @Override
@@ -148,7 +126,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return isGasContainer(stack);
+                return ChemicalReactorBlockEntity.isGasContainer(stack);
             }
 
             @Override
@@ -166,7 +144,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return isFluidContainer(stack);
+                return ChemicalReactorBlockEntity.isFluidContainer(stack);
             }
 
             @Override
@@ -181,14 +159,6 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
 
     private static Fluid decodeFluid(int syncId) {
         return syncId < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(syncId);
-    }
-
-    private static boolean isFluidContainer(ItemStack stack) {
-        return !stack.isEmpty() && ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
-    }
-
-    private static boolean isGasContainer(ItemStack stack) {
-        return !stack.isEmpty() && stack.getCapability(ModGasCapabilities.ITEM, null) != null;
     }
 
     private static int transferSlotY() {
@@ -406,12 +376,12 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
 
                 if (rawStack.is(Items.CHARCOAL)) {
                     moved = this.moveItemStackTo(rawStack, SLOT_FUEL, SLOT_FUEL + 1, false);
-                } else if (isGasContainer(rawStack)) {
+                } else if (ChemicalReactorBlockEntity.isGasContainer(rawStack)) {
                     moved = this.moveItemStackTo(rawStack, SLOT_PRIMARY_GAS_TRANSFER, SLOT_PRIMARY_GAS_TRANSFER + 1, false)
-                            || this.moveItemStackTo(rawStack, SLOT_SECONDARY_GAS_TRANSFER, SLOT_SECONDARY_GAS_TRANSFER + 1, false)
+                            || this.moveItemStackTo(rawStack, SLOT_SECONDARY_TRANSFER, SLOT_SECONDARY_TRANSFER + 1, false)
                             || this.moveItemStackTo(rawStack, SLOT_GAS_OUTPUT_TRANSFER, SLOT_GAS_OUTPUT_TRANSFER + 1, false);
-                } else if (isFluidContainer(rawStack)) {
-                    moved = this.moveItemStackTo(rawStack, SLOT_SECONDARY_FLUID_TRANSFER, SLOT_SECONDARY_FLUID_TRANSFER + 1, false)
+                } else if (ChemicalReactorBlockEntity.isFluidContainer(rawStack)) {
+                    moved = this.moveItemStackTo(rawStack, SLOT_SECONDARY_TRANSFER, SLOT_SECONDARY_TRANSFER + 1, false)
                             || this.moveItemStackTo(rawStack, SLOT_FLUID_OUTPUT_TRANSFER, SLOT_FLUID_OUTPUT_TRANSFER + 1, false);
                 }
 

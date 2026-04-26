@@ -307,7 +307,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, CatalyticReformerLayout.GUI_WIDTH / 2, CatalyticReformerLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, CatalyticReformerLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override

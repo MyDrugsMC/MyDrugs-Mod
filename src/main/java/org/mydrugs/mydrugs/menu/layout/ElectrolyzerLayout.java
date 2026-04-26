@@ -4,56 +4,62 @@ public final class ElectrolyzerLayout {
     public static final int GUI_WIDTH = 240;
 
     public static final int MACHINE_PANEL_W = 220;
-    public static final int MACHINE_PANEL_H = 93;
+    public static final int MACHINE_PANEL_H = 94;
     public static final int MACHINE_PANEL_X = LayoutMath.centered(GUI_WIDTH, MACHINE_PANEL_W);
-    public static final int MACHINE_PANEL_Y = 9;
+    public static final int MACHINE_PANEL_Y = 13;
 
-    public static final int TANK_W = 16;
-    public static final int TANK_H = 54;
+    public static final int TANK_W = StandardTankLayout.TANK_W;
+    public static final int TANK_H = StandardTankLayout.TANK_H;
 
-    public static final int TANK_INNER_X_OFFSET = 2;
-    public static final int TANK_INNER_Y_OFFSET = 2;
-    public static final int TANK_INNER_W = 12;
-    public static final int TANK_INNER_H = 50;
+    public static final int TANK_INNER_X_OFFSET = StandardTankLayout.INNER_X;
+    public static final int TANK_INNER_Y_OFFSET = StandardTankLayout.INNER_Y;
+    public static final int TANK_INNER_W = StandardTankLayout.INNER_W;
+    public static final int TANK_INNER_H = StandardTankLayout.INNER_H;
 
-    public static final int TANK_ROW_Y = 25;
+    public static final int TANK_ROW_Y = MACHINE_PANEL_Y + 16;
     public static final int SLOT_ROW_Y = TANK_ROW_Y + TANK_H + 3;
 
-    public static final int LEFT_TANK_SECTION_X = MACHINE_PANEL_X + 12;
-    public static final int LEFT_TANK_SECTION_W = 20;
-    public static final int CENTER_SECTION_X = MACHINE_PANEL_X + 58;
-    public static final int CENTER_SECTION_W = 74;
-    public static final int RIGHT_TANK_SECTION_X = MACHINE_PANEL_X + 146;
-    public static final int RIGHT_TANK_SECTION_W = 54;
+    private static final int SIDE_GUTTER = 16;
+    private static final int TANK_GAP = 8;
+    private static final int RIGHT_TANK_COUNT = 3;
+    private static final int RIGHT_GROUP_W = LayoutMath.groupWidth(TANK_W, RIGHT_TANK_COUNT, TANK_GAP);
 
-    public static final int INPUT_TANK_X = LayoutMath.centeredAt(LEFT_TANK_SECTION_X, LEFT_TANK_SECTION_W, TANK_W);
+    public static final int LEFT_TANK_SECTION_X = MACHINE_PANEL_X + SIDE_GUTTER;
+    public static final int LEFT_TANK_SECTION_W = TANK_W;
+    public static final int RIGHT_TANK_SECTION_X = MACHINE_PANEL_X + MACHINE_PANEL_W - SIDE_GUTTER - RIGHT_GROUP_W;
+    public static final int RIGHT_TANK_SECTION_W = RIGHT_GROUP_W;
+
+    public static final int INPUT_TANK_X = LEFT_TANK_SECTION_X;
     public static final int INPUT_TANK_Y = TANK_ROW_Y;
 
-    public static final int OUTPUT_1_TANK_X = LayoutMath.horizontalSpreadWithOuterGaps(RIGHT_TANK_SECTION_X, RIGHT_TANK_SECTION_W, TANK_W, 3, 0);
+    public static final int OUTPUT_1_TANK_X = LayoutMath.groupItemX(RIGHT_TANK_SECTION_X, TANK_W, TANK_GAP, 0);
     public static final int OUTPUT_1_TANK_Y = TANK_ROW_Y;
 
-    public static final int OUTPUT_2_TANK_X = LayoutMath.horizontalSpreadWithOuterGaps(RIGHT_TANK_SECTION_X, RIGHT_TANK_SECTION_W, TANK_W, 3, 1);
+    public static final int OUTPUT_2_TANK_X = LayoutMath.groupItemX(RIGHT_TANK_SECTION_X, TANK_W, TANK_GAP, 1);
     public static final int OUTPUT_2_TANK_Y = TANK_ROW_Y;
 
-    public static final int OUTPUT_3_TANK_X = LayoutMath.horizontalSpreadWithOuterGaps(RIGHT_TANK_SECTION_X, RIGHT_TANK_SECTION_W, TANK_W, 3, 2);
+    public static final int OUTPUT_3_TANK_X = LayoutMath.groupItemX(RIGHT_TANK_SECTION_X, TANK_W, TANK_GAP, 2);
     public static final int OUTPUT_3_TANK_Y = TANK_ROW_Y;
+
+    public static final int CENTER_SECTION_X = INPUT_TANK_X + TANK_W;
+    public static final int CENTER_SECTION_W = OUTPUT_1_TANK_X - CENTER_SECTION_X;
 
     public static final int DUMP_BUTTON_SIZE = 12;
     public static final int DUMP_BUTTON_Y = MACHINE_PANEL_Y + 2;
 
-    public static final int DUMP_INPUT_X = INPUT_TANK_X + LayoutMath.centered(TANK_W, DUMP_BUTTON_SIZE);
-    public static final int DUMP_OUTPUT_1_X = OUTPUT_1_TANK_X + LayoutMath.centered(TANK_W, DUMP_BUTTON_SIZE);
-    public static final int DUMP_OUTPUT_2_X = OUTPUT_2_TANK_X + LayoutMath.centered(TANK_W, DUMP_BUTTON_SIZE);
-    public static final int DUMP_OUTPUT_3_X = OUTPUT_3_TANK_X + LayoutMath.centered(TANK_W, DUMP_BUTTON_SIZE);
+    public static final int DUMP_INPUT_X = LayoutMath.dumpButtonX(INPUT_TANK_X, TANK_W, DUMP_BUTTON_SIZE);
+    public static final int DUMP_OUTPUT_1_X = LayoutMath.dumpButtonX(OUTPUT_1_TANK_X, TANK_W, DUMP_BUTTON_SIZE);
+    public static final int DUMP_OUTPUT_2_X = LayoutMath.dumpButtonX(OUTPUT_2_TANK_X, TANK_W, DUMP_BUTTON_SIZE);
+    public static final int DUMP_OUTPUT_3_X = LayoutMath.dumpButtonX(OUTPUT_3_TANK_X, TANK_W, DUMP_BUTTON_SIZE);
 
     public static final int PROGRESS_W = 64;
     public static final int PROGRESS_H = 6;
-    public static final int PROGRESS_X = LayoutMath.centeredAt(CENTER_SECTION_X, CENTER_SECTION_W, PROGRESS_W);
-    public static final int PROGRESS_Y = 28;
+    public static final int PROGRESS_X = LayoutMath.centeredBetween(INPUT_TANK_X + TANK_W, OUTPUT_1_TANK_X, PROGRESS_W);
+    public static final int PROGRESS_Y = MACHINE_PANEL_Y + 20;
 
     public static final int CENTER_PANEL_W = 54;
     public static final int CENTER_PANEL_H = 56;
-    public static final int CENTER_PANEL_X = LayoutMath.centeredAt(CENTER_SECTION_X, CENTER_SECTION_W, CENTER_PANEL_W);
+    public static final int CENTER_PANEL_X = LayoutMath.centeredBetween(INPUT_TANK_X + TANK_W, OUTPUT_1_TANK_X, CENTER_PANEL_W);
     public static final int CENTER_PANEL_Y = PROGRESS_Y + PROGRESS_H + 2;
 
     public static final int FUEL_BAR_W = 12;
@@ -81,9 +87,9 @@ public final class ElectrolyzerLayout {
     public static final int OUTPUT_3_SLOT_Y = SLOT_ROW_Y;
 
     public static final int PLAYER_INV_X = LayoutMath.centered(GUI_WIDTH, StandardInventoryLayout.PLAYER_INV_PANEL_W);
-    public static final int PLAYER_INV_Y = MACHINE_PANEL_Y + MACHINE_PANEL_H + StandardInventoryLayout.INV_UPPER_MARGIN;
+    public static final int PLAYER_INV_Y = LayoutMath.inventoryY(MACHINE_PANEL_Y, MACHINE_PANEL_H);
 
-    public static final int GUI_HEIGHT = MACHINE_PANEL_Y + MACHINE_PANEL_H + StandardInventoryLayout.INV_UPPER_MARGIN + StandardInventoryLayout.TOTAL_H + MACHINE_PANEL_Y;
+    public static final int GUI_HEIGHT = LayoutMath.guiHeight(MACHINE_PANEL_Y, MACHINE_PANEL_H);
 
     private ElectrolyzerLayout() {
     }

@@ -32,10 +32,10 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
 
         drawPanel(
                 graphics,
-                63,
-                18,
-                40,
-                52,
+                AdvancedFurnaceLayout.CENTER_PANEL_X,
+                AdvancedFurnaceLayout.CENTER_PANEL_Y,
+                AdvancedFurnaceLayout.CENTER_PANEL_W,
+                AdvancedFurnaceLayout.CENTER_PANEL_H,
                 0xFF1B1F25,
                 0xFF505862,
                 0xFF0A0C10
@@ -123,10 +123,10 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
         int machineTitleX = AdvancedFurnaceLayout.MACHINE_PANEL_X
                 + (AdvancedFurnaceLayout.MACHINE_PANEL_W - this.font.width(this.title)) / 2;
 
-        graphics.drawString(this.font, this.title, machineTitleX, 4, 0xFFF0F3F8, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xFFD0D4DC, false);
+        graphics.drawString(this.font, this.title, machineTitleX, 5, 0xFFF0F3F8, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, AdvancedFurnaceLayout.PLAYER_INV_X, this.inventoryLabelY, 0xFFD0D4DC, false);
 
-        graphics.drawCenteredString(this.font, "Heat", 84, 44, 0xFFE0B58A);
+        graphics.drawCenteredString(this.font, "Heat", AdvancedFurnaceLayout.HEAT_LABEL_X, AdvancedFurnaceLayout.HEAT_LABEL_Y, 0xFFE0B58A);
         //graphics.drawString(this.font, "Tank", 145, 9, 0xFFBFE4F0, false);
     }
 

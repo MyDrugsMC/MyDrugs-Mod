@@ -100,8 +100,8 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         int machineTitleX = GasifierLayout.MACHINE_PANEL_X + (GasifierLayout.MACHINE_PANEL_W - this.font.width(this.title)) / 2;
-        graphics.drawString(this.font, this.title, machineTitleX, 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xD0D0D0, false);
+        graphics.drawString(this.font, this.title, machineTitleX, 5, 0xFFFFFFFF, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, GasifierLayout.PLAYER_INV_X, this.inventoryLabelY, 0xFFD0D0D0, false);
     }
 
     @Override

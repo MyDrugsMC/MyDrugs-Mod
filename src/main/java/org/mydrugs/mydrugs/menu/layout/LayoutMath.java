@@ -12,6 +12,65 @@ public final class LayoutMath {
         return start + centered(outerSize, innerSize);
     }
 
+    public static int centeredOn(int center, int innerSize) {
+        return center - innerSize / 2;
+    }
+
+    public static int centerOf(int start, int size) {
+        return start + size / 2;
+    }
+
+    public static int centeredBetween(int leftEdge, int rightEdge, int innerSize) {
+        return leftEdge + (rightEdge - leftEdge - innerSize) / 2;
+    }
+
+    public static int rightAligned(int start, int outerSize, int innerSize) {
+        return start + outerSize - innerSize;
+    }
+
+    public static int groupWidth(int itemWidth, int count, int gap) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("count must be > 0");
+        }
+        return count * itemWidth + (count - 1) * gap;
+    }
+
+    public static int groupItemX(int groupStart, int itemWidth, int gap, int index) {
+        return groupStart + index * (itemWidth + gap);
+    }
+
+    public static int rowBelow(int y, int height, int gap) {
+        return y + height + gap;
+    }
+
+    public static int inventoryY(int machinePanelY, int machinePanelH) {
+        return machinePanelY + machinePanelH + StandardInventoryLayout.INV_UPPER_MARGIN;
+    }
+
+    public static int guiHeight(int machinePanelY, int machinePanelH) {
+        return inventoryY(machinePanelY, machinePanelH) + StandardInventoryLayout.TOTAL_H + machinePanelY;
+    }
+
+    public static int panelX(int guiWidth, int panelWidth) {
+        return centered(guiWidth, panelWidth);
+    }
+
+    public static int guiWidthForPanel(int machinePanelWidth) {
+        return Math.max(machinePanelWidth + 20, StandardInventoryLayout.PLAYER_INV_PANEL_W + 12);
+    }
+
+    public static int slotCenteredOn(int center) {
+        return centeredOn(center, StandardInventoryLayout.SLOT_SIZE);
+    }
+
+    public static int slotCenteredAt(int start, int size) {
+        return centeredAt(start, size, StandardInventoryLayout.SLOT_SIZE);
+    }
+
+    public static int dumpButtonX(int tankX, int tankW, int buttonSize) {
+        return tankX + centered(tankW, buttonSize);
+    }
+
     public static void requireEven(String name, int value) {
         if ((value & 1) != 0) {
             throw new IllegalArgumentException(name + " must be even, got " + value);

@@ -9,6 +9,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.items.SingleSlotContainerItem;
+import org.mydrugs.mydrugs.menu.layout.SingleSlotMenuLayout;
+import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
 
 public class SingleSlotMenu extends AbstractContainerMenu {
     private static final int BANG_SLOT = 0;
@@ -32,8 +34,7 @@ public class SingleSlotMenu extends AbstractContainerMenu {
         this.hand = hand;
         this.container = new SingleSlotItemContainer(carrier);
 
-        // centered pouch slot
-        this.addSlot(new Slot(this.container, 0, 80, 24) {
+        this.addSlot(new Slot(this.container, 0, SingleSlotMenuLayout.STORAGE_SLOT_X, SingleSlotMenuLayout.STORAGE_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 if (carrier.getItem() instanceof SingleSlotContainerItem item) {
@@ -56,13 +57,23 @@ public class SingleSlotMenu extends AbstractContainerMenu {
         // player inventory
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInv, col + row * 9 + 9, 8 + col * 18, 66 + row * 18));
+                this.addSlot(new Slot(
+                        playerInv,
+                        col + row * 9 + 9,
+                        StandardInventoryLayout.playerSlotX(SingleSlotMenuLayout.PLAYER_INV_X, col),
+                        StandardInventoryLayout.playerSlotY(SingleSlotMenuLayout.PLAYER_INV_Y, row)
+                ));
             }
         }
 
         // hotbar
         for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(playerInv, col, 8 + col * 18, 122));
+            this.addSlot(new Slot(
+                    playerInv,
+                    col,
+                    StandardInventoryLayout.hotbarSlotX(SingleSlotMenuLayout.PLAYER_INV_X, col),
+                    StandardInventoryLayout.hotbarSlotY(SingleSlotMenuLayout.PLAYER_INV_Y)
+            ));
         }
     }
 

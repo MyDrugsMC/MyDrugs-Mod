@@ -120,10 +120,10 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
         drawSlotFrame(graphics, ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
 
         drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-        drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
+        //drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
 
         drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-        drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
+        //drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
     }
 
     private void renderBars(GuiGraphics graphics) {
@@ -192,23 +192,23 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        drawCenteredLabel(graphics, this.title, ChemicalReactorLayout.GUI_WIDTH / 2, 6, TITLE_COLOR);
+        drawCenteredLabel(graphics, this.title, ChemicalReactorLayout.GUI_WIDTH / 2, 5, TITLE_COLOR);
 
-        drawCenteredLabel(
-                graphics,
-                Component.literal("Input A"),
-                ChemicalReactorLayout.PRIMARY_GAS_TANK_X + ChemicalReactorLayout.TANK_W / 2,
-                ChemicalReactorLayout.LABEL_Y,
-                LABEL_COLOR
-        );
-
-        drawCenteredLabel(
-                graphics,
-                Component.literal("Input B"),
-                ChemicalReactorLayout.SECONDARY_TANK_X + ChemicalReactorLayout.TANK_W / 2,
-                ChemicalReactorLayout.LABEL_Y,
-                LABEL_COLOR
-        );
+//        drawCenteredLabel(
+//                graphics,
+//                Component.literal("Input A"),
+//                ChemicalReactorLayout.PRIMARY_GAS_TANK_X + ChemicalReactorLayout.TANK_W / 2,
+//                ChemicalReactorLayout.LABEL_Y,
+//                LABEL_COLOR
+//        );
+//
+//        drawCenteredLabel(
+//                graphics,
+//                Component.literal("Input B"),
+//                ChemicalReactorLayout.SECONDARY_TANK_X + ChemicalReactorLayout.TANK_W / 2,
+//                ChemicalReactorLayout.LABEL_Y,
+//                LABEL_COLOR
+//        );
 
         drawCenteredLabel(
                 graphics,
@@ -217,14 +217,14 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                 ChemicalReactorLayout.LABEL_Y + 6,
                 LABEL_COLOR
         );
-
-        drawCenteredLabel(
-                graphics,
-                Component.literal("Output"),
-                ChemicalReactorLayout.OUTPUT_TANK_X + ChemicalReactorLayout.TANK_W / 2,
-                ChemicalReactorLayout.LABEL_Y,
-                LABEL_COLOR
-        );
+//
+//        drawCenteredLabel(
+//                graphics,
+//                Component.literal("Output"),
+//                ChemicalReactorLayout.OUTPUT_TANK_X + ChemicalReactorLayout.TANK_W / 2,
+//                ChemicalReactorLayout.LABEL_Y,
+//                LABEL_COLOR
+//        );
     }
 
     private void drawCenteredLabel(GuiGraphics graphics, Component text, int centerX, int y, int color) {

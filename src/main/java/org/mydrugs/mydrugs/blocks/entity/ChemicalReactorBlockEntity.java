@@ -28,8 +28,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -38,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ChemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
+import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
@@ -57,11 +60,12 @@ import java.util.function.BooleanSupplier;
 public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements MenuProvider {
     public static final int SLOT_FUEL = 0;
     public static final int SLOT_PRIMARY_GAS_TRANSFER = 1;
-    public static final int SLOT_SECONDARY_GAS_TRANSFER = 2;
-    public static final int SLOT_SECONDARY_FLUID_TRANSFER = 3;
-    public static final int SLOT_GAS_OUTPUT_TRANSFER = 4;
-    public static final int SLOT_FLUID_OUTPUT_TRANSFER = 5;
-    public static final int SLOT_COUNT = 6;
+    public static final int SLOT_SECONDARY_TRANSFER = 2;
+    public static final int SLOT_GAS_OUTPUT_TRANSFER = 3;
+    public static final int SLOT_FLUID_OUTPUT_TRANSFER = 4;
+    public static final int SLOT_COUNT = 5;
+
+    private static final int SLOT_SCHEMA_HYBRID_SECONDARY = 1;
 
     public static final int GAS_TANK_CAPACITY = 4000;
     public static final int FLUID_TANK_CAPACITY = 4000;
@@ -99,6 +103,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
 
     private final LockedTransferSlots gasInputLocks = new LockedTransferSlots(2);
     private final LockedTransferSlots fluidInputLocks = new LockedTransferSlots(1);
+
     private final IGasHandler automationGasHandler = new IGasHandler() {
         @Override
         public int getTanks() {
@@ -139,7 +144,9 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
             return gasOutputTank.drain(amount, simulate);
         }
     };
+
     private boolean suppressTransferModeReset = false;
+
     private int burnTimeRemaining;
     private int burnTimeTotal;
     private int heat;
@@ -149,6 +156,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
     private boolean active;
     private boolean secondaryFluidMode;
     private boolean outputFluidMode;
+
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -168,11 +176,13 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 case 12 -> MAX_MANUAL_ENERGY;
                 case 13 -> primaryGasTank.isEmpty() ? -1 : ModGases.getSyncId(primaryGasTank.getGasType());
                 case 14 -> secondaryGasTank.isEmpty() ? -1 : ModGases.getSyncId(secondaryGasTank.getGasType());
-                case 15 ->
-                        fluidStacks.get(SECONDARY_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(SECONDARY_FLUID_TANK).getFluid());
+                case 15 -> fluidStacks.get(SECONDARY_FLUID_TANK).isEmpty()
+                        ? -1
+                        : BuiltInRegistries.FLUID.getId(fluidStacks.get(SECONDARY_FLUID_TANK).getFluid());
                 case 16 -> gasOutputTank.isEmpty() ? -1 : ModGases.getSyncId(gasOutputTank.getGasType());
-                case 17 ->
-                        fluidStacks.get(OUTPUT_FLUID_TANK).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluidStacks.get(OUTPUT_FLUID_TANK).getFluid());
+                case 17 -> fluidStacks.get(OUTPUT_FLUID_TANK).isEmpty()
+                        ? -1
+                        : BuiltInRegistries.FLUID.getId(fluidStacks.get(OUTPUT_FLUID_TANK).getFluid());
                 case 18 -> secondaryFluidMode ? 1 : 0;
                 case 19 -> outputFluidMode ? 1 : 0;
                 default -> 0;
@@ -223,26 +233,16 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 )
         );
 
-        changed |= be.runTransferWithoutReset(() ->
-                GasTransferUtil.tryProcessTransferSlot(
-                        be.itemStacks,
-                        SLOT_SECONDARY_GAS_TRANSFER,
-                        be.secondaryGasTank,
-                        be.gasInputLocks,
-                        1
-                )
-        );
+        Optional<RecipeHolder<ChemicalReactorRecipe>> recipeHolder = be.findMatchingRecipe();
+        ChemicalReactorRecipe recipe = recipeHolder.map(RecipeHolder::value).orElse(null);
 
-        changed |= be.runTransferWithoutReset(() ->
-                FluidTransferUtil.tryProcessTransferSlot(
-                        be.itemHandler,
-                        be.itemStacks,
-                        SLOT_SECONDARY_FLUID_TRANSFER,
-                        be.secondaryFluidTank,
-                        be.fluidInputLocks,
-                        0
-                )
-        );
+        changed |= be.refreshSecondaryInputMode(recipe);
+        changed |= be.processSecondaryInputTransfer();
+
+        recipeHolder = be.findMatchingRecipe();
+        recipe = recipeHolder.map(RecipeHolder::value).orElse(null);
+
+        changed |= be.refreshSecondaryInputMode(recipe);
 
         changed |= GasTransferUtil.tryFillOutputSlot(
                 be.itemStacks,
@@ -260,12 +260,13 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         changed |= be.handleFuel();
         changed |= be.updateHeat();
 
-        Optional<RecipeHolder<ChemicalReactorRecipe>> recipeHolder = be.findMatchingRecipe();
-        if (recipeHolder.isPresent()) {
-            ChemicalReactorRecipe recipe = recipeHolder.get().value();
-            be.secondaryFluidMode = recipe.secondaryFluid().isPresent();
-            be.outputFluidMode = recipe.outputKind() == ReactorOutputKind.FLUID;
-            be.maxProgress = recipe.processTime();
+        if (recipe != null) {
+            changed |= be.setOutputFluidMode(recipe.outputKind() == ReactorOutputKind.FLUID);
+
+            if (be.maxProgress != recipe.processTime()) {
+                be.maxProgress = recipe.processTime();
+                changed = true;
+            }
 
             if (be.canOutput(recipe)) {
                 int speed = be.getProgressPerTick(recipe);
@@ -291,8 +292,8 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 be.active = false;
             }
         } else {
-            be.secondaryFluidMode = be.secondaryFluidTank.getAmount() > 0;
-            be.outputFluidMode = be.outputFluidTank.getAmount() > 0;
+            changed |= be.refreshSecondaryInputMode(null);
+            changed |= be.setOutputFluidMode(be.outputFluidTank.getAmount() > 0);
 
             if (be.progress > 0) {
                 be.progress = Math.max(0, be.progress - 2);
@@ -317,6 +318,26 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         }
     }
 
+    public static boolean isFluidContainer(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        if (stack.getItem() instanceof GlassBottleItem) {
+            return true;
+        }
+
+        return ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    public static boolean isGasContainer(ItemStack stack) {
+        return !stack.isEmpty() && stack.getCapability(ModGasCapabilities.ITEM, null) != null;
+    }
+
+    public static boolean isSecondaryTransferContainer(ItemStack stack) {
+        return isFluidContainer(stack) || isGasContainer(stack);
+    }
+
     @Nullable
     private static GasType readGasType(ValueInput input, String key) {
         String raw = input.getStringOr(key, "");
@@ -328,6 +349,21 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         return id == null ? null : ModGases.get(id);
     }
 
+    private static int mapLoadedSlot(int savedSlot, boolean alreadyHybridSchema) {
+        if (alreadyHybridSchema) {
+            return savedSlot;
+        }
+
+        return switch (savedSlot) {
+            case 0 -> SLOT_FUEL;
+            case 1 -> SLOT_PRIMARY_GAS_TRANSFER;
+            case 2, 3 -> SLOT_SECONDARY_TRANSFER;
+            case 4 -> SLOT_GAS_OUTPUT_TRANSFER;
+            case 5 -> SLOT_FLUID_OUTPUT_TRANSFER;
+            default -> -1;
+        };
+    }
+
     private boolean runTransferWithoutReset(BooleanSupplier action) {
         this.suppressTransferModeReset = true;
         try {
@@ -337,11 +373,101 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         }
     }
 
+    private boolean setOutputFluidMode(boolean mode) {
+        if (this.outputFluidMode == mode) {
+            return false;
+        }
+
+        this.outputFluidMode = mode;
+        return true;
+    }
+
+    private boolean processSecondaryInputTransfer() {
+        return this.secondaryFluidMode
+                ? this.runTransferWithoutReset(() ->
+                FluidTransferUtil.tryProcessTransferSlot(
+                        this.itemHandler,
+                        this.itemStacks,
+                        SLOT_SECONDARY_TRANSFER,
+                        this.secondaryFluidTank,
+                        this.fluidInputLocks,
+                        0
+                )
+        )
+                : this.runTransferWithoutReset(() ->
+                GasTransferUtil.tryProcessTransferSlot(
+                        this.itemStacks,
+                        SLOT_SECONDARY_TRANSFER,
+                        this.secondaryGasTank,
+                        this.gasInputLocks,
+                        1
+                )
+        );
+    }
+
+    private boolean refreshSecondaryInputMode(@Nullable ChemicalReactorRecipe recipe) {
+        boolean newSecondaryFluidMode = resolveSecondaryInputMode(
+                recipe != null && recipe.secondaryFluid().isPresent(),
+                recipe != null && recipe.secondaryGas().isPresent(),
+                this.secondaryFluidTank,
+                this.secondaryGasTank,
+                this.itemStacks.get(SLOT_SECONDARY_TRANSFER)
+        );
+
+        if (newSecondaryFluidMode == this.secondaryFluidMode) {
+            return false;
+        }
+
+        this.secondaryFluidMode = newSecondaryFluidMode;
+        this.fluidInputLocks.reset(0);
+        this.gasInputLocks.reset(1);
+        return true;
+    }
+
+    private static boolean resolveSecondaryInputMode(
+            boolean recipeWantsFluid,
+            boolean recipeWantsGas,
+            FluidTankAccess fluidTank,
+            GasTank gasTank,
+            ItemStack slotStack
+    ) {
+        if (!gasTank.isEmpty()) {
+            return false;
+        }
+
+        if (fluidTank.getAmount() > 0) {
+            return true;
+        }
+
+        if (recipeWantsFluid) {
+            return true;
+        }
+
+        if (recipeWantsGas) {
+            return false;
+        }
+
+        boolean slotHasFluidContainer = isFluidContainer(slotStack);
+        boolean slotHasGasContainer = isGasContainer(slotStack);
+
+        if (slotHasFluidContainer && !slotHasGasContainer) {
+            return true;
+        }
+
+        if (slotHasGasContainer && !slotHasFluidContainer) {
+            return false;
+        }
+
+        return false;
+    }
+
     private void resetTransferLockForSlot(int slot) {
         switch (slot) {
             case SLOT_PRIMARY_GAS_TRANSFER -> this.gasInputLocks.reset(0);
-            case SLOT_SECONDARY_GAS_TRANSFER -> this.gasInputLocks.reset(1);
-            case SLOT_SECONDARY_FLUID_TRANSFER -> this.fluidInputLocks.reset(0);
+            case SLOT_SECONDARY_TRANSFER -> {
+                this.gasInputLocks.reset(1);
+                this.fluidInputLocks.reset(0);
+            }
             default -> {
             }
         }
@@ -535,10 +661,14 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
             this.itemStacks.set(i, ItemStack.EMPTY);
         }
 
+        boolean alreadyHybridSchema = input.getIntOr("SlotSchema", 0) >= SLOT_SCHEMA_HYBRID_SECONDARY;
+
         for (ValueInput child : input.childrenListOrEmpty("items")) {
-            int slot = child.getIntOr("slot", -1);
+            int savedSlot = child.getIntOr("slot", -1);
+            int slot = mapLoadedSlot(savedSlot, alreadyHybridSchema);
             ItemStack stack = child.read("stack", ItemStack.CODEC).orElse(ItemStack.EMPTY);
-            if (slot >= 0 && slot < this.itemStacks.size()) {
+
+            if (slot >= 0 && slot < this.itemStacks.size() && this.itemStacks.get(slot).isEmpty()) {
                 this.itemStacks.set(slot, stack);
             }
         }
@@ -570,6 +700,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 input.read("OutputFluid", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY)
         );
 
+        this.refreshSecondaryInputMode(null);
         this.gasInputLocks.resetAll();
         this.fluidInputLocks.resetAll();
     }
@@ -577,6 +708,8 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+
+        output.putInt("SlotSchema", SLOT_SCHEMA_HYBRID_SECONDARY);
 
         ValueOutput.ValueOutputList itemList = output.childrenList("items");
         for (int i = 0; i < this.itemStacks.size(); i++) {

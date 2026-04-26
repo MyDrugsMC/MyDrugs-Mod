@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.DistillerMenu;
+import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 
 public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
@@ -196,7 +197,7 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
         graphics.drawCenteredString(
                 this.font,
                 Component.literal(this.menu.getClicksPerSecond() + " CPS"),
-                guiX(this.imageWidth / 2),
+                guiX(DistillerLayout.RUN_BUTTON_X + DistillerLayout.RUN_BUTTON_SIZE / 2),
                 guiY(DistillerLayout.CPS_TEXT_Y),
                 0xFFD8D8D8
         );
@@ -204,7 +205,7 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
         graphics.drawCenteredString(
                 this.font,
                 Component.literal(this.menu.getSpeedPercent() + "% speed"),
-                guiX(this.imageWidth / 2),
+                guiX(DistillerLayout.RUN_BUTTON_X + DistillerLayout.RUN_BUTTON_SIZE / 2),
                 guiY(DistillerLayout.SPEED_TEXT_Y),
                 0xFFBEBEBE
         );
@@ -212,6 +213,7 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawCenteredString(this.font, this.title, ChemicalReactorLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override
@@ -269,13 +271,13 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
     }
 
     private void drawReactor(GuiGraphics graphics, int localX, int localY, boolean hovered, boolean working, boolean boosted) {
-        int x = guiX(localX);
-        int y = guiY(localY);
+        int x = localX;
+        int y = localY;
         int cx = x + DistillerLayout.RUN_BUTTON_SIZE / 2;
         int cy = y + DistillerLayout.RUN_BUTTON_SIZE / 2;
 
         if (hovered) {
-            graphics.fill(x + 2, y + 2, x + DistillerLayout.RUN_BUTTON_SIZE - 2, y + DistillerLayout.RUN_BUTTON_SIZE - 2, 0x16FFFFFF);
+            graphics.fill(guiX(x + 2), guiY(y + 2), guiX(x + DistillerLayout.RUN_BUTTON_SIZE - 2), guiY(y + DistillerLayout.RUN_BUTTON_SIZE - 2), 0x16FFFFFF);
         }
 
         drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_OUTER_RADIUS + 2, 0xFF818793);

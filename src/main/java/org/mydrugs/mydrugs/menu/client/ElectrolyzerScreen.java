@@ -263,7 +263,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, ElectrolyzerLayout.GUI_WIDTH / 2, ElectrolyzerLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, ElectrolyzerLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override

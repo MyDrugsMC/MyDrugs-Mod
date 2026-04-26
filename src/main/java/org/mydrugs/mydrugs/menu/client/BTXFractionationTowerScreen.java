@@ -245,7 +245,7 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, BTXFractionationTowerLayout.GUI_WIDTH / 2, BTXFractionationTowerLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, BTXFractionationTowerLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override

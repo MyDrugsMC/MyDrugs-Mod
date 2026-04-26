@@ -246,7 +246,7 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, AromaticExtractorLayout.GUI_WIDTH / 2, AromaticExtractorLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, AromaticExtractorLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override

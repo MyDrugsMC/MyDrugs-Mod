@@ -203,7 +203,7 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, CentrifugeLayout.GUI_WIDTH / 2, CentrifugeLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, CentrifugeLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override

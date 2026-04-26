@@ -26,7 +26,7 @@ public class RollerScreen extends AbstractMachineScreen<RollerMenu> {
 
     public RollerScreen(RollerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, RollerLayout.GUI_WIDTH, RollerLayout.GUI_HEIGHT);
-        this.inventoryLabelY = 74;
+        this.inventoryLabelY = standardInventoryLabelY(RollerLayout.PLAYER_INV_Y);
     }
 
     @Override
@@ -91,13 +91,13 @@ public class RollerScreen extends AbstractMachineScreen<RollerMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         int titleX = RollerLayout.MACHINE_PANEL_X + (RollerLayout.MACHINE_PANEL_W - this.font.width(this.title)) / 2;
-        graphics.drawString(this.font, this.title, titleX, 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xD0D0D0, false);
+        graphics.drawString(this.font, this.title, titleX, 5, 0xFFFFFF, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, RollerLayout.PLAYER_INV_X, this.inventoryLabelY, 0xD0D0D0, false);
 
         graphics.drawString(this.font, "Paper", RollerLayout.PAPER_X - 4, RollerLayout.PAPER_Y - 10, 0xCFCFCF, false);
         graphics.drawString(this.font, "Filter", RollerLayout.FILTER_X - 4, RollerLayout.FILTER_Y - 10, 0xCFCFCF, false);
         graphics.drawString(this.font, "Mix", RollerLayout.INGREDIENT_1_X + 8, RollerLayout.INGREDIENT_1_Y - 10, 0xCFCFCF, false);
-        graphics.drawString(this.font, this.menu.getProgress() + "/" + this.menu.getMaxProgress(), 118, 18, 0xE6E6E6, false);
+        graphics.drawCenteredString(this.font, Component.literal(this.menu.getProgress() + "/" + this.menu.getMaxProgress()), RollerLayout.PROGRESS_LABEL_X, RollerLayout.PROGRESS_LABEL_Y, 0xE6E6E6);
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
+import org.mydrugs.mydrugs.menu.layout.ElectrolyzerLayout;
 import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 
 public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu> {
@@ -148,7 +149,7 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                     this.font,
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress()),
                     guiX(this.imageWidth / 2),
-                    guiY(68),
+                    guiY(FluidFiltererLayout.PROGRESS_TEXT_Y),
                     0xFFE6E6E6
             );
         }
@@ -156,6 +157,7 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawCenteredString(this.font, this.title, FluidFiltererLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
     }
 
     @Override

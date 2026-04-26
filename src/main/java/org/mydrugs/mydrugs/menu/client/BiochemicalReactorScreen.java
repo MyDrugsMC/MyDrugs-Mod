@@ -13,8 +13,8 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
         super(menu, playerInventory, title, BiochemicalReactorLayout.GUI_WIDTH, BiochemicalReactorLayout.GUI_HEIGHT);
         this.titleLabelX = 14;
         this.titleLabelY = 6;
-        this.inventoryLabelX = 17;
-        this.inventoryLabelY = 94;
+        this.inventoryLabelX = BiochemicalReactorLayout.PLAYER_INV_X;
+        this.inventoryLabelY = standardInventoryLabelY(BiochemicalReactorLayout.PLAYER_INV_Y);
     }
 
     @Override
@@ -131,9 +131,9 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.MACHINE_PANEL_Y + 4, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, BiochemicalReactorLayout.MACHINE_PANEL_X + BiochemicalReactorLayout.MACHINE_PANEL_W / 2, 5, 0xFFFFFFFF);
         String status = this.menu.isWorking() ? "Processing" : "Idle";
-        graphics.drawString(this.font, status, 58, BiochemicalReactorLayout.PROGRESS_Y - 10, 0xFFB5BAC5, false);
+        graphics.drawCenteredString(this.font, Component.literal(status), BiochemicalReactorLayout.PROGRESS_X + BiochemicalReactorLayout.PROGRESS_W / 2, BiochemicalReactorLayout.PROGRESS_Y - 10, 0xFFB5BAC5);
     }
 
     @Override

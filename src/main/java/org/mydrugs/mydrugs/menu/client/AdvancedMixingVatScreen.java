@@ -195,11 +195,23 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, 0xCFCFCF, false);
-        graphics.drawString(this.font, Component.literal("No heat required"), 52, 90, 0x8AA0B5, false);
-        graphics.drawString(this.font, "A=" + this.menu.getInputATankAmount(), 8, 106, 0xFFFFFF, false);
-        graphics.drawString(this.font, "B=" + this.menu.getInputBTankAmount(), 8, 116, 0xFFFFFF, false);
-        graphics.drawString(this.font, "C=" + this.menu.getInputCTankAmount(), 8, 126, 0xFFFFFF, false);
+        graphics.drawCenteredString(
+                this.font,
+                this.title,
+                AdvancedMixingVatLayout.MACHINE_PANEL_X + AdvancedMixingVatLayout.MACHINE_PANEL_W / 2,
+                5,
+                0xFFCFCFCF
+        );
+        graphics.drawCenteredString(
+                this.font,
+                Component.literal("No heat required"),
+                AdvancedMixingVatLayout.STATUS_TEXT_X,
+                AdvancedMixingVatLayout.STATUS_TEXT_Y,
+                0xFF8AA0B5
+        );
+//        graphics.drawString(this.font, "A=" + this.menu.getInputATankAmount(), AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_X, AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_Y, 0xFFFFFF, false);
+//        graphics.drawString(this.font, "B=" + this.menu.getInputBTankAmount(), AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_X, AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_Y + 10, 0xFFFFFF, false);
+//        graphics.drawString(this.font, "C=" + this.menu.getInputCTankAmount(), AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_X, AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_Y + 20, 0xFFFFFF, false);
     }
 
     @Override

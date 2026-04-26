@@ -29,7 +29,7 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
 
     public SieveScreen(SieveMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, SieveLayout.GUI_WIDTH, SieveLayout.GUI_HEIGHT);
-        this.inventoryLabelY = 54;
+        this.inventoryLabelY = standardInventoryLabelY(SieveLayout.PLAYER_INV_Y);
     }
 
     @Override
@@ -92,8 +92,8 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         int machineTitleX = SieveLayout.MACHINE_PANEL_X + (SieveLayout.MACHINE_PANEL_W - this.font.width(this.title)) / 2;
-        graphics.drawString(this.font, this.title, machineTitleX, 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xD0D0D0, false);
+        graphics.drawString(this.font, this.title, machineTitleX, 5, 0xFFFFFF, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, SieveLayout.PLAYER_INV_X, this.inventoryLabelY, 0xD0D0D0, false);
     }
 
     @Override
