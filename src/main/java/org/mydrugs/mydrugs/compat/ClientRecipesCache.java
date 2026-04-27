@@ -7,16 +7,18 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.aromatic_extractor.AromaticExtractorRecipe;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
+import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
 import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
@@ -48,6 +50,7 @@ public final class ClientRecipesCache {
     private static final List<SieveRecipe> SIEVE_RECIPES = new ArrayList<>();
     private static final List<StompCraftingRecipe> STOMP_CRAFTING_RECIPES = new ArrayList<>();
     private static final List<CatalyticReformerRecipe> CATALYTIC_REFORMER_RECIPES = new ArrayList<>();
+    private static final List<AromaticExtractorRecipe> AROMATIC_EXTRACTOR_RECIPES = new ArrayList<>();
 
 
     public static List<AdvancedFurnaceRecipe> getAdvancedFurnaceRecipes() {
@@ -118,6 +121,10 @@ public final class ClientRecipesCache {
         return List.copyOf(CATALYTIC_REFORMER_RECIPES);
     }
 
+    public static List<AromaticExtractorRecipe> getAromaticExtractorRecipes() {
+        return List.copyOf(AROMATIC_EXTRACTOR_RECIPES);
+    }
+
     @SubscribeEvent
     public static void onRecipesReceived(RecipesReceivedEvent event) {
         ADVANCED_FURNACE_RECIPES.clear();
@@ -137,6 +144,7 @@ public final class ClientRecipesCache {
         SIEVE_RECIPES.clear();
         STOMP_CRAFTING_RECIPES.clear();
         CATALYTIC_REFORMER_RECIPES.clear();
+        AROMATIC_EXTRACTOR_RECIPES.clear();
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.ADVANCED_FURNACE.get())
@@ -239,6 +247,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(CATALYTIC_REFORMER_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.AROMATIC_EXTRACTOR.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(AROMATIC_EXTRACTOR_RECIPES::add);
     }
 
     @SubscribeEvent
@@ -260,5 +274,6 @@ public final class ClientRecipesCache {
         SIEVE_RECIPES.clear();
         STOMP_CRAFTING_RECIPES.clear();
         CATALYTIC_REFORMER_RECIPES.clear();
+        AROMATIC_EXTRACTOR_RECIPES.clear();
     }
 }

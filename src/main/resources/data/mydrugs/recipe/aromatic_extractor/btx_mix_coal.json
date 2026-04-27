@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:aromatic_extractor",
   "input": {
-    "fluid": "mydrugs:reformate",
+    "fluid": "mydrugs:light_oil",
     "amount": 100
   },
   "catalyst": {
@@ -10,11 +10,11 @@
   },
   "output_1": {
     "fluid": "mydrugs:btx_mix",
-    "amount": 50
+    "amount": 10
   },
   "output_2": {
     "fluid": "mydrugs:industrial_mix",
-    "amount": 50
+    "amount": 90
   },
   "base_ticks": 240
 }

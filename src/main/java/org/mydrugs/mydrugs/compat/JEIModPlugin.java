@@ -41,7 +41,8 @@ public class JEIModPlugin implements IModPlugin {
                 new SieveRecipeCategory(guiHelper),
                 new CatalyticReformerRecipeCategory(guiHelper),
                 new BTXFractionationTowerRecipeCategory(guiHelper),
-                new StompCraftingRecipeCategory(guiHelper)
+                new StompCraftingRecipeCategory(guiHelper),
+                new AromaticExtractorRecipeCategory(guiHelper)
         );
     }
 
@@ -66,6 +67,7 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipes(StompCraftingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getStompCraftingRecipes"));
         registration.addRecipes(CatalyticReformerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCatalyticReformerRecipes"));
         registration.addRecipes(BTXFractionationTowerRecipeCategory.TYPE, BTXFractionationTowerRecipeCategory.RECIPES);
+        registration.addRecipes(AromaticExtractorRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getAromaticExtractorRecipes"));
     }
 
     @Override
@@ -89,6 +91,7 @@ public class JEIModPlugin implements IModPlugin {
         JeiCompatUtil.registerFieldCatalyst(registration, StompCraftingRecipeCategory.TYPE, ModItems.class, "STOMP_PLATE");
         JeiCompatUtil.registerFieldCatalyst(registration, CatalyticReformerRecipeCategory.TYPE, ModBlocks.class, "CATALYTIC_REFORMER");
         JeiCompatUtil.registerFieldCatalyst(registration, BTXFractionationTowerRecipeCategory.TYPE, ModBlocks.class, "BTX_FRACTIONATION_TOWER_ITEM", "BTX_FRACTIONATION_TOWER");
+        JeiCompatUtil.registerFieldCatalyst(registration, AromaticExtractorRecipeCategory.TYPE, ModBlocks.class, "AROMATIC_EXTRACTOR");
     }
 
     @Override

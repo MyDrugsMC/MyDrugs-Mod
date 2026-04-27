@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.CentrifugeMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
 
 public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
@@ -46,164 +47,30 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawCentrifuge(
+                this,
                 graphics,
-                CentrifugeLayout.MACHINE_PANEL_X,
-                CentrifugeLayout.MACHINE_PANEL_Y,
-                CentrifugeLayout.MACHINE_PANEL_W,
-                CentrifugeLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                CentrifugeLayout.PLAYER_INV_X,
-                CentrifugeLayout.PLAYER_INV_Y
-        );
-
-        drawPanel(
-                graphics,
-                CentrifugeLayout.CENTER_PANEL_X,
-                CentrifugeLayout.CENTER_PANEL_Y,
-                CentrifugeLayout.CENTER_PANEL_W,
-                CentrifugeLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawTankFrame(
-                graphics,
-                CentrifugeLayout.INPUT_TANK_X,
-                CentrifugeLayout.INPUT_TANK_Y,
-                CentrifugeLayout.TANK_W,
-                CentrifugeLayout.TANK_H,
-                CentrifugeLayout.TANK_INNER_X_OFFSET,
-                CentrifugeLayout.TANK_INNER_Y_OFFSET,
-                CentrifugeLayout.TANK_INNER_W,
-                CentrifugeLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                CentrifugeLayout.OUTPUT_A_TANK_X,
-                CentrifugeLayout.OUTPUT_A_TANK_Y,
-                CentrifugeLayout.TANK_W,
-                CentrifugeLayout.TANK_H,
-                CentrifugeLayout.TANK_INNER_X_OFFSET,
-                CentrifugeLayout.TANK_INNER_Y_OFFSET,
-                CentrifugeLayout.TANK_INNER_W,
-                CentrifugeLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                CentrifugeLayout.OUTPUT_B_TANK_X,
-                CentrifugeLayout.OUTPUT_B_TANK_Y,
-                CentrifugeLayout.TANK_W,
-                CentrifugeLayout.TANK_H,
-                CentrifugeLayout.TANK_INNER_X_OFFSET,
-                CentrifugeLayout.TANK_INNER_Y_OFFSET,
-                CentrifugeLayout.TANK_INNER_W,
-                CentrifugeLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CentrifugeLayout.INPUT_TANK_X,
-                CentrifugeLayout.INPUT_TANK_Y,
-                CentrifugeLayout.TANK_INNER_X_OFFSET,
-                CentrifugeLayout.TANK_INNER_Y_OFFSET,
-                CentrifugeLayout.TANK_INNER_W,
-                CentrifugeLayout.TANK_INNER_H,
-                this.menu.getScaledInputTank(CentrifugeLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getInputFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CentrifugeLayout.OUTPUT_A_TANK_X,
-                CentrifugeLayout.OUTPUT_A_TANK_Y,
-                CentrifugeLayout.TANK_INNER_X_OFFSET,
-                CentrifugeLayout.TANK_INNER_Y_OFFSET,
-                CentrifugeLayout.TANK_INNER_W,
-                CentrifugeLayout.TANK_INNER_H,
-                this.menu.getScaledOutputATank(CentrifugeLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputAFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CentrifugeLayout.OUTPUT_B_TANK_X,
-                CentrifugeLayout.OUTPUT_B_TANK_Y,
-                CentrifugeLayout.TANK_INNER_X_OFFSET,
-                CentrifugeLayout.TANK_INNER_Y_OFFSET,
-                CentrifugeLayout.TANK_INNER_W,
-                CentrifugeLayout.TANK_INNER_H,
-                this.menu.getScaledOutputBTank(CentrifugeLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputBFluid())
-        );
-
-        drawSlotFrame(graphics, CentrifugeLayout.INPUT_SLOT_X, CentrifugeLayout.INPUT_SLOT_Y);
-        drawSlotFrame(graphics, CentrifugeLayout.OUTPUT_A_SLOT_X, CentrifugeLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(graphics, CentrifugeLayout.OUTPUT_B_SLOT_X, CentrifugeLayout.OUTPUT_B_SLOT_Y);
-        drawSlotFrame(graphics, CentrifugeLayout.FUEL_SLOT_X, CentrifugeLayout.FUEL_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                CentrifugeLayout.PROGRESS_X,
-                CentrifugeLayout.PROGRESS_Y,
-                CentrifugeLayout.PROGRESS_W,
-                CentrifugeLayout.PROGRESS_H,
-                this.menu.getScaledProgress(CentrifugeLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawVerticalBar(
-                graphics,
-                CentrifugeLayout.FUEL_BAR_X,
-                CentrifugeLayout.FUEL_BAR_Y,
-                CentrifugeLayout.FUEL_BAR_W,
-                CentrifugeLayout.FUEL_BAR_H,
-                CentrifugeLayout.FUEL_BAR_INNER_X_OFFSET,
-                CentrifugeLayout.FUEL_BAR_INNER_Y_OFFSET,
-                CentrifugeLayout.FUEL_BAR_INNER_W,
-                CentrifugeLayout.FUEL_BAR_INNER_H,
-                this.menu.getScaledBurnTime(CentrifugeLayout.FUEL_BAR_INNER_H),
-                this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
-                0xFFFFC270
-        );
-
-        drawDumpButton(
-                graphics,
-                CentrifugeLayout.DUMP_INPUT_X,
-                CentrifugeLayout.DUMP_BUTTON_Y,
-                CentrifugeLayout.DUMP_BUTTON_SIZE,
-                this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
-                this.menu.getInputTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                CentrifugeLayout.DUMP_OUTPUT_A_X,
-                CentrifugeLayout.DUMP_BUTTON_Y,
-                CentrifugeLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
-                this.menu.getOutputATankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                CentrifugeLayout.DUMP_OUTPUT_B_X,
-                CentrifugeLayout.DUMP_BUTTON_Y,
-                CentrifugeLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
-                this.menu.getOutputBTankAmount() > 0
+                new MachineGuiRenderer.CentrifugeState(
+                        MachineGuiRenderer.TankFill.live(this.menu.getInputFluid(), this.menu.getScaledInputTank(CentrifugeLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getOutputAFluid(), this.menu.getScaledOutputATank(CentrifugeLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getOutputBFluid(), this.menu.getScaledOutputBTank(CentrifugeLayout.TANK_INNER_H)),
+                        this.menu.getScaledProgress(CentrifugeLayout.PROGRESS_W),
+                        this.menu.getScaledBurnTime(CentrifugeLayout.FUEL_BAR_INNER_H),
+                        this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
+                        this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
+                        this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
+                        this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
+                        this.menu.getInputTankAmount() > 0,
+                        this.menu.getOutputATankAmount() > 0,
+                        this.menu.getOutputBTankAmount() > 0
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, CentrifugeLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+        MachineGuiRenderer.drawCentrifugeLabels(this, graphics, this.font, this.title);
     }
 
     @Override

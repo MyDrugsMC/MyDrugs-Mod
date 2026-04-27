@@ -9,36 +9,14 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.*;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.menu.*;
-import org.mydrugs.mydrugs.menu.layout.*;
-import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
-import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
-import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
+import org.mydrugs.mydrugs.blocks.entity.CentrifugeBlockEntity;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
+import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
-import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
-import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 final class CentrifugeRecipeCategory extends AbstractNiceRecipeCategory<CentrifugeRecipe> {
@@ -52,7 +30,7 @@ final class CentrifugeRecipeCategory extends AbstractNiceRecipeCategory<Centrifu
                 Component.translatable("block.mydrugs.centrifuge"),
                 JeiCompatUtil.iconFromField(helper, ModBlocks.class, "CENTRIFUGE"),
                 CentrifugeLayout.GUI_WIDTH,
-                CentrifugeLayout.MACHINE_PANEL_Y + CentrifugeLayout.MACHINE_PANEL_H + 14
+                MachineGuiRenderer.centrifugeHeight(false)
         );
     }
 
@@ -68,33 +46,28 @@ final class CentrifugeRecipeCategory extends AbstractNiceRecipeCategory<Centrifu
 
     @Override
     public void draw(CentrifugeRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
-        drawWindow(g, width, height);
-        drawPanel(g, CentrifugeLayout.MACHINE_PANEL_X, CentrifugeLayout.MACHINE_PANEL_Y, CentrifugeLayout.MACHINE_PANEL_W, CentrifugeLayout.MACHINE_PANEL_H, 0xFF323232);
-        drawPanel(g, CentrifugeLayout.CENTER_PANEL_X, CentrifugeLayout.CENTER_PANEL_Y, CentrifugeLayout.CENTER_PANEL_W, CentrifugeLayout.CENTER_PANEL_H, 0xFF262B32);
-
-        drawTankFrame(g, CentrifugeLayout.INPUT_TANK_X, CentrifugeLayout.INPUT_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
-        drawTankFrame(g, CentrifugeLayout.OUTPUT_A_TANK_X, CentrifugeLayout.OUTPUT_A_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
-        drawTankFrame(g, CentrifugeLayout.OUTPUT_B_TANK_X, CentrifugeLayout.OUTPUT_B_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
-
-        drawFluidTankPreview(g, recipe.input().fluid(), recipe.input().amount(), CentrifugeLayout.INPUT_TANK_X, CentrifugeLayout.INPUT_TANK_Y, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
-        drawFluidTankPreview(g, recipe.output1().fluid(), recipe.output1().amount(), CentrifugeLayout.OUTPUT_A_TANK_X, CentrifugeLayout.OUTPUT_A_TANK_Y, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
-        recipe.output2().ifPresent(output ->
-                drawFluidTankPreview(g, output.fluid(), output.amount(), CentrifugeLayout.OUTPUT_B_TANK_X, CentrifugeLayout.OUTPUT_B_TANK_Y, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H)
+        MachineGuiRenderer.drawCentrifuge(
+                this,
+                g,
+                new MachineGuiRenderer.CentrifugeState(
+                        MachineGuiRenderer.TankFill.preview(recipe.input().fluid(), recipe.input().amount(), CentrifugeBlockEntity.FLUID_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(recipe.output1().fluid(), recipe.output1().amount(), CentrifugeBlockEntity.FLUID_CAPACITY),
+                        recipe.output2()
+                                .map(output -> MachineGuiRenderer.TankFill.preview(output.fluid(), output.amount(), CentrifugeBlockEntity.FLUID_CAPACITY))
+                                .orElseGet(() -> MachineGuiRenderer.TankFill.liveColor(0, 0)),
+                        CentrifugeLayout.PROGRESS_W,
+                        CentrifugeLayout.FUEL_BAR_INNER_H,
+                        0xFFE38D3F,
+                        false,
+                        false,
+                        false,
+                        true,
+                        true,
+                        recipe.output2().isPresent()
+                ),
+                false
         );
-
-        drawSlotFrame(g, CentrifugeLayout.INPUT_SLOT_X, CentrifugeLayout.INPUT_SLOT_Y);
-        drawSlotFrame(g, CentrifugeLayout.OUTPUT_A_SLOT_X, CentrifugeLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(g, CentrifugeLayout.OUTPUT_B_SLOT_X, CentrifugeLayout.OUTPUT_B_SLOT_Y);
-        drawSlotFrame(g, CentrifugeLayout.FUEL_SLOT_X, CentrifugeLayout.FUEL_SLOT_Y);
-
-        drawHorizontalBar(g, CentrifugeLayout.PROGRESS_X, CentrifugeLayout.PROGRESS_Y, CentrifugeLayout.PROGRESS_W, CentrifugeLayout.PROGRESS_H, CentrifugeLayout.PROGRESS_W, 0xFF768AB8, 0xFFAAB9DB);
-        drawVerticalBar(g, CentrifugeLayout.FUEL_BAR_X, CentrifugeLayout.FUEL_BAR_Y, CentrifugeLayout.FUEL_BAR_W, CentrifugeLayout.FUEL_BAR_H, CentrifugeLayout.FUEL_BAR_INNER_X_OFFSET, CentrifugeLayout.FUEL_BAR_INNER_Y_OFFSET, CentrifugeLayout.FUEL_BAR_INNER_W, CentrifugeLayout.FUEL_BAR_INNER_H, CentrifugeLayout.FUEL_BAR_INNER_H, 0xFFE38D3F, 0xFFFFC270);
-
-        drawDumpButton(g, CentrifugeLayout.DUMP_INPUT_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, CentrifugeLayout.DUMP_OUTPUT_A_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, CentrifugeLayout.DUMP_OUTPUT_B_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, false, recipe.output2().isPresent());
-
-        drawTitle(g);
+        MachineGuiRenderer.drawCentrifugeLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle());
     }
 
     @Override

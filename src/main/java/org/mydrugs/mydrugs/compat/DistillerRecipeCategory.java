@@ -9,36 +9,14 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.*;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.menu.*;
-import org.mydrugs.mydrugs.menu.layout.*;
-import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
-import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
-import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
+import org.mydrugs.mydrugs.menu.DistillerMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
+import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
-import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
-import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<DistillerRecipe> {
@@ -52,7 +30,7 @@ final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<Distiller
                 Component.translatable("block.mydrugs.distiller"),
                 JeiCompatUtil.iconFromField(helper, ModBlocks.class, "DISTILLER"),
                 DistillerLayout.GUI_WIDTH,
-                DistillerLayout.MACHINE_PANEL_Y + DistillerLayout.MACHINE_PANEL_H + 14
+                MachineGuiRenderer.distillerHeight(false)
         );
     }
 
@@ -68,32 +46,31 @@ final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<Distiller
 
     @Override
     public void draw(DistillerRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
-        drawWindow(g, width, height);
-        drawPanel(g, DistillerLayout.MACHINE_PANEL_X, DistillerLayout.MACHINE_PANEL_Y, DistillerLayout.MACHINE_PANEL_W, DistillerLayout.MACHINE_PANEL_H, 0xFF323232);
-
-        drawTankFrame(g, DistillerLayout.INPUT_TANK_X, DistillerLayout.INPUT_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
-        drawTankFrame(g, DistillerLayout.OUTPUT_A_TANK_X, DistillerLayout.OUTPUT_A_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
-        drawTankFrame(g, DistillerLayout.OUTPUT_B_TANK_X, DistillerLayout.OUTPUT_B_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
-
-        drawFluidTankPreview(g, recipe.input().fluid(), recipe.input().amount(), DistillerLayout.INPUT_TANK_X, DistillerLayout.INPUT_TANK_Y, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
-        drawFluidTankPreview(g, recipe.output1().fluid(), recipe.output1().amount(), DistillerLayout.OUTPUT_A_TANK_X, DistillerLayout.OUTPUT_A_TANK_Y, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
-        recipe.output2().ifPresent(output ->
-                drawFluidTankPreview(g, output.fluid(), output.amount(), DistillerLayout.OUTPUT_B_TANK_X, DistillerLayout.OUTPUT_B_TANK_Y, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H)
+        MachineGuiRenderer.drawDistiller(
+                this,
+                g,
+                new MachineGuiRenderer.DistillerState(
+                        MachineGuiRenderer.TankFill.preview(recipe.input().fluid(), recipe.input().amount(), DistillerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(recipe.output1().fluid(), recipe.output1().amount(), DistillerMenu.TANK_CAPACITY),
+                        recipe.output2()
+                                .map(output -> MachineGuiRenderer.TankFill.preview(output.fluid(), output.amount(), DistillerMenu.TANK_CAPACITY))
+                                .orElseGet(() -> MachineGuiRenderer.TankFill.liveColor(0, 0)),
+                        DistillerLayout.PROGRESS_W,
+                        false,
+                        false,
+                        false,
+                        true,
+                        true,
+                        recipe.output2().isPresent(),
+                        false,
+                        true,
+                        false,
+                        null,
+                        null
+                ),
+                false
         );
-
-        drawSlotFrame(g, DistillerLayout.INPUT_SLOT_X, DistillerLayout.INPUT_SLOT_Y);
-        drawSlotFrame(g, DistillerLayout.OUTPUT_A_SLOT_X, DistillerLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(g, DistillerLayout.OUTPUT_B_SLOT_X, DistillerLayout.OUTPUT_B_SLOT_Y);
-
-        drawHorizontalBar(g, DistillerLayout.PROGRESS_X, DistillerLayout.PROGRESS_Y, DistillerLayout.PROGRESS_W, DistillerLayout.PROGRESS_H, DistillerLayout.PROGRESS_W, 0xFF768AB8, 0xFFAAB9DB);
-
-        drawDumpButton(g, DistillerLayout.DUMP_INPUT_X, DistillerLayout.DUMP_BUTTON_Y, DistillerLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, DistillerLayout.DUMP_OUTPUT_A_X, DistillerLayout.DUMP_BUTTON_Y, DistillerLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, DistillerLayout.DUMP_OUTPUT_B_X, DistillerLayout.DUMP_BUTTON_Y, DistillerLayout.DUMP_BUTTON_SIZE, false, recipe.output2().isPresent());
-
-        drawReactor(g, DistillerLayout.RUN_BUTTON_X, DistillerLayout.RUN_BUTTON_Y, false, true, false);
-
-        drawTitle(g);
+        MachineGuiRenderer.drawDistillerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle());
     }
 
     @Override

@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.DistillerMenu;
-import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 
 public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
@@ -56,164 +56,33 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawDistiller(
+                this,
                 graphics,
-                DistillerLayout.MACHINE_PANEL_X,
-                DistillerLayout.MACHINE_PANEL_Y,
-                DistillerLayout.MACHINE_PANEL_W,
-                DistillerLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                DistillerLayout.PLAYER_INV_X,
-                DistillerLayout.PLAYER_INV_Y
-        );
-
-        drawTankFrame(
-                graphics,
-                DistillerLayout.INPUT_TANK_X,
-                DistillerLayout.INPUT_TANK_Y,
-                DistillerLayout.TANK_W,
-                DistillerLayout.TANK_H,
-                DistillerLayout.TANK_INNER_X_OFFSET,
-                DistillerLayout.TANK_INNER_Y_OFFSET,
-                DistillerLayout.TANK_INNER_W,
-                DistillerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                DistillerLayout.OUTPUT_A_TANK_X,
-                DistillerLayout.OUTPUT_A_TANK_Y,
-                DistillerLayout.TANK_W,
-                DistillerLayout.TANK_H,
-                DistillerLayout.TANK_INNER_X_OFFSET,
-                DistillerLayout.TANK_INNER_Y_OFFSET,
-                DistillerLayout.TANK_INNER_W,
-                DistillerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                DistillerLayout.OUTPUT_B_TANK_X,
-                DistillerLayout.OUTPUT_B_TANK_Y,
-                DistillerLayout.TANK_W,
-                DistillerLayout.TANK_H,
-                DistillerLayout.TANK_INNER_X_OFFSET,
-                DistillerLayout.TANK_INNER_Y_OFFSET,
-                DistillerLayout.TANK_INNER_W,
-                DistillerLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                DistillerLayout.INPUT_TANK_X,
-                DistillerLayout.INPUT_TANK_Y,
-                DistillerLayout.TANK_INNER_X_OFFSET,
-                DistillerLayout.TANK_INNER_Y_OFFSET,
-                DistillerLayout.TANK_INNER_W,
-                DistillerLayout.TANK_INNER_H,
-                this.menu.getScaledInputTank(DistillerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getInputFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                DistillerLayout.OUTPUT_A_TANK_X,
-                DistillerLayout.OUTPUT_A_TANK_Y,
-                DistillerLayout.TANK_INNER_X_OFFSET,
-                DistillerLayout.TANK_INNER_Y_OFFSET,
-                DistillerLayout.TANK_INNER_W,
-                DistillerLayout.TANK_INNER_H,
-                this.menu.getScaledOutputATank(DistillerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputAFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                DistillerLayout.OUTPUT_B_TANK_X,
-                DistillerLayout.OUTPUT_B_TANK_Y,
-                DistillerLayout.TANK_INNER_X_OFFSET,
-                DistillerLayout.TANK_INNER_Y_OFFSET,
-                DistillerLayout.TANK_INNER_W,
-                DistillerLayout.TANK_INNER_H,
-                this.menu.getScaledOutputBTank(DistillerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputBFluid())
-        );
-
-        drawSlotFrame(graphics, DistillerLayout.INPUT_SLOT_X, DistillerLayout.INPUT_SLOT_Y);
-        drawSlotFrame(graphics, DistillerLayout.OUTPUT_A_SLOT_X, DistillerLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(graphics, DistillerLayout.OUTPUT_B_SLOT_X, DistillerLayout.OUTPUT_B_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                DistillerLayout.PROGRESS_X,
-                DistillerLayout.PROGRESS_Y,
-                DistillerLayout.PROGRESS_W,
-                DistillerLayout.PROGRESS_H,
-                this.menu.getScaledProgress(DistillerLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawDumpButton(
-                graphics,
-                DistillerLayout.DUMP_INPUT_X,
-                DistillerLayout.DUMP_BUTTON_Y,
-                DistillerLayout.DUMP_BUTTON_SIZE,
-                this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
-                this.menu.getInputTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                DistillerLayout.DUMP_OUTPUT_A_X,
-                DistillerLayout.DUMP_BUTTON_Y,
-                DistillerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
-                this.menu.getOutputATankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                DistillerLayout.DUMP_OUTPUT_B_X,
-                DistillerLayout.DUMP_BUTTON_Y,
-                DistillerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
-                this.menu.getOutputBTankAmount() > 0
-        );
-
-        drawReactor(
-                graphics,
-                DistillerLayout.RUN_BUTTON_X,
-                DistillerLayout.RUN_BUTTON_Y,
-                this.runButton != null && this.runButton.isHoveredOrFocused(),
-                this.menu.isWorking(),
-                this.menu.getClicksPerSecond() > 5
-        );
-
-        graphics.drawCenteredString(
-                this.font,
-                Component.literal(this.menu.getClicksPerSecond() + " CPS"),
-                guiX(DistillerLayout.RUN_BUTTON_X + DistillerLayout.RUN_BUTTON_SIZE / 2),
-                guiY(DistillerLayout.CPS_TEXT_Y),
-                0xFFD8D8D8
-        );
-
-        graphics.drawCenteredString(
-                this.font,
-                Component.literal(this.menu.getSpeedPercent() + "% speed"),
-                guiX(DistillerLayout.RUN_BUTTON_X + DistillerLayout.RUN_BUTTON_SIZE / 2),
-                guiY(DistillerLayout.SPEED_TEXT_Y),
-                0xFFBEBEBE
+                new MachineGuiRenderer.DistillerState(
+                        MachineGuiRenderer.TankFill.live(this.menu.getInputFluid(), this.menu.getScaledInputTank(DistillerLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getOutputAFluid(), this.menu.getScaledOutputATank(DistillerLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getOutputBFluid(), this.menu.getScaledOutputBTank(DistillerLayout.TANK_INNER_H)),
+                        this.menu.getScaledProgress(DistillerLayout.PROGRESS_W),
+                        this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
+                        this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
+                        this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
+                        this.menu.getInputTankAmount() > 0,
+                        this.menu.getOutputATankAmount() > 0,
+                        this.menu.getOutputBTankAmount() > 0,
+                        this.runButton != null && this.runButton.isHoveredOrFocused(),
+                        this.menu.isWorking(),
+                        this.menu.getClicksPerSecond() > 5,
+                        this.menu.getClicksPerSecond() + " CPS",
+                        this.menu.getSpeedPercent() + "% speed"
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, ChemicalReactorLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+        MachineGuiRenderer.drawDistillerLabels(this, graphics, this.font, this.title);
     }
 
     @Override

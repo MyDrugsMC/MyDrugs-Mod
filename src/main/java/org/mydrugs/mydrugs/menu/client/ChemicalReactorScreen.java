@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
 import org.mydrugs.mydrugs.menu.ChemicalReactorMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
 public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactorMenu> {
@@ -19,164 +20,33 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
-                graphics,
-                ChemicalReactorLayout.MACHINE_PANEL_X,
-                ChemicalReactorLayout.MACHINE_PANEL_Y,
-                ChemicalReactorLayout.MACHINE_PANEL_W,
-                ChemicalReactorLayout.MACHINE_PANEL_H,
-                PANEL_COLOR
-        );
-
-        //drawSectionDivider(graphics, ChemicalReactorLayout.INPUT_SECTION_DIVIDER_X);
-        //drawSectionDivider(graphics, ChemicalReactorLayout.OUTPUT_SECTION_DIVIDER_X);
-
-        drawSieveInventoryPanels(
-                graphics,
-                ChemicalReactorLayout.PLAYER_INV_X,
-                ChemicalReactorLayout.PLAYER_INV_Y
-        );
-
-        renderTanks(graphics);
-        renderSlots0(graphics);
-        renderBars(graphics);
-    }
-
-    private void renderTanks(GuiGraphics graphics) {
-        renderTank(
-                graphics,
-                ChemicalReactorLayout.PRIMARY_GAS_TANK_X,
-                ChemicalReactorLayout.PRIMARY_GAS_TANK_Y,
-                this.menu.getScaledPrimaryGas(ChemicalReactorLayout.TANK_INNER_H),
-                this.menu.getPrimaryGasColor()
-        );
-
         int secondaryPixels = this.menu.isSecondaryFluidMode()
                 ? this.menu.getScaledSecondaryFluid(ChemicalReactorLayout.TANK_INNER_H)
                 : this.menu.getScaledSecondaryGas(ChemicalReactorLayout.TANK_INNER_H);
-
         int secondaryColor = this.menu.isSecondaryFluidMode()
                 ? getFluidColor(this.menu.getSecondaryFluid())
                 : this.menu.getSecondaryGasColor();
-
-        renderTank(
-                graphics,
-                ChemicalReactorLayout.SECONDARY_TANK_X,
-                ChemicalReactorLayout.SECONDARY_TANK_Y,
-                secondaryPixels,
-                secondaryColor
-        );
-
         int outputPixels = this.menu.isOutputFluidMode()
                 ? this.menu.getScaledOutputFluid(ChemicalReactorLayout.TANK_INNER_H)
                 : this.menu.getScaledOutputGas(ChemicalReactorLayout.TANK_INNER_H);
-
         int outputColor = this.menu.isOutputFluidMode()
                 ? getFluidColor(this.menu.getOutputFluid())
                 : this.menu.getOutputGasColor();
 
-        renderTank(
+        MachineGuiRenderer.drawChemicalReactor(
+                this,
                 graphics,
-                ChemicalReactorLayout.OUTPUT_TANK_X,
-                ChemicalReactorLayout.OUTPUT_TANK_Y,
-                outputPixels,
-                outputColor
-        );
-    }
-
-    private void renderTank(GuiGraphics graphics, int x, int y, int filledPixels, int color) {
-        drawTankFrame(
-                graphics,
-                x,
-                y,
-                ChemicalReactorLayout.TANK_W,
-                ChemicalReactorLayout.TANK_H,
-                ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                ChemicalReactorLayout.TANK_INNER_W,
-                ChemicalReactorLayout.TANK_INNER_H
-        );
-
-        if (filledPixels > 0) {
-            drawTankFillShaded(
-                    graphics,
-                    x,
-                    y,
-                    ChemicalReactorLayout.TANK_INNER_X_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                    ChemicalReactorLayout.TANK_INNER_W,
-                    ChemicalReactorLayout.TANK_INNER_H,
-                    filledPixels,
-                    color
-            );
-        }
-    }
-
-    private void renderSlots0(GuiGraphics graphics) {
-        drawSlotFrame(graphics, ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y);
-
-        drawSlotFrame(graphics, ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-
-        drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-        //drawSlotFrame(graphics, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
-
-        drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y);
-        //drawSlotFrame(graphics, ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2);
-    }
-
-    private void renderBars(GuiGraphics graphics) {
-        drawHorizontalBar(
-                graphics,
-                ChemicalReactorLayout.PROGRESS_X,
-                ChemicalReactorLayout.PROGRESS_Y,
-                ChemicalReactorLayout.PROGRESS_W,
-                ChemicalReactorLayout.PROGRESS_H,
-                this.menu.getScaledProgress(ChemicalReactorLayout.PROGRESS_W),
-                0xFF85A6C9,
-                0xFFC6DCF2
-        );
-
-        drawVerticalBar(
-                graphics,
-                ChemicalReactorLayout.HEAT_BAR_X,
-                ChemicalReactorLayout.HEAT_BAR_Y,
-                ChemicalReactorLayout.HEAT_BAR_W,
-                ChemicalReactorLayout.HEAT_BAR_H,
-                ChemicalReactorLayout.HEAT_BAR_INNER_X_OFFSET,
-                ChemicalReactorLayout.HEAT_BAR_INNER_Y_OFFSET,
-                ChemicalReactorLayout.HEAT_BAR_INNER_W,
-                ChemicalReactorLayout.HEAT_BAR_INNER_H,
-                this.menu.getScaledHeat(ChemicalReactorLayout.HEAT_BAR_INNER_H),
-                0xFFE35C3F,
-                0xFFFFB870
-        );
-
-        drawVerticalBar(
-                graphics,
-                ChemicalReactorLayout.FUEL_BAR_X,
-                ChemicalReactorLayout.FUEL_BAR_Y,
-                ChemicalReactorLayout.FUEL_BAR_W,
-                ChemicalReactorLayout.FUEL_BAR_H,
-                ChemicalReactorLayout.FUEL_BAR_INNER_X_OFFSET,
-                ChemicalReactorLayout.FUEL_BAR_INNER_Y_OFFSET,
-                ChemicalReactorLayout.FUEL_BAR_INNER_W,
-                ChemicalReactorLayout.FUEL_BAR_INNER_H,
-                this.menu.getScaledBurnTime(ChemicalReactorLayout.FUEL_BAR_INNER_H),
-                this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
-                0xFFFFC270
-        );
-
-        drawHorizontalBar(
-                graphics,
-                ChemicalReactorLayout.MANUAL_BAR_X,
-                ChemicalReactorLayout.MANUAL_BAR_Y,
-                ChemicalReactorLayout.MANUAL_BAR_W,
-                ChemicalReactorLayout.MANUAL_BAR_H,
-                this.menu.getScaledManualEnergy(ChemicalReactorLayout.MANUAL_BAR_W),
-                0xFF63B36D,
-                0xFFA8E4AF
+                new MachineGuiRenderer.ChemicalReactorState(
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledPrimaryGas(ChemicalReactorLayout.TANK_INNER_H), this.menu.getPrimaryGasColor()),
+                        MachineGuiRenderer.TankFill.liveColor(secondaryPixels, secondaryColor),
+                        MachineGuiRenderer.TankFill.liveColor(outputPixels, outputColor),
+                        this.menu.getScaledProgress(ChemicalReactorLayout.PROGRESS_W),
+                        this.menu.getScaledHeat(ChemicalReactorLayout.HEAT_BAR_INNER_H),
+                        this.menu.getScaledBurnTime(ChemicalReactorLayout.FUEL_BAR_INNER_H),
+                        this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
+                        this.menu.getScaledManualEnergy(ChemicalReactorLayout.MANUAL_BAR_W)
+                ),
+                true
         );
     }
 
@@ -192,43 +62,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        drawCenteredLabel(graphics, this.title, ChemicalReactorLayout.GUI_WIDTH / 2, 5, TITLE_COLOR);
-
-//        drawCenteredLabel(
-//                graphics,
-//                Component.literal("Input A"),
-//                ChemicalReactorLayout.PRIMARY_GAS_TANK_X + ChemicalReactorLayout.TANK_W / 2,
-//                ChemicalReactorLayout.LABEL_Y,
-//                LABEL_COLOR
-//        );
-//
-//        drawCenteredLabel(
-//                graphics,
-//                Component.literal("Input B"),
-//                ChemicalReactorLayout.SECONDARY_TANK_X + ChemicalReactorLayout.TANK_W / 2,
-//                ChemicalReactorLayout.LABEL_Y,
-//                LABEL_COLOR
-//        );
-
-        drawCenteredLabel(
-                graphics,
-                Component.literal("Process"),
-                ChemicalReactorLayout.PROGRESS_X + ChemicalReactorLayout.PROGRESS_W / 2,
-                ChemicalReactorLayout.LABEL_Y + 6,
-                LABEL_COLOR
-        );
-//
-//        drawCenteredLabel(
-//                graphics,
-//                Component.literal("Output"),
-//                ChemicalReactorLayout.OUTPUT_TANK_X + ChemicalReactorLayout.TANK_W / 2,
-//                ChemicalReactorLayout.LABEL_Y,
-//                LABEL_COLOR
-//        );
-    }
-
-    private void drawCenteredLabel(GuiGraphics graphics, Component text, int centerX, int y, int color) {
-        graphics.drawString(this.font, text, centerX - this.font.width(text) / 2, y, color, false);
+        MachineGuiRenderer.drawChemicalReactorLabels(this, graphics, this.font, this.title, null);
     }
 
     @Override

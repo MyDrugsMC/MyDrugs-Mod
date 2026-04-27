@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.menu.SieveMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.SieveLayout;
 import org.mydrugs.mydrugs.network.SieveShakePayload;
 
@@ -63,37 +64,12 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindowColored(graphics, 0xFF181818, 0xFF262626);
-
-        drawPanel(
-                graphics,
-                SieveLayout.MACHINE_PANEL_X,
-                SieveLayout.MACHINE_PANEL_Y,
-                SieveLayout.MACHINE_PANEL_W,
-                SieveLayout.MACHINE_PANEL_H,
-                0xFF323232,
-                0xFF595959,
-                0xFF101010
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                SieveLayout.PLAYER_INV_X,
-                SieveLayout.PLAYER_INV_Y
-        );
-
-        drawSlotFrame(graphics, SieveLayout.INPUT_X, SieveLayout.INPUT_Y, 0xFF8A8A8A, 0xFF111111);
-        drawSlotFrame(graphics, SieveLayout.RESULT_X, SieveLayout.RESULT_Y, 0xFF8A8A8A, 0xFF111111);
-        drawSlotFrame(graphics, SieveLayout.BONUS_X, SieveLayout.BONUS_Y, 0xFF8A8A8A, 0xFF111111);
-
-        drawShakeWidget(graphics);
+        MachineGuiRenderer.drawSieve(this, graphics, new MachineGuiRenderer.SieveState(Math.round(this.knobVisualY) - this.topPos), true);
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        int machineTitleX = SieveLayout.MACHINE_PANEL_X + (SieveLayout.MACHINE_PANEL_W - this.font.width(this.title)) / 2;
-        graphics.drawString(this.font, this.title, machineTitleX, 5, 0xFFFFFF, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, SieveLayout.PLAYER_INV_X, this.inventoryLabelY, 0xD0D0D0, false);
+        MachineGuiRenderer.drawSieveLabels(this, graphics, this.font, this.title, this.playerInventoryTitle, this.inventoryLabelY, null);
     }
 
     @Override
@@ -144,28 +120,6 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
         }
 
         return super.mouseReleased(event);
-    }
-
-    private void drawShakeWidget(GuiGraphics graphics) {
-        int trackLeft = guiX(SieveLayout.WIDGET_X);
-        int trackTop = guiY(SieveLayout.WIDGET_Y);
-
-        graphics.fill(trackLeft - 2, trackTop - 2, trackLeft + SieveLayout.WIDGET_W + 2, trackTop + SieveLayout.WIDGET_H + 2, 0xFF5A5A5A);
-        graphics.fill(trackLeft - 1, trackTop - 1, trackLeft + SieveLayout.WIDGET_W + 1, trackTop + SieveLayout.WIDGET_H + 1, 0xFF161616);
-
-        int shaftX1 = trackLeft + 7;
-        int shaftX2 = trackLeft + 11;
-        graphics.fill(shaftX1, trackTop + 2, shaftX2, trackTop + SieveLayout.WIDGET_H - 2, 0xFF090909);
-
-        graphics.fill(trackLeft + 5, trackTop + 1, trackLeft + 13, trackTop + 3, 0xFF727272);
-        graphics.fill(trackLeft + 5, trackTop + SieveLayout.WIDGET_H - 3, trackLeft + 13, trackTop + SieveLayout.WIDGET_H - 1, 0xFF0E0E0E);
-
-        int centerX = trackLeft + SieveLayout.WIDGET_W / 2;
-        int centerY = Math.round(this.knobVisualY);
-
-        drawCircle(graphics, centerX, centerY, KNOB_RADIUS + 1, 0xFFBABABA);
-        drawCircle(graphics, centerX, centerY, KNOB_RADIUS, 0xFF3B3B3B);
-        drawCircle(graphics, centerX - 1, centerY - 1, 1, 0xFFE8E8E8);
     }
 
     private float getTrackMinY() {

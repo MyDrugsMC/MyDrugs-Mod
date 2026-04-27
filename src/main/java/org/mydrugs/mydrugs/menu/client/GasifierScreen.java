@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.GasifierMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.GasifierLayout;
 
 public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
@@ -23,85 +24,21 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindowColored(graphics, 0xFF181818, 0xFF262626);
-
-        drawPanel(
+        MachineGuiRenderer.drawGasifier(
+                this,
                 graphics,
-                GasifierLayout.MACHINE_PANEL_X,
-                GasifierLayout.MACHINE_PANEL_Y,
-                GasifierLayout.MACHINE_PANEL_W,
-                GasifierLayout.MACHINE_PANEL_H,
-                0xFF323232,
-                0xFF595959,
-                0xFF101010
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                GasifierLayout.PLAYER_INV_X,
-                GasifierLayout.PLAYER_INV_Y
-        );
-
-        drawSlotFrame(graphics, GasifierLayout.INPUT_SLOT_X, GasifierLayout.INPUT_SLOT_Y, 0xFF8A8A8A, 0xFF111111);
-        drawSlotFrame(graphics, GasifierLayout.FUEL_SLOT_X, GasifierLayout.FUEL_SLOT_Y, 0xFF8A8A8A, 0xFF111111);
-        drawSlotFrame(graphics, GasifierLayout.EXPORT_SLOT_X, GasifierLayout.EXPORT_SLOT_Y, 0xFF8A8A8A, 0xFF111111);
-
-        drawVerticalBar(
-                graphics,
-                GasifierLayout.FUEL_BAR_X,
-                GasifierLayout.FUEL_BAR_Y,
-                GasifierLayout.FUEL_BAR_W,
-                GasifierLayout.FUEL_BAR_H,
-                GasifierLayout.FUEL_BAR_INNER_X_OFFSET,
-                GasifierLayout.FUEL_BAR_INNER_Y_OFFSET,
-                GasifierLayout.FUEL_BAR_INNER_W,
-                GasifierLayout.FUEL_BAR_INNER_H,
-                this.menu.getScaledFuel(GasifierLayout.FUEL_BAR_INNER_H),
-                FUEL_COLOR,
-                FUEL_HIGHLIGHT
-        );
-
-        drawHorizontalBar(
-                graphics,
-                GasifierLayout.PROGRESS_X,
-                GasifierLayout.PROGRESS_Y,
-                GasifierLayout.PROGRESS_W,
-                GasifierLayout.PROGRESS_H,
-                this.menu.getScaledProgress(GasifierLayout.PROGRESS_W),
-                PROGRESS_COLOR,
-                PROGRESS_HIGHLIGHT
-        );
-
-        drawTankFrame(
-                graphics,
-                GasifierLayout.OUTPUT_TANK_X,
-                GasifierLayout.OUTPUT_TANK_Y,
-                GasifierLayout.TANK_W,
-                GasifierLayout.TANK_H,
-                GasifierLayout.TANK_INNER_X_OFFSET,
-                GasifierLayout.TANK_INNER_Y_OFFSET,
-                GasifierLayout.TANK_INNER_W,
-                GasifierLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                GasifierLayout.OUTPUT_TANK_X,
-                GasifierLayout.OUTPUT_TANK_Y,
-                GasifierLayout.TANK_INNER_X_OFFSET,
-                GasifierLayout.TANK_INNER_Y_OFFSET,
-                GasifierLayout.TANK_INNER_W,
-                GasifierLayout.TANK_INNER_H,
-                this.menu.getScaledGasTank(GasifierLayout.TANK_INNER_H),
-                GAS_COLOR
+                new MachineGuiRenderer.GasifierState(
+                        this.menu.getScaledFuel(GasifierLayout.FUEL_BAR_INNER_H),
+                        this.menu.getScaledProgress(GasifierLayout.PROGRESS_W),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledGasTank(GasifierLayout.TANK_INNER_H), GAS_COLOR)
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        int machineTitleX = GasifierLayout.MACHINE_PANEL_X + (GasifierLayout.MACHINE_PANEL_W - this.font.width(this.title)) / 2;
-        graphics.drawString(this.font, this.title, machineTitleX, 5, 0xFFFFFFFF, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, GasifierLayout.PLAYER_INV_X, this.inventoryLabelY, 0xFFD0D0D0, false);
+        MachineGuiRenderer.drawGasifierLabels(this, graphics, this.font, this.title, this.playerInventoryTitle, this.inventoryLabelY, null);
     }
 
     @Override

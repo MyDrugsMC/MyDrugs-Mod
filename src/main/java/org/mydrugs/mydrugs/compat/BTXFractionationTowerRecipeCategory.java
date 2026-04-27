@@ -9,36 +9,12 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.*;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.menu.*;
-import org.mydrugs.mydrugs.menu.layout.*;
-import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
-import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
-import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
-import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
-import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
+import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
+import org.mydrugs.mydrugs.menu.layout.BTXFractionationTowerLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCategory<BTXFractionationTowerJeiRecipe> {
@@ -54,7 +30,7 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
                 Component.translatable("block.mydrugs.btx_fractionation_tower"),
                 JeiCompatUtil.iconFromField(helper, ModBlocks.class, "BTX_FRACTIONATION_TOWER_ITEM", "BTX_FRACTIONATION_TOWER"),
                 BTXFractionationTowerLayout.GUI_WIDTH,
-                BTXFractionationTowerLayout.MACHINE_PANEL_Y + BTXFractionationTowerLayout.MACHINE_PANEL_H + 14
+                MachineGuiRenderer.btxFractionationTowerHeight(false)
         );
     }
 
@@ -70,75 +46,29 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
 
     @Override
     public void draw(BTXFractionationTowerJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
-        drawWindow(g, width, height);
-
-        drawPanel(
+        MachineGuiRenderer.drawBTXFractionationTower(
+                this,
                 g,
-                BTXFractionationTowerLayout.MACHINE_PANEL_X,
-                BTXFractionationTowerLayout.MACHINE_PANEL_Y,
-                BTXFractionationTowerLayout.MACHINE_PANEL_W,
-                BTXFractionationTowerLayout.MACHINE_PANEL_H,
-                0xFF323232
+                new MachineGuiRenderer.BTXFractionationTowerState(
+                        MachineGuiRenderer.TankFill.preview(recipe.inputFluid(), recipe.inputAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(recipe.benzeneFluid(), recipe.benzeneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(recipe.tolueneFluid(), recipe.tolueneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(recipe.xyleneFluid(), recipe.xyleneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        BTXFractionationTowerLayout.PROGRESS_W,
+                        BTXFractionationTowerLayout.FUEL_BAR_INNER_H,
+                        0xFFE38D3F,
+                        false,
+                        false,
+                        false,
+                        false,
+                        recipe.inputAmount() > 0,
+                        recipe.benzeneAmount() > 0,
+                        recipe.tolueneAmount() > 0,
+                        recipe.xyleneAmount() > 0
+                ),
+                false
         );
-
-        drawPanel(
-                g,
-                BTXFractionationTowerLayout.CENTER_PANEL_X,
-                BTXFractionationTowerLayout.CENTER_PANEL_Y,
-                BTXFractionationTowerLayout.CENTER_PANEL_W,
-                BTXFractionationTowerLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawBtxTank(g, BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y);
-        drawBtxTank(g, BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y);
-        drawBtxTank(g, BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y);
-        drawBtxTank(g, BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y);
-
-        drawFluidTankPreview(g, JeiCompatUtil.fluid(recipe.inputFluid()), recipe.inputAmount(), BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y, BTXFractionationTowerLayout.TANK_INNER_X_OFFSET, BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET, BTXFractionationTowerLayout.TANK_INNER_W, BTXFractionationTowerLayout.TANK_INNER_H);
-        drawFluidTankPreview(g, JeiCompatUtil.fluid(recipe.benzeneFluid()), recipe.benzeneAmount(), BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y, BTXFractionationTowerLayout.TANK_INNER_X_OFFSET, BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET, BTXFractionationTowerLayout.TANK_INNER_W, BTXFractionationTowerLayout.TANK_INNER_H);
-        drawFluidTankPreview(g, JeiCompatUtil.fluid(recipe.tolueneFluid()), recipe.tolueneAmount(), BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y, BTXFractionationTowerLayout.TANK_INNER_X_OFFSET, BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET, BTXFractionationTowerLayout.TANK_INNER_W, BTXFractionationTowerLayout.TANK_INNER_H);
-        drawFluidTankPreview(g, JeiCompatUtil.fluid(recipe.xyleneFluid()), recipe.xyleneAmount(), BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y, BTXFractionationTowerLayout.TANK_INNER_X_OFFSET, BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET, BTXFractionationTowerLayout.TANK_INNER_W, BTXFractionationTowerLayout.TANK_INNER_H);
-
-        drawSlotFrame(g, BTXFractionationTowerLayout.INPUT_SLOT_X, BTXFractionationTowerLayout.INPUT_SLOT_Y);
-        drawSlotFrame(g, BTXFractionationTowerLayout.BENZENE_SLOT_X, BTXFractionationTowerLayout.BENZENE_SLOT_Y);
-        drawSlotFrame(g, BTXFractionationTowerLayout.TOLUENE_SLOT_X, BTXFractionationTowerLayout.TOLUENE_SLOT_Y);
-        drawSlotFrame(g, BTXFractionationTowerLayout.XYLENE_SLOT_X, BTXFractionationTowerLayout.XYLENE_SLOT_Y);
-        drawSlotFrame(g, BTXFractionationTowerLayout.FUEL_SLOT_X, BTXFractionationTowerLayout.FUEL_SLOT_Y);
-
-        drawHorizontalBar(
-                g,
-                BTXFractionationTowerLayout.PROGRESS_X,
-                BTXFractionationTowerLayout.PROGRESS_Y,
-                BTXFractionationTowerLayout.PROGRESS_W,
-                BTXFractionationTowerLayout.PROGRESS_H,
-                BTXFractionationTowerLayout.PROGRESS_W,
-                0xFFB8865F,
-                0xFFFFD0A6
-        );
-
-        drawVerticalBar(
-                g,
-                BTXFractionationTowerLayout.FUEL_BAR_X,
-                BTXFractionationTowerLayout.FUEL_BAR_Y,
-                BTXFractionationTowerLayout.FUEL_BAR_W,
-                BTXFractionationTowerLayout.FUEL_BAR_H,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_W,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_H,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_H,
-                0xFFE38D3F,
-                0xFFFFC270
-        );
-
-        drawDumpButton(g, BTXFractionationTowerLayout.DUMP_INPUT_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, false, recipe.inputAmount() > 0);
-        drawDumpButton(g, BTXFractionationTowerLayout.DUMP_BENZENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, false, recipe.benzeneAmount() > 0);
-        drawDumpButton(g, BTXFractionationTowerLayout.DUMP_TOLUENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, false, recipe.tolueneAmount() > 0);
-        drawDumpButton(g, BTXFractionationTowerLayout.DUMP_XYLENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, false, recipe.xyleneAmount() > 0);
-
-        drawTitle(g);
-        drawBottomInfo(g, "Uses any Minecraft fuel  |  Time: " + recipe.processingTime() + "t");
+        MachineGuiRenderer.drawBTXFractionationTowerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), "Uses any Minecraft fuel  |  Time: " + recipe.processingTime() + "t");
     }
 
     @Override
@@ -167,18 +97,5 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
         return List.of();
     }
 
-    private void drawBtxTank(GuiGraphics g, int x, int y) {
-        drawTankFrame(
-                g,
-                x,
-                y,
-                BTXFractionationTowerLayout.TANK_W,
-                BTXFractionationTowerLayout.TANK_H,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-    }
 }
 

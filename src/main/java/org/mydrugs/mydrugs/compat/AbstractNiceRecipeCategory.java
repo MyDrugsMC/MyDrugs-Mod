@@ -26,26 +26,21 @@ import java.util.List;
 
 public abstract class AbstractNiceRecipeCategory<T> implements AbstractMachineDrawMethods, IRecipeCategory<T> {
     protected static final int SLOT = 18;
-
-    protected final CategoryMode mode;
-
-    protected final int width;
-    protected final int height;
-
-    protected final int leftX;
-    protected final int leftW;
-    protected final int rightX;
-    protected final int rightW;
-    protected final int panelY;
-    protected final int panelH;
-
     private static final int PANEL_BG = 0xFF15181E;
     private static final int PANEL_EDGE = 0xFF242933;
     private static final int PANEL_BORDER = 0xFF4B5260;
     private static final int LABEL_COLOR = 0xFF9CA3AF;
     private static final int TEXT_COLOR = 0xFFE5E7EB;
     private static final int ACCENT_COLOR = 0xFFDDBF63;
-
+    protected final CategoryMode mode;
+    protected final int width;
+    protected final int height;
+    protected final int leftX;
+    protected final int leftW;
+    protected final int rightX;
+    protected final int rightW;
+    protected final int panelY;
+    protected final int panelH;
     private final RecipeType<T> recipeType;
     private final Component title;
     private final IDrawable background;

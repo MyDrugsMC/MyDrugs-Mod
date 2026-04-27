@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.BiochemicalReactorMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.BiochemicalReactorLayout;
 
 public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalReactorMenu> {
@@ -32,108 +33,31 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawBiochemicalReactor(
+                this,
                 graphics,
-                BiochemicalReactorLayout.MACHINE_PANEL_X,
-                BiochemicalReactorLayout.MACHINE_PANEL_Y,
-                BiochemicalReactorLayout.MACHINE_PANEL_W,
-                BiochemicalReactorLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                BiochemicalReactorLayout.PLAYER_INV_X,
-                BiochemicalReactorLayout.PLAYER_INV_Y
-        );
-
-        drawSlotFrame(graphics, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y);
-        drawSlotFrame(graphics, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y);
-        drawSlotFrame(graphics, BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.CHARCOAL_SLOT_Y);
-        drawSlotFrame(graphics, BiochemicalReactorLayout.OUTPUT_SLOT_X, BiochemicalReactorLayout.OUTPUT_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                BiochemicalReactorLayout.PROGRESS_X,
-                BiochemicalReactorLayout.PROGRESS_Y,
-                BiochemicalReactorLayout.PROGRESS_W,
-                BiochemicalReactorLayout.PROGRESS_H,
-                this.menu.getScaledProgress(BiochemicalReactorLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawVerticalBar(
-                graphics,
-                BiochemicalReactorLayout.HEAT_BAR_X,
-                BiochemicalReactorLayout.HEAT_BAR_Y,
-                BiochemicalReactorLayout.HEAT_BAR_W,
-                BiochemicalReactorLayout.HEAT_BAR_H,
-                BiochemicalReactorLayout.HEAT_BAR_INNER_X_OFFSET,
-                BiochemicalReactorLayout.HEAT_BAR_INNER_Y_OFFSET,
-                BiochemicalReactorLayout.HEAT_BAR_INNER_W,
-                BiochemicalReactorLayout.HEAT_BAR_INNER_H,
-                this.menu.getScaledHeat(BiochemicalReactorLayout.HEAT_BAR_INNER_H),
-                0xFFE38D3F,
-                0x22FFFFFF
-        );
-
-        drawVerticalBar(
-                graphics,
-                BiochemicalReactorLayout.MANUAL_BAR_X,
-                BiochemicalReactorLayout.MANUAL_BAR_Y,
-                BiochemicalReactorLayout.MANUAL_BAR_W,
-                BiochemicalReactorLayout.MANUAL_BAR_H,
-                BiochemicalReactorLayout.MANUAL_BAR_INNER_X_OFFSET,
-                BiochemicalReactorLayout.MANUAL_BAR_INNER_Y_OFFSET,
-                BiochemicalReactorLayout.MANUAL_BAR_INNER_W,
-                BiochemicalReactorLayout.MANUAL_BAR_INNER_H,
-                this.menu.getScaledManualEnergy(BiochemicalReactorLayout.MANUAL_BAR_INNER_H),
-                0xFF77A8E8,
-                0x22FFFFFF
-        );
-
-        drawTankFrame(
-                graphics,
-                BiochemicalReactorLayout.OUTPUT_TANK_X,
-                BiochemicalReactorLayout.OUTPUT_TANK_Y,
-                BiochemicalReactorLayout.TANK_W,
-                BiochemicalReactorLayout.TANK_H,
-                BiochemicalReactorLayout.TANK_INNER_X_OFFSET,
-                BiochemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                BiochemicalReactorLayout.TANK_INNER_W,
-                BiochemicalReactorLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                BiochemicalReactorLayout.OUTPUT_TANK_X,
-                BiochemicalReactorLayout.OUTPUT_TANK_Y,
-                BiochemicalReactorLayout.TANK_INNER_X_OFFSET,
-                BiochemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                BiochemicalReactorLayout.TANK_INNER_W,
-                BiochemicalReactorLayout.TANK_INNER_H,
-                this.menu.getScaledOutputTank(BiochemicalReactorLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputFluid())
-        );
-
-        drawPlusButton(
-                graphics,
-                BiochemicalReactorLayout.MANUAL_BUTTON_X,
-                BiochemicalReactorLayout.MANUAL_BUTTON_Y,
-                BiochemicalReactorLayout.MANUAL_BUTTON_W,
-                BiochemicalReactorLayout.MANUAL_BUTTON_H,
-                this.manualBoostButton != null && this.manualBoostButton.isHoveredOrFocused()
+                MachineGuiRenderer.BiochemicalReactorState.screen(
+                        this.menu.getScaledProgress(BiochemicalReactorLayout.PROGRESS_W),
+                        this.menu.getScaledHeat(BiochemicalReactorLayout.HEAT_BAR_INNER_H),
+                        this.menu.getScaledManualEnergy(BiochemicalReactorLayout.MANUAL_BAR_INNER_H),
+                        this.menu.getOutputFluid(),
+                        this.menu.getScaledOutputTank(BiochemicalReactorLayout.TANK_INNER_H),
+                        this.manualBoostButton != null && this.manualBoostButton.isHoveredOrFocused(),
+                        this.menu.isWorking() ? "Processing" : "Idle"
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, BiochemicalReactorLayout.MACHINE_PANEL_X + BiochemicalReactorLayout.MACHINE_PANEL_W / 2, 5, 0xFFFFFFFF);
-        String status = this.menu.isWorking() ? "Processing" : "Idle";
-        graphics.drawCenteredString(this.font, Component.literal(status), BiochemicalReactorLayout.PROGRESS_X + BiochemicalReactorLayout.PROGRESS_W / 2, BiochemicalReactorLayout.PROGRESS_Y - 10, 0xFFB5BAC5);
+        MachineGuiRenderer.drawBiochemicalReactorLabels(
+                this,
+                graphics,
+                this.font,
+                this.title,
+                this.menu.isWorking() ? "Processing" : "Idle"
+        );
     }
 
     @Override

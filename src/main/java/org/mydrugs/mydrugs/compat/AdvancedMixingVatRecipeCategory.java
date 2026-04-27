@@ -9,36 +9,14 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.*;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.menu.*;
-import org.mydrugs.mydrugs.menu.layout.*;
-import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
+import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
+import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
-import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
-import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
-import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 final class AdvancedMixingVatRecipeCategory extends AbstractNiceRecipeCategory<AdvancedMixingVatRecipe> {
@@ -52,7 +30,7 @@ final class AdvancedMixingVatRecipeCategory extends AbstractNiceRecipeCategory<A
                 Component.translatable("block.mydrugs.advanced_mixing_vat"),
                 JeiCompatUtil.iconFromField(helper, ModBlocks.class, "ADVANCED_MIXING_VAT"),
                 AdvancedMixingVatLayout.GUI_WIDTH,
-                AdvancedMixingVatLayout.MACHINE_PANEL_Y + AdvancedMixingVatLayout.MACHINE_PANEL_H + 14
+                MachineGuiRenderer.advancedMixingVatHeight(false)
         );
     }
 
@@ -117,112 +95,51 @@ final class AdvancedMixingVatRecipeCategory extends AbstractNiceRecipeCategory<A
 
     @Override
     public void draw(AdvancedMixingVatRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
-        drawWindow(g, width, height);
-        drawPanel(
-                g,
-                AdvancedMixingVatLayout.MACHINE_PANEL_X,
-                AdvancedMixingVatLayout.MACHINE_PANEL_Y,
-                AdvancedMixingVatLayout.MACHINE_PANEL_W,
-                AdvancedMixingVatLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        int[] itemX = {
-                AdvancedMixingVatLayout.ITEM_0_X,
-                AdvancedMixingVatLayout.ITEM_1_X,
-                AdvancedMixingVatLayout.ITEM_2_X,
-                AdvancedMixingVatLayout.ITEM_3_X
-        };
-        int[] itemY = {
-                AdvancedMixingVatLayout.ITEM_0_Y,
-                AdvancedMixingVatLayout.ITEM_1_Y,
-                AdvancedMixingVatLayout.ITEM_2_Y,
-                AdvancedMixingVatLayout.ITEM_3_Y
-        };
-        for (int i = 0; i < itemX.length; i++) {
-            drawSlotFrame(g, itemX[i], itemY[i]);
-        }
-
-        int[] tankX = {
-                AdvancedMixingVatLayout.TANK_A_X,
-                AdvancedMixingVatLayout.TANK_B_X,
-                AdvancedMixingVatLayout.TANK_C_X,
-                AdvancedMixingVatLayout.GAS_X,
-                AdvancedMixingVatLayout.OUTPUT_X
-        };
-        int[] tankSlotX = {
-                AdvancedMixingVatLayout.TANK_A_SLOT_X,
-                AdvancedMixingVatLayout.TANK_B_SLOT_X,
-                AdvancedMixingVatLayout.TANK_C_SLOT_X,
-                AdvancedMixingVatLayout.GAS_SLOT_X,
-                AdvancedMixingVatLayout.OUTPUT_SLOT_X
-        };
-        for (int i = 0; i < tankX.length; i++) {
-            drawSlotFrame(g, tankSlotX[i], AdvancedMixingVatLayout.TANK_SLOT_Y);
-            drawTankFrame(
-                    g,
-                    tankX[i],
-                    AdvancedMixingVatLayout.TANK_Y,
-                    AdvancedMixingVatLayout.TANK_W,
-                    AdvancedMixingVatLayout.TANK_H,
-                    AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                    AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                    AdvancedMixingVatLayout.TANK_INNER_W,
-                    AdvancedMixingVatLayout.TANK_INNER_H
-            );
-        }
-
         List<?> fluidInputs = recipe.fluidInputs();
-        for (int i = 0; i < Math.min(fluidInputs.size(), 3); i++) {
-            Object fluid = fluidInputs.get(i);
-            drawFluidTankPreview(
-                    g,
-                    JeiCompatUtil.fluid(JeiCompatUtil.idOf(fluid, "fluid", "fluidId")),
-                    JeiCompatUtil.intOf(fluid, "amount"),
-                    tankX[i],
-                    AdvancedMixingVatLayout.TANK_Y,
-                    AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                    AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                    AdvancedMixingVatLayout.TANK_INNER_W,
-                    AdvancedMixingVatLayout.TANK_INNER_H
-            );
-        }
-
-        if (recipe.gasInput() != null) {
-            drawGasTankPreview(
-                    g,
-                    JeiCompatUtil.idOf(recipe.gasInput(), "gas", "gasId"),
-                    recipe.gasInput().amount(),
-                    AdvancedMixingVatLayout.GAS_X,
-                    AdvancedMixingVatLayout.TANK_Y,
-                    AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                    AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                    AdvancedMixingVatLayout.TANK_INNER_W,
-                    AdvancedMixingVatLayout.TANK_INNER_H
-            );
-        }
-
-        drawFluidTankPreview(
-                g,
-                JeiCompatUtil.fluid(JeiCompatUtil.idOf(recipe.output(), "fluid", "fluidId")),
-                JeiCompatUtil.intOf(recipe.output(), "amount"),
-                AdvancedMixingVatLayout.OUTPUT_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H
-        );
-
-        drawHorizontalBar(g, AdvancedMixingVatLayout.PROGRESS_X, AdvancedMixingVatLayout.PROGRESS_Y, AdvancedMixingVatLayout.PROGRESS_W, AdvancedMixingVatLayout.PROGRESS_H, AdvancedMixingVatLayout.PROGRESS_W, 0xFF768AB8, 0xFFAAB9DB);
+        MachineGuiRenderer.TankFill tankA = advancedVatTank(fluidInputs, 0);
+        MachineGuiRenderer.TankFill tankB = advancedVatTank(fluidInputs, 1);
+        MachineGuiRenderer.TankFill tankC = advancedVatTank(fluidInputs, 2);
+        MachineGuiRenderer.TankFill gas = recipe.gasInput() == null
+                ? MachineGuiRenderer.TankFill.liveColor(0, 0)
+                : MachineGuiRenderer.TankFill.previewGas(JeiCompatUtil.idOf(recipe.gasInput(), "gas", "gasId"), recipe.gasInput().amount(), AdvancedMixingVatBlockEntity.GAS_TANK_CAPACITY);
 
         List<?> itemInputs = recipe.itemInputs();
-        for (int i = 0; i < Math.min(itemInputs.size(), itemX.length); i++) {
-            drawSlotCount(g, itemX[i], itemY[i], JeiCompatUtil.countOf(itemInputs.get(i)));
+        int[] itemCounts = new int[Math.min(itemInputs.size(), 4)];
+        for (int i = 0; i < itemCounts.length; i++) {
+            itemCounts[i] = JeiCompatUtil.countOf(itemInputs.get(i));
         }
 
-        drawTitle(g);
-        drawBottomInfo(g, "No heat required  |  Time: " + recipe.processingTime() + "t");
+        MachineGuiRenderer.drawAdvancedMixingVat(
+                this,
+                g,
+                new MachineGuiRenderer.AdvancedMixingVatState(
+                        tankA,
+                        tankB,
+                        tankC,
+                        gas,
+                        MachineGuiRenderer.TankFill.preview(
+                                JeiCompatUtil.idOf(recipe.output(), "fluid", "fluidId"),
+                                JeiCompatUtil.intOf(recipe.output(), "amount"),
+                                AdvancedMixingVatBlockEntity.OUTPUT_TANK_CAPACITY
+                        ),
+                        AdvancedMixingVatLayout.PROGRESS_W,
+                        itemCounts
+                ),
+                false
+        );
+        MachineGuiRenderer.drawAdvancedMixingVatLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), "No heat required  |  Time: " + recipe.processingTime() + "t");
+    }
+
+    private MachineGuiRenderer.TankFill advancedVatTank(List<?> fluidInputs, int index) {
+        if (index >= fluidInputs.size()) {
+            return MachineGuiRenderer.TankFill.liveColor(0, 0);
+        }
+        Object fluid = fluidInputs.get(index);
+        return MachineGuiRenderer.TankFill.preview(
+                JeiCompatUtil.idOf(fluid, "fluid", "fluidId"),
+                JeiCompatUtil.intOf(fluid, "amount"),
+                AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY
+        );
     }
 
     @Override

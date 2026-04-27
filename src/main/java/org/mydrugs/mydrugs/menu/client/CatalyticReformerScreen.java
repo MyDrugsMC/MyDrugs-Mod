@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.CatalyticReformerBlockEntity;
 import org.mydrugs.mydrugs.menu.CatalyticReformerMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.CatalyticReformerLayout;
 
 public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticReformerMenu> {
@@ -95,219 +96,34 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawCatalyticReformer(
+                this,
                 graphics,
-                CatalyticReformerLayout.MACHINE_PANEL_X,
-                CatalyticReformerLayout.MACHINE_PANEL_Y,
-                CatalyticReformerLayout.MACHINE_PANEL_W,
-                CatalyticReformerLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                CatalyticReformerLayout.PLAYER_INV_X,
-                CatalyticReformerLayout.PLAYER_INV_Y
-        );
-
-        drawPanel(
-                graphics,
-                CatalyticReformerLayout.CENTER_PANEL_X,
-                CatalyticReformerLayout.CENTER_PANEL_Y,
-                CatalyticReformerLayout.CENTER_PANEL_W,
-                CatalyticReformerLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawTankFrame(
-                graphics,
-                CatalyticReformerLayout.INPUT_1_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-
-        drawTankFrame(
-                graphics,
-                CatalyticReformerLayout.INPUT_2_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-
-        drawTankFrame(
-                graphics,
-                CatalyticReformerLayout.OUTPUT_1_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-
-        drawTankFrame(
-                graphics,
-                CatalyticReformerLayout.OUTPUT_2_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-
-        drawTankFrame(
-                graphics,
-                CatalyticReformerLayout.OUTPUT_3_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CatalyticReformerLayout.INPUT_1_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H,
-                this.menu.getScaledInput1Tank(CatalyticReformerLayout.TANK_INNER_H),
-                input1Color()
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CatalyticReformerLayout.INPUT_2_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H,
-                this.menu.getScaledInput2Tank(CatalyticReformerLayout.TANK_INNER_H),
-                input2Color()
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CatalyticReformerLayout.OUTPUT_1_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H,
-                this.menu.getScaledOutput1Tank(CatalyticReformerLayout.TANK_INNER_H),
-                output1Color()
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CatalyticReformerLayout.OUTPUT_2_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H,
-                this.menu.getScaledOutput2Tank(CatalyticReformerLayout.TANK_INNER_H),
-                output2Color()
-        );
-
-        drawTankFillShaded(
-                graphics,
-                CatalyticReformerLayout.OUTPUT_3_TANK_X,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H,
-                this.menu.getScaledOutput3Tank(CatalyticReformerLayout.TANK_INNER_H),
-                output3Color()
-        );
-
-        drawSlotFrame(graphics, CatalyticReformerLayout.INPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(graphics, CatalyticReformerLayout.INPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(graphics, CatalyticReformerLayout.OUTPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(graphics, CatalyticReformerLayout.OUTPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(graphics, CatalyticReformerLayout.OUTPUT_3_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(graphics, CatalyticReformerLayout.CATALYST_SLOT_X, CatalyticReformerLayout.CATALYST_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                CatalyticReformerLayout.PROGRESS_X,
-                CatalyticReformerLayout.PROGRESS_Y,
-                CatalyticReformerLayout.PROGRESS_W,
-                CatalyticReformerLayout.PROGRESS_H,
-                this.menu.getScaledProgress(CatalyticReformerLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawDumpButton(
-                graphics,
-                CatalyticReformerLayout.DUMP_INPUT_1_X,
-                CatalyticReformerLayout.DUMP_BUTTON_Y,
-                CatalyticReformerLayout.DUMP_BUTTON_SIZE,
-                this.dumpInput1Button != null && this.dumpInput1Button.isHoveredOrFocused(),
-                this.menu.getInput1Amount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                CatalyticReformerLayout.DUMP_INPUT_2_X,
-                CatalyticReformerLayout.DUMP_BUTTON_Y,
-                CatalyticReformerLayout.DUMP_BUTTON_SIZE,
-                this.dumpInput2Button != null && this.dumpInput2Button.isHoveredOrFocused(),
-                this.menu.getInput2Amount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                CatalyticReformerLayout.DUMP_OUTPUT_1_X,
-                CatalyticReformerLayout.DUMP_BUTTON_Y,
-                CatalyticReformerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutput1Button != null && this.dumpOutput1Button.isHoveredOrFocused(),
-                this.menu.getOutput1Amount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                CatalyticReformerLayout.DUMP_OUTPUT_2_X,
-                CatalyticReformerLayout.DUMP_BUTTON_Y,
-                CatalyticReformerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutput2Button != null && this.dumpOutput2Button.isHoveredOrFocused(),
-                this.menu.getOutput2Amount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                CatalyticReformerLayout.DUMP_OUTPUT_3_X,
-                CatalyticReformerLayout.DUMP_BUTTON_Y,
-                CatalyticReformerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutput3Button != null && this.dumpOutput3Button.isHoveredOrFocused(),
-                this.menu.getOutput3Amount() > 0
+                new MachineGuiRenderer.CatalyticReformerState(
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledInput1Tank(CatalyticReformerLayout.TANK_INNER_H), input1Color()),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledInput2Tank(CatalyticReformerLayout.TANK_INNER_H), input2Color()),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledOutput1Tank(CatalyticReformerLayout.TANK_INNER_H), output1Color()),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledOutput2Tank(CatalyticReformerLayout.TANK_INNER_H), output2Color()),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledOutput3Tank(CatalyticReformerLayout.TANK_INNER_H), output3Color()),
+                        this.menu.getScaledProgress(CatalyticReformerLayout.PROGRESS_W),
+                        this.dumpInput1Button != null && this.dumpInput1Button.isHoveredOrFocused(),
+                        this.dumpInput2Button != null && this.dumpInput2Button.isHoveredOrFocused(),
+                        this.dumpOutput1Button != null && this.dumpOutput1Button.isHoveredOrFocused(),
+                        this.dumpOutput2Button != null && this.dumpOutput2Button.isHoveredOrFocused(),
+                        this.dumpOutput3Button != null && this.dumpOutput3Button.isHoveredOrFocused(),
+                        this.menu.getInput1Amount() > 0,
+                        this.menu.getInput2Amount() > 0,
+                        this.menu.getOutput1Amount() > 0,
+                        this.menu.getOutput2Amount() > 0,
+                        this.menu.getOutput3Amount() > 0
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, CatalyticReformerLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+        MachineGuiRenderer.drawCatalyticReformerLabels(this, graphics, this.font, this.title, null);
     }
 
     @Override

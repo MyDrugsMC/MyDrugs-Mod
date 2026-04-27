@@ -9,36 +9,13 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.*;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.menu.*;
-import org.mydrugs.mydrugs.menu.layout.*;
-import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
-import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
+import org.mydrugs.mydrugs.blocks.entity.BiochemicalReactorBlockEntity;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
+import org.mydrugs.mydrugs.menu.layout.BiochemicalReactorLayout;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
-import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
-import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
-import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 final class BiochemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<BiochemicalReactorRecipe> {
@@ -52,7 +29,7 @@ final class BiochemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<
                 Component.translatable("block.mydrugs.biochemical_reactor"),
                 JeiCompatUtil.iconFromField(helper, ModBlocks.class, "BIOCHEMICAL_REACTOR"),
                 BiochemicalReactorLayout.GUI_WIDTH,
-                BiochemicalReactorLayout.MACHINE_PANEL_Y + BiochemicalReactorLayout.MACHINE_PANEL_H + 14
+                MachineGuiRenderer.biochemicalReactorHeight(false)
         );
     }
 
@@ -73,40 +50,27 @@ final class BiochemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<
 
     @Override
     public void draw(BiochemicalReactorRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
-        drawWindow(g, width, height);
-        drawPanel(g, BiochemicalReactorLayout.MACHINE_PANEL_X, BiochemicalReactorLayout.MACHINE_PANEL_Y, BiochemicalReactorLayout.MACHINE_PANEL_W, BiochemicalReactorLayout.MACHINE_PANEL_H, 0xFF323232);
-
-        drawSlotFrame(g, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y);
-        drawSlotFrame(g, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y);
-        drawSlotFrame(g, BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.CHARCOAL_SLOT_Y);
-        drawSlotFrame(g, BiochemicalReactorLayout.OUTPUT_SLOT_X, BiochemicalReactorLayout.OUTPUT_SLOT_Y);
-
-        drawHorizontalBar(g, BiochemicalReactorLayout.PROGRESS_X, BiochemicalReactorLayout.PROGRESS_Y, BiochemicalReactorLayout.PROGRESS_W, BiochemicalReactorLayout.PROGRESS_H, BiochemicalReactorLayout.PROGRESS_W, 0xFF768AB8, 0xFFAAB9DB);
-        drawVerticalBar(g, BiochemicalReactorLayout.HEAT_BAR_X, BiochemicalReactorLayout.HEAT_BAR_Y, BiochemicalReactorLayout.HEAT_BAR_W, BiochemicalReactorLayout.HEAT_BAR_H, BiochemicalReactorLayout.HEAT_BAR_INNER_X_OFFSET, BiochemicalReactorLayout.HEAT_BAR_INNER_Y_OFFSET, BiochemicalReactorLayout.HEAT_BAR_INNER_W, BiochemicalReactorLayout.HEAT_BAR_INNER_H, BiochemicalReactorLayout.HEAT_BAR_INNER_H, 0xFFE38D3F, 0x22FFFFFF);
-        drawVerticalBar(g, BiochemicalReactorLayout.MANUAL_BAR_X, BiochemicalReactorLayout.MANUAL_BAR_Y, BiochemicalReactorLayout.MANUAL_BAR_W, BiochemicalReactorLayout.MANUAL_BAR_H, BiochemicalReactorLayout.MANUAL_BAR_INNER_X_OFFSET, BiochemicalReactorLayout.MANUAL_BAR_INNER_Y_OFFSET, BiochemicalReactorLayout.MANUAL_BAR_INNER_W, BiochemicalReactorLayout.MANUAL_BAR_INNER_H, BiochemicalReactorLayout.MANUAL_BAR_INNER_H, 0xFF77A8E8, 0x22FFFFFF);
-
-        drawTankFrame(g, BiochemicalReactorLayout.OUTPUT_TANK_X, BiochemicalReactorLayout.OUTPUT_TANK_Y, BiochemicalReactorLayout.TANK_W, BiochemicalReactorLayout.TANK_H, BiochemicalReactorLayout.TANK_INNER_X_OFFSET, BiochemicalReactorLayout.TANK_INNER_Y_OFFSET, BiochemicalReactorLayout.TANK_INNER_W, BiochemicalReactorLayout.TANK_INNER_H);
-        drawFluidTankPreview(
+        MachineGuiRenderer.drawBiochemicalReactor(
+                this,
                 g,
-                JeiCompatUtil.fluid(JeiCompatUtil.idOf(recipe.fluidOutput(), "fluid", "fluidId")),
-                JeiCompatUtil.intOf(recipe.fluidOutput(), "amount"),
-                BiochemicalReactorLayout.OUTPUT_TANK_X,
-                BiochemicalReactorLayout.OUTPUT_TANK_Y,
-                BiochemicalReactorLayout.TANK_INNER_X_OFFSET,
-                BiochemicalReactorLayout.TANK_INNER_Y_OFFSET,
-                BiochemicalReactorLayout.TANK_INNER_W,
-                BiochemicalReactorLayout.TANK_INNER_H
+                MachineGuiRenderer.BiochemicalReactorState.recipe(
+                        JeiCompatUtil.idOf(recipe.fluidOutput(), "fluid", "fluidId"),
+                        JeiCompatUtil.intOf(recipe.fluidOutput(), "amount"),
+                        BiochemicalReactorBlockEntity.OUTPUT_TANK_CAPACITY,
+                        JeiCompatUtil.countOf(recipe.ergot()),
+                        JeiCompatUtil.countOf(recipe.tryptophan())
+                ),
+                false
         );
-
-        drawPlusButton(g, BiochemicalReactorLayout.MANUAL_BUTTON_X, BiochemicalReactorLayout.MANUAL_BUTTON_Y, BiochemicalReactorLayout.MANUAL_BUTTON_W, BiochemicalReactorLayout.MANUAL_BUTTON_H, false);
-
-        drawSlotCount(g, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y, JeiCompatUtil.countOf(recipe.ergot()));
-        drawSlotCount(g, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y, JeiCompatUtil.countOf(recipe.tryptophan()));
-
-        drawTitle(g);
-        drawPanelLabel(g, "Processing", BiochemicalReactorLayout.PROGRESS_X, BiochemicalReactorLayout.PROGRESS_Y - 10, BiochemicalReactorLayout.PROGRESS_W);
-        drawBottomInfo(g, "Heat â‰¥ " + recipe.minimumHeat() + "  |  Time: " + recipe.processingTime() + "t");
+        MachineGuiRenderer.drawBiochemicalReactorRecipeLabels(
+                this,
+                g,
+                getTitle(),
+                "Processing",
+                "Heat >= " + recipe.minimumHeat() + "  |  Time: " + recipe.processingTime() + "t"
+        );
     }
+
     @Override
     public List<Component> getTooltipStrings(BiochemicalReactorRecipe recipe, IRecipeSlotsView slots, double mouseX, double mouseY) {
         if (isHoveringBox(BiochemicalReactorLayout.PROGRESS_X, BiochemicalReactorLayout.PROGRESS_Y, BiochemicalReactorLayout.PROGRESS_W, BiochemicalReactorLayout.PROGRESS_H, mouseX, mouseY)) {
@@ -139,6 +103,4 @@ final class BiochemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<
         }
         return List.of();
     }
-
 }
-

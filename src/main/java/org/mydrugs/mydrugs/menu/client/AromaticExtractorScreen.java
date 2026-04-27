@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.AromaticExtractorBlockEntity;
 import org.mydrugs.mydrugs.menu.AromaticExtractorMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.AromaticExtractorLayout;
 
 public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtractorMenu> {
@@ -56,191 +57,28 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
-                graphics,
-                AromaticExtractorLayout.MACHINE_PANEL_X,
-                AromaticExtractorLayout.MACHINE_PANEL_Y,
-                AromaticExtractorLayout.MACHINE_PANEL_W,
-                AromaticExtractorLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                AromaticExtractorLayout.PLAYER_INV_X,
-                AromaticExtractorLayout.PLAYER_INV_Y
-        );
-
-        drawPanel(
-                graphics,
-                AromaticExtractorLayout.CENTER_PANEL_X,
-                AromaticExtractorLayout.CENTER_PANEL_Y,
-                AromaticExtractorLayout.CENTER_PANEL_W,
-                AromaticExtractorLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawTankFrame(
-                graphics,
-                AromaticExtractorLayout.INPUT_TANK_X,
-                AromaticExtractorLayout.INPUT_TANK_Y,
-                AromaticExtractorLayout.TANK_W,
-                AromaticExtractorLayout.TANK_H,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AromaticExtractorLayout.CATALYST_TANK_X,
-                AromaticExtractorLayout.CATALYST_TANK_Y,
-                AromaticExtractorLayout.TANK_W,
-                AromaticExtractorLayout.TANK_H,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AromaticExtractorLayout.OUTPUT_A_TANK_X,
-                AromaticExtractorLayout.OUTPUT_A_TANK_Y,
-                AromaticExtractorLayout.TANK_W,
-                AromaticExtractorLayout.TANK_H,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AromaticExtractorLayout.OUTPUT_B_TANK_X,
-                AromaticExtractorLayout.OUTPUT_B_TANK_Y,
-                AromaticExtractorLayout.TANK_W,
-                AromaticExtractorLayout.TANK_H,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AromaticExtractorLayout.INPUT_TANK_X,
-                AromaticExtractorLayout.INPUT_TANK_Y,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H,
-                this.menu.getScaledInputTank(AromaticExtractorLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getInputFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AromaticExtractorLayout.CATALYST_TANK_X,
-                AromaticExtractorLayout.CATALYST_TANK_Y,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H,
-                this.menu.getScaledCatalystTank(AromaticExtractorLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getCatalystFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AromaticExtractorLayout.OUTPUT_A_TANK_X,
-                AromaticExtractorLayout.OUTPUT_A_TANK_Y,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H,
-                this.menu.getScaledOutputATank(AromaticExtractorLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputAFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AromaticExtractorLayout.OUTPUT_B_TANK_X,
-                AromaticExtractorLayout.OUTPUT_B_TANK_Y,
-                AromaticExtractorLayout.TANK_INNER_X_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_Y_OFFSET,
-                AromaticExtractorLayout.TANK_INNER_W,
-                AromaticExtractorLayout.TANK_INNER_H,
-                this.menu.getScaledOutputBTank(AromaticExtractorLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputBFluid())
-        );
-
-        drawSlotFrame(graphics, AromaticExtractorLayout.INPUT_SLOT_X, AromaticExtractorLayout.INPUT_SLOT_Y);
-        drawSlotFrame(graphics, AromaticExtractorLayout.CATALYST_SLOT_X, AromaticExtractorLayout.CATALYST_SLOT_Y);
-        drawSlotFrame(graphics, AromaticExtractorLayout.OUTPUT_A_SLOT_X, AromaticExtractorLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(graphics, AromaticExtractorLayout.OUTPUT_B_SLOT_X, AromaticExtractorLayout.OUTPUT_B_SLOT_Y);
-        drawSlotFrame(graphics, AromaticExtractorLayout.FUEL_SLOT_X, AromaticExtractorLayout.FUEL_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                AromaticExtractorLayout.PROGRESS_X,
-                AromaticExtractorLayout.PROGRESS_Y,
-                AromaticExtractorLayout.PROGRESS_W,
-                AromaticExtractorLayout.PROGRESS_H,
+        MachineGuiRenderer.AromaticExtractorState state = new MachineGuiRenderer.AromaticExtractorState(
+                MachineGuiRenderer.TankFill.live(this.menu.getInputFluid(), this.menu.getScaledInputTank(AromaticExtractorLayout.TANK_INNER_H)),
+                MachineGuiRenderer.TankFill.live(this.menu.getCatalystFluid(), this.menu.getScaledCatalystTank(AromaticExtractorLayout.TANK_INNER_H)),
+                MachineGuiRenderer.TankFill.live(this.menu.getOutputAFluid(), this.menu.getScaledOutputATank(AromaticExtractorLayout.TANK_INNER_H)),
+                MachineGuiRenderer.TankFill.live(this.menu.getOutputBFluid(), this.menu.getScaledOutputBTank(AromaticExtractorLayout.TANK_INNER_H)),
                 this.menu.getScaledProgress(AromaticExtractorLayout.PROGRESS_W),
-                0xFFB8865F,
-                0xFFFFD0A6
-        );
-
-        drawVerticalBar(
-                graphics,
-                AromaticExtractorLayout.FUEL_BAR_X,
-                AromaticExtractorLayout.FUEL_BAR_Y,
-                AromaticExtractorLayout.FUEL_BAR_W,
-                AromaticExtractorLayout.FUEL_BAR_H,
-                AromaticExtractorLayout.FUEL_BAR_INNER_X_OFFSET,
-                AromaticExtractorLayout.FUEL_BAR_INNER_Y_OFFSET,
-                AromaticExtractorLayout.FUEL_BAR_INNER_W,
-                AromaticExtractorLayout.FUEL_BAR_INNER_H,
                 this.menu.getScaledBurnTime(AromaticExtractorLayout.FUEL_BAR_INNER_H),
-                this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
-                0xFFFFC270
-        );
-
-        drawDumpButton(
-                graphics,
-                AromaticExtractorLayout.DUMP_INPUT_X,
-                AromaticExtractorLayout.DUMP_BUTTON_Y,
-                AromaticExtractorLayout.DUMP_BUTTON_SIZE,
                 this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
-                this.menu.getInputTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                AromaticExtractorLayout.DUMP_CATALYST_X,
-                AromaticExtractorLayout.DUMP_BUTTON_Y,
-                AromaticExtractorLayout.DUMP_BUTTON_SIZE,
                 this.dumpCatalystButton != null && this.dumpCatalystButton.isHoveredOrFocused(),
-                this.menu.getCatalystTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                AromaticExtractorLayout.DUMP_OUTPUT_A_X,
-                AromaticExtractorLayout.DUMP_BUTTON_Y,
-                AromaticExtractorLayout.DUMP_BUTTON_SIZE,
                 this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
-                this.menu.getOutputATankAmount() > 0
+                this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
+                this.menu.getInputTankAmount() > 0,
+                this.menu.getCatalystTankAmount() > 0,
+                this.menu.getOutputATankAmount() > 0,
+                this.menu.getOutputBTankAmount() > 0
         );
 
-        drawDumpButton(
+        MachineGuiRenderer.drawAromaticExtractor(
+                this,
                 graphics,
-                AromaticExtractorLayout.DUMP_OUTPUT_B_X,
-                AromaticExtractorLayout.DUMP_BUTTON_Y,
-                AromaticExtractorLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputBButton != null && this.dumpOutputBButton.isHoveredOrFocused(),
-                this.menu.getOutputBTankAmount() > 0
+                state,
+                true
         );
     }
 

@@ -5,7 +5,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
-import org.mydrugs.mydrugs.menu.layout.ElectrolyzerLayout;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 
 public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu> {
@@ -44,120 +44,28 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawFluidFilterer(
+                this,
                 graphics,
-                FluidFiltererLayout.MACHINE_PANEL_X,
-                FluidFiltererLayout.MACHINE_PANEL_Y,
-                FluidFiltererLayout.MACHINE_PANEL_W,
-                FluidFiltererLayout.MACHINE_PANEL_H,
-                0xFF323232
+                new MachineGuiRenderer.FluidFiltererState(
+                        MachineGuiRenderer.TankFill.live(this.menu.getInputFluid(), this.menu.getScaledInputTank(FluidFiltererLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getOutputAFluid(), this.menu.getScaledOutputATank(FluidFiltererLayout.TANK_INNER_H)),
+                        this.menu.getScaledProgress(FluidFiltererLayout.PROGRESS_W),
+                        this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
+                        this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
+                        this.menu.getInputTankAmount() > 0,
+                        this.menu.getOutputATankAmount() > 0,
+                        isHoveringBox(FluidFiltererLayout.RUN_BUTTON_X, FluidFiltererLayout.RUN_BUTTON_Y, FluidFiltererLayout.RUN_BUTTON_W, FluidFiltererLayout.RUN_BUTTON_H, mouseX, mouseY),
+                        this.holdingRunButton || this.menu.isButtonHeld(),
+                        this.menu.getMaxProgress() > 0 ? this.menu.getProgress() + " / " + this.menu.getMaxProgress() : null
+                ),
+                true
         );
-
-        drawSieveInventoryPanels(
-                graphics,
-                FluidFiltererLayout.PLAYER_INV_X,
-                FluidFiltererLayout.PLAYER_INV_Y
-        );
-
-        drawTankFrame(
-                graphics,
-                FluidFiltererLayout.INPUT_TANK_X,
-                FluidFiltererLayout.INPUT_TANK_Y,
-                FluidFiltererLayout.TANK_W,
-                FluidFiltererLayout.TANK_H,
-                FluidFiltererLayout.TANK_INNER_X_OFFSET,
-                FluidFiltererLayout.TANK_INNER_Y_OFFSET,
-                FluidFiltererLayout.TANK_INNER_W,
-                FluidFiltererLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                FluidFiltererLayout.OUTPUT_A_TANK_X,
-                FluidFiltererLayout.OUTPUT_A_TANK_Y,
-                FluidFiltererLayout.TANK_W,
-                FluidFiltererLayout.TANK_H,
-                FluidFiltererLayout.TANK_INNER_X_OFFSET,
-                FluidFiltererLayout.TANK_INNER_Y_OFFSET,
-                FluidFiltererLayout.TANK_INNER_W,
-                FluidFiltererLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                FluidFiltererLayout.INPUT_TANK_X,
-                FluidFiltererLayout.INPUT_TANK_Y,
-                FluidFiltererLayout.TANK_INNER_X_OFFSET,
-                FluidFiltererLayout.TANK_INNER_Y_OFFSET,
-                FluidFiltererLayout.TANK_INNER_W,
-                FluidFiltererLayout.TANK_INNER_H,
-                this.menu.getScaledInputTank(FluidFiltererLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getInputFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                FluidFiltererLayout.OUTPUT_A_TANK_X,
-                FluidFiltererLayout.OUTPUT_A_TANK_Y,
-                FluidFiltererLayout.TANK_INNER_X_OFFSET,
-                FluidFiltererLayout.TANK_INNER_Y_OFFSET,
-                FluidFiltererLayout.TANK_INNER_W,
-                FluidFiltererLayout.TANK_INNER_H,
-                this.menu.getScaledOutputATank(FluidFiltererLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getOutputAFluid())
-        );
-
-        drawSlotFrame(graphics, FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y);
-        drawSlotFrame(graphics, FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y);
-        drawSlotFrame(graphics, FluidFiltererLayout.FILTER_SLOT_X, FluidFiltererLayout.FILTER_SLOT_Y);
-        drawSlotFrame(graphics, FluidFiltererLayout.RESIDUE_SLOT_X, FluidFiltererLayout.RESIDUE_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                FluidFiltererLayout.PROGRESS_X,
-                FluidFiltererLayout.PROGRESS_Y,
-                FluidFiltererLayout.PROGRESS_W,
-                FluidFiltererLayout.PROGRESS_H,
-                this.menu.getScaledProgress(FluidFiltererLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawDumpButton(
-                graphics,
-                FluidFiltererLayout.DUMP_INPUT_X,
-                FluidFiltererLayout.DUMP_BUTTON_Y,
-                FluidFiltererLayout.DUMP_BUTTON_SIZE,
-                this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
-                this.menu.getInputTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                FluidFiltererLayout.DUMP_OUTPUT_A_X,
-                FluidFiltererLayout.DUMP_BUTTON_Y,
-                FluidFiltererLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutputAButton != null && this.dumpOutputAButton.isHoveredOrFocused(),
-                this.menu.getOutputATankAmount() > 0
-        );
-
-        renderRunButton(graphics, mouseX, mouseY);
-
-        if (this.menu.getMaxProgress() > 0) {
-            graphics.drawCenteredString(
-                    this.font,
-                    Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress()),
-                    guiX(this.imageWidth / 2),
-                    guiY(FluidFiltererLayout.PROGRESS_TEXT_Y),
-                    0xFFE6E6E6
-            );
-        }
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, FluidFiltererLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+        MachineGuiRenderer.drawFluidFiltererLabels(this, graphics, this.font, this.title, null);
     }
 
     @Override
@@ -243,33 +151,4 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
         super.removed();
     }
 
-    private void renderRunButton(GuiGraphics graphics, int mouseX, int mouseY) {
-        int x = guiX(FluidFiltererLayout.RUN_BUTTON_X);
-        int y = guiY(FluidFiltererLayout.RUN_BUTTON_Y);
-
-        boolean hovered = isHoveringBox(
-                FluidFiltererLayout.RUN_BUTTON_X,
-                FluidFiltererLayout.RUN_BUTTON_Y,
-                FluidFiltererLayout.RUN_BUTTON_W,
-                FluidFiltererLayout.RUN_BUTTON_H,
-                mouseX,
-                mouseY
-        );
-
-        boolean active = this.holdingRunButton || this.menu.isButtonHeld();
-
-        int border = active ? 0xFFA8F17A : (hovered ? 0xFF94C76C : 0xFF688A50);
-        int fill = active ? 0xFF56773F : (hovered ? 0xFF4A6536 : 0xFF334A26);
-
-        graphics.fill(x, y, x + FluidFiltererLayout.RUN_BUTTON_W, y + FluidFiltererLayout.RUN_BUTTON_H, border);
-        graphics.fill(x + 1, y + 1, x + FluidFiltererLayout.RUN_BUTTON_W - 1, y + FluidFiltererLayout.RUN_BUTTON_H - 1, fill);
-
-        graphics.drawCenteredString(
-                this.font,
-                active ? Component.literal("FILTERING...") : Component.literal("HOLD"),
-                x + FluidFiltererLayout.RUN_BUTTON_W / 2,
-                y + 6,
-                0xFFF3FFF0
-        );
-    }
 }

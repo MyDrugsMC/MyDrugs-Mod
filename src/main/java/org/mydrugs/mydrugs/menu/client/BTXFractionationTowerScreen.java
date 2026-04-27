@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.BTXFractionationTowerLayout;
 
 public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFractionationTowerMenu> {
@@ -55,197 +56,33 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawBTXFractionationTower(
+                this,
                 graphics,
-                BTXFractionationTowerLayout.MACHINE_PANEL_X,
-                BTXFractionationTowerLayout.MACHINE_PANEL_Y,
-                BTXFractionationTowerLayout.MACHINE_PANEL_W,
-                BTXFractionationTowerLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                BTXFractionationTowerLayout.PLAYER_INV_X,
-                BTXFractionationTowerLayout.PLAYER_INV_Y
-        );
-
-        drawPanel(
-                graphics,
-                BTXFractionationTowerLayout.CENTER_PANEL_X,
-                BTXFractionationTowerLayout.CENTER_PANEL_Y,
-                BTXFractionationTowerLayout.CENTER_PANEL_W,
-                BTXFractionationTowerLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawTankFrame(
-                graphics,
-                BTXFractionationTowerLayout.INPUT_TANK_X,
-                BTXFractionationTowerLayout.INPUT_TANK_Y,
-                BTXFractionationTowerLayout.TANK_W,
-                BTXFractionationTowerLayout.TANK_H,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                BTXFractionationTowerLayout.BENZENE_TANK_X,
-                BTXFractionationTowerLayout.BENZENE_TANK_Y,
-                BTXFractionationTowerLayout.TANK_W,
-                BTXFractionationTowerLayout.TANK_H,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                BTXFractionationTowerLayout.TOLUENE_TANK_X,
-                BTXFractionationTowerLayout.TOLUENE_TANK_Y,
-                BTXFractionationTowerLayout.TANK_W,
-                BTXFractionationTowerLayout.TANK_H,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                BTXFractionationTowerLayout.XYLENE_TANK_X,
-                BTXFractionationTowerLayout.XYLENE_TANK_Y,
-                BTXFractionationTowerLayout.TANK_W,
-                BTXFractionationTowerLayout.TANK_H,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                BTXFractionationTowerLayout.INPUT_TANK_X,
-                BTXFractionationTowerLayout.INPUT_TANK_Y,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H,
-                this.menu.getScaledInputTank(BTXFractionationTowerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getInputFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                BTXFractionationTowerLayout.BENZENE_TANK_X,
-                BTXFractionationTowerLayout.BENZENE_TANK_Y,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H,
-                this.menu.getScaledBenzeneTank(BTXFractionationTowerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getBenzeneFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                BTXFractionationTowerLayout.TOLUENE_TANK_X,
-                BTXFractionationTowerLayout.TOLUENE_TANK_Y,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H,
-                this.menu.getScaledTolueneTank(BTXFractionationTowerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getTolueneFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                BTXFractionationTowerLayout.XYLENE_TANK_X,
-                BTXFractionationTowerLayout.XYLENE_TANK_Y,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H,
-                this.menu.getScaledXyleneTank(BTXFractionationTowerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getXyleneFluid())
-        );
-
-        drawSlotFrame(graphics, BTXFractionationTowerLayout.INPUT_SLOT_X, BTXFractionationTowerLayout.INPUT_SLOT_Y);
-        drawSlotFrame(graphics, BTXFractionationTowerLayout.BENZENE_SLOT_X, BTXFractionationTowerLayout.BENZENE_SLOT_Y);
-        drawSlotFrame(graphics, BTXFractionationTowerLayout.TOLUENE_SLOT_X, BTXFractionationTowerLayout.TOLUENE_SLOT_Y);
-        drawSlotFrame(graphics, BTXFractionationTowerLayout.XYLENE_SLOT_X, BTXFractionationTowerLayout.XYLENE_SLOT_Y);
-        drawSlotFrame(graphics, BTXFractionationTowerLayout.FUEL_SLOT_X, BTXFractionationTowerLayout.FUEL_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                BTXFractionationTowerLayout.PROGRESS_X,
-                BTXFractionationTowerLayout.PROGRESS_Y,
-                BTXFractionationTowerLayout.PROGRESS_W,
-                BTXFractionationTowerLayout.PROGRESS_H,
-                this.menu.getScaledProgress(BTXFractionationTowerLayout.PROGRESS_W),
-                0xFFB8865F,
-                0xFFFFD0A6
-        );
-
-        drawVerticalBar(
-                graphics,
-                BTXFractionationTowerLayout.FUEL_BAR_X,
-                BTXFractionationTowerLayout.FUEL_BAR_Y,
-                BTXFractionationTowerLayout.FUEL_BAR_W,
-                BTXFractionationTowerLayout.FUEL_BAR_H,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_W,
-                BTXFractionationTowerLayout.FUEL_BAR_INNER_H,
-                this.menu.getScaledBurnTime(BTXFractionationTowerLayout.FUEL_BAR_INNER_H),
-                this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
-                0xFFFFC270
-        );
-
-        drawDumpButton(
-                graphics,
-                BTXFractionationTowerLayout.DUMP_INPUT_X,
-                BTXFractionationTowerLayout.DUMP_BUTTON_Y,
-                BTXFractionationTowerLayout.DUMP_BUTTON_SIZE,
-                this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
-                this.menu.getInputTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                BTXFractionationTowerLayout.DUMP_BENZENE_X,
-                BTXFractionationTowerLayout.DUMP_BUTTON_Y,
-                BTXFractionationTowerLayout.DUMP_BUTTON_SIZE,
-                this.dumpBenzeneButton != null && this.dumpBenzeneButton.isHoveredOrFocused(),
-                this.menu.getBenzeneTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                BTXFractionationTowerLayout.DUMP_TOLUENE_X,
-                BTXFractionationTowerLayout.DUMP_BUTTON_Y,
-                BTXFractionationTowerLayout.DUMP_BUTTON_SIZE,
-                this.dumpTolueneButton != null && this.dumpTolueneButton.isHoveredOrFocused(),
-                this.menu.getTolueneTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                BTXFractionationTowerLayout.DUMP_XYLENE_X,
-                BTXFractionationTowerLayout.DUMP_BUTTON_Y,
-                BTXFractionationTowerLayout.DUMP_BUTTON_SIZE,
-                this.dumpXyleneButton != null && this.dumpXyleneButton.isHoveredOrFocused(),
-                this.menu.getXyleneTankAmount() > 0
+                new MachineGuiRenderer.BTXFractionationTowerState(
+                        MachineGuiRenderer.TankFill.live(this.menu.getInputFluid(), this.menu.getScaledInputTank(BTXFractionationTowerLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getBenzeneFluid(), this.menu.getScaledBenzeneTank(BTXFractionationTowerLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getTolueneFluid(), this.menu.getScaledTolueneTank(BTXFractionationTowerLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.live(this.menu.getXyleneFluid(), this.menu.getScaledXyleneTank(BTXFractionationTowerLayout.TANK_INNER_H)),
+                        this.menu.getScaledProgress(BTXFractionationTowerLayout.PROGRESS_W),
+                        this.menu.getScaledBurnTime(BTXFractionationTowerLayout.FUEL_BAR_INNER_H),
+                        this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
+                        this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
+                        this.dumpBenzeneButton != null && this.dumpBenzeneButton.isHoveredOrFocused(),
+                        this.dumpTolueneButton != null && this.dumpTolueneButton.isHoveredOrFocused(),
+                        this.dumpXyleneButton != null && this.dumpXyleneButton.isHoveredOrFocused(),
+                        this.menu.getInputTankAmount() > 0,
+                        this.menu.getBenzeneTankAmount() > 0,
+                        this.menu.getTolueneTankAmount() > 0,
+                        this.menu.getXyleneTankAmount() > 0
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, BTXFractionationTowerLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+        MachineGuiRenderer.drawBTXFractionationTowerLabels(this, graphics, this.font, this.title, null);
     }
 
     @Override

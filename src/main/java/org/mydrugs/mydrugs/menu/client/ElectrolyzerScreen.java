@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.menu.ElectrolyzerMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.ElectrolyzerLayout;
 
 public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> {
@@ -73,197 +74,33 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawElectrolyzer(
+                this,
                 graphics,
-                ElectrolyzerLayout.MACHINE_PANEL_X,
-                ElectrolyzerLayout.MACHINE_PANEL_Y,
-                ElectrolyzerLayout.MACHINE_PANEL_W,
-                ElectrolyzerLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                ElectrolyzerLayout.PLAYER_INV_X,
-                ElectrolyzerLayout.PLAYER_INV_Y
-        );
-
-        drawPanel(
-                graphics,
-                ElectrolyzerLayout.CENTER_PANEL_X,
-                ElectrolyzerLayout.CENTER_PANEL_Y,
-                ElectrolyzerLayout.CENTER_PANEL_W,
-                ElectrolyzerLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawTankFrame(
-                graphics,
-                ElectrolyzerLayout.INPUT_TANK_X,
-                ElectrolyzerLayout.INPUT_TANK_Y,
-                ElectrolyzerLayout.TANK_W,
-                ElectrolyzerLayout.TANK_H,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                ElectrolyzerLayout.OUTPUT_1_TANK_X,
-                ElectrolyzerLayout.OUTPUT_1_TANK_Y,
-                ElectrolyzerLayout.TANK_W,
-                ElectrolyzerLayout.TANK_H,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                ElectrolyzerLayout.OUTPUT_2_TANK_X,
-                ElectrolyzerLayout.OUTPUT_2_TANK_Y,
-                ElectrolyzerLayout.TANK_W,
-                ElectrolyzerLayout.TANK_H,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                ElectrolyzerLayout.OUTPUT_3_TANK_X,
-                ElectrolyzerLayout.OUTPUT_3_TANK_Y,
-                ElectrolyzerLayout.TANK_W,
-                ElectrolyzerLayout.TANK_H,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                ElectrolyzerLayout.INPUT_TANK_X,
-                ElectrolyzerLayout.INPUT_TANK_Y,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H,
-                this.menu.getScaledInputTank(ElectrolyzerLayout.TANK_INNER_H),
-                getFluidColor(this.menu.getInputFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                ElectrolyzerLayout.OUTPUT_1_TANK_X,
-                ElectrolyzerLayout.OUTPUT_1_TANK_Y,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H,
-                this.menu.getScaledOutput1Tank(ElectrolyzerLayout.TANK_INNER_H),
-                getOutput1Color()
-        );
-
-        drawTankFillShaded(
-                graphics,
-                ElectrolyzerLayout.OUTPUT_2_TANK_X,
-                ElectrolyzerLayout.OUTPUT_2_TANK_Y,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H,
-                this.menu.getScaledOutput2Tank(ElectrolyzerLayout.TANK_INNER_H),
-                getOutput2Color()
-        );
-
-        drawTankFillShaded(
-                graphics,
-                ElectrolyzerLayout.OUTPUT_3_TANK_X,
-                ElectrolyzerLayout.OUTPUT_3_TANK_Y,
-                ElectrolyzerLayout.TANK_INNER_X_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_Y_OFFSET,
-                ElectrolyzerLayout.TANK_INNER_W,
-                ElectrolyzerLayout.TANK_INNER_H,
-                this.menu.getScaledOutput3Tank(ElectrolyzerLayout.TANK_INNER_H),
-                getOutput3Color()
-        );
-
-        drawSlotFrame(graphics, ElectrolyzerLayout.INPUT_SLOT_X, ElectrolyzerLayout.INPUT_SLOT_Y);
-        drawSlotFrame(graphics, ElectrolyzerLayout.OUTPUT_1_SLOT_X, ElectrolyzerLayout.OUTPUT_1_SLOT_Y);
-        drawSlotFrame(graphics, ElectrolyzerLayout.OUTPUT_2_SLOT_X, ElectrolyzerLayout.OUTPUT_2_SLOT_Y);
-        drawSlotFrame(graphics, ElectrolyzerLayout.OUTPUT_3_SLOT_X, ElectrolyzerLayout.OUTPUT_3_SLOT_Y);
-        drawSlotFrame(graphics, ElectrolyzerLayout.FUEL_SLOT_X, ElectrolyzerLayout.FUEL_SLOT_Y);
-
-        drawHorizontalBar(
-                graphics,
-                ElectrolyzerLayout.PROGRESS_X,
-                ElectrolyzerLayout.PROGRESS_Y,
-                ElectrolyzerLayout.PROGRESS_W,
-                ElectrolyzerLayout.PROGRESS_H,
-                this.menu.getScaledProgress(ElectrolyzerLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawVerticalBar(
-                graphics,
-                ElectrolyzerLayout.FUEL_BAR_X,
-                ElectrolyzerLayout.FUEL_BAR_Y,
-                ElectrolyzerLayout.FUEL_BAR_W,
-                ElectrolyzerLayout.FUEL_BAR_H,
-                ElectrolyzerLayout.FUEL_BAR_INNER_X_OFFSET,
-                ElectrolyzerLayout.FUEL_BAR_INNER_Y_OFFSET,
-                ElectrolyzerLayout.FUEL_BAR_INNER_W,
-                ElectrolyzerLayout.FUEL_BAR_INNER_H,
-                this.menu.getScaledBurnTime(ElectrolyzerLayout.FUEL_BAR_INNER_H),
-                this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
-                0xFFFFC270
-        );
-
-        drawDumpButton(
-                graphics,
-                ElectrolyzerLayout.DUMP_INPUT_X,
-                ElectrolyzerLayout.DUMP_BUTTON_Y,
-                ElectrolyzerLayout.DUMP_BUTTON_SIZE,
-                this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
-                this.menu.getInputTankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                ElectrolyzerLayout.DUMP_OUTPUT_1_X,
-                ElectrolyzerLayout.DUMP_BUTTON_Y,
-                ElectrolyzerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutput1Button != null && this.dumpOutput1Button.isHoveredOrFocused(),
-                this.menu.getOutput1TankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                ElectrolyzerLayout.DUMP_OUTPUT_2_X,
-                ElectrolyzerLayout.DUMP_BUTTON_Y,
-                ElectrolyzerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutput2Button != null && this.dumpOutput2Button.isHoveredOrFocused(),
-                this.menu.getOutput2TankAmount() > 0
-        );
-
-        drawDumpButton(
-                graphics,
-                ElectrolyzerLayout.DUMP_OUTPUT_3_X,
-                ElectrolyzerLayout.DUMP_BUTTON_Y,
-                ElectrolyzerLayout.DUMP_BUTTON_SIZE,
-                this.dumpOutput3Button != null && this.dumpOutput3Button.isHoveredOrFocused(),
-                this.menu.getOutput3TankAmount() > 0
+                new MachineGuiRenderer.ElectrolyzerState(
+                        MachineGuiRenderer.TankFill.live(this.menu.getInputFluid(), this.menu.getScaledInputTank(ElectrolyzerLayout.TANK_INNER_H)),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledOutput1Tank(ElectrolyzerLayout.TANK_INNER_H), getOutput1Color()),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledOutput2Tank(ElectrolyzerLayout.TANK_INNER_H), getOutput2Color()),
+                        MachineGuiRenderer.TankFill.liveColor(this.menu.getScaledOutput3Tank(ElectrolyzerLayout.TANK_INNER_H), getOutput3Color()),
+                        this.menu.getScaledProgress(ElectrolyzerLayout.PROGRESS_W),
+                        this.menu.getScaledBurnTime(ElectrolyzerLayout.FUEL_BAR_INNER_H),
+                        this.menu.isLit() ? 0xFFE38D3F : 0xFF8E6A4A,
+                        this.dumpInputButton != null && this.dumpInputButton.isHoveredOrFocused(),
+                        this.dumpOutput1Button != null && this.dumpOutput1Button.isHoveredOrFocused(),
+                        this.dumpOutput2Button != null && this.dumpOutput2Button.isHoveredOrFocused(),
+                        this.dumpOutput3Button != null && this.dumpOutput3Button.isHoveredOrFocused(),
+                        this.menu.getInputTankAmount() > 0,
+                        this.menu.getOutput1TankAmount() > 0,
+                        this.menu.getOutput2TankAmount() > 0,
+                        this.menu.getOutput3TankAmount() > 0
+                ),
+                true
         );
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(this.font, this.title, ElectrolyzerLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+        MachineGuiRenderer.drawElectrolyzerLabels(this, graphics, this.font, this.title);
     }
 
     @Override

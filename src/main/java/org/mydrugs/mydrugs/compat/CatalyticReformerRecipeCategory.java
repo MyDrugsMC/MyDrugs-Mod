@@ -9,37 +9,18 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.*;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.fluids.ModFluids;
-import org.mydrugs.mydrugs.menu.*;
-import org.mydrugs.mydrugs.menu.layout.*;
-import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
-import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.blocks.entity.CatalyticReformerBlockEntity;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
+import org.mydrugs.mydrugs.menu.layout.CatalyticReformerLayout;
+import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerFluidStack;
+import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerGasStack;
 import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
-import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
-import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
-import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
-import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
-import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
-import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
-import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
-import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
-import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
-import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
-import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<CatalyticReformerRecipe> {
     static final RecipeType<CatalyticReformerRecipe> TYPE =
@@ -52,7 +33,7 @@ final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<C
                 Component.translatable("block.mydrugs.catalytic_reformer"),
                 JeiCompatUtil.iconFromField(helper, ModBlocks.class, "CATALYTIC_REFORMER"),
                 CatalyticReformerLayout.GUI_WIDTH,
-                CatalyticReformerLayout.MACHINE_PANEL_Y + CatalyticReformerLayout.MACHINE_PANEL_H + 14
+                MachineGuiRenderer.catalyticReformerHeight(false)
         );
     }
 
@@ -98,93 +79,30 @@ final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<C
 
     @Override
     public void draw(CatalyticReformerRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
-        drawWindow(g, width, height);
-
-        drawPanel(
+        MachineGuiRenderer.drawCatalyticReformer(
+                this,
                 g,
-                CatalyticReformerLayout.MACHINE_PANEL_X,
-                CatalyticReformerLayout.MACHINE_PANEL_Y,
-                CatalyticReformerLayout.MACHINE_PANEL_W,
-                CatalyticReformerLayout.MACHINE_PANEL_H,
-                0xFF323232
+                new MachineGuiRenderer.CatalyticReformerState(
+                        catalyticTank(recipe.inputFluid1(), recipe.inputGas1()),
+                        catalyticTank(recipe.inputFluid2(), recipe.inputGas2()),
+                        catalyticTank(recipe.outputFluid1(), recipe.outputGas1()),
+                        catalyticTank(recipe.outputFluid2(), recipe.outputGas2()),
+                        catalyticTank(recipe.outputFluid3(), recipe.outputGas3()),
+                        CatalyticReformerLayout.PROGRESS_W,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true
+                ),
+                false
         );
-
-        drawPanel(
-                g,
-                CatalyticReformerLayout.CENTER_PANEL_X,
-                CatalyticReformerLayout.CENTER_PANEL_Y,
-                CatalyticReformerLayout.CENTER_PANEL_W,
-                CatalyticReformerLayout.CENTER_PANEL_H,
-                0xFF262B32
-        );
-
-        drawCatalyticTank(g, CatalyticReformerLayout.INPUT_1_TANK_X);
-        drawCatalyticTank(g, CatalyticReformerLayout.INPUT_2_TANK_X);
-        drawCatalyticTank(g, CatalyticReformerLayout.OUTPUT_1_TANK_X);
-        drawCatalyticTank(g, CatalyticReformerLayout.OUTPUT_2_TANK_X);
-        drawCatalyticTank(g, CatalyticReformerLayout.OUTPUT_3_TANK_X);
-
-        recipe.inputFluid1().ifPresent(input ->
-                drawFluidTankPreview(g, JeiCompatUtil.fluid(input.fluid()), input.amount(), CatalyticReformerLayout.INPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-        recipe.inputGas1().ifPresent(input ->
-                drawGasTankPreview(g, input.gas(), input.amount(), CatalyticReformerLayout.INPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-
-        recipe.inputFluid2().ifPresent(input ->
-                drawFluidTankPreview(g, JeiCompatUtil.fluid(input.fluid()), input.amount(), CatalyticReformerLayout.INPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-        recipe.inputGas2().ifPresent(input ->
-                drawGasTankPreview(g, input.gas(), input.amount(), CatalyticReformerLayout.INPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-
-        recipe.outputFluid1().ifPresent(output ->
-                drawFluidTankPreview(g, JeiCompatUtil.fluid(output.fluid()), output.amount(), CatalyticReformerLayout.OUTPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-        recipe.outputGas1().ifPresent(output ->
-                drawGasTankPreview(g, output.gas(), output.amount(), CatalyticReformerLayout.OUTPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-
-        recipe.outputFluid2().ifPresent(output ->
-                drawFluidTankPreview(g, JeiCompatUtil.fluid(output.fluid()), output.amount(), CatalyticReformerLayout.OUTPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-        recipe.outputGas2().ifPresent(output ->
-                drawGasTankPreview(g, output.gas(), output.amount(), CatalyticReformerLayout.OUTPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-
-        recipe.outputFluid3().ifPresent(output ->
-                drawFluidTankPreview(g, JeiCompatUtil.fluid(output.fluid()), output.amount(), CatalyticReformerLayout.OUTPUT_3_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-        recipe.outputGas3().ifPresent(output ->
-                drawGasTankPreview(g, output.gas(), output.amount(), CatalyticReformerLayout.OUTPUT_3_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_INNER_X_OFFSET, CatalyticReformerLayout.TANK_INNER_Y_OFFSET, CatalyticReformerLayout.TANK_INNER_W, CatalyticReformerLayout.TANK_INNER_H)
-        );
-
-        drawSlotFrame(g, CatalyticReformerLayout.INPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(g, CatalyticReformerLayout.INPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(g, CatalyticReformerLayout.OUTPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(g, CatalyticReformerLayout.OUTPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(g, CatalyticReformerLayout.OUTPUT_3_SLOT_X, CatalyticReformerLayout.SLOT_Y);
-        drawSlotFrame(g, CatalyticReformerLayout.CATALYST_SLOT_X, CatalyticReformerLayout.CATALYST_SLOT_Y);
-
-        drawHorizontalBar(
-                g,
-                CatalyticReformerLayout.PROGRESS_X,
-                CatalyticReformerLayout.PROGRESS_Y,
-                CatalyticReformerLayout.PROGRESS_W,
-                CatalyticReformerLayout.PROGRESS_H,
-                CatalyticReformerLayout.PROGRESS_W,
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-        drawDumpButton(g, CatalyticReformerLayout.DUMP_INPUT_1_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, CatalyticReformerLayout.DUMP_INPUT_2_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, CatalyticReformerLayout.DUMP_OUTPUT_1_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, CatalyticReformerLayout.DUMP_OUTPUT_2_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
-        drawDumpButton(g, CatalyticReformerLayout.DUMP_OUTPUT_3_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, false, true);
-
-        drawTitle(g);
-        drawBottomInfo(g, "Time: " + recipe.baseTicks() + "t");
+        MachineGuiRenderer.drawCatalyticReformerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), "Time: " + recipe.baseTicks() + "t");
     }
 
     @Override
@@ -237,18 +155,16 @@ final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<C
         return fluidTankTooltip(prefix + " fluid tank " + index, Fluids.EMPTY, 0, CatalyticReformerBlockEntity.FLUID_CAPACITY);
     }
 
-    private void drawCatalyticTank(GuiGraphics g, int x) {
-        drawTankFrame(
-                g,
-                x,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
+    private static MachineGuiRenderer.TankFill catalyticTank(Optional<CatalyticReformerFluidStack> fluid, Optional<CatalyticReformerGasStack> gas) {
+        if (gas.isPresent()) {
+            CatalyticReformerGasStack stack = gas.get();
+            return MachineGuiRenderer.TankFill.previewGas(stack.gas(), stack.amount(), CatalyticReformerBlockEntity.GAS_CAPACITY);
+        }
+        if (fluid.isPresent()) {
+            CatalyticReformerFluidStack stack = fluid.get();
+            return MachineGuiRenderer.TankFill.preview(stack.fluid(), stack.amount(), CatalyticReformerBlockEntity.FLUID_CAPACITY);
+        }
+        return MachineGuiRenderer.TankFill.liveColor(0, 0);
     }
 }
 

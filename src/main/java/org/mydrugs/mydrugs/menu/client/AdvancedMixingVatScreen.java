@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
 import org.mydrugs.mydrugs.menu.AdvancedMixingVatMenu;
+import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
 
 public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixingVatMenu> {
@@ -14,204 +15,28 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        drawWindow(graphics);
-
-        drawPanel(
+        MachineGuiRenderer.drawAdvancedMixingVat(
+                this,
                 graphics,
-                AdvancedMixingVatLayout.MACHINE_PANEL_X,
-                AdvancedMixingVatLayout.MACHINE_PANEL_Y,
-                AdvancedMixingVatLayout.MACHINE_PANEL_W,
-                AdvancedMixingVatLayout.MACHINE_PANEL_H,
-                0xFF323232
-        );
-
-        drawSieveInventoryPanels(
-                graphics,
-                AdvancedMixingVatLayout.PLAYER_INV_X,
-                AdvancedMixingVatLayout.PLAYER_INV_Y
-        );
-
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.ITEM_0_X, AdvancedMixingVatLayout.ITEM_0_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.ITEM_1_X, AdvancedMixingVatLayout.ITEM_1_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.ITEM_2_X, AdvancedMixingVatLayout.ITEM_2_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.ITEM_3_X, AdvancedMixingVatLayout.ITEM_3_Y);
-
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.TANK_A_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.TANK_B_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.TANK_C_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.GAS_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
-        drawSlotFrame(graphics, AdvancedMixingVatLayout.OUTPUT_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y);
-
-        drawTankFrame(
-                graphics,
-                AdvancedMixingVatLayout.TANK_A_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_W,
-                AdvancedMixingVatLayout.TANK_H,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AdvancedMixingVatLayout.TANK_B_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_W,
-                AdvancedMixingVatLayout.TANK_H,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AdvancedMixingVatLayout.TANK_C_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_W,
-                AdvancedMixingVatLayout.TANK_H,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AdvancedMixingVatLayout.GAS_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_W,
-                AdvancedMixingVatLayout.TANK_H,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H
-        );
-        drawTankFrame(
-                graphics,
-                AdvancedMixingVatLayout.OUTPUT_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_W,
-                AdvancedMixingVatLayout.TANK_H,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AdvancedMixingVatLayout.TANK_A_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H,
-                this.menu.getScaledTank(
-                        this.menu.getInputATankAmount(),
-                        AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY,
-                        AdvancedMixingVatLayout.TANK_INNER_H
+                MachineGuiRenderer.AdvancedMixingVatState.screen(
+                        this.menu.getInputAFluid(),
+                        this.menu.getScaledTank(this.menu.getInputATankAmount(), AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY, AdvancedMixingVatLayout.TANK_INNER_H),
+                        this.menu.getInputBFluid(),
+                        this.menu.getScaledTank(this.menu.getInputBTankAmount(), AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY, AdvancedMixingVatLayout.TANK_INNER_H),
+                        this.menu.getInputCFluid(),
+                        this.menu.getScaledTank(this.menu.getInputCTankAmount(), AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY, AdvancedMixingVatLayout.TANK_INNER_H),
+                        this.menu.getScaledTank(this.menu.getGasAmount(), (int) AdvancedMixingVatBlockEntity.GAS_TANK_CAPACITY, AdvancedMixingVatLayout.TANK_INNER_H),
+                        this.menu.getOutputFluid(),
+                        this.menu.getScaledTank(this.menu.getOutputTankAmount(), AdvancedMixingVatBlockEntity.OUTPUT_TANK_CAPACITY, AdvancedMixingVatLayout.TANK_INNER_H),
+                        this.menu.getScaledProgress(AdvancedMixingVatLayout.PROGRESS_W)
                 ),
-                getFluidColor(this.menu.getInputAFluid())
+                true
         );
-
-        drawTankFillShaded(
-                graphics,
-                AdvancedMixingVatLayout.TANK_B_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H,
-                this.menu.getScaledTank(
-                        this.menu.getInputBTankAmount(),
-                        AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY,
-                        AdvancedMixingVatLayout.TANK_INNER_H
-                ),
-                getFluidColor(this.menu.getInputBFluid())
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AdvancedMixingVatLayout.TANK_C_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H,
-                this.menu.getScaledTank(
-                        this.menu.getInputCTankAmount(),
-                        AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY,
-                        AdvancedMixingVatLayout.TANK_INNER_H
-                ),
-                getFluidColor(this.menu.getInputCFluid())
-        );
-
-        drawTankFillTopLit(
-                graphics,
-                AdvancedMixingVatLayout.GAS_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H,
-                this.menu.getScaledTank(
-                        this.menu.getGasAmount(),
-                        (int) AdvancedMixingVatBlockEntity.GAS_TANK_CAPACITY,
-                        AdvancedMixingVatLayout.TANK_INNER_H
-                ),
-                0xFF9BC4D8,
-                0xFFD4EEF7
-        );
-
-        drawTankFillShaded(
-                graphics,
-                AdvancedMixingVatLayout.OUTPUT_X,
-                AdvancedMixingVatLayout.TANK_Y,
-                AdvancedMixingVatLayout.TANK_INNER_X_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_Y_OFFSET,
-                AdvancedMixingVatLayout.TANK_INNER_W,
-                AdvancedMixingVatLayout.TANK_INNER_H,
-                this.menu.getScaledTank(
-                        this.menu.getOutputTankAmount(),
-                        AdvancedMixingVatBlockEntity.OUTPUT_TANK_CAPACITY,
-                        AdvancedMixingVatLayout.TANK_INNER_H
-                ),
-                getFluidColor(this.menu.getOutputFluid())
-        );
-
-        drawHorizontalBar(
-                graphics,
-                AdvancedMixingVatLayout.PROGRESS_X,
-                AdvancedMixingVatLayout.PROGRESS_Y,
-                AdvancedMixingVatLayout.PROGRESS_W,
-                AdvancedMixingVatLayout.PROGRESS_H,
-                this.menu.getScaledProgress(AdvancedMixingVatLayout.PROGRESS_W),
-                0xFF768AB8,
-                0xFFAAB9DB
-        );
-
-
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawCenteredString(
-                this.font,
-                this.title,
-                AdvancedMixingVatLayout.MACHINE_PANEL_X + AdvancedMixingVatLayout.MACHINE_PANEL_W / 2,
-                5,
-                0xFFCFCFCF
-        );
-        graphics.drawCenteredString(
-                this.font,
-                Component.literal("No heat required"),
-                AdvancedMixingVatLayout.STATUS_TEXT_X,
-                AdvancedMixingVatLayout.STATUS_TEXT_Y,
-                0xFF8AA0B5
-        );
-//        graphics.drawString(this.font, "A=" + this.menu.getInputATankAmount(), AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_X, AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_Y, 0xFFFFFF, false);
-//        graphics.drawString(this.font, "B=" + this.menu.getInputBTankAmount(), AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_X, AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_Y + 10, 0xFFFFFF, false);
-//        graphics.drawString(this.font, "C=" + this.menu.getInputCTankAmount(), AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_X, AdvancedMixingVatLayout.TANK_AMOUNT_LABEL_Y + 20, 0xFFFFFF, false);
+        MachineGuiRenderer.drawAdvancedMixingVatLabels(this, graphics, this.font, this.title, null);
     }
 
     @Override
