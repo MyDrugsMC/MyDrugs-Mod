@@ -65,6 +65,14 @@ public interface AbstractMachineDrawMethods {
         return drawOriginY() + localY;
     }
 
+    default int labelX(int localX) {
+        return guiX(localX);
+    }
+
+    default int labelY(int localY) {
+        return guiY(localY);
+    }
+
     default int getFluidColor(Fluid fluid) {
         if (fluid == null || fluid == Fluids.EMPTY) {
             return 0;

@@ -191,6 +191,13 @@ public final class ModBlockEntities {
                             ModBlocks.CATALYTIC_REFORMER.get()
                     ));
 
+    public static final Supplier<BlockEntityType<SteamCrackerBlockEntity>> STEAM_CRACKER =
+            BLOCK_ENTITY_TYPES.register("steam_cracker",
+                    () -> new BlockEntityType<>(
+                            SteamCrackerBlockEntity::new,
+                            ModBlocks.STEAM_CRACKER.get()
+                    ));
+
     public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPES =
             BLOCK_ENTITY_TYPES.register("pipes",
                     () -> new BlockEntityType<>(

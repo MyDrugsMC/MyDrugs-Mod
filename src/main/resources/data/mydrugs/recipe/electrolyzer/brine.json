@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:electrolyzer",
   "input_fluid": {
-    "fluid": "minecraft:brine",
+    "fluid": "mydrugs:brine",
     "amount": 1000
   },
   "output_gas_1": {

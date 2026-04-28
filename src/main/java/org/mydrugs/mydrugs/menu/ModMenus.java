@@ -80,6 +80,10 @@ public class ModMenus {
             MENUS.register("catalytic_reformer",
                     () -> new MenuType<>(CatalyticReformerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<SteamCrackerMenu>> STEAM_CRACKER =
+            MENUS.register("steam_cracker",
+                    () -> new MenuType<>(SteamCrackerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
     public static final Supplier<MenuType<PipeFilterMenu>> PIPE_FILTER =
             MENUS.register("pipe_filter", () -> new MenuType<>(PipeFilterMenu::new, FeatureFlags.DEFAULT_FLAGS));
 

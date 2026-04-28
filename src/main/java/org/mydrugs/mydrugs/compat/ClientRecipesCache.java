@@ -26,6 +26,7 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
+import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public final class ClientRecipesCache {
     private static final List<SieveRecipe> SIEVE_RECIPES = new ArrayList<>();
     private static final List<StompCraftingRecipe> STOMP_CRAFTING_RECIPES = new ArrayList<>();
     private static final List<CatalyticReformerRecipe> CATALYTIC_REFORMER_RECIPES = new ArrayList<>();
+    private static final List<SteamCrackerRecipe> STEAM_CRACKER_RECIPES = new ArrayList<>();
     private static final List<AromaticExtractorRecipe> AROMATIC_EXTRACTOR_RECIPES = new ArrayList<>();
 
 
@@ -121,6 +123,10 @@ public final class ClientRecipesCache {
         return List.copyOf(CATALYTIC_REFORMER_RECIPES);
     }
 
+    public static List<SteamCrackerRecipe> getSteamCrackerRecipes() {
+        return List.copyOf(STEAM_CRACKER_RECIPES);
+    }
+
     public static List<AromaticExtractorRecipe> getAromaticExtractorRecipes() {
         return List.copyOf(AROMATIC_EXTRACTOR_RECIPES);
     }
@@ -144,6 +150,7 @@ public final class ClientRecipesCache {
         SIEVE_RECIPES.clear();
         STOMP_CRAFTING_RECIPES.clear();
         CATALYTIC_REFORMER_RECIPES.clear();
+        STEAM_CRACKER_RECIPES.clear();
         AROMATIC_EXTRACTOR_RECIPES.clear();
 
         event.getRecipeMap()
@@ -249,6 +256,12 @@ public final class ClientRecipesCache {
                 .forEach(CATALYTIC_REFORMER_RECIPES::add);
 
         event.getRecipeMap()
+                .byType(ModRecipeTypes.STEAM_CRACKER.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(STEAM_CRACKER_RECIPES::add);
+
+        event.getRecipeMap()
                 .byType(ModRecipeTypes.AROMATIC_EXTRACTOR.get())
                 .stream()
                 .map(RecipeHolder::value)
@@ -274,6 +287,7 @@ public final class ClientRecipesCache {
         SIEVE_RECIPES.clear();
         STOMP_CRAFTING_RECIPES.clear();
         CATALYTIC_REFORMER_RECIPES.clear();
+        STEAM_CRACKER_RECIPES.clear();
         AROMATIC_EXTRACTOR_RECIPES.clear();
     }
 }

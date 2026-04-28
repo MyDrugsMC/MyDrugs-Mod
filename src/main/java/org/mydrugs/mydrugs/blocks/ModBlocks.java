@@ -424,6 +424,17 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> CATALYTIC_REFORMER_ITEM = ITEMS.registerSimpleBlockItem(CATALYTIC_REFORMER);
 
+    public static final DeferredBlock<SteamCrackerBlock> STEAM_CRACKER = BLOCKS.registerBlock(
+            "steam_cracker",
+            SteamCrackerBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> STEAM_CRACKER_ITEM = ITEMS.registerSimpleBlockItem(STEAM_CRACKER);
+
     public static final DeferredBlock<Block> PLATINUM_ORE = BLOCKS.registerSimpleBlock(
             "platinum_ore",
             props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_ORE)

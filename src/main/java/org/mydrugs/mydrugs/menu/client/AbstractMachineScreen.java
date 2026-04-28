@@ -121,6 +121,16 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
     }
 
     @Override
+    public int labelX(int localX) {
+        return localX;
+    }
+
+    @Override
+    public int labelY(int localY) {
+        return localY;
+    }
+
+    @Override
     public int drawWidth() {
         return this.imageWidth;
     }

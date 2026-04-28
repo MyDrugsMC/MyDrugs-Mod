@@ -41,6 +41,7 @@ public class JEIModPlugin implements IModPlugin {
                 new MixingVatRecipeCategory(guiHelper),
                 new SieveRecipeCategory(guiHelper),
                 new CatalyticReformerRecipeCategory(guiHelper),
+                new SteamCrackerRecipeCategory(guiHelper),
                 new BTXFractionationTowerRecipeCategory(guiHelper),
                 new StompCraftingRecipeCategory(guiHelper),
                 new AromaticExtractorRecipeCategory(guiHelper)
@@ -67,6 +68,7 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipes(SieveRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getSieveRecipes"));
         registration.addRecipes(StompCraftingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getStompCraftingRecipes"));
         registration.addRecipes(CatalyticReformerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCatalyticReformerRecipes"));
+        registration.addRecipes(SteamCrackerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getSteamCrackerRecipes"));
         registration.addRecipes(BTXFractionationTowerRecipeCategory.TYPE, BTXFractionationTowerRecipeCategory.RECIPES);
         registration.addRecipes(AromaticExtractorRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getAromaticExtractorRecipes"));
     }
@@ -91,6 +93,7 @@ public class JEIModPlugin implements IModPlugin {
         JeiCompatUtil.registerFieldCatalyst(registration, SieveRecipeCategory.TYPE, ModBlocks.class, "SIEVE", "SIEVING_TABLE");
         JeiCompatUtil.registerFieldCatalyst(registration, StompCraftingRecipeCategory.TYPE, ModItems.class, "STOMP_PLATE");
         JeiCompatUtil.registerFieldCatalyst(registration, CatalyticReformerRecipeCategory.TYPE, ModBlocks.class, "CATALYTIC_REFORMER");
+        JeiCompatUtil.registerFieldCatalyst(registration, SteamCrackerRecipeCategory.TYPE, ModBlocks.class, "STEAM_CRACKER");
         JeiCompatUtil.registerFieldCatalyst(registration, BTXFractionationTowerRecipeCategory.TYPE, ModBlocks.class, "BTX_FRACTIONATION_TOWER_ITEM", "BTX_FRACTIONATION_TOWER");
         JeiCompatUtil.registerFieldCatalyst(registration, AromaticExtractorRecipeCategory.TYPE, ModBlocks.class, "AROMATIC_EXTRACTOR");
     }

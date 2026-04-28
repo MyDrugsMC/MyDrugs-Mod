@@ -42,6 +42,7 @@ public class ClientModEvents {
         event.register(ModMenus.CHEMICAL_REACTOR.get(), ChemicalReactorScreen::new);
         event.register(ModMenus.ADVANCED_MIXING_VAT.get(), AdvancedMixingVatScreen::new);
         event.register(ModMenus.CATALYTIC_REFORMER.get(), CatalyticReformerScreen::new);
+        event.register(ModMenus.STEAM_CRACKER.get(), SteamCrackerScreen::new);
         event.register(ModMenus.AROMATIC_EXTRACTOR.get(), AromaticExtractorScreen::new);
         event.register(ModMenus.PIPE_FILTER.get(), PipeFilterScreen::new);
         event.register(ModMenus.MACHINE_TRANSFER_CONFIG.get(), MachineTransferConfigScreen::new);

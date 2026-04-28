@@ -117,6 +117,12 @@ public final class ServerModEvents {
 
         event.registerBlockEntity(
                 Capabilities.Item.BLOCK,
+                ModBlockEntities.STEAM_CRACKER.get(),
+                (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
                 ModBlockEntities.CHEMICAL_REACTOR.get(),
                 (blockEntity, side) -> MachineTransferResourceHandlers.restricted(
                         blockEntity,
@@ -186,6 +192,11 @@ public final class ServerModEvents {
         event.registerBlockEntity(
                 Capabilities.Fluid.BLOCK,
                 ModBlockEntities.CATALYTIC_REFORMER.get(),
+                (be, side) -> MachineTransferResourceHandlers.restricted(be, MachineTransferResourceKind.FLUID, side, be.getFluidHandler(side))
+        );
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                ModBlockEntities.STEAM_CRACKER.get(),
                 (be, side) -> MachineTransferResourceHandlers.restricted(be, MachineTransferResourceKind.FLUID, side, be.getFluidHandler(side))
         );
     }

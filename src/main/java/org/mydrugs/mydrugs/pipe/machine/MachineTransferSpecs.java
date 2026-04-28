@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.menu.ElectrolyzerMenu;
 import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
 import org.mydrugs.mydrugs.menu.GasifierMenu;
 import org.mydrugs.mydrugs.menu.GrowthChamberMenu;
+import org.mydrugs.mydrugs.menu.SteamCrackerMenu;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -206,6 +207,26 @@ public final class MachineTransferSpecs {
                     gasOut("gas_output_1", 13, 2, OUTPUT_DEFAULT),
                     gasOut("gas_output_2", 14, 3, OUTPUT_DEFAULT),
                     gasOut("gas_output_3", 15, 4, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.STEAM_CRACKER.get()) {
+            return spec(
+                    itemIn("steam_input_container", 0, SteamCrackerMenu.INPUT_TRANSFER_SLOT, INPUT_DEFAULT),
+                    itemOut("steam_output_1_container", 1, SteamCrackerMenu.OUTPUT_1_TRANSFER_SLOT, OUTPUT_DEFAULT),
+                    itemOut("steam_output_2_container", 2, SteamCrackerMenu.OUTPUT_2_TRANSFER_SLOT, OUTPUT_DEFAULT),
+                    itemOut("steam_output_3_container", 3, SteamCrackerMenu.OUTPUT_3_TRANSFER_SLOT, OUTPUT_DEFAULT),
+                    itemOut("steam_output_4_container", 4, SteamCrackerMenu.OUTPUT_4_TRANSFER_SLOT, OUTPUT_DEFAULT),
+                    itemIn("fuel", 5, SteamCrackerMenu.FUEL_SLOT, TOP_INPUT_DEFAULT),
+                    fluidIn("steam_fluid_input", 6, 0, INPUT_DEFAULT),
+                    gasIn("steam_gas_input", 7, 0, INPUT_DEFAULT),
+                    fluidOut("steam_fluid_output_1", 8, 1, OUTPUT_DEFAULT),
+                    gasOut("steam_gas_output_1", 9, 1, OUTPUT_DEFAULT),
+                    fluidOut("steam_fluid_output_2", 10, 2, OUTPUT_DEFAULT),
+                    gasOut("steam_gas_output_2", 11, 2, OUTPUT_DEFAULT),
+                    fluidOut("steam_fluid_output_3", 12, 3, OUTPUT_DEFAULT),
+                    gasOut("steam_gas_output_3", 13, 3, OUTPUT_DEFAULT),
+                    fluidOut("steam_fluid_output_4", 14, 4, OUTPUT_DEFAULT),
+                    gasOut("steam_gas_output_4", 15, 4, OUTPUT_DEFAULT)
             );
         }
         if (type == ModBlockEntities.GAS_TANK.get() || type == ModBlockEntities.GAS_PUMP.get()) {

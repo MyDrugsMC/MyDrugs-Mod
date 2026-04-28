@@ -23,6 +23,7 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
+import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
 public class ModRecipeTypes {
@@ -83,6 +84,9 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CatalyticReformerRecipe>> CATALYTIC_REFORMER =
             RECIPE_TYPES.register("catalytic_reformer", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SteamCrackerRecipe>> STEAM_CRACKER =
+            RECIPE_TYPES.register("steam_cracker", RecipeType::simple);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<AromaticExtractorRecipe>> AROMATIC_EXTRACTOR =
             RECIPE_TYPES.register("aromatic_extractor", RecipeType::simple);

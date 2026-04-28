@@ -23,6 +23,7 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
+import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
 public class ModRecipeSerializers {
@@ -83,6 +84,9 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CatalyticReformerRecipe>> CATALYTIC_REFORMER =
             RECIPE_SERIALIZERS.register("catalytic_reformer", CatalyticReformerRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SteamCrackerRecipe>> STEAM_CRACKER =
+            RECIPE_SERIALIZERS.register("steam_cracker", SteamCrackerRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AromaticExtractorRecipe>> AROMATIC_EXTRACTOR =
             RECIPE_SERIALIZERS.register("aromatic_extractor", AromaticExtractorRecipe.Serializer::new);

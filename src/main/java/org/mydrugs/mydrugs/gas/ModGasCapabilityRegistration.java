@@ -72,6 +72,12 @@ public final class ModGasCapabilityRegistration {
                 (be, side) -> MachineTransferResourceHandlers.restrictedGas(be, side, be.getGasHandler(side))
         );
 
+        event.registerBlockEntity(
+                ModGasCapabilities.BLOCK,
+                ModBlockEntities.STEAM_CRACKER.get(),
+                (be, side) -> MachineTransferResourceHandlers.restrictedGas(be, side, be.getGasHandler(side))
+        );
+
         event.registerItem(
                 ModGasCapabilities.ITEM,
                 (stack, itemAccess) -> new GasTankItemHandler(stack),

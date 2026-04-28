@@ -71,48 +71,66 @@ public final class ModFluids {
     public static final FluidEntry BENZENE;
     public static final FluidEntry TOLUENE;
     public static final FluidEntry XYLENE;
+    public static final FluidEntry CUMENE;
+    public static final FluidEntry CUMENE_HYDROPEROXIDE;
+    public static final FluidEntry ACETONE;
+    public static final FluidEntry PHENOL;
 
     static {
-        STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFD2B07A, false, null));
-        SWEET_MASH = register(new FluidEntryDef("sweet_mash", 0xFFE2C070, false, null));
-        WILD_YEAST = register(new FluidEntryDef("wild_yeast", 0xFFDDD9A6, false, null));
-        FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFFB98E57, false, null));
-        RAW_ALCOHOL = register(new FluidEntryDef("raw_alcohol", 0xCCF2F2FF, true, DrugId.ALCOHOL));
-        VODKA = register(new FluidEntryDef("vodka", 0xCCEAF6FF, true, DrugId.ALCOHOL));
-        AMMONIAC = register(new FluidEntryDef("ammoniac", 0xFFCFE17A, false, null));
-        BLOOD = register(new FluidEntryDef("blood", 0xFF8E1B1B, false, null));
-        MURKY_EXTRACT = register(new FluidEntryDef("murky_extract", 0xFF17960C, false, null));
-        FILTERED_EXTRACT = register(new FluidEntryDef("filtered_extract", 0xFF92F78D, false, null));
-        COAL_TAR = register(new FluidEntryDef("coal_tar", 0xFF000000, false, null));
-        AMINO_ACID = register(new FluidEntryDef("amino_acid", 0xFFDDDDAA, false, null));
-        WASTE_BIOMASS = register(new FluidEntryDef("waste_biomass", 0xFF035700, false, null));
-        LYSERGIC_ACID = register(new FluidEntryDef("lysergic_acid", 0xFFFFFFFF, false, null));
-        DIETHYLAMINE = register(new FluidEntryDef("diethylamine", 0xFFFEFFD1, false, null));
-        ERGOTAMINE = register(new FluidEntryDef("ergotamine", 0xFFFFFFFF, false, null));
-        LSD = register(new FluidEntryDef("lsd", 0xFFFFFFFF, true, DrugId.LSD));
-        HYDROCHLORIC_ACID = register(new FluidEntryDef("hydrochloric_acid", 0xFFFFFFFF, false, null));
-        ACYLATING_AGENT = register(new FluidEntryDef("acylating_agent", 0xFFFFFFFF, false, null));
-        ACTIVATED_LYSERGIC_ACID = register(new FluidEntryDef("activated_lysergic_acid", 0xFFFFFFFF, false, null));
-        SULFURIC_ACID = register(new FluidEntryDef("sulfuric_acid", 0xFFD6E86A, false, null));
-        CRACK = register(new FluidEntryDef("crack", 0xFFCFE17A, false, null));
-        WET_ACTIVATED_COAL = register(new FluidEntryDef("wet_activated_coal", 0xFF000000, false, null));
-        METHANOL = register(new FluidEntryDef("methanol", 0xFFFFFFFF, false, null));
         METHYLAMINE = register(new FluidEntryDef("methylamine", 0xFFFFFFFF, false, null));
-        BRINE = register(new FluidEntryDef("brine", 0xFFFFFFFF, true, null));
         CRUDE_C4_MIX = register(new FluidEntryDef("crude_c4_mix", 0xFF000000, false, null));
         BUTADIENE = register(new FluidEntryDef("butadiene", 0xFFFFFFFF, false, null));
-        PETROLEUM = register(new FluidEntryDef("petroleum", 0xFF000000, false, null));
-        NAPHTHA = register(new FluidEntryDef("naphtha", 0xFF000000, false, null));
-        INDUSTRIAL_MIX = register(new FluidEntryDef("industrial_mix", 0xFF000000, false, null));
-        REFORMATE = register(new FluidEntryDef("reformate", 0xFFFFFFFF, false, null));
-        BTX_MIX = register(new FluidEntryDef("btx_mix", 0xFF2E2B24, false, null));
-        SULFOLANE = register(new FluidEntryDef("sulfolane", 0xFFFFFFFF, false, null));
         COKE = register(new FluidEntryDef("coke", 0xFF000000, false, null));
         BUTENES = register(new FluidEntryDef("butenes", 0xFF000000, false, null));
-        SULFOLENE = register(new FluidEntryDef("sulfolene", 0xFFFFFFFF, false, null));
-        BENZENE = register(new FluidEntryDef("benzene", 0xFFFFFFFF, false, null));
-        TOLUENE = register(new FluidEntryDef("toluene", 0xFFFFFFFF, false, null));
-        XYLENE = register(new FluidEntryDef("xylene", 0xFFFFFFFF, false, null));
+        STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFB7925E, false, null));
+        SWEET_MASH = register(new FluidEntryDef("sweet_mash", 0xFFD7B46E, false, null));
+        WILD_YEAST = register(new FluidEntryDef("wild_yeast", 0xFFE8DFB4, false, null));
+        FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFF9B6A3D, false, null));
+
+        RAW_ALCOHOL = register(new FluidEntryDef("raw_alcohol", 0x66F4FAFF, true, DrugId.ALCOHOL));
+        VODKA = register(new FluidEntryDef("vodka", 0x66F8FCFF, true, DrugId.ALCOHOL));
+
+        AMMONIAC = register(new FluidEntryDef("ammoniac", 0x66EEF8FF, false, null));
+        BLOOD = register(new FluidEntryDef("blood", 0xFF7A1014, false, null));
+        MURKY_EXTRACT = register(new FluidEntryDef("murky_extract", 0xFF4B5B2B, false, null));
+        FILTERED_EXTRACT = register(new FluidEntryDef("filtered_extract", 0xFF88A85A, false, null));
+        COAL_TAR = register(new FluidEntryDef("coal_tar", 0xFF1A120C, false, null));
+
+        AMINO_ACID = register(new FluidEntryDef("amino_acid", 0x88FFF4D8, false, null));
+        WASTE_BIOMASS = register(new FluidEntryDef("waste_biomass", 0xFF2A391C, false, null));
+
+        LYSERGIC_ACID = register(new FluidEntryDef("lysergic_acid", 0x88FFF3D7, false, null));
+        DIETHYLAMINE = register(new FluidEntryDef("diethylamine", 0x66FFFDF2, false, null));
+        ERGOTAMINE = register(new FluidEntryDef("ergotamine", 0x88F6EDD8, false, null));
+        LSD = register(new FluidEntryDef("lsd", 0x66FFFDF7, false, DrugId.LSD));
+
+        HYDROCHLORIC_ACID = register(new FluidEntryDef("hydrochloric_acid", 0x55FFFDF9, false, null));
+        ACYLATING_AGENT = register(new FluidEntryDef("acylating_agent", 0x88FFF0B8, false, null));
+        ACTIVATED_LYSERGIC_ACID = register(new FluidEntryDef("activated_lysergic_acid", 0x88FFE1A6, false, null));
+        SULFURIC_ACID = register(new FluidEntryDef("sulfuric_acid", 0x55FFFBEA, false, null));
+
+        CRACK = register(new FluidEntryDef("crack", 0x99FFF1C2, false, null));
+        WET_ACTIVATED_COAL = register(new FluidEntryDef("wet_activated_coal", 0xFF2B2B2B, false, null));
+
+        METHANOL = register(new FluidEntryDef("methanol", 0x66F8FCFF, false, null));
+        BRINE = register(new FluidEntryDef("brine", 0x66F3F9FF, false, null));
+
+        PETROLEUM = register(new FluidEntryDef("petroleum", 0xFF2B2418, false, null));
+        NAPHTHA = register(new FluidEntryDef("naphtha", 0x88FFF1B8, false, null));
+        INDUSTRIAL_MIX = register(new FluidEntryDef("industrial_mix", 0xCC8B6A2F, false, null));
+        REFORMATE = register(new FluidEntryDef("reformate", 0x88FFD67A, false, null));
+        BTX_MIX = register(new FluidEntryDef("btx_mix", 0x88E6C27E, false, null));
+
+        SULFOLANE = register(new FluidEntryDef("sulfolane", 0x66F9FCFF, false, null));
+        SULFOLENE = register(new FluidEntryDef("sulfolene", 0x88FFF6D8, false, null));
+
+        BENZENE = register(new FluidEntryDef("benzene", 0x66FFFDF0, false, null));
+        TOLUENE = register(new FluidEntryDef("toluene", 0x66FFFDF4, false, null));
+        XYLENE = register(new FluidEntryDef("xylene", 0x66FFFDF4, false, null));
+        CUMENE = register(new FluidEntryDef("cumene", 0x88FFE9A8, false, null));
+        CUMENE_HYDROPEROXIDE = register(new FluidEntryDef("cumene_hydroperoxide", 0x88FFF0C8, false, null));
+        ACETONE = register(new FluidEntryDef("acetone", 0x66F5FBFF, false, null));
+        PHENOL = register(new FluidEntryDef("phenol", 0x88FFF8D6, false, null));
     }
 
     private ModFluids() {

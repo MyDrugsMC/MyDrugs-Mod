@@ -45,6 +45,9 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<CatalyticReformerBlock>> CATALYTIC_REFORMER_CODEC =
             BLOCK_TYPES.register("catalytic_reformer", () -> Block.simpleCodec(CatalyticReformerBlock::new));
 
+    public static final Supplier<MapCodec<SteamCrackerBlock>> STEAM_CRACKER_CODEC =
+            BLOCK_TYPES.register("steam_cracker", () -> Block.simpleCodec(SteamCrackerBlock::new));
+
     private ModBlockTypes() {
     }
 }

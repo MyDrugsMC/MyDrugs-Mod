@@ -110,7 +110,7 @@ public final class GasPipeNetworkLogic {
         int rotation = outputs.isEmpty() ? 0 : Math.floorMod(network.gasOutputRotation(source), outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
             PipeEndpoint target = outputs.get((rotation + i) % outputs.size());
-            if (target.targetPos().equals(source.targetPos()) || !allows(target, resource)) {
+            if (!allows(target, resource)) {
                 continue;
             }
 
