@@ -25,6 +25,25 @@ public final class ModPayloads {
                 RollerDragPayload.STREAM_CODEC,
                 RollerDragPayload::handleOnServer
         );
+        registrar.playToServer(
+                OpenMachineTransferConfigPayload.TYPE,
+                OpenMachineTransferConfigPayload.STREAM_CODEC,
+                OpenMachineTransferConfigPayload::handleOnServer
+        );
+        registrar.playToServer(
+                RequestMachineTransferOverlayPayload.TYPE,
+                RequestMachineTransferOverlayPayload.STREAM_CODEC,
+                RequestMachineTransferOverlayPayload::handleOnServer
+        );
+        registrar.playToServer(
+                CycleMachineTransferSidePayload.TYPE,
+                CycleMachineTransferSidePayload.STREAM_CODEC,
+                CycleMachineTransferSidePayload::handleOnServer
+        );
+        registrar.playToClient(
+                MachineTransferConfigSnapshotPayload.TYPE,
+                MachineTransferConfigSnapshotPayload.STREAM_CODEC
+        );
     }
 
     private static void handleSieveShake(SieveShakePayload payload, IPayloadContext context) {

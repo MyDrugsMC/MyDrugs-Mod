@@ -9,6 +9,8 @@ import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.AdvancedFurnaceLayout;
 import org.mydrugs.mydrugs.menu.layout.StandardTankLayout;
 
+import java.util.List;
+
 public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedFurnaceMenu> {
     public AdvancedFurnaceScreen(AdvancedFurnaceMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, AdvancedFurnaceLayout.GUI_WIDTH, AdvancedFurnaceLayout.GUI_HEIGHT);
@@ -40,6 +42,26 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
                 this.playerInventoryTitle,
                 this.inventoryLabelY
         );
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(AdvancedFurnaceLayout.INPUT_A_X, AdvancedFurnaceLayout.INPUT_A_Y),
+                    slotHighlight(AdvancedFurnaceLayout.INPUT_B_X, AdvancedFurnaceLayout.INPUT_B_Y)
+            );
+            case "fuel" -> List.of(slotHighlight(AdvancedFurnaceLayout.FUEL_X, AdvancedFurnaceLayout.FUEL_Y));
+            case "item_output" -> List.of(
+                    slotHighlight(AdvancedFurnaceLayout.OUTPUT_A_X, AdvancedFurnaceLayout.OUTPUT_A_Y),
+                    slotHighlight(AdvancedFurnaceLayout.OUTPUT_B_X, AdvancedFurnaceLayout.OUTPUT_B_Y)
+            );
+            case "fluid_output" -> List.of(
+                    tankHighlight(AdvancedFurnaceLayout.TANK_X, AdvancedFurnaceLayout.TANK_Y, StandardTankLayout.TANK_W, StandardTankLayout.TANK_H),
+                    slotHighlight(AdvancedFurnaceLayout.OUTPUT_CONTAINER_X, AdvancedFurnaceLayout.OUTPUT_CONTAINER_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

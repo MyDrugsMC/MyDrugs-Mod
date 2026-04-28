@@ -5,6 +5,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.*;
@@ -13,6 +14,11 @@ import org.mydrugs.mydrugs.client.item.LiquidColorTintSource;
 import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.menu.client.*;
+import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
+import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
+import org.mydrugs.mydrugs.pipe.client.MachineTransferConfigScreen;
+import org.mydrugs.mydrugs.pipe.client.PipeBlockEntityRenderer;
+import org.mydrugs.mydrugs.pipe.client.PipeFilterScreen;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public class ClientModEvents {
@@ -37,6 +43,13 @@ public class ClientModEvents {
         event.register(ModMenus.ADVANCED_MIXING_VAT.get(), AdvancedMixingVatScreen::new);
         event.register(ModMenus.CATALYTIC_REFORMER.get(), CatalyticReformerScreen::new);
         event.register(ModMenus.AROMATIC_EXTRACTOR.get(), AromaticExtractorScreen::new);
+        event.register(ModMenus.PIPE_FILTER.get(), PipeFilterScreen::new);
+        event.register(ModMenus.MACHINE_TRANSFER_CONFIG.get(), MachineTransferConfigScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
+        event.register(MachineTransferConfigSnapshotPayload.TYPE, MachineTransferClientPayloadHandler::handleSnapshot);
     }
 
     @SubscribeEvent
@@ -48,6 +61,7 @@ public class ClientModEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.EVAPORATION_TRAY.get(), EvaporationTrayRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DRYING_RACK.get(), DryingRackRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.CLAY_VAT.get(), ClayVatRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.PIPES.get(), PipeBlockEntityRenderer::new);
     }
 
     @SubscribeEvent

@@ -8,6 +8,8 @@ import org.mydrugs.mydrugs.menu.AromaticExtractorMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.AromaticExtractorLayout;
 
+import java.util.List;
+
 public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtractorMenu> {
     private InvisibleButton dumpInputButton;
     private InvisibleButton dumpCatalystButton;
@@ -85,6 +87,35 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawCenteredString(this.font, this.title, AromaticExtractorLayout.GUI_WIDTH / 2, 5, 0xFFFFFFFF);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(AromaticExtractorLayout.INPUT_SLOT_X, AromaticExtractorLayout.INPUT_SLOT_Y),
+                    slotHighlight(AromaticExtractorLayout.FUEL_SLOT_X, AromaticExtractorLayout.FUEL_SLOT_Y)
+            );
+            case "catalyst" -> List.of(
+                    tankHighlight(AromaticExtractorLayout.CATALYST_TANK_X, AromaticExtractorLayout.CATALYST_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H),
+                    slotHighlight(AromaticExtractorLayout.CATALYST_SLOT_X, AromaticExtractorLayout.CATALYST_SLOT_Y)
+            );
+            case "item_output" -> List.of(
+                    slotHighlight(AromaticExtractorLayout.OUTPUT_A_SLOT_X, AromaticExtractorLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(AromaticExtractorLayout.OUTPUT_B_SLOT_X, AromaticExtractorLayout.OUTPUT_B_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(AromaticExtractorLayout.INPUT_TANK_X, AromaticExtractorLayout.INPUT_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H),
+                    slotHighlight(AromaticExtractorLayout.INPUT_SLOT_X, AromaticExtractorLayout.INPUT_SLOT_Y)
+            );
+            case "fluid_output" -> List.of(
+                    tankHighlight(AromaticExtractorLayout.OUTPUT_A_TANK_X, AromaticExtractorLayout.OUTPUT_A_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H),
+                    tankHighlight(AromaticExtractorLayout.OUTPUT_B_TANK_X, AromaticExtractorLayout.OUTPUT_B_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H),
+                    slotHighlight(AromaticExtractorLayout.OUTPUT_A_SLOT_X, AromaticExtractorLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(AromaticExtractorLayout.OUTPUT_B_SLOT_X, AromaticExtractorLayout.OUTPUT_B_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

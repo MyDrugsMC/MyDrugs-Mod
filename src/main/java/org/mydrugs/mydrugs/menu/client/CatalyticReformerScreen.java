@@ -8,6 +8,9 @@ import org.mydrugs.mydrugs.menu.CatalyticReformerMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.CatalyticReformerLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticReformerMenu> {
     private InvisibleButton dumpInput1Button;
     private InvisibleButton dumpInput2Button;
@@ -124,6 +127,70 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawCatalyticReformerLabels(this, graphics, this.font, this.title, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(CatalyticReformerLayout.INPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y),
+                    slotHighlight(CatalyticReformerLayout.INPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y)
+            );
+            case "catalyst" -> List.of(slotHighlight(CatalyticReformerLayout.CATALYST_SLOT_X, CatalyticReformerLayout.CATALYST_SLOT_Y));
+            case "item_output" -> List.of(
+                    slotHighlight(CatalyticReformerLayout.OUTPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y),
+                    slotHighlight(CatalyticReformerLayout.OUTPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y),
+                    slotHighlight(CatalyticReformerLayout.OUTPUT_3_SLOT_X, CatalyticReformerLayout.SLOT_Y)
+            );
+            case "fluid_input" -> inputHighlights(false);
+            case "gas_input" -> inputHighlights(true);
+            case "fluid_output" -> outputHighlights(false);
+            case "gas_output" -> outputHighlights(true);
+            default -> super.transferPortHighlights(portIdPath);
+        };
+    }
+
+    private List<TransferHighlight> inputHighlights(boolean gasMode) {
+        ArrayList<TransferHighlight> highlights = new ArrayList<>();
+        addTankSlotHighlight(highlights, gasMode, this.menu.isInput1GasMode(), CatalyticReformerLayout.INPUT_1_TANK_X, CatalyticReformerLayout.INPUT_1_SLOT_X);
+        addTankSlotHighlight(highlights, gasMode, this.menu.isInput2GasMode(), CatalyticReformerLayout.INPUT_2_TANK_X, CatalyticReformerLayout.INPUT_2_SLOT_X);
+        return highlights.isEmpty() ? allInputHighlights() : highlights;
+    }
+
+    private List<TransferHighlight> outputHighlights(boolean gasMode) {
+        ArrayList<TransferHighlight> highlights = new ArrayList<>();
+        addTankSlotHighlight(highlights, gasMode, this.menu.isOutput1GasMode(), CatalyticReformerLayout.OUTPUT_1_TANK_X, CatalyticReformerLayout.OUTPUT_1_SLOT_X);
+        addTankSlotHighlight(highlights, gasMode, this.menu.isOutput2GasMode(), CatalyticReformerLayout.OUTPUT_2_TANK_X, CatalyticReformerLayout.OUTPUT_2_SLOT_X);
+        addTankSlotHighlight(highlights, gasMode, this.menu.isOutput3GasMode(), CatalyticReformerLayout.OUTPUT_3_TANK_X, CatalyticReformerLayout.OUTPUT_3_SLOT_X);
+        return highlights.isEmpty() ? allOutputHighlights() : highlights;
+    }
+
+    private static void addTankSlotHighlight(List<TransferHighlight> highlights, boolean expectedGasMode, boolean actualGasMode, int tankX, int slotX) {
+        if (actualGasMode != expectedGasMode) {
+            return;
+        }
+        highlights.add(tankHighlight(tankX, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H));
+        highlights.add(slotHighlight(slotX, CatalyticReformerLayout.SLOT_Y));
+    }
+
+    private static List<TransferHighlight> allInputHighlights() {
+        return List.of(
+                tankHighlight(CatalyticReformerLayout.INPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H),
+                tankHighlight(CatalyticReformerLayout.INPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H),
+                slotHighlight(CatalyticReformerLayout.INPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y),
+                slotHighlight(CatalyticReformerLayout.INPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y)
+        );
+    }
+
+    private static List<TransferHighlight> allOutputHighlights() {
+        return List.of(
+                tankHighlight(CatalyticReformerLayout.OUTPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H),
+                tankHighlight(CatalyticReformerLayout.OUTPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H),
+                tankHighlight(CatalyticReformerLayout.OUTPUT_3_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H),
+                slotHighlight(CatalyticReformerLayout.OUTPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y),
+                slotHighlight(CatalyticReformerLayout.OUTPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y),
+                slotHighlight(CatalyticReformerLayout.OUTPUT_3_SLOT_X, CatalyticReformerLayout.SLOT_Y)
+        );
     }
 
     @Override

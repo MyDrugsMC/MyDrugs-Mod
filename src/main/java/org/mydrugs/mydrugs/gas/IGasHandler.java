@@ -12,4 +12,18 @@ public interface IGasHandler {
     long fill(GasStack stack, boolean simulate);
 
     GasStack drain(long amount, boolean simulate);
+
+    default long fill(int tank, GasStack stack, boolean simulate) {
+        if (tank != 0) {
+            return 0;
+        }
+        return fill(stack, simulate);
+    }
+
+    default GasStack drain(int tank, long amount, boolean simulate) {
+        if (tank != 0) {
+            return GasStack.EMPTY;
+        }
+        return drain(amount, simulate);
+    }
 }

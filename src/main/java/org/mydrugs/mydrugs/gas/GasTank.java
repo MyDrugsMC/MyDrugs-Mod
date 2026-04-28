@@ -98,6 +98,11 @@ public class GasTank implements IGasHandler {
     }
 
     @Override
+    public long fill(int tank, GasStack stack, boolean simulate) {
+        return tank == 0 ? fill(stack, simulate) : 0;
+    }
+
+    @Override
     public GasStack drain(long amount, boolean simulate) {
         if (amount <= 0 || stored.isEmpty()) {
             return GasStack.EMPTY;
@@ -113,5 +118,10 @@ public class GasTank implements IGasHandler {
         }
 
         return drained;
+    }
+
+    @Override
+    public GasStack drain(int tank, long amount, boolean simulate) {
+        return tank == 0 ? drain(amount, simulate) : GasStack.EMPTY;
     }
 }

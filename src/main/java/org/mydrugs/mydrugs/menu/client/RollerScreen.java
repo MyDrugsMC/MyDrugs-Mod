@@ -30,6 +30,11 @@ public class RollerScreen extends AbstractMachineScreen<RollerMenu> {
     }
 
     @Override
+    protected boolean shouldShowTransferConfigButton() {
+        return false;
+    }
+
+    @Override
     protected void init() {
         super.init();
         float restY = this.getRollRestY();

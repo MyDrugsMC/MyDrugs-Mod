@@ -8,6 +8,8 @@ import org.mydrugs.mydrugs.menu.ChemicalReactorMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
+import java.util.List;
+
 public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactorMenu> {
     private static final int PANEL_COLOR = 0xFF323232;
     private static final int DIVIDER_COLOR = 0xFF4A4A4A;
@@ -63,6 +65,40 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawChemicalReactorLabels(this, graphics, this.font, this.title, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y),
+                    slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
+            );
+            case "fuel" -> List.of(slotHighlight(ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y));
+            case "gas_input" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.PRIMARY_GAS_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    tankHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y),
+                    slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
+            );
+            case "gas_output" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
+            );
+            case "fluid_output" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2)
+            );
+            case "item_output" -> List.of(
+                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y),
+                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

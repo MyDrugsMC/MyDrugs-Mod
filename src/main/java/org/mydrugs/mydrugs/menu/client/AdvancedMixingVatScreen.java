@@ -8,6 +8,8 @@ import org.mydrugs.mydrugs.menu.AdvancedMixingVatMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
 
+import java.util.List;
+
 public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixingVatMenu> {
     public AdvancedMixingVatScreen(AdvancedMixingVatMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, AdvancedMixingVatLayout.GUI_WIDTH, AdvancedMixingVatLayout.GUI_HEIGHT);
@@ -37,6 +39,40 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawAdvancedMixingVatLabels(this, graphics, this.font, this.title, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(AdvancedMixingVatLayout.ITEM_0_X, AdvancedMixingVatLayout.ITEM_0_Y),
+                    slotHighlight(AdvancedMixingVatLayout.ITEM_1_X, AdvancedMixingVatLayout.ITEM_1_Y),
+                    slotHighlight(AdvancedMixingVatLayout.ITEM_2_X, AdvancedMixingVatLayout.ITEM_2_Y),
+                    slotHighlight(AdvancedMixingVatLayout.ITEM_3_X, AdvancedMixingVatLayout.ITEM_3_Y)
+            );
+            case "fluid_input_a" -> List.of(
+                    tankHighlight(AdvancedMixingVatLayout.TANK_A_X, AdvancedMixingVatLayout.TANK_Y, AdvancedMixingVatLayout.TANK_W, AdvancedMixingVatLayout.TANK_H),
+                    slotHighlight(AdvancedMixingVatLayout.TANK_A_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y)
+            );
+            case "fluid_input_b" -> List.of(
+                    tankHighlight(AdvancedMixingVatLayout.TANK_B_X, AdvancedMixingVatLayout.TANK_Y, AdvancedMixingVatLayout.TANK_W, AdvancedMixingVatLayout.TANK_H),
+                    slotHighlight(AdvancedMixingVatLayout.TANK_B_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y)
+            );
+            case "fluid_input_c" -> List.of(
+                    tankHighlight(AdvancedMixingVatLayout.TANK_C_X, AdvancedMixingVatLayout.TANK_Y, AdvancedMixingVatLayout.TANK_W, AdvancedMixingVatLayout.TANK_H),
+                    slotHighlight(AdvancedMixingVatLayout.TANK_C_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y)
+            );
+            case "gas_input" -> List.of(
+                    tankHighlight(AdvancedMixingVatLayout.GAS_X, AdvancedMixingVatLayout.TANK_Y, AdvancedMixingVatLayout.TANK_W, AdvancedMixingVatLayout.TANK_H),
+                    slotHighlight(AdvancedMixingVatLayout.GAS_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y)
+            );
+            case "item_output" -> List.of(slotHighlight(AdvancedMixingVatLayout.OUTPUT_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y));
+            case "fluid_output" -> List.of(
+                    tankHighlight(AdvancedMixingVatLayout.OUTPUT_X, AdvancedMixingVatLayout.TANK_Y, AdvancedMixingVatLayout.TANK_W, AdvancedMixingVatLayout.TANK_H),
+                    slotHighlight(AdvancedMixingVatLayout.OUTPUT_SLOT_X, AdvancedMixingVatLayout.TANK_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

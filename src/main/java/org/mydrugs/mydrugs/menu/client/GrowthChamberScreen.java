@@ -7,6 +7,8 @@ import org.mydrugs.mydrugs.menu.GrowthChamberMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.GrowthChamberLayout;
 
+import java.util.List;
+
 public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu> {
     public GrowthChamberScreen(GrowthChamberMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, GrowthChamberLayout.GUI_WIDTH, GrowthChamberLayout.GUI_HEIGHT);
@@ -29,6 +31,25 @@ public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawGrowthChamberLabels(this, graphics, this.font, this.title, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(GrowthChamberLayout.INPUT_SLOT_X, GrowthChamberLayout.INPUT_SLOT_Y),
+                    slotHighlight(GrowthChamberLayout.BIOMASS_SLOT_X, GrowthChamberLayout.BIOMASS_SLOT_Y)
+            );
+            case "item_output" -> List.of(
+                    slotHighlight(GrowthChamberLayout.MIDDLE_SLOT_X, GrowthChamberLayout.MIDDLE_SLOT_Y),
+                    slotHighlight(GrowthChamberLayout.FINAL_SLOT_X, GrowthChamberLayout.FINAL_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(GrowthChamberLayout.WATER_TANK_X, GrowthChamberLayout.WATER_TANK_Y, GrowthChamberLayout.TANK_W, GrowthChamberLayout.TANK_H),
+                    slotHighlight(GrowthChamberLayout.WATER_INPUT_SLOT_X, GrowthChamberLayout.WATER_INPUT_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

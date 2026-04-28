@@ -7,6 +7,8 @@ import org.mydrugs.mydrugs.menu.DistillerMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
 
+import java.util.List;
+
 public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
     private InvisibleButton runButton;
     private InvisibleButton dumpInputButton;
@@ -83,6 +85,29 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawDistillerLabels(this, graphics, this.font, this.title);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(slotHighlight(DistillerLayout.INPUT_SLOT_X, DistillerLayout.INPUT_SLOT_Y));
+            case "item_output" -> List.of(
+                    slotHighlight(DistillerLayout.OUTPUT_A_SLOT_X, DistillerLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(DistillerLayout.OUTPUT_B_SLOT_X, DistillerLayout.OUTPUT_B_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(DistillerLayout.INPUT_TANK_X, DistillerLayout.INPUT_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H),
+                    slotHighlight(DistillerLayout.INPUT_SLOT_X, DistillerLayout.INPUT_SLOT_Y)
+            );
+            case "fluid_output" -> List.of(
+                    tankHighlight(DistillerLayout.OUTPUT_A_TANK_X, DistillerLayout.OUTPUT_A_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H),
+                    tankHighlight(DistillerLayout.OUTPUT_B_TANK_X, DistillerLayout.OUTPUT_B_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H),
+                    slotHighlight(DistillerLayout.OUTPUT_A_SLOT_X, DistillerLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(DistillerLayout.OUTPUT_B_SLOT_X, DistillerLayout.OUTPUT_B_SLOT_Y)
+            );
+            case "fuel" -> List.of();
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.BottleFluidContent;
 import org.mydrugs.mydrugs.items.data.BloodSample;
 import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
+import org.mydrugs.mydrugs.pipe.filter.PipeFilterConfig;
 
 import java.util.function.Supplier;
 
@@ -62,6 +63,12 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType(
                     "gas_tank_contents",
                     builder -> builder.persistent(GasTankContents.CODEC)
+            );
+
+    public static final Supplier<DataComponentType<PipeFilterConfig>> PIPE_FILTER_CONFIG =
+            DATA_COMPONENTS.registerComponentType(
+                    "pipe_filter_config",
+                    builder -> builder.persistent(PipeFilterConfig.CODEC).cacheEncoding()
             );
 
     private ModDataComponents() {

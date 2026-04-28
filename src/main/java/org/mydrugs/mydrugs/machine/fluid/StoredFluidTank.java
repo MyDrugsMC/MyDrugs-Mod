@@ -44,6 +44,20 @@ public final class StoredFluidTank implements FluidTankAccess {
         this.onChanged.run();
     }
 
+    /** Sets the stored fluid without triggering the onChanged callback. Used by transaction journals. */
+    public void setFluidSilent(FluidStack stack) {
+        if (stack == null || stack.isEmpty() || stack.getAmount() <= 0) {
+            this.stored = FluidStack.EMPTY;
+        } else {
+            this.stored = stack.copyWithAmount(Math.min(this.capacity, stack.getAmount()));
+        }
+    }
+
+    /** Fires the onChanged callback explicitly. Called when a transaction commits. */
+    public void markChanged() {
+        this.onChanged.run();
+    }
+
     public int encodeFluidSyncId() {
         return this.stored.isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(this.stored.getFluid());
     }

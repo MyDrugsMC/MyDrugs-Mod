@@ -7,6 +7,9 @@ import org.mydrugs.mydrugs.menu.ElectrolyzerMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.ElectrolyzerLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> {
     private InvisibleButton dumpInputButton;
     private InvisibleButton dumpOutput1Button;
@@ -101,6 +104,55 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawElectrolyzerLabels(this, graphics, this.font, this.title);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(ElectrolyzerLayout.INPUT_SLOT_X, ElectrolyzerLayout.INPUT_SLOT_Y),
+                    slotHighlight(ElectrolyzerLayout.FUEL_SLOT_X, ElectrolyzerLayout.FUEL_SLOT_Y)
+            );
+            case "item_output" -> List.of(
+                    slotHighlight(ElectrolyzerLayout.OUTPUT_1_SLOT_X, ElectrolyzerLayout.OUTPUT_1_SLOT_Y),
+                    slotHighlight(ElectrolyzerLayout.OUTPUT_2_SLOT_X, ElectrolyzerLayout.OUTPUT_2_SLOT_Y),
+                    slotHighlight(ElectrolyzerLayout.OUTPUT_3_SLOT_X, ElectrolyzerLayout.OUTPUT_3_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(ElectrolyzerLayout.INPUT_TANK_X, ElectrolyzerLayout.INPUT_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H),
+                    slotHighlight(ElectrolyzerLayout.INPUT_SLOT_X, ElectrolyzerLayout.INPUT_SLOT_Y)
+            );
+            case "fluid_output" -> outputHighlights(false);
+            case "gas_output" -> outputHighlights(true);
+            default -> super.transferPortHighlights(portIdPath);
+        };
+    }
+
+    private List<TransferHighlight> outputHighlights(boolean gasMode) {
+        ArrayList<TransferHighlight> highlights = new ArrayList<>();
+        addOutputHighlight(highlights, gasMode, this.menu.isOutput1GasMode(), ElectrolyzerLayout.OUTPUT_1_TANK_X, ElectrolyzerLayout.OUTPUT_1_TANK_Y, ElectrolyzerLayout.OUTPUT_1_SLOT_X, ElectrolyzerLayout.OUTPUT_1_SLOT_Y);
+        addOutputHighlight(highlights, gasMode, this.menu.isOutput2GasMode(), ElectrolyzerLayout.OUTPUT_2_TANK_X, ElectrolyzerLayout.OUTPUT_2_TANK_Y, ElectrolyzerLayout.OUTPUT_2_SLOT_X, ElectrolyzerLayout.OUTPUT_2_SLOT_Y);
+        addOutputHighlight(highlights, gasMode, this.menu.isOutput3GasMode(), ElectrolyzerLayout.OUTPUT_3_TANK_X, ElectrolyzerLayout.OUTPUT_3_TANK_Y, ElectrolyzerLayout.OUTPUT_3_SLOT_X, ElectrolyzerLayout.OUTPUT_3_SLOT_Y);
+        return highlights.isEmpty() ? allOutputHighlights() : highlights;
+    }
+
+    private static void addOutputHighlight(List<TransferHighlight> highlights, boolean expectedGasMode, boolean actualGasMode, int tankX, int tankY, int slotX, int slotY) {
+        if (actualGasMode != expectedGasMode) {
+            return;
+        }
+        highlights.add(tankHighlight(tankX, tankY, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H));
+        highlights.add(slotHighlight(slotX, slotY));
+    }
+
+    private static List<TransferHighlight> allOutputHighlights() {
+        return List.of(
+                tankHighlight(ElectrolyzerLayout.OUTPUT_1_TANK_X, ElectrolyzerLayout.OUTPUT_1_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H),
+                tankHighlight(ElectrolyzerLayout.OUTPUT_2_TANK_X, ElectrolyzerLayout.OUTPUT_2_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H),
+                tankHighlight(ElectrolyzerLayout.OUTPUT_3_TANK_X, ElectrolyzerLayout.OUTPUT_3_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H),
+                slotHighlight(ElectrolyzerLayout.OUTPUT_1_SLOT_X, ElectrolyzerLayout.OUTPUT_1_SLOT_Y),
+                slotHighlight(ElectrolyzerLayout.OUTPUT_2_SLOT_X, ElectrolyzerLayout.OUTPUT_2_SLOT_Y),
+                slotHighlight(ElectrolyzerLayout.OUTPUT_3_SLOT_X, ElectrolyzerLayout.OUTPUT_3_SLOT_Y)
+        );
     }
 
     @Override

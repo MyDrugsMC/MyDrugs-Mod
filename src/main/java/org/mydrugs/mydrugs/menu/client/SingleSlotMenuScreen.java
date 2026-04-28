@@ -14,6 +14,11 @@ public class SingleSlotMenuScreen extends AbstractMachineScreen<SingleSlotMenu> 
     }
 
     @Override
+    protected boolean shouldShowTransferConfigButton() {
+        return false;
+    }
+
+    @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         drawWindowColored(graphics, 0xFF181818, 0xFF262626);
 

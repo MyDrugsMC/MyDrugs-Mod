@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -27,6 +28,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.mydrugs.mydrugs.blocks.BiochemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.ModItems;
@@ -411,6 +414,10 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         output.putInt("Heat", this.heat);
         output.putInt("FuelHeatTicks", this.fuelHeatTicks);
         output.putInt("ManualEnergy", this.manualEnergy);
+    }
+
+    public ResourceHandler<FluidResource> getFluidHandler(Direction side) {
+        return new org.mydrugs.mydrugs.pipe.machine.StoredFluidTankResourceHandler(this, outputTank);
     }
 
     @Override

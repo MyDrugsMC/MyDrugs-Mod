@@ -1,8 +1,11 @@
 package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -27,13 +30,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.gas.GasStack;
-import org.mydrugs.mydrugs.gas.GasTank;
-import org.mydrugs.mydrugs.gas.GasType;
-import org.mydrugs.mydrugs.gas.ModGasCapabilities;
-import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -746,8 +747,22 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
         };
     }
 
+    public ResourceHandler<FluidResource> getFluidHandler(Direction side) {
+        return new org.mydrugs.mydrugs.pipe.machine.StoredFluidTankResourceHandler(this,
+                input1FluidTank, input2FluidTank,
+                output1FluidTank, output2FluidTank, output3FluidTank
+        );
+    }
+
+    public IGasHandler getGasHandler(Direction side) {
+        return new CompositeGasHandler(
+                input1GasTank, input2GasTank,
+                output1GasTank, output2GasTank, output3GasTank
+        );
+    }
+
     @Override
-    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return this.saveWithoutMetadata(registries);
     }
 

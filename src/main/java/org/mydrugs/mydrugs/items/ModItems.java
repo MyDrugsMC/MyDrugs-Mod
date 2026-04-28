@@ -24,6 +24,11 @@ import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
 import org.mydrugs.mydrugs.items.rolling.RollerItem;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
+import org.mydrugs.mydrugs.pipe.PipeResourceKind;
+import org.mydrugs.mydrugs.pipe.filter.PipeFilterConfig;
+import org.mydrugs.mydrugs.pipe.filter.PipeFilterUpgradeItem;
+import org.mydrugs.mydrugs.pipe.item.PipeWrenchItem;
+import org.mydrugs.mydrugs.pipe.machine.MachineTransferUpgradeItem;
 
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -279,6 +284,22 @@ public class ModItems {
 
     public static final DeferredItem<Item> STEEL_HAMMER =
             ITEMS.registerSimpleItem("steel_hammer", props -> props.stacksTo(1).durability(384));
+
+    public static final DeferredItem<Item> PIPE_WRENCH =
+            ITEMS.registerItem("pipe_wrench", PipeWrenchItem::new, props -> props.stacksTo(1).durability(256));
+
+    public static final DeferredItem<Item> PIPE_FILTER_UPGRADE =
+            ITEMS.registerItem(
+                    "pipe_filter_upgrade",
+                    PipeFilterUpgradeItem::new,
+                    props -> props.stacksTo(1).component(
+                            ModDataComponents.PIPE_FILTER_CONFIG.get(),
+                            PipeFilterConfig.empty(PipeResourceKind.ITEM)
+                    )
+            );
+
+    public static final DeferredItem<Item> MACHINE_TRANSFER_UPGRADE =
+            ITEMS.registerItem("machine_transfer_upgrade", MachineTransferUpgradeItem::new, props -> props.stacksTo(1));
 
     public static final DeferredItem<Item> STEEL_PLATE =
             ITEMS.registerSimpleItem("steel_plate");

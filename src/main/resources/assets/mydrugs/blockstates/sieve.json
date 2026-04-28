@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "mydrugs:block/sieve"
-    }
+    "facing=north": { "model": "mydrugs:block/sieve" },
+    "facing=south": { "model": "mydrugs:block/sieve", "y": 180 },
+    "facing=west": { "model": "mydrugs:block/sieve", "y": 270 },
+    "facing=east": { "model": "mydrugs:block/sieve", "y": 90 }
   }
 }

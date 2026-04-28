@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.blocks.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -32,6 +35,7 @@ import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
 import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.menu.AdvancedFurnaceMenu;
+import org.mydrugs.mydrugs.pipe.machine.StoredFluidTankResourceHandler;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipeInput;
@@ -412,6 +416,10 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         output.putInt("burn_time", this.burnTime);
         output.putInt("burn_duration", this.burnDuration);
         this.outputTank.save(output, "output_tank");
+    }
+
+    public ResourceHandler<FluidResource> getFluidHandler(Direction side) {
+        return new StoredFluidTankResourceHandler(this, outputTank);
     }
 
     private record VanillaRecipeMatch(int inputSlot, ItemStack result, int cookTime) {

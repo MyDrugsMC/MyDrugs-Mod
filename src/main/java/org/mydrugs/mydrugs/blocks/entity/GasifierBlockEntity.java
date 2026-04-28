@@ -269,6 +269,10 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         return this.outputTank;
     }
 
+    public IGasHandler getGasHandler(net.minecraft.core.Direction side) {
+        return this.outputTank;
+    }
+
     public ContainerData getContainerData() {
         return this.data;
     }

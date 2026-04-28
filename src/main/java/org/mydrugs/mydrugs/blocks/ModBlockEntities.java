@@ -6,6 +6,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.entity.*;
+import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
 
 import java.util.function.Supplier;
 
@@ -188,5 +189,18 @@ public final class ModBlockEntities {
                     () -> new BlockEntityType<>(
                             CatalyticReformerBlockEntity::new,
                             ModBlocks.CATALYTIC_REFORMER.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPES =
+            BLOCK_ENTITY_TYPES.register("pipes",
+                    () -> new BlockEntityType<>(
+                            PipeBlockEntity::new,
+                            false,
+                            ModBlocks.BASIC_ITEM_PIPE.get(),
+                            ModBlocks.FAST_ITEM_PIPE.get(),
+                            ModBlocks.BASIC_FLUID_PIPE.get(),
+                            ModBlocks.FAST_FLUID_PIPE.get(),
+                            ModBlocks.BASIC_GAS_PIPE.get(),
+                            ModBlocks.FAST_GAS_PIPE.get()
                     ));
 }

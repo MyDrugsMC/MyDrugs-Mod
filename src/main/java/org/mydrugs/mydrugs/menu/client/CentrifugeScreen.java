@@ -7,6 +7,8 @@ import org.mydrugs.mydrugs.menu.CentrifugeMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.CentrifugeLayout;
 
+import java.util.List;
+
 public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
     private InvisibleButton dumpInputButton;
     private InvisibleButton dumpOutputAButton;
@@ -71,6 +73,31 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawCentrifugeLabels(this, graphics, this.font, this.title);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(CentrifugeLayout.INPUT_SLOT_X, CentrifugeLayout.INPUT_SLOT_Y),
+                    slotHighlight(CentrifugeLayout.FUEL_SLOT_X, CentrifugeLayout.FUEL_SLOT_Y)
+            );
+            case "item_output" -> List.of(
+                    slotHighlight(CentrifugeLayout.OUTPUT_A_SLOT_X, CentrifugeLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(CentrifugeLayout.OUTPUT_B_SLOT_X, CentrifugeLayout.OUTPUT_B_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(CentrifugeLayout.INPUT_TANK_X, CentrifugeLayout.INPUT_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H),
+                    slotHighlight(CentrifugeLayout.INPUT_SLOT_X, CentrifugeLayout.INPUT_SLOT_Y)
+            );
+            case "fluid_output" -> List.of(
+                    tankHighlight(CentrifugeLayout.OUTPUT_A_TANK_X, CentrifugeLayout.OUTPUT_A_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H),
+                    tankHighlight(CentrifugeLayout.OUTPUT_B_TANK_X, CentrifugeLayout.OUTPUT_B_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H),
+                    slotHighlight(CentrifugeLayout.OUTPUT_A_SLOT_X, CentrifugeLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(CentrifugeLayout.OUTPUT_B_SLOT_X, CentrifugeLayout.OUTPUT_B_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

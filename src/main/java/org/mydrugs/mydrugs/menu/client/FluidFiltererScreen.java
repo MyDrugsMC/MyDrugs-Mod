@@ -8,6 +8,8 @@ import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.FluidFiltererLayout;
 
+import java.util.List;
+
 public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu> {
     private boolean holdingRunButton = false;
     private InvisibleButton dumpInputButton;
@@ -66,6 +68,29 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawFluidFiltererLabels(this, graphics, this.font, this.title, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y),
+                    slotHighlight(FluidFiltererLayout.FILTER_SLOT_X, FluidFiltererLayout.FILTER_SLOT_Y)
+            );
+            case "item_output" -> List.of(
+                    slotHighlight(FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y),
+                    slotHighlight(FluidFiltererLayout.RESIDUE_SLOT_X, FluidFiltererLayout.RESIDUE_SLOT_Y)
+            );
+            case "fluid_input" -> List.of(
+                    tankHighlight(FluidFiltererLayout.INPUT_TANK_X, FluidFiltererLayout.INPUT_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H),
+                    slotHighlight(FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y)
+            );
+            case "fluid_output" -> List.of(
+                    tankHighlight(FluidFiltererLayout.OUTPUT_A_TANK_X, FluidFiltererLayout.OUTPUT_A_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H),
+                    slotHighlight(FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

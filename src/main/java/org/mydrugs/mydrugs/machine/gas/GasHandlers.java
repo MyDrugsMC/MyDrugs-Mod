@@ -35,7 +35,17 @@ public final class GasHandlers {
             }
 
             @Override
+            public long fill(int tank, GasStack stack, boolean simulate) {
+                return delegate.fill(tank, stack, simulate);
+            }
+
+            @Override
             public GasStack drain(long amount, boolean simulate) {
+                return GasStack.EMPTY;
+            }
+
+            @Override
+            public GasStack drain(int tank, long amount, boolean simulate) {
                 return GasStack.EMPTY;
             }
         };
@@ -69,8 +79,18 @@ public final class GasHandlers {
             }
 
             @Override
+            public long fill(int tank, GasStack stack, boolean simulate) {
+                return 0;
+            }
+
+            @Override
             public GasStack drain(long amount, boolean simulate) {
                 return delegate.drain(amount, simulate);
+            }
+
+            @Override
+            public GasStack drain(int tank, long amount, boolean simulate) {
+                return delegate.drain(tank, amount, simulate);
             }
         };
     }

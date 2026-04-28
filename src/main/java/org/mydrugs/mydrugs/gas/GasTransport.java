@@ -9,22 +9,26 @@ public final class GasTransport {
             return 0;
         }
 
-        GasStack available = from.getGasInTank(0);
-        if (available.isEmpty()) {
-            return 0;
+        for (int tank = 0; tank < from.getTanks(); tank++) {
+            GasStack available = from.getGasInTank(tank);
+            if (available.isEmpty()) {
+                continue;
+            }
+
+            GasStack offer = available.withAmount(Math.min(maxAmount, available.amount()));
+            long accepted = to.fill(offer, true);
+            if (accepted <= 0) {
+                continue;
+            }
+
+            GasStack drained = from.drain(tank, accepted, false);
+            if (drained.isEmpty()) {
+                continue;
+            }
+
+            return to.fill(drained, false);
         }
 
-        GasStack offer = available.withAmount(Math.min(maxAmount, available.amount()));
-        long accepted = to.fill(offer, true);
-        if (accepted <= 0) {
-            return 0;
-        }
-
-        GasStack drained = from.drain(accepted, false);
-        if (drained.isEmpty()) {
-            return 0;
-        }
-
-        return to.fill(drained, false);
+        return 0;
     }
 }

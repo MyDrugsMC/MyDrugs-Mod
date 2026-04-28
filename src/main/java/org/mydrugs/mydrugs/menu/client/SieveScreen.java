@@ -16,6 +16,8 @@ import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.SieveLayout;
 import org.mydrugs.mydrugs.network.SieveShakePayload;
 
+import java.util.List;
+
 public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     private static final int KNOB_RADIUS = 5;
 
@@ -70,6 +72,18 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawSieveLabels(this, graphics, this.font, this.title, this.playerInventoryTitle, this.inventoryLabelY, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(slotHighlight(SieveLayout.INPUT_X, SieveLayout.INPUT_Y));
+            case "item_output" -> List.of(
+                    slotHighlight(SieveLayout.RESULT_X, SieveLayout.RESULT_Y),
+                    slotHighlight(SieveLayout.BONUS_X, SieveLayout.BONUS_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

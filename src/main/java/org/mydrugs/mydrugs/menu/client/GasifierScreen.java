@@ -7,6 +7,8 @@ import org.mydrugs.mydrugs.menu.GasifierMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.GasifierLayout;
 
+import java.util.List;
+
 public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
     private static final int GAS_COLOR = 0xFF9FC75E;
     private static final int GAS_HIGHLIGHT = 0xFFDDF3AF;
@@ -39,6 +41,22 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawGasifierLabels(this, graphics, this.font, this.title, this.playerInventoryTitle, this.inventoryLabelY, null);
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(GasifierLayout.INPUT_SLOT_X, GasifierLayout.INPUT_SLOT_Y),
+                    slotHighlight(GasifierLayout.FUEL_SLOT_X, GasifierLayout.FUEL_SLOT_Y)
+            );
+            case "item_output" -> List.of(slotHighlight(GasifierLayout.EXPORT_SLOT_X, GasifierLayout.EXPORT_SLOT_Y));
+            case "gas_output" -> List.of(
+                    tankHighlight(GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_W, GasifierLayout.TANK_H),
+                    slotHighlight(GasifierLayout.EXPORT_SLOT_X, GasifierLayout.EXPORT_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

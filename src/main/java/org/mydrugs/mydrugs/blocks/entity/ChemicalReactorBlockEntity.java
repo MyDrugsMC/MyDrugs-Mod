@@ -135,8 +135,22 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         }
 
         @Override
+        public long fill(int tank, GasStack resource, boolean simulate) {
+            return switch (tank) {
+                case 0 -> primaryGasTank.fill(resource, simulate);
+                case 1 -> secondaryGasTank.fill(resource, simulate);
+                default -> 0;
+            };
+        }
+
+        @Override
         public GasStack drain(long amount, boolean simulate) {
             return gasOutputTank.drain(amount, simulate);
+        }
+
+        @Override
+        public GasStack drain(int tank, long amount, boolean simulate) {
+            return tank == 2 ? gasOutputTank.drain(amount, simulate) : GasStack.EMPTY;
         }
     };
 

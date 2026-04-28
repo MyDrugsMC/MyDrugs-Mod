@@ -6,6 +6,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.pipe.filter.PipeFilterMenu;
+import org.mydrugs.mydrugs.pipe.machine.MachineTransferConfigMenu;
 
 import java.util.function.Supplier;
 
@@ -77,4 +79,13 @@ public class ModMenus {
     public static final Supplier<MenuType<CatalyticReformerMenu>> CATALYTIC_REFORMER =
             MENUS.register("catalytic_reformer",
                     () -> new MenuType<>(CatalyticReformerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<PipeFilterMenu>> PIPE_FILTER =
+            MENUS.register("pipe_filter", () -> new MenuType<>(PipeFilterMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<MachineTransferConfigMenu>> MACHINE_TRANSFER_CONFIG =
+            MENUS.register(
+                    "machine_transfer_config",
+                    () -> IMenuTypeExtension.create(MachineTransferConfigMenu::new)
+            );
 }

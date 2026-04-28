@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.compat.gas.*;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.compat.*;
 
 @JeiPlugin
 public class JEIModPlugin implements IModPlugin {

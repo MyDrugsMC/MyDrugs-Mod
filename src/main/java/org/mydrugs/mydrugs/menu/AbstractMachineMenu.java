@@ -1,14 +1,22 @@
 package org.mydrugs.mydrugs.menu;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
+import org.mydrugs.mydrugs.pipe.machine.MachineTransferMenuAccess;
 
-public abstract class AbstractMachineMenu extends AbstractContainerMenu {
+import java.lang.reflect.Field;
+
+public abstract class AbstractMachineMenu extends AbstractContainerMenu implements MachineTransferMenuAccess {
     protected AbstractMachineMenu(MenuType<?> menuType, int containerId) {
         super(menuType, containerId);
     }
@@ -72,6 +80,93 @@ public abstract class AbstractMachineMenu extends AbstractContainerMenu {
 
         sourceSlot.onTake(player, sourceStack);
         return originalStack;
+    }
+
+    @Override
+    public @Nullable BlockEntity getMachineTransferTarget(Player player) {
+        BlockEntity byAccess = findTargetFromLevelAccess();
+        if (byAccess != null) {
+            return byAccess;
+        }
+
+        BlockEntity byPosition = findTargetFromPosition(player);
+        if (byPosition != null) {
+            return byPosition;
+        }
+
+        return findTargetFromContainer();
+    }
+
+    private @Nullable BlockEntity findTargetFromLevelAccess() {
+        for (Field field : allFields()) {
+            if (!ContainerLevelAccess.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+
+            Object value = getFieldValue(field);
+            if (value instanceof ContainerLevelAccess access) {
+                BlockEntity blockEntity = access.evaluate((level, pos) -> level.getBlockEntity(pos), null);
+                if (blockEntity != null) {
+                    return blockEntity;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private @Nullable BlockEntity findTargetFromPosition(Player player) {
+        for (Field field : allFields()) {
+            if (!BlockPos.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+
+            Object value = getFieldValue(field);
+            if (value instanceof BlockPos pos) {
+                BlockEntity blockEntity = player.level().getBlockEntity(pos);
+                if (blockEntity != null) {
+                    return blockEntity;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private @Nullable BlockEntity findTargetFromContainer() {
+        for (Field field : allFields()) {
+            if (!Container.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+
+            Object value = getFieldValue(field);
+            if (value instanceof BlockEntity blockEntity) {
+                return blockEntity;
+            }
+        }
+
+        return null;
+    }
+
+    private Iterable<Field> allFields() {
+        java.util.ArrayList<Field> fields = new java.util.ArrayList<>();
+        Class<?> type = this.getClass();
+        while (type != null && AbstractContainerMenu.class.isAssignableFrom(type)) {
+            for (Field field : type.getDeclaredFields()) {
+                fields.add(field);
+            }
+            type = type.getSuperclass();
+        }
+        return fields;
+    }
+
+    private @Nullable Object getFieldValue(Field field) {
+        try {
+            field.setAccessible(true);
+            return field.get(this);
+        } catch (IllegalAccessException ignored) {
+            return null;
+        }
     }
 
     @Override

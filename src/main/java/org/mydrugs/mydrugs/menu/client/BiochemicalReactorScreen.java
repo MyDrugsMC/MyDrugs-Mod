@@ -7,6 +7,8 @@ import org.mydrugs.mydrugs.menu.BiochemicalReactorMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.BiochemicalReactorLayout;
 
+import java.util.List;
+
 public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalReactorMenu> {
     private InvisibleButton manualBoostButton;
 
@@ -58,6 +60,23 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
                 this.title,
                 this.menu.isWorking() ? "Processing" : "Idle"
         );
+    }
+
+    @Override
+    protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
+        return switch (portIdPath) {
+            case "item_input" -> List.of(
+                    slotHighlight(BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y),
+                    slotHighlight(BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y),
+                    slotHighlight(BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.CHARCOAL_SLOT_Y)
+            );
+            case "item_output" -> List.of(slotHighlight(BiochemicalReactorLayout.OUTPUT_SLOT_X, BiochemicalReactorLayout.OUTPUT_SLOT_Y));
+            case "fluid_output" -> List.of(
+                    tankHighlight(BiochemicalReactorLayout.OUTPUT_TANK_X, BiochemicalReactorLayout.OUTPUT_TANK_Y, BiochemicalReactorLayout.TANK_W, BiochemicalReactorLayout.TANK_H),
+                    slotHighlight(BiochemicalReactorLayout.OUTPUT_SLOT_X, BiochemicalReactorLayout.OUTPUT_SLOT_Y)
+            );
+            default -> super.transferPortHighlights(portIdPath);
+        };
     }
 
     @Override

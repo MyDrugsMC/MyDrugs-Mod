@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "mydrugs:block/gas_tank" }
+    "facing=north": { "model": "mydrugs:block/gas_tank" },
+    "facing=south": { "model": "mydrugs:block/gas_tank", "y": 180 },
+    "facing=west": { "model": "mydrugs:block/gas_tank", "y": 270 },
+    "facing=east": { "model": "mydrugs:block/gas_tank", "y": 90 }
   }
 }

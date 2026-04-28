@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "mydrugs:block/advanced_furnace"
-    }
+    "facing=north": { "model": "mydrugs:block/advanced_furnace" },
+    "facing=south": { "model": "mydrugs:block/advanced_furnace", "y": 180 },
+    "facing=west": { "model": "mydrugs:block/advanced_furnace", "y": 270 },
+    "facing=east": { "model": "mydrugs:block/advanced_furnace", "y": 90 }
   }
 }

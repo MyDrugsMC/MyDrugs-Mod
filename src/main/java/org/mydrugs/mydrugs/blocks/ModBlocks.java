@@ -12,6 +12,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.block.RecoveryAnchorBlock;
 import org.mydrugs.mydrugs.effects.addiction.block.TherapistDeskBlock;
+import org.mydrugs.mydrugs.pipe.PipeResourceKind;
+import org.mydrugs.mydrugs.pipe.PipeTier;
+import org.mydrugs.mydrugs.pipe.block.PipeBlock;
 import org.mydrugs.mydrugs.worldgen.ModWorldGenKeys;
 
 public class ModBlocks {
@@ -360,6 +363,54 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> MECHANICAL_FRAME_ITEM = ITEMS.registerSimpleBlockItem(MECHANICAL_FRAME);
+
+    public static final DeferredBlock<PipeBlock> BASIC_ITEM_PIPE = BLOCKS.registerBlock(
+            "basic_item_pipe",
+            props -> new PipeBlock(props.noOcclusion(), PipeResourceKind.ITEM, PipeTier.BASIC),
+            props -> props.strength(0.8F).sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> BASIC_ITEM_PIPE_ITEM = ITEMS.registerSimpleBlockItem(BASIC_ITEM_PIPE);
+
+    public static final DeferredBlock<PipeBlock> FAST_ITEM_PIPE = BLOCKS.registerBlock(
+            "fast_item_pipe",
+            props -> new PipeBlock(props.noOcclusion(), PipeResourceKind.ITEM, PipeTier.FAST),
+            props -> props.strength(1.0F).sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> FAST_ITEM_PIPE_ITEM = ITEMS.registerSimpleBlockItem(FAST_ITEM_PIPE);
+
+    public static final DeferredBlock<PipeBlock> BASIC_FLUID_PIPE = BLOCKS.registerBlock(
+            "basic_fluid_pipe",
+            props -> new PipeBlock(props.noOcclusion(), PipeResourceKind.FLUID, PipeTier.BASIC),
+            props -> props.strength(0.8F).sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> BASIC_FLUID_PIPE_ITEM = ITEMS.registerSimpleBlockItem(BASIC_FLUID_PIPE);
+
+    public static final DeferredBlock<PipeBlock> FAST_FLUID_PIPE = BLOCKS.registerBlock(
+            "fast_fluid_pipe",
+            props -> new PipeBlock(props.noOcclusion(), PipeResourceKind.FLUID, PipeTier.FAST),
+            props -> props.strength(1.0F).sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> FAST_FLUID_PIPE_ITEM = ITEMS.registerSimpleBlockItem(FAST_FLUID_PIPE);
+
+    public static final DeferredBlock<PipeBlock> BASIC_GAS_PIPE = BLOCKS.registerBlock(
+            "basic_gas_pipe",
+            props -> new PipeBlock(props.noOcclusion(), PipeResourceKind.GAS, PipeTier.BASIC),
+            props -> props.strength(0.8F).sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> BASIC_GAS_PIPE_ITEM = ITEMS.registerSimpleBlockItem(BASIC_GAS_PIPE);
+
+    public static final DeferredBlock<PipeBlock> FAST_GAS_PIPE = BLOCKS.registerBlock(
+            "fast_gas_pipe",
+            props -> new PipeBlock(props.noOcclusion(), PipeResourceKind.GAS, PipeTier.FAST),
+            props -> props.strength(1.0F).sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> FAST_GAS_PIPE_ITEM = ITEMS.registerSimpleBlockItem(FAST_GAS_PIPE);
 
 
     public static final DeferredBlock<CatalyticReformerBlock> CATALYTIC_REFORMER = BLOCKS.registerBlock(
