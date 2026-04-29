@@ -142,6 +142,15 @@ public final class ModBlockEntities {
             )
     );
 
+    public static final Supplier<BlockEntityType<FluidPumpBlockEntity>> FLUID_PUMP = BLOCK_ENTITY_TYPES.register(
+            "fluid_pump",
+            () -> new BlockEntityType<>(
+                    FluidPumpBlockEntity::new,
+                    false,
+                    ModBlocks.FLUID_PUMP.get()
+            )
+    );
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GasifierBlockEntity>> GASIFIER =
             BLOCK_ENTITY_TYPES.register(
                     "gasifier",

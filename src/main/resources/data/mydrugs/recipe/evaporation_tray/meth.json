@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:methamphetamine",
+  "input_amount": 1000,
+  "result": {
+    "id": "mydrugs:meth_shard",
+    "count": 4
+  },
+  "processing_time": 200
+}

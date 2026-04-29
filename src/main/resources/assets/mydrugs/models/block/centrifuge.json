@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:block/orientable_with_bottom",
-  "textures": {
-    "top": "mydrugs:block/centrifuge_top",
-    "front": "mydrugs:block/centrifuge_front",
-    "side": "mydrugs:block/centrifuge_side",
-    "bottom": "mydrugs:block/centrifuge_bottom"
-  }
-}

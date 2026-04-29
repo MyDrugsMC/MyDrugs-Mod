@@ -69,6 +69,21 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.DEEPSLATE_PLATINUM_ORE.get(),
                     block -> createOreDrop(block, ModItems.RAW_PLATINUM.get())
             );
+
+            add(
+                    ModBlocks.ALUMINIUM_ORE.get(),
+                    block -> createOreDrop(block, ModItems.RAW_ALUMINIUM.get())
+            );
+
+            add(
+                    ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(),
+                    block -> createOreDrop(block, ModItems.RAW_ALUMINIUM.get())
+            );
+
+            dropSelf(ModBlocks.RAW_PLATINUM_BLOCK.get());
+            dropSelf(ModBlocks.PLATINUM_BLOCK.get());
+            dropSelf(ModBlocks.RAW_ALUMINIUM_BLOCK.get());
+            dropSelf(ModBlocks.ALUMINIUM_BLOCK.get());
         }
 
         private LootTable.Builder oreDropWithCount(Block block, ItemLike drop, float min, float max) {
@@ -104,7 +119,13 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.DEEPSLATE_SULFUR_ORE.get(),
 
                     ModBlocks.PLATINUM_ORE.get(),
-                    ModBlocks.DEEPSLATE_PLATINUM_ORE.get()
+                    ModBlocks.DEEPSLATE_PLATINUM_ORE.get(),
+                    ModBlocks.ALUMINIUM_ORE.get(),
+                    ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(),
+                    ModBlocks.RAW_PLATINUM_BLOCK.get(),
+                    ModBlocks.PLATINUM_BLOCK.get(),
+                    ModBlocks.RAW_ALUMINIUM_BLOCK.get(),
+                    ModBlocks.ALUMINIUM_BLOCK.get()
             );
         }
     }

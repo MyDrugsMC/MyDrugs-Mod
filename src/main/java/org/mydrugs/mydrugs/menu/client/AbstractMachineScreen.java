@@ -103,11 +103,11 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
     }
 
     protected int transferConfigButtonX() {
-        return this.leftPos + this.imageWidth - 22;
+        return Math.max(4, this.leftPos - 22);
     }
 
     protected int transferConfigButtonY() {
-        return this.topPos + 6;
+        return this.topPos;
     }
 
     @Override

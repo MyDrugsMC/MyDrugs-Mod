@@ -48,6 +48,15 @@ public final class ModBiomeModifiers {
                 )
         );
 
+        context.register(
+                ModWorldGenKeys.ADD_ALUMINIUM_ORE,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.ALUMINIUM_ORE_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES
+                )
+        );
+
         // Vanilla desert only.
         context.register(
                 ModWorldGenKeys.ADD_PETROLEUM_LAKES_TO_DESERTS,

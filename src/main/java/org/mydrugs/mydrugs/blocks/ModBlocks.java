@@ -264,6 +264,14 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> GAS_PUMP_ITEM = ITEMS.registerSimpleBlockItem(GAS_PUMP);
 
+    public static final DeferredBlock<FluidPumpBlock> FLUID_PUMP = BLOCKS.registerBlock(
+            "fluid_pump",
+            FluidPumpBlock::new,
+            props -> props.strength(2.5F).sound(SoundType.METAL).noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> FLUID_PUMP_ITEM = ITEMS.registerSimpleBlockItem(FLUID_PUMP);
+
     public static final DeferredBlock<GasifierBlock> GASIFIER = BLOCKS.registerBlock(
             "gasifier",
             GasifierBlock::new,
@@ -435,6 +443,38 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> STEAM_CRACKER_ITEM = ITEMS.registerSimpleBlockItem(STEAM_CRACKER);
 
+    public static final DeferredBlock<Block> RAW_PLATINUM_BLOCK = BLOCKS.registerSimpleBlock(
+            "raw_platinum_block",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).requiresCorrectToolForDrops()
+    );
+
+    public static final DeferredItem<BlockItem> RAW_PLATINUM_BLOCK_ITEM =
+            ITEMS.registerSimpleBlockItem(RAW_PLATINUM_BLOCK);
+
+    public static final DeferredBlock<Block> PLATINUM_BLOCK = BLOCKS.registerSimpleBlock(
+            "platinum_block",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK).requiresCorrectToolForDrops()
+    );
+
+    public static final DeferredItem<BlockItem> PLATINUM_BLOCK_ITEM =
+            ITEMS.registerSimpleBlockItem(PLATINUM_BLOCK);
+
+    public static final DeferredBlock<Block> RAW_ALUMINIUM_BLOCK = BLOCKS.registerSimpleBlock(
+            "raw_aluminium_block",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).requiresCorrectToolForDrops()
+    );
+
+    public static final DeferredItem<BlockItem> RAW_ALUMINIUM_BLOCK_ITEM =
+            ITEMS.registerSimpleBlockItem(RAW_ALUMINIUM_BLOCK);
+
+    public static final DeferredBlock<Block> ALUMINIUM_BLOCK = BLOCKS.registerSimpleBlock(
+            "aluminium_block",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops()
+    );
+
+    public static final DeferredItem<BlockItem> ALUMINIUM_BLOCK_ITEM =
+            ITEMS.registerSimpleBlockItem(ALUMINIUM_BLOCK);
+
     public static final DeferredBlock<Block> PLATINUM_ORE = BLOCKS.registerSimpleBlock(
             "platinum_ore",
             props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_ORE)
@@ -450,6 +490,22 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> DEEPSLATE_PLATINUM_ORE_ITEM =
             ITEMS.registerSimpleBlockItem(DEEPSLATE_PLATINUM_ORE);
+
+    public static final DeferredBlock<Block> ALUMINIUM_ORE = BLOCKS.registerSimpleBlock(
+            "aluminium_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_ORE)
+    );
+
+    public static final DeferredItem<BlockItem> ALUMINIUM_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(ALUMINIUM_ORE);
+
+    public static final DeferredBlock<Block> DEEPSLATE_ALUMINIUM_ORE = BLOCKS.registerSimpleBlock(
+            "deepslate_aluminium_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)
+    );
+
+    public static final DeferredItem<BlockItem> DEEPSLATE_ALUMINIUM_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(DEEPSLATE_ALUMINIUM_ORE);
 
     private ModBlocks() {
     }

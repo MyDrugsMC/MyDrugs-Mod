@@ -1,0 +1,23 @@
+{
+  "type": "mydrugs:catalytic_reformer",
+
+  "input_fluid_1": {
+    "fluid": "mydrugs:methylamine",
+    "amount": 100
+  },
+
+  "input_fluid_2": {
+    "fluid": "mydrugs:phenylacetone",
+    "amount": 100
+  },
+
+  "catalyst": "mydrugs:aluminium_ingot",
+
+  "output_fluid_1": {
+    "fluid": "mydrugs:methamphetamine",
+    "amount": 60
+  },
+
+  "consume_catalyst": false,
+  "base_ticks": 200
+}

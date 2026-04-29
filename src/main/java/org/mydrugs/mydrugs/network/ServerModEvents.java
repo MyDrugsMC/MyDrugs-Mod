@@ -44,6 +44,12 @@ public final class ServerModEvents {
         );
 
         event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                ModBlockEntities.FLUID_PUMP.get(),
+                (blockEntity, side) -> blockEntity.getFluidHandler(side)
+        );
+
+        event.registerBlockEntity(
                 Capabilities.Item.BLOCK,
                 ModBlockEntities.ADVANCED_FURNACE.get(),
                 (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)

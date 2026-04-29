@@ -58,7 +58,7 @@ public final class ModConfiguredFeatures {
                 new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(sulfurTargets, 7))
         );
 
-        // Platinim ore: diamond-like, normal + deepslate variants.
+        // Platinum ore: diamond-like, normal + deepslate variants.
         List<OreConfiguration.TargetBlockState> platinumTargets = List.of(
                 OreConfiguration.target(
                         new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES),
@@ -70,11 +70,30 @@ public final class ModConfiguredFeatures {
                 )
         );
 
+        List<OreConfiguration.TargetBlockState> aluminiumTargets = List.of(
+                OreConfiguration.target(
+                        new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES),
+                        ModBlocks.ALUMINIUM_ORE.get().defaultBlockState()
+                ),
+                OreConfiguration.target(
+                        new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES),
+                        ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get().defaultBlockState()
+                )
+        );
+
         context.register(
                 ModWorldGenKeys.PLATINUM_ORE,
                 new ConfiguredFeature<>(
                         Feature.ORE,
                         new OreConfiguration(platinumTargets, 4, 0.5F)
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.ALUMINIUM_ORE,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(aluminiumTargets, 4, 0.5F)
                 )
         );
 

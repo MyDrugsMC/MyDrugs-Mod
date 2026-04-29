@@ -1,0 +1,6 @@
+{
+  "parent": "mydrugs:block/fluid_pump",
+  "textures": {
+    "all": "mydrugs:block/fluid_pump_crank"
+  }
+}

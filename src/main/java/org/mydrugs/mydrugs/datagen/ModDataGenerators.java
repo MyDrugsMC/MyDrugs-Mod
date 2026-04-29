@@ -27,9 +27,10 @@ public final class ModDataGenerators {
         event.createProvider(SpaceFoodOverlayTextureProvider::new);
         event.createProvider(ModFluidClientItemProvider::new);
         event.createProvider(ModSimpleClientItemProvider::new);
-        event.createProvider(ModLangProvider::new);
+        event.createProvider(ModSimpleBlockAssetProvider::new);
         event.createProvider(ModLootTableProvider::new);
-        event.createProvider(ModRecipeProvider.Runner::new);
+        event.createProvider(ModVanillaRecipeJsonProvider::new);
+        event.createProvider(ModVanillaRecipeSnapshotProvider::new);
         event.createProvider(ModFluidBlockStateProvider::new);
         event.createProvider(ModBlockTagsProvider::new);
 

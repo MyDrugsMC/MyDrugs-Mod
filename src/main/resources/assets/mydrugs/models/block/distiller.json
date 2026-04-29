@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:block/orientable_with_bottom",
-  "textures": {
-    "top": "mydrugs:block/distiller_top",
-    "front": "mydrugs:block/distiller_front",
-    "side": "mydrugs:block/distiller_side",
-    "bottom": "mydrugs:block/distiller_bottom"
-  }
-}

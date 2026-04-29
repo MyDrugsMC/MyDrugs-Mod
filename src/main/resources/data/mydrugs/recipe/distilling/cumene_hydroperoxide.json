@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:distiller",
+  "input": {
+    "fluid": "mydrugs:cumene_hydroperoxide",
+    "amount": 100
+  },
+  "output_1": {
+    "fluid": "mydrugs:acetone",
+    "amount": 45
+  },
+  "output_2": {
+    "fluid": "mydrugs:phenol",
+    "amount": 55
+  },
+  "base_ticks": 200
+}

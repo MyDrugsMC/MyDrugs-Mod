@@ -1,0 +1,24 @@
+{
+  "type": "mydrugs:steam_cracker",
+  "input_fluid": {
+    "fluid": "mydrugs:naphtha",
+    "amount": 100
+  },
+  "output_gas_1": {
+    "gas": "mydrugs:ethylene",
+    "amount": 20
+  },
+  "output_gas_2": {
+    "gas": "mydrugs:propylene",
+    "amount": 15
+  },
+  "output_gas_3": {
+    "gas": "mydrugs:crude_c4_mix",
+    "amount": 25
+  },
+  "output_fluid_4": {
+    "fluid": "mydrugs:industrial_mix",
+    "amount": 40
+  },
+  "base_ticks": 200
+}

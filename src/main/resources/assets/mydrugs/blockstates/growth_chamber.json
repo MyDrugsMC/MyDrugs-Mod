@@ -1,8 +1,0 @@
-{
-  "variants": {
-    "facing=north": { "model": "mydrugs:block/growth_chamber" },
-    "facing=south": { "model": "mydrugs:block/growth_chamber", "y": 180 },
-    "facing=west":  { "model": "mydrugs:block/growth_chamber", "y": 270 },
-    "facing=east":  { "model": "mydrugs:block/growth_chamber", "y": 90 }
-  }
-}

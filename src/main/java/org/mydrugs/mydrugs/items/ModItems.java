@@ -19,6 +19,8 @@ import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
 import org.mydrugs.mydrugs.effects.addiction.item.*;
+import org.mydrugs.mydrugs.energy.AutomationUpgradeItem;
+import org.mydrugs.mydrugs.energy.EnergyUpgradeItem;
 import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.*;
@@ -301,6 +303,12 @@ public class ModItems {
     public static final DeferredItem<Item> MACHINE_TRANSFER_UPGRADE =
             ITEMS.registerItem("machine_transfer_upgrade", MachineTransferUpgradeItem::new, props -> props.stacksTo(1));
 
+    public static final DeferredItem<Item> ENERGY_UPGRADE =
+            ITEMS.registerItem("energy_upgrade", EnergyUpgradeItem::new, props -> props.stacksTo(1));
+
+    public static final DeferredItem<Item> AUTOMATION_UPGRADE =
+            ITEMS.registerItem("automation_upgrade", AutomationUpgradeItem::new, props -> props.stacksTo(1));
+
     public static final DeferredItem<Item> STEEL_PLATE =
             ITEMS.registerSimpleItem("steel_plate");
 
@@ -362,6 +370,12 @@ public class ModItems {
 
     public static final DeferredItem<Item> PLATINUM_INGOT =
             ITEMS.registerSimpleItem("platinum_ingot");
+
+    public static final DeferredItem<Item> RAW_ALUMINIUM =
+            ITEMS.registerSimpleItem("raw_aluminium");
+
+    public static final DeferredItem<Item> ALUMINIUM_INGOT =
+            ITEMS.registerSimpleItem("aluminium_ingot");
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

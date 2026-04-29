@@ -462,6 +462,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
         if (!fluidTank.isEmpty()) {
             return false;
         }
+        if (output == null) return true;
 
         GasStack stack = toGasStack(output.gas(), output.amount());
         return !stack.isEmpty() && gasTank.fill(stack, true) >= output.amount();
@@ -500,7 +501,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
             if (!canAcceptFluidOutput(recipe.outputFluid2().get(), this.output2FluidTank, this.output2GasTank)) {
                 return false;
             }
-        } else if (!canAcceptGasOutput(recipe.outputGas2().orElseThrow(), this.output2FluidTank, this.output2GasTank)) {
+        } else if (!canAcceptGasOutput(recipe.outputGas2().orElse(null), this.output2FluidTank, this.output2GasTank)) {
             return false;
         }
 
@@ -508,7 +509,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
             if (!canAcceptFluidOutput(recipe.outputFluid3().get(), this.output3FluidTank, this.output3GasTank)) {
                 return false;
             }
-        } else if (!canAcceptGasOutput(recipe.outputGas3().orElseThrow(), this.output3FluidTank, this.output3GasTank)) {
+        } else if (!canAcceptGasOutput(recipe.outputGas3().orElse(null), this.output3FluidTank, this.output3GasTank)) {
             return false;
         }
 

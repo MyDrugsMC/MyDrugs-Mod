@@ -20,15 +20,27 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.SULFUR_ORE.get())
                 .add(ModBlocks.DEEPSLATE_SULFUR_ORE.get())
                 .add(ModBlocks.PLATINUM_ORE.get())
-                .add(ModBlocks.DEEPSLATE_PLATINUM_ORE.get());
+                .add(ModBlocks.DEEPSLATE_PLATINUM_ORE.get())
+                .add(ModBlocks.RAW_PLATINUM_BLOCK.get())
+                .add(ModBlocks.PLATINUM_BLOCK.get())
+                .add(ModBlocks.ALUMINIUM_ORE.get())
+                .add(ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get())
+                .add(ModBlocks.RAW_ALUMINIUM_BLOCK.get())
+                .add(ModBlocks.ALUMINIUM_BLOCK.get());
 
         tag(BlockTags.NEEDS_STONE_TOOL)
                 .add(ModBlocks.SULFUR_ORE.get())
-                .add(ModBlocks.DEEPSLATE_SULFUR_ORE.get());
+                .add(ModBlocks.DEEPSLATE_SULFUR_ORE.get())
+                .add(ModBlocks.ALUMINIUM_ORE.get())
+                .add(ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get())
+                .add(ModBlocks.RAW_ALUMINIUM_BLOCK.get())
+                .add(ModBlocks.ALUMINIUM_BLOCK.get());
 
         tag(BlockTags.NEEDS_IRON_TOOL)
                 .add(ModBlocks.PLATINUM_ORE.get())
-                .add(ModBlocks.DEEPSLATE_PLATINUM_ORE.get());
+                .add(ModBlocks.DEEPSLATE_PLATINUM_ORE.get())
+                .add(ModBlocks.RAW_PLATINUM_BLOCK.get())
+                .add(ModBlocks.PLATINUM_BLOCK.get());
     }
 
     @Override

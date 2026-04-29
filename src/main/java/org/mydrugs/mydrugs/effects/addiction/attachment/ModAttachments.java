@@ -6,6 +6,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachment;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachment;
 
 import java.util.function.Supplier;
@@ -21,6 +22,11 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<MachineTransferAttachment>> MACHINE_TRANSFER =
             ATTACHMENTS.register("machine_transfer", () ->
                     AttachmentType.serializable(MachineTransferAttachment::new)
+                            .build()
+            );
+    public static final Supplier<AttachmentType<MachineEnergyAttachment>> MACHINE_ENERGY =
+            ATTACHMENTS.register("machine_energy", () ->
+                    AttachmentType.serializable(MachineEnergyAttachment::new)
                             .build()
             );
 

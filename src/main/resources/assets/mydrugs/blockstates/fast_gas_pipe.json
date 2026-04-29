@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "mydrugs:block/pipe/debug_fast_gas_pipe_clean"
+      }
+    }
+  ]
+}

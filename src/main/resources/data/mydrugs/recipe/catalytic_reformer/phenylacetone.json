@@ -1,0 +1,23 @@
+{
+  "type": "mydrugs:catalytic_reformer",
+
+  "input_fluid_1": {
+    "fluid": "mydrugs:benzene",
+    "amount": 100
+  },
+
+  "input_fluid_2": {
+    "fluid": "mydrugs:chloroacetone",
+    "amount": 100
+  },
+
+  "catalyst": "mydrugs:aluminium_ingot",
+
+  "output_fluid_1": {
+    "fluid": "mydrugs:phenylacetone",
+    "amount": 60
+  },
+
+  "consume_catalyst": false,
+  "base_ticks": 200
+}

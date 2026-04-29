@@ -42,6 +42,15 @@ public class ModLangProvider extends LanguageProvider {
         add(ModBlocks.FAST_FLUID_PIPE.get(), "Fast Fluid Pipe");
         add(ModBlocks.BASIC_GAS_PIPE.get(), "Basic Gas Pipe");
         add(ModBlocks.FAST_GAS_PIPE.get(), "Fast Gas Pipe");
+        add(ModBlocks.FLUID_PUMP.get(), "Fluid Pump");
+        add(ModBlocks.PLATINUM_ORE.get(), "Platinum Ore");
+        add(ModBlocks.DEEPSLATE_PLATINUM_ORE.get(), "Deepslate Platinum Ore");
+        add(ModBlocks.RAW_PLATINUM_BLOCK.get(), "Block of Raw Platinum");
+        add(ModBlocks.PLATINUM_BLOCK.get(), "Block of Platinum");
+        add(ModBlocks.ALUMINIUM_ORE.get(), "Aluminium Ore");
+        add(ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(), "Deepslate Aluminium Ore");
+        add(ModBlocks.RAW_ALUMINIUM_BLOCK.get(), "Block of Raw Aluminium");
+        add(ModBlocks.ALUMINIUM_BLOCK.get(), "Block of Aluminium");
         add("container.mydrugs.btx_fractionation_tower", "BTX Fractionation Tower");
 
         // Items
@@ -50,6 +59,12 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.PIPE_WRENCH.get(), "Pipe Wrench");
         add(ModItems.PIPE_FILTER_UPGRADE.get(), "Pipe Filter Upgrade");
         add(ModItems.MACHINE_TRANSFER_UPGRADE.get(), "Machine Transfer Upgrade");
+        add(ModItems.ENERGY_UPGRADE.get(), "Energy Upgrade");
+        add(ModItems.AUTOMATION_UPGRADE.get(), "Automation Upgrade");
+        add(ModItems.RAW_PLATINUM.get(), "Raw Platinum");
+        add(ModItems.PLATINUM_INGOT.get(), "Platinum Ingot");
+        add(ModItems.RAW_ALUMINIUM.get(), "Raw Aluminium");
+        add(ModItems.ALUMINIUM_INGOT.get(), "Aluminium Ingot");
         add("menu.mydrugs.pipe_filter", "Pipe Filter");
         add("menu.mydrugs.machine_transfer_config", "Machine Transfer Configuration");
         add("message.mydrugs.pipe.side_mode", "%s: %s");
@@ -61,6 +76,14 @@ public class ModLangProvider extends LanguageProvider {
         add("screen.mydrugs.pipe_filter.instructions", "Configured data is stored on the upgrade item.");
         add("message.mydrugs.transfer_upgrade.installed", "Transfer upgrade installed");
         add("message.mydrugs.transfer_upgrade.already_installed", "Transfer upgrade already installed");
+        add("message.mydrugs.energy_upgrade.installed", "Energy Upgrade installed.");
+        add("message.mydrugs.energy_upgrade.already_installed", "Energy Upgrade already installed.");
+        add("message.mydrugs.energy_upgrade.has_automation", "This machine already has an Automation Upgrade.");
+        add("message.mydrugs.energy_upgrade.unsupported", "This machine does not support this upgrade.");
+        add("message.mydrugs.automation_upgrade.installed", "Automation Upgrade installed.");
+        add("message.mydrugs.automation_upgrade.already_installed", "Automation Upgrade already installed.");
+        add("message.mydrugs.automation_upgrade.has_energy", "This machine already has an Energy Upgrade.");
+        add("message.mydrugs.automation_upgrade.unsupported", "This machine does not support this upgrade.");
         add("screen.mydrugs.machine_transfer.target", "Target: %s");
         add("screen.mydrugs.machine_transfer.ports", "Ports detected: %s");
         add("screen.mydrugs.machine_transfer.instructions", "Port and side rules will be synced here as machines migrate.");

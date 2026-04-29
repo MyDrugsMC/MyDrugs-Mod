@@ -1,8 +1,0 @@
-{
-  "variants": {
-    "facing=north": { "model": "mydrugs:block/drying_rack" },
-    "facing=east":  { "model": "mydrugs:block/drying_rack", "y": 90 },
-    "facing=south": { "model": "mydrugs:block/drying_rack", "y": 180 },
-    "facing=west":  { "model": "mydrugs:block/drying_rack", "y": 270 }
-  }
-}

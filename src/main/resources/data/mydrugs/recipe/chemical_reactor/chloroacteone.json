@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:chemical_reactor",
+  "primary_gas": {
+    "gas": "mydrugs:chlorine",
+    "amount": 250
+  },
+  "secondary_fluid": {
+    "fluid": "mydrugs:acetone",
+    "amount": 250
+  },
+  "output_kind": "fluid",
+  "output_id": "mydrugs:chloroacetone",
+  "output_amount": 400,
+  "process_time": 180,
+  "min_heat": 400,
+  "heat_drain": 18
+}

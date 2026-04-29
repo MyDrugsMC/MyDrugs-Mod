@@ -15,6 +15,7 @@ import java.util.Map;
 
 public final class DrugRegistry {
     private static final Map<DrugId, DrugModel> drugs = new HashMap<>();
+    private static final EnumMap<DrugId, Integer> psychotropeValues = new EnumMap<>(DrugId.class);
     private static final EnumMap<DrugCategory, DrugId> representativeDrugs = new EnumMap<>(DrugCategory.class);
 
     private DrugRegistry() {
@@ -218,6 +219,7 @@ public final class DrugRegistry {
         );
 
         initializeRepresentativeDrugs();
+        initializePsychotropeValues();
     }
 
     private static DrugModel addDrug(DrugModel model) {
@@ -243,6 +245,16 @@ public final class DrugRegistry {
         representativeDrugs.put(DrugCategory.NICOTINIC, DrugId.TOBACCO);
         representativeDrugs.put(DrugCategory.CAFFEINE, DrugId.COFFEE);
         representativeDrugs.put(DrugCategory.INHALANT, DrugId.NITROUS_OXIDE);
+    }
+
+    private static void initializePsychotropeValues() {
+        psychotropeValues.clear();
+        psychotropeValues.put(DrugId.WEED, 1);
+        psychotropeValues.put(DrugId.ALCOHOL, 5);
+        psychotropeValues.put(DrugId.COCAINE, 15);
+        psychotropeValues.put(DrugId.CRACK, 20);
+        psychotropeValues.put(DrugId.LSD, 50);
+        psychotropeValues.put(DrugId.METH, 100);
     }
 
     public static @Nullable DrugModel getDrug(DrugId id) {
@@ -281,5 +293,13 @@ public final class DrugRegistry {
         }
 
         return null;
+    }
+
+    public static int getPsychotropeValue(DrugId id) {
+        return psychotropeValues.getOrDefault(id, 0);
+    }
+
+    public static void setPsychotropeValue(DrugId id, int value) {
+        psychotropeValues.put(id, Math.max(0, value));
     }
 }

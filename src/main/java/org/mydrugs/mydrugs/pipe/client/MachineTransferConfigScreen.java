@@ -24,11 +24,14 @@ import java.util.Locale;
 
 public class MachineTransferConfigScreen extends AbstractContainerScreen<MachineTransferConfigMenu> {
     private static final int PORT_LIST_X = 8;
-    private static final int PORT_LIST_Y = 30;
+    private static final int PORT_LIST_Y = 46;
     private static final int PORT_LIST_W = 114;
     private static final int PORT_ROW_H = 24;
     private static final int PORT_ROW_GAP = 3;
     private static final int VISIBLE_PORT_ROWS = 5;
+    private static final int HIDE_CONTAINER_CHECKBOX_X = 8;
+    private static final int HIDE_CONTAINER_CHECKBOX_Y = 28;
+    private static final int HIDE_CONTAINER_CHECKBOX_SIZE = 10;
     private static final int SIDE_BUTTON_W = 30;
     private static final int SIDE_BUTTON_H = 22;
     private static final int PANEL_X = 130;
@@ -38,6 +41,9 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
     private final List<RuleButton> ruleButtons = new ArrayList<>();
     private int selectedPortIndex;
     private int scrollOffset;
+    private boolean hideContainerPorts;
+    private boolean draggingScrollbar;
+    private int scrollbarDragOffsetY;
 
     public MachineTransferConfigScreen(MachineTransferConfigMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -75,6 +81,7 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
         guiGraphics.fill(this.leftPos + 4, this.topPos + 4, this.leftPos + this.imageWidth - 4, this.topPos + 22, 0xFF303942);
         guiGraphics.drawString(this.font, Component.translatable("screen.mydrugs.machine_transfer.title"), this.leftPos + 9, this.topPos + 10, 0xFFFFFF, false);
         guiGraphics.drawString(this.font, Component.translatable("screen.mydrugs.machine_transfer.front", directionName(this.menu.frontDirection())), this.leftPos + 188, this.topPos + 10, 0xC8D2DD, false);
+        renderHideContainerCheckbox(guiGraphics, mouseX, mouseY);
         renderPortList(guiGraphics, mouseX, mouseY);
         renderSidePanel(guiGraphics);
     }
@@ -85,22 +92,24 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
     }
 
     private void renderPortList(GuiGraphics graphics, int mouseX, int mouseY) {
+        List<Integer> visiblePorts = visiblePortIndexes();
         int x = this.leftPos + PORT_LIST_X;
         int y = this.topPos + PORT_LIST_Y;
         int h = VISIBLE_PORT_ROWS * (PORT_ROW_H + PORT_ROW_GAP) - PORT_ROW_GAP;
         graphics.fill(x, y, x + PORT_LIST_W, y + h, 0xFF101214);
         graphics.fill(x + 1, y + 1, x + PORT_LIST_W - 1, y + h - 1, 0xFF242A30);
 
-        if (this.menu.ports().isEmpty()) {
+        if (visiblePorts.isEmpty()) {
             drawClipped(graphics, Component.translatable("screen.mydrugs.machine_transfer.no_ports").getString(), x + 6, y + 8, PORT_LIST_W - 12, 0xFFD6DEE8);
             return;
         }
 
-        int end = Math.min(this.menu.ports().size(), this.scrollOffset + VISIBLE_PORT_ROWS);
-        for (int portIndex = this.scrollOffset; portIndex < end; portIndex++) {
-            renderPortRow(graphics, portIndex, x + 4, y + 4 + (portIndex - this.scrollOffset) * (PORT_ROW_H + PORT_ROW_GAP));
+        int end = Math.min(visiblePorts.size(), this.scrollOffset + VISIBLE_PORT_ROWS);
+        for (int visibleIndex = this.scrollOffset; visibleIndex < end; visibleIndex++) {
+            int portIndex = visiblePorts.get(visibleIndex);
+            renderPortRow(graphics, portIndex, x + 4, y + 4 + (visibleIndex - this.scrollOffset) * (PORT_ROW_H + PORT_ROW_GAP));
         }
-        renderScrollbar(graphics, x + PORT_LIST_W - 5, y + 3, h - 6);
+        renderScrollbar(graphics);
     }
 
     private void renderPortRow(GuiGraphics graphics, int portIndex, int x, int y) {
@@ -117,14 +126,17 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
         drawClipped(graphics, Component.translatable(port.translationKey()).getString(), x + 4, y + 13, rowW - 8, 0xFFFFFFFF);
     }
 
-    private void renderScrollbar(GuiGraphics graphics, int x, int y, int h) {
+    private void renderScrollbar(GuiGraphics graphics) {
         int maxScroll = maxScroll();
         if (maxScroll <= 0) {
             return;
         }
+        int x = scrollbarTrackX();
+        int y = scrollbarTrackY();
+        int h = scrollbarTrackHeight();
         graphics.fill(x, y, x + 3, y + h, 0xFF101214);
-        int thumbH = Math.max(16, h * VISIBLE_PORT_ROWS / this.menu.ports().size());
-        int thumbY = y + (h - thumbH) * this.scrollOffset / maxScroll;
+        int thumbH = scrollbarThumbHeight();
+        int thumbY = scrollbarThumbY();
         graphics.fill(x, thumbY, x + 3, thumbY + thumbH, 0xFFB8C7D8);
     }
 
@@ -133,7 +145,7 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
         int y = this.topPos + PANEL_Y;
         graphics.fill(x, y, x + PANEL_W, y + PANEL_H, 0xFF101214);
         graphics.fill(x + 1, y + 1, x + PANEL_W - 1, y + PANEL_H - 1, 0xFF242A30);
-        if (this.menu.ports().isEmpty()) {
+        if (!hasVisiblePorts()) {
             drawClipped(graphics, Component.translatable("screen.mydrugs.machine_transfer.no_ports").getString(), x + 8, y + 10, PANEL_W - 16, 0xFFE8F1E8);
             return;
         }
@@ -158,6 +170,18 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
         graphics.drawString(this.font, text, x, y, 0xFFB8C7D8, false);
     }
 
+    private void renderHideContainerCheckbox(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = this.leftPos + HIDE_CONTAINER_CHECKBOX_X;
+        int y = this.topPos + HIDE_CONTAINER_CHECKBOX_Y;
+        int color = isOverHideContainerCheckbox(mouseX, mouseY) ? 0xFFE8F1E8 : 0xFF9EACB8;
+        graphics.fill(x, y, x + HIDE_CONTAINER_CHECKBOX_SIZE, y + HIDE_CONTAINER_CHECKBOX_SIZE, 0xFF101214);
+        graphics.fill(x + 1, y + 1, x + HIDE_CONTAINER_CHECKBOX_SIZE - 1, y + HIDE_CONTAINER_CHECKBOX_SIZE - 1, 0xFF242A30);
+        if (this.hideContainerPorts) {
+            graphics.fill(x + 3, y + 3, x + HIDE_CONTAINER_CHECKBOX_SIZE - 3, y + HIDE_CONTAINER_CHECKBOX_SIZE - 3, 0xFF7FCBFF);
+        }
+        graphics.drawString(this.font, "Hide container ports", x + HIDE_CONTAINER_CHECKBOX_SIZE + 4, y + 1, color, false);
+    }
+
     private void addSideButton(MachineLocalSide side, int localX, int localY) {
         RuleButton button = new RuleButton(
                 side,
@@ -174,10 +198,36 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClicked) {
+        if (event.button() == 0 && isOverHideContainerCheckbox((int) event.x(), (int) event.y())) {
+            this.hideContainerPorts = !this.hideContainerPorts;
+            clampSelectionAndScroll();
+            return true;
+        }
+        if (event.button() == 0 && handleScrollbarClick((int) event.x(), (int) event.y())) {
+            return true;
+        }
         if (event.button() == 0 && handlePortClick((int) event.x(), (int) event.y())) {
             return true;
         }
         return super.mouseClicked(event, doubleClicked);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.draggingScrollbar && event.button() == 0) {
+            updateScrollFromMouse((int) event.y());
+            return true;
+        }
+        return super.mouseDragged(event, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.draggingScrollbar) {
+            this.draggingScrollbar = false;
+            return true;
+        }
+        return super.mouseReleased(event);
     }
 
     @Override
@@ -191,7 +241,8 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
     }
 
     private boolean handlePortClick(int mouseX, int mouseY) {
-        if (!isOverPortList(mouseX, mouseY) || this.menu.ports().isEmpty()) {
+        List<Integer> visiblePorts = visiblePortIndexes();
+        if (!isOverPortList(mouseX, mouseY) || visiblePorts.isEmpty()) {
             return false;
         }
 
@@ -208,11 +259,24 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
             return true;
         }
 
-        int portIndex = this.scrollOffset + row;
-        if (portIndex >= 0 && portIndex < this.menu.ports().size()) {
+        int visibleIndex = this.scrollOffset + row;
+        if (visibleIndex >= 0 && visibleIndex < visiblePorts.size()) {
+            int portIndex = visiblePorts.get(visibleIndex);
             this.selectedPortIndex = portIndex;
             clampSelectionAndScroll();
         }
+        return true;
+    }
+
+    private boolean handleScrollbarClick(int mouseX, int mouseY) {
+        if (!isOverScrollbar(mouseX, mouseY)) {
+            return false;
+        }
+        this.draggingScrollbar = true;
+        int thumbY = scrollbarThumbY();
+        int thumbH = scrollbarThumbHeight();
+        this.scrollbarDragOffsetY = mouseY >= thumbY && mouseY < thumbY + thumbH ? mouseY - thumbY : thumbH / 2;
+        updateScrollFromMouse(mouseY);
         return true;
     }
 
@@ -223,8 +287,22 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
         return mouseX >= x && mouseX < x + PORT_LIST_W && mouseY >= y && mouseY < y + h;
     }
 
+    private boolean isOverScrollbar(int mouseX, int mouseY) {
+        return maxScroll() > 0
+                && mouseX >= scrollbarTrackX() - 2
+                && mouseX < scrollbarTrackX() + 5
+                && mouseY >= scrollbarTrackY()
+                && mouseY < scrollbarTrackY() + scrollbarTrackHeight();
+    }
+
+    private boolean isOverHideContainerCheckbox(int mouseX, int mouseY) {
+        int x = this.leftPos + HIDE_CONTAINER_CHECKBOX_X;
+        int y = this.topPos + HIDE_CONTAINER_CHECKBOX_Y;
+        return mouseX >= x && mouseX < x + PORT_LIST_W && mouseY >= y && mouseY < y + HIDE_CONTAINER_CHECKBOX_SIZE;
+    }
+
     private void pressRuleButton(int portIndex, MachineLocalSide side) {
-        if (this.menu.ports().isEmpty()) {
+        if (!hasVisiblePorts()) {
             return;
         }
         if (this.minecraft != null && this.minecraft.gameMode != null) {
@@ -234,19 +312,21 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
 
     private void updateRuleButtons() {
         for (RuleButton button : this.ruleButtons) {
-            MachineTransferSideRule rule = this.menu.ports().isEmpty()
+            boolean hasVisiblePorts = hasVisiblePorts();
+            MachineTransferSideRule rule = !hasVisiblePorts
                     ? MachineTransferSideRule.DISABLED
                     : this.menu.rule(this.selectedPortIndex, button.side);
             button.setRule(rule);
-            button.setOccupiedByOther(occupiedPorts(button.side));
+            button.setOccupiedByOther(hasVisiblePorts ? occupiedPorts(button.side) : List.of());
+            button.active = hasVisiblePorts;
         }
     }
 
     private List<MachineTransferPortSpec> occupiedPorts(MachineLocalSide side) {
         List<MachineTransferPortSpec> occupied = new ArrayList<>();
-        for (int i = 0; i < this.menu.ports().size(); i++) {
-            if (i != this.selectedPortIndex && this.menu.rule(i, side) != MachineTransferSideRule.DISABLED) {
-                occupied.add(this.menu.ports().get(i));
+        for (int portIndex : visiblePortIndexes()) {
+            if (portIndex != this.selectedPortIndex && this.menu.rule(portIndex, side) != MachineTransferSideRule.DISABLED) {
+                occupied.add(this.menu.ports().get(portIndex));
             }
         }
         return occupied;
@@ -254,7 +334,7 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
 
     private void renderHoveredTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         RuleButton sideButton = hoveredRuleButton(mouseX, mouseY);
-        if (sideButton != null && !this.menu.ports().isEmpty()) {
+        if (sideButton != null && hasVisiblePorts()) {
             renderRuleTooltip(graphics, mouseX, mouseY, sideButton);
             return;
         }
@@ -266,14 +346,15 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
     }
 
     private int hoveredPort(int mouseX, int mouseY) {
-        if (!isOverPortList(mouseX, mouseY) || this.menu.ports().isEmpty()) {
+        List<Integer> visiblePorts = visiblePortIndexes();
+        if (!isOverPortList(mouseX, mouseY) || visiblePorts.isEmpty()) {
             return -1;
         }
         int localY = mouseY - (this.topPos + PORT_LIST_Y + 4);
         int row = localY / (PORT_ROW_H + PORT_ROW_GAP);
         int withinRow = localY % (PORT_ROW_H + PORT_ROW_GAP);
-        int portIndex = this.scrollOffset + row;
-        return row >= 0 && row < VISIBLE_PORT_ROWS && withinRow < PORT_ROW_H && portIndex < this.menu.ports().size() ? portIndex : -1;
+        int visibleIndex = this.scrollOffset + row;
+        return row >= 0 && row < VISIBLE_PORT_ROWS && withinRow < PORT_ROW_H && visibleIndex < visiblePorts.size() ? visiblePorts.get(visibleIndex) : -1;
     }
 
     private @Nullable RuleButton hoveredRuleButton(int mouseX, int mouseY) {
@@ -325,22 +406,84 @@ public class MachineTransferConfigScreen extends AbstractContainerScreen<Machine
     }
 
     private void clampSelectionAndScroll() {
-        if (this.menu.ports().isEmpty()) {
+        List<Integer> visiblePorts = visiblePortIndexes();
+        if (visiblePorts.isEmpty()) {
             this.selectedPortIndex = 0;
             this.scrollOffset = 0;
             return;
         }
-        this.selectedPortIndex = clamp(this.selectedPortIndex, 0, this.menu.ports().size() - 1);
+        if (!visiblePorts.contains(this.selectedPortIndex)) {
+            this.selectedPortIndex = visiblePorts.get(0);
+        }
         this.scrollOffset = clamp(this.scrollOffset, 0, maxScroll());
-        if (this.selectedPortIndex < this.scrollOffset) {
-            this.scrollOffset = this.selectedPortIndex;
-        } else if (this.selectedPortIndex >= this.scrollOffset + VISIBLE_PORT_ROWS) {
-            this.scrollOffset = clamp(this.selectedPortIndex - VISIBLE_PORT_ROWS + 1, 0, maxScroll());
+        int visibleSelectedIndex = visiblePorts.indexOf(this.selectedPortIndex);
+        if (visibleSelectedIndex < this.scrollOffset) {
+            this.scrollOffset = visibleSelectedIndex;
+        } else if (visibleSelectedIndex >= this.scrollOffset + VISIBLE_PORT_ROWS) {
+            this.scrollOffset = clamp(visibleSelectedIndex - VISIBLE_PORT_ROWS + 1, 0, maxScroll());
         }
     }
 
     private int maxScroll() {
-        return Math.max(0, this.menu.ports().size() - VISIBLE_PORT_ROWS);
+        return Math.max(0, visiblePortIndexes().size() - VISIBLE_PORT_ROWS);
+    }
+
+    private boolean hasVisiblePorts() {
+        return !visiblePortIndexes().isEmpty();
+    }
+
+    private List<Integer> visiblePortIndexes() {
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < this.menu.ports().size(); i++) {
+            MachineTransferPortSpec port = this.menu.ports().get(i);
+            if (!this.hideContainerPorts || !isContainerPort(port)) {
+                indexes.add(i);
+            }
+        }
+        return indexes;
+    }
+
+    private static boolean isContainerPort(MachineTransferPortSpec port) {
+        return port.id().id().getPath().toLowerCase(Locale.ROOT).contains("container");
+    }
+
+    private int scrollbarTrackX() {
+        return this.leftPos + PORT_LIST_X + PORT_LIST_W - 5;
+    }
+
+    private int scrollbarTrackY() {
+        return this.topPos + PORT_LIST_Y + 3;
+    }
+
+    private int scrollbarTrackHeight() {
+        return VISIBLE_PORT_ROWS * (PORT_ROW_H + PORT_ROW_GAP) - PORT_ROW_GAP - 6;
+    }
+
+    private int scrollbarThumbHeight() {
+        int visibleSize = visiblePortIndexes().size();
+        if (visibleSize <= 0) {
+            return scrollbarTrackHeight();
+        }
+        return Math.max(16, scrollbarTrackHeight() * VISIBLE_PORT_ROWS / visibleSize);
+    }
+
+    private int scrollbarThumbY() {
+        int maxScroll = maxScroll();
+        if (maxScroll <= 0) {
+            return scrollbarTrackY();
+        }
+        return scrollbarTrackY() + (scrollbarTrackHeight() - scrollbarThumbHeight()) * this.scrollOffset / maxScroll;
+    }
+
+    private void updateScrollFromMouse(int mouseY) {
+        int maxScroll = maxScroll();
+        int travel = scrollbarTrackHeight() - scrollbarThumbHeight();
+        if (maxScroll <= 0 || travel <= 0) {
+            this.scrollOffset = 0;
+            return;
+        }
+        int targetY = mouseY - this.scrollbarDragOffsetY - scrollbarTrackY();
+        this.scrollOffset = clamp(Math.round(targetY * maxScroll / (float) travel), 0, maxScroll);
     }
 
     private static int clamp(int value, int min, int max) {

@@ -66,8 +66,8 @@ public class CatalyticReformerRecipe implements Recipe<CatalyticReformerRecipeIn
         validateRequiredPort(inputFluid2, inputGas2, "input 2");
 
         validateRequiredPort(outputFluid1, outputGas1, "output 1");
-        validateRequiredPort(outputFluid2, outputGas2, "output 2");
-        validateRequiredPort(outputFluid3, outputGas3, "output 3");
+        validateOptionalPort(outputFluid2, outputGas2, "output 2");
+        validateOptionalPort(outputFluid3, outputGas3, "output 3");
 
         if (baseTicks <= 0) {
             throw new IllegalArgumentException("baseTicks must be > 0");
@@ -91,6 +91,12 @@ public class CatalyticReformerRecipe implements Recipe<CatalyticReformerRecipeIn
     private static void validateRequiredPort(Optional<?> fluid, Optional<?> gas, String name) {
         if (fluid.isPresent() == gas.isPresent()) {
             throw new IllegalArgumentException(name + " must define exactly one of fluid or gas");
+        }
+    }
+
+    private static void validateOptionalPort(Optional<?> fluid, Optional<?> gas, String name) {
+        if (fluid.isPresent() && gas.isPresent()) {
+            throw new IllegalArgumentException(name + " must define only one of fluid or gas");
         }
     }
 

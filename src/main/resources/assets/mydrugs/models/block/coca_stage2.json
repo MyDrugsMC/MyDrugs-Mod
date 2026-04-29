@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "cross": "mydrugs:block/coca_stage2",
-    "particle": "mydrugs:block/coca_stage2"
-  }
-}
