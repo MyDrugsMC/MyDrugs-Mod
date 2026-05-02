@@ -1,6 +1,0 @@
-{
-  "parent": "mydrugs:block/pipe/debug_pipe_cross",
-  "textures": {
-    "pipe": "mydrugs:block/pipe/fast_fluid_pipe"
-  }
-}

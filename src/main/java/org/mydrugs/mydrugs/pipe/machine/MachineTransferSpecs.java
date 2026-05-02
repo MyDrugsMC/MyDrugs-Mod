@@ -162,8 +162,7 @@ public final class MachineTransferSpecs {
                     itemIn("fuel", 0, ChemicalReactorBlockEntity.SLOT_FUEL, TOP_INPUT_DEFAULT),
                     itemIn("primary_gas_container", 1, ChemicalReactorBlockEntity.SLOT_PRIMARY_GAS_TRANSFER, INPUT_DEFAULT),
                     itemIn("secondary_transfer", 2, ChemicalReactorBlockEntity.SLOT_SECONDARY_TRANSFER, SECONDARY_INPUT_DEFAULT),
-                    itemIn("gas_output_container", 3, ChemicalReactorBlockEntity.SLOT_GAS_OUTPUT_TRANSFER, SECONDARY_INPUT_DEFAULT),
-                    itemIn("fluid_output_container", 4, ChemicalReactorBlockEntity.SLOT_FLUID_OUTPUT_TRANSFER, SECONDARY_INPUT_DEFAULT),
+                    itemBoth("output_container", 3, ChemicalReactorBlockEntity.SLOT_OUTPUT_TRANSFER, OUTPUT_DEFAULT),
                     fluidIn("secondary_fluid_input", 5, 0, INPUT_DEFAULT),
                     fluidOut("fluid_output", 6, 1, OUTPUT_DEFAULT),
                     gasIn("primary_gas_input", 7, 0, INPUT_DEFAULT),
@@ -247,6 +246,10 @@ public final class MachineTransferSpecs {
 
     private static MachineTransferPortSpec itemOut(String path, int order, int slot, Set<MachineLocalSide> defaults) {
         return port(path, MachineTransferResourceKind.ITEM, MachineTransferAccess.OUTPUT_ONLY, List.of(slot), List.of(), List.of(), defaults, order);
+    }
+
+    private static MachineTransferPortSpec itemBoth(String path, int order, int slot, Set<MachineLocalSide> defaults) {
+        return port(path, MachineTransferResourceKind.ITEM, MachineTransferAccess.BIDIRECTIONAL, List.of(slot), List.of(), List.of(), defaults, order);
     }
 
     private static MachineTransferPortSpec fluidIn(String path, int order, int tank, Set<MachineLocalSide> defaults) {

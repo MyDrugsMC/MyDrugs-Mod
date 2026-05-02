@@ -78,7 +78,7 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output Tank"),
+                    Component.translatable("screen.mydrugs.ui.output_tank"),
                     Component.literal(getFluidName(this.menu.getTankFluid())),
                     Component.literal(this.menu.getTankAmount() + " / " + AdvancedFurnaceBlockEntity.TANK_CAPACITY + " mB")
             );

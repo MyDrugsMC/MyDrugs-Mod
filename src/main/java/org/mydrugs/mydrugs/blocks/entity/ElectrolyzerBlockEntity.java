@@ -38,6 +38,9 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
@@ -52,7 +55,7 @@ import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipeInput;
 
 import java.util.Optional;
 
-public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements ElectrolyzerMenu.ElectrolyzerButtonHandler {
+public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements ElectrolyzerMenu.ElectrolyzerButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
     public static final int GAS_CAPACITY = 4000;
 
@@ -78,6 +81,7 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
 
     private int burnTimeRemaining = 0;
     private int burnTimeTotal = 0;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -164,6 +168,7 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
         }
 
         if (recipe == null) {
+            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -178,6 +183,7 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
         be.maxProgress = recipe.baseTicks();
 
         if (!be.canCraft(recipe)) {
+            changed |= be.setMachineStatus(be.inputTank.isEmpty() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_TANK_FULL);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -189,11 +195,13 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
             return;
         }
 
-        if (be.burnTimeRemaining <= 0 && be.tryConsumeFuel()) {
+        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }
 
-        if (be.burnTimeRemaining > 0) {
+        if (be.burnTimeRemaining > 0 || poweredByEnergy) {
+            changed |= be.setMachineStatus(MachineStatus.RUNNING);
             be.progress++;
             changed = true;
 
@@ -205,6 +213,8 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
                 }
                 changed = true;
             }
+        } else {
+            changed |= be.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
         }
 
         if (changed) {
@@ -452,6 +462,7 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
 
         recipe.outputFluid3().ifPresent(output -> insertFluidOutput(output, this.output3Tank));
         recipe.outputGas3().ifPresent(output -> insertGasOutput(output, this.output3GasTank));
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private boolean tryConsumeFuel() {
@@ -567,6 +578,20 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

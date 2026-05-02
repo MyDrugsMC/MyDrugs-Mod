@@ -24,6 +24,11 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
     }
 
     @Override
+    protected boolean shouldRenderSharedEnergyBar() {
+        return false;
+    }
+
+    @Override
     protected void init() {
         super.init();
 
@@ -63,6 +68,9 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                 ),
                 true
         );
+        if (this.menu.hasEnergyStorage()) {
+            drawExternalEnergyBar(graphics, this.menu.getEnergyStored(), this.menu.getEnergyCapacity());
+        }
     }
 
     @Override
@@ -95,16 +103,18 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
 
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        if (isHoveringBox(FluidFiltererLayout.DUMP_INPUT_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, FluidFiltererLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank"));
+        if (this.menu.hasEnergyStorage() && isHoveringBox(-18, 24, 10, 50, mouseX, mouseY)) {
+            renderExternalEnergyTooltip(graphics, mouseX, mouseY, this.menu.getEnergyStored(), this.menu.getEnergyCapacity());
+        } else if (isHoveringBox(FluidFiltererLayout.DUMP_INPUT_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, FluidFiltererLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank"));
         } else if (isHoveringBox(FluidFiltererLayout.DUMP_OUTPUT_A_X, FluidFiltererLayout.DUMP_BUTTON_Y, FluidFiltererLayout.DUMP_BUTTON_SIZE, FluidFiltererLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank"));
         } else if (isHoveringBox(FluidFiltererLayout.INPUT_TANK_X, FluidFiltererLayout.INPUT_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Input tank"),
+                    Component.translatable("screen.mydrugs.ui.input_tank"),
                     Component.literal(getFluidName(this.menu.getInputFluid())),
                     Component.literal(this.menu.getInputTankAmount() + " / " + FluidFiltererMenu.TANK_CAPACITY + " mB")
             );
@@ -113,28 +123,28 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output tank"),
+                    Component.translatable("screen.mydrugs.ui.output_tank"),
                     Component.literal(getFluidName(this.menu.getOutputAFluid())),
                     Component.literal(this.menu.getOutputATankAmount() + " / " + FluidFiltererMenu.TANK_CAPACITY + " mB")
             );
         } else if (isHoveringBox(FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Input fluid container"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.input_fluid_container"));
         } else if (isHoveringBox(FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Output container"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.output_container"));
         } else if (isHoveringBox(FluidFiltererLayout.PROGRESS_X, FluidFiltererLayout.PROGRESS_Y, FluidFiltererLayout.PROGRESS_W, FluidFiltererLayout.PROGRESS_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Filtering progress"),
+                    Component.translatable("screen.mydrugs.ui.filtering_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(FluidFiltererLayout.RUN_BUTTON_X, FluidFiltererLayout.RUN_BUTTON_Y, FluidFiltererLayout.RUN_BUTTON_W, FluidFiltererLayout.RUN_BUTTON_H, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Hold to filter"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.hold_to_filter"));
         } else if (isHoveringBox(FluidFiltererLayout.FILTER_SLOT_X, FluidFiltererLayout.FILTER_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Filter slot"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.filter_slot"));
         } else if (isHoveringBox(FluidFiltererLayout.RESIDUE_SLOT_X, FluidFiltererLayout.RESIDUE_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Waste output"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.waste_output"));
         }
     }
 

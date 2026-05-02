@@ -4,56 +4,78 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import org.mydrugs.mydrugs.client.shaders.ShaderManager;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@EventBusSubscriber(modid = "mydrugs")
+@EventBusSubscriber(modid = MyDrugs.MODID)
 public final class ModCommands {
-    private static final List<String> DRUG_NAMES = List.of(
-            "ergot",
-            "magic_mushroom",
-            "magic_mushroom_powder",
-            "rye"
-    );
+    private ModCommands() {
+    }
 
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("mydrugs")
                         .then(Commands.literal("shader")
+                                .requires(source -> source.getEntity() instanceof ServerPlayer player && player.isCreative())
                                 .then(Commands.argument("name", StringArgumentType.word())
-                                        .suggests((context, builder) -> suggestDrugNames(builder))
+                                        .suggests((context, builder) -> suggestShaderNames(builder))
                                         .executes(context -> {
                                             String name = StringArgumentType.getString(context, "name");
-                                            EffectType type = EffectType.valueOf(name);
-                                            ShaderManager.INSTANCE.add(5 * 20, type);
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            EffectType type = EffectType.bySerializedName(name)
+                                                    .filter(effectType -> effectType.getCategory() == EffectCategory.SHADER)
+                                                    .orElse(null);
+                                            if (type == null) {
+                                                context.getSource().sendFailure(Component.translatable(
+                                                        "command.mydrugs.shader.invalid",
+                                                        name
+                                                ));
+                                                return 0;
+                                            }
+
+                                            PacketDistributor.sendToPlayer(player, new DrugVisualPayload(type, 5 * 20, 1));
                                             context.getSource().sendSuccess(
-                                                    () -> Component.literal("You selected: " + name),
+                                                    () -> Component.translatable(
+                                                            "command.mydrugs.shader.sent",
+                                                            type.serializedName()
+                                                    ),
                                                     false
                                             );
                                             return 1;
                                         })
                                 )
                         )
+                        .then(Commands.literal("addiction_debug")
+                                .requires(source -> source.getEntity() instanceof ServerPlayer player && player.isCreative())
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    PacketDistributor.sendToPlayer(player, AddictionDebugOpenPayload.from(player));
+                                    return 1;
+                                })
+                        )
         );
     }
 
-    private static CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestDrugNames(
+    private static CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestShaderNames(
             SuggestionsBuilder builder
     ) {
         String remaining = builder.getRemaining().toLowerCase();
 
         for (EffectType effectType : EffectType.values()) {
             if (effectType.getCategory() == EffectCategory.SHADER) {
-                String path = effectType.name();
-                if (path.toLowerCase().startsWith(remaining)) {
+                String path = effectType.serializedName();
+                if (path.startsWith(remaining)) {
                     builder.suggest(path);
                 }
             }

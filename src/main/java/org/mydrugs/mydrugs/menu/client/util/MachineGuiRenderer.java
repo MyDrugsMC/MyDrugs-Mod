@@ -886,7 +886,7 @@ public final class MachineGuiRenderer {
 
         graphics.drawCenteredString(
                 font,
-                Component.literal("No heat required"),
+                Component.translatable("screen.mydrugs.ui.no_heat_required"),
                 draw.labelX(AdvancedMixingVatLayout.STATUS_TEXT_X),
                 draw.labelY(AdvancedMixingVatLayout.STATUS_TEXT_Y),
                 0xFF8AA0B5
@@ -1226,9 +1226,9 @@ public final class MachineGuiRenderer {
 
     public static void drawGrowthChamberLabels(AbstractMachineDrawMethods draw, GuiGraphics graphics, Font font, Component title, String footer) {
         graphics.drawCenteredString(font, title, draw.labelX(GrowthChamberLayout.GUI_WIDTH / 2), draw.labelY(5), 0xFFFFFFFF);
-        graphics.drawCenteredString(font, Component.literal("Water"), draw.labelX(GrowthChamberLayout.WATER_TANK_X + GrowthChamberLayout.TANK_W / 2), draw.labelY(GrowthChamberLayout.WATER_TANK_Y - 10), 0xFF9BB2D1);
-        graphics.drawString(font, Component.literal("Growing"), draw.labelX(GrowthChamberLayout.GROWTH_PROGRESS_X), draw.labelY(GrowthChamberLayout.GROWTH_PROGRESS_Y - 10), 0xFFA9D8AC, false);
-        graphics.drawString(font, Component.literal("Maturing"), draw.labelX(GrowthChamberLayout.MATURE_PROGRESS_X), draw.labelY(GrowthChamberLayout.MATURE_PROGRESS_Y - 10), 0xFFD7B78E, false);
+        graphics.drawCenteredString(font, Component.translatable("screen.mydrugs.ui.water"), draw.labelX(GrowthChamberLayout.WATER_TANK_X + GrowthChamberLayout.TANK_W / 2), draw.labelY(GrowthChamberLayout.WATER_TANK_Y - 10), 0xFF9BB2D1);
+        graphics.drawString(font, Component.translatable("screen.mydrugs.ui.growing"), draw.labelX(GrowthChamberLayout.GROWTH_PROGRESS_X), draw.labelY(GrowthChamberLayout.GROWTH_PROGRESS_Y - 10), 0xFFA9D8AC, false);
+        graphics.drawString(font, Component.translatable("screen.mydrugs.ui.maturing"), draw.labelX(GrowthChamberLayout.MATURE_PROGRESS_X), draw.labelY(GrowthChamberLayout.MATURE_PROGRESS_Y - 10), 0xFFD7B78E, false);
         if (footer != null) {
             drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(growthChamberHeight(false) - 12), GrowthChamberLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }

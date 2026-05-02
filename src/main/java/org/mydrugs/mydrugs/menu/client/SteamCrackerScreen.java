@@ -109,13 +109,13 @@ public class SteamCrackerScreen extends AbstractMachineScreen<SteamCrackerMenu> 
         tankTooltip(graphics, mouseX, mouseY, 3, "Output 3", SteamCrackerLayout.OUTPUT_3_TANK_X);
         tankTooltip(graphics, mouseX, mouseY, 4, "Output 4", SteamCrackerLayout.OUTPUT_4_TANK_X);
         if (isHoveringBox(SteamCrackerLayout.FUEL_SLOT_X, SteamCrackerLayout.FUEL_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Fuel slot"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.fuel_slot"));
         }
         if (isHoveringBox(SteamCrackerLayout.BURN_X, SteamCrackerLayout.BURN_Y, SteamCrackerLayout.BURN_W, SteamCrackerLayout.BURN_H, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Burn time"), Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal()));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.burn_time"), Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal()));
         }
         if (isHoveringBox(SteamCrackerLayout.PROGRESS_X, SteamCrackerLayout.PROGRESS_Y, SteamCrackerLayout.PROGRESS_W, SteamCrackerLayout.PROGRESS_H, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Progress : " + this.menu.getProgress() + " / " + this.menu.getMaxProgress()));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.progress_value", this.menu.getProgress(), this.menu.getMaxProgress()));
         }
     }
 

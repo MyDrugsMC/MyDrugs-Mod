@@ -121,19 +121,19 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHoveringBox(AromaticExtractorLayout.DUMP_INPUT_X, AromaticExtractorLayout.DUMP_BUTTON_Y, AromaticExtractorLayout.DUMP_BUTTON_SIZE, AromaticExtractorLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank"));
         } else if (isHoveringBox(AromaticExtractorLayout.DUMP_CATALYST_X, AromaticExtractorLayout.DUMP_BUTTON_Y, AromaticExtractorLayout.DUMP_BUTTON_SIZE, AromaticExtractorLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump catalyst tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_catalyst_tank"));
         } else if (isHoveringBox(AromaticExtractorLayout.DUMP_OUTPUT_A_X, AromaticExtractorLayout.DUMP_BUTTON_Y, AromaticExtractorLayout.DUMP_BUTTON_SIZE, AromaticExtractorLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output A tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_a_tank"));
         } else if (isHoveringBox(AromaticExtractorLayout.DUMP_OUTPUT_B_X, AromaticExtractorLayout.DUMP_BUTTON_Y, AromaticExtractorLayout.DUMP_BUTTON_SIZE, AromaticExtractorLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output B tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_b_tank"));
         } else if (isHoveringBox(AromaticExtractorLayout.INPUT_TANK_X, AromaticExtractorLayout.INPUT_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Recipe input tank"),
+                    Component.translatable("screen.mydrugs.ui.recipe_input_tank"),
                     Component.literal(getFluidName(this.menu.getInputFluid())),
                     Component.literal(this.menu.getInputTankAmount() + " / " + AromaticExtractorMenu.INPUT_TANK_CAPACITY + " mB")
             );
@@ -142,10 +142,10 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Catalyst tank"),
-                    Component.literal("Catalyst fluid is not consumed"),
-                    Component.literal("Minimum: " + AromaticExtractorBlockEntity.MIN_CATALYST_AMOUNT + " mB"),
-                    Component.literal("Speed: " + this.menu.getCatalystSpeedPercent() + "%"),
+                    Component.translatable("screen.mydrugs.ui.catalyst_tank"),
+                    Component.translatable("screen.mydrugs.ui.catalyst_fluid_is_not_consumed"),
+                    Component.translatable("screen.mydrugs.ui.minimum_mb", AromaticExtractorBlockEntity.MIN_CATALYST_AMOUNT),
+                    Component.translatable("screen.mydrugs.ui.speed_percent", this.menu.getCatalystSpeedPercent()),
                     Component.literal(getFluidName(this.menu.getCatalystFluid())),
                     Component.literal(this.menu.getCatalystTankAmount() + " / " + AromaticExtractorMenu.CATALYST_TANK_CAPACITY + " mB")
             );
@@ -154,7 +154,7 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output A tank"),
+                    Component.translatable("screen.mydrugs.ui.output_a_tank"),
                     Component.literal(getFluidName(this.menu.getOutputAFluid())),
                     Component.literal(this.menu.getOutputATankAmount() + " / " + AromaticExtractorMenu.OUTPUT_TANK_CAPACITY + " mB")
             );
@@ -163,7 +163,7 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output B tank"),
+                    Component.translatable("screen.mydrugs.ui.output_b_tank"),
                     Component.literal(getFluidName(this.menu.getOutputBFluid())),
                     Component.literal(this.menu.getOutputBTankAmount() + " / " + AromaticExtractorMenu.OUTPUT_TANK_CAPACITY + " mB")
             );
@@ -172,7 +172,7 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Extraction progress"),
+                    Component.translatable("screen.mydrugs.ui.extraction_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(AromaticExtractorLayout.FUEL_BAR_X, AromaticExtractorLayout.FUEL_BAR_Y, AromaticExtractorLayout.FUEL_BAR_W, AromaticExtractorLayout.FUEL_BAR_H, mouseX, mouseY)) {
@@ -180,7 +180,7 @@ public class AromaticExtractorScreen extends AbstractMachineScreen<AromaticExtra
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel burn time"),
+                    Component.translatable("screen.mydrugs.ui.fuel_burn_time"),
                     Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal() + " ticks")
             );
         }

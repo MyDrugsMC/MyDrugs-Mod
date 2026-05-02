@@ -15,7 +15,6 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.MaterialSet;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
@@ -28,83 +27,51 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEntity, PipeRenderState> {
-
-    private static final Map<PipeResourceKind, Map<PipeTier, ResourceLocation>> PIPE_TEXTURES;
+    private static final Map<PipeResourceKind, Map<PipeTier, ResourceLocation>> FRAME_TEXTURES;
+    private static final Map<PipeResourceKind, ResourceLocation> GLASS_TEXTURES;
 
     static {
-        PIPE_TEXTURES = new EnumMap<>(PipeResourceKind.class);
+        FRAME_TEXTURES = new EnumMap<>(PipeResourceKind.class);
+        GLASS_TEXTURES = new EnumMap<>(PipeResourceKind.class);
         for (PipeResourceKind kind : PipeResourceKind.values()) {
             Map<PipeTier, ResourceLocation> tierMap = new EnumMap<>(PipeTier.class);
             for (PipeTier tier : PipeTier.values()) {
-                String name = tier.name().toLowerCase() + "_" + kind.name().toLowerCase() + "_pipe";
-                tierMap.put(tier, ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/" + name));
+                String frameName = "pipe_frame_" + tier.name().toLowerCase() + "_" + kind.name().toLowerCase();
+                tierMap.put(tier, ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/" + frameName));
             }
-            PIPE_TEXTURES.put(kind, tierMap);
+            FRAME_TEXTURES.put(kind, tierMap);
+
+            String glassName = "pipe_glass_" + kind.name().toLowerCase();
+            GLASS_TEXTURES.put(kind, ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/" + glassName));
         }
     }
 
-    private static final ResourceLocation PIPE_DEBUG_WHITE =
-            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/pipe_debug_white");
+    private static final ResourceLocation PIPE_INPUT_INDICATOR =
+            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/pipe_input_indicator");
+    private static final ResourceLocation PIPE_OUTPUT_INDICATOR =
+            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/pipe_output_indicator");
+    private static final ResourceLocation PIPE_FILTER_BAND =
+            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "block/pipe/pipe_filter_band");
 
-    // INPUT/OUTPUT indicator colors (kept as flat tinted caps for clear UX feedback)
-    private static final int INPUT_COLOR  = 0xFF25A7FF;
-    private static final int OUTPUT_COLOR = 0xFFFF7A1A;
-    private static final int FILTER_COLOR = 0xFFE6D54A;
-
-    private static int bodyColor(PipeResourceKind kind, PipeTier tier) {
-        if (kind == null || tier == null) {
-            return 0xFF8A8F94;
-        }
-
-        return switch (kind) {
-            case ITEM -> tier == PipeTier.FAST ? 0xFF8FB0FF : 0xFF6F8CFF;
-            case FLUID -> tier == PipeTier.FAST ? 0xFF7EEBFF : 0xFF39C9FF;
-            case GAS -> tier == PipeTier.FAST ? 0xFFD0A0FF : 0xFFB46DFF;
-        };
-    }
-
-    private static int capColor(PipeConnectionMode mode, int bodyColor) {
-        return switch (mode) {
-            case INPUT -> INPUT_COLOR;
-            case OUTPUT -> OUTPUT_COLOR;
-            case PIPE -> bodyColor;
-            case DISABLED -> 0x00000000;
-        };
-    }
-
-    private static final Box CORE = new Box(5f/16, 5f/16, 5f/16, 11f/16, 11f/16, 11f/16);
+    private static final int WHITE = 0xFFFFFFFF;
+    private static final int GLASS_TINT = 0xB8FFFFFF;
 
     private static final float EPS = 0.001F;
+    private static final float OUTER_MIN = 4f / 16f;
+    private static final float OUTER_MAX = 12f / 16f;
+    private static final float INNER_MIN = 5f / 16f;
+    private static final float INNER_MAX = 11f / 16f;
+    private static final float COLLAR_MIN = 3f / 16f;
+    private static final float COLLAR_MAX = 13f / 16f;
+    private static final float COLLAR_INNER_MIN = 5f / 16f;
+    private static final float COLLAR_INNER_MAX = 11f / 16f;
+    private static final float RAIL = 1f / 16f;
+    private static final float GLASS_PANE = 0.25f / 16f;
 
-    private static final Box[] ARM_BOXES = new Box[Direction.values().length];
-    private static final Box[] END_CAP_BOXES = new Box[Direction.values().length];
-    private static final Box[] FILTER_MARKER_BOXES = new Box[Direction.values().length];
-    static {
-        // Arms do not overlap end caps. This avoids internal overlapping faces.
-        ARM_BOXES[Direction.NORTH.ordinal()] = new Box(5f/16, 5f/16,  2f/16, 11f/16, 11f/16,  5f/16);
-        ARM_BOXES[Direction.SOUTH.ordinal()] = new Box(5f/16, 5f/16, 11f/16, 11f/16, 11f/16, 14f/16);
-        ARM_BOXES[Direction.WEST.ordinal()]  = new Box( 2f/16, 5f/16,  5f/16,  5f/16, 11f/16, 11f/16);
-        ARM_BOXES[Direction.EAST.ordinal()]  = new Box(11f/16, 5f/16,  5f/16, 14f/16, 11f/16, 11f/16);
-        ARM_BOXES[Direction.DOWN.ordinal()]  = new Box(5f/16,  2f/16,  5f/16, 11f/16,  5f/16, 11f/16);
-        ARM_BOXES[Direction.UP.ordinal()]    = new Box(5f/16, 11f/16,  5f/16, 11f/16, 14f/16, 11f/16);
-
-        // End caps are very close to neighbor blocks, but not exactly coplanar.
-        // EPS prevents z-fighting with the adjacent block face.
-        END_CAP_BOXES[Direction.NORTH.ordinal()] = new Box(4f/16, 4f/16, EPS,      12f/16, 12f/16,  2f/16);
-        END_CAP_BOXES[Direction.SOUTH.ordinal()] = new Box(4f/16, 4f/16, 14f/16,   12f/16, 12f/16, 1f - EPS);
-        END_CAP_BOXES[Direction.WEST.ordinal()]  = new Box(EPS,    4f/16, 4f/16,    2f/16, 12f/16, 12f/16);
-        END_CAP_BOXES[Direction.EAST.ordinal()]  = new Box(14f/16, 4f/16, 4f/16,   1f - EPS, 12f/16, 12f/16);
-        END_CAP_BOXES[Direction.DOWN.ordinal()]  = new Box(4f/16, EPS,    4f/16,   12f/16,  2f/16, 12f/16);
-        END_CAP_BOXES[Direction.UP.ordinal()]    = new Box(4f/16, 14f/16, 4f/16,   12f/16, 1f - EPS, 12f/16);
-
-        // Filter markers sit on top of the end cap, not on the block boundary.
-        FILTER_MARKER_BOXES[Direction.NORTH.ordinal()] = new Box(6f/16, 12f/16, 0.5f/16, 10f/16, 13f/16, 1.5f/16);
-        FILTER_MARKER_BOXES[Direction.SOUTH.ordinal()] = new Box(6f/16, 12f/16, 14.5f/16, 10f/16, 13f/16, 15.5f/16);
-        FILTER_MARKER_BOXES[Direction.WEST.ordinal()]  = new Box(0.5f/16, 12f/16, 6f/16, 1.5f/16, 13f/16, 10f/16);
-        FILTER_MARKER_BOXES[Direction.EAST.ordinal()]  = new Box(14.5f/16, 12f/16, 6f/16, 15.5f/16, 13f/16, 10f/16);
-        FILTER_MARKER_BOXES[Direction.DOWN.ordinal()]  = new Box(6f/16, 0.5f/16, 12f/16, 10f/16, 1.5f/16, 13f/16);
-        FILTER_MARKER_BOXES[Direction.UP.ordinal()]    = new Box(6f/16, 14.5f/16, 12f/16, 10f/16, 15.5f/16, 13f/16);
-    }
+    private static final TextureSlice FULL_TEXTURE = new TextureSlice(0.0F, 1.0F);
+    private static final TextureSlice FRAME_NEGATIVE_END = new TextureSlice(0.0F, 1.0F / 3.0F);
+    private static final TextureSlice FRAME_CENTER = new TextureSlice(1.0F / 3.0F, 2.0F / 3.0F);
+    private static final TextureSlice FRAME_POSITIVE_END = new TextureSlice(2.0F / 3.0F, 1.0F);
 
     private final MaterialSet materials;
 
@@ -133,7 +100,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
         blockEntity.copySideConfigs().forEach((dir, cfg) -> renderState.sideModes.put(dir, cfg.mode()));
         for (Direction dir : Direction.values()) {
-            if (blockEntity.hasFilter(dir)) renderState.filteredSides.add(dir);
+            if (blockEntity.hasFilter(dir)) {
+                renderState.filteredSides.add(dir);
+            }
         }
     }
 
@@ -144,12 +113,14 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             SubmitNodeCollector collector,
             CameraRenderState cameraState
     ) {
-        TextureAtlasSprite sprite = materials.get(new Material(TextureAtlas.LOCATION_BLOCKS, PIPE_DEBUG_WHITE));
-        int bodyColor = bodyColor(renderState.kind, renderState.tier);
+        TextureAtlasSprite frameSprite = this.sprite(frameTexture(renderState.kind, renderState.tier));
+        TextureAtlasSprite glassSprite = this.sprite(glassTexture(renderState.kind));
+        TextureAtlasSprite inputSprite = this.sprite(PIPE_INPUT_INDICATOR);
+        TextureAtlasSprite outputSprite = this.sprite(PIPE_OUTPUT_INDICATOR);
+        TextureAtlasSprite filterSprite = this.sprite(PIPE_FILTER_BAND);
 
         collector.order(-1).submitCustomGeometry(poseStack, RenderType.solid(), (pose, consumer) -> {
-            // Core: full texture, no tint
-            addBox(consumer, pose, sprite, CORE, bodyColor, renderState.lightCoords);
+            renderCoreFrame(consumer, pose, frameSprite, renderState.lightCoords);
 
             for (Direction dir : Direction.values()) {
                 PipeConnectionMode mode = renderState.sideModes.getOrDefault(dir, PipeConnectionMode.DISABLED);
@@ -157,52 +128,320 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                     continue;
                 }
 
-                addBox(consumer, pose, sprite, ARM_BOXES[dir.ordinal()], bodyColor, renderState.lightCoords);
+                renderArmFrame(consumer, pose, frameSprite, dir, mode, renderState.lightCoords);
 
-                addBox(
-                        consumer,
-                        pose,
-                        sprite,
-                        END_CAP_BOXES[dir.ordinal()],
-                        capColor(mode, bodyColor),
-                        renderState.lightCoords
-                );
+                if (mode == PipeConnectionMode.INPUT || mode == PipeConnectionMode.OUTPUT) {
+                    renderEndpointConnector(consumer, pose, frameSprite, dir, renderState.lightCoords);
+                    renderEndpointIndicator(
+                            consumer,
+                            pose,
+                            mode == PipeConnectionMode.INPUT ? inputSprite : outputSprite,
+                            dir,
+                            renderState.lightCoords
+                    );
+                }
 
                 if (renderState.filteredSides.contains(dir)) {
-                    addBox(consumer, pose, sprite, FILTER_MARKER_BOXES[dir.ordinal()], FILTER_COLOR, renderState.lightCoords);
+                    renderFilterMarker(consumer, pose, filterSprite, dir, renderState.lightCoords);
+                }
+            }
+        });
+
+        collector.order(0).submitCustomGeometry(poseStack, RenderType.cutout(), (pose, consumer) -> {
+            for (Direction dir : Direction.values()) {
+                if (renderState.sideModes.getOrDefault(dir, PipeConnectionMode.DISABLED) == PipeConnectionMode.DISABLED) {
+                    renderCoreGlassPanel(consumer, pose, glassSprite, dir, renderState.lightCoords);
+                } else {
+                    PipeConnectionMode mode = renderState.sideModes.getOrDefault(dir, PipeConnectionMode.DISABLED);
+                    renderArmGlass(consumer, pose, glassSprite, dir, mode, renderState.lightCoords);
                 }
             }
         });
     }
 
-//    private static int capColor(PipeConnectionMode mode) {
-//        return switch (mode) {
-//            case INPUT    -> INPUT_COLOR;
-//            case OUTPUT   -> OUTPUT_COLOR;
-//            case PIPE     -> PIPE_COLOR;
-//            case DISABLED -> 0x00000000;
-//        };
-//    }
+    private TextureAtlasSprite sprite(ResourceLocation location) {
+        return this.materials.get(new Material(TextureAtlas.LOCATION_BLOCKS, location));
+    }
 
-    private static void addBox(VertexConsumer consumer, PoseStack.Pose pose, TextureAtlasSprite sprite, Box box, int color, int light) {
-        // +Y face
-        addQuad(consumer, pose, sprite, color, light, box.minX, box.maxY, box.minZ, box.maxX, box.maxY, box.minZ, box.maxX, box.maxY, box.maxZ, box.minX, box.maxY, box.maxZ,  0,  1,  0);
-        // -Y face
-        addQuad(consumer, pose, sprite, color, light, box.minX, box.minY, box.maxZ, box.maxX, box.minY, box.maxZ, box.maxX, box.minY, box.minZ, box.minX, box.minY, box.minZ,  0, -1,  0);
-        // -Z face
-        addQuad(consumer, pose, sprite, color, light, box.minX, box.minY, box.minZ, box.maxX, box.minY, box.minZ, box.maxX, box.maxY, box.minZ, box.minX, box.maxY, box.minZ,  0,  0, -1);
-        // +Z face
-        addQuad(consumer, pose, sprite, color, light, box.maxX, box.minY, box.maxZ, box.minX, box.minY, box.maxZ, box.minX, box.maxY, box.maxZ, box.maxX, box.maxY, box.maxZ,  0,  0,  1);
-        // -X face
-        addQuad(consumer, pose, sprite, color, light, box.minX, box.minY, box.maxZ, box.minX, box.minY, box.minZ, box.minX, box.maxY, box.minZ, box.minX, box.maxY, box.maxZ, -1,  0,  0);
-        // +X face
-        addQuad(consumer, pose, sprite, color, light, box.maxX, box.minY, box.minZ, box.maxX, box.minY, box.maxZ, box.maxX, box.maxY, box.maxZ, box.maxX, box.maxY, box.minZ,  1,  0,  0);
+    private static ResourceLocation frameTexture(PipeResourceKind kind, PipeTier tier) {
+        PipeResourceKind safeKind = kind == null ? PipeResourceKind.ITEM : kind;
+        PipeTier safeTier = tier == null ? PipeTier.BASIC : tier;
+        Map<PipeTier, ResourceLocation> tierMap = FRAME_TEXTURES.get(safeKind);
+        return tierMap.getOrDefault(safeTier, tierMap.get(PipeTier.BASIC));
+    }
+
+    private static ResourceLocation glassTexture(PipeResourceKind kind) {
+        return GLASS_TEXTURES.getOrDefault(kind == null ? PipeResourceKind.ITEM : kind, GLASS_TEXTURES.get(PipeResourceKind.ITEM));
+    }
+
+    private static void renderCoreFrame(VertexConsumer consumer, PoseStack.Pose pose, TextureAtlasSprite sprite, int light) {
+        // The center junction is split into corner cubes and shortened edge beams.
+        // This avoids drawing three overlapping axis rail sets in the same corner volume.
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    addBox(
+                            consumer,
+                            pose,
+                            sprite,
+                            new Box(
+                                    cornerMin(x), cornerMin(y), cornerMin(z),
+                                    cornerMax(x), cornerMax(y), cornerMax(z)
+                            ),
+                            FRAME_CENTER,
+                            WHITE,
+                            light
+                    );
+                }
+            }
+        }
+
+        for (Direction.Axis axis : Direction.Axis.values()) {
+            addCoreEdgeBeam(consumer, pose, sprite, axis, false, false, light);
+            addCoreEdgeBeam(consumer, pose, sprite, axis, false, true, light);
+            addCoreEdgeBeam(consumer, pose, sprite, axis, true, false, light);
+            addCoreEdgeBeam(consumer, pose, sprite, axis, true, true, light);
+        }
+    }
+
+    private static void addCoreEdgeBeam(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction.Axis axis,
+            boolean highA,
+            boolean highB,
+            int light
+    ) {
+        addBox(
+                consumer,
+                pose,
+                sprite,
+                boxForAxis(
+                        axis,
+                        INNER_MIN,
+                        INNER_MAX,
+                        highA ? OUTER_MAX - RAIL : OUTER_MIN,
+                        highA ? OUTER_MAX : OUTER_MIN + RAIL,
+                        highB ? OUTER_MAX - RAIL : OUTER_MIN,
+                        highB ? OUTER_MAX : OUTER_MIN + RAIL
+                ),
+                FRAME_CENTER,
+                WHITE,
+                light
+        );
+    }
+
+    private static void renderArmFrame(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction direction,
+            PipeConnectionMode mode,
+            int light
+    ) {
+        Direction.Axis axis = direction.getAxis();
+        AxisRange range = mode == PipeConnectionMode.PIPE ? pipeArmRange(direction) : endpointBridgeRange(direction);
+        TextureSlice slice = frameSlice(direction);
+
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MIN, OUTER_MIN + RAIL, OUTER_MIN, OUTER_MIN + RAIL), axis, slice, WHITE, light);
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MAX - RAIL, OUTER_MAX, OUTER_MIN, OUTER_MIN + RAIL), axis, slice, WHITE, light);
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MIN, OUTER_MIN + RAIL, OUTER_MAX - RAIL, OUTER_MAX), axis, slice, WHITE, light);
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MAX - RAIL, OUTER_MAX, OUTER_MAX - RAIL, OUTER_MAX), axis, slice, WHITE, light);
+    }
+
+    private static void renderArmGlass(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction direction,
+            PipeConnectionMode mode,
+            int light
+    ) {
+        Direction.Axis axis = direction.getAxis();
+        AxisRange range = mode == PipeConnectionMode.PIPE ? pipeArmRange(direction) : endpointBridgeRange(direction);
+
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), INNER_MIN, INNER_MAX, OUTER_MIN + RAIL, OUTER_MIN + RAIL + GLASS_PANE), axis, FULL_TEXTURE, GLASS_TINT, light);
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), INNER_MIN, INNER_MAX, OUTER_MAX - RAIL - GLASS_PANE, OUTER_MAX - RAIL), axis, FULL_TEXTURE, GLASS_TINT, light);
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MIN + RAIL, OUTER_MIN + RAIL + GLASS_PANE, INNER_MIN, INNER_MAX), axis, FULL_TEXTURE, GLASS_TINT, light);
+        addOpenAxisBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MAX - RAIL - GLASS_PANE, OUTER_MAX - RAIL, INNER_MIN, INNER_MAX), axis, FULL_TEXTURE, GLASS_TINT, light);
+    }
+
+    private static void renderCoreGlassPanel(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction direction,
+            int light
+    ) {
+        Direction.Axis axis = direction.getAxis();
+        AxisRange range = facePaneRange(direction);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), INNER_MIN, INNER_MAX, INNER_MIN, INNER_MAX), FULL_TEXTURE, GLASS_TINT, light);
+    }
+
+    private static void renderEndpointConnector(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction direction,
+            int light
+    ) {
+        Direction.Axis axis = direction.getAxis();
+        AxisRange range = endpointRange(direction);
+        TextureSlice slice = frameSlice(direction);
+
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), COLLAR_MIN, COLLAR_MAX, COLLAR_MIN, COLLAR_INNER_MIN), slice, WHITE, light);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), COLLAR_MIN, COLLAR_MAX, COLLAR_INNER_MAX, COLLAR_MAX), slice, WHITE, light);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), COLLAR_MIN, COLLAR_INNER_MIN, COLLAR_INNER_MIN, COLLAR_INNER_MAX), slice, WHITE, light);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), COLLAR_INNER_MAX, COLLAR_MAX, COLLAR_INNER_MIN, COLLAR_INNER_MAX), slice, WHITE, light);
+    }
+
+    private static void renderEndpointIndicator(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction direction,
+            int light
+    ) {
+        Direction.Axis axis = direction.getAxis();
+        AxisRange range = outwardInsetRange(direction);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), INNER_MIN, INNER_MAX, INNER_MIN, INNER_MAX), FULL_TEXTURE, WHITE, light);
+    }
+
+    private static void renderFilterMarker(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Direction direction,
+            int light
+    ) {
+        Direction.Axis axis = direction.getAxis();
+        AxisRange range = filterRange(direction);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MIN, OUTER_MAX, OUTER_MIN, OUTER_MIN + RAIL), FULL_TEXTURE, WHITE, light);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MIN, OUTER_MAX, OUTER_MAX - RAIL, OUTER_MAX), FULL_TEXTURE, WHITE, light);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MIN, OUTER_MIN + RAIL, INNER_MIN, INNER_MAX), FULL_TEXTURE, WHITE, light);
+        addBox(consumer, pose, sprite, boxForAxis(axis, range.min(), range.max(), OUTER_MAX - RAIL, OUTER_MAX, INNER_MIN, INNER_MAX), FULL_TEXTURE, WHITE, light);
+    }
+
+    private static AxisRange pipeArmRange(Direction direction) {
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                ? new AxisRange(0.0F, OUTER_MIN)
+                : new AxisRange(OUTER_MAX, 1.0F);
+    }
+
+    private static AxisRange endpointBridgeRange(Direction direction) {
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                ? new AxisRange(2f / 16f, OUTER_MIN)
+                : new AxisRange(OUTER_MAX, 14f / 16f);
+    }
+
+    private static AxisRange endpointRange(Direction direction) {
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                ? new AxisRange(EPS, 2f / 16f)
+                : new AxisRange(14f / 16f, 1.0F - EPS);
+    }
+
+    private static AxisRange outwardInsetRange(Direction direction) {
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                ? new AxisRange(EPS, 0.5f / 16f)
+                : new AxisRange(15.5f / 16f, 1.0F - EPS);
+    }
+
+    private static AxisRange filterRange(Direction direction) {
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                ? new AxisRange(2f / 16f, 3f / 16f)
+                : new AxisRange(13f / 16f, 14f / 16f);
+    }
+
+    private static AxisRange facePaneRange(Direction direction) {
+        float pane = GLASS_PANE;
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE
+                ? new AxisRange(OUTER_MIN, OUTER_MIN + pane)
+                : new AxisRange(OUTER_MAX - pane, OUTER_MAX);
+    }
+
+    private static float cornerMin(int high) {
+        return high == 0 ? OUTER_MIN : OUTER_MAX - RAIL;
+    }
+
+    private static float cornerMax(int high) {
+        return high == 0 ? OUTER_MIN + RAIL : OUTER_MAX;
+    }
+
+    private static TextureSlice frameSlice(Direction direction) {
+        return direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? FRAME_NEGATIVE_END : FRAME_POSITIVE_END;
+    }
+
+    private static Box boxForAxis(
+            Direction.Axis axis,
+            float axisMin,
+            float axisMax,
+            float crossAMin,
+            float crossAMax,
+            float crossBMin,
+            float crossBMax
+    ) {
+        return switch (axis) {
+            case X -> new Box(axisMin, crossAMin, crossBMin, axisMax, crossAMax, crossBMax);
+            case Y -> new Box(crossAMin, axisMin, crossBMin, crossAMax, axisMax, crossBMax);
+            case Z -> new Box(crossAMin, crossBMin, axisMin, crossAMax, crossBMax, axisMax);
+        };
+    }
+
+    private static void addOpenAxisBox(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Box box,
+            Direction.Axis openAxis,
+            TextureSlice texture,
+            int color,
+            int light
+    ) {
+        addBox(consumer, pose, sprite, box, texture, color, light, openAxis);
+    }
+
+    private static void addBox(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Box box,
+            TextureSlice texture,
+            int color,
+            int light
+    ) {
+        addBox(consumer, pose, sprite, box, texture, color, light, null);
+    }
+
+    private static void addBox(
+            VertexConsumer consumer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            Box box,
+            TextureSlice texture,
+            int color,
+            int light,
+            @Nullable Direction.Axis openAxis
+    ) {
+        if (openAxis != Direction.Axis.Y) {
+            addQuad(consumer, pose, sprite, texture, color, light, box.minX, box.maxY, box.minZ, box.maxX, box.maxY, box.minZ, box.maxX, box.maxY, box.maxZ, box.minX, box.maxY, box.maxZ, 0, 1, 0);
+            addQuad(consumer, pose, sprite, texture, color, light, box.minX, box.minY, box.maxZ, box.maxX, box.minY, box.maxZ, box.maxX, box.minY, box.minZ, box.minX, box.minY, box.minZ, 0, -1, 0);
+        }
+        if (openAxis != Direction.Axis.Z) {
+            addQuad(consumer, pose, sprite, texture, color, light, box.minX, box.minY, box.minZ, box.maxX, box.minY, box.minZ, box.maxX, box.maxY, box.minZ, box.minX, box.maxY, box.minZ, 0, 0, -1);
+            addQuad(consumer, pose, sprite, texture, color, light, box.maxX, box.minY, box.maxZ, box.minX, box.minY, box.maxZ, box.minX, box.maxY, box.maxZ, box.maxX, box.maxY, box.maxZ, 0, 0, 1);
+        }
+        if (openAxis != Direction.Axis.X) {
+            addQuad(consumer, pose, sprite, texture, color, light, box.minX, box.minY, box.maxZ, box.minX, box.minY, box.minZ, box.minX, box.maxY, box.minZ, box.minX, box.maxY, box.maxZ, -1, 0, 0);
+            addQuad(consumer, pose, sprite, texture, color, light, box.maxX, box.minY, box.minZ, box.maxX, box.minY, box.maxZ, box.maxX, box.maxY, box.maxZ, box.maxX, box.maxY, box.minZ, 1, 0, 0);
+        }
     }
 
     private static void addQuad(
             VertexConsumer consumer,
             PoseStack.Pose pose,
             TextureAtlasSprite sprite,
+            TextureSlice texture,
             int color,
             int light,
             float x1, float y1, float z1,
@@ -213,12 +452,11 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             float normalY,
             float normalZ
     ) {
-        float u0 = sprite.getU0();
-        float u1 = sprite.getU1();
+        float u0 = lerp(sprite.getU0(), sprite.getU1(), texture.minU());
+        float u1 = lerp(sprite.getU0(), sprite.getU1(), texture.maxU());
         float v0 = sprite.getV0();
         float v1 = sprite.getV1();
 
-        // Front side
         addQuadOneSided(
                 consumer, pose, color, light,
                 x1, y1, z1, u0, v0,
@@ -228,8 +466,6 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 normalX, normalY, normalZ
         );
 
-        // Back side, reversed winding.
-        // This prevents RenderType.solid() culling from making one face invisible.
         addQuadOneSided(
                 consumer, pose, color, light,
                 x4, y4, z4, u0, v1,
@@ -280,6 +516,14 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                 .setLight(light)
                 .setNormal(pose, normalX, normalY, normalZ);
     }
+
+    private static float lerp(float min, float max, float amount) {
+        return min + (max - min) * amount;
+    }
+
+    private record AxisRange(float min, float max) {}
+
+    private record TextureSlice(float minU, float maxU) {}
 
     private record Box(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {}
 }

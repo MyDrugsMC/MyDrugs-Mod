@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.effects.addiction.manager.progression;
 
 import net.minecraft.server.level.ServerPlayer;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.core.drug.AddictionConfigs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -42,13 +43,15 @@ public final class WithdrawalManager {
                 inCombat
         );
 
-        float target = AddictionMath.computeWithdrawalTarget(
+        float target = Config.SERVER.withdrawalEnabled.get()
+                ? AddictionMath.computeWithdrawalTarget(
                 stats.addictionNorm(),
                 phaseFactor,
                 context,
                 playerStats.resilience,
                 cfg
-        );
+        ) * Config.SERVER.withdrawalSeverityMultiplier.get().floatValue()
+                : 0.0F;
 
         float response = AddictionMath.computeWithdrawalResponseRate(stats.addictionNorm());
         float recovery = AddictionMath.computeWithdrawalRecoveryRate(

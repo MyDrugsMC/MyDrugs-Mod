@@ -210,17 +210,17 @@ public class CentrifugeMenu extends AbstractMachineMenu {
 
     public Component getInputFluidIdText() {
         Fluid fluid = this.getInputFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getOutputAFluidIdText() {
         Fluid fluid = this.getOutputAFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getOutputBFluidIdText() {
         Fluid fluid = this.getOutputBFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public boolean isWorking() {

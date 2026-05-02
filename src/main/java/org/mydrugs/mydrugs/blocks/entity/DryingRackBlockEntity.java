@@ -125,6 +125,7 @@ public final class DryingRackBlockEntity extends BlockEntity {
                 be.maxProgress[slot] = recipe.dryTime();
 
                 shouldSync = true;
+                org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(be);
             }
         }
 

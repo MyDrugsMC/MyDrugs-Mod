@@ -106,8 +106,8 @@ public final class AddictionClientState {
     }
 
     public static float getDose(DrugCategory category) {
-        int ordinal = category.ordinal();
-        return ordinal < categoryDoses.length ? categoryDoses[ordinal] : 0.0F;
+        int id = category.networkId();
+        return id < categoryDoses.length ? categoryDoses[id] : 0.0F;
     }
 
     public static DoseState getDoseState(DrugCategory category) {
@@ -161,11 +161,7 @@ public final class AddictionClientState {
             return null;
         }
 
-        try {
-            return DrugId.valueOf(dominantDrugId);
-        } catch (IllegalArgumentException ignored) {
-            return null;
-        }
+        return DrugId.bySerializedName(dominantDrugId).orElse(null);
     }
 
     public static boolean shouldRenderHud() {

@@ -5,6 +5,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.advancement.DrugKnowledgeAttachment;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachment;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachment;
@@ -17,6 +18,11 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<PlayerAddictionStats>> PLAYER_ADDICTION =
             ATTACHMENTS.register("player_addiction", () ->
                     AttachmentType.serializable(PlayerAddictionStats::new)
+                            .build()
+            );
+    public static final Supplier<AttachmentType<DrugKnowledgeAttachment>> DRUG_KNOWLEDGE =
+            ATTACHMENTS.register("drug_knowledge", () ->
+                    AttachmentType.serializable(DrugKnowledgeAttachment::new)
                             .build()
             );
     public static final Supplier<AttachmentType<MachineTransferAttachment>> MACHINE_TRANSFER =

@@ -275,6 +275,7 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         }
 
         resetProgress();
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
         notifyUpdate();
     }
 

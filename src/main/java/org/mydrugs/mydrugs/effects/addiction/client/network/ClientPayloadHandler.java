@@ -3,10 +3,13 @@ package org.mydrugs.mydrugs.effects.addiction.client.network;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
+import org.mydrugs.mydrugs.effects.addiction.client.AddictionDebugScreen;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
+import net.minecraft.client.Minecraft;
 
 public final class ClientPayloadHandler {
     private ClientPayloadHandler() {
@@ -23,5 +26,9 @@ public final class ClientPayloadHandler {
     public static void handleDoseSync(DoseSyncPayload payload, IPayloadContext context) {
         AddictionClientState.applyDoseSync(payload);
         ShaderManager.INSTANCE.updateDoses(payload);
+    }
+
+    public static void handleAddictionDebugOpen(AddictionDebugOpenPayload payload, IPayloadContext context) {
+        Minecraft.getInstance().setScreen(new AddictionDebugScreen(payload));
     }
 }

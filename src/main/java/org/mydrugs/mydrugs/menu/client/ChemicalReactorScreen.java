@@ -70,32 +70,30 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
     @Override
     protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
         return switch (portIdPath) {
-            case "item_input" -> List.of(
-                    slotHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y),
-                    slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
-            );
             case "fuel" -> List.of(slotHighlight(ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y));
-            case "gas_input" -> List.of(
+            case "primary_gas_container" -> List.of(
                     tankHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.PRIMARY_GAS_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
-                    tankHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
-                    slotHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y),
-                    slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
+                    slotHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
             );
-            case "fluid_input" -> List.of(
+            case "secondary_transfer" -> List.of(
                     tankHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
                     slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
             );
-            case "gas_output" -> List.of(
+            case "output_container" -> List.of(
                     tankHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
                     slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
             );
-            case "fluid_output" -> List.of(
-                    tankHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
-                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2)
+            case "primary_gas_input" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.PRIMARY_GAS_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
             );
-            case "item_output" -> List.of(
-                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y),
-                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y_2)
+            case "secondary_gas_input", "secondary_fluid_input" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
+            );
+            case "gas_output", "fluid_output" -> List.of(
+                    tankHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H),
+                    slotHighlight(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.TRANSFER_SLOT_Y)
             );
             default -> super.transferPortHighlights(portIdPath);
         };
@@ -108,7 +106,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Primary input gas"),
+                    Component.translatable("screen.mydrugs.ui.primary_input_gas"),
                     Component.literal(this.menu.getPrimaryGasName()),
                     Component.literal(this.menu.getPrimaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
             );
@@ -118,7 +116,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Secondary input fluid"),
+                        Component.translatable("screen.mydrugs.ui.secondary_input_fluid"),
                         Component.literal(getFluidName(this.menu.getSecondaryFluid())),
                         Component.literal(this.menu.getSecondaryFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -127,7 +125,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Secondary input gas"),
+                        Component.translatable("screen.mydrugs.ui.secondary_input_gas"),
                         Component.literal(this.menu.getSecondaryGasName()),
                         Component.literal(this.menu.getSecondaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
                 );
@@ -138,7 +136,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid"),
                         Component.literal(getFluidName(this.menu.getOutputFluid())),
                         Component.literal(this.menu.getOutputFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -147,7 +145,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas"),
+                        Component.translatable("screen.mydrugs.ui.output_gas"),
                         Component.literal(this.menu.getOutputGasName()),
                         Component.literal(this.menu.getOutputGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
                 );
@@ -157,7 +155,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Progress"),
+                    Component.translatable("screen.mydrugs.ui.progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(ChemicalReactorLayout.HEAT_BAR_X, ChemicalReactorLayout.HEAT_BAR_Y, ChemicalReactorLayout.HEAT_BAR_W, ChemicalReactorLayout.HEAT_BAR_H, mouseX, mouseY)) {
@@ -165,7 +163,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Heat"),
+                    Component.translatable("screen.mydrugs.ui.heat"),
                     Component.literal(this.menu.getHeat() + " / " + this.menu.getMaxHeat())
             );
         } else if (isHoveringBox(ChemicalReactorLayout.FUEL_BAR_X, ChemicalReactorLayout.FUEL_BAR_Y, ChemicalReactorLayout.FUEL_BAR_W, ChemicalReactorLayout.FUEL_BAR_H, mouseX, mouseY)) {
@@ -173,7 +171,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel burn time"),
+                    Component.translatable("screen.mydrugs.ui.fuel_burn_time"),
                     Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal() + " ticks")
             );
         } else if (isHoveringBox(ChemicalReactorLayout.MANUAL_BAR_X, ChemicalReactorLayout.MANUAL_BAR_Y, ChemicalReactorLayout.MANUAL_BAR_W, ChemicalReactorLayout.MANUAL_BAR_H, mouseX, mouseY)) {
@@ -181,7 +179,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Manual boost"),
+                    Component.translatable("screen.mydrugs.ui.manual_boost"),
                     Component.literal(this.menu.getManualEnergy() + " / " + this.menu.getMaxManualEnergy())
             );
         }

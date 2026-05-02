@@ -556,6 +556,7 @@ public class MixingVatBlockEntity extends BlockEntity {
             resultFluidId = null;
             resultFluidAmount = 0;
         }
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     public boolean stirOnce() {

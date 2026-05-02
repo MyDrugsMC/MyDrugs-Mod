@@ -36,6 +36,11 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     }
 
     @Override
+    protected boolean shouldRenderSharedEnergyBar() {
+        return false;
+    }
+
+    @Override
     protected void init() {
         super.init();
         float center = this.getTrackCenterY();
@@ -67,6 +72,9 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         MachineGuiRenderer.drawSieve(this, graphics, new MachineGuiRenderer.SieveState(Math.round(this.knobVisualY) - this.topPos), true);
+        if (this.menu.hasEnergyStorage()) {
+            drawExternalEnergyBar(graphics, this.menu.getEnergyStored(), this.menu.getEnergyCapacity());
+        }
     }
 
     @Override
@@ -84,6 +92,13 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
             );
             default -> super.transferPortHighlights(portIdPath);
         };
+    }
+
+    @Override
+    protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if (this.menu.hasEnergyStorage()) {
+            renderExternalEnergyTooltip(graphics, mouseX, mouseY, this.menu.getEnergyStored(), this.menu.getEnergyCapacity());
+        }
     }
 
     @Override

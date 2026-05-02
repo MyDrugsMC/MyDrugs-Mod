@@ -17,6 +17,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugHolder;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.menu.SingleSlotItemContainer;
 import org.mydrugs.mydrugs.menu.SingleSlotMenu;
@@ -97,9 +98,12 @@ public class BangItem extends Item implements SingleSlotContainerItem {
         if (!level.isClientSide()) {
             ItemStack consumed = consumeLoadedContent(bang);
             if (!consumed.isEmpty()) {
-                if (consumed.getItem() instanceof DrugHolder drugHolder) {
-                    MyDrugs.DRUG_SERVICE.consume(drugHolder.getDrugModel(), drugHolder.getConsumptionStrategy());
-                }
+                MyDrugs.DRUG_USE_SERVICE.consumeStack(
+                        serverPlayer,
+                        consumed,
+                        new SmokingStrategy(true, false),
+                        DrugUseSource.BANG
+                );
                 level.playSound(
                         null,
                         living.getX(),

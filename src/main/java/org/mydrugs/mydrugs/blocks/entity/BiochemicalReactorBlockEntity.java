@@ -33,6 +33,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.mydrugs.mydrugs.blocks.BiochemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.item.MachineItemUtil;
@@ -44,7 +46,7 @@ import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipeI
 
 import java.util.Optional;
 
-public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity implements BiochemicalReactorMenu.ReactorButtonHandler {
+public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity implements BiochemicalReactorMenu.ReactorButtonHandler, MachineStatusProvider {
     public static final int SLOT_ERGOT = 0;
     public static final int SLOT_TRYPTOPHAN = 1;
     public static final int SLOT_CHARCOAL = 2;
@@ -69,6 +71,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
     private int heat = 0;
     private int fuelHeatTicks = 0;
     private int manualEnergy = 0;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -128,6 +131,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
         Optional<RecipeHolder<BiochemicalReactorRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
         if (recipeHolder.isEmpty()) {
+            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
             if (be.progressUnits != 0) {
                 be.progressUnits = 0;
                 changed = true;
@@ -144,6 +148,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         be.maxProgressUnits = recipe.processingTime() * 100;
 
         if (!be.canProcess(recipe)) {
+            changed |= be.setMachineStatus(be.blockedStatus(recipe));
             if (be.progressUnits != 0) {
                 be.progressUnits = 0;
                 changed = true;
@@ -158,6 +163,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
         int speedUnits = be.computeSpeedUnits(recipe);
         if (speedUnits > 0) {
+            changed |= be.setMachineStatus(MachineStatus.RUNNING);
             be.progressUnits += speedUnits;
             changed = true;
         }
@@ -282,6 +288,14 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         return this.outputTank.getAddableAmount(result) >= result.getAmount();
     }
 
+    private MachineStatus blockedStatus(BiochemicalReactorRecipe recipe) {
+        if (!recipe.ergot().matches(this.getItem(SLOT_ERGOT)) || !recipe.tryptophan().matches(this.getItem(SLOT_TRYPTOPHAN))) {
+            return MachineStatus.MISSING_INPUT_ITEM;
+        }
+
+        return MachineStatus.OUTPUT_TANK_FULL;
+    }
+
     private void finishRecipe(BiochemicalReactorRecipe recipe) {
         this.removeItem(SLOT_ERGOT, recipe.ergot().count());
         this.removeItem(SLOT_TRYPTOPHAN, recipe.tryptophan().count());
@@ -368,6 +382,20 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

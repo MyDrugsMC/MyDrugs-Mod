@@ -41,7 +41,10 @@ import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.IGasHandler;
 import org.mydrugs.mydrugs.gas.ModGasCapabilities;
 import org.mydrugs.mydrugs.gas.ModGases;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
@@ -56,7 +59,7 @@ import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipeInput;
 
 import java.util.Optional;
 
-public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements SteamCrackerMenu.SteamCrackerButtonHandler {
+public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements SteamCrackerMenu.SteamCrackerButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
     public static final int GAS_CAPACITY = 4000;
 
@@ -86,6 +89,7 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
     private int maxProgress = 200;
     private int burnTimeRemaining;
     private int burnTimeTotal;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -174,6 +178,9 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
         }
 
         if (recipe == null || !be.canCraft(recipe)) {
+            changed |= be.setMachineStatus(recipe == null
+                    ? MachineStatus.NO_MATCHING_RECIPE
+                    : be.inputFluidTank.isEmpty() && be.inputGasTank.isEmpty() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_TANK_FULL);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -185,11 +192,13 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
         }
 
         be.maxProgress = recipe.baseTicks();
-        if (be.burnTimeRemaining <= 0 && be.tryConsumeFuel()) {
+        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }
 
-        if (be.burnTimeRemaining > 0) {
+        if (be.burnTimeRemaining > 0 || poweredByEnergy) {
+            changed |= be.setMachineStatus(MachineStatus.RUNNING);
             be.progress++;
             changed = true;
             if (be.progress >= be.maxProgress) {
@@ -198,6 +207,8 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
                 be.refreshModes(recipe);
                 changed = true;
             }
+        } else {
+            changed |= be.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
         }
 
         if (changed) {
@@ -396,6 +407,7 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
         insertOutput(recipe.outputFluid2(), recipe.outputGas2(), this.output2FluidTank, this.output2GasTank);
         insertOutput(recipe.outputFluid3(), recipe.outputGas3(), this.output3FluidTank, this.output3GasTank);
         insertOutput(recipe.outputFluid4(), recipe.outputGas4(), this.output4FluidTank, this.output4GasTank);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private void insertOutput(Optional<SteamCrackerFluidStack> fluid, Optional<SteamCrackerGasStack> gas, StoredFluidTank fluidTank, GasTank gasTank) {
@@ -469,6 +481,20 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
     @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
         return new SteamCrackerMenu(containerId, inventory, this, this.data, ContainerLevelAccess.create(this.level, this.worldPosition));
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

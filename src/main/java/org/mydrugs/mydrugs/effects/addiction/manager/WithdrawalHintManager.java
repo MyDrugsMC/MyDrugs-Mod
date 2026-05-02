@@ -13,60 +13,60 @@ import org.mydrugs.mydrugs.items.ModItems;
 
 public final class WithdrawalHintManager {
     private static final String[] SAFE_ZONE_HINTS = {
-            "You feel safer here. Staying near a recovery anchor helps calm the withdrawal.",
-            "This place steadies you. Resting near an anchor makes the symptoms easier to bear.",
-            "The anchor helps your body settle. Staying here for a while will make this easier."
+            "message.mydrugs.withdrawal_hint.safe_zone.0",
+            "message.mydrugs.withdrawal_hint.safe_zone.1",
+            "message.mydrugs.withdrawal_hint.safe_zone.2"
     };
     private static final String[] FOOD_HAVE_HINTS = {
-            "You should eat something. Food will help you hold yourself together.",
-            "You need fuel. Eat now before the withdrawal gets heavier.",
-            "Your body needs food. A proper meal will make this easier to endure."
+            "message.mydrugs.withdrawal_hint.food_have.0",
+            "message.mydrugs.withdrawal_hint.food_have.1",
+            "message.mydrugs.withdrawal_hint.food_have.2"
     };
     private static final String[] FOOD_NEED_HINTS = {
-            "You are running on empty. Find something to eat as soon as you can.",
-            "Hunger is making this worse. You need food.",
-            "Your body is starving. Try to find anything to eat."
+            "message.mydrugs.withdrawal_hint.food_need.0",
+            "message.mydrugs.withdrawal_hint.food_need.1",
+            "message.mydrugs.withdrawal_hint.food_need.2"
     };
     private static final String[] HEALTH_HINTS = {
-            "Your body is exhausted. Recovering health will make the stress easier to bear.",
-            "You are badly hurt. Healing up will help you resist the withdrawal.",
-            "Pain is making everything worse. Take care of your body first."
+            "message.mydrugs.withdrawal_hint.health.0",
+            "message.mydrugs.withdrawal_hint.health.1",
+            "message.mydrugs.withdrawal_hint.health.2"
     };
     private static final String[] DIARY_HAVE_HINTS = {
-            "Writing would help right now. Use your diary and get the thoughts out.",
-            "Your mind is spiraling. Writing in your diary could steady you.",
-            "Put it into words. Your diary can help you calm down."
+            "message.mydrugs.withdrawal_hint.diary_have.0",
+            "message.mydrugs.withdrawal_hint.diary_have.1",
+            "message.mydrugs.withdrawal_hint.diary_have.2"
     };
     private static final String[] DIARY_NEED_HINTS = {
-            "Writing things down can help organize the noise in your head.",
-            "Putting your thoughts into words would help you steady yourself.",
-            "Journaling could help you regain control for a while."
+            "message.mydrugs.withdrawal_hint.diary_need.0",
+            "message.mydrugs.withdrawal_hint.diary_need.1",
+            "message.mydrugs.withdrawal_hint.diary_need.2"
     };
     private static final String[] HEADPHONES_HAVE_HINTS = {
-            "Put your headphones on. Music could calm the stress a little.",
-            "Your headphones could help right now. A familiar track might steady you.",
-            "Try your headphones. Music can make the stress easier to endure."
+            "message.mydrugs.withdrawal_hint.headphones_have.0",
+            "message.mydrugs.withdrawal_hint.headphones_have.1",
+            "message.mydrugs.withdrawal_hint.headphones_have.2"
     };
     private static final String[] HEADPHONES_NEED_HINTS = {
-            "A little music could help quiet the stress.",
-            "Something familiar to listen to would help you calm down.",
-            "Calming music might make the withdrawal easier to bear."
+            "message.mydrugs.withdrawal_hint.headphones_need.0",
+            "message.mydrugs.withdrawal_hint.headphones_need.1",
+            "message.mydrugs.withdrawal_hint.headphones_need.2"
     };
     private static final String[] SOCIAL_HINTS = {
-            "Being around others helps. Isolation makes withdrawal harder.",
-            "You do better with people nearby. Do not stay alone too long.",
-            "Companionship helps steady you. Others can make this easier to endure."
+            "message.mydrugs.withdrawal_hint.social.0",
+            "message.mydrugs.withdrawal_hint.social.1",
+            "message.mydrugs.withdrawal_hint.social.2"
     };
     private static final String[] SLEEP_HINTS = {
-            "Withdrawal is keeping you awake. Lowering the stress may help you sleep later.",
-            "Your body wants rest, but the withdrawal is fighting it. Calm down first if you can.",
-            "You are too restless to sleep right now. Try to settle yourself before trying again."
+            "message.mydrugs.withdrawal_hint.sleep.0",
+            "message.mydrugs.withdrawal_hint.sleep.1",
+            "message.mydrugs.withdrawal_hint.sleep.2"
     };
     private static final String[] GENERAL_HINTS = {
-            "Small things help: food, rest, safety, music, writing, and staying near others.",
-            "You can soften this a little: eat, calm down, stay safe, and do not isolate yourself.",
-            "This will not vanish instantly, but food, rest, company, and grounding habits all help.",
-            "Take care of the basics first. Food, safety, rest, and comfort all matter right now."
+            "message.mydrugs.withdrawal_hint.general.0",
+            "message.mydrugs.withdrawal_hint.general.1",
+            "message.mydrugs.withdrawal_hint.general.2",
+            "message.mydrugs.withdrawal_hint.general.3"
     };
 
     private WithdrawalHintManager() {
@@ -257,13 +257,13 @@ public final class WithdrawalHintManager {
     private static void sendHint(ServerPlayer player, PlayerAddictionStats stats, HintTopic topic, String[] variants) {
         int variantIndex = pickVariant(player, stats, topic, variants.length);
 
-        player.displayClientMessage(Component.literal(variants[variantIndex]), true);
+        player.displayClientMessage(Component.translatable(variants[variantIndex]), true);
 
         stats.lastHintTick = player.level().getGameTime();
         stats.lastHintX = player.getX();
         stats.lastHintY = player.getY();
         stats.lastHintZ = player.getZ();
-        stats.lastHintTopicOrdinal = topic.ordinal();
+        stats.lastHintTopicId = topic.serializedName;
         stats.lastHintVariantIndex = variantIndex;
     }
 
@@ -274,7 +274,7 @@ public final class WithdrawalHintManager {
 
         int chosen = player.getRandom().nextInt(count);
 
-        if (stats.lastHintTopicOrdinal == topic.ordinal() && chosen == stats.lastHintVariantIndex) {
+        if (stats.lastHintTopicId.equals(topic.serializedName) && chosen == stats.lastHintVariantIndex) {
             chosen = (chosen + 1 + player.getRandom().nextInt(count - 1)) % count;
         }
 
@@ -282,13 +282,19 @@ public final class WithdrawalHintManager {
     }
 
     private enum HintTopic {
-        SAFE_ZONE,
-        FOOD,
-        HEALTH,
-        DIARY,
-        HEADPHONES,
-        SOCIAL,
-        SLEEP,
-        GENERAL
+        SAFE_ZONE("safe_zone"),
+        FOOD("food"),
+        HEALTH("health"),
+        DIARY("diary"),
+        HEADPHONES("headphones"),
+        SOCIAL("social"),
+        SLEEP("sleep"),
+        GENERAL("general");
+
+        private final String serializedName;
+
+        HintTopic(String serializedName) {
+            this.serializedName = serializedName;
+        }
     }
 }

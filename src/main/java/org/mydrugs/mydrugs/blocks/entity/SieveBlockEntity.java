@@ -28,6 +28,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.menu.SieveMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
@@ -51,6 +52,9 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
             return switch (index) {
                 case 0 -> progress;
                 case 1 -> maxProgress;
+                case 2 -> MachineEnergyAttachments.get(SieveBlockEntity.this).storage().stored();
+                case 3 -> MachineEnergyAttachments.get(SieveBlockEntity.this).storage().capacity();
+                case 4 -> MachineEnergyAttachments.get(SieveBlockEntity.this).hasAnyEnergyStorageUpgrade() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -60,12 +64,14 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
             switch (index) {
                 case 0 -> progress = value;
                 case 1 -> maxProgress = value;
+                default -> {
+                }
             }
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 5;
         }
     };
     private float shakeProgressBuffer = 0.0F;
@@ -116,11 +122,16 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
             return;
         }
 
-        // No automatic progress at all.
-        // Only consume buffered shake input.
-        int gained = (int) be.shakeProgressBuffer;
+        int manualProgress = (int) be.shakeProgressBuffer;
+        int automaticProgress = 0;
+        if (MachineEnergyAttachments.get(be).hasAutomationUpgrade()
+                && MachineEnergyAttachments.get(be).storage().extract(1, true) == 1) {
+            MachineEnergyAttachments.get(be).storage().extract(1, false);
+            automaticProgress = 1;
+        }
+        int gained = manualProgress + automaticProgress;
         if (gained > 0) {
-            be.shakeProgressBuffer -= gained;
+            be.shakeProgressBuffer -= manualProgress;
             be.progress += gained;
             be.idleTicks = 0;
             be.setChanged();
@@ -246,6 +257,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         }
 
         this.progress = 0;
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
         this.markDirtyAndSync();
     }
 

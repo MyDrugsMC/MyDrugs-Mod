@@ -22,7 +22,7 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
     public static final int RESIDUE_SLOT = 3;
 
     public static final int MACHINE_SLOT_COUNT = 4;
-    public static final int DATA_COUNT = 7;
+    public static final int DATA_COUNT = 10;
 
     public static final int RUN_BUTTON_START_ID = 0;
     public static final int RUN_BUTTON_STOP_ID = 1;
@@ -184,6 +184,18 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
         return this.data.get(6) != 0;
     }
 
+    public int getEnergyStored() {
+        return this.data.get(7);
+    }
+
+    public int getEnergyCapacity() {
+        return this.data.get(8);
+    }
+
+    public boolean hasEnergyStorage() {
+        return this.data.get(9) != 0;
+    }
+
     public Fluid getInputFluid() {
         return decodeFluid(this.getInputFluidSyncId());
     }
@@ -194,12 +206,12 @@ public class FluidFiltererMenu extends AbstractMachineMenu {
 
     public Component getInputFluidText() {
         Fluid fluid = this.getInputFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getOutputAFluidText() {
         Fluid fluid = this.getOutputAFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public int getScaledProgress(int pixels) {

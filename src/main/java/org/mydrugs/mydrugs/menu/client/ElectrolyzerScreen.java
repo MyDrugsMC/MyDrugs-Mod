@@ -158,19 +158,19 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHoveringBox(ElectrolyzerLayout.DUMP_INPUT_X, ElectrolyzerLayout.DUMP_BUTTON_Y, ElectrolyzerLayout.DUMP_BUTTON_SIZE, ElectrolyzerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank"));
         } else if (isHoveringBox(ElectrolyzerLayout.DUMP_OUTPUT_1_X, ElectrolyzerLayout.DUMP_BUTTON_Y, ElectrolyzerLayout.DUMP_BUTTON_SIZE, ElectrolyzerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank 1"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_1"));
         } else if (isHoveringBox(ElectrolyzerLayout.DUMP_OUTPUT_2_X, ElectrolyzerLayout.DUMP_BUTTON_Y, ElectrolyzerLayout.DUMP_BUTTON_SIZE, ElectrolyzerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank 2"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_2"));
         } else if (isHoveringBox(ElectrolyzerLayout.DUMP_OUTPUT_3_X, ElectrolyzerLayout.DUMP_BUTTON_Y, ElectrolyzerLayout.DUMP_BUTTON_SIZE, ElectrolyzerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank 3"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_3"));
         } else if (isHoveringBox(ElectrolyzerLayout.INPUT_TANK_X, ElectrolyzerLayout.INPUT_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Input tank"),
+                    Component.translatable("screen.mydrugs.ui.input_tank"),
                     Component.literal(getFluidName(this.menu.getInputFluid())),
                     Component.literal(this.menu.getInputTankAmount() + " / " + ElectrolyzerMenu.FLUID_TANK_CAPACITY + " mB")
             );
@@ -180,7 +180,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas tank 1"),
+                        Component.translatable("screen.mydrugs.ui.output_gas_tank_1"),
                         Component.literal(this.menu.getOutput1GasName()),
                         Component.literal(this.menu.getOutput1TankAmount() + " / " + ElectrolyzerMenu.GAS_TANK_CAPACITY)
                 );
@@ -189,7 +189,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid tank 1"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid_tank_1"),
                         Component.literal(getFluidName(this.menu.getOutput1Fluid())),
                         Component.literal(this.menu.getOutput1TankAmount() + " / " + ElectrolyzerMenu.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -200,7 +200,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas tank 2"),
+                        Component.translatable("screen.mydrugs.ui.output_gas_tank_2"),
                         Component.literal(this.menu.getOutput2GasName()),
                         Component.literal(this.menu.getOutput2TankAmount() + " / " + ElectrolyzerMenu.GAS_TANK_CAPACITY)
                 );
@@ -209,7 +209,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid tank 2"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid_tank_2"),
                         Component.literal(getFluidName(this.menu.getOutput2Fluid())),
                         Component.literal(this.menu.getOutput2TankAmount() + " / " + ElectrolyzerMenu.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -220,7 +220,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas tank 3"),
+                        Component.translatable("screen.mydrugs.ui.output_gas_tank_3"),
                         Component.literal(this.menu.getOutput3GasName()),
                         Component.literal(this.menu.getOutput3TankAmount() + " / " + ElectrolyzerMenu.GAS_TANK_CAPACITY)
                 );
@@ -229,7 +229,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid tank 3"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid_tank_3"),
                         Component.literal(getFluidName(this.menu.getOutput3Fluid())),
                         Component.literal(this.menu.getOutput3TankAmount() + " / " + ElectrolyzerMenu.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -239,7 +239,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Electrolyzer progress"),
+                    Component.translatable("screen.mydrugs.ui.electrolyzer_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(ElectrolyzerLayout.FUEL_BAR_X, ElectrolyzerLayout.FUEL_BAR_Y, ElectrolyzerLayout.FUEL_BAR_W, ElectrolyzerLayout.FUEL_BAR_H, mouseX, mouseY)) {
@@ -247,7 +247,7 @@ public class ElectrolyzerScreen extends AbstractMachineScreen<ElectrolyzerMenu> 
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel burn time"),
+                    Component.translatable("screen.mydrugs.ui.fuel_burn_time"),
                     Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal() + " ticks")
             );
         }

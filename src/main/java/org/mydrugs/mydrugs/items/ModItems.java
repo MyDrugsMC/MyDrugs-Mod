@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
@@ -339,6 +340,39 @@ public class ModItems {
     public static final DeferredItem<Item> COPPER_TUBE =
             ITEMS.registerSimpleItem("copper_tube");
 
+    public static final DeferredItem<Item> INSULATED_WIRE =
+            ITEMS.registerSimpleItem("insulated_wire");
+
+    public static final DeferredItem<Item> CONTROL_CIRCUIT =
+            ITEMS.registerSimpleItem("control_circuit");
+
+    public static final DeferredItem<Item> ADVANCED_CONTROL_CIRCUIT =
+            ITEMS.registerSimpleItem("advanced_control_circuit");
+
+    public static final DeferredItem<Item> ELECTRIC_MOTOR =
+            ITEMS.registerSimpleItem("electric_motor");
+
+    public static final DeferredItem<Item> HEATING_COIL =
+            ITEMS.registerSimpleItem("heating_coil");
+
+    public static final DeferredItem<Item> CONDENSER_COIL =
+            ITEMS.registerSimpleItem("condenser_coil");
+
+    public static final DeferredItem<Item> ELECTRODE_PAIR =
+            ITEMS.registerSimpleItem("electrode_pair");
+
+    public static final DeferredItem<Item> CATALYST_BED =
+            ITEMS.registerSimpleItem("catalyst_bed");
+
+    public static final DeferredItem<Item> PACKED_COLUMN =
+            ITEMS.registerSimpleItem("packed_column");
+
+    public static final DeferredItem<Item> PIPE_JOINT =
+            ITEMS.registerSimpleItem("pipe_joint");
+
+    public static final DeferredItem<Item> PSYCHOTROPE_LENS =
+            ITEMS.registerSimpleItem("psychotrope_lens");
+
     public static final DeferredItem<Item> PRESSURE_SEAL =
             ITEMS.registerSimpleItem("pressure_seal");
 
@@ -376,6 +410,30 @@ public class ModItems {
 
     public static final DeferredItem<Item> ALUMINIUM_INGOT =
             ITEMS.registerSimpleItem("aluminium_ingot");
+
+    public static final DeferredItem<Item> ALUMINIUM_HELMET =
+            ITEMS.registerItem("aluminium_helmet", props -> new Item(props.humanoidArmor(ModArmorMaterials.ALUMINIUM, ArmorType.HELMET)));
+
+    public static final DeferredItem<Item> ALUMINIUM_CHESTPLATE =
+            ITEMS.registerItem("aluminium_chestplate", props -> new Item(props.humanoidArmor(ModArmorMaterials.ALUMINIUM, ArmorType.CHESTPLATE)));
+
+    public static final DeferredItem<Item> ALUMINIUM_LEGGINGS =
+            ITEMS.registerItem("aluminium_leggings", props -> new Item(props.humanoidArmor(ModArmorMaterials.ALUMINIUM, ArmorType.LEGGINGS)));
+
+    public static final DeferredItem<Item> ALUMINIUM_BOOTS =
+            ITEMS.registerItem("aluminium_boots", props -> new Item(props.humanoidArmor(ModArmorMaterials.ALUMINIUM, ArmorType.BOOTS)));
+
+    public static final DeferredItem<Item> PLATINUM_HELMET =
+            ITEMS.registerItem("platinum_helmet", props -> new Item(props.humanoidArmor(ModArmorMaterials.PLATINUM, ArmorType.HELMET)));
+
+    public static final DeferredItem<Item> PLATINUM_CHESTPLATE =
+            ITEMS.registerItem("platinum_chestplate", props -> new Item(props.humanoidArmor(ModArmorMaterials.PLATINUM, ArmorType.CHESTPLATE)));
+
+    public static final DeferredItem<Item> PLATINUM_LEGGINGS =
+            ITEMS.registerItem("platinum_leggings", props -> new Item(props.humanoidArmor(ModArmorMaterials.PLATINUM, ArmorType.LEGGINGS)));
+
+    public static final DeferredItem<Item> PLATINUM_BOOTS =
+            ITEMS.registerItem("platinum_boots", props -> new Item(props.humanoidArmor(ModArmorMaterials.PLATINUM, ArmorType.BOOTS)));
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

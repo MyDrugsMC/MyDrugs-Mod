@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.effects.addiction.manager.state;
 
 import net.minecraft.server.level.ServerPlayer;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.core.drug.AddictionConfigs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -19,7 +20,8 @@ public final class ToleranceManager {
         DrugAddictionStats stats = playerStats.getOrCreateDrugStats(model.getId());
         AddictionCategoryConfig cfg = AddictionConfigs.get(model.getDrugCategory());
 
-        float gain = AddictionMath.computeToleranceGain(dose, cfg, stats.addictionNorm(), model.getAddictionRate());
+        float gain = AddictionMath.computeToleranceGain(dose, cfg, stats.addictionNorm(), model.getAddictionRate())
+                * Config.SERVER.toleranceGainMultiplier.get().floatValue();
         stats.tolerance = AddictionMath.clamp(stats.tolerance + gain * (1.0F - stats.tolerance), 0.0F, 1.0F);
     }
 
@@ -38,7 +40,10 @@ public final class ToleranceManager {
         boolean sleeping = player.isSleeping();
         boolean inSafeZone = SafeZoneManager.isInSafeZone(player);
 
-        float decay = AddictionMath.computeToleranceDecayPerSecond(cfg, playerStats.resilience, sleeping, inSafeZone);
+        // This method is called every server tick; config/category decay values are per second.
+        float decay = AddictionMath.computeToleranceDecayPerSecond(cfg, playerStats.resilience, sleeping, inSafeZone)
+                * Config.SERVER.toleranceDecayMultiplier.get().floatValue()
+                / 20.0F;
         stats.tolerance = AddictionMath.clamp(stats.tolerance - decay, 0.0F, 1.0F);
     }
 }

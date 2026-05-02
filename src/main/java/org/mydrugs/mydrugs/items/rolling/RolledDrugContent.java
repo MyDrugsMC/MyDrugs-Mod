@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.items.rolling;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -11,10 +12,18 @@ import java.util.List;
 
 public record RolledDrugContent(DrugId first, DrugId second, DrugId third) {
     public static final Codec<DrugId> DRUG_ID_CODEC =
-            Codec.STRING.xmap(DrugId::valueOf, DrugId::name);
+            Codec.STRING.comapFlatMap(
+                    name -> DrugId.bySerializedName(name)
+                            .map(DataResult::success)
+                            .orElseGet(() -> DataResult.error(() -> "Unknown drug id: " + name)),
+                    DrugId::serializedName
+            );
 
     public static final StreamCodec<ByteBuf, DrugId> DRUG_ID_STREAM_CODEC =
-            ByteBufCodecs.STRING_UTF8.map(DrugId::valueOf, DrugId::name);
+            ByteBufCodecs.STRING_UTF8.map(
+                    name -> DrugId.bySerializedName(name).orElse(DrugId.TOBACCO),
+                    DrugId::serializedName
+            );
 
     public static final Codec<RolledDrugContent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             DRUG_ID_CODEC.fieldOf("first").forGetter(RolledDrugContent::first),

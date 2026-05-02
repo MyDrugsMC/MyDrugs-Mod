@@ -80,6 +80,7 @@ public class GrindingBowlBlockEntity extends BlockEntity {
         if (this.progress >= recipe.work()) {
             this.storedStack = recipe.result().copy();
             this.progress = 0;
+            org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
         }
 
         this.markUpdated();

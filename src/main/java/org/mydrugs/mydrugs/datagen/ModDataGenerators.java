@@ -29,6 +29,7 @@ public final class ModDataGenerators {
         event.createProvider(ModSimpleClientItemProvider::new);
         event.createProvider(ModSimpleBlockAssetProvider::new);
         event.createProvider(ModLootTableProvider::new);
+        event.createProvider(ModAdvancementProvider::new);
         event.createProvider(ModVanillaRecipeJsonProvider::new);
         event.createProvider(ModVanillaRecipeSnapshotProvider::new);
         event.createProvider(ModFluidBlockStateProvider::new);

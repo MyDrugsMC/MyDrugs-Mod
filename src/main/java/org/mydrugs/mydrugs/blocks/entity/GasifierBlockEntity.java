@@ -28,8 +28,11 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
 import org.mydrugs.mydrugs.machine.fuel.MachineFuelUtil;
 import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
@@ -39,7 +42,7 @@ import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 
 import java.util.Objects;
 
-public class GasifierBlockEntity extends BlockEntity implements Container, MenuProvider {
+public class GasifierBlockEntity extends BlockEntity implements Container, MenuProvider, MachineStatusProvider {
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_FUEL = 1;
     public static final int SLOT_EXPORT = 2;
@@ -62,6 +65,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
 
     private int burnTimeRemaining = 0;
     private int burnTimeTotal = 0;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -145,12 +149,15 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                 dirty = true;
             }
 
-            if (!this.isLit() && this.consumeFuel()) {
+            boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(this);
+
+            if (!this.isLit() && !poweredByEnergy && this.consumeFuel()) {
                 dirty = true;
                 sync = true;
             }
 
-            if (this.isLit()) {
+            if (this.isLit() || poweredByEnergy) {
+                dirty |= this.setMachineStatus(MachineStatus.RUNNING);
                 this.progress++;
                 dirty = true;
 
@@ -161,12 +168,18 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                     sync = true;
                 }
             } else if (this.progress != 0) {
+                dirty |= this.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
                 this.progress = 0;
                 dirty = true;
+            } else {
+                dirty |= this.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
             }
         } else if (this.progress != 0) {
+            dirty |= this.setMachineStatus(recipe == null ? MachineStatus.NO_MATCHING_RECIPE : MachineStatus.OUTPUT_GAS_TANK_FULL);
             this.progress = 0;
             dirty = true;
+        } else {
+            dirty |= this.setMachineStatus(recipe == null ? MachineStatus.NO_MATCHING_RECIPE : MachineStatus.OUTPUT_GAS_TANK_FULL);
         }
 
         long moved = GasTransferUtil.tryFillOutputSlot(this.items, SLOT_EXPORT, this.outputTank) ? 1L : 0L;
@@ -218,6 +231,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         if (input.isEmpty()) {
             this.items.set(SLOT_INPUT, ItemStack.EMPTY);
         }
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private boolean consumeFuel() {
@@ -291,6 +305,20 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

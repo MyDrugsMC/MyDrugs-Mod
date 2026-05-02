@@ -1,0 +1,14 @@
+﻿{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mydrugs:platinum"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mydrugs:platinum"
+      }
+    ]
+  }
+}

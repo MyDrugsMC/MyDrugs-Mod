@@ -61,6 +61,17 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.MACHINE_TRANSFER_UPGRADE.get(), "Machine Transfer Upgrade");
         add(ModItems.ENERGY_UPGRADE.get(), "Energy Upgrade");
         add(ModItems.AUTOMATION_UPGRADE.get(), "Automation Upgrade");
+        add(ModItems.INSULATED_WIRE.get(), "Insulated Wire");
+        add(ModItems.CONTROL_CIRCUIT.get(), "Control Circuit");
+        add(ModItems.ADVANCED_CONTROL_CIRCUIT.get(), "Advanced Control Circuit");
+        add(ModItems.ELECTRIC_MOTOR.get(), "Electric Motor");
+        add(ModItems.HEATING_COIL.get(), "Heating Coil");
+        add(ModItems.CONDENSER_COIL.get(), "Condenser Coil");
+        add(ModItems.ELECTRODE_PAIR.get(), "Electrode Pair");
+        add(ModItems.CATALYST_BED.get(), "Catalyst Bed");
+        add(ModItems.PACKED_COLUMN.get(), "Packed Column");
+        add(ModItems.PIPE_JOINT.get(), "Pipe Joint");
+        add(ModItems.PSYCHOTROPE_LENS.get(), "Psychotrope Lens");
         add(ModItems.RAW_PLATINUM.get(), "Raw Platinum");
         add(ModItems.PLATINUM_INGOT.get(), "Platinum Ingot");
         add(ModItems.RAW_ALUMINIUM.get(), "Raw Aluminium");

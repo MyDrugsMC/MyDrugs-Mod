@@ -38,7 +38,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public double lastHintY = 0.0D;
     public double lastHintZ = 0.0D;
 
-    public int lastHintTopicOrdinal = -1;
+    public String lastHintTopicId = "";
     public int lastHintVariantIndex = -1;
 
     public boolean wasInSafeZoneLastTick = false;
@@ -48,6 +48,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastHeadphonesHintTick = 0L;
 
     public int overdoseDeathTimer = -1;
+    public boolean addictionSymptomsImmune = false;
 
     public PlayerAddictionStats() {
         RandomSource random = RandomSource.create();
@@ -297,6 +298,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         output.putLong("last_therapy_day", lastTherapyDay);
         output.putLong("sleep_blocked_until", sleepBlockedUntil);
         output.putInt("overdose_death_timer", overdoseDeathTimer);
+        output.putBoolean("addiction_symptoms_immune", addictionSymptomsImmune);
 
         ValueOutput effects = output.child("temporary_effects");
         temporaryEffects.serialize(effects);
@@ -307,7 +309,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         int index = 0;
         for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
             ValueOutput child = drugs.child("entry_" + index++);
-            child.putString("drug_id", entry.getKey().name());
+            child.putString("drug_id", entry.getKey().serializedName());
             entry.getValue().serialize(child);
         }
     }
@@ -320,6 +322,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         lastTherapyDay = input.getLongOr("last_therapy_day", -1L);
         sleepBlockedUntil = input.getLongOr("sleep_blocked_until", 0L);
         overdoseDeathTimer = input.getIntOr("overdose_death_timer", -1);
+        addictionSymptomsImmune = input.getBooleanOr("addiction_symptoms_immune", false);
 
         temporaryEffects = new TemporaryRecoveryEffects();
         temporaryEffects.deserialize(input.childOrEmpty("temporary_effects"));
@@ -336,15 +339,16 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
                     continue;
                 }
 
-                try {
-                    DrugId drugId = DrugId.valueOf(drugIdName);
-                    DrugAddictionStats stats = new DrugAddictionStats();
-                    stats.deserialize(child);
+                DrugId drugId = DrugId.bySerializedName(drugIdName).orElse(null);
+                if (drugId == null) {
+                    continue;
+                }
 
-                    if (!stats.isEmpty() || stats.lastUseTime > 0L) {
-                        perDrug.put(drugId, stats);
-                    }
-                } catch (IllegalArgumentException ignored) {
+                DrugAddictionStats stats = new DrugAddictionStats();
+                stats.deserialize(child);
+
+                if (!stats.isEmpty() || stats.lastUseTime > 0L) {
+                    perDrug.put(drugId, stats);
                 }
             }
             return;

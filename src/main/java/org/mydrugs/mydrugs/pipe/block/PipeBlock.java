@@ -4,6 +4,8 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -27,7 +29,7 @@ public class PipeBlock extends BaseEntityBlock {
     private static final int SHAPE_KEY_BITS_PER_SIDE = 2;
     private static final int SHAPE_CACHE_SIZE = 1 << (Direction.values().length * SHAPE_KEY_BITS_PER_SIDE);
 
-    private static final VoxelShape CORE_SHAPE = Block.box(5, 5, 5, 11, 11, 11);
+    private static final VoxelShape CORE_SHAPE = Block.box(4, 4, 4, 12, 12, 12);
     private static final VoxelShape[] ARM_SHAPES = new VoxelShape[Direction.values().length];
     private static final VoxelShape[] SHAPE_CACHE = new VoxelShape[SHAPE_CACHE_SIZE];
 
@@ -38,12 +40,12 @@ public class PipeBlock extends BaseEntityBlock {
     ));
 
     static {
-        ARM_SHAPES[Direction.NORTH.ordinal()] = Block.box(5, 5, 0, 11, 11, 5);
-        ARM_SHAPES[Direction.SOUTH.ordinal()] = Block.box(5, 5, 11, 11, 11, 16);
-        ARM_SHAPES[Direction.WEST.ordinal()] = Block.box(0, 5, 5, 5, 11, 11);
-        ARM_SHAPES[Direction.EAST.ordinal()] = Block.box(11, 5, 5, 16, 11, 11);
-        ARM_SHAPES[Direction.DOWN.ordinal()] = Block.box(5, 0, 5, 11, 5, 11);
-        ARM_SHAPES[Direction.UP.ordinal()] = Block.box(5, 11, 5, 11, 16, 11);
+        ARM_SHAPES[Direction.NORTH.ordinal()] = Block.box(4, 4, 0, 12, 12, 5);
+        ARM_SHAPES[Direction.SOUTH.ordinal()] = Block.box(4, 4, 11, 12, 12, 16);
+        ARM_SHAPES[Direction.WEST.ordinal()] = Block.box(0, 4, 4, 5, 12, 12);
+        ARM_SHAPES[Direction.EAST.ordinal()] = Block.box(11, 4, 4, 16, 12, 12);
+        ARM_SHAPES[Direction.DOWN.ordinal()] = Block.box(4, 0, 4, 12, 5, 12);
+        ARM_SHAPES[Direction.UP.ordinal()] = Block.box(4, 11, 4, 12, 16, 12);
 
         SHAPE_CACHE[0] = CORE_SHAPE;
     }
@@ -77,6 +79,20 @@ public class PipeBlock extends BaseEntityBlock {
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         PipeNetworkManager.markDirty(level, pos, this.kind, PipeNetworkDirtyReason.PIPE_PLACED);
+    }
+
+    @Override
+    public void setPlacedBy(
+            Level level,
+            BlockPos pos,
+            BlockState state,
+            @Nullable LivingEntity placer,
+            ItemStack stack
+    ) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+            pipe.autoConnectAdjacent();
+        }
     }
 
     @Override

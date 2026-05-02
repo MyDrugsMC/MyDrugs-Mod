@@ -20,7 +20,7 @@ import org.mydrugs.mydrugs.pipe.machine.MachineTransferSideRule;
 
 import java.util.List;
 
-public record CycleMachineTransferSidePayload(int menuId, int portIndex, int localSideOrdinal) implements CustomPacketPayload {
+public record CycleMachineTransferSidePayload(int menuId, int portIndex, String localSideId) implements CustomPacketPayload {
     public static final Type<CycleMachineTransferSidePayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "cycle_machine_transfer_side"));
 
@@ -28,7 +28,7 @@ public record CycleMachineTransferSidePayload(int menuId, int portIndex, int loc
             StreamCodec.composite(
                     ByteBufCodecs.VAR_INT, CycleMachineTransferSidePayload::menuId,
                     ByteBufCodecs.VAR_INT, CycleMachineTransferSidePayload::portIndex,
-                    ByteBufCodecs.VAR_INT, CycleMachineTransferSidePayload::localSideOrdinal,
+                    ByteBufCodecs.STRING_UTF8, CycleMachineTransferSidePayload::localSideId,
                     CycleMachineTransferSidePayload::new
             );
 
@@ -43,10 +43,9 @@ public record CycleMachineTransferSidePayload(int menuId, int portIndex, int loc
         }
 
         BlockEntity target = access.getMachineTransferTarget(player);
-        MachineLocalSide[] sides = MachineLocalSide.values();
+        MachineLocalSide side = MachineLocalSide.bySerializedName(payload.localSideId());
         if (target == null
-                || payload.localSideOrdinal() < 0
-                || payload.localSideOrdinal() >= sides.length
+                || side == null
                 || !player.containerMenu.stillValid(player)
                 || !MachineTransferAttachments.isSupported(target)
                 || !MachineTransferAttachments.hasTransferUpgrade(target)) {
@@ -59,7 +58,6 @@ public record CycleMachineTransferSidePayload(int menuId, int portIndex, int loc
         }
 
         MachineTransferPortSpec port = ports.get(payload.portIndex());
-        MachineLocalSide side = sides[payload.localSideOrdinal()];
         MachineTransferConfig config = MachineTransferAttachments.config(target);
         config.cycleRule(port, side);
         MachineTransferAttachments.markCapabilityChanged(target);

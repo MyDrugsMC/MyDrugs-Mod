@@ -78,6 +78,7 @@ public final class ModFluids {
     public static final FluidEntry CHLOROACETONE;
     public static final FluidEntry METHAMPHETAMINE;
     public static final FluidEntry PHENYLACETONE;
+    public static final FluidEntry LIGHT_OIL;
 
     static {
         METHYLAMINE = register(new FluidEntryDef("methylamine", 0xFFFFFFFF, false, null));
@@ -138,6 +139,8 @@ public final class ModFluids {
         CHLOROACETONE = register(new FluidEntryDef("chloroacetone", 0xFFFFFFFF, false, null));
         PHENYLACETONE = register(new FluidEntryDef("phenylacetone", 0xFFFFFFFF, false, null));
         METHAMPHETAMINE = register(new FluidEntryDef("methamphetamine", 0xFFFFFFFF, false, null));
+
+        LIGHT_OIL = register(new FluidEntryDef("light_oil", 0x88E6C27E, false, null));
     }
 
     private ModFluids() {

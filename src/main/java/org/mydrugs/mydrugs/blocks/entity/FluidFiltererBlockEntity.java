@@ -35,6 +35,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -69,6 +70,9 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
                 case 4 -> inputTank.encodeFluidSyncId();
                 case 5 -> outputTank.encodeFluidSyncId();
                 case 6 -> buttonHeld ? 1 : 0;
+                case 7 -> MachineEnergyAttachments.get(FluidFiltererBlockEntity.this).storage().stored();
+                case 8 -> MachineEnergyAttachments.get(FluidFiltererBlockEntity.this).storage().capacity();
+                case 9 -> MachineEnergyAttachments.get(FluidFiltererBlockEntity.this).hasAnyEnergyStorageUpgrade() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -87,7 +91,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
 
         @Override
         public int getCount() {
-            return 7;
+            return 10;
         }
     };
 
@@ -133,6 +137,12 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
                     changed = true;
                 }
             } else if (be.buttonHeld) {
+                if (be.advanceFiltering(recipe, null)) {
+                    changed = true;
+                }
+            } else if (MachineEnergyAttachments.get(be).hasAutomationUpgrade()
+                    && MachineEnergyAttachments.get(be).storage().extract(1, true) == 1) {
+                MachineEnergyAttachments.get(be).storage().extract(1, false);
                 if (be.advanceFiltering(recipe, null)) {
                     changed = true;
                 }

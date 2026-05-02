@@ -163,7 +163,7 @@ public class GasifierMenu extends AbstractMachineMenu {
     public Component getGasName() {
         GasType gas = this.getGasType();
         return gas == null
-                ? Component.literal("Empty")
+                ? Component.translatable("screen.mydrugs.ui.empty")
                 : Component.literal(gas.id().toString());
     }
 

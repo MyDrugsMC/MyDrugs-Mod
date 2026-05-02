@@ -4,6 +4,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
@@ -12,9 +14,10 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
-import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class DrugItem extends Item implements DrugHolder {
     private final @Nullable DrugModel model;
@@ -38,12 +41,6 @@ public abstract class DrugItem extends Item implements DrugHolder {
         return this.model == null ? List.of() : List.of(this.model);
     }
 
-    protected final void consumeAll(ItemStack stack, ConsumptionStrategy strategy) {
-        for (DrugModel model : this.getDrugModels(stack)) {
-            MyDrugs.DRUG_SERVICE.consume(model, strategy);
-        }
-    }
-
     @Override
     public ConsumptionStrategy getConsumptionStrategy() {
         return strategy;
@@ -64,17 +61,23 @@ public abstract class DrugItem extends Item implements DrugHolder {
     }
 
     protected final void consumeFromStack(ServerPlayer player, ItemStack stack) {
-        if (this.model == null) {
-            for (DrugModel drugModel : getDrugModels(stack)) {
-                consumeDrug(player, drugModel, strategy);
-            }
-        } else {
-            consumeDrug(player, model, strategy);
-        }
+        DrugUseSource source = this.model == null ? DrugUseSource.ROLLED_ITEM : DrugUseSource.ITEM;
+        MyDrugs.DRUG_USE_SERVICE.consumeStack(player, stack, strategy, source);
     }
 
     public static void consumeDrug(ServerPlayer player, DrugModel drugModel, ConsumptionStrategy strategy) {
-        MyDrugs.DRUG_SERVICE.consume(drugModel, strategy);
-        AddictionManager.consume(player, drugModel, 1, strategy);
+        MyDrugs.DRUG_USE_SERVICE.consume(player, drugModel, strategy, DrugUseSource.ITEM);
+    }
+
+    @Override
+    public void appendHoverText(
+            ItemStack stack,
+            TooltipContext context,
+            TooltipDisplay tooltipDisplay,
+            Consumer<net.minecraft.network.chat.Component> tooltipAdder,
+            TooltipFlag flag
+    ) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
+        DrugTooltipBuilder.append(stack, getDrugModels(stack), this.strategy, flag, tooltipAdder);
     }
 }

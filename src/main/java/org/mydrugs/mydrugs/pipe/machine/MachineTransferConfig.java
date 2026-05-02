@@ -106,7 +106,7 @@ public final class MachineTransferConfig {
                 ValueOutput child = rules.child("entry_" + index++);
                 child.putString("port", portEntry.getKey().id().toString());
                 child.putString("side", sideEntry.getKey().getSerializedName());
-                child.putString("rule", sideEntry.getValue().name());
+                child.putString("rule", sideEntry.getValue().serializedName());
             }
         }
         rules.putInt("count", index);
@@ -128,20 +128,14 @@ public final class MachineTransferConfig {
                 continue;
             }
 
-            try {
-                MachineTransferSideRule rule = MachineTransferSideRule.valueOf(child.getStringOr("rule", MachineTransferSideRule.DISABLED.name()));
-                this.setRule(new MachineTransferPortId(portId), side, rule);
-            } catch (IllegalArgumentException ignored) {
-            }
+            MachineTransferSideRule rule = MachineTransferSideRule
+                    .bySerializedName(child.getStringOr("rule", MachineTransferSideRule.DISABLED.serializedName()))
+                    .orElse(MachineTransferSideRule.DISABLED);
+            this.setRule(new MachineTransferPortId(portId), side, rule);
         }
     }
 
     private static MachineLocalSide parseSide(String name) {
-        for (MachineLocalSide side : MachineLocalSide.values()) {
-            if (side.getSerializedName().equals(name) || side.name().equals(name)) {
-                return side;
-            }
-        }
-        return null;
+        return MachineLocalSide.bySerializedName(name);
     }
 }

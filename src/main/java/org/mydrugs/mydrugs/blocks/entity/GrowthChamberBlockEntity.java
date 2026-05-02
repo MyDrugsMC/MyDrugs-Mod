@@ -30,6 +30,8 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
@@ -40,7 +42,7 @@ import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 
 import java.util.Optional;
 
-public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
+public class GrowthChamberBlockEntity extends BaseContainerBlockEntity implements MachineStatusProvider {
     public static final int WATER_CAPACITY = 4000;
 
     public static final int INPUT_SLOT = 0;
@@ -62,6 +64,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
 
     private int matureProgress = 0;
     private int matureMaxProgress = 200;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -112,6 +115,8 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
         );
 
         Optional<RecipeHolder<GrowthChamberRecipe>> stage1Holder = be.getStage1Recipe(serverLevel);
+        boolean anyRunning = false;
+        MachineStatus blockedStatus = MachineStatus.NO_MATCHING_RECIPE;
 
         if (stage1Holder.isPresent()) {
             GrowthChamberRecipe recipe = stage1Holder.get().value();
@@ -122,6 +127,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
             }
 
             if (be.canCraftStage1(recipe)) {
+                anyRunning = true;
                 be.growthProgress++;
                 changed = true;
 
@@ -131,8 +137,11 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
                     changed = true;
                 }
             } else if (be.growthProgress != 0) {
+                blockedStatus = be.waterTank.getAmount() < recipe.water() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_SLOT_FULL;
                 be.growthProgress = 0;
                 changed = true;
+            } else {
+                blockedStatus = be.waterTank.getAmount() < recipe.water() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_SLOT_FULL;
             }
         } else {
             if (be.growthProgress != 0) {
@@ -156,6 +165,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
             }
 
             if (be.canCraftStage2(recipe)) {
+                anyRunning = true;
                 be.matureProgress++;
                 changed = true;
 
@@ -165,8 +175,11 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
                     changed = true;
                 }
             } else if (be.matureProgress != 0) {
+                blockedStatus = MachineStatus.OUTPUT_SLOT_FULL;
                 be.matureProgress = 0;
                 changed = true;
+            } else {
+                blockedStatus = MachineStatus.OUTPUT_SLOT_FULL;
             }
         } else {
             if (be.matureProgress != 0) {
@@ -178,6 +191,8 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
                 changed = true;
             }
         }
+
+        changed |= be.setMachineStatus(anyRunning ? MachineStatus.RUNNING : blockedStatus);
 
         if (changed) {
             be.sync();
@@ -278,11 +293,13 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
 
         this.waterTank.extract(recipe.water(), false);
         addResult(MIDDLE_SLOT, recipe.middleResult());
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private void craftStage2(GrowthChamberRecipe recipe) {
         removeItems(MIDDLE_SLOT, recipe.middleResult().count());
         addResult(FINAL_SLOT, recipe.finalResult());
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private void removeItems(int slot, int count) {
@@ -376,6 +393,20 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity {
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

@@ -28,10 +28,12 @@ public final class HeadphonesItem extends Item {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             if (player.isShiftKeyDown()) {
                 ItemEffectHandler.cycleHeadphonesTrack(serverPlayer);
-                serverPlayer.sendSystemMessage(Component.literal("Headphones track changed."));
+                serverPlayer.sendSystemMessage(Component.translatable("message.mydrugs.headphones.track_changed"));
             } else {
                 boolean enabled = ItemEffectHandler.toggleHeadphones(serverPlayer);
-                serverPlayer.sendSystemMessage(Component.literal(enabled ? "Headphones on." : "Headphones off."));
+                serverPlayer.sendSystemMessage(Component.translatable(
+                        enabled ? "message.mydrugs.headphones.enabled" : "message.mydrugs.headphones.disabled"
+                ));
             }
 
             player.getCooldowns().addCooldown(stack, INTERACT_COOLDOWN);

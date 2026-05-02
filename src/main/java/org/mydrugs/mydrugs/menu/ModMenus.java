@@ -84,6 +84,10 @@ public class ModMenus {
             MENUS.register("steam_cracker",
                     () -> new MenuType<>(SteamCrackerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<PsychotropeGeneratorMenu>> PSYCHOTROPE_GENERATOR =
+            MENUS.register("psychotrope_generator",
+                    () -> IMenuTypeExtension.create(PsychotropeGeneratorMenu::new));
+
     public static final Supplier<MenuType<PipeFilterMenu>> PIPE_FILTER =
             MENUS.register("pipe_filter", () -> new MenuType<>(PipeFilterMenu::new, FeatureFlags.DEFAULT_FLAGS));
 

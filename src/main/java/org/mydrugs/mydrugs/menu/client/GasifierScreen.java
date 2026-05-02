@@ -66,7 +66,7 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output gas tank"),
+                    Component.translatable("screen.mydrugs.ui.output_gas_tank"),
                     this.menu.getGasName(),
                     Component.literal(this.menu.getGasAmount() + " / " + GasifierMenu.TANK_CAPACITY + " mB")
             );
@@ -75,7 +75,7 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Gasification progress"),
+                    Component.translatable("screen.mydrugs.ui.gasification_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(GasifierLayout.FUEL_BAR_X, GasifierLayout.FUEL_BAR_Y, GasifierLayout.FUEL_BAR_W, GasifierLayout.FUEL_BAR_H, mouseX, mouseY)) {
@@ -83,8 +83,8 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel burn"),
-                    this.menu.isLit() ? Component.literal("Burning") : Component.literal("Idle"),
+                    Component.translatable("screen.mydrugs.ui.fuel_burn"),
+                    this.menu.isLit() ? Component.translatable("screen.mydrugs.ui.burning") : Component.translatable("screen.mydrugs.ui.idle"),
                     Component.literal(this.menu.getFuelLeft() + " / " + this.menu.getFuelTotal() + " ticks")
             );
         } else if (isHoveringBox(GasifierLayout.FUEL_SLOT_X, GasifierLayout.FUEL_SLOT_Y, 18, 18, mouseX, mouseY)) {
@@ -92,17 +92,17 @@ public class GasifierScreen extends AbstractMachineScreen<GasifierMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel slot"),
-                    Component.literal("Accepts furnace fuels")
+                    Component.translatable("screen.mydrugs.ui.fuel_slot"),
+                    Component.translatable("screen.mydrugs.ui.accepts_furnace_fuels")
             );
         } else if (isHoveringBox(GasifierLayout.EXPORT_SLOT_X, GasifierLayout.EXPORT_SLOT_Y, 18, 18, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Gas Tank link slot"),
-                    Component.literal("Insert a Gas Tank block item"),
-                    Component.literal("Exports to the placed tank in front")
+                    Component.translatable("screen.mydrugs.ui.gas_tank_link_slot"),
+                    Component.translatable("screen.mydrugs.ui.insert_a_gas_tank_block_item"),
+                    Component.translatable("screen.mydrugs.ui.exports_to_the_placed_tank_in_front")
             );
         }
     }

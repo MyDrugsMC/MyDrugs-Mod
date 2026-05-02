@@ -66,7 +66,7 @@ public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Water tank"),
+                    Component.translatable("screen.mydrugs.ui.water_tank"),
                     Component.literal(this.menu.getWaterAmount() + " / " + GrowthChamberMenu.TANK_CAPACITY + " mB")
             );
         } else if (isHoveringBox(
@@ -81,7 +81,7 @@ public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Growing progress"),
+                    Component.translatable("screen.mydrugs.ui.growing_progress"),
                     Component.literal(this.menu.getGrowthProgress() + " / " + this.menu.getGrowthMaxProgress())
             );
         } else if (isHoveringBox(
@@ -96,7 +96,7 @@ public class GrowthChamberScreen extends AbstractMachineScreen<GrowthChamberMenu
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Maturing progress"),
+                    Component.translatable("screen.mydrugs.ui.maturing_progress"),
                     Component.literal(this.menu.getMatureProgress() + " / " + this.menu.getMatureMaxProgress())
             );
         }

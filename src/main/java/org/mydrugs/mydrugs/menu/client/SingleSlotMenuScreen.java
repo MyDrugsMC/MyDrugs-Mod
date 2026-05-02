@@ -51,7 +51,7 @@ public class SingleSlotMenuScreen extends AbstractMachineScreen<SingleSlotMenu> 
         graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xD0D0D0, false);
         graphics.drawCenteredString(
                 this.font,
-                Component.literal("Storage"),
+                Component.translatable("screen.mydrugs.ui.storage"),
                 SingleSlotMenuLayout.MACHINE_PANEL_X + SingleSlotMenuLayout.MACHINE_PANEL_W / 2,
                 SingleSlotMenuLayout.MACHINE_PANEL_Y + 6,
                 0xFFD0D0D0

@@ -1,5 +1,10 @@
 package org.mydrugs.mydrugs.core.drug.effect;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
+import java.util.Optional;
+
 public enum EffectType {
     NAUSEA(EffectCategory.MINECRAFT_EFFECT),
     SLOWNESS(EffectCategory.MINECRAFT_EFFECT),
@@ -33,5 +38,26 @@ public enum EffectType {
     public EffectCategory getCategory() {
         return category;
     }
-}
 
+    public String serializedName() {
+        return name().toLowerCase(Locale.ROOT);
+    }
+
+    public static Optional<EffectType> bySerializedName(String name) {
+        return Optional.ofNullable(bySerializedNameOrNull(name));
+    }
+
+    public static @Nullable EffectType bySerializedNameOrNull(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String normalized = name.trim().toLowerCase(Locale.ROOT);
+        for (EffectType type : values()) {
+            if (type.serializedName().equals(normalized)) {
+                return type;
+            }
+        }
+        return null;
+    }
+}

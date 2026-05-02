@@ -28,6 +28,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
@@ -174,11 +175,12 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             return changed;
         }
 
-        if (be.burnTime <= 0 && be.consumeFuel()) {
+        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        if (be.burnTime <= 0 && !poweredByEnergy && be.consumeFuel()) {
             changed = true;
         }
 
-        if (be.burnTime > 0) {
+        if (be.burnTime > 0 || poweredByEnergy) {
             be.progress++;
             changed = true;
 
@@ -308,6 +310,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         if (!recipeFluid.isEmpty()) {
             this.outputTank.insert(recipeFluid, false);
         }
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private void craft(VanillaRecipeMatch match) {
@@ -318,6 +321,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
 
         this.removeItem(match.inputSlot(), 1);
         this.insertItem(outputSlot, match.result());
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private int findVanillaOutputSlot(ItemStack result) {

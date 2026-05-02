@@ -89,7 +89,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fluid Input A"),
+                    Component.translatable("screen.mydrugs.ui.fluid_input_a"),
                     Component.literal(getFluidName(this.menu.getInputAFluid())),
                     Component.literal(this.menu.getInputATankAmount() + " / " + AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY + " mB")
             );
@@ -105,7 +105,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fluid Input B"),
+                    Component.translatable("screen.mydrugs.ui.fluid_input_b"),
                     Component.literal(getFluidName(this.menu.getInputBFluid())),
                     Component.literal(this.menu.getInputBTankAmount() + " / " + AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY + " mB")
             );
@@ -121,7 +121,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fluid Input C"),
+                    Component.translatable("screen.mydrugs.ui.fluid_input_c"),
                     Component.literal(getFluidName(this.menu.getInputCFluid())),
                     Component.literal(this.menu.getInputCTankAmount() + " / " + AdvancedMixingVatBlockEntity.INPUT_TANK_CAPACITY + " mB")
             );
@@ -137,7 +137,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Gas Input"),
+                    Component.translatable("screen.mydrugs.ui.gas_input"),
                     Component.literal(this.menu.getGasAmount() + " / " + AdvancedMixingVatBlockEntity.GAS_TANK_CAPACITY + " units")
             );
         } else if (isHoveringBox(
@@ -152,7 +152,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fluid Output"),
+                    Component.translatable("screen.mydrugs.ui.fluid_output"),
                     Component.literal(getFluidName(this.menu.getOutputFluid())),
                     Component.literal(this.menu.getOutputTankAmount() + " / " + AdvancedMixingVatBlockEntity.OUTPUT_TANK_CAPACITY + " mB")
             );
@@ -168,7 +168,7 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Mixing Progress"),
+                    Component.translatable("screen.mydrugs.ui.mixing_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         }

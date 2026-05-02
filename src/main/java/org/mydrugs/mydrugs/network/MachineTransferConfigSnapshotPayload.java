@@ -25,7 +25,7 @@ public record MachineTransferConfigSnapshotPayload(int menuId, Direction frontDi
             StreamCodec.of(
                     (buf, payload) -> {
                         ByteBufCodecs.VAR_INT.encode(buf, payload.menuId());
-                        ByteBufCodecs.VAR_INT.encode(buf, payload.frontDirection().ordinal());
+                        ByteBufCodecs.STRING_UTF8.encode(buf, payload.frontDirection().getSerializedName());
                         ByteBufCodecs.VAR_INT.encode(buf, payload.ports().size());
                         for (PortState port : payload.ports()) {
                             ByteBufCodecs.STRING_UTF8.encode(buf, port.idPath());
@@ -38,9 +38,10 @@ public record MachineTransferConfigSnapshotPayload(int menuId, Direction frontDi
                     },
                     buf -> {
                         int menuId = ByteBufCodecs.VAR_INT.decode(buf);
-                        Direction[] directions = Direction.values();
-                        int frontOrdinal = ByteBufCodecs.VAR_INT.decode(buf);
-                        Direction front = frontOrdinal >= 0 && frontOrdinal < directions.length ? directions[frontOrdinal] : Direction.NORTH;
+                        Direction front = Direction.byName(ByteBufCodecs.STRING_UTF8.decode(buf));
+                        if (front == null) {
+                            front = Direction.NORTH;
+                        }
                         int count = ByteBufCodecs.VAR_INT.decode(buf);
                         List<PortState> ports = new ArrayList<>(count);
                         for (int i = 0; i < count; i++) {
@@ -63,7 +64,7 @@ public record MachineTransferConfigSnapshotPayload(int menuId, Direction frontDi
         for (MachineTransferPortSpec port : MachineTransferAttachments.ports(target)) {
             int[] rules = new int[MachineLocalSide.values().length];
             for (MachineLocalSide side : MachineLocalSide.values()) {
-                rules[side.ordinal()] = config.getRule(port.id(), side).ordinal();
+                rules[side.networkId()] = config.getRule(port.id(), side).networkId();
             }
             states.add(new PortState(port.id().id().getPath(), port.translationKey(), rules));
         }

@@ -9,13 +9,18 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.effects.addiction.client.render.AddictionHudRenderer;
 import org.mydrugs.mydrugs.effects.addiction.client.render.hallucination.FakeEntityRenderController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.ClientSoundController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionPayloads;
+import org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler;
+import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ClientEventHandler {
@@ -24,7 +29,10 @@ public final class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRegisterClientPayloads(RegisterClientPayloadHandlersEvent event) {
-        AddictionPayloads.registerClient(event);
+        event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);
+        event.register(HeadphonesStatePayload.TYPE, ClientPayloadHandler::handleHeadphonesState);
+        event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
+        event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
     }
 
     @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
@@ -63,11 +71,15 @@ public final class ClientEventHandler {
 
         @SubscribeEvent
         public static void onComputeFov(ViewportEvent.ComputeFov event) {
+            if (Config.CLIENT.reducedMotionMode.get() || !Config.CLIENT.enableCameraShake.get()) {
+                return;
+            }
             float original = event.getFOV();
             float withdrawal = WithdrawalTunnelShader.INSTANCE.getStrength();
 
-            float baseTunnel = withdrawal * 4.0F;
-            float beatKick = HeartbeatPulse.getFovOffset(withdrawal);
+            float intensity = Config.CLIENT.cameraShakeIntensity.get().floatValue();
+            float baseTunnel = withdrawal * 4.0F * intensity;
+            float beatKick = HeartbeatPulse.getFovOffset(withdrawal) * intensity;
 
             event.setFOV(original - baseTunnel - beatKick);
         }

@@ -1,10 +1,28 @@
 {
   "variants": {
-    "crank=false,logged_fluid=empty": { "model": "mydrugs:block/fluid_pump" },
-    "crank=false,logged_fluid=water": { "model": "mydrugs:block/fluid_pump" },
-    "crank=false,logged_fluid=petroleum": { "model": "mydrugs:block/fluid_pump" },
-    "crank=true,logged_fluid=empty": { "model": "mydrugs:block/fluid_pump_crank" },
-    "crank=true,logged_fluid=water": { "model": "mydrugs:block/fluid_pump_crank" },
-    "crank=true,logged_fluid=petroleum": { "model": "mydrugs:block/fluid_pump_crank" }
+    "crank=false,crank_face=east,logged_fluid=empty":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=east,logged_fluid=petroleum":  { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=east,logged_fluid=water":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=north,logged_fluid=empty":     { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=north,logged_fluid=petroleum": { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=north,logged_fluid=water":     { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=south,logged_fluid=empty":     { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=south,logged_fluid=petroleum": { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=south,logged_fluid=water":     { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=west,logged_fluid=empty":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=west,logged_fluid=petroleum":  { "model": "mydrugs:block/fluid_pump" },
+    "crank=false,crank_face=west,logged_fluid=water":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=east,logged_fluid=empty":       { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=east,logged_fluid=petroleum":   { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=east,logged_fluid=water":       { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=north,logged_fluid=empty":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=north,logged_fluid=petroleum":  { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=north,logged_fluid=water":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=south,logged_fluid=empty":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=south,logged_fluid=petroleum":  { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=south,logged_fluid=water":      { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=west,logged_fluid=empty":       { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=west,logged_fluid=petroleum":   { "model": "mydrugs:block/fluid_pump" },
+    "crank=true,crank_face=west,logged_fluid=water":       { "model": "mydrugs:block/fluid_pump" }
   }
 }

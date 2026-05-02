@@ -106,6 +106,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
                     result
             );
 
+            org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
             clearCrafter();
         }
     }

@@ -33,6 +33,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.fluids.FluidEntry;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
@@ -163,11 +164,12 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
             return;
         }
 
-        if (be.burnTimeRemaining <= 0 && be.tryConsumeFuel()) {
+        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }
 
-        if (be.burnTimeRemaining > 0) {
+        if (be.burnTimeRemaining > 0 || poweredByEnergy) {
             be.progress++;
             changed = true;
 
@@ -251,6 +253,7 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
         this.benzeneTank.insert(toFluidStack(ModFluids.BENZENE, BENZENE_PER_BATCH), false);
         this.tolueneTank.insert(toFluidStack(ModFluids.TOLUENE, TOLUENE_PER_BATCH), false);
         this.xyleneTank.insert(toFluidStack(ModFluids.XYLENE, XYLENE_PER_BATCH), false);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private boolean tryConsumeFuel() {

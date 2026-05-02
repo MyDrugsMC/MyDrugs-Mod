@@ -6,19 +6,85 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferMenuAccess;
 
 import java.lang.reflect.Field;
 
 public abstract class AbstractMachineMenu extends AbstractContainerMenu implements MachineTransferMenuAccess {
+    private int syncedHasEnergyStorage;
+    private int syncedEnergyStored;
+    private int syncedEnergyCapacity;
+    private int syncedMachineStatus = MachineStatus.IDLE.networkId();
+
     protected AbstractMachineMenu(MenuType<?> menuType, int containerId) {
         super(menuType, containerId);
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                BlockEntity target = findTargetFromLevelAccess();
+                return target != null && MachineEnergyAttachments.hasEnergyStorage(target) ? 1 : 0;
+            }
+
+            @Override
+            public void set(int value) {
+                syncedHasEnergyStorage = value;
+            }
+        });
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                BlockEntity target = findTargetFromLevelAccess();
+                return target != null && MachineEnergyAttachments.hasEnergyStorage(target)
+                        ? MachineEnergyAttachments.get(target).storage().stored()
+                        : 0;
+            }
+
+            @Override
+            public void set(int value) {
+                syncedEnergyStored = value;
+            }
+        });
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                BlockEntity target = findTargetFromLevelAccess();
+                return target != null && MachineEnergyAttachments.hasEnergyStorage(target)
+                        ? MachineEnergyAttachments.get(target).storage().capacity()
+                        : 0;
+            }
+
+            @Override
+            public void set(int value) {
+                syncedEnergyCapacity = value;
+            }
+        });
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                BlockEntity target = findTargetFromLevelAccess();
+                if (target == null) {
+                    target = findTargetFromContainer();
+                }
+                return target instanceof MachineStatusProvider provider
+                        ? provider.getMachineStatus().networkId()
+                        : MachineStatus.IDLE.networkId();
+            }
+
+            @Override
+            public void set(int value) {
+                syncedMachineStatus = value;
+            }
+        });
     }
 
     protected void addPlayerInventorySlots(Inventory playerInventory, int playerInvX, int playerInvY) {
@@ -177,5 +243,21 @@ public abstract class AbstractMachineMenu extends AbstractContainerMenu implemen
     @Override
     public void setData(int id, int value) {
         super.setData(id, value);
+    }
+
+    public boolean hasSyncedEnergyStorage() {
+        return this.syncedHasEnergyStorage != 0;
+    }
+
+    public int syncedEnergyStored() {
+        return this.syncedEnergyStored;
+    }
+
+    public int syncedEnergyCapacity() {
+        return this.syncedEnergyCapacity;
+    }
+
+    public MachineStatus syncedMachineStatus() {
+        return MachineStatus.byNetworkId(this.syncedMachineStatus);
     }
 }

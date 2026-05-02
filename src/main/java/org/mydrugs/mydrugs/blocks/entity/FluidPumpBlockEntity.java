@@ -20,7 +20,17 @@ import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 public class FluidPumpBlockEntity extends BlockEntity {
     private static final int MAX_MANUAL_CREDIT = 5000;
 
+    /** Sentinel meaning "no crank turn has ever happened on this BE". */
+    private static final int NO_CRANK = Integer.MIN_VALUE;
+
     private int manualCredit;
+    /**
+     * Game tick (truncated to int) when the crank was last turned.
+     * Synced to clients so the BER can compute the animation angle directly from world time.
+     * Using int relies on 32-bit two's-complement wrap-around for the elapsed calculation,
+     * which is safe for the &lt;9-tick window we care about.
+     */
+    private int lastCrankTick = NO_CRANK;
     private final CreditJournal creditJournal = new CreditJournal();
     private final PumpFluidHandler fluidHandler = new PumpFluidHandler();
 
@@ -41,6 +51,10 @@ public class FluidPumpBlockEntity extends BlockEntity {
             return 0;
         }
 
+        // Trigger animation on every crank turn, regardless of whether fluid moves
+        this.lastCrankTick = (int) level.getGameTime();
+        this.markUpdated();
+
         int directlyPushed = this.tryPushUp(level, amount);
         int remaining = amount - directlyPushed;
 
@@ -50,6 +64,20 @@ public class FluidPumpBlockEntity extends BlockEntity {
 
         int credited = this.addManualCredit(remaining);
         return directlyPushed + credited;
+    }
+
+    /**
+     * Returns the (int-truncated) game tick at which the crank was last turned,
+     * or {@link Integer#MIN_VALUE} if it has never been turned.
+     * Synced to clients via the BE update tag.
+     */
+    public int getLastCrankTick() {
+        return this.lastCrankTick;
+    }
+
+    /** Whether the crank has been turned at least once since this BE was created/loaded. */
+    public boolean hasCrankAnimation() {
+        return this.lastCrankTick != NO_CRANK;
     }
 
     /**
@@ -128,12 +156,24 @@ public class FluidPumpBlockEntity extends BlockEntity {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("manual_credit", this.manualCredit);
+        output.putInt("last_crank_tick", this.lastCrankTick);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.manualCredit = Math.max(0, input.getIntOr("manual_credit", 0));
+        this.lastCrankTick = input.getIntOr("last_crank_tick", NO_CRANK);
+    }
+
+    @Override
+    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        return this.saveWithoutMetadata(registries);
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
     }
 
     private final class PumpFluidHandler implements ResourceHandler<FluidResource> {

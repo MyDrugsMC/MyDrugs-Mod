@@ -34,6 +34,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -180,11 +181,12 @@ public class AromaticExtractorBlockEntity extends BaseContainerBlockEntity imple
             return;
         }
 
-        if (be.burnTimeRemaining <= 0 && be.tryConsumeFuel()) {
+        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }
 
-        if (be.burnTimeRemaining > 0) {
+        if (be.burnTimeRemaining > 0 || poweredByEnergy) {
             be.progress++;
             changed = true;
 
@@ -304,6 +306,7 @@ public class AromaticExtractorBlockEntity extends BaseContainerBlockEntity imple
         if (!outputB.isEmpty()) {
             this.outputBTank.insert(outputB, false);
         }
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private boolean tryConsumeFuel() {

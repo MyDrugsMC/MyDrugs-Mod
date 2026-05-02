@@ -16,6 +16,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.menu.client.util.AbstractMachineDrawMethods;
+import org.mydrugs.mydrugs.menu.client.util.MachineStatusRenderer;
 import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
 import org.mydrugs.mydrugs.network.CycleMachineTransferSidePayload;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
@@ -172,9 +173,12 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
+        renderSharedEnergyBar(graphics);
+        renderSharedMachineStatus(graphics);
         renderTransferPortHighlight(graphics);
         renderTransferOverlay(graphics, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
+        renderSharedEnergyTooltip(graphics, mouseX, mouseY);
         this.renderExtraTooltips(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -235,6 +239,32 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
      * Keeps render() identical across screens.
      */
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    }
+
+    protected boolean shouldRenderSharedEnergyBar() {
+        return true;
+    }
+
+    private void renderSharedEnergyBar(GuiGraphics graphics) {
+        if (shouldRenderSharedEnergyBar()
+                && this.menu instanceof org.mydrugs.mydrugs.menu.AbstractMachineMenu machineMenu
+                && machineMenu.hasSyncedEnergyStorage()) {
+            drawExternalEnergyBar(graphics, machineMenu.syncedEnergyStored(), machineMenu.syncedEnergyCapacity());
+        }
+    }
+
+    private void renderSharedEnergyTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (shouldRenderSharedEnergyBar()
+                && this.menu instanceof org.mydrugs.mydrugs.menu.AbstractMachineMenu machineMenu
+                && machineMenu.hasSyncedEnergyStorage()) {
+            renderExternalEnergyTooltip(graphics, mouseX, mouseY, machineMenu.syncedEnergyStored(), machineMenu.syncedEnergyCapacity());
+        }
+    }
+
+    private void renderSharedMachineStatus(GuiGraphics graphics) {
+        if (this.menu instanceof org.mydrugs.mydrugs.menu.AbstractMachineMenu machineMenu) {
+            MachineStatusRenderer.render(graphics, this.font, this.leftPos + 8, this.topPos + 18, Math.max(40, this.imageWidth - 16), machineMenu.syncedMachineStatus());
+        }
     }
 
     protected void pressMenuButton(int buttonId) {
@@ -371,7 +401,7 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
                     ClientPacketDistributor.sendToServer(new CycleMachineTransferSidePayload(
                             this.menu.containerId,
                             this.transferSelectedPort,
-                            sideButton.side().ordinal()
+                            sideButton.side().getSerializedName()
                     ));
                     return true;
                 }
@@ -440,34 +470,32 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
         }
 
         int[] rules = this.transferPorts.get(this.transferSelectedPort).rules();
-        if (side.ordinal() < 0 || side.ordinal() >= rules.length) {
+        if (side.networkId() < 0 || side.networkId() >= rules.length) {
             return MachineTransferSideRule.DISABLED;
         }
 
-        MachineTransferSideRule[] values = MachineTransferSideRule.values();
-        int value = rules[side.ordinal()];
-        return value >= 0 && value < values.length ? values[value] : MachineTransferSideRule.DISABLED;
+        return MachineTransferSideRule.byNetworkId(rules[side.networkId()]);
     }
 
     private Component transferPortLabel(int portIndex) {
         String path = this.transferPorts.get(portIndex).idPath();
         if (path.contains("output")) {
-            return Component.literal("Output " + transferPortOrdinal(portIndex, "output"));
+            return Component.translatable("screen.mydrugs.machine_transfer.output_n", transferPortNumber(portIndex, "output"));
         }
         if (path.contains("input")) {
-            return Component.literal("Input " + transferPortOrdinal(portIndex, "input"));
+            return Component.translatable("screen.mydrugs.machine_transfer.input_n", transferPortNumber(portIndex, "input"));
         }
         return Component.translatable(this.transferPorts.get(portIndex).translationKey());
     }
 
-    private int transferPortOrdinal(int portIndex, String token) {
-        int ordinal = 0;
+    private int transferPortNumber(int portIndex, String token) {
+        int number = 0;
         for (int i = 0; i <= portIndex; i++) {
             if (this.transferPorts.get(i).idPath().contains(token)) {
-                ordinal++;
+                number++;
             }
         }
-        return ordinal;
+        return number;
     }
 
     private static Component transferRuleLabel(MachineTransferSideRule rule) {
@@ -563,6 +591,26 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
                 Component.literal(title),
                 Component.literal(amount + " / " + capacity + " " + unit)
         );
+    }
+
+    protected void drawExternalEnergyBar(GuiGraphics graphics, int stored, int capacity) {
+        int x = -18;
+        int y = 24;
+        int w = 10;
+        int h = 50;
+        int fill = capacity > 0 ? stored * (h - 2) / capacity : 0;
+        graphics.fill(guiX(x), guiY(y), guiX(x + w), guiY(y + h), 0xFF101216);
+        graphics.fill(guiX(x + 1), guiY(y + h - 1 - fill), guiX(x + w - 1), guiY(y + h - 1), 0xFF9A4DFF);
+        graphics.fill(guiX(x), guiY(y), guiX(x + w), guiY(y + 1), 0xFF767C88);
+        graphics.fill(guiX(x), guiY(y + h - 1), guiX(x + w), guiY(y + h), 0xFF0E1014);
+        graphics.fill(guiX(x), guiY(y), guiX(x + 1), guiY(y + h), 0xFF767C88);
+        graphics.fill(guiX(x + w - 1), guiY(y), guiX(x + w), guiY(y + h), 0xFF0E1014);
+    }
+
+    protected void renderExternalEnergyTooltip(GuiGraphics graphics, int mouseX, int mouseY, int stored, int capacity) {
+        if (isHoveringBox(-18, 24, 10, 50, mouseX, mouseY)) {
+            renderSimpleAmountTooltip(graphics, mouseX, mouseY, "Psychotrope Energy", stored, capacity, "PE");
+        }
     }
 
     protected static class InvisibleButton extends Button {

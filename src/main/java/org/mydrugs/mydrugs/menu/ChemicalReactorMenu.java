@@ -9,7 +9,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -25,8 +24,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
     public static final int SLOT_FUEL = ChemicalReactorBlockEntity.SLOT_FUEL;
     public static final int SLOT_PRIMARY_GAS_TRANSFER = ChemicalReactorBlockEntity.SLOT_PRIMARY_GAS_TRANSFER;
     public static final int SLOT_SECONDARY_TRANSFER = ChemicalReactorBlockEntity.SLOT_SECONDARY_TRANSFER;
-    public static final int SLOT_GAS_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_GAS_OUTPUT_TRANSFER;
-    public static final int SLOT_FLUID_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_FLUID_OUTPUT_TRANSFER;
+    public static final int SLOT_OUTPUT_TRANSFER = ChemicalReactorBlockEntity.SLOT_OUTPUT_TRANSFER;
 
     public static final int MACHINE_SLOT_COUNT = ChemicalReactorBlockEntity.SLOT_COUNT;
     public static final int DATA_COUNT = 20;
@@ -77,7 +75,7 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(Items.CHARCOAL);
+                return ChemicalReactorBlockEntity.isFuel(stack, playerInventory.player.level());
             }
         });
 
@@ -120,31 +118,13 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
         this.addSlot(new ResourceHandlerSlot(
                 itemHandler,
                 itemHandler::set,
-                SLOT_GAS_OUTPUT_TRANSFER,
+                SLOT_OUTPUT_TRANSFER,
                 ChemicalReactorLayout.OUTPUT_TANK_X,
                 transferSlotY()
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return ChemicalReactorBlockEntity.isGasContainer(stack);
-            }
-
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        });
-
-        this.addSlot(new ResourceHandlerSlot(
-                itemHandler,
-                itemHandler::set,
-                SLOT_FLUID_OUTPUT_TRANSFER,
-                ChemicalReactorLayout.OUTPUT_TANK_X,
-                transferSlotY() + 20
-        ) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return ChemicalReactorBlockEntity.isFluidContainer(stack);
+                return ChemicalReactorBlockEntity.isOutputTransferContainer(stack);
             }
 
             @Override
@@ -374,15 +354,15 @@ public class ChemicalReactorMenu extends AbstractMachineMenu {
             } else {
                 boolean moved = false;
 
-                if (rawStack.is(Items.CHARCOAL)) {
+                if (ChemicalReactorBlockEntity.isFuel(rawStack, player.level())) {
                     moved = this.moveItemStackTo(rawStack, SLOT_FUEL, SLOT_FUEL + 1, false);
                 } else if (ChemicalReactorBlockEntity.isGasContainer(rawStack)) {
                     moved = this.moveItemStackTo(rawStack, SLOT_PRIMARY_GAS_TRANSFER, SLOT_PRIMARY_GAS_TRANSFER + 1, false)
                             || this.moveItemStackTo(rawStack, SLOT_SECONDARY_TRANSFER, SLOT_SECONDARY_TRANSFER + 1, false)
-                            || this.moveItemStackTo(rawStack, SLOT_GAS_OUTPUT_TRANSFER, SLOT_GAS_OUTPUT_TRANSFER + 1, false);
+                            || this.moveItemStackTo(rawStack, SLOT_OUTPUT_TRANSFER, SLOT_OUTPUT_TRANSFER + 1, false);
                 } else if (ChemicalReactorBlockEntity.isFluidContainer(rawStack)) {
                     moved = this.moveItemStackTo(rawStack, SLOT_SECONDARY_TRANSFER, SLOT_SECONDARY_TRANSFER + 1, false)
-                            || this.moveItemStackTo(rawStack, SLOT_FLUID_OUTPUT_TRANSFER, SLOT_FLUID_OUTPUT_TRANSFER + 1, false);
+                            || this.moveItemStackTo(rawStack, SLOT_OUTPUT_TRANSFER, SLOT_OUTPUT_TRANSFER + 1, false);
                 }
 
                 if (!moved) {

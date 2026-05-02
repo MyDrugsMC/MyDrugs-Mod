@@ -20,7 +20,7 @@ public class DistillerMenu extends AbstractMachineMenu {
     public static final int OUTPUT_B_CONTAINER_SLOT = 2;
 
     public static final int MACHINE_SLOT_COUNT = 3;
-    public static final int DATA_COUNT = 10;
+    public static final int DATA_COUNT = 13;
 
     public static final int RUN_BUTTON_ID = 0;
     public static final int DUMP_INPUT_BUTTON_ID = 1;
@@ -197,19 +197,31 @@ public class DistillerMenu extends AbstractMachineMenu {
         return decodeFluid(this.getOutputBFluidSyncId());
     }
 
+    public int getEnergyStored() {
+        return this.data.get(10);
+    }
+
+    public int getEnergyCapacity() {
+        return this.data.get(11);
+    }
+
+    public boolean hasEnergyStorage() {
+        return this.data.get(12) != 0;
+    }
+
     public Component getInputFluidIdText() {
         Fluid fluid = this.getInputFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getOutputAFluidIdText() {
         Fluid fluid = this.getOutputAFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getOutputBFluidIdText() {
         Fluid fluid = this.getOutputBFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public boolean isWorking() {

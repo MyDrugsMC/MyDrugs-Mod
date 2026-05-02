@@ -16,5 +16,26 @@ public enum DrugCategory {
     RESEARCH_CHEMICAL,
     SEDATIVE,
     MIXED,          // drugs that don't fit neatly in one class
-    OTHER
+    OTHER;
+
+    public int networkId() {
+        return switch (this) {
+            case OPIOID -> 0;
+            case STIMULANT -> 1;
+            case CANNABINOID -> 2;
+            case PSYCHEDELIC -> 3;
+            case DISSOCIATIVE -> 4;
+            case DEPRESSANT -> 5;
+            case EMPATHOGEN -> 6;
+            case DELIRIANT -> 7;
+            case INHALANT -> 8;
+            case NICOTINIC -> 9;
+            case CAFFEINE -> 10;
+            case NOOTROPIC -> 11;
+            case RESEARCH_CHEMICAL -> 12;
+            case SEDATIVE -> 13;
+            case MIXED -> 14;
+            case OTHER -> 15;
+        };
+    }
 }

@@ -14,7 +14,7 @@ import org.mydrugs.mydrugs.menu.SieveMenu;
 public final class ModPayloads {
     @SubscribeEvent
     public static void register(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
+        PayloadRegistrar registrar = event.registrar(MyDrugs.NETWORK_VERSION);
         registrar.playToServer(
                 SieveShakePayload.TYPE,
                 SieveShakePayload.STREAM_CODEC,

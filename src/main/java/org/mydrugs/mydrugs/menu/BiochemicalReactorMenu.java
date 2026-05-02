@@ -188,7 +188,7 @@ public class BiochemicalReactorMenu extends AbstractMachineMenu {
 
     public Component getOutputFluidName() {
         Fluid fluid = this.getOutputFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public int getScaledProgress(int pixels) {

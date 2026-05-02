@@ -205,5 +205,17 @@ public final class ServerModEvents {
                 ModBlockEntities.STEAM_CRACKER.get(),
                 (be, side) -> MachineTransferResourceHandlers.restricted(be, MachineTransferResourceKind.FLUID, side, be.getFluidHandler(side))
         );
+
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                ModBlockEntities.PSYCHOTROPE_COMPONENT.get(),
+                (blockEntity, side) -> blockEntity.getItemHandler(side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                ModBlockEntities.PSYCHOTROPE_COMPONENT.get(),
+                (blockEntity, side) -> blockEntity.getFluidHandler(side)
+        );
     }
 }

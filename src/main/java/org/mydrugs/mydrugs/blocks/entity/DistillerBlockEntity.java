@@ -35,6 +35,9 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
@@ -46,7 +49,7 @@ import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipeInput;
 import java.util.ArrayDeque;
 import java.util.Optional;
 
-public class DistillerBlockEntity extends BaseContainerBlockEntity implements DistillerMenu.DistillerButtonHandler {
+public class DistillerBlockEntity extends BaseContainerBlockEntity implements DistillerMenu.DistillerButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
 
     private final ArrayDeque<Long> recentClicks = new ArrayDeque<>();
@@ -59,6 +62,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     private int maxProgress = 200;
     private int clicksPerSec = 0;
     private int speedPercent = 0;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -74,6 +78,9 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 case 7 -> inputTank.encodeFluidSyncId();
                 case 8 -> outputATank.encodeFluidSyncId();
                 case 9 -> outputBTank.encodeFluidSyncId();
+                case 10 -> MachineEnergyAttachments.get(DistillerBlockEntity.this).storage().stored();
+                case 11 -> MachineEnergyAttachments.get(DistillerBlockEntity.this).storage().capacity();
+                case 12 -> MachineEnergyAttachments.get(DistillerBlockEntity.this).hasAnyEnergyStorageUpgrade() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -93,7 +100,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         @Override
         public int getCount() {
-            return 10;
+            return 13;
         }
     };
 
@@ -147,6 +154,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         Optional<RecipeHolder<DistillerRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
         if (recipeHolder.isEmpty()) {
+            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -166,6 +174,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
 
         if (!be.canCraft(recipe)) {
+            changed |= be.setMachineStatus(be.inputTank.isEmpty() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_TANK_FULL);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -178,7 +187,13 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
 
         int progressPerTick = be.getProgressPerTickFromCps();
+        if (MachineEnergyAttachments.get(be).hasAutomationUpgrade()
+                && MachineEnergyAttachments.get(be).storage().extract(1, true) == 1) {
+            MachineEnergyAttachments.get(be).storage().extract(1, false);
+            progressPerTick += 1;
+        }
         if (progressPerTick > 0) {
+            changed |= be.setMachineStatus(MachineStatus.RUNNING);
             be.progress += progressPerTick;
             changed = true;
 
@@ -187,6 +202,8 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 be.progress = 0;
                 changed = true;
             }
+        } else {
+            changed |= be.setMachineStatus(MachineStatus.PAUSED);
         }
 
         if (be.progress != oldProgress) {
@@ -271,6 +288,20 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override
@@ -486,6 +517,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 this.outputBTank.insert(outputB, false);
             }
         });
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private void refreshClickStats(long now) {

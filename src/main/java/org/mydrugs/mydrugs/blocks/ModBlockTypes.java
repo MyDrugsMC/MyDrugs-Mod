@@ -48,6 +48,12 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<SteamCrackerBlock>> STEAM_CRACKER_CODEC =
             BLOCK_TYPES.register("steam_cracker", () -> Block.simpleCodec(SteamCrackerBlock::new));
 
+    public static final Supplier<MapCodec<PsychotropeCoreBlock>> PSYCHOTROPE_CORE_CODEC =
+            BLOCK_TYPES.register("psychotrope_core", () -> Block.simpleCodec(PsychotropeCoreBlock::new));
+
+    public static final Supplier<MapCodec<PsychotropeComponentBlock>> PSYCHOTROPE_COMPONENT_CODEC =
+            BLOCK_TYPES.register("psychotrope_component", () -> Block.simpleCodec(PsychotropeComponentBlock::new));
+
     private ModBlockTypes() {
     }
 }

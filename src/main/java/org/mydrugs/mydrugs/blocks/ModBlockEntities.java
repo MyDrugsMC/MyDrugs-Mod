@@ -207,6 +207,22 @@ public final class ModBlockEntities {
                             ModBlocks.STEAM_CRACKER.get()
                     ));
 
+    public static final Supplier<BlockEntityType<PsychotropeComponentBlockEntity>> PSYCHOTROPE_COMPONENT =
+            BLOCK_ENTITY_TYPES.register("psychotrope_component",
+                    () -> new BlockEntityType<>(
+                            PsychotropeComponentBlockEntity::new,
+                            false,
+                            ModBlocks.PSYCHOTROPE_COMPONENT.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<PsychotropeCoreBlockEntity>> PSYCHOTROPE_CORE =
+            BLOCK_ENTITY_TYPES.register("psychotrope_core",
+                    () -> new BlockEntityType<>(
+                            PsychotropeCoreBlockEntity::new,
+                            false,
+                            ModBlocks.PSYCHOTROPE_CORE.get()
+                    ));
+
     public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPES =
             BLOCK_ENTITY_TYPES.register("pipes",
                     () -> new BlockEntityType<>(

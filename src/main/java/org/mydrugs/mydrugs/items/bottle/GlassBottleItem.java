@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.items.bottle;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,12 +29,14 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 import org.mydrugs.mydrugs.fluids.FluidTypesEx;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
-import org.mydrugs.mydrugs.items.drugs.DrugItem;
+import org.mydrugs.mydrugs.items.drugs.DrugTooltipBuilder;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class GlassBottleItem extends Item {
@@ -214,18 +217,23 @@ public class GlassBottleItem extends Item {
 
         BottleFluidContent content = getContent(stack);
         if (content == null) {
-            tooltipAdder.accept(Component.literal("Empty"));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.bottle.empty").withStyle(ChatFormatting.GRAY));
             return;
         }
 
         Fluid fluid = BuiltInRegistries.FLUID.getValue(content.fluidId());
         if (fluid == null || fluid == Fluids.EMPTY) {
-            tooltipAdder.accept(Component.literal(content.fluidId().toString()));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.bottle.fluid_id", content.fluidId().toString()));
         } else {
             tooltipAdder.accept(fluid.getFluidType().getDescription());
         }
 
-        tooltipAdder.accept(Component.literal(content.amountMb() + " / " + CAPACITY_MB + " mB"));
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.bottle.amount", content.amountMb(), CAPACITY_MB));
+
+        DrugModel drug = getBottleDrug(stack);
+        if (drug != null) {
+            DrugTooltipBuilder.append(stack, List.of(drug), strategy, flag, tooltipAdder);
+        }
     }
 
     @Override
@@ -242,7 +250,7 @@ public class GlassBottleItem extends Item {
             drain(stack, getStoredFluidId(stack), getStoredAmount(stack)); // or some smaller amount if one sip
         }
 
-        DrugItem.consumeDrug(player, getBottleDrug(stack), strategy);
+        MyDrugs.DRUG_USE_SERVICE.consume(player, getBottleDrug(stack), strategy, DrugUseSource.BOTTLE, stack);
         return stack;
     }
 

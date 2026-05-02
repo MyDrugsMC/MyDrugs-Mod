@@ -1,9 +1,7 @@
-{
-  "multipart": [
-    {
-      "apply": {
-        "model": "mydrugs:block/pipe/debug_basic_gas_pipe_clean"
-      }
+﻿{
+  "variants": {
+    "": {
+      "model": "mydrugs:block/pipe/basic_gas_pipe"
     }
-  ]
+  }
 }

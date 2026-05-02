@@ -196,22 +196,22 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHoveringBox(CatalyticReformerLayout.DUMP_INPUT_1_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, CatalyticReformerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank 1"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank_1"));
         } else if (isHoveringBox(CatalyticReformerLayout.DUMP_INPUT_2_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, CatalyticReformerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank 2"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank_2"));
         } else if (isHoveringBox(CatalyticReformerLayout.DUMP_OUTPUT_1_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, CatalyticReformerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank 1"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_1"));
         } else if (isHoveringBox(CatalyticReformerLayout.DUMP_OUTPUT_2_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, CatalyticReformerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank 2"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_2"));
         } else if (isHoveringBox(CatalyticReformerLayout.DUMP_OUTPUT_3_X, CatalyticReformerLayout.DUMP_BUTTON_Y, CatalyticReformerLayout.DUMP_BUTTON_SIZE, CatalyticReformerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank 3"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_3"));
         } else if (isHoveringBox(CatalyticReformerLayout.INPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H, mouseX, mouseY)) {
             if (this.menu.isInput1GasMode()) {
                 renderTooltipLines(
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Input gas tank 1"),
+                        Component.translatable("screen.mydrugs.ui.input_gas_tank_1"),
                         Component.literal(this.menu.getInput1GasName()),
                         Component.literal(this.menu.getInput1Amount() + " / " + CatalyticReformerBlockEntity.GAS_CAPACITY)
                 );
@@ -220,7 +220,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Input fluid tank 1"),
+                        Component.translatable("screen.mydrugs.ui.input_fluid_tank_1"),
                         Component.literal(getFluidName(this.menu.getInput1Fluid())),
                         Component.literal(this.menu.getInput1Amount() + " / " + CatalyticReformerBlockEntity.FLUID_CAPACITY + " mB")
                 );
@@ -231,7 +231,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Input gas tank 2"),
+                        Component.translatable("screen.mydrugs.ui.input_gas_tank_2"),
                         Component.literal(this.menu.getInput2GasName()),
                         Component.literal(this.menu.getInput2Amount() + " / " + CatalyticReformerBlockEntity.GAS_CAPACITY)
                 );
@@ -240,7 +240,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Input fluid tank 2"),
+                        Component.translatable("screen.mydrugs.ui.input_fluid_tank_2"),
                         Component.literal(getFluidName(this.menu.getInput2Fluid())),
                         Component.literal(this.menu.getInput2Amount() + " / " + CatalyticReformerBlockEntity.FLUID_CAPACITY + " mB")
                 );
@@ -251,7 +251,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas tank 1"),
+                        Component.translatable("screen.mydrugs.ui.output_gas_tank_1"),
                         Component.literal(this.menu.getOutput1GasName()),
                         Component.literal(this.menu.getOutput1Amount() + " / " + CatalyticReformerBlockEntity.GAS_CAPACITY)
                 );
@@ -260,7 +260,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid tank 1"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid_tank_1"),
                         Component.literal(getFluidName(this.menu.getOutput1Fluid())),
                         Component.literal(this.menu.getOutput1Amount() + " / " + CatalyticReformerBlockEntity.FLUID_CAPACITY + " mB")
                 );
@@ -271,7 +271,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas tank 2"),
+                        Component.translatable("screen.mydrugs.ui.output_gas_tank_2"),
                         Component.literal(this.menu.getOutput2GasName()),
                         Component.literal(this.menu.getOutput2Amount() + " / " + CatalyticReformerBlockEntity.GAS_CAPACITY)
                 );
@@ -280,7 +280,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid tank 2"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid_tank_2"),
                         Component.literal(getFluidName(this.menu.getOutput2Fluid())),
                         Component.literal(this.menu.getOutput2Amount() + " / " + CatalyticReformerBlockEntity.FLUID_CAPACITY + " mB")
                 );
@@ -291,7 +291,7 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output gas tank 3"),
+                        Component.translatable("screen.mydrugs.ui.output_gas_tank_3"),
                         Component.literal(this.menu.getOutput3GasName()),
                         Component.literal(this.menu.getOutput3Amount() + " / " + CatalyticReformerBlockEntity.GAS_CAPACITY)
                 );
@@ -300,19 +300,19 @@ public class CatalyticReformerScreen extends AbstractMachineScreen<CatalyticRefo
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.literal("Output fluid tank 3"),
+                        Component.translatable("screen.mydrugs.ui.output_fluid_tank_3"),
                         Component.literal(getFluidName(this.menu.getOutput3Fluid())),
                         Component.literal(this.menu.getOutput3Amount() + " / " + CatalyticReformerBlockEntity.FLUID_CAPACITY + " mB")
                 );
             }
         } else if (isHoveringBox(CatalyticReformerLayout.CATALYST_SLOT_X, CatalyticReformerLayout.CATALYST_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Catalyst slot"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.catalyst_slot"));
         } else if (isHoveringBox(CatalyticReformerLayout.PROGRESS_X, CatalyticReformerLayout.PROGRESS_Y, CatalyticReformerLayout.PROGRESS_W, CatalyticReformerLayout.PROGRESS_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Catalytic reforming progress"),
+                    Component.translatable("screen.mydrugs.ui.catalytic_reforming_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         }

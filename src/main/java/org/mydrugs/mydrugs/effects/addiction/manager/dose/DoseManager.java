@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -25,16 +26,19 @@ public final class DoseManager {
 
     public static void onConsume(DrugAddictionStats stats,
                                  DrugModel model,
-                                 @Nullable ConsumptionStrategy strategy) {
+                                 float effectiveDose,
+                                 ConsumptionStrategy strategy) {
+        if (!Config.SERVER.overdoseEnabled.get()) {
+            return;
+        }
+
         if (DosePath.of(model.getDrugCategory()) == DosePath.NONE) {
             return;
         }
 
-        float doseAmount = (strategy != null) ? strategy.getNewDose(1.0f) : 1.0f;
-
         int duration = 0;
         for (DrugEffect effect : model.getDrugEffects()) {
-            int d = (strategy != null) ? strategy.getNewDuration(effect) : effect.getBaseDuration();
+            int d = strategy != null ? strategy.getNewDuration(effect) : effect.getBaseDuration();
             if (d > duration) {
                 duration = d;
             }
@@ -44,7 +48,7 @@ public final class DoseManager {
             duration = DoseConstants.DEFAULT_ABSORPTION_TICKS;
         }
 
-        stats.doseContributions.add(new DoseContribution(doseAmount, duration));
+        stats.doseContributions.add(new DoseContribution(effectiveDose, duration));
     }
 
     public static void tickDrug(ServerPlayer player,
@@ -89,9 +93,10 @@ public final class DoseManager {
         }
 
         if (path == DosePath.DRUG) {
-            if (dose >= DoseConstants.OVERDOSE_THRESHOLD) return DoseState.OVERDOSE;
-            if (dose >= DoseConstants.VERY_HIGH_THRESHOLD) return DoseState.VERY_HIGH;
-            if (dose >= DoseConstants.HIGH_THRESHOLD) return DoseState.HIGH;
+            float thresholdMultiplier = Config.SERVER.overdoseThresholdMultiplier.get().floatValue();
+            if (dose >= DoseConstants.OVERDOSE_THRESHOLD * thresholdMultiplier) return DoseState.OVERDOSE;
+            if (dose >= DoseConstants.VERY_HIGH_THRESHOLD * thresholdMultiplier) return DoseState.VERY_HIGH;
+            if (dose >= DoseConstants.HIGH_THRESHOLD * thresholdMultiplier) return DoseState.HIGH;
             return DoseState.NORMAL;
         }
 
@@ -106,7 +111,7 @@ public final class DoseManager {
             player.setPose(Pose.SLEEPING);
         }
 
-        if (path == DosePath.DRUG && state == DoseState.OVERDOSE) {
+        if (path == DosePath.DRUG && state == DoseState.OVERDOSE && Config.SERVER.overdoseEnabled.get()) {
             if (playerStats.overdoseDeathTimer < 0) {
                 playerStats.overdoseDeathTimer = DoseConstants.OVERDOSE_DEATH_TICKS;
             }
@@ -121,7 +126,8 @@ public final class DoseManager {
                 continue;
             }
 
-            if (entry.getValue().currentDose() >= DoseConstants.OVERDOSE_THRESHOLD) {
+            if (entry.getValue().currentDose()
+                    >= DoseConstants.OVERDOSE_THRESHOLD * Config.SERVER.overdoseThresholdMultiplier.get().floatValue()) {
                 anyOverdosing = true;
                 break;
             }

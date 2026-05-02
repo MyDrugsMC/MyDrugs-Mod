@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.effects.addiction.manager.recovery;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.Villager;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
@@ -26,7 +27,7 @@ public final class TherapistHandler {
         long day = player.level().getDayTime() / 24000L;
 
         if (stats.lastTherapyDay == day) {
-            player.displayClientMessage(Component.literal("You already had therapy today."), true);
+            player.displayClientMessage(Component.translatable("message.mydrugs.therapy.already_today"), true);
             return false;
         }
 
@@ -40,7 +41,8 @@ public final class TherapistHandler {
         StressManager.reduce(stats, AddictionConstants.RELIEF_THERAPIST);
         ResilienceManager.onTherapy(stats);
 
-        player.displayClientMessage(Component.literal("You feel slightly more grounded."), true);
+        player.displayClientMessage(Component.translatable("message.mydrugs.therapy.success"), true);
+        AdvancementEventHooks.recoveryAction(player, "therapy");
         return true;
     }
 }

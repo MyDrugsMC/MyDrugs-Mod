@@ -11,14 +11,13 @@ public class DrugModel {
     private final DrugCategory drugCategory;
     private final float addictionRate;
 
-    private DrugModel(DrugId id) {
-        this(id, DrugCategory.OTHER, new ArrayList<>(), 1);
-    }
-
     protected DrugModel(DrugId id, DrugCategory drugCategory, List<DrugEffect> effects, float addictionRate) {
+        if (id == null) {
+            throw new IllegalStateException("DrugModel id must be set before build.");
+        }
         this.id = id;
         this.drugCategory = drugCategory;
-        this.drugEffects = effects;
+        this.drugEffects = List.copyOf(effects);
         this.addictionRate = addictionRate;
     }
 

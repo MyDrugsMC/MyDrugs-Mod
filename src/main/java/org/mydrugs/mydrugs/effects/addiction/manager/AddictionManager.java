@@ -3,6 +3,8 @@ package org.mydrugs.mydrugs.effects.addiction.manager;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.Config;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.core.drug.AddictionCategoryConfig;
 import org.mydrugs.mydrugs.core.drug.AddictionConfigs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
@@ -10,6 +12,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.use.ResolvedDrugUse;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
@@ -60,23 +63,39 @@ public final class AddictionManager {
                                DrugModel model,
                                float baseDose,
                                @Nullable ConsumptionStrategy strategy) {
+        float effectiveDose = strategy != null ? strategy.getNewDose(baseDose) : baseDose;
+        consumeEffective(player, model, effectiveDose, strategy);
+    }
+
+    public static void consume(ResolvedDrugUse use) {
+        consumeEffective(use.player(), use.model(), use.effectiveDose(), use.strategy());
+    }
+
+    private static void consumeEffective(ServerPlayer player,
+                                         DrugModel model,
+                                         float effectiveDose,
+                                         @Nullable ConsumptionStrategy strategy) {
+        if (!Config.SERVER.addictionEnabled.get()) {
+            return;
+        }
+
         PlayerAddictionStats playerStats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         DrugAddictionStats drugStats = playerStats.getOrCreateDrugStats(model.getId());
         AddictionCategoryConfig cfg = AddictionConfigs.get(model.getDrugCategory());
 
         float baseGain = AddictionMath.computeAddictionGain(
-                baseDose,
+                effectiveDose,
                 cfg,
                 playerStats.geneticFactor,
                 drugStats.tolerance,
                 model.getAddictionRate()
-        );
+        ) * Config.SERVER.addictionGainMultiplier.get().floatValue();
         float finalGain = RelapseManager.applyRelapseMultiplier(baseGain, drugStats);
 
         drugStats.addictionValue = AddictionMath.clamp(drugStats.addictionValue + finalGain, 0.0F, 1000.0F);
         drugStats.lastUseTime = player.level().getGameTime();
 
-        ToleranceManager.onUse(playerStats, model, baseDose);
+        ToleranceManager.onUse(playerStats, model, effectiveDose);
         RelapseManager.onUse(model, drugStats);
 
         float relief = AddictionMath.computeEffectiveRelief(cfg.reliefStrength(), drugStats.tolerance);
@@ -85,7 +104,7 @@ public final class AddictionManager {
 
         playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - AddictionConstants.STRESS_RELIEF_ON_CONSUME);
 
-        DoseManager.onConsume(drugStats, model, strategy);
+        DoseManager.onConsume(drugStats, model, effectiveDose, strategy);
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -96,6 +115,10 @@ public final class AddictionManager {
         boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < AddictionConstants.COMBAT_DETECTION_TICKS;
         int companions = SocialReliefManager.countCompanions(player, AddictionConstants.COMPANION_DETECTION_RADIUS);
         boolean inSafeZone = SafeZoneManager.isInSafeZone(player);
+        if (inSafeZone && !stats.wasInSafeZoneLastTick) {
+            AdvancementEventHooks.recoveryAction(player, "safe_zone");
+        }
+        stats.wasInSafeZoneLastTick = inSafeZone;
         long gameTime = player.level().getGameTime();
 
         float maxSeverity = 0.0F;
@@ -112,12 +135,13 @@ public final class AddictionManager {
 
             WithdrawalManager.tickDrug(player, stats, drugId, inCombat, companions, inSafeZone);
 
+            // This loop runs every server tick; category recovery values are configured per second.
             float addictionRecovery = AddictionMath.computeAddictionRecoveryPerSecond(
                     AddictionConfigs.get(category),
                     stats.resilience,
                     false,
                     inSafeZone
-            );
+            ) / 20.0F;
 
             drugStats.addictionValue = Math.max(0.0F, drugStats.addictionValue - addictionRecovery);
             RelapseManager.decay(drugStats);
@@ -136,6 +160,15 @@ public final class AddictionManager {
 
         float avg = active == 0 ? 0.0F : sumSeverity / active;
         float globalSeverity = AddictionMath.computeGlobalSeverity(maxSeverity, avg);
+
+        if (stats.addictionSymptomsImmune) {
+            SymptomManager.applyServerSymptoms(player, 0.0F);
+            if (player.tickCount % 20 == 0) {
+                SymptomManager.sync(player, 0.0F, inSafeZone);
+                sendDoseSync(player, stats);
+            }
+            return;
+        }
 
         StressManager.tick(player, stats, globalSeverity, inCombat, companions, inSafeZone);
         StressDamageManager.tick(player, stats);
@@ -159,8 +192,8 @@ public final class AddictionManager {
     private static void sendDoseSync(ServerPlayer player, PlayerAddictionStats stats) {
         DrugCategory[] categories = DrugCategory.values();
         float[] doses = new float[categories.length];
-        for (int i = 0; i < categories.length; i++) {
-            doses[i] = stats.getCategoryCurrentDose(categories[i]);
+        for (DrugCategory category : categories) {
+            doses[category.networkId()] = stats.getCategoryCurrentDose(category);
         }
         PacketDistributor.sendToPlayer(player, new DoseSyncPayload(doses));
     }

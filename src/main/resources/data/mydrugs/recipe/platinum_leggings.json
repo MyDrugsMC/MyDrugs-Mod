@@ -1,0 +1,16 @@
+﻿{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "XXX",
+    "X X",
+    "X X"
+  ],
+  "key": {
+    "X": "mydrugs:platinum_ingot"
+  },
+  "result": {
+    "id": "mydrugs:platinum_leggings",
+    "count": 1
+  }
+}

@@ -242,22 +242,22 @@ public class BTXFractionationTowerMenu extends AbstractMachineMenu {
 
     public Component getInputFluidIdText() {
         Fluid fluid = this.getInputFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getBenzeneFluidIdText() {
         Fluid fluid = this.getBenzeneFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getTolueneFluidIdText() {
         Fluid fluid = this.getTolueneFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public Component getXyleneFluidIdText() {
         Fluid fluid = this.getXyleneFluid();
-        return fluid == Fluids.EMPTY ? Component.literal("empty") : fluid.getFluidType().getDescription();
+        return fluid == Fluids.EMPTY ? Component.translatable("screen.mydrugs.ui.empty") : fluid.getFluidType().getDescription();
     }
 
     public boolean isWorking() {

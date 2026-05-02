@@ -36,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
@@ -50,7 +52,7 @@ import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipeInp
 
 import java.util.Optional;
 
-public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity implements CatalyticReformerMenu.CatalyticReformerButtonHandler {
+public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity implements CatalyticReformerMenu.CatalyticReformerButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
     public static final int GAS_CAPACITY = 4000;
 
@@ -81,6 +83,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
 
     private int progress = 0;
     private int maxProgress = 200;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -179,6 +182,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
         }
 
         if (recipe == null) {
+            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -193,6 +197,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
         be.maxProgress = recipe.baseTicks();
 
         if (!be.canCraft(recipe)) {
+            changed |= be.setMachineStatus(be.getItem(CatalyticReformerMenu.CATALYST_SLOT).isEmpty() ? MachineStatus.MISSING_CATALYST : MachineStatus.OUTPUT_TANK_FULL);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -204,6 +209,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
             return;
         }
 
+        changed |= be.setMachineStatus(MachineStatus.RUNNING);
         be.progress++;
         changed = true;
 
@@ -553,6 +559,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
 
         recipe.outputFluid3().ifPresent(output -> insertFluidOutput(output, this.output3FluidTank));
         recipe.outputGas3().ifPresent(output -> insertGasOutput(output, this.output3GasTank));
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private void sync() {
@@ -583,6 +590,20 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

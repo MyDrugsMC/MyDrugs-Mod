@@ -97,8 +97,7 @@ public class MachineTransferConfigMenu extends AbstractContainerMenu {
 
     public MachineTransferSideRule rule(int portIndex, MachineLocalSide side) {
         int value = this.ruleData.get(dataIndex(portIndex, side));
-        MachineTransferSideRule[] values = MachineTransferSideRule.values();
-        return value >= 0 && value < values.length ? values[value] : MachineTransferSideRule.DISABLED;
+        return MachineTransferSideRule.byNetworkId(value);
     }
 
     public Direction worldDirection(MachineLocalSide side) {
@@ -120,12 +119,12 @@ public class MachineTransferConfigMenu extends AbstractContainerMenu {
             public int get(int index) {
                 DecodedRule decoded = decode(index);
                 if (decoded == null) {
-                    return MachineTransferSideRule.DISABLED.ordinal();
+                    return MachineTransferSideRule.DISABLED.networkId();
                 }
 
                 return MachineTransferAttachments.config(blockEntity)
                         .getRule(decoded.port().id(), decoded.side())
-                        .ordinal();
+                        .networkId();
             }
 
             @Override
@@ -135,10 +134,7 @@ public class MachineTransferConfigMenu extends AbstractContainerMenu {
                     return;
                 }
 
-                MachineTransferSideRule[] values = MachineTransferSideRule.values();
-                MachineTransferSideRule rule = value >= 0 && value < values.length
-                        ? values[value]
-                        : MachineTransferSideRule.DISABLED;
+                MachineTransferSideRule rule = MachineTransferSideRule.byNetworkId(value);
                 MachineTransferAttachments.config(blockEntity).setRule(decoded.port(), decoded.side(), rule);
                 MachineTransferAttachments.markCapabilityChanged(blockEntity);
             }
@@ -161,7 +157,7 @@ public class MachineTransferConfigMenu extends AbstractContainerMenu {
     }
 
     private static int dataIndex(int portIndex, MachineLocalSide side) {
-        return portIndex * LOCAL_SIDES.length + side.ordinal();
+        return portIndex * LOCAL_SIDES.length + side.networkId();
     }
 
     private record DecodedRule(MachineTransferPortSpec port, MachineLocalSide side) {

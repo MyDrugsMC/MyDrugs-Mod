@@ -32,6 +32,8 @@ import org.mydrugs.mydrugs.blocks.AdvancedMixingVatBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.machine.MachineStorage;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.FluidTankAccess;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
@@ -48,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements net.minecraft.world.MenuProvider {
+public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements net.minecraft.world.MenuProvider, MachineStatusProvider {
     public static final int RECIPE_ITEM_SLOT_COUNT = 4;
 
     public static final int SLOT_RECIPE_0 = 0;
@@ -96,6 +98,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
     private int progress = 0;
     private int maxProgress = 100;
     private boolean hasRecipe = false;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -202,6 +205,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         Optional<ResolvedRecipe> match = be.findMatchingRecipe();
 
         if (match.isEmpty()) {
+            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
             if (be.progress != 0 || be.hasRecipe) {
                 be.progress = 0;
                 be.hasRecipe = false;
@@ -217,6 +221,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         ResolvedRecipe recipe = match.get();
 
         if (!be.canAcceptOutput(recipe.result())) {
+            changed |= be.setMachineStatus(MachineStatus.OUTPUT_TANK_FULL);
             if (be.progress != 0 || be.hasRecipe) {
                 be.progress = 0;
                 be.hasRecipe = false;
@@ -230,6 +235,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         }
 
         be.hasRecipe = true;
+        changed |= be.setMachineStatus(MachineStatus.RUNNING);
 
         int oldMaxProgress = be.maxProgress;
         be.maxProgress = recipe.processingTime();
@@ -463,6 +469,20 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
     public ContainerData getData() {
         return this.data;
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     public ResourceHandler<ItemResource> getItemCapability(@Nullable Direction side) {

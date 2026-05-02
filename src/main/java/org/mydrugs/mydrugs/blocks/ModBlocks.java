@@ -443,6 +443,32 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> STEAM_CRACKER_ITEM = ITEMS.registerSimpleBlockItem(STEAM_CRACKER);
 
+    public static final DeferredBlock<PsychotropeComponentBlock> PSYCHOTROPE_COMPONENT = BLOCKS.registerBlock(
+            "psychotrope_component",
+            PsychotropeComponentBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(state -> 4)
+    );
+
+    public static final DeferredItem<BlockItem> PSYCHOTROPE_COMPONENT_ITEM =
+            ITEMS.registerSimpleBlockItem(PSYCHOTROPE_COMPONENT);
+
+    public static final DeferredBlock<PsychotropeCoreBlock> PSYCHOTROPE_CORE = BLOCKS.registerBlock(
+            "psychotrope_core",
+            PsychotropeCoreBlock::new,
+            props -> props
+                    .strength(5.0F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(state -> 8)
+    );
+
+    public static final DeferredItem<BlockItem> PSYCHOTROPE_CORE_ITEM =
+            ITEMS.registerSimpleBlockItem(PSYCHOTROPE_CORE);
+
     public static final DeferredBlock<Block> RAW_PLATINUM_BLOCK = BLOCKS.registerSimpleBlock(
             "raw_platinum_block",
             props -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).requiresCorrectToolForDrops()

@@ -10,7 +10,7 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 
 /**
  * Sent server → client every 20 ticks.
- * Contains one float dose value per {@link DrugCategory} (by ordinal).
+ * Contains one float dose value per {@link DrugCategory} stable network id.
  */
 public record DoseSyncPayload(float[] doses) implements CustomPacketPayload {
 
@@ -34,10 +34,10 @@ public record DoseSyncPayload(float[] doses) implements CustomPacketPayload {
             }
     );
 
-    /** Convenience: get the dose for a specific category by ordinal. */
+    /** Convenience: get the dose for a specific category by stable network id. */
     public float get(DrugCategory category) {
-        int ord = category.ordinal();
-        return (ord < doses.length) ? doses[ord] : 0f;
+        int id = category.networkId();
+        return (id < doses.length) ? doses[id] : 0f;
     }
 
     @Override

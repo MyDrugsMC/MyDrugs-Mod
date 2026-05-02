@@ -26,12 +26,21 @@ import org.mydrugs.mydrugs.items.ModItems;
 public class FluidPumpBlock extends Block implements EntityBlock {
     public static final EnumProperty<FluidPumpLoggedFluid> LOGGED_FLUID = EnumProperty.create("logged_fluid", FluidPumpLoggedFluid.class);
     public static final BooleanProperty CRANK = BooleanProperty.create("crank");
+    /**
+     * Which block face the crank handle is mounted on.
+     * Horizontal directions only; UP/DOWN are remapped to the player's horizontal facing when installed.
+     */
+    public static final EnumProperty<Direction> CRANK_FACE = EnumProperty.create(
+            "crank_face", Direction.class,
+            Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST
+    );
 
     public FluidPumpBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(LOGGED_FLUID, FluidPumpLoggedFluid.EMPTY)
-                .setValue(CRANK, false));
+                .setValue(CRANK, false)
+                .setValue(CRANK_FACE, Direction.NORTH));
     }
 
     @Override
@@ -42,7 +51,7 @@ public class FluidPumpBlock extends Block implements EntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(LOGGED_FLUID, CRANK);
+        builder.add(LOGGED_FLUID, CRANK, CRANK_FACE);
     }
 
     @Override
@@ -65,7 +74,10 @@ public class FluidPumpBlock extends Block implements EntityBlock {
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.is(ModItems.HAND_CRANK.get()) && !state.getValue(CRANK)) {
             if (!level.isClientSide()) {
-                level.setBlock(pos, state.setValue(CRANK, true), 3);
+                // Remap UP/DOWN clicks to player's horizontal facing
+                Direction clicked = hitResult.getDirection();
+                Direction face = clicked.getAxis().isHorizontal() ? clicked : player.getDirection();
+                level.setBlock(pos, state.setValue(CRANK, true).setValue(CRANK_FACE, face), 3);
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                 }
@@ -79,6 +91,14 @@ public class FluidPumpBlock extends Block implements EntityBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!state.getValue(CRANK)) {
             return InteractionResult.PASS;
+        }
+        // Sneak + right-click removes the crank and returns it to inventory
+        if (player.isShiftKeyDown()) {
+            if (!level.isClientSide()) {
+                level.setBlock(pos, state.setValue(CRANK, false), 3);
+                Block.popResource(level, pos, new ItemStack(ModItems.HAND_CRANK.get()));
+            }
+            return InteractionResult.SUCCESS;
         }
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof FluidPumpBlockEntity pump) {
             pump.pumpOnce(serverLevel, Direction.UP, 50);

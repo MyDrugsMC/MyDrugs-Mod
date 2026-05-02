@@ -34,7 +34,7 @@ public final class SieveMenu extends AbstractMachineMenu {
                 containerId,
                 playerInventory,
                 new SimpleContainer(MACHINE_SLOT_COUNT),
-                new SimpleContainerData(2),
+                new SimpleContainerData(5),
                 ContainerLevelAccess.NULL
         );
     }
@@ -49,7 +49,7 @@ public final class SieveMenu extends AbstractMachineMenu {
         super(ModMenus.SIEVE.get(), containerId);
 
         checkContainerSize(container, MACHINE_SLOT_COUNT);
-        checkContainerDataCount(data, 2);
+        checkContainerDataCount(data, 5);
 
         this.container = container;
         this.data = data;
@@ -77,6 +77,18 @@ public final class SieveMenu extends AbstractMachineMenu {
         }
 
         return progress * pixels / maxProgress;
+    }
+
+    public boolean hasEnergyStorage() {
+        return this.data.get(4) != 0;
+    }
+
+    public int getEnergyStored() {
+        return this.data.get(2);
+    }
+
+    public int getEnergyCapacity() {
+        return this.data.get(3);
     }
 
     public int getMenuId() {

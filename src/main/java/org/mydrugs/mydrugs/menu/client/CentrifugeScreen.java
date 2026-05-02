@@ -103,17 +103,17 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHoveringBox(CentrifugeLayout.DUMP_INPUT_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, CentrifugeLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank"));
         } else if (isHoveringBox(CentrifugeLayout.DUMP_OUTPUT_A_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, CentrifugeLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank A"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_a"));
         } else if (isHoveringBox(CentrifugeLayout.DUMP_OUTPUT_B_X, CentrifugeLayout.DUMP_BUTTON_Y, CentrifugeLayout.DUMP_BUTTON_SIZE, CentrifugeLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump output tank B"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_output_tank_b"));
         } else if (isHoveringBox(CentrifugeLayout.INPUT_TANK_X, CentrifugeLayout.INPUT_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Input tank"),
+                    Component.translatable("screen.mydrugs.ui.input_tank"),
                     Component.literal(getFluidName(this.menu.getInputFluid())),
                     Component.literal(this.menu.getInputTankAmount() + " / " + CentrifugeMenu.TANK_CAPACITY + " mB")
             );
@@ -122,7 +122,7 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output tank A"),
+                    Component.translatable("screen.mydrugs.ui.output_tank_a"),
                     Component.literal(getFluidName(this.menu.getOutputAFluid())),
                     Component.literal(this.menu.getOutputATankAmount() + " / " + CentrifugeMenu.TANK_CAPACITY + " mB")
             );
@@ -131,7 +131,7 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Output tank B"),
+                    Component.translatable("screen.mydrugs.ui.output_tank_b"),
                     Component.literal(getFluidName(this.menu.getOutputBFluid())),
                     Component.literal(this.menu.getOutputBTankAmount() + " / " + CentrifugeMenu.TANK_CAPACITY + " mB")
             );
@@ -140,7 +140,7 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Centrifuge progress"),
+                    Component.translatable("screen.mydrugs.ui.centrifuge_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(CentrifugeLayout.FUEL_BAR_X, CentrifugeLayout.FUEL_BAR_Y, CentrifugeLayout.FUEL_BAR_W, CentrifugeLayout.FUEL_BAR_H, mouseX, mouseY)) {
@@ -148,7 +148,7 @@ public class CentrifugeScreen extends AbstractMachineScreen<CentrifugeMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel burn time"),
+                    Component.translatable("screen.mydrugs.ui.fuel_burn_time"),
                     Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal() + " ticks")
             );
         }

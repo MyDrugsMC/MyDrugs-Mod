@@ -34,7 +34,10 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
@@ -46,7 +49,7 @@ import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipeInput;
 
 import java.util.Optional;
 
-public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements CentrifugeMenu.CentrifugeButtonHandler {
+public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements CentrifugeMenu.CentrifugeButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
     private final LockedTransferSlots fluidTransferLocks = new LockedTransferSlots(1);
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
@@ -58,6 +61,7 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
 
     private int burnTimeRemaining = 0;
     private int burnTimeTotal = 0;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -136,6 +140,7 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
 
         Optional<RecipeHolder<CentrifugeRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
         if (recipeHolder.isEmpty()) {
+            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -151,6 +156,7 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
         be.maxProgress = recipe.baseTicks();
 
         if (!be.canCraft(recipe)) {
+            changed |= be.setMachineStatus(be.inputTank.isEmpty() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_TANK_FULL);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -162,11 +168,13 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
             return;
         }
 
-        if (be.burnTimeRemaining <= 0 && be.tryConsumeFuel()) {
+        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }
 
-        if (be.burnTimeRemaining > 0) {
+        if (be.burnTimeRemaining > 0 || poweredByEnergy) {
+            changed |= be.setMachineStatus(MachineStatus.RUNNING);
             be.progress++;
             changed = true;
 
@@ -175,6 +183,8 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
                 be.progress = 0;
                 changed = true;
             }
+        } else {
+            changed |= be.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
         }
 
         if (changed) {
@@ -265,6 +275,7 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
                 this.outputBTank.insert(outputB, false);
             }
         });
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
     }
 
     private boolean tryConsumeFuel() {
@@ -380,6 +391,20 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
                 this.data,
                 ContainerLevelAccess.create(this.level, this.worldPosition)
         );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+
+        this.machineStatus = status;
+        return true;
     }
 
     @Override

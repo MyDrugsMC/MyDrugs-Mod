@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.effects.addiction.item;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 
 public abstract class AbstractRecoveryItem extends Item {
     private final int useDuration;
@@ -56,6 +58,7 @@ public abstract class AbstractRecoveryItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (!level.isClientSide() && entity instanceof ServerPlayer player) {
             applyEffects(player);
+            AdvancementEventHooks.recoveryAction(player, BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath());
             afterUse(player);
 
             player.getCooldowns().addCooldown(stack, cooldownTicks);

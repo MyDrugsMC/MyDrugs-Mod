@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
@@ -33,14 +34,18 @@ public final class AddictionHudRenderer {
 
     public static void render(GuiGraphics guiGraphics) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || !AddictionClientState.shouldRenderHud()) {
+        if (mc.player == null
+                || mc.options.hideGui
+                || !Config.CLIENT.showAddictionHud.get()
+                || !AddictionClientState.shouldRenderHud()) {
             return;
         }
 
         Font font = mc.font;
         List<Badge> statusBadges = new ArrayList<>();
-        List<Badge> recoveryBadges = buildRecoveryBadges();
-        List<Badge> symptomBadges = buildSymptomBadges();
+        boolean compact = Config.CLIENT.compactAddictionHud.get();
+        List<Badge> recoveryBadges = compact ? List.of() : buildRecoveryBadges();
+        List<Badge> symptomBadges = compact ? List.of() : buildSymptomBadges();
 
         Badge dangerBadge = buildDangerBadge();
         if (dangerBadge != null) {

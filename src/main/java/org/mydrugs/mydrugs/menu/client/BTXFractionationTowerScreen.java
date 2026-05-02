@@ -118,19 +118,19 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHoveringBox(BTXFractionationTowerLayout.DUMP_INPUT_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump input tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_input_tank"));
         } else if (isHoveringBox(BTXFractionationTowerLayout.DUMP_BENZENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump benzene tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_benzene_tank"));
         } else if (isHoveringBox(BTXFractionationTowerLayout.DUMP_TOLUENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump toluene tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_toluene_tank"));
         } else if (isHoveringBox(BTXFractionationTowerLayout.DUMP_XYLENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal("Dump xylene tank"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.dump_xylene_tank"));
         } else if (isHoveringBox(BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("BTX Mix input tank"),
+                    Component.translatable("screen.mydrugs.ui.btx_mix_input_tank"),
                     Component.literal(getFluidName(this.menu.getInputFluid())),
                     Component.literal(this.menu.getInputTankAmount() + " / " + BTXFractionationTowerMenu.TANK_CAPACITY + " mB")
             );
@@ -139,7 +139,7 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Benzene output tank"),
+                    Component.translatable("screen.mydrugs.ui.benzene_output_tank"),
                     Component.literal(getFluidName(this.menu.getBenzeneFluid())),
                     Component.literal(this.menu.getBenzeneTankAmount() + " / " + BTXFractionationTowerMenu.TANK_CAPACITY + " mB")
             );
@@ -148,7 +148,7 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Toluene output tank"),
+                    Component.translatable("screen.mydrugs.ui.toluene_output_tank"),
                     Component.literal(getFluidName(this.menu.getTolueneFluid())),
                     Component.literal(this.menu.getTolueneTankAmount() + " / " + BTXFractionationTowerMenu.TANK_CAPACITY + " mB")
             );
@@ -157,7 +157,7 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Xylene output tank"),
+                    Component.translatable("screen.mydrugs.ui.xylene_output_tank"),
                     Component.literal(getFluidName(this.menu.getXyleneFluid())),
                     Component.literal(this.menu.getXyleneTankAmount() + " / " + BTXFractionationTowerMenu.TANK_CAPACITY + " mB")
             );
@@ -166,7 +166,7 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fractionation progress"),
+                    Component.translatable("screen.mydrugs.ui.fractionation_progress"),
                     Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(BTXFractionationTowerLayout.FUEL_BAR_X, BTXFractionationTowerLayout.FUEL_BAR_Y, BTXFractionationTowerLayout.FUEL_BAR_W, BTXFractionationTowerLayout.FUEL_BAR_H, mouseX, mouseY)) {
@@ -174,7 +174,7 @@ public class BTXFractionationTowerScreen extends AbstractMachineScreen<BTXFracti
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.literal("Fuel burn time"),
+                    Component.translatable("screen.mydrugs.ui.fuel_burn_time"),
                     Component.literal(this.menu.getBurnTimeRemaining() + " / " + this.menu.getBurnTimeTotal() + " ticks")
             );
         }

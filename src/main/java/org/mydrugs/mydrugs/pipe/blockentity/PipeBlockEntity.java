@@ -12,12 +12,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.IGasHandler;
+import org.mydrugs.mydrugs.gas.ModGasCapabilities;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.pipe.PipeConnectionMode;
 import org.mydrugs.mydrugs.pipe.PipeResourceKind;
@@ -80,6 +82,55 @@ public class PipeBlockEntity extends BlockEntity {
         return config.mode();
     }
 
+    public boolean setSideMode(Direction side, PipeConnectionMode mode, PipeNetworkDirtyReason reason) {
+        PipeSideConfig config = this.sideConfigs.get(side);
+        if (config.mode() == mode) {
+            return false;
+        }
+
+        config.setMode(mode);
+        if (mode == PipeConnectionMode.DISABLED) {
+            config.setFilter(null);
+        }
+        this.onConfigurationChanged(reason);
+        return true;
+    }
+
+    public void autoConnectAdjacent() {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+
+        boolean changed = false;
+        for (Direction direction : Direction.values()) {
+            PipeSideConfig config = this.sideConfigs.get(direction);
+            if (config.mode() != PipeConnectionMode.DISABLED) {
+                continue;
+            }
+
+            BlockPos neighborPos = this.worldPosition.relative(direction);
+            if (!this.level.isLoaded(neighborPos)) {
+                continue;
+            }
+
+            BlockEntity neighbor = this.level.getBlockEntity(neighborPos);
+            if (neighbor instanceof PipeBlockEntity neighborPipe && neighborPipe.kind() == this.kind()) {
+                config.setMode(PipeConnectionMode.PIPE);
+                changed = true;
+                if (neighborPipe.getSideConfig(direction.getOpposite()).mode() == PipeConnectionMode.DISABLED) {
+                    neighborPipe.setSideMode(direction.getOpposite(), PipeConnectionMode.PIPE, PipeNetworkDirtyReason.PIPE_PLACED);
+                }
+            } else if (this.hasCompatibleEndpoint(direction)) {
+                config.setMode(PipeConnectionMode.OUTPUT);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            this.onConfigurationChanged(PipeNetworkDirtyReason.PIPE_PLACED);
+        }
+    }
+
     public boolean hasFilter(Direction side) {
         return this.sideConfigs.get(side).filter() != null;
     }
@@ -122,6 +173,20 @@ public class PipeBlockEntity extends BlockEntity {
     private boolean exposesAutomation(Direction side) {
         PipeConnectionMode mode = this.sideConfigs.get(side).mode();
         return mode == PipeConnectionMode.INPUT || mode == PipeConnectionMode.OUTPUT;
+    }
+
+    private boolean hasCompatibleEndpoint(Direction direction) {
+        if (this.level == null) {
+            return false;
+        }
+
+        BlockPos targetPos = this.worldPosition.relative(direction);
+        Direction targetSide = direction.getOpposite();
+        return switch (this.kind()) {
+            case ITEM -> this.level.getCapability(Capabilities.Item.BLOCK, targetPos, targetSide) != null;
+            case FLUID -> this.level.getCapability(Capabilities.Fluid.BLOCK, targetPos, targetSide) != null;
+            case GAS -> this.level.getCapability(ModGasCapabilities.BLOCK, targetPos, targetSide) != null;
+        };
     }
 
     private void onConfigurationChanged(PipeNetworkDirtyReason reason) {
