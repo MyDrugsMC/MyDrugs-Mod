@@ -22,6 +22,7 @@ import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.psy_anvil.PsyAnvilRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
@@ -90,6 +91,9 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AromaticExtractorRecipe>> AROMATIC_EXTRACTOR =
             RECIPE_SERIALIZERS.register("aromatic_extractor", AromaticExtractorRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PsyAnvilRecipe>> PSY_ANVIL =
+            RECIPE_SERIALIZERS.register("psy_anvil", PsyAnvilRecipe.Serializer::new);
 
     private ModRecipeSerializers() {
     }

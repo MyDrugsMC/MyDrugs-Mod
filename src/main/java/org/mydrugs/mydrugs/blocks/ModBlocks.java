@@ -344,17 +344,17 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> CLAY_VAT_ITEM =
             ITEMS.registerSimpleBlockItem(CLAY_VAT);
 
-//    public static final DeferredBlock<PsyAnvilBlock> PSY_ANVIL = BLOCKS.registerBlock(
-//            "psy_anvil",
-//            PsyAnvilBlock::new,
-//            props -> props
-//                    .strength(4.0F)
-//                    .requiresCorrectToolForDrops()
-//                    .sound(SoundType.ANVIL)
-//                    .noOcclusion()
-//    );
-//
-//    public static final DeferredItem<BlockItem> PSY_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(PSY_ANVIL);
+    public static final DeferredBlock<PsyAnvilBlock> PSY_ANVIL = BLOCKS.registerBlock(
+            "psy_anvil",
+            PsyAnvilBlock::new,
+            props -> props
+                    .strength(4.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.ANVIL)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> PSY_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(PSY_ANVIL);
 
     public static final DeferredBlock<Block> TREATED_PLANKS = BLOCKS.registerBlock(
             "treated_planks",

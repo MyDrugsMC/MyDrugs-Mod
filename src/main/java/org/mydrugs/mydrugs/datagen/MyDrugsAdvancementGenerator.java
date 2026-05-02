@@ -98,6 +98,13 @@ public final class MyDrugsAdvancementGenerator {
         drug("knowledge/first_nicotinic", "consumption/first_drug", item("tobacco_handful"), "first_nicotinic", null, "nicotinic", null, null, false);
         drug("knowledge/first_alcohol", "knowledge/first_depressant", item("glass_bottle"), "first_alcohol", null, null, null, null, true, "alcohol");
         drug("knowledge/first_high_value_psychotrope", "psychotrope/psychotrope_core", item("meth_shard"), "first_high_value_psychotrope", null, null, null, null, true, "meth");
+        psyKnowledge("knowledge/nicotinic", "knowledge/first_nicotinic", item("psy_receptacle"), "mydrugs:nicotinic", false);
+        psyKnowledge("knowledge/cannabinoid", "knowledge/nicotinic", item("cannabis_powder"), "mydrugs:cannabinoid", false);
+        psyKnowledge("knowledge/fermented", "knowledge/cannabinoid", item("glass_bottle"), "mydrugs:fermented", false);
+        psyKnowledge("knowledge/stimulant", "knowledge/fermented", item("cocaine_dust"), "mydrugs:stimulant", false);
+        psyKnowledge("knowledge/lysergic", "knowledge/stimulant", item("lsd_drop"), "mydrugs:lysergic", false);
+        psyKnowledge("knowledge/overclocked", "knowledge/lysergic", item("meth_shard"), "mydrugs:overclocked", false);
+        psyKnowledge("knowledge/mycelial", "knowledge/overclocked", item("magic_mushroom"), "mydrugs:mycelial", false);
     }
 
     private void recovery() {
@@ -178,6 +185,13 @@ public final class MyDrugsAdvancementGenerator {
     }
 
     private void psychotrope() {
+        inventoryAny("psy_anvil/obtain_receptacle", "knowledge/nicotinic", item("psy_receptacle"), recipes("psy_anvil"), item("psy_receptacle"));
+        placedAny("psy_anvil/craft_psy_anvil", "psy_anvil/obtain_receptacle", item("psy_anvil"), recipes("copper_plate", "heavy_iron", "heavy_iron_plate", "insulated_wire", "advanced_control_circuit", "mycelial_resonator"), block("psy_anvil"));
+        psyAnvilCraft("psy_anvil/shape_copper_plate", "knowledge/cannabinoid", item("copper_plate"), "mydrugs:copper_plate");
+        psyAnvilCraft("psy_anvil/shape_heavy_iron", "knowledge/fermented", item("heavy_iron"), "mydrugs:heavy_iron");
+        psyAnvilCraft("psy_anvil/shape_insulated_wire", "knowledge/stimulant", item("insulated_wire"), "mydrugs:insulated_wire");
+        psyAnvilCraft("psy_anvil/shape_advanced_control_circuit", "knowledge/lysergic", item("advanced_control_circuit"), "mydrugs:advanced_control_circuit");
+        psyAnvilCraft("psy_anvil/build_resonator", "knowledge/overclocked", item("mycelial_resonator"), "mydrugs:mycelial_resonator");
         inventoryAny("psychotrope/psychotrope_lens", "materials/advanced_control_circuit", item("psychotrope_lens"), recipes("psychotrope_lens"), item("psychotrope_lens"));
         placedAny("psychotrope/psychotrope_component", "psychotrope/psychotrope_lens", item("psychotrope_component"), recipes("psychotrope_component"), block("psychotrope_component"));
         placedAny("psychotrope/psychotrope_core", "psychotrope/psychotrope_component", item("psychotrope_core"), recipes("psychotrope_core"), block("psychotrope_core"));
@@ -279,9 +293,7 @@ public final class MyDrugsAdvancementGenerator {
         JsonArray group = new JsonArray();
         for (int i = 0; i < blocks.length; i++) {
             String name = "placed_" + i;
-            JsonObject conditions = new JsonObject();
-            conditions.addProperty("block", blocks[i]);
-            criteria.add(name, criterion("minecraft:placed_block", conditions));
+            criteria.add(name, placedBlockCriterion(blocks[i]));
             group.add(name);
         }
         advancement.add("criteria", criteria);
@@ -348,6 +360,19 @@ public final class MyDrugsAdvancementGenerator {
         output.accept(ModAdvancementIds.id(path), advancement);
     }
 
+    private void psyKnowledge(String path, String parent, String icon, String knowledge, boolean hidden) {
+        JsonObject conditions = new JsonObject();
+        conditions.addProperty("knowledge", knowledge);
+        custom(path, parent, icon, "mydrugs:psy_knowledge_unlocked", conditions, hidden, "task");
+    }
+
+    private void psyAnvilCraft(String path, String parent, String icon, String resultItem) {
+        JsonObject conditions = new JsonObject();
+        conditions.addProperty("machine", block("psy_anvil"));
+        conditions.addProperty("result_item", resultItem);
+        custom(path, parent, icon, "mydrugs:machine_recipe_completed", conditions, false, "task");
+    }
+
     private void psychotrope(String path, String parent, String icon, String event, boolean hidden, int threshold) {
         JsonObject conditions = new JsonObject();
         conditions.addProperty("event", event);
@@ -396,6 +421,17 @@ public final class MyDrugsAdvancementGenerator {
         JsonObject conditions = new JsonObject();
         conditions.add("items", items);
         return criterion("minecraft:inventory_changed", conditions);
+    }
+
+    private JsonObject placedBlockCriterion(String block) {
+        JsonObject blockPredicate = new JsonObject();
+        blockPredicate.addProperty("condition", "minecraft:block_state_property");
+        blockPredicate.addProperty("block", block);
+        JsonArray location = new JsonArray();
+        location.add(blockPredicate);
+        JsonObject conditions = new JsonObject();
+        conditions.add("location", location);
+        return criterion("minecraft:placed_block", conditions);
     }
 
     private JsonObject criterion(String trigger, @Nullable JsonObject conditions) {

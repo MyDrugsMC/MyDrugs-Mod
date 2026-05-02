@@ -193,6 +193,14 @@ public final class ModBlockEntities {
                             ModBlocks.CLAY_VAT.get()
                     ));
 
+    public static final Supplier<BlockEntityType<PsyAnvilBlockEntity>> PSY_ANVIL =
+            BLOCK_ENTITY_TYPES.register("psy_anvil",
+                    () -> new BlockEntityType<>(
+                            PsyAnvilBlockEntity::new,
+                            false,
+                            ModBlocks.PSY_ANVIL.get()
+                    ));
+
     public static final Supplier<BlockEntityType<CatalyticReformerBlockEntity>> CATALYTIC_REFORMER =
             BLOCK_ENTITY_TYPES.register("catalytic_reformer",
                     () -> new BlockEntityType<>(

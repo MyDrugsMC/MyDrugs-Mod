@@ -225,6 +225,10 @@ public class ModItems {
     public static final DeferredItem<Item> STONE_HAMMER =
             ITEMS.registerSimpleItem("stone_hammer", props -> props.stacksTo(1).durability(20));
 
+    public static final DeferredItem<Item> PSY_RECEPTACLE =
+            ITEMS.registerItem("psy_receptacle",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.psy_receptacle"));
+
     public static final DeferredItem<Item> COPPER_PLATE =
             ITEMS.registerSimpleItem("copper_plate");
 
@@ -236,6 +240,9 @@ public class ModItems {
 
     public static final DeferredItem<Item> HEAVY_IRON =
             ITEMS.registerSimpleItem("heavy_iron");
+
+    public static final DeferredItem<Item> HEAVY_IRON_PLATE =
+            ITEMS.registerSimpleItem("heavy_iron_plate");
 
     public static final DeferredItem<Item> IRON_AXLE =
             ITEMS.registerSimpleItem("iron_axle");
@@ -348,6 +355,14 @@ public class ModItems {
 
     public static final DeferredItem<Item> ADVANCED_CONTROL_CIRCUIT =
             ITEMS.registerSimpleItem("advanced_control_circuit");
+
+    public static final DeferredItem<Item> MYCELIAL_RESONATOR =
+            ITEMS.registerItem("mycelial_resonator",
+                    props -> new PsyTooltipItem(
+                            props.stacksTo(1),
+                            "tooltip.mydrugs.mycelial_resonator",
+                            "message.mydrugs.mycelial_resonator.use"
+                    ));
 
     public static final DeferredItem<Item> ELECTRIC_MOTOR =
             ITEMS.registerSimpleItem("electric_motor");

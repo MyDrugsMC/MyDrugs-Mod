@@ -43,6 +43,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.MIXING_VAT.get());
             dropSelf(ModBlocks.GRINDING_BOWL.get());
             dropSelf(ModBlocks.STOMP_CRAFTER.get());
+            dropSelf(ModBlocks.PSY_ANVIL.get());
             dropSelf(ModBlocks.PSYCHEDELIC_MYCELIUM.get());
             dropSelf(ModBlocks.MAGIC_MUSHROOM_BLOCK.get());
             dropSelf(ModBlocks.MAGIC_MUSHROOM_STEM.get());
@@ -109,6 +110,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.MIXING_VAT.get(),
                     ModBlocks.GRINDING_BOWL.get(),
                     ModBlocks.STOMP_CRAFTER.get(),
+                    ModBlocks.PSY_ANVIL.get(),
                     ModBlocks.PSYCHEDELIC_MYCELIUM.get(),
                     ModBlocks.MAGIC_MUSHROOM_BLOCK.get(),
                     ModBlocks.MAGIC_MUSHROOM_STEM.get(),

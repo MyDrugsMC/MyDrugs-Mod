@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 
 import java.util.Optional;
 
@@ -17,6 +18,10 @@ public final class AdvancementEventHooks {
 
     public static void drugConsumed(ServerPlayer player, DrugKnowledgeResult result) {
         ModCriteriaTriggers.DRUG_CONSUMED.get().trigger(player, result);
+    }
+
+    public static void psyKnowledgeUnlocked(ServerPlayer player, PsyKnowledgeKey key) {
+        ModCriteriaTriggers.PSY_KNOWLEDGE_UNLOCKED.get().trigger(player, key);
     }
 
     public static void recoveryAction(ServerPlayer player, String action) {
@@ -37,6 +42,24 @@ public final class AdvancementEventHooks {
                 machine,
                 Optional.empty(),
                 Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
+        forNearbyPlayers(level, blockEntity.getBlockPos(), player ->
+                ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event));
+    }
+
+    public static void machineRecipeCompleted(BlockEntity blockEntity, Optional<ResourceLocation> recipe, Optional<ResourceLocation> resultItem) {
+        if (!(blockEntity.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+
+        ResourceLocation machine = BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock());
+        MachineRecipeCompletedTrigger.Event event = new MachineRecipeCompletedTrigger.Event(
+                machine,
+                recipe,
+                resultItem,
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty()

@@ -72,6 +72,7 @@ public class ClientModEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.EVAPORATION_TRAY.get(), EvaporationTrayRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DRYING_RACK.get(), DryingRackRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.CLAY_VAT.get(), ClayVatRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.PSY_ANVIL.get(), PsyAnvilRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.FLUID_PUMP.get(), FluidPumpRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PIPES.get(), PipeBlockEntityRenderer::new);
     }

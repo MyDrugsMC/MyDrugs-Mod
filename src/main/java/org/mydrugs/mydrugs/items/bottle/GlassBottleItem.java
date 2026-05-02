@@ -29,6 +29,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseResult;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 import org.mydrugs.mydrugs.fluids.FluidTypesEx;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
@@ -246,11 +247,14 @@ public class GlassBottleItem extends Item {
 
         boolean crea = player.gameMode() == GameType.CREATIVE;
 
+        DrugUseResult result = MyDrugs.DRUG_USE_SERVICE.consume(player, getBottleDrug(stack), strategy, DrugUseSource.BOTTLE, stack);
+        if (result.status() == DrugUseResult.Status.BLOCKED_MISSING_KNOWLEDGE) {
+            return stack;
+        }
+
         if (!level.isClientSide() && !crea) {
             drain(stack, getStoredFluidId(stack), getStoredAmount(stack)); // or some smaller amount if one sip
         }
-
-        MyDrugs.DRUG_USE_SERVICE.consume(player, getBottleDrug(stack), strategy, DrugUseSource.BOTTLE, stack);
         return stack;
     }
 

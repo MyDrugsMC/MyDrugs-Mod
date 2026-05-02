@@ -17,6 +17,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugHolder;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseResult;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.menu.SingleSlotItemContainer;
@@ -96,24 +97,27 @@ public class BangItem extends Item implements SingleSlotContainerItem {
             return;
         }
         if (!level.isClientSide()) {
-            ItemStack consumed = consumeLoadedContent(bang);
-            if (!consumed.isEmpty()) {
-                MyDrugs.DRUG_USE_SERVICE.consumeStack(
+            ItemStack loaded = getLoadedContent(bang);
+            if (!loaded.isEmpty()) {
+                DrugUseResult result = MyDrugs.DRUG_USE_SERVICE.consumeStack(
                         serverPlayer,
-                        consumed,
+                        loaded,
                         new SmokingStrategy(true, false),
                         DrugUseSource.BANG
                 );
-                level.playSound(
-                        null,
-                        living.getX(),
-                        living.getY(),
-                        living.getZ(),
-                        SoundEvents.FIRE_EXTINGUISH,
-                        SoundSource.PLAYERS,
-                        0.7F,
-                        0.8F
-                );
+                if (result.consumed()) {
+                    consumeLoadedContent(bang);
+                    level.playSound(
+                            null,
+                            living.getX(),
+                            living.getY(),
+                            living.getZ(),
+                            SoundEvents.FIRE_EXTINGUISH,
+                            SoundSource.PLAYERS,
+                            0.7F,
+                            0.8F
+                    );
+                }
             }
         }
 
@@ -147,6 +151,11 @@ public class BangItem extends Item implements SingleSlotContainerItem {
         ItemStack inside = inv.removeItemNoUpdate(0);
         inv.setChanged();
         return inside;
+    }
+
+    private ItemStack getLoadedContent(ItemStack bang) {
+        SingleSlotItemContainer inv = new SingleSlotItemContainer(bang);
+        return inv.getItem(0).copy();
     }
 
     @Override

@@ -85,6 +85,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeMachineModel(futures, cachedOutput, "biochemical_reactor_on", "biochemical_reactor_front_on", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "gas_pump", "gas_pump_front", "gas_pump_side", "gas_pump_top", "gas_pump_bottom");
         saveCubeMachineModel(futures, cachedOutput, "growth_chamber", "growth_chamber_front", "growth_chamber_side", "growth_chamber_top", "growth_chamber_bottom");
+        saveSimpleBlockState(futures, cachedOutput, "psy_anvil");
 
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_furnace");
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_mixing_vat");
@@ -108,6 +109,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "mixing_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_grass");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_mycelium");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "psy_anvil");
         saveBlockItemViaBlockModel(futures, cachedOutput, "salt_block");
         saveBlockItemViaBlockModel(futures, cachedOutput, "sieve");
         saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_crafter");
@@ -163,6 +165,15 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         variants.add("facing=south", modelVariant(name, 180));
         variants.add("facing=west", modelVariant(name, 270));
         variants.add("facing=east", modelVariant(name, 90));
+        root.add("variants", variants);
+        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+    }
+
+    private void saveSimpleBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
+        JsonObject root = new JsonObject();
+        JsonObject variants = new JsonObject();
+        variants.add("", modelVariant(name, 0));
         root.add("variants", variants);
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
     }

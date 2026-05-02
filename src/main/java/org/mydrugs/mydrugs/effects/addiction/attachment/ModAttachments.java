@@ -9,6 +9,7 @@ import org.mydrugs.mydrugs.advancement.DrugKnowledgeAttachment;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachment;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachment;
+import org.mydrugs.mydrugs.progression.PsyKnowledgeAttachment;
 
 import java.util.function.Supplier;
 
@@ -23,6 +24,11 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<DrugKnowledgeAttachment>> DRUG_KNOWLEDGE =
             ATTACHMENTS.register("drug_knowledge", () ->
                     AttachmentType.serializable(DrugKnowledgeAttachment::new)
+                            .build()
+            );
+    public static final Supplier<AttachmentType<PsyKnowledgeAttachment>> PLAYER_PSY_KNOWLEDGE =
+            ATTACHMENTS.register("player_psy_knowledge", () ->
+                    AttachmentType.serializable(PsyKnowledgeAttachment::new)
                             .build()
             );
     public static final Supplier<AttachmentType<MachineTransferAttachment>> MACHINE_TRANSFER =

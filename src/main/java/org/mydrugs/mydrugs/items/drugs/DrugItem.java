@@ -14,6 +14,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseResult;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 
 import java.util.List;
@@ -54,15 +55,18 @@ public abstract class DrugItem extends Item implements DrugHolder {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
         if (!level.isClientSide() && livingEntity instanceof ServerPlayer player) {
-            consumeFromStack(player, stack);
+            DrugUseResult result = consumeFromStack(player, stack);
+            if (result.status() == DrugUseResult.Status.BLOCKED_MISSING_KNOWLEDGE) {
+                return stack;
+            }
         }
 
         return super.finishUsingItem(stack, level, livingEntity);
     }
 
-    protected final void consumeFromStack(ServerPlayer player, ItemStack stack) {
+    protected final DrugUseResult consumeFromStack(ServerPlayer player, ItemStack stack) {
         DrugUseSource source = this.model == null ? DrugUseSource.ROLLED_ITEM : DrugUseSource.ITEM;
-        MyDrugs.DRUG_USE_SERVICE.consumeStack(player, stack, strategy, source);
+        return MyDrugs.DRUG_USE_SERVICE.consumeStack(player, stack, strategy, source);
     }
 
     public static void consumeDrug(ServerPlayer player, DrugModel drugModel, ConsumptionStrategy strategy) {

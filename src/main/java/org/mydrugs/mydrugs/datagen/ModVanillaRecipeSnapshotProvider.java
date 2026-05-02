@@ -314,9 +314,63 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
+        shaped(futures, cachedOutput, "psy_anvil",
+                new String[]{
+                        "IRI",
+                        "CAC",
+                        "SSS"
+                },
+                key(
+                        "I", "minecraft:iron_ingot",
+                        "R", "mydrugs:psy_receptacle",
+                        "C", "minecraft:copper_ingot",
+                        "A", "minecraft:amethyst_shard",
+                        "S", alt("minecraft:cobbled_deepslate", "minecraft:stone")
+                ),
+                "mydrugs:psy_anvil",
+                1
+        );
+
         // ---------------------------------------------------------------------
         // Mechanical parts
         // ---------------------------------------------------------------------
+
+        psyAnvil(futures, cachedOutput, "copper_plate",
+                "mydrugs:cannabinoid",
+                new String[]{
+                        "CC"
+                },
+                key(
+                        "C", "minecraft:copper_ingot"
+                ),
+                "mydrugs:copper_plate",
+                1
+        );
+
+        psyAnvil(futures, cachedOutput, "heavy_iron",
+                "mydrugs:fermented",
+                new String[]{
+                        "II",
+                        "II"
+                },
+                key(
+                        "I", "minecraft:iron_ingot"
+                ),
+                "mydrugs:heavy_iron",
+                1
+        );
+
+        psyAnvil(futures, cachedOutput, "heavy_iron_plate",
+                "mydrugs:fermented",
+                new String[]{
+                        "HH"
+                },
+                key(
+                        "H", "mydrugs:heavy_iron"
+                ),
+                "mydrugs:heavy_iron_plate",
+                1
+        );
 
         shaped(futures, cachedOutput, "copper_strapping",
                 new String[]{
@@ -423,7 +477,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "ABA"
                 },
                 key(
-                        "A", "mydrugs:steel_plate",
+                        "A", "mydrugs:heavy_iron_plate",
                         "B", "mydrugs:heavy_iron",
                         "C", "minecraft:iron_ingot",
                         "D", "mydrugs:mechanical_frame"
@@ -650,7 +704,8 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Electrical / advanced industrial components
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "insulated_wire",
+        psyAnvil(futures, cachedOutput, "insulated_wire",
+                "mydrugs:stimulant",
                 new String[]{
                         "ABA"
                 },
@@ -678,7 +733,8 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "advanced_control_circuit",
+        psyAnvil(futures, cachedOutput, "advanced_control_circuit",
+                "mydrugs:lysergic",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -692,6 +748,23 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "E", "minecraft:lapis_lazuli"
                 ),
                 "mydrugs:advanced_control_circuit",
+                1
+        );
+
+        psyAnvil(futures, cachedOutput, "mycelial_resonator",
+                "mydrugs:overclocked",
+                new String[]{
+                        "AMA",
+                        "RCR",
+                        "AMA"
+                },
+                key(
+                        "A", "minecraft:amethyst_shard",
+                        "M", "mydrugs:magic_mushroom_powder",
+                        "R", "minecraft:redstone",
+                        "C", "mydrugs:advanced_control_circuit"
+                ),
+                "mydrugs:mycelial_resonator",
                 1
         );
 
@@ -1499,6 +1572,41 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         resultObject.addProperty("id", result);
         resultObject.addProperty("count", count);
         json.add("result", resultObject);
+
+        saveRecipe(futures, cachedOutput, name, json);
+    }
+
+    private void psyAnvil(
+            List<CompletableFuture<?>> futures,
+            CachedOutput cachedOutput,
+            String name,
+            String requiredKnowledge,
+            String[] pattern,
+            Map<String, Object> key,
+            String result,
+            int count
+    ) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "mydrugs:psy_anvil");
+        json.addProperty("required_knowledge", requiredKnowledge);
+
+        JsonArray patternArray = new JsonArray();
+        for (String row : pattern) {
+            patternArray.add(new JsonPrimitive(row));
+        }
+        json.add("pattern", patternArray);
+
+        JsonObject keyObject = new JsonObject();
+        for (Map.Entry<String, Object> entry : key.entrySet()) {
+            keyObject.add(entry.getKey(), ingredient(entry.getValue()));
+        }
+        json.add("key", keyObject);
+
+        JsonObject resultObject = new JsonObject();
+        resultObject.addProperty("id", result);
+        resultObject.addProperty("count", count);
+        json.add("result", resultObject);
+        json.addProperty("show_if_locked", true);
 
         saveRecipe(futures, cachedOutput, name, json);
     }

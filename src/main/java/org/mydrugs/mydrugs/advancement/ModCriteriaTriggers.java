@@ -19,6 +19,8 @@ public final class ModCriteriaTriggers {
             TRIGGERS.register("recovery_action", RecoveryActionTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, PsychotropeEnergyTrigger> PSYCHOTROPE_ENERGY =
             TRIGGERS.register("psychotrope_energy", PsychotropeEnergyTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, PsyKnowledgeUnlockedTrigger> PSY_KNOWLEDGE_UNLOCKED =
+            TRIGGERS.register("psy_knowledge_unlocked", PsyKnowledgeUnlockedTrigger::new);
 
     private ModCriteriaTriggers() {
     }

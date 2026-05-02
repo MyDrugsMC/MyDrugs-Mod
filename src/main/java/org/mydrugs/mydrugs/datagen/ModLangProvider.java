@@ -51,6 +51,7 @@ public class ModLangProvider extends LanguageProvider {
         add(ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(), "Deepslate Aluminium Ore");
         add(ModBlocks.RAW_ALUMINIUM_BLOCK.get(), "Block of Raw Aluminium");
         add(ModBlocks.ALUMINIUM_BLOCK.get(), "Block of Aluminium");
+        add(ModBlocks.PSY_ANVIL.get(), "Psy Anvil");
         add("container.mydrugs.btx_fractionation_tower", "BTX Fractionation Tower");
 
         // Items
@@ -61,6 +62,9 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.MACHINE_TRANSFER_UPGRADE.get(), "Machine Transfer Upgrade");
         add(ModItems.ENERGY_UPGRADE.get(), "Energy Upgrade");
         add(ModItems.AUTOMATION_UPGRADE.get(), "Automation Upgrade");
+        add(ModItems.PSY_RECEPTACLE.get(), "Psy Receptacle");
+        add(ModItems.HEAVY_IRON_PLATE.get(), "Heavy Iron Plate");
+        add(ModItems.MYCELIAL_RESONATOR.get(), "Mycelial Resonator");
         add(ModItems.INSULATED_WIRE.get(), "Insulated Wire");
         add(ModItems.CONTROL_CIRCUIT.get(), "Control Circuit");
         add(ModItems.ADVANCED_CONTROL_CIRCUIT.get(), "Advanced Control Circuit");
@@ -148,6 +152,28 @@ public class ModLangProvider extends LanguageProvider {
         add("pipe.mydrugs.kind.gas", "Gas");
         add("pipe.mydrugs.filter_mode.allow_list", "Allow List");
         add("pipe.mydrugs.filter_mode.deny_list", "Deny List");
+        add("tooltip.mydrugs.psy_receptacle", "A vessel for the first imprint. Used to forge the Psy Anvil.");
+        add("tooltip.mydrugs.mycelial_resonator", "It hums toward places where the ground dreams.");
+        add("message.mydrugs.mycelial_resonator.use", "The hum points somewhere damp, strange, and not implemented yet.");
+        add("knowledge.mydrugs.nicotinic", "Nicotinic Knowledge");
+        add("knowledge.mydrugs.cannabinoid", "Cannabinoid Knowledge");
+        add("knowledge.mydrugs.fermented", "Fermented Knowledge");
+        add("knowledge.mydrugs.stimulant", "Stimulant Knowledge");
+        add("knowledge.mydrugs.lysergic", "Lysergic Knowledge");
+        add("knowledge.mydrugs.overclocked", "Overclocked Knowledge");
+        add("knowledge.mydrugs.mycelial", "Mycelial Knowledge");
+        add("message.mydrugs.knowledge.nicotinic", "Your lungs have signed the tutorial waiver. The Psy Receptacle awakens.");
+        add("message.mydrugs.knowledge.cannabinoid", "Your thoughts are buffering... and copper suddenly feels negotiable.");
+        add("message.mydrugs.knowledge.fermented", "You have discovered structural confidence. Heavy iron unlocked.");
+        add("message.mydrugs.knowledge.stimulant", "Your neurons formed a committee and immediately overclocked it.");
+        add("message.mydrugs.knowledge.lysergic", "The walls submitted a circuit diagram. It was correct.");
+        add("message.mydrugs.knowledge.overclocked", "The lab heard boss music and started working faster.");
+        add("message.mydrugs.knowledge.mycelial", "You found the valley. The valley found you back.");
+        add("message.mydrugs.knowledge.blocked.generic", "Your mind has no receptacle for this yet. Start smaller.");
+        add("message.mydrugs.knowledge.blocked.mushroom", "The valley speaks, but you do not yet know the language.");
+        add("message.mydrugs.psy_anvil.no_recipe", "The Psy Anvil squints at those items and refuses to improvise.");
+        add("message.mydrugs.psy_anvil.locked", "Knowledge missing: %s");
+        add("screen.mydrugs.psy_anvil.unknown", "Unknown Knowledge");
 
         // Fluids + fluid buckets
         for (FluidEntry entry : ModFluids.ALL.values()) {
