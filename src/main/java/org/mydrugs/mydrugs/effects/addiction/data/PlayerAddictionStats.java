@@ -46,6 +46,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
 
     public long lastDiaryHintTick = 0L;
     public long lastHeadphonesHintTick = 0L;
+    public long lastDrugHintTick = 0L;
 
     public int overdoseDeathTimer = -1;
     public boolean addictionSymptomsImmune = false;
@@ -147,6 +148,19 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
             max = Math.max(max, stats.baseWithdrawalMeter);
         }
         return max;
+    }
+
+    public @Nullable DrugId getMostWithdrawingDrugId() {
+        DrugId best = null;
+        float bestMeter = 0.0F;
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : perDrug.entrySet()) {
+            float meter = entry.getValue().baseWithdrawalMeter;
+            if (meter > bestMeter) {
+                bestMeter = meter;
+                best = entry.getKey();
+            }
+        }
+        return best;
     }
 
     public boolean hasActiveCategory(DrugCategory category) {

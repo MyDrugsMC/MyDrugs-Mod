@@ -7,6 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.items.ModItems;
@@ -67,6 +68,11 @@ public final class WithdrawalHintManager {
             "message.mydrugs.withdrawal_hint.general.1",
             "message.mydrugs.withdrawal_hint.general.2",
             "message.mydrugs.withdrawal_hint.general.3"
+    };
+    private static final String[] DRUG_NEED_HINTS = {
+            "message.mydrugs.withdrawal_hint.drug_need.0",
+            "message.mydrugs.withdrawal_hint.drug_need.1",
+            "message.mydrugs.withdrawal_hint.drug_need.2"
     };
 
     private WithdrawalHintManager() {
@@ -182,8 +188,22 @@ public final class WithdrawalHintManager {
             }
         }
 
+        DrugId withdrawingDrug = stats.getMostWithdrawingDrugId();
+        if (withdrawingDrug != null && pressure >= 0.30F && now - stats.lastDrugHintTick >= topicCooldown) {
+            float score = 0.70F + pressure * 0.40F;
+            if (score > bestScore) {
+                bestScore = score;
+                bestTopic = HintTopic.DRUG_NEED;
+                bestVariants = DRUG_NEED_HINTS;
+            }
+        }
+
         if (bestTopic != null) {
-            sendHint(player, stats, bestTopic, bestVariants);
+            if (bestTopic == HintTopic.DRUG_NEED && withdrawingDrug != null) {
+                sendDrugHint(player, stats, withdrawingDrug, bestVariants);
+            } else {
+                sendHint(player, stats, bestTopic, bestVariants);
+            }
             markTopicTick(stats, bestTopic, now);
             return;
         }
@@ -220,6 +240,7 @@ public final class WithdrawalHintManager {
             case SOCIAL -> stats.lastSocialHintTick = now;
             case SLEEP -> stats.lastSleepHintTick = now;
             case SAFE_ZONE -> stats.lastAnchorHintTick = now;
+            case DRUG_NEED -> stats.lastDrugHintTick = now;
             case GENERAL -> {
             }
         }
@@ -267,6 +288,20 @@ public final class WithdrawalHintManager {
         stats.lastHintVariantIndex = variantIndex;
     }
 
+    private static void sendDrugHint(ServerPlayer player, PlayerAddictionStats stats, DrugId drugId, String[] variants) {
+        int variantIndex = pickVariant(player, stats, HintTopic.DRUG_NEED, variants.length);
+
+        Component drugName = Component.translatable("drug.mydrugs." + drugId.serializedName());
+        player.displayClientMessage(Component.translatable(variants[variantIndex], drugName), true);
+
+        stats.lastHintTick = player.level().getGameTime();
+        stats.lastHintX = player.getX();
+        stats.lastHintY = player.getY();
+        stats.lastHintZ = player.getZ();
+        stats.lastHintTopicId = HintTopic.DRUG_NEED.serializedName;
+        stats.lastHintVariantIndex = variantIndex;
+    }
+
     private static int pickVariant(ServerPlayer player, PlayerAddictionStats stats, HintTopic topic, int count) {
         if (count <= 1) {
             return 0;
@@ -289,6 +324,7 @@ public final class WithdrawalHintManager {
         HEADPHONES("headphones"),
         SOCIAL("social"),
         SLEEP("sleep"),
+        DRUG_NEED("drug_need"),
         GENERAL("general");
 
         private final String serializedName;

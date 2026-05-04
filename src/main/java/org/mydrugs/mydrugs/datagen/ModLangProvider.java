@@ -62,6 +62,7 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.MACHINE_TRANSFER_UPGRADE.get(), "Machine Transfer Upgrade");
         add(ModItems.ENERGY_UPGRADE.get(), "Energy Upgrade");
         add(ModItems.AUTOMATION_UPGRADE.get(), "Automation Upgrade");
+        add(ModItems.CIGARET_FILTER.get(), "Cigarette Filter");
         add(ModItems.PSY_RECEPTACLE.get(), "Psy Receptacle");
         add(ModItems.HEAVY_IRON_PLATE.get(), "Heavy Iron Plate");
         add(ModItems.MYCELIAL_RESONATOR.get(), "Mycelial Resonator");

@@ -3,7 +3,7 @@ package org.mydrugs.mydrugs.effects.addiction.item;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemUseAnimation;
-import org.mydrugs.mydrugs.ModSounds;
+import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.effects.addiction.manager.ItemEffectHandler;
 
 import java.util.List;

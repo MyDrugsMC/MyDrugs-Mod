@@ -18,7 +18,7 @@ public final class RollerLogic {
     }
 
     public static boolean isFilter(ItemStack stack) {
-        return stack.is(ModItems.FILTER.get());
+        return stack.is(ModItems.CIGARET_FILTER.get());
     }
 
     public static boolean isRollingIngredient(ItemStack stack) {

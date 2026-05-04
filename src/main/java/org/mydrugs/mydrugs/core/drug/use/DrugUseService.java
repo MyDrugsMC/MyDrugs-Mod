@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.advancement.DrugKnowledge;
 import org.mydrugs.mydrugs.advancement.DrugKnowledgeResult;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
@@ -85,6 +86,11 @@ public final class DrugUseService {
                 && PsyKnowledgeManager.grant(player, progression.grantedKnowledge().get())) {
             grantedKnowledge = progression.grantedKnowledge();
         }
+
+        if (knowledgeResult.firstDrug() && knowledgeResult.drugId() == DrugId.HASH) {
+            PsyKnowledgeManager.grant(player, PsyKnowledgeKey.STEEL_PLATING);
+        }
+
         return DrugUseResult.success(grantedKnowledge);
     }
 

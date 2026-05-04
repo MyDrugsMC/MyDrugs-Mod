@@ -2,7 +2,7 @@
   "type": "mydrugs:mixing_vat",
   "item_1": "mydrugs:coca_paste",
   "fluid_input_1": {
-    "fluid": "mydrugs:raw_alcohol",
+    "fluid": "mydrugs:absolute_ethanol",
     "amount": 100
   },
   "result_fluid": {

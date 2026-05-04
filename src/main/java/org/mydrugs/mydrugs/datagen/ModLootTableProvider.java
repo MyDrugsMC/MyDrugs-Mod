@@ -47,6 +47,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.PSYCHEDELIC_MYCELIUM.get());
             dropSelf(ModBlocks.MAGIC_MUSHROOM_BLOCK.get());
             dropSelf(ModBlocks.MAGIC_MUSHROOM_STEM.get());
+            dropSelf(ModBlocks.EVAPORATION_TRAY.get());
 
             add(ModBlocks.SALT_BLOCK.get(),
                     block -> oreDropWithCount(block, ModItems.SALT_POWDER.get(), 2.0F, 5.0F));
@@ -114,6 +115,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.PSYCHEDELIC_MYCELIUM.get(),
                     ModBlocks.MAGIC_MUSHROOM_BLOCK.get(),
                     ModBlocks.MAGIC_MUSHROOM_STEM.get(),
+                    ModBlocks.EVAPORATION_TRAY.get(),
 
                     ModBlocks.SALT_BLOCK.get(),
 

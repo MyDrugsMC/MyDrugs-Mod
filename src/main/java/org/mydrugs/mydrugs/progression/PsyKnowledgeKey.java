@@ -14,6 +14,7 @@ public record PsyKnowledgeKey(ResourceLocation id) {
     public static final PsyKnowledgeKey LYSERGIC = create("lysergic");
     public static final PsyKnowledgeKey OVERCLOCKED = create("overclocked");
     public static final PsyKnowledgeKey MYCELIAL = create("mycelial");
+    public static final PsyKnowledgeKey STEEL_PLATING = create("steel_plating");
 
     public static final List<PsyKnowledgeKey> ORDERED = List.of(
             NICOTINIC,
@@ -22,7 +23,8 @@ public record PsyKnowledgeKey(ResourceLocation id) {
             STIMULANT,
             LYSERGIC,
             OVERCLOCKED,
-            MYCELIAL
+            MYCELIAL,
+            STEEL_PLATING
     );
 
     public PsyKnowledgeKey {

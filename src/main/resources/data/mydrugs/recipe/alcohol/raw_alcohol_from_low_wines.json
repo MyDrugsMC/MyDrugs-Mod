@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:distiller",
+  "input": {
+    "fluid": "mydrugs:low_wines",
+    "amount": 1000
+  },
+  "output_1": {
+    "fluid": "mydrugs:raw_alcohol",
+    "amount": 700
+  },
+  "output_2": {
+    "fluid": "mydrugs:wastewater",
+    "amount": 300
+  },
+  "base_ticks": 240
+}

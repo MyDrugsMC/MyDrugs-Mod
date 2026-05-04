@@ -9,4 +9,6 @@ public final class PsyAnvilRenderState extends BlockEntityRenderState {
             ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
             ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY
     };
+
+    public float ageInTicks;
 }

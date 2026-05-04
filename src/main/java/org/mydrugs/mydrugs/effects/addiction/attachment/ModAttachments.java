@@ -24,11 +24,13 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<DrugKnowledgeAttachment>> DRUG_KNOWLEDGE =
             ATTACHMENTS.register("drug_knowledge", () ->
                     AttachmentType.serializable(DrugKnowledgeAttachment::new)
+                            .copyOnDeath()
                             .build()
             );
     public static final Supplier<AttachmentType<PsyKnowledgeAttachment>> PLAYER_PSY_KNOWLEDGE =
             ATTACHMENTS.register("player_psy_knowledge", () ->
                     AttachmentType.serializable(PsyKnowledgeAttachment::new)
+                            .copyOnDeath()
                             .build()
             );
     public static final Supplier<AttachmentType<MachineTransferAttachment>> MACHINE_TRANSFER =

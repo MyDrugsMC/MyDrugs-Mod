@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import org.mydrugs.mydrugs.ModSounds;
+import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -95,7 +95,7 @@ public class RolledSmokedItem extends DrugItem {
         }
 
         if (!level.isClientSide() && !creative && livingEntity instanceof Player player) {
-            ItemStack filterStack = new ItemStack(ModItems.FILTER.get());
+            ItemStack filterStack = new ItemStack(ModItems.CIGARET_FILTER.get());
 
             if (!player.getInventory().add(filterStack)) {
                 player.drop(filterStack, false);

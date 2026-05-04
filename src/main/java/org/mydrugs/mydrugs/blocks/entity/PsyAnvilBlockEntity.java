@@ -63,6 +63,7 @@ public final class PsyAnvilBlockEntity extends BlockEntity implements Container 
         if (!(this.level instanceof ServerLevel)) {
             return false;
         }
+        System.out.println("counting...");
         for (int i = SLOT_COUNT - 1; i >= 0; i--) {
             ItemStack stack = this.items.get(i);
             if (!stack.isEmpty()) {

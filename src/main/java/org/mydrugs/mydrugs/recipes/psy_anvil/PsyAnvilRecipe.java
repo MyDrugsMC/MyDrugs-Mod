@@ -23,15 +23,13 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public final class PsyAnvilRecipe implements Recipe<PsyAnvilRecipeInput> {
     private final Optional<ResourceLocation> requiredKnowledge;
-    private final List<String> pattern;
-    private final Map<String, Ingredient> key;
+    private final List<PsyAnvilIngredient> ingredients;
     private final ItemStack result;
     private final int experienceCost;
     private final boolean showIfLocked;
@@ -40,16 +38,14 @@ public final class PsyAnvilRecipe implements Recipe<PsyAnvilRecipeInput> {
 
     public PsyAnvilRecipe(
             Optional<ResourceLocation> requiredKnowledge,
-            List<String> pattern,
-            Map<String, Ingredient> key,
+            List<PsyAnvilIngredient> ingredients,
             ItemStack result,
             int experienceCost,
             boolean showIfLocked,
             Optional<String> messageKey
     ) {
         this.requiredKnowledge = requiredKnowledge;
-        this.pattern = List.copyOf(pattern);
-        this.key = Map.copyOf(key);
+        this.ingredients = List.copyOf(ingredients);
         this.result = result.copy();
         this.experienceCost = experienceCost;
         this.showIfLocked = showIfLocked;
@@ -57,92 +53,164 @@ public final class PsyAnvilRecipe implements Recipe<PsyAnvilRecipeInput> {
     }
 
     public Optional<ResourceLocation> requiredKnowledge() {
-        return requiredKnowledge;
+        return this.requiredKnowledge;
     }
 
     public Optional<PsyKnowledgeKey> requiredKnowledgeKey() {
         return this.requiredKnowledge.map(PsyKnowledgeKey::new);
     }
 
-    public List<String> pattern() {
-        return pattern;
-    }
-
-    public Map<String, Ingredient> key() {
-        return key;
+    public List<PsyAnvilIngredient> ingredients() {
+        return this.ingredients;
     }
 
     public ItemStack result() {
-        return result.copy();
+        return this.result.copy();
     }
 
     public int experienceCost() {
-        return experienceCost;
+        return this.experienceCost;
     }
 
     public boolean showIfLocked() {
-        return showIfLocked;
+        return this.showIfLocked;
     }
 
     public Optional<String> messageKey() {
-        return messageKey;
+        return this.messageKey;
     }
 
     public boolean canCraft(ServerPlayer player) {
-        return this.requiredKnowledgeKey().map(key -> PsyKnowledgeManager.has(player, key)).orElse(true);
+        return this.requiredKnowledgeKey()
+                .map(key -> PsyKnowledgeManager.has(player, key))
+                .orElse(true);
     }
 
     @Override
     public boolean matches(PsyAnvilRecipeInput input, Level level) {
-        if (this.pattern.isEmpty()) {
+        if (this.ingredients.isEmpty()) {
             return false;
         }
 
-        int recipeHeight = this.pattern.size();
-        int recipeWidth = this.pattern.stream().mapToInt(String::length).max().orElse(0);
-        if (recipeWidth <= 0 || recipeWidth > input.width() || recipeHeight > input.height()) {
-            return false;
-        }
+        List<ItemStack> nonEmptyStacks = new ArrayList<>();
 
-        for (int xOffset = 0; xOffset <= input.width() - recipeWidth; xOffset++) {
-            for (int yOffset = 0; yOffset <= input.height() - recipeHeight; yOffset++) {
-                if (matchesAt(input, xOffset, yOffset, recipeWidth, recipeHeight)) {
-                    return true;
-                }
+        for (int i = 0; i < input.size(); i++) {
+            ItemStack stack = input.getItem(i);
+
+            if (!stack.isEmpty()) {
+                nonEmptyStacks.add(stack);
             }
         }
-        return false;
+
+        if (nonEmptyStacks.isEmpty()) {
+            return false;
+        }
+
+        int requiredTotalCount = 0;
+
+        for (PsyAnvilIngredient ingredient : this.ingredients) {
+            if (ingredient.count() <= 0) {
+                return false;
+            }
+
+            requiredTotalCount += ingredient.count();
+        }
+
+        int inputTotalCount = 0;
+
+        for (ItemStack stack : nonEmptyStacks) {
+            inputTotalCount += stack.getCount();
+        }
+
+        if (inputTotalCount != requiredTotalCount) {
+            return false;
+        }
+
+        int[] remainingCounts = new int[nonEmptyStacks.size()];
+
+        for (int i = 0; i < nonEmptyStacks.size(); i++) {
+            remainingCounts[i] = nonEmptyStacks.get(i).getCount();
+        }
+
+        return this.matchesIngredient(0, nonEmptyStacks, remainingCounts);
     }
 
-    private boolean matchesAt(PsyAnvilRecipeInput input, int xOffset, int yOffset, int recipeWidth, int recipeHeight) {
-        for (int y = 0; y < input.height(); y++) {
-            for (int x = 0; x < input.width(); x++) {
-                boolean inside = x >= xOffset && x < xOffset + recipeWidth && y >= yOffset && y < yOffset + recipeHeight;
-                Ingredient expected = null;
-                if (inside) {
-                    int patternX = x - xOffset;
-                    int patternY = y - yOffset;
-                    String row = this.pattern.get(patternY);
-                    if (patternX < row.length()) {
-                        String symbol = String.valueOf(row.charAt(patternX));
-                        if (!" ".equals(symbol) && !this.key.containsKey(symbol)) {
-                            return false;
-                        }
-                        expected = " ".equals(symbol) ? null : this.key.get(symbol);
-                    }
-                }
-
-                ItemStack stack = input.getItem(x, y);
-                if (expected == null) {
-                    if (!stack.isEmpty()) {
-                        return false;
-                    }
-                } else if (!expected.test(stack)) {
+    private boolean matchesIngredient(
+            int ingredientIndex,
+            List<ItemStack> stacks,
+            int[] remainingCounts
+    ) {
+        if (ingredientIndex >= this.ingredients.size()) {
+            for (int remainingCount : remainingCounts) {
+                if (remainingCount != 0) {
                     return false;
                 }
             }
+
+            return true;
         }
-        return true;
+
+        PsyAnvilIngredient ingredient = this.ingredients.get(ingredientIndex);
+
+        return this.consumeIngredient(
+                ingredientIndex,
+                ingredient.ingredient(),
+                ingredient.count(),
+                stacks,
+                remainingCounts,
+                0
+        );
+    }
+
+    private boolean consumeIngredient(
+            int ingredientIndex,
+            Ingredient ingredient,
+            int amountLeft,
+            List<ItemStack> stacks,
+            int[] remainingCounts,
+            int slotIndex
+    ) {
+        if (amountLeft == 0) {
+            return this.matchesIngredient(ingredientIndex + 1, stacks, remainingCounts);
+        }
+
+        if (slotIndex >= stacks.size()) {
+            return false;
+        }
+
+        ItemStack stack = stacks.get(slotIndex);
+        int availableCount = remainingCounts[slotIndex];
+
+        if (availableCount > 0 && ingredient.test(stack)) {
+            int maxToTake = Math.min(availableCount, amountLeft);
+
+            for (int amountToTake = maxToTake; amountToTake >= 1; amountToTake--) {
+                remainingCounts[slotIndex] -= amountToTake;
+
+                if (this.consumeIngredient(
+                        ingredientIndex,
+                        ingredient,
+                        amountLeft - amountToTake,
+                        stacks,
+                        remainingCounts,
+                        slotIndex + 1
+                )) {
+                    remainingCounts[slotIndex] += amountToTake;
+                    return true;
+                }
+
+                remainingCounts[slotIndex] += amountToTake;
+            }
+        }
+
+        return this.consumeIngredient(
+                ingredientIndex,
+                ingredient,
+                amountLeft,
+                stacks,
+                remainingCounts,
+                slotIndex + 1
+        );
     }
 
     @Override
@@ -153,8 +221,17 @@ public final class PsyAnvilRecipe implements Recipe<PsyAnvilRecipeInput> {
     @Override
     public PlacementInfo placementInfo() {
         if (this.placementInfo == null) {
-            this.placementInfo = PlacementInfo.create(this.key.values().stream().toList());
+            List<Ingredient> placementIngredients = new ArrayList<>();
+
+            for (PsyAnvilIngredient ingredient : this.ingredients) {
+                for (int i = 0; i < ingredient.count(); i++) {
+                    placementIngredients.add(ingredient.ingredient());
+                }
+            }
+
+            this.placementInfo = PlacementInfo.create(placementIngredients);
         }
+
         return this.placementInfo;
     }
 
@@ -178,11 +255,28 @@ public final class PsyAnvilRecipe implements Recipe<PsyAnvilRecipeInput> {
         return ModRecipeTypes.PSY_ANVIL.get();
     }
 
+    public record PsyAnvilIngredient(Ingredient ingredient, int count) {
+        public static final Codec<PsyAnvilIngredient> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(PsyAnvilIngredient::ingredient),
+                Codec.INT.fieldOf("count").forGetter(PsyAnvilIngredient::count)
+        ).apply(instance, PsyAnvilIngredient::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, PsyAnvilIngredient> STREAM_CODEC = StreamCodec.of(
+                (buf, ingredient) -> {
+                    Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient.ingredient());
+                    ByteBufCodecs.VAR_INT.encode(buf, ingredient.count());
+                },
+                buf -> new PsyAnvilIngredient(
+                        Ingredient.CONTENTS_STREAM_CODEC.decode(buf),
+                        ByteBufCodecs.VAR_INT.decode(buf)
+                )
+        );
+    }
+
     public static final class Serializer implements RecipeSerializer<PsyAnvilRecipe> {
         public static final MapCodec<PsyAnvilRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 ResourceLocation.CODEC.optionalFieldOf("required_knowledge").forGetter(PsyAnvilRecipe::requiredKnowledge),
-                Codec.STRING.listOf().fieldOf("pattern").forGetter(PsyAnvilRecipe::pattern),
-                Codec.unboundedMap(Codec.STRING, Ingredient.CODEC).fieldOf("key").forGetter(PsyAnvilRecipe::key),
+                PsyAnvilIngredient.CODEC.listOf().fieldOf("ingredients").forGetter(PsyAnvilRecipe::ingredients),
                 ItemStack.CODEC.fieldOf("result").forGetter(PsyAnvilRecipe::result),
                 Codec.INT.optionalFieldOf("experience_cost", 0).forGetter(PsyAnvilRecipe::experienceCost),
                 Codec.BOOL.optionalFieldOf("show_if_locked", true).forGetter(PsyAnvilRecipe::showIfLocked),
@@ -192,40 +286,41 @@ public final class PsyAnvilRecipe implements Recipe<PsyAnvilRecipeInput> {
         public static final StreamCodec<RegistryFriendlyByteBuf, PsyAnvilRecipe> STREAM_CODEC = StreamCodec.of(
                 (buf, recipe) -> {
                     ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional).encode(buf, recipe.requiredKnowledge());
-                    ByteBufCodecs.VAR_INT.encode(buf, recipe.pattern().size());
-                    for (String row : recipe.pattern()) {
-                        ByteBufCodecs.STRING_UTF8.encode(buf, row);
+
+                    ByteBufCodecs.VAR_INT.encode(buf, recipe.ingredients().size());
+
+                    for (PsyAnvilIngredient ingredient : recipe.ingredients()) {
+                        PsyAnvilIngredient.STREAM_CODEC.encode(buf, ingredient);
                     }
-                    ByteBufCodecs.VAR_INT.encode(buf, recipe.key().size());
-                    for (Map.Entry<String, Ingredient> entry : recipe.key().entrySet()) {
-                        ByteBufCodecs.STRING_UTF8.encode(buf, entry.getKey());
-                        Ingredient.CONTENTS_STREAM_CODEC.encode(buf, entry.getValue());
-                    }
+
                     ItemStack.STREAM_CODEC.encode(buf, recipe.result());
                     ByteBufCodecs.VAR_INT.encode(buf, recipe.experienceCost());
                     ByteBufCodecs.BOOL.encode(buf, recipe.showIfLocked());
                     ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs::optional).encode(buf, recipe.messageKey());
                 },
                 buf -> {
-                    Optional<ResourceLocation> requiredKnowledge = ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf);
-                    int patternSize = ByteBufCodecs.VAR_INT.decode(buf);
-                    java.util.ArrayList<String> pattern = new java.util.ArrayList<>();
-                    for (int i = 0; i < patternSize; i++) {
-                        pattern.add(ByteBufCodecs.STRING_UTF8.decode(buf));
+                    Optional<ResourceLocation> requiredKnowledge =
+                            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs::optional).decode(buf);
+
+                    int ingredientCount = ByteBufCodecs.VAR_INT.decode(buf);
+                    List<PsyAnvilIngredient> ingredients = new ArrayList<>();
+
+                    for (int i = 0; i < ingredientCount; i++) {
+                        ingredients.add(PsyAnvilIngredient.STREAM_CODEC.decode(buf));
                     }
-                    int keySize = ByteBufCodecs.VAR_INT.decode(buf);
-                    Map<String, Ingredient> key = new LinkedHashMap<>();
-                    for (int i = 0; i < keySize; i++) {
-                        key.put(ByteBufCodecs.STRING_UTF8.decode(buf), Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-                    }
+
+                    ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+                    int experienceCost = ByteBufCodecs.VAR_INT.decode(buf);
+                    boolean showIfLocked = ByteBufCodecs.BOOL.decode(buf);
+                    Optional<String> messageKey = ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs::optional).decode(buf);
+
                     return new PsyAnvilRecipe(
                             requiredKnowledge,
-                            pattern,
-                            key,
-                            ItemStack.STREAM_CODEC.decode(buf),
-                            ByteBufCodecs.VAR_INT.decode(buf),
-                            ByteBufCodecs.BOOL.decode(buf),
-                            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs::optional).decode(buf)
+                            ingredients,
+                            result,
+                            experienceCost,
+                            showIfLocked,
+                            messageKey
                     );
                 }
         );

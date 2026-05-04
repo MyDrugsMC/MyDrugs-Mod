@@ -21,9 +21,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
@@ -328,6 +332,86 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
                     pos.getY() + 0.5,
                     pos.getZ() + 0.5,
                     resultItem.copy());
+        }
+    }
+
+    private final ResourceHandler<ItemResource> itemHandler = new ResultItemHandler();
+
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable net.minecraft.core.Direction side) {
+        return itemHandler;
+    }
+
+    private final class ResultItemHandler implements ResourceHandler<ItemResource> {
+        private final SnapshotJournal<ItemStack> journal = new SnapshotJournal<>() {
+            @Override
+            protected ItemStack createSnapshot() {
+                return resultItem.copy();
+            }
+
+            @Override
+            protected void revertToSnapshot(ItemStack snapshot) {
+                resultItem = snapshot.copy();
+            }
+
+            @Override
+            protected void onRootCommit(ItemStack originalState) {
+                resetProgress();
+                notifyUpdate();
+            }
+        };
+
+        @Override
+        public int size() {
+            return 1;
+        }
+
+        @Override
+        public ItemResource getResource(int slot) {
+            return slot == 0 ? ItemResource.of(resultItem) : ItemResource.EMPTY;
+        }
+
+        @Override
+        public long getAmountAsLong(int slot) {
+            return slot == 0 ? resultItem.getCount() : 0;
+        }
+
+        @Override
+        public long getCapacityAsLong(int slot, ItemResource resource) {
+            return slot == 0 ? resource.getMaxStackSize() : 0;
+        }
+
+        @Override
+        public boolean isValid(int slot, ItemResource resource) {
+            return false;
+        }
+
+        @Override
+        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
+
+        @Override
+        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            if (slot != 0 || resource.isEmpty() || amount <= 0 || resultItem.isEmpty()) {
+                return 0;
+            }
+            if (!resource.matches(resultItem)) {
+                return 0;
+            }
+
+            int extracted = Math.min(amount, resultItem.getCount());
+            if (extracted <= 0) {
+                return 0;
+            }
+
+            this.journal.updateSnapshots(transaction);
+            resultItem = resultItem.copy();
+            resultItem.shrink(extracted);
+            if (resultItem.isEmpty()) {
+                resultItem = ItemStack.EMPTY;
+            }
+
+            return extracted;
         }
     }
 }

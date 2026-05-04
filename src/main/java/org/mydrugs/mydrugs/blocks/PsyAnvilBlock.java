@@ -54,6 +54,9 @@ public final class PsyAnvilBlock extends BaseEntityBlock {
         if (player instanceof ServerPlayer serverPlayer && PsyAnvilBlockEntity.isHammer(stack)) {
             return anvil.craftWithHammer(serverPlayer, stack) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
         }
+        if (stack.isEmpty()) {
+            return useWithoutItem(state, level, pos, player, hitResult);
+        }
         return anvil.insertOne(stack, player) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
     }
 
@@ -67,6 +70,7 @@ public final class PsyAnvilBlock extends BaseEntityBlock {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
+        System.out.println("trying to take last...");
         return anvil.takeLast(player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 

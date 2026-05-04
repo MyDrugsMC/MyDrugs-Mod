@@ -116,8 +116,10 @@ public class GlassBottleItem extends Item {
 
         if (remaining <= 0) {
             stack.remove(ModDataComponents.BOTTLE_CONTENT.get());
+            stack.remove(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE);
         } else {
             stack.set(ModDataComponents.BOTTLE_CONTENT.get(), new BottleFluidContent(fluidId, remaining));
+            stack.set(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE, 1);
         }
 
         return extracted;
@@ -126,11 +128,13 @@ public class GlassBottleItem extends Item {
     public static void setContent(ItemStack stack, @Nullable ResourceLocation fluidId, int amountMb) {
         if (fluidId == null || amountMb <= 0) {
             stack.remove(ModDataComponents.BOTTLE_CONTENT.get());
+            stack.remove(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE);
             return;
         }
 
         int clamped = Math.min(CAPACITY_MB, amountMb);
         stack.set(ModDataComponents.BOTTLE_CONTENT.get(), new BottleFluidContent(fluidId, clamped));
+        stack.set(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE, 1);
     }
 
     private static boolean isReadyComposter(BlockState state) {

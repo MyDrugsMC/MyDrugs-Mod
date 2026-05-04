@@ -139,6 +139,20 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 100
         );
 
+        smelting(futures, cachedOutput, "refractory_brick",
+                "mydrugs:refractory_mix",
+                "mydrugs:refractory_brick",
+                0.7F,
+                200
+        );
+
+        blasting(futures, cachedOutput, "refractory_brick_blasting",
+                "mydrugs:refractory_mix",
+                "mydrugs:refractory_brick",
+                0.7F,
+                100
+        );
+
         // ---------------------------------------------------------------------
         // Basic wood, clay, glass, and hand components
         // ---------------------------------------------------------------------
@@ -239,6 +253,18 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 2
         );
 
+        shaped(futures, cachedOutput, "copper_tube",
+                new String[]{
+                        "AAA",
+                        "AAA"
+                },
+                key(
+                        "A", "mydrugs:copper_plate"
+                ),
+                "mydrugs:copper_tube",
+                2
+        );
+
         shapeless(futures, cachedOutput, "glass_bottle",
                 new Object[]{
                         "minecraft:glass_bottle"
@@ -324,7 +350,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "I", "minecraft:iron_ingot",
                         "R", "mydrugs:psy_receptacle",
                         "C", "minecraft:copper_ingot",
-                        "A", "minecraft:amethyst_shard",
+                        "A", "minecraft:ender_pearl",
                         "S", alt("minecraft:cobbled_deepslate", "minecraft:stone")
                 ),
                 "mydrugs:psy_anvil",
@@ -334,43 +360,6 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // ---------------------------------------------------------------------
         // Mechanical parts
         // ---------------------------------------------------------------------
-
-        psyAnvil(futures, cachedOutput, "copper_plate",
-                "mydrugs:cannabinoid",
-                new String[]{
-                        "CC"
-                },
-                key(
-                        "C", "minecraft:copper_ingot"
-                ),
-                "mydrugs:copper_plate",
-                1
-        );
-
-        psyAnvil(futures, cachedOutput, "heavy_iron",
-                "mydrugs:fermented",
-                new String[]{
-                        "II",
-                        "II"
-                },
-                key(
-                        "I", "minecraft:iron_ingot"
-                ),
-                "mydrugs:heavy_iron",
-                1
-        );
-
-        psyAnvil(futures, cachedOutput, "heavy_iron_plate",
-                "mydrugs:fermented",
-                new String[]{
-                        "HH"
-                },
-                key(
-                        "H", "mydrugs:heavy_iron"
-                ),
-                "mydrugs:heavy_iron_plate",
-                1
-        );
 
         shaped(futures, cachedOutput, "copper_strapping",
                 new String[]{
@@ -517,7 +506,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "A", "minecraft:leather"
                 ),
                 "mydrugs:soft_seal",
-                1
+                8
         );
 
         shaped(futures, cachedOutput, "tight_seal",
@@ -529,7 +518,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "A", "mydrugs:rubber"
                 ),
                 "mydrugs:tight_seal",
-                1
+                8
         );
 
         shaped(futures, cachedOutput, "pressure_seal",
@@ -561,19 +550,12 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "filter",
-                new String[]{
-                        "ABA",
-                        "BCB",
-                        "ABA"
+        shapeless(futures, cachedOutput, "cigaret_filter",
+                new Object[]{
+                        "mydrugs:cupboard_piece"
                 },
-                key(
-                        "A", "minecraft:paper",
-                        "B", "minecraft:string",
-                        "C", "mydrugs:cupboard_piece"
-                ),
-                "mydrugs:filter",
-                2
+                "mydrugs:cigaret_filter",
+                4
         );
 
         shaped(futures, cachedOutput, "fluid_filter",
@@ -600,7 +582,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 },
                 key(
                         "A", "minecraft:iron_ingot",
-                        "B", "mydrugs:filter",
+                        "B", "mydrugs:fluid_filter",
                         "C", "minecraft:glass"
                 ),
                 "mydrugs:filter_box",
@@ -704,18 +686,6 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Electrical / advanced industrial components
         // ---------------------------------------------------------------------
 
-        psyAnvil(futures, cachedOutput, "insulated_wire",
-                "mydrugs:stimulant",
-                new String[]{
-                        "ABA"
-                },
-                key(
-                        "A", "mydrugs:rubber",
-                        "B", "minecraft:copper_ingot"
-                ),
-                "mydrugs:insulated_wire",
-                6
-        );
 
         shaped(futures, cachedOutput, "control_circuit",
                 new String[]{
@@ -730,41 +700,6 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "D", "minecraft:redstone"
                 ),
                 "mydrugs:control_circuit",
-                1
-        );
-
-        psyAnvil(futures, cachedOutput, "advanced_control_circuit",
-                "mydrugs:lysergic",
-                new String[]{
-                        "ABA",
-                        "CDC",
-                        "AEA"
-                },
-                key(
-                        "A", "mydrugs:insulated_wire",
-                        "B", "minecraft:diamond",
-                        "C", "minecraft:gold_ingot",
-                        "D", "mydrugs:control_circuit",
-                        "E", "minecraft:lapis_lazuli"
-                ),
-                "mydrugs:advanced_control_circuit",
-                1
-        );
-
-        psyAnvil(futures, cachedOutput, "mycelial_resonator",
-                "mydrugs:overclocked",
-                new String[]{
-                        "AMA",
-                        "RCR",
-                        "AMA"
-                },
-                key(
-                        "A", "minecraft:amethyst_shard",
-                        "M", "mydrugs:magic_mushroom_powder",
-                        "R", "minecraft:redstone",
-                        "C", "mydrugs:advanced_control_circuit"
-                ),
-                "mydrugs:mycelial_resonator",
                 1
         );
 
@@ -920,7 +855,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 key(
                         "A", "minecraft:copper_ingot",
                         "B", "minecraft:stick",
-                        "C", "mydrugs:filter",
+                        "C", "mydrugs:iron_mesh",
                         "D", "mydrugs:wooden_frame"
                 ),
                 "mydrugs:sieve",
@@ -1572,41 +1507,6 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         resultObject.addProperty("id", result);
         resultObject.addProperty("count", count);
         json.add("result", resultObject);
-
-        saveRecipe(futures, cachedOutput, name, json);
-    }
-
-    private void psyAnvil(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            String requiredKnowledge,
-            String[] pattern,
-            Map<String, Object> key,
-            String result,
-            int count
-    ) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "mydrugs:psy_anvil");
-        json.addProperty("required_knowledge", requiredKnowledge);
-
-        JsonArray patternArray = new JsonArray();
-        for (String row : pattern) {
-            patternArray.add(new JsonPrimitive(row));
-        }
-        json.add("pattern", patternArray);
-
-        JsonObject keyObject = new JsonObject();
-        for (Map.Entry<String, Object> entry : key.entrySet()) {
-            keyObject.add(entry.getKey(), ingredient(entry.getValue()));
-        }
-        json.add("key", keyObject);
-
-        JsonObject resultObject = new JsonObject();
-        resultObject.addProperty("id", result);
-        resultObject.addProperty("count", count);
-        json.add("result", resultObject);
-        json.addProperty("show_if_locked", true);
 
         saveRecipe(futures, cachedOutput, name, json);
     }

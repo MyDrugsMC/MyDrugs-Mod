@@ -1,0 +1,34 @@
+{
+  "values": {
+    "mydrugs:malt": {
+      "chance": 0.65
+    },
+    "mydrugs:rye": {
+      "chance": 0.65
+    },
+    "mydrugs:coca_leaf": {
+      "chance": 0.65
+    },
+    "mydrugs:cannabis_leaf": {
+      "chance": 0.65
+    },
+    "mydrugs:tobacco_leaf": {
+      "chance": 0.65
+    },
+    "mydrugs:malt_seeds": {
+      "chance": 0.3
+    },
+    "mydrugs:rye_seeds": {
+      "chance": 0.3
+    },
+    "mydrugs:coca_seeds": {
+      "chance": 0.3
+    },
+    "mydrugs:cannabis_seeds": {
+      "chance": 0.3
+    },
+    "mydrugs:tobacco_seeds": {
+      "chance": 0.3
+    }
+  }
+}

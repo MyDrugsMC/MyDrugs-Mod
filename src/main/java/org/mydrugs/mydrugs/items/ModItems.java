@@ -128,8 +128,11 @@ public class ModItems {
     public static final DeferredItem<Item> COCA_PASTE =
             ITEMS.registerSimpleItem("coca_paste");
 
-    public static final DeferredItem<Item> FILTER =
-            ITEMS.registerSimpleItem("filter");
+    public static final DeferredItem<Item> IRON_MESH =
+            ITEMS.registerSimpleItem("iron_mesh");
+
+    public static final DeferredItem<Item> CIGARET_FILTER =
+            ITEMS.registerSimpleItem("cigaret_filter");
 
     public static final DeferredItem<Item> COCAINE_DUST =
             ITEMS.registerItem("cocaine_dust", prop -> new CocaineDustItem(prop, DrugId.COCAINE, new SniffingStrategy()));
@@ -143,7 +146,7 @@ public class ModItems {
     public static final DeferredItem<Item> GLASS_BOTTLE =
             ITEMS.registerItem("glass_bottle",
                     GlassBottleItem::new,
-                    properties -> properties.stacksTo(1));
+                    properties -> properties.stacksTo(16));
 
     public static final DeferredItem<Item> TOBACCO_HANDFUL =
             ITEMS.registerItem("tobacco_handful", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));

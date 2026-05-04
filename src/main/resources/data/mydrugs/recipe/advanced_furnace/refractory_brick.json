@@ -1,9 +1,0 @@
-{
-  "type": "mydrugs:advanced_furnace",
-  "input_a": "mydrugs:refractory_mix",
-  "result_a": {
-    "id": "mydrugs:refractory_brick",
-    "count": 1
-  },
-  "cook_time": 220
-}

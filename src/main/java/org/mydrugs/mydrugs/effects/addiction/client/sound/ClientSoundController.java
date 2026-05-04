@@ -2,7 +2,7 @@ package org.mydrugs.mydrugs.effects.addiction.client.sound;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
-import org.mydrugs.mydrugs.ModSounds;
+import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.client.HeartbeatPulse;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;

@@ -213,6 +213,12 @@ public final class ServerModEvents {
         );
 
         event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                ModBlockEntities.EVAPORATION_TRAY.get(),
+                (blockEntity, side) -> blockEntity.getItemHandler(side)
+        );
+
+        event.registerBlockEntity(
                 Capabilities.Fluid.BLOCK,
                 ModBlockEntities.PSYCHOTROPE_COMPONENT.get(),
                 (blockEntity, side) -> blockEntity.getFluidHandler(side)

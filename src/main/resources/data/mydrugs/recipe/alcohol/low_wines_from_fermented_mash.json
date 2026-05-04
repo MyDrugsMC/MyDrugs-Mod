@@ -5,12 +5,12 @@
     "amount": 1000
   },
   "output_1": {
-    "fluid": "mydrugs:raw_alcohol",
-    "amount": 700
+    "fluid": "mydrugs:low_wines",
+    "amount": 250
   },
   "output_2": {
-    "fluid": "minecraft:water",
-    "amount": 300
+    "fluid": "mydrugs:stillage",
+    "amount": 750
   },
   "base_ticks": 200
 }

@@ -1,7 +1,7 @@
 package org.mydrugs.mydrugs.client;
 
 import org.mydrugs.mydrugs.Config;
-import org.mydrugs.mydrugs.ModSounds;
+import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;

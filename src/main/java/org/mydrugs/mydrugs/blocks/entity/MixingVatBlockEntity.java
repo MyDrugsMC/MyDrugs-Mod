@@ -12,8 +12,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -73,6 +75,19 @@ public class MixingVatBlockEntity extends BlockEntity {
                 be.setChanged();
             }
         }
+
+        if (!level.isClientSide() && (level.getGameTime() % 20L == 0L)
+                && be.getVisualFluidAmount() > 0 && be.isHeated()) {
+            AABB interior = new AABB(
+                    pos.getX() + 0.1875, pos.getY() + 0.1875, pos.getZ() + 0.1875,
+                    pos.getX() + 0.8125, pos.getY() + 1.0,    pos.getZ() + 0.8125
+            );
+            for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, interior)) {
+                if (entity.fireImmune()) continue;
+                entity.hurt(level.damageSources().inFire(), 2.0F);
+                entity.igniteForSeconds(2);
+            }
+        }
     }
 
     public List<ItemStack> getVisualItems() {
@@ -126,7 +141,7 @@ public class MixingVatBlockEntity extends BlockEntity {
         if (resultFluidId != null && resultFluidAmount > 0) {
             return resultFluidAmount;
         }
-        return firstInputFluidAmount();
+        return getTotalInputFluidAmount();
     }
 
     public float getVisualFluidRatio() {
@@ -211,6 +226,42 @@ public class MixingVatBlockEntity extends BlockEntity {
         }
 
         return false;
+    }
+
+    public int insertWholeStack(ItemStack held) {
+        if (held.isEmpty() || hasPendingResult()) return 0;
+
+        int inserted = 0;
+        int remaining = held.getCount();
+
+        for (int i = 0; i < inputItems.size() && remaining > 0; i++) {
+            ItemStack existing = inputItems.get(i);
+            if (existing.isEmpty()) continue;
+            if (!ItemStack.isSameItemSameComponents(existing, held)) continue;
+
+            int free = existing.getMaxStackSize() - existing.getCount();
+            if (free <= 0) continue;
+
+            int moved = Math.min(free, remaining);
+            existing.grow(moved);
+            inserted += moved;
+            remaining -= moved;
+        }
+
+        for (int i = 0; i < inputItems.size() && remaining > 0; i++) {
+            if (!inputItems.get(i).isEmpty()) continue;
+
+            int moved = Math.min(held.getMaxStackSize(), remaining);
+            inputItems.set(i, held.copyWithCount(moved));
+            inserted += moved;
+            remaining -= moved;
+        }
+
+        if (inserted > 0) {
+            resetMixingProgress();
+            notifyUpdate();
+        }
+        return inserted;
     }
 
     private int getInsertableAmount(ResourceLocation incomingId, int requestedAmount) {

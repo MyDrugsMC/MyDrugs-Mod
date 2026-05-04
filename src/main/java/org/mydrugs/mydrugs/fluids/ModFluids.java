@@ -80,6 +80,17 @@ public final class ModFluids {
     public static final FluidEntry PHENYLACETONE;
     public static final FluidEntry LIGHT_OIL;
 
+    public static final FluidEntry POTATO_MASH;
+    public static final FluidEntry WHEAT_MASH;
+    public static final FluidEntry RYE_MASH;
+    public static final FluidEntry MALT_MASH;
+    public static final FluidEntry LOW_WINES;
+    public static final FluidEntry STILLAGE;
+    public static final FluidEntry WASTEWATER;
+    public static final FluidEntry ETHANOL;
+    public static final FluidEntry FUSEL_OIL;
+    public static final FluidEntry ABSOLUTE_ETHANOL;
+
     static {
         METHYLAMINE = register(new FluidEntryDef("methylamine", 0xFFFFFFFF, false, null));
         CRUDE_C4_MIX = register(new FluidEntryDef("crude_c4_mix", 0xFF000000, false, null));
@@ -87,11 +98,7 @@ public final class ModFluids {
         COKE = register(new FluidEntryDef("coke", 0xFF000000, false, null));
         BUTENES = register(new FluidEntryDef("butenes", 0xFF000000, false, null));
         STARCH_MASH = register(new FluidEntryDef("starch_mash", 0xFFB7925E, false, null));
-        SWEET_MASH = register(new FluidEntryDef("sweet_mash", 0xFFD7B46E, false, null));
-        WILD_YEAST = register(new FluidEntryDef("wild_yeast", 0xFFE8DFB4, false, null));
-        FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFF9B6A3D, false, null));
 
-        RAW_ALCOHOL = register(new FluidEntryDef("raw_alcohol", 0x66F4FAFF, true, DrugId.ALCOHOL));
         VODKA = register(new FluidEntryDef("vodka", 0x66F8FCFF, true, DrugId.ALCOHOL));
 
         AMMONIAC = register(new FluidEntryDef("ammoniac", 0x66EEF8FF, false, null));
@@ -141,6 +148,35 @@ public final class ModFluids {
         METHAMPHETAMINE = register(new FluidEntryDef("methamphetamine", 0xFFFFFFFF, false, null));
 
         LIGHT_OIL = register(new FluidEntryDef("light_oil", 0x88E6C27E, false, null));
+
+        // Hot, opaque grain/root mashes.
+        POTATO_MASH = register(new FluidEntryDef("potato_mash", 0xFFE4D1A5, false, null));
+        WHEAT_MASH = register(new FluidEntryDef("wheat_mash", 0xFFD9B96C, false, null));
+        RYE_MASH = register(new FluidEntryDef("rye_mash", 0xFF8D6237, false, null));
+        MALT_MASH = register(new FluidEntryDef("malt_mash", 0xFFC68A35, false, null));
+
+        // Converted and fermentation-stage liquids.
+        SWEET_MASH = register(new FluidEntryDef("sweet_mash", 0xFFDDAA52, false, null));
+        WILD_YEAST = register(new FluidEntryDef("wild_yeast", 0xFFE7DDB8, false, null));
+
+        // Weak alcoholic wash. Technically drinkable, but cloudy and unfinished.
+        FERMENTED_MASH = register(new FluidEntryDef("fermented_mash", 0xFF9C6A38, true, DrugId.ALCOHOL));
+
+        // Distillation intermediates and byproducts.
+        LOW_WINES = register(new FluidEntryDef("low_wines", 0x88F4FAFF, false, null));
+        STILLAGE = register(new FluidEntryDef("stillage", 0xFF5A3922, false, null));
+
+        // Strong crude distillate. Drinkable for gameplay, but not clean ethanol.
+        RAW_ALCOHOL = register(new FluidEntryDef("raw_alcohol", 0x66F8FCFF, true, DrugId.ALCOHOL));
+
+        WASTEWATER = register(new FluidEntryDef("wastewater", 0x88766F61, false, null));
+
+        // Chemical-grade alcohols. Realistically not beverage fluids, so not drinkable.
+        ETHANOL = register(new FluidEntryDef("ethanol", 0x44F7FBFF, false, null));
+        ABSOLUTE_ETHANOL = register(new FluidEntryDef("absolute_ethanol", 0x33FFFFFF, false, null));
+
+        // Heavy oily distillation residue; definitely not drinkable.
+        FUSEL_OIL = register(new FluidEntryDef("fusel_oil", 0xCCB77C34, false, null));
     }
 
     private ModFluids() {

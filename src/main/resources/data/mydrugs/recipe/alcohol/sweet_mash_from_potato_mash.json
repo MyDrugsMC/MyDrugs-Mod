@@ -2,12 +2,13 @@
   "type": "mydrugs:mixing_vat",
   "item_1": "mydrugs:malt_powder",
   "fluid_input_1": {
-    "fluid": "mydrugs:starch_mash",
-    "amount": 100
+    "fluid": "mydrugs:potato_mash",
+    "amount": 1000
   },
   "result_fluid": {
     "fluid": "mydrugs:sweet_mash",
-    "amount": 200
+    "amount": 1000
   },
+  "requires_heat": true,
   "required_stirs": 5
 }

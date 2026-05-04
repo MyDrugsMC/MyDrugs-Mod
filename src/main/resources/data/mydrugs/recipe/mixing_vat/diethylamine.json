@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:mixing_vat",
   "fluid_input_1": {
-    "fluid": "mydrugs:raw_alcohol",
+    "fluid": "mydrugs:absolute_ethanol",
     "amount": 500
   },
   "fluid_input_2": {

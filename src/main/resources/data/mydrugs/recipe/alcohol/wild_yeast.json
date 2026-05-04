@@ -3,11 +3,11 @@
   "item_1": "mydrugs:flour",
   "fluid_input_1": {
     "fluid": "minecraft:water",
-    "amount": 100
+    "amount": 1000
   },
   "result_fluid": {
     "fluid": "mydrugs:wild_yeast",
-    "amount": 150
+    "amount": 1000
   },
   "required_stirs": 3
 }

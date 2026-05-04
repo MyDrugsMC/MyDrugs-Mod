@@ -76,6 +76,19 @@ public class MixingVatBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
+        boolean sneaking = player.isShiftKeyDown();
+
+        if (sneaking) {
+            int inserted = vat.insertWholeStack(stack);
+            if (inserted > 0) {
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(inserted);
+                }
+                return InteractionResult.SUCCESS;
+            }
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+
         ItemAccess access = ItemAccess.forPlayerInteraction(player, hand).oneByOne();
         var fluidHandler = access.getCapability(Capabilities.Fluid.ITEM);
 
@@ -83,7 +96,13 @@ public class MixingVatBlock extends BaseEntityBlock {
             if (vat.tryExtractFluidToHeld(player, hand, stack)) return InteractionResult.SUCCESS;
             if (vat.tryInsertFluidFromHeld(player, hand, stack)) return InteractionResult.SUCCESS;
 
-            // let empty-hand fallback happen if appropriate
+            if (vat.insertOneItem(stack)) {
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                return InteractionResult.SUCCESS;
+            }
+
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
