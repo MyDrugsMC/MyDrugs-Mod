@@ -94,6 +94,7 @@ public final class AddictionManager {
 
         drugStats.addictionValue = AddictionMath.clamp(drugStats.addictionValue + finalGain, 0.0F, 1000.0F);
         drugStats.lastUseTime = player.level().getGameTime();
+        drugStats.lifetimeDoseConsumed = Math.min(1_000_000F, drugStats.lifetimeDoseConsumed + Math.max(0.0F, effectiveDose));
 
         ToleranceManager.onUse(playerStats, model, effectiveDose);
         RelapseManager.onUse(model, drugStats);

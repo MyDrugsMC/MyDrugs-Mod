@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:drying",
+  "ingredient": "mydrugs:wet_coffee_bean",
+  "result": {
+    "id": "mydrugs:coffee_bean",
+    "count": 1
+  },
+  "dry_time": 2400
+}

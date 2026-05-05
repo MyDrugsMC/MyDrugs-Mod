@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "minecraft:block/coal_block",
+    "particle": "minecraft:block/coal_block"
+  }
+}

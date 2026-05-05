@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "age=0,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage0"
+    },
+    "age=0,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=1,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage1"
+    },
+    "age=1,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=2,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage2"
+    },
+    "age=2,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=3,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage3"
+    },
+    "age=3,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=4,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage4"
+    },
+    "age=4,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=5,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage5"
+    },
+    "age=5,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=6,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage6"
+    },
+    "age=6,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    },
+    "age=7,half=lower": {
+      "model": "mydrugs:block/coffee_crop_stage7"
+    },
+    "age=7,half=upper": {
+      "model": "mydrugs:block/coffee_crop_upper"
+    }
+  }
+}

@@ -1,10 +1,7 @@
 package org.mydrugs.mydrugs.core.drug.use;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.advancement.DrugKnowledge;
@@ -12,10 +9,9 @@ import org.mydrugs.mydrugs.advancement.DrugKnowledgeResult;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
-import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
-import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.progression.DrugProgressionGate;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
@@ -99,26 +95,11 @@ public final class DrugUseService {
             int duration = use.strategy() != null
                     ? use.strategy().getNewDuration(effect)
                     : effect.getBaseDuration();
-            int potency = use.strategy() != null
-                    ? use.strategy().getNewPotency(effect)
-                    : effect.getBasePotency();
+            float intensity = use.strategy() != null
+                    ? use.strategy().getNewIntensity(effect)
+                    : effect.getBaseIntensity();
 
-            switch (effect.getEffectType().getCategory()) {
-                case MINECRAFT_EFFECT -> applyMinecraftEffect(use.player(), effect.getEffectType(), duration, potency);
-                case SHADER, SOUND_EFFECT -> PacketDistributor.sendToPlayer(
-                        use.player(),
-                        new DrugVisualPayload(effect.getEffectType(), duration, potency)
-                );
-            }
-        }
-    }
-
-    private void applyMinecraftEffect(ServerPlayer player, EffectType effect, int duration, int potency) {
-        switch (effect) {
-            case NAUSEA -> player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, duration, potency));
-            case SLOWNESS -> player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, duration, potency));
-            default -> {
-            }
+            DrugEffectRuntimeManager.addEffect(use.player(), effect.getEffectType(), intensity, duration);
         }
     }
 }

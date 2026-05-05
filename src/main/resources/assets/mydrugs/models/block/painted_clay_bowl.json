@@ -1,0 +1,66 @@
+{
+  "render_type": "minecraft:cutout",
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/terracotta",
+    "side": "minecraft:block/red_terracotta",
+    "bottom": "minecraft:block/terracotta",
+    "inside": "minecraft:block/black_concrete"
+  },
+  "elements": [
+    {
+      "from": [2, 0, 2],
+      "to": [14, 1, 14],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up":   { "texture": "#inside" },
+        "north": { "texture": "#side" },
+        "south": { "texture": "#side" },
+        "east":  { "texture": "#side" },
+        "west":  { "texture": "#side" }
+      }
+    },
+    {
+      "from": [2, 1, 2],
+      "to": [4, 5, 14],
+      "faces": {
+        "down":  { "texture": "#side" },
+        "up":    { "texture": "#side" },
+        "north": { "texture": "#side" },
+        "south": { "texture": "#side" },
+        "east":  { "texture": "#inside" },
+        "west":  { "texture": "#side" }
+      }
+    },
+    {
+      "from": [12, 1, 2],
+      "to": [14, 5, 14],
+      "faces": {
+        "down":  { "texture": "#side" },
+        "up":    { "texture": "#side" },
+        "north": { "texture": "#side" },
+        "south": { "texture": "#side" },
+        "east":  { "texture": "#side" },
+        "west":  { "texture": "#inside" }
+      }
+    },
+    {
+      "from": [4, 1, 2],
+      "to": [12, 5, 4],
+      "faces": {
+        "north": { "texture": "#side" },
+        "south": { "texture": "#inside" },
+        "up":    { "texture": "#side" }
+      }
+    },
+    {
+      "from": [4, 1, 12],
+      "to": [12, 5, 14],
+      "faces": {
+        "north": { "texture": "#inside" },
+        "south": { "texture": "#side" },
+        "up":    { "texture": "#side" }
+      }
+    }
+  ]
+}

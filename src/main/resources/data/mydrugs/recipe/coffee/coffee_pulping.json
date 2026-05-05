@@ -1,0 +1,13 @@
+{
+  "type": "mydrugs:coffee_pulping",
+  "ingredient": "mydrugs:coffee_cherries",
+  "bean_result": {
+    "id": "mydrugs:wet_coffee_bean",
+    "count": 1
+  },
+  "biomass_result": {
+    "id": "mydrugs:plant_biomass",
+    "count": 1
+  },
+  "work": 80
+}

@@ -89,6 +89,8 @@ public class MixingVatBlock extends BaseEntityBlock {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
+        if (vat.tryFillCoffeeCup(player, hand, stack)) return InteractionResult.SUCCESS;
+
         ItemAccess access = ItemAccess.forPlayerInteraction(player, hand).oneByOne();
         var fluidHandler = access.getCapability(Capabilities.Fluid.ITEM);
 

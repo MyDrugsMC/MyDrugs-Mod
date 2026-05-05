@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CPC",
+    "PSP",
+    "CPC"
+  ],
+  "key": {
+    "C": "minecraft:charcoal",
+    "P": "mydrugs:psychotropic_pigment",
+    "S": "minecraft:stone"
+  },
+  "result": { "id": "mydrugs:charcoal_glyph_block", "count": 2 }
+}

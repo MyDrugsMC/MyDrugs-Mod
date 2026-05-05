@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SIS",
+    "PPP",
+    "SCS"
+  ],
+  "key": {
+    "S": "minecraft:stick",
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:oak_planks",
+    "C": "minecraft:copper_ingot"
+  },
+  "result": {
+    "id": "mydrugs:manual_coffee_pulper",
+    "count": 1
+  }
+}

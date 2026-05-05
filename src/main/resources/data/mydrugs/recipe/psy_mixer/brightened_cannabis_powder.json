@@ -1,0 +1,24 @@
+{
+  "type": "mydrugs:psy_mixer",
+  "base": { "item": "mydrugs:cannabis_powder" },
+  "material": { "item": "minecraft:glowstone_dust" },
+  "catalyst": { "item": "mydrugs:psychotropic_pigment" },
+  "stabilizer": { "item": "mydrugs:ritual_resin" },
+  "vessel": { "item": "mydrugs:painted_clay_bowl" },
+  "result": {
+    "id": "mydrugs:brightened_cannabis_powder",
+    "count": 1
+  },
+  "ritual_time": 400,
+  "base_instability": 0.25,
+  "required_knowledge": "mydrugs:cannabinoid",
+  "required_drug": "weed",
+  "required_lifetime_dose": 8.0,
+  "show_if_locked": true,
+  "failure_result": {
+    "id": "mydrugs:unstable_residue",
+    "count": 1
+  },
+  "preserve_vessel_on_success": false,
+  "preserve_vessel_on_failure": true
+}

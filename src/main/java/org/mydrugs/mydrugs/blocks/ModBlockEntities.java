@@ -180,6 +180,19 @@ public final class ModBlockEntities {
             );
 
 
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ManualCoffeePulperBlockEntity>> MANUAL_COFFEE_PULPER =
+            BLOCK_ENTITY_TYPES.register(
+                    "manual_coffee_pulper",
+                    () -> new BlockEntityType<>(ManualCoffeePulperBlockEntity::new, ModBlocks.MANUAL_COFFEE_PULPER.get())
+            );
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CoffeeDryingMatBlockEntity>> COFFEE_DRYING_MAT =
+            BLOCK_ENTITY_TYPES.register(
+                    "coffee_drying_mat",
+                    () -> new BlockEntityType<>(CoffeeDryingMatBlockEntity::new, ModBlocks.COFFEE_DRYING_MAT.get())
+            );
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DryingRackBlockEntity>> DRYING_RACK =
             BLOCK_ENTITY_TYPES.register(
                     "drying_rack",
@@ -229,6 +242,20 @@ public final class ModBlockEntities {
                             PsychotropeCoreBlockEntity::new,
                             false,
                             ModBlocks.PSYCHOTROPE_CORE.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<FormedPsyMixerCoreBlockEntity>> FORMED_PSY_MIXER_CORE =
+            BLOCK_ENTITY_TYPES.register("formed_psy_mixer_core",
+                    () -> new BlockEntityType<>(
+                            FormedPsyMixerCoreBlockEntity::new,
+                            ModBlocks.FORMED_PSY_MIXER_CORE.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<FormedPsyMixerPartBlockEntity>> FORMED_PSY_MIXER_PART =
+            BLOCK_ENTITY_TYPES.register("formed_psy_mixer_part",
+                    () -> new BlockEntityType<>(
+                            FormedPsyMixerPartBlockEntity::new,
+                            ModBlocks.FORMED_PSY_MIXER_PART.get()
                     ));
 
     public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPES =

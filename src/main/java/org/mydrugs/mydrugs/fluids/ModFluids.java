@@ -79,6 +79,7 @@ public final class ModFluids {
     public static final FluidEntry METHAMPHETAMINE;
     public static final FluidEntry PHENYLACETONE;
     public static final FluidEntry LIGHT_OIL;
+    public static final FluidEntry COFFEE;
 
     public static final FluidEntry POTATO_MASH;
     public static final FluidEntry WHEAT_MASH;
@@ -148,6 +149,8 @@ public final class ModFluids {
         METHAMPHETAMINE = register(new FluidEntryDef("methamphetamine", 0xFFFFFFFF, false, null));
 
         LIGHT_OIL = register(new FluidEntryDef("light_oil", 0x88E6C27E, false, null));
+
+        COFFEE = register(new FluidEntryDef("coffee", 0xFF3B2012, true, DrugId.COFFEE));
 
         // Hot, opaque grain/root mashes.
         POTATO_MASH = register(new FluidEntryDef("potato_mash", 0xFFE4D1A5, false, null));

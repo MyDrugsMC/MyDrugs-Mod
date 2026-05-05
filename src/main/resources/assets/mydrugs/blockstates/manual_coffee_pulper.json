@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mydrugs:block/manual_coffee_pulper",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "mydrugs:block/manual_coffee_pulper",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mydrugs:block/manual_coffee_pulper",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mydrugs:block/manual_coffee_pulper",
+      "y": 270
+    }
+  }
+}

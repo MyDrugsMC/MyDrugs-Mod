@@ -9,6 +9,11 @@ public class SniffingStrategy implements ConsumptionStrategy {
     }
 
     @Override
+    public float getNewIntensity(DrugEffect drugEffect) {
+        return drugEffect.getBaseIntensity() * 1.1F;
+    }
+
+    @Override
     public int getNewDuration(DrugEffect drugEffect) {
         return (int) Math.round(drugEffect.getBaseDuration() * 0.5);
     }

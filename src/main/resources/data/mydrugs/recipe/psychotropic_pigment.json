@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:charcoal",
+    "minecraft:purple_dye",
+    "minecraft:red_dye",
+    "minecraft:brown_mushroom"
+  ],
+  "result": {
+    "id": "mydrugs:psychotropic_pigment",
+    "count": 2
+  }
+}

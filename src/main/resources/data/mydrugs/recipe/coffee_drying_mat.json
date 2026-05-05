@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "STS",
+    "WWW",
+    "STS"
+  ],
+  "key": {
+    "S": "minecraft:stick",
+    "T": "minecraft:string",
+    "W": "minecraft:wheat"
+  },
+  "result": {
+    "id": "mydrugs:coffee_drying_mat",
+    "count": 1
+  }
+}

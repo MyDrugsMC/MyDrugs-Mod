@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mydrugs:treated_planks",
+    "minecraft:stick",
+    "minecraft:stick",
+    "minecraft:stick",
+    "minecraft:stick",
+    "minecraft:ender_pearl"
+  ],
+  "result": {
+    "id": "mydrugs:vanilla_biome_finder",
+    "count": 1
+  }
+}

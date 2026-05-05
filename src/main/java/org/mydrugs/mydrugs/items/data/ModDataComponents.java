@@ -65,6 +65,14 @@ public class ModDataComponents {
                     builder -> builder.persistent(GasTankContents.CODEC)
             );
 
+    public static final Supplier<DataComponentType<BiomeFinderTarget>> BIOME_FINDER_TARGET =
+            DATA_COMPONENTS.registerComponentType(
+                    "biome_finder_target",
+                    builder -> builder
+                            .persistent(BiomeFinderTarget.CODEC)
+                            .networkSynchronized(BiomeFinderTarget.STREAM_CODEC)
+            );
+
     public static final Supplier<DataComponentType<PipeFilterConfig>> PIPE_FILTER_CONFIG =
             DATA_COMPONENTS.registerComponentType(
                     "pipe_filter_config",

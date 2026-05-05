@@ -176,6 +176,22 @@ public class ModItems {
     public static final DeferredItem<Item> PLANT_BIOMASS =
             ITEMS.registerSimpleItem("plant_biomass");
 
+    public static final DeferredItem<Item> COFFEE_CHERRIES =
+            ITEMS.registerSimpleItem("coffee_cherries");
+
+    public static final DeferredItem<Item> WET_COFFEE_BEAN =
+            ITEMS.registerSimpleItem("wet_coffee_bean");
+
+    public static final DeferredItem<Item> COFFEE_BEAN =
+            ITEMS.registerSimpleItem("coffee_bean");
+
+    public static final DeferredItem<Item> COFFEE_POWDER =
+            ITEMS.registerSimpleItem("coffee_powder");
+
+    public static final DeferredItem<Item> COFFEE_CUP =
+            ITEMS.registerItem("coffee_cup", prop -> new org.mydrugs.mydrugs.items.drugs.CoffeeCupItem(prop, DrugId.COFFEE, new org.mydrugs.mydrugs.core.drug.strategy.DrinkingStrategy()));
+
+
     public static final DeferredItem<Item> ERGOTAMINE =
             ITEMS.registerSimpleItem("ergotamine");
 
@@ -452,6 +468,31 @@ public class ModItems {
 
     public static final DeferredItem<Item> PLATINUM_BOOTS =
             ITEMS.registerItem("platinum_boots", props -> new Item(props.humanoidArmor(ModArmorMaterials.PLATINUM, ArmorType.BOOTS)));
+
+    // Psy Mixer ritual ingredients
+    public static final DeferredItem<Item> RITUAL_THREADS =
+            ITEMS.registerSimpleItem("ritual_threads");
+
+    public static final DeferredItem<Item> PSYCHOTROPIC_PIGMENT =
+            ITEMS.registerSimpleItem("psychotropic_pigment");
+
+    public static final DeferredItem<Item> RITUAL_RESIN =
+            ITEMS.registerSimpleItem("ritual_resin");
+
+    public static final DeferredItem<Item> UNSTABLE_RESIDUE =
+            ITEMS.registerSimpleItem("unstable_residue");
+
+    public static final DeferredItem<Item> BRIGHTENED_CANNABIS_POWDER =
+            ITEMS.registerItem("brightened_cannabis_powder",
+                    prop -> new org.mydrugs.mydrugs.items.drugs.CannabisPowderItem(
+                            prop, org.mydrugs.mydrugs.core.drug.DrugId.WEED,
+                            new org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy(true, true)));
+
+    public static final DeferredItem<VanillaBiomeFinderItem> VANILLA_BIOME_FINDER =
+            ITEMS.registerItem("vanilla_biome_finder",
+                    props -> new VanillaBiomeFinderItem(props.stacksTo(1)
+                            .component(ModDataComponents.BIOME_FINDER_TARGET.get(),
+                                    org.mydrugs.mydrugs.items.data.BiomeFinderTarget.EMPTY)));
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

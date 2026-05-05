@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "VPV",
+    "PTP",
+    "VPV"
+  ],
+  "key": {
+    "V": "minecraft:vine",
+    "P": "mydrugs:treated_planks",
+    "T": "mydrugs:ritual_threads"
+  },
+  "result": { "id": "mydrugs:woven_vine_frame", "count": 4 }
+}

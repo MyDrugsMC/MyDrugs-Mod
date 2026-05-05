@@ -1,0 +1,28 @@
+{
+  "render_type": "minecraft:cutout",
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/vine",
+    "vine": "minecraft:block/vine"
+  },
+  "elements": [
+    {
+      "from": [3, 0, 8],
+      "to": [13, 16, 8],
+      "shade": false,
+      "faces": {
+        "north": { "texture": "#vine" },
+        "south": { "texture": "#vine" }
+      }
+    },
+    {
+      "from": [8, 0, 3],
+      "to": [8, 16, 13],
+      "shade": false,
+      "faces": {
+        "east": { "texture": "#vine" },
+        "west": { "texture": "#vine" }
+      }
+    }
+  ]
+}

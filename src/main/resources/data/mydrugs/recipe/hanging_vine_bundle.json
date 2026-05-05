@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TT",
+    "VV",
+    "VV"
+  ],
+  "key": {
+    "T": "mydrugs:ritual_threads",
+    "V": "minecraft:vine"
+  },
+  "result": { "id": "mydrugs:hanging_vine_bundle", "count": 2 }
+}

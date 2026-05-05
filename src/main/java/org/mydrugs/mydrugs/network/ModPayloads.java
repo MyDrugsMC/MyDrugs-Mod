@@ -26,6 +26,11 @@ public final class ModPayloads {
                 RollerDragPayload::handleOnServer
         );
         registrar.playToServer(
+                CoffeePulperDragPayload.TYPE,
+                CoffeePulperDragPayload.STREAM_CODEC,
+                CoffeePulperDragPayload::handleOnServer
+        );
+        registrar.playToServer(
                 OpenMachineTransferConfigPayload.TYPE,
                 OpenMachineTransferConfigPayload.STREAM_CODEC,
                 OpenMachineTransferConfigPayload::handleOnServer
@@ -43,6 +48,16 @@ public final class ModPayloads {
         registrar.playToClient(
                 MachineTransferConfigSnapshotPayload.TYPE,
                 MachineTransferConfigSnapshotPayload.STREAM_CODEC
+        );
+        registrar.playToServer(
+                PsyMixerStartRitualPayload.TYPE,
+                PsyMixerStartRitualPayload.STREAM_CODEC,
+                PsyMixerStartRitualPayload::handleOnServer
+        );
+        registrar.playToServer(
+                PsyMixerRitualInputPayload.TYPE,
+                PsyMixerRitualInputPayload.STREAM_CODEC,
+                PsyMixerRitualInputPayload::handleOnServer
         );
     }
 

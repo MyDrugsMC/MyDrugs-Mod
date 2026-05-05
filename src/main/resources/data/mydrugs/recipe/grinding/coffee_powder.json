@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:grinding",
+  "ingredient": "mydrugs:coffee_bean",
+  "result": {
+    "id": "mydrugs:coffee_powder",
+    "count": 1
+  },
+  "work": 2
+}

@@ -17,6 +17,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
 
     public float relapseMemory;
     public float peakHistoricalAddiction;
+    public float lifetimeDoseConsumed;
 
     public final List<DoseContribution> doseContributions = new ArrayList<>();
     public DoseState lastDoseState = DoseState.NORMAL;
@@ -35,6 +36,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
                 && tolerance <= 0.0001F
                 && relapseMemory <= 0.0001F
                 && peakHistoricalAddiction <= 0.0001F
+                && lifetimeDoseConsumed <= 0.0001F
                 && doseContributions.isEmpty();
     }
 
@@ -46,6 +48,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         output.putLong("last_use_time", lastUseTime);
         output.putFloat("relapse_memory", relapseMemory);
         output.putFloat("peak_historical_addiction", peakHistoricalAddiction);
+        output.putFloat("lifetime_dose_consumed", lifetimeDoseConsumed);
         output.putString("last_dose_state", lastDoseState.name());
 
         ValueOutput contribs = output.child("dose_contributions");
@@ -67,6 +70,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         lastUseTime = input.getLongOr("last_use_time", 0L);
         relapseMemory = input.getFloatOr("relapse_memory", 0.0F);
         peakHistoricalAddiction = input.getFloatOr("peak_historical_addiction", 0.0F);
+        lifetimeDoseConsumed = input.getFloatOr("lifetime_dose_consumed", 0.0F);
 
         String stateName = input.getStringOr("last_dose_state", "NORMAL");
         try {
@@ -97,6 +101,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         copy.lastUseTime = lastUseTime;
         copy.relapseMemory = relapseMemory;
         copy.peakHistoricalAddiction = peakHistoricalAddiction;
+        copy.lifetimeDoseConsumed = lifetimeDoseConsumed;
         copy.lastDoseState = lastDoseState;
         for (DoseContribution c : doseContributions) {
             copy.doseContributions.add(new DoseContribution(c.amount, c.ticksRemaining, c.totalDuration));

@@ -40,6 +40,7 @@ public class ClientModEvents {
         event.register(ModMenus.DISTILLER.get(), DistillerScreen::new);
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);
+        event.register(ModMenus.MANUAL_COFFEE_PULPER.get(), ManualCoffeePulperScreen::new);
         event.register(ModMenus.FLUID_FILTERER.get(), FluidFiltererScreen::new);
         event.register(ModMenus.CENTRIFUGE.get(), CentrifugeScreen::new);
         event.register(ModMenus.BTX_FRACTIONATION_TOWER.get(), BTXFractionationTowerScreen::new);
@@ -52,6 +53,7 @@ public class ClientModEvents {
         event.register(ModMenus.CATALYTIC_REFORMER.get(), CatalyticReformerScreen::new);
         event.register(ModMenus.STEAM_CRACKER.get(), SteamCrackerScreen::new);
         event.register(ModMenus.PSYCHOTROPE_GENERATOR.get(), PsychotropeGeneratorScreen::new);
+        event.register(ModMenus.PSY_MIXER.get(), PsyMixerScreen::new);
         event.register(ModMenus.AROMATIC_EXTRACTOR.get(), AromaticExtractorScreen::new);
         event.register(ModMenus.PIPE_FILTER.get(), PipeFilterScreen::new);
         event.register(ModMenus.MACHINE_TRANSFER_CONFIG.get(), MachineTransferConfigScreen::new);
@@ -71,8 +73,10 @@ public class ClientModEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.SIEVE.get(), SieveRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.EVAPORATION_TRAY.get(), EvaporationTrayRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DRYING_RACK.get(), DryingRackRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.COFFEE_DRYING_MAT.get(), CoffeeDryingMatRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.CLAY_VAT.get(), ClayVatRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PSY_ANVIL.get(), PsyAnvilRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.FORMED_PSY_MIXER_CORE.get(), PsyMixerRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.FLUID_PUMP.get(), FluidPumpRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PIPES.get(), PipeBlockEntityRenderer::new);
     }

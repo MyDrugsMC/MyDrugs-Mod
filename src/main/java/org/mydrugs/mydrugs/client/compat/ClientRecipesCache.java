@@ -17,6 +17,7 @@ import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
+import org.mydrugs.mydrugs.recipes.coffee_pulping.CoffeePulpingRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
@@ -42,6 +43,7 @@ public final class ClientRecipesCache {
     private static final List<ChemicalReactorRecipe> CHEMICAL_REACTOR_RECIPES = new ArrayList<>();
     private static final List<DistillerRecipe> DISTILLER_RECIPES = new ArrayList<>();
     private static final List<DryingRecipe> DRYING_RECIPES = new ArrayList<>();
+    private static final List<CoffeePulpingRecipe> COFFEE_PULPING_RECIPES = new ArrayList<>();
     private static final List<EvaporationTrayRecipe> EVAPORATION_TRAY_RECIPES = new ArrayList<>();
     private static final List<FluidFiltererRecipe> FLUID_FILTERER_RECIPES = new ArrayList<>();
     private static final List<GasifierRecipe> GASIFIER_RECIPES = new ArrayList<>();
@@ -85,6 +87,10 @@ public final class ClientRecipesCache {
 
     public static List<DryingRecipe> getDryingRecipes() {
         return List.copyOf(DRYING_RECIPES);
+    }
+
+    public static List<CoffeePulpingRecipe> getCoffeePulpingRecipes() {
+        return List.copyOf(COFFEE_PULPING_RECIPES);
     }
 
     public static List<EvaporationTrayRecipe> getEvaporationTrayRecipes() {
@@ -141,6 +147,7 @@ public final class ClientRecipesCache {
         CHEMICAL_REACTOR_RECIPES.clear();
         DISTILLER_RECIPES.clear();
         DRYING_RECIPES.clear();
+        COFFEE_PULPING_RECIPES.clear();
         EVAPORATION_TRAY_RECIPES.clear();
         FLUID_FILTERER_RECIPES.clear();
         GASIFIER_RECIPES.clear();
@@ -200,6 +207,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(DRYING_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.COFFEE_PULPING.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(COFFEE_PULPING_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.EVAPORATION_TRAY.get())
@@ -278,6 +291,7 @@ public final class ClientRecipesCache {
         CHEMICAL_REACTOR_RECIPES.clear();
         DISTILLER_RECIPES.clear();
         DRYING_RECIPES.clear();
+        COFFEE_PULPING_RECIPES.clear();
         EVAPORATION_TRAY_RECIPES.clear();
         FLUID_FILTERER_RECIPES.clear();
         GASIFIER_RECIPES.clear();

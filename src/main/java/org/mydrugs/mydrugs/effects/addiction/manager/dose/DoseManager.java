@@ -82,6 +82,7 @@ public final class DoseManager {
         }
 
         applyStateEffects(player, playerStats, path, state);
+        DoseEffectManager.tickDrug(player, drugId, dose, state);
     }
 
     public static DoseState resolveState(DosePath path, float dose) {

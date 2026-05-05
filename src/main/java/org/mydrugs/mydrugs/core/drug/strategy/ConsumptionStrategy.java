@@ -5,6 +5,10 @@ import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 public interface ConsumptionStrategy {
     int getNewPotency(DrugEffect drugEffect);
 
+    default float getNewIntensity(DrugEffect drugEffect) {
+        return getNewPotency(drugEffect);
+    }
+
     int getNewDuration(DrugEffect drugEffect);
 
     /**

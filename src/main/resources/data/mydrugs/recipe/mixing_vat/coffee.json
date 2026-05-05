@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:coffee_powder",
+  "fluid_input_1": {
+    "fluid": "minecraft:water",
+    "amount": 250
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:coffee",
+    "amount": 250
+  },
+  "required_stirs": 2,
+  "requires_heat": true
+}

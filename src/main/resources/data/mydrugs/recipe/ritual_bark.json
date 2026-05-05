@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CVC",
+    "VLV",
+    "CPC"
+  ],
+  "key": {
+    "L": "minecraft:dark_oak_log",
+    "V": "minecraft:vine",
+    "C": "minecraft:charcoal",
+    "P": "mydrugs:psychotropic_pigment"
+  },
+  "result": { "id": "mydrugs:ritual_bark", "count": 4 }
+}

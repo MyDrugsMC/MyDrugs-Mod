@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
+import org.mydrugs.mydrugs.recipes.coffee_pulping.CoffeePulpingRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
@@ -33,6 +34,9 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<GrindingRecipe>> GRINDING =
             RECIPE_SERIALIZERS.register("grinding", GrindingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CoffeePulpingRecipe>> COFFEE_PULPING =
+            RECIPE_SERIALIZERS.register("coffee_pulping", CoffeePulpingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StompCraftingRecipe>> STOMP_CRAFTING =
             RECIPE_SERIALIZERS.register("stomp_crafting", StompCraftingRecipe.Serializer::new);
@@ -94,6 +98,9 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PsyAnvilRecipe>> PSY_ANVIL =
             RECIPE_SERIALIZERS.register("psy_anvil", PsyAnvilRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe>> PSY_MIXER =
+            RECIPE_SERIALIZERS.register("psy_mixer", org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe.Serializer::new);
 
     private ModRecipeSerializers() {
     }

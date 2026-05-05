@@ -6,8 +6,27 @@ import java.util.Locale;
 import java.util.Optional;
 
 public enum EffectType {
-    NAUSEA(EffectCategory.MINECRAFT_EFFECT),
-    SLOWNESS(EffectCategory.MINECRAFT_EFFECT),
+    CUSTOM_NAUSEA(EffectCategory.CAMERA),
+    BLUR(EffectCategory.VISUAL),
+    GAMMA_BOOST(EffectCategory.VISUAL),
+    LOW_LIGHT_VISION(EffectCategory.VISUAL),
+    BRIGHTNESS_BOOST(EffectCategory.VISUAL),
+    MOVEMENT_SPEED(EffectCategory.MOVEMENT),
+    MOVEMENT_SLOWDOWN(EffectCategory.MOVEMENT),
+    MINING_SPEED(EffectCategory.MINING),
+    DAMAGE_RESISTANCE(EffectCategory.STAT_MODIFIER),
+    CAMERA_SWAY(EffectCategory.CAMERA),
+    TREMOR(EffectCategory.CAMERA),
+    STUMBLE(EffectCategory.INPUT),
+    INPUT_FAIL(EffectCategory.INPUT),
+    VOMIT(EffectCategory.SERVER_ACTION),
+    CONFUSION(EffectCategory.CAMERA),
+    FOCUS(EffectCategory.STAT_MODIFIER),
+
+    // Deprecated compatibility names. They are routed through the custom runtime, never vanilla potion effects.
+    @Deprecated NAUSEA(EffectCategory.CAMERA),
+    @Deprecated SLOWNESS(EffectCategory.MOVEMENT),
+
     CHROMATIC_DREAM(EffectCategory.SHADER),
     ACID_WARP(EffectCategory.SHADER),
     VOID_PULSE(EffectCategory.SHADER),
@@ -26,7 +45,7 @@ public enum EffectType {
     MELTING_REALITY(EffectCategory.SHADER),
     AURORA_RIBBONS(EffectCategory.SHADER),
     SPECTRAL_POSTER(EffectCategory.SHADER),
-    HEARTBEAT(EffectCategory.SOUND_EFFECT),
+    HEARTBEAT(EffectCategory.SOUND),
     DRUNK_VISION(EffectCategory.SHADER);
 
     private final EffectCategory category;

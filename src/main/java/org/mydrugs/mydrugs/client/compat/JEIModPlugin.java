@@ -30,6 +30,7 @@ public class JEIModPlugin implements IModPlugin {
                 new ElectrolyzerRecipeCategory(guiHelper),
                 new DistillerRecipeCategory(guiHelper),
                 new DryingRecipeCategory(guiHelper),
+                new CoffeePulpingRecipeCategory(guiHelper),
                 new EvaporationTrayRecipeCategory(guiHelper),
                 new GrindingRecipeCategory(guiHelper),
                 new AdvancedMixingVatRecipeCategory(guiHelper),
@@ -55,6 +56,7 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipes(ElectrolyzerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getElectrolyzerRecipes"));
         registration.addRecipes(DistillerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getDistillerRecipes"));
         registration.addRecipes(DryingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getDryingRecipes"));
+        registration.addRecipes(CoffeePulpingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCoffeePulpingRecipes"));
         registration.addRecipes(EvaporationTrayRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getEvaporationTrayRecipes"));
         registration.addRecipes(GrindingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getGrindingRecipes"));
 
@@ -79,7 +81,8 @@ public class JEIModPlugin implements IModPlugin {
         JeiCompatUtil.registerFieldCatalyst(registration, CentrifugeRecipeCategory.TYPE, ModBlocks.class, "CENTRIFUGE");
         JeiCompatUtil.registerFieldCatalyst(registration, ElectrolyzerRecipeCategory.TYPE, ModBlocks.class, "ELECTROLYZER");
         JeiCompatUtil.registerFieldCatalyst(registration, DistillerRecipeCategory.TYPE, ModBlocks.class, "DISTILLER");
-        JeiCompatUtil.registerFieldCatalyst(registration, DryingRecipeCategory.TYPE, ModBlocks.class, "DRYING_RACK");
+        JeiCompatUtil.registerFieldCatalyst(registration, DryingRecipeCategory.TYPE, ModBlocks.class, "DRYING_RACK", "COFFEE_DRYING_MAT");
+        JeiCompatUtil.registerFieldCatalyst(registration, CoffeePulpingRecipeCategory.TYPE, ModBlocks.class, "MANUAL_COFFEE_PULPER_ITEM", "MANUAL_COFFEE_PULPER");
         JeiCompatUtil.registerFieldCatalyst(registration, EvaporationTrayRecipeCategory.TYPE, ModBlocks.class, "EVAPORATION_TRAY");
         JeiCompatUtil.registerFieldCatalyst(registration, GrindingRecipeCategory.TYPE, ModBlocks.class, "GRINDING_BOWL");
 

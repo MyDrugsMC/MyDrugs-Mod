@@ -80,6 +80,20 @@ public class ModCrops {
                     props -> new BlockItem(COCA_CROP.get(), props)
             );
 
+
+    public static final DeferredBlock<CoffeeCropBlock> COFFEE_CROP =
+            BLOCKS.registerBlock(
+                    "coffee_crop",
+                    CoffeeCropBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+            );
+
+    public static final DeferredItem<BlockItem> COFFEE_SEEDS =
+            ITEMS.registerItem(
+                    "coffee_seeds",
+                    props -> new BlockItem(COFFEE_CROP.get(), props)
+            );
+
     public static final DeferredBlock<OpiumPoppyCropBlock> OPIUM_POPPY_CROP =
             BLOCKS.registerBlock(
                     "opium_poppy_crop",

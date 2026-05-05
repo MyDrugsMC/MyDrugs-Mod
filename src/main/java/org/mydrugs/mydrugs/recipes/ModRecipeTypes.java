@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
 import org.mydrugs.mydrugs.recipes.chemical_reactor.ChemicalReactorRecipe;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
+import org.mydrugs.mydrugs.recipes.coffee_pulping.CoffeePulpingRecipe;
 import org.mydrugs.mydrugs.recipes.drying.DryingRecipe;
 import org.mydrugs.mydrugs.recipes.evaporation_tray.EvaporationTrayRecipe;
 import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipe;
@@ -35,6 +36,9 @@ public class ModRecipeTypes {
             RECIPE_TYPES.register("grinding", () -> RecipeType.simple(
                     ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "grinding")
             ));
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<CoffeePulpingRecipe>> COFFEE_PULPING =
+            RECIPE_TYPES.register("coffee_pulping", RecipeType::simple);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<StompCraftingRecipe>> STOMP_CRAFTING =
             RECIPE_TYPES.register("stomp_crafting", () -> RecipeType.simple(
@@ -94,6 +98,9 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<PsyAnvilRecipe>> PSY_ANVIL =
             RECIPE_TYPES.register("psy_anvil", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe>> PSY_MIXER =
+            RECIPE_TYPES.register("psy_mixer", RecipeType::simple);
 
     private ModRecipeTypes() {
     }

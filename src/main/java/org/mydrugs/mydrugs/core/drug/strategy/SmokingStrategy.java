@@ -10,6 +10,11 @@ public record SmokingStrategy(boolean bang, boolean joint) implements Consumptio
     }
 
     @Override
+    public float getNewIntensity(DrugEffect drugEffect) {
+        return drugEffect.getBaseIntensity() * 0.9F;
+    }
+
+    @Override
     public int getNewDuration(DrugEffect drugEffect) {
         return (int) Math.round(drugEffect.getBaseDuration() * 1.0);
     }

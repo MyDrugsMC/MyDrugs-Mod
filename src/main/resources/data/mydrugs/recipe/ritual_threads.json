@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:string",
+    "minecraft:string",
+    "minecraft:vine",
+    "minecraft:red_dye"
+  ],
+  "result": {
+    "id": "mydrugs:ritual_threads",
+    "count": 2
+  }
+}

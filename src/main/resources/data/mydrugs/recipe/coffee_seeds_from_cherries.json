@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mydrugs:coffee_cherries"
+  ],
+  "result": {
+    "id": "mydrugs:coffee_seeds",
+    "count": 1
+  }
+}

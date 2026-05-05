@@ -9,6 +9,11 @@ public class EatingStrategy implements ConsumptionStrategy {
     }
 
     @Override
+    public float getNewIntensity(DrugEffect drugEffect) {
+        return drugEffect.getBaseIntensity() * 1.2F;
+    }
+
+    @Override
     public int getNewDuration(DrugEffect drugEffect) {
         return (int) Math.round(drugEffect.getBaseDuration() * 1.7);
     }

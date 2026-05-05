@@ -9,8 +9,11 @@ import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
 import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 
 public final class AddictionClientState {
     public static float globalSeverity;
@@ -23,6 +26,7 @@ public final class AddictionClientState {
     public static int overdoseTicksRemaining;
 
     private static final float[] categoryDoses = new float[DrugCategory.values().length];
+    private static final EnumMap<EffectType, ClientDrugEffect> activeEffects = new EnumMap<>(EffectType.class);
 
     private AddictionClientState() {
     }
@@ -42,6 +46,24 @@ public final class AddictionClientState {
         Arrays.fill(categoryDoses, 0.0F);
         float[] incoming = payload.doses();
         System.arraycopy(incoming, 0, categoryDoses, 0, Math.min(incoming.length, categoryDoses.length));
+    }
+
+    public static void applyDrugEffectSync(DrugEffectSyncPayload payload) {
+        activeEffects.clear();
+        for (DrugEffectSyncPayload.Entry entry : payload.effects()) {
+            if (entry.type() != null && entry.intensity() > 0.0F && entry.remainingTicks() > 0) {
+                activeEffects.put(entry.type(), new ClientDrugEffect(entry.intensity(), entry.remainingTicks()));
+            }
+        }
+    }
+
+    public static float getEffectIntensity(EffectType type) {
+        ClientDrugEffect effect = activeEffects.get(type);
+        return effect == null ? 0.0F : effect.intensity;
+    }
+
+    public static boolean hasEffect(EffectType type) {
+        return getEffectIntensity(type) > 0.001F;
     }
 
     public static boolean has(int flag) {
@@ -178,6 +200,17 @@ public final class AddictionClientState {
         }
         if (overdoseTicksRemaining > 0) {
             overdoseTicksRemaining--;
+        }
+        activeEffects.entrySet().removeIf(entry -> --entry.getValue().remainingTicks <= 0);
+    }
+
+    private static final class ClientDrugEffect {
+        private final float intensity;
+        private int remainingTicks;
+
+        private ClientDrugEffect(float intensity, int remainingTicks) {
+            this.intensity = intensity;
+            this.remainingTicks = remainingTicks;
         }
     }
 

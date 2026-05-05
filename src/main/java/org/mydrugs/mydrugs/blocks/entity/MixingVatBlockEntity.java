@@ -34,6 +34,8 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatFluidStack;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
@@ -312,6 +314,35 @@ public class MixingVatBlockEntity extends BlockEntity {
             inputFluid2Id = incomingId;
             inputFluid2Amount = amount;
         }
+    }
+
+
+    public boolean tryFillCoffeeCup(Player player, InteractionHand hand, ItemStack held) {
+        if (held.isEmpty() || !held.is(ModItems.CUP.get())) {
+            return false;
+        }
+        ResourceLocation coffeeId = ModFluids.rl("coffee");
+        if (resultFluidId == null || !resultFluidId.equals(coffeeId) || resultFluidAmount < 250) {
+            return false;
+        }
+
+        ItemStack filled = new ItemStack(ModItems.COFFEE_CUP.get());
+        if (!player.getAbilities().instabuild) {
+            held.shrink(1);
+        }
+        if (held.isEmpty()) {
+            player.setItemInHand(hand, filled);
+        } else if (!player.getInventory().add(filled)) {
+            player.drop(filled, false);
+        }
+        resultFluidAmount -= 250;
+        if (resultFluidAmount <= 0) {
+            resultFluidAmount = 0;
+            resultFluidId = null;
+        }
+        resetMixingProgress();
+        notifyUpdate();
+        return true;
     }
 
     public boolean tryInsertFluidFromHeld(Player player, InteractionHand hand, ItemStack held) {

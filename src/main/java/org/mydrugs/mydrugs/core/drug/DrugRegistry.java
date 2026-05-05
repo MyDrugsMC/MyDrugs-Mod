@@ -30,7 +30,7 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.WEED)
                 .setCategory(DrugCategory.CANNABINOID)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 15, 1))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 15, 0.08F))
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 20, 1))
                 .setAddictionRate(2)
                 .build()
@@ -40,7 +40,7 @@ public final class DrugRegistry {
                 .setId(DrugId.HASH)
                 .setCategory(DrugCategory.CANNABINOID)
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 25, 2))
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 12, 1))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 12, 0.08F))
                 .setAddictionRate(2.5F)
                 .build()
         );
@@ -49,7 +49,7 @@ public final class DrugRegistry {
                 .setId(DrugId.METH)
                 .setCategory(DrugCategory.STIMULANT)
                 .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 18, 3))
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 6, 1))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 6, 0.18F))
                 .addEffect(new DrugEffect(EffectType.HEARTBEAT, 20 * 6, 1))
                 .setAddictionRate(6)
                 .build()
@@ -68,7 +68,7 @@ public final class DrugRegistry {
                 .setId(DrugId.CRACK)
                 .setCategory(DrugCategory.STIMULANT)
                 .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 8, 3))
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 5, 1))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 5, 0.20F))
                 .addEffect(new DrugEffect(EffectType.HEARTBEAT, 20 * 4, 1))
                 .setAddictionRate(6)
                 .build()
@@ -115,7 +115,7 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.HEROIN)
                 .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 18, 2))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 18, 0.18F))
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 1))
                 .setAddictionRate(9)
                 .build()
@@ -124,7 +124,7 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.MORPHINE)
                 .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 20, 2))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 20, 0.18F))
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 12, 1))
                 .build()
         );
@@ -132,16 +132,16 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.FENTANYL)
                 .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 14, 4))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 14, 0.35F))
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 10, 2))
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 8, 2))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 8, 0.35F))
                 .build()
         );
 
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.OPIUM)
                 .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 22, 1))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 22, 0.12F))
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 18, 1))
                 .build()
         );
@@ -158,7 +158,7 @@ public final class DrugRegistry {
                 .setId(DrugId.PCP)
                 .setCategory(DrugCategory.DISSOCIATIVE)
                 .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 18, 3))
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 8, 1))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 8, 0.20F))
                 .build()
         );
 
@@ -166,14 +166,14 @@ public final class DrugRegistry {
                 .setId(DrugId.DXM)
                 .setCategory(DrugCategory.DISSOCIATIVE)
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 2))
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 6, 1))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 6, 0.18F))
                 .build()
         );
 
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.ALCOHOL)
                 .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 10, 1))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 10, 0.20F))
                 .addEffect(new DrugEffect(EffectType.DRUNK_VISION, 20 * 20, 1))
                 .build()
         );
@@ -181,7 +181,7 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.BENZODIAZEPINE)
                 .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 20, 2))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 20, 0.18F))
                 .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 1))
                 .build()
         );
@@ -189,8 +189,8 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.BARBITURATE)
                 .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.SLOWNESS, 20 * 22, 3))
-                .addEffect(new DrugEffect(EffectType.NAUSEA, 20 * 10, 1))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 22, 0.28F))
+                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 10, 0.20F))
                 .build()
         );
 
@@ -205,7 +205,9 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.COFFEE)
                 .setCategory(DrugCategory.CAFFEINE)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 8, 1))
+                .addEffect(new DrugEffect(EffectType.MINING_SPEED, 20 * 45, 0.08F))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SPEED, 20 * 35, 0.04F))
+                .addEffect(new DrugEffect(EffectType.FOCUS, 20 * 35, 0.05F))
                 .setAddictionRate(0.2F)
                 .build()
         );

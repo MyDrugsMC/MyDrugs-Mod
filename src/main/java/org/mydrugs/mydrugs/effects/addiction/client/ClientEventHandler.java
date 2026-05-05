@@ -13,6 +13,7 @@ import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.effects.addiction.client.render.AddictionHudRenderer;
+import org.mydrugs.mydrugs.effects.addiction.client.render.FlexibleDrugVisualOverlay;
 import org.mydrugs.mydrugs.effects.addiction.client.render.hallucination.FakeEntityRenderController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.ClientSoundController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
@@ -21,6 +22,8 @@ import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayl
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
+import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.client.input.ClientInputInterceptor;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ClientEventHandler {
@@ -32,6 +35,7 @@ public final class ClientEventHandler {
         event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);
         event.register(HeadphonesStatePayload.TYPE, ClientPayloadHandler::handleHeadphonesState);
         event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
+        event.register(DrugEffectSyncPayload.TYPE, ClientPayloadHandler::handleDrugEffectSync);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
     }
 
@@ -51,6 +55,14 @@ public final class ClientEventHandler {
             HeartbeatPulse.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
+            ClientInputInterceptor.tick(mc);
+            ClientGammaController.tick(mc);
+        }
+
+
+        @SubscribeEvent
+        public static void onMovementInput(net.neoforged.neoforge.client.event.MovementInputUpdateEvent event) {
+            ClientInputInterceptor.applyToInput(event.getInput(), event.getEntity().tickCount);
         }
 
         @SubscribeEvent
@@ -66,6 +78,7 @@ public final class ClientEventHandler {
                 WithdrawalTunnelShader.INSTANCE.render(mc);
             }
 
+            FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
             AddictionHudRenderer.render(event.getGuiGraphics());
         }
 
@@ -80,8 +93,10 @@ public final class ClientEventHandler {
             float intensity = Config.CLIENT.cameraShakeIntensity.get().floatValue();
             float baseTunnel = withdrawal * 4.0F * intensity;
             float beatKick = HeartbeatPulse.getFovOffset(withdrawal) * intensity;
+            float customPulse = AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.CUSTOM_NAUSEA) * 2.5F;
+            customPulse += AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.BLUR) * 1.5F;
 
-            event.setFOV(original - baseTunnel - beatKick);
+            event.setFOV(original - baseTunnel - beatKick - customPulse);
         }
     }
 }

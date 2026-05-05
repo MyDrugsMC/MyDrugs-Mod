@@ -320,6 +320,25 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> RECOVERY_ANCHOR_ITEM =
             ITEMS.registerSimpleBlockItem(RECOVERY_ANCHOR);
 
+
+    public static final DeferredBlock<ManualCoffeePulperBlock> MANUAL_COFFEE_PULPER = BLOCKS.registerBlock(
+            "manual_coffee_pulper",
+            ManualCoffeePulperBlock::new,
+            props -> props.strength(1.5F).sound(SoundType.WOOD).noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> MANUAL_COFFEE_PULPER_ITEM =
+            ITEMS.registerSimpleBlockItem(MANUAL_COFFEE_PULPER);
+
+    public static final DeferredBlock<CoffeeDryingMatBlock> COFFEE_DRYING_MAT = BLOCKS.registerBlock(
+            "coffee_drying_mat",
+            CoffeeDryingMatBlock::new,
+            props -> props.strength(0.4F).sound(SoundType.WOOL).noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> COFFEE_DRYING_MAT_ITEM =
+            ITEMS.registerSimpleBlockItem(COFFEE_DRYING_MAT);
+
     public static final DeferredBlock<DryingRackBlock> DRYING_RACK = BLOCKS.registerBlock(
             "drying_rack",
             props -> new DryingRackBlock(
@@ -532,6 +551,61 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> DEEPSLATE_ALUMINIUM_ORE_ITEM =
             ITEMS.registerSimpleBlockItem(DEEPSLATE_ALUMINIUM_ORE);
+
+    // Psy Mixer ritual blocks
+    public static final DeferredBlock<Block> WOVEN_VINE_FRAME = BLOCKS.registerBlock(
+            "woven_vine_frame",
+            Block::new,
+            props -> props.strength(1.5F).sound(SoundType.WOOD).noOcclusion()
+    );
+    public static final DeferredItem<BlockItem> WOVEN_VINE_FRAME_ITEM = ITEMS.registerSimpleBlockItem(WOVEN_VINE_FRAME);
+
+    public static final DeferredBlock<Block> RITUAL_BARK = BLOCKS.registerBlock(
+            "ritual_bark",
+            Block::new,
+            props -> props.strength(2.0F).sound(SoundType.WOOD)
+    );
+    public static final DeferredItem<BlockItem> RITUAL_BARK_ITEM = ITEMS.registerSimpleBlockItem(RITUAL_BARK);
+
+    public static final DeferredBlock<Block> CHARCOAL_GLYPH_BLOCK = BLOCKS.registerBlock(
+            "charcoal_glyph_block",
+            Block::new,
+            props -> props.strength(2.0F).sound(SoundType.STONE).lightLevel(state -> 3)
+    );
+    public static final DeferredItem<BlockItem> CHARCOAL_GLYPH_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(CHARCOAL_GLYPH_BLOCK);
+
+    public static final DeferredBlock<PaintedClayBowlBlock> PAINTED_CLAY_BOWL = BLOCKS.registerBlock(
+            "painted_clay_bowl",
+            PaintedClayBowlBlock::new,
+            props -> props.strength(0.8F).sound(SoundType.MUD_BRICKS).noOcclusion()
+    );
+    public static final DeferredItem<BlockItem> PAINTED_CLAY_BOWL_ITEM = ITEMS.registerSimpleBlockItem(PAINTED_CLAY_BOWL);
+
+    public static final DeferredBlock<HangingVineBundleBlock> HANGING_VINE_BUNDLE = BLOCKS.registerBlock(
+            "hanging_vine_bundle",
+            HangingVineBundleBlock::new,
+            props -> props.strength(0.4F).sound(SoundType.GRASS).noOcclusion()
+    );
+    public static final DeferredItem<BlockItem> HANGING_VINE_BUNDLE_ITEM = ITEMS.registerSimpleBlockItem(HANGING_VINE_BUNDLE);
+
+    public static final DeferredBlock<Block> MYCELIAL_PADDING = BLOCKS.registerBlock(
+            "mycelial_padding",
+            Block::new,
+            props -> props.strength(0.6F).sound(SoundType.WOOL)
+    );
+    public static final DeferredItem<BlockItem> MYCELIAL_PADDING_ITEM = ITEMS.registerSimpleBlockItem(MYCELIAL_PADDING);
+
+    public static final DeferredBlock<FormedPsyMixerCoreBlock> FORMED_PSY_MIXER_CORE = BLOCKS.registerBlock(
+            "formed_psy_mixer_core",
+            FormedPsyMixerCoreBlock::new,
+            props -> props.strength(2.5F).sound(SoundType.MUD_BRICKS).noOcclusion().noLootTable()
+    );
+
+    public static final DeferredBlock<FormedPsyMixerPartBlock> FORMED_PSY_MIXER_PART = BLOCKS.registerBlock(
+            "formed_psy_mixer_part",
+            FormedPsyMixerPartBlock::new,
+            props -> props.strength(2.0F).sound(SoundType.WOOD).noOcclusion().noLootTable()
+    );
 
     private ModBlocks() {
     }

@@ -7,11 +7,7 @@ import net.minecraft.world.item.TooltipFlag;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
-import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
-import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
-import org.mydrugs.mydrugs.core.drug.strategy.InjectingStrategy;
-import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
-import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.*;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
 
@@ -105,6 +101,9 @@ public final class DrugTooltipBuilder {
         }
         if (strategy instanceof SniffingStrategy) {
             return "tooltip.mydrugs.drug.route.sniffing";
+        }
+        if (strategy instanceof DrinkingStrategy) {
+            return "tooltip.mydrugs.drug.route.drinking";
         }
         return "tooltip.mydrugs.drug.route.unknown";
     }

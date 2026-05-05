@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class PlayerTickEvents {
@@ -16,5 +17,6 @@ public final class PlayerTickEvents {
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         AddictionManager.tickPlayer(player);
+        DrugEffectRuntimeManager.tickServer(player);
     }
 }

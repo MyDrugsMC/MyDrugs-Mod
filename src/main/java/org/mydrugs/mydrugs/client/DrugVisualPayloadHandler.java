@@ -30,7 +30,7 @@ public final class DrugVisualPayloadHandler {
             return;
         }
 
-        if (type.getCategory() == EffectCategory.SOUND_EFFECT && Config.CLIENT.enableDrugSounds.get()) {
+        if ((type.getCategory() == EffectCategory.SOUND_EFFECT || type.getCategory() == EffectCategory.SOUND) && Config.CLIENT.enableDrugSounds.get()) {
             ClientSoundsHandler.setToStart(ModSounds.fromEffectType(type), payload.duration());
         }
     }
