@@ -86,13 +86,13 @@ public final class MyDrugsAdvancementGenerator {
         drug("consumption/first_drug", "onboarding/first_consumable", item("cannabis_powder"), "first_drug", "Knowledge Leaves a Mark", null, null, null, false);
         drug("consumption/first_smoked", "consumption/first_drug", item("joint"), "first_smoked", null, null, "smoked", null, false);
         drug("consumption/first_eaten", "consumption/first_drug", item("magic_mushroom"), "first_eaten", null, null, "eaten", null, false);
-        drug("consumption/first_sniffed", "consumption/first_drug", item("cocaine_dust"), "first_sniffed", null, null, "sniffed", null, true);
+        drug("consumption/first_sniffed", "consumption/first_drug", item("cocaine_powder"), "first_sniffed", null, null, "sniffed", null, true);
         drug("consumption/first_injected", "consumption/first_drug", item("syringe"), "first_injected", null, null, "injected", null, true);
         drug("consumption/first_bang", "consumption/first_smoked", item("bang"), "first_bang", null, null, null, "bang", false);
         drug("consumption/first_rolled_item", "processing/roll_first_item", item("joint"), "first_rolled_item", null, null, null, "rolled_item", false);
         drug("consumption/first_bottle", "processing/fill_glass_bottle", item("glass_bottle"), "first_bottle", null, null, null, "bottle", true);
         drug("knowledge/first_cannabinoid", "consumption/first_drug", item("cannabis_powder"), "first_cannabinoid", null, "cannabinoid", null, null, false);
-        drug("knowledge/first_stimulant", "consumption/first_drug", item("cocaine_dust"), "first_stimulant", null, "stimulant", null, null, true);
+        drug("knowledge/first_stimulant", "consumption/first_drug", item("cocaine_powder"), "first_stimulant", null, "stimulant", null, null, true);
         drug("knowledge/first_psychedelic", "consumption/first_drug", item("magic_mushroom"), "first_psychedelic", null, "psychedelic", null, null, false);
         drug("knowledge/first_depressant", "consumption/first_drug", item("glass_bottle"), "first_depressant", null, "depressant", null, null, true);
         drug("knowledge/first_nicotinic", "consumption/first_drug", item("tobacco_handful"), "first_nicotinic", null, "nicotinic", null, null, false);
@@ -101,7 +101,7 @@ public final class MyDrugsAdvancementGenerator {
         psyKnowledge("knowledge/nicotinic", "knowledge/first_nicotinic", item("psy_receptacle"), "mydrugs:nicotinic", false);
         psyKnowledge("knowledge/cannabinoid", "knowledge/nicotinic", item("cannabis_powder"), "mydrugs:cannabinoid", false);
         psyKnowledge("knowledge/fermented", "knowledge/cannabinoid", item("glass_bottle"), "mydrugs:fermented", false);
-        psyKnowledge("knowledge/stimulant", "knowledge/fermented", item("cocaine_dust"), "mydrugs:stimulant", false);
+        psyKnowledge("knowledge/stimulant", "knowledge/fermented", item("cocaine_powder"), "mydrugs:stimulant", false);
         psyKnowledge("knowledge/lysergic", "knowledge/stimulant", item("lsd_drop"), "mydrugs:lysergic", false);
         psyKnowledge("knowledge/overclocked", "knowledge/lysergic", item("meth_shard"), "mydrugs:overclocked", false);
         psyKnowledge("knowledge/mycelial", "knowledge/overclocked", item("magic_mushroom"), "mydrugs:mycelial", false);
@@ -215,7 +215,7 @@ public final class MyDrugsAdvancementGenerator {
         drugAllCategories("challenges/consume_all_categories", "knowledge/first_nicotinic", item("joint"));
         psychotrope("challenges/complete_psychotrope_branch", "psychotrope/energy_threshold_2", item("psychotrope_core"), "powered_machine", true, 0);
         inventoryAll("challenges/deep_production", "machines/catalytic_reformer", item("meth_shard"), "challenge",
-                item("hash_piece"), item("cocaine_dust"), item("meth_shard"), item("magic_mushroom_powder"));
+                item("hash_piece"), item("cocaine_powder"), item("meth_shard"), item("magic_mushroom_powder"));
         inventoryAll("challenges/full_mod_progression", "challenges/complete_machine_branch", item("psychotrope_core"), "challenge",
                 item("recovery_anchor"), item("psychotrope_core"), item("catalytic_reformer"), item("automation_upgrade"), item("joint"));
     }

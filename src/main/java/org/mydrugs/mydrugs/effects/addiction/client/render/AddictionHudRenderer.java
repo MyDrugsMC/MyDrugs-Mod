@@ -1,33 +1,49 @@
 package org.mydrugs.mydrugs.effects.addiction.client.render;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.Config;
-import org.mydrugs.mydrugs.core.drug.DrugCategory;
+import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
-import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import org.mydrugs.mydrugs.items.ModItems;
 
 public final class AddictionHudRenderer {
-    private static final int PANEL_X = 10;
-    private static final int PANEL_Y = 10;
-    private static final int PANEL_WIDTH = 166;
-    private static final int PANEL_PADDING = 6;
-    private static final int BAR_WIDTH = PANEL_WIDTH - (PANEL_PADDING * 2);
-    private static final int BAR_HEIGHT = 6;
-    private static final int BADGE_HEIGHT = 12;
-    private static final int BADGE_GAP = 4;
-    private static final int ROW_GAP = 5;
+    private static final int WITHDRAWAL_BAR_WIDTH = 81;
+    private static final int WITHDRAWAL_BAR_HEIGHT = 5;
+    private static final int SYMPTOM_ICON_SIZE = 13;
+    private static final int SYMPTOM_ICON_GAP = 3;
+    private static final float MIN_VISIBLE = 0.015F;
+
+    private static float displayedWithdrawal;
+
+    private static final SymptomIcon[] SYMPTOM_ICONS = {
+            new SymptomIcon("insomnia", AddictionHudRenderer::insomniaIntensity),
+            new SymptomIcon("hallucination", () -> flagIntensity(SymptomFlags.HALLUCINATION)),
+            new SymptomIcon("vision", () -> flagIntensity(SymptomFlags.VISION)),
+            new SymptomIcon("confusion", () -> Math.max(flagIntensity(SymptomFlags.CONFUSION), effectIntensity(EffectType.CONFUSION))),
+            new SymptomIcon("stress", () -> Math.max(flagIntensity(SymptomFlags.STRESS), AddictionClientState.stressLevel)),
+            new SymptomIcon("dissociation", () -> flagIntensity(SymptomFlags.DISSOCIATION)),
+            new SymptomIcon("fatigue", () -> flagIntensity(SymptomFlags.FATIGUE)),
+            new SymptomIcon("intrusive_thoughts", () -> flagIntensity(SymptomFlags.INTRUSIVE_THOUGHTS)),
+            new SymptomIcon("fragility", () -> flagIntensity(SymptomFlags.FRAGILITY)),
+            new SymptomIcon("blur", () -> effectIntensity(EffectType.BLUR)),
+            new SymptomIcon("vomit", () -> Math.max(effectIntensity(EffectType.VOMIT), effectIntensity(EffectType.CUSTOM_NAUSEA))),
+            new SymptomIcon("tremor", () -> effectIntensity(EffectType.TREMOR)),
+            new SymptomIcon("stumble", () -> effectIntensity(EffectType.STUMBLE)),
+            new SymptomIcon("input_fail", () -> effectIntensity(EffectType.INPUT_FAIL)),
+            new SymptomIcon("camera_sway", () -> effectIntensity(EffectType.CAMERA_SWAY)),
+            new SymptomIcon("heartbeat", () -> Math.max(effectIntensity(EffectType.HEARTBEAT), heartbeatIntensity())),
+            new SymptomIcon("overdose", AddictionHudRenderer::overdoseIntensity),
+            new SymptomIcon("dose", AddictionHudRenderer::doseIntensity)
+    };
 
     private AddictionHudRenderer() {
     }
@@ -41,259 +57,163 @@ public final class AddictionHudRenderer {
             return;
         }
 
-        Font font = mc.font;
-        List<Badge> statusBadges = new ArrayList<>();
-        boolean compact = Config.CLIENT.compactAddictionHud.get();
-        List<Badge> recoveryBadges = compact ? List.of() : buildRecoveryBadges();
-        List<Badge> symptomBadges = compact ? List.of() : buildSymptomBadges();
+        int width = mc.getWindow().getGuiScaledWidth();
+        int height = mc.getWindow().getGuiScaledHeight();
+        drawWithdrawalBar(guiGraphics, width, height);
+        drawDominantDrugIcon(guiGraphics, mc, width, height);
+        drawSymptomColumn(guiGraphics, width, height);
+    }
 
-        Badge dangerBadge = buildDangerBadge();
-        if (dangerBadge != null) {
-            statusBadges.add(dangerBadge);
-        }
-        if (AddictionClientState.isSleepBlocked()) {
-            statusBadges.add(new Badge(Component.translatable("mydrugs.hud.badge.insomnia"), 0xAA5B4A82, 0xFFE4DAFF));
-        }
-        if (AddictionClientState.hasOverdoseTimer()) {
-            statusBadges.add(new Badge(Component.translatable("mydrugs.hud.badge.critical"), 0xAAC0392B, 0xFFFFE5E0));
+    private static void drawWithdrawalBar(GuiGraphics graphics, int width, int height) {
+        float target = Mth.clamp(AddictionClientState.globalSeverity, 0.0F, 1.0F);
+        displayedWithdrawal += (target - displayedWithdrawal) * 0.18F;
+        if (displayedWithdrawal < MIN_VISIBLE && target < MIN_VISIBLE) {
+            displayedWithdrawal = 0.0F;
+            return;
         }
 
-        Component sourceLine = buildSourceLine();
-        int totalHeight = PANEL_PADDING;
-        totalHeight += 10 + BAR_HEIGHT + ROW_GAP;
-        totalHeight += 10 + BAR_HEIGHT + ROW_GAP;
-        totalHeight += 10;
-
-        if (!statusBadges.isEmpty()) {
-            totalHeight += measureBadgeRows(font, statusBadges, BAR_WIDTH) * BADGE_HEIGHT;
-            totalHeight += ROW_GAP;
+        int x = width / 2 - 91;
+        int y = height - 59;
+        int fill = Math.round(displayedWithdrawal * WITHDRAWAL_BAR_WIDTH);
+        graphics.fill(x - 1, y - 1, x + WITHDRAWAL_BAR_WIDTH + 1, y + WITHDRAWAL_BAR_HEIGHT + 1, 0x66000000);
+        graphics.fill(x, y, x + WITHDRAWAL_BAR_WIDTH, y + WITHDRAWAL_BAR_HEIGHT, 0xAA1C101A);
+        if (fill > 0) {
+            int color = displayedWithdrawal > 0.66F ? 0xFFE45A61 : displayedWithdrawal > 0.33F ? 0xFFC06C9A : 0xFF8D73D9;
+            graphics.fill(x, y, x + fill, y + WITHDRAWAL_BAR_HEIGHT, color);
         }
-        if (!recoveryBadges.isEmpty()) {
-            totalHeight += measureBadgeRows(font, recoveryBadges, BAR_WIDTH) * BADGE_HEIGHT;
-            totalHeight += ROW_GAP;
-        }
-        if (!symptomBadges.isEmpty()) {
-            totalHeight += measureBadgeRows(font, symptomBadges, BAR_WIDTH) * BADGE_HEIGHT;
-            totalHeight += ROW_GAP;
-        }
-        totalHeight += PANEL_PADDING - ROW_GAP;
+        graphics.fill(x, y, x + WITHDRAWAL_BAR_WIDTH, y + 1, 0x55FFFFFF);
+    }
 
-        int x = PANEL_X;
-        int y = PANEL_Y;
-        int contentX = x + PANEL_PADDING;
-        int contentY = y + PANEL_PADDING;
-
-        guiGraphics.fill(x, y, x + PANEL_WIDTH, y + totalHeight, 0x9A0C0C10);
-        guiGraphics.fill(x, y, x + PANEL_WIDTH, y + 1, 0x66FFFFFF);
-        guiGraphics.fill(x, y + totalHeight - 1, x + PANEL_WIDTH, y + totalHeight, 0x44000000);
-        guiGraphics.fill(x, y, x + 1, y + totalHeight, 0x44000000);
-        guiGraphics.fill(x + PANEL_WIDTH - 1, y, x + PANEL_WIDTH, y + totalHeight, 0x44000000);
-
-        drawMeter(guiGraphics, font, Component.translatable("mydrugs.hud.withdrawal"), contentX, contentY,
-                AddictionClientState.globalSeverity, 0xAA6E2323, 0xFFD65E5E);
-        contentY += 10 + BAR_HEIGHT + ROW_GAP;
-
-        drawMeter(guiGraphics, font, Component.translatable("mydrugs.hud.stress"), contentX, contentY,
-                AddictionClientState.stressLevel, 0xAA2D3C66, 0xFF8AA8FF);
-        contentY += 10 + BAR_HEIGHT + ROW_GAP;
-
-        if (AddictionClientState.hasDangerousDoseState()) {
-            guiGraphics.drawString(font, sourceLine, contentX, contentY, 0xFFF0F0F0, false);
-            contentY += 10 + ROW_GAP;
+    private static void drawDominantDrugIcon(GuiGraphics graphics, Minecraft mc, int width, int height) {
+        float severity = Mth.clamp(AddictionClientState.globalSeverity, 0.0F, 1.0F);
+        if (severity < 0.05F) {
+            return;
         }
 
-        if (!statusBadges.isEmpty()) {
-            contentY = drawBadges(guiGraphics, font, statusBadges, contentX, contentY, BAR_WIDTH);
-            contentY += ROW_GAP;
+        ItemStack stack = dominantDrugStack(AddictionClientState.getDominantDrugIdEnum());
+        if (stack.isEmpty()) {
+            return;
         }
-        if (!recoveryBadges.isEmpty()) {
-            contentY = drawBadges(guiGraphics, font, recoveryBadges, contentX, contentY, BAR_WIDTH);
-            contentY += ROW_GAP;
+
+        long gameTime = mc.level == null ? 0L : mc.level.getGameTime();
+        float shakeScale = Config.CLIENT.reducedMotionMode.get() ? 0.35F : 1.0F;
+        int shake = Math.round(severity * 3.0F * shakeScale);
+        int offsetX = shake == 0 ? 0 : Math.round(Mth.sin(gameTime * 0.73F) * shake);
+        int offsetY = shake == 0 ? 0 : Math.round(Mth.cos(gameTime * 0.61F) * shake * 0.65F);
+        int x = width / 2 - 8 + offsetX;
+        int y = height - 42 + offsetY;
+
+        graphics.fill(x - 2, y - 2, x + 18, y + 18, 0x66000000);
+        graphics.renderItem(stack, x, y);
+    }
+
+    private static void drawSymptomColumn(GuiGraphics graphics, int width, int height) {
+        int activeCount = 0;
+        for (SymptomIcon icon : SYMPTOM_ICONS) {
+            if (icon.intensity() > MIN_VISIBLE) {
+                activeCount++;
+            }
         }
-        if (!symptomBadges.isEmpty()) {
-            drawBadges(guiGraphics, font, symptomBadges, contentX, contentY, BAR_WIDTH);
+        if (activeCount == 0) {
+            return;
+        }
+
+        int columnHeight = activeCount * SYMPTOM_ICON_SIZE + (activeCount - 1) * SYMPTOM_ICON_GAP;
+        int x = 7;
+        int y = Mth.clamp(height / 2 - columnHeight / 2, 8, Math.max(8, height - columnHeight - 8));
+        for (SymptomIcon icon : SYMPTOM_ICONS) {
+            float intensity = Mth.clamp(icon.intensity(), 0.0F, 1.0F);
+            if (intensity <= MIN_VISIBLE) {
+                continue;
+            }
+            drawSymptomIcon(graphics, icon.texture(), x, y, intensity);
+            y += SYMPTOM_ICON_SIZE + SYMPTOM_ICON_GAP;
         }
     }
 
-    private static void drawMeter(GuiGraphics guiGraphics,
-                                  Font font,
-                                  Component label,
-                                  int x,
-                                  int y,
-                                  float value,
-                                  int backgroundColor,
-                                  int fillColor) {
-        int clampedFill = Math.round(Mth.clamp(value, 0.0F, 1.0F) * BAR_WIDTH);
-        guiGraphics.drawString(font, label, x, y, 0xFFEDEDED, false);
-        int barY = y + 10;
-        guiGraphics.fill(x, barY, x + BAR_WIDTH, barY + BAR_HEIGHT, 0x66000000);
-        if (clampedFill > 0) {
-            guiGraphics.fill(x, barY, x + clampedFill, barY + BAR_HEIGHT, fillColor);
-        }
-        guiGraphics.fill(x, barY, x + BAR_WIDTH, barY + 1, 0x55FFFFFF);
-        guiGraphics.fill(x, barY + BAR_HEIGHT - 1, x + BAR_WIDTH, barY + BAR_HEIGHT, 0x55000000);
-        guiGraphics.fill(x, barY, x + 1, barY + BAR_HEIGHT, backgroundColor);
-        guiGraphics.fill(x + BAR_WIDTH - 1, barY, x + BAR_WIDTH, barY + BAR_HEIGHT, backgroundColor);
-    }
-
-    private static Component buildSourceLine() {
-        DrugId dominantDrug = AddictionClientState.getDominantDrugIdEnum();
-        DrugCategory dominantCategory = AddictionClientState.getDominantCategoryEnum();
-
-        if (dominantDrug != null) {
-            return Component.translatable(
-                    "mydrugs.hud.source.value",
-                    Component.translatable(drugKey(dominantDrug)),
-                    Component.translatable(categoryKey(dominantCategory))
-            );
-        }
-
-        return Component.translatable(
-                "mydrugs.hud.source.category_only",
-                Component.translatable(categoryKey(dominantCategory))
+    private static void drawSymptomIcon(GuiGraphics graphics, ResourceLocation texture, int x, int y, float intensity) {
+        int alpha = 80 + Math.round(90.0F * intensity);
+        graphics.fill(x - 1, y - 1, x + SYMPTOM_ICON_SIZE + 1, y + SYMPTOM_ICON_SIZE + 1, (alpha << 24) | 0x08080B);
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                texture,
+                x,
+                y,
+                0,
+                0,
+                SYMPTOM_ICON_SIZE,
+                SYMPTOM_ICON_SIZE,
+                16,
+                16
         );
+        int meter = Math.max(1, Math.round(SYMPTOM_ICON_SIZE * intensity));
+        graphics.fill(x, y + SYMPTOM_ICON_SIZE - 1, x + meter, y + SYMPTOM_ICON_SIZE, 0xFFE6D06C);
     }
 
-    private static @Nullable Badge buildDangerBadge() {
-        DrugCategory doseCategory = AddictionClientState.getDisplayedDoseCategory();
-        DosePath path = DosePath.of(doseCategory);
-        if (path == DosePath.NONE && !AddictionClientState.hasOverdoseTimer()) {
-            return null;
+    private static ItemStack dominantDrugStack(DrugId drugId) {
+        if (drugId == null) {
+            return ItemStack.EMPTY;
         }
 
+        return switch (drugId) {
+            case WEED -> new ItemStack(ModItems.CANNABIS_POWDER.get());
+            case HASH -> new ItemStack(ModItems.HASH_PIECE.get());
+            case METH -> new ItemStack(ModItems.METH_SHARD.get());
+            case COCAINE -> new ItemStack(ModItems.COCAINE_POWDER.get());
+            case CRACK -> new ItemStack(ModItems.CRACK_SHARD.get());
+            case LSD -> new ItemStack(ModItems.LSD_DROP.get());
+            case MUSHROOMS -> new ItemStack(ModItems.MAGIC_MUSHROOM.get());
+            case TOBACCO -> new ItemStack(ModItems.CIGARETTE.get());
+            case COFFEE -> new ItemStack(ModItems.COFFEE_CUP.get());
+            case ALCOHOL -> new ItemStack(ModItems.HERBAL_TEA.get());
+            default -> ItemStack.EMPTY;
+        };
+    }
+
+    private static float flagIntensity(int flag) {
+        return AddictionClientState.has(flag) ? Mth.clamp(AddictionClientState.globalSeverity, 0.25F, 1.0F) : 0.0F;
+    }
+
+    private static float effectIntensity(EffectType type) {
+        return Mth.clamp(AddictionClientState.getEffectIntensity(type), 0.0F, 1.0F);
+    }
+
+    private static float insomniaIntensity() {
+        if (AddictionClientState.hasInsomnia()) {
+            return Mth.clamp(AddictionClientState.globalSeverity, 0.25F, 1.0F);
+        }
+        return 0.0F;
+    }
+
+    private static float heartbeatIntensity() {
+        return AddictionClientState.has(SymptomFlags.STRESS) ? Mth.clamp(AddictionClientState.stressLevel, 0.3F, 1.0F) : 0.0F;
+    }
+
+    private static float overdoseIntensity() {
+        return AddictionClientState.hasOverdoseTimer() ? 1.0F : 0.0F;
+    }
+
+    private static float doseIntensity() {
         DoseState state = AddictionClientState.getDominantDoseState();
-        if (state == DoseState.NORMAL && !AddictionClientState.hasAnyDose() && !AddictionClientState.hasOverdoseTimer()) {
-            return null;
-        }
-
-        Component text = Component.translatable("mydrugs.hud.badge.dose", Component.translatable(doseStateKey(path, state)));
         return switch (state) {
-            case OVERDOSE, ETHYLIC_COMA -> new Badge(text, 0xAAC53B2D, 0xFFFFECE7);
-            case VERY_HIGH, VERY_DRUNK -> new Badge(text, 0xAAA45B1F, 0xFFFFF1D8);
-            case HIGH, DRUNK -> new Badge(text, 0xAA7A6522, 0xFFFFF6E0);
-            case NORMAL -> new Badge(text, 0xAA3B434E, 0xFFE9EEF6);
+            case NORMAL -> 0.0F;
+            case HIGH, DRUNK -> 0.45F;
+            case VERY_HIGH, VERY_DRUNK -> 0.75F;
+            case OVERDOSE, ETHYLIC_COMA -> 1.0F;
         };
     }
 
-    private static List<Badge> buildRecoveryBadges() {
-        List<Badge> badges = new ArrayList<>();
-        if (AddictionClientState.isInSafeZone()) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.badge.safe_zone"), 0xAA224B34, 0xFFE7FFF0));
+    private record SymptomIcon(String name, IntensityProvider provider) {
+        private ResourceLocation texture() {
+            return ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "textures/gui/symptoms/" + name + ".png");
         }
-        if (AddictionClientState.hasDiaryCalm()) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.badge.diary"), 0xAA2F5A4B, 0xFFE8FFF7));
-        }
-        if (AddictionClientState.hasCalmingMixture()) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.badge.calming_mixture"), 0xAA45604A, 0xFFEFFFF0));
-        }
-        if (AddictionClientState.hasHeadphonesCalm()) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.badge.headphones"), 0xAA254B64, 0xFFE8F7FF));
-        }
-        if (AddictionClientState.hasSleepBonus()) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.badge.sleep_bonus"), 0xAA3F4A7C, 0xFFF0F2FF));
-        }
-        return badges;
-    }
 
-    private static List<Badge> buildSymptomBadges() {
-        List<Badge> badges = new ArrayList<>();
-        addSymptomBadge(badges, SymptomFlags.CONFUSION, "confusion");
-        addSymptomBadge(badges, SymptomFlags.FRAGILITY, "fragility");
-        addSymptomBadge(badges, SymptomFlags.VISION, "vision");
-        addSymptomBadge(badges, SymptomFlags.HALLUCINATION, "hallucination");
-        addSymptomBadge(badges, SymptomFlags.STRESS, "stress");
-        addSymptomBadge(badges, SymptomFlags.DISSOCIATION, "dissociation");
-        addSymptomBadge(badges, SymptomFlags.FATIGUE, "fatigue");
-        addSymptomBadge(badges, SymptomFlags.INTRUSIVE_THOUGHTS, "intrusive_thoughts");
-        if (AddictionClientState.hasInsomniaSymptom()) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.symptom.insomnia"), 0xAA4D4F69, 0xFFF1F1FF));
-        }
-        return badges;
-    }
-
-    private static void addSymptomBadge(List<Badge> badges, int symptomFlag, String keySuffix) {
-        if (AddictionClientState.has(symptomFlag)) {
-            badges.add(new Badge(Component.translatable("mydrugs.hud.symptom." + keySuffix), 0xAA44464F, 0xFFF2F2F2));
+        private float intensity() {
+            return provider.get();
         }
     }
 
-    private static int measureBadgeRows(Font font, List<Badge> badges, int maxWidth) {
-        int rows = 1;
-        int lineWidth = 0;
-
-        for (Badge badge : badges) {
-            int badgeWidth = badgeWidth(font, badge);
-            if (lineWidth > 0 && lineWidth + BADGE_GAP + badgeWidth > maxWidth) {
-                rows++;
-                lineWidth = badgeWidth;
-            } else {
-                lineWidth += lineWidth == 0 ? badgeWidth : BADGE_GAP + badgeWidth;
-            }
-        }
-
-        return rows;
-    }
-
-    private static int drawBadges(GuiGraphics guiGraphics,
-                                  Font font,
-                                  List<Badge> badges,
-                                  int startX,
-                                  int startY,
-                                  int maxWidth) {
-        int x = startX;
-        int y = startY;
-        int lineWidth = 0;
-
-        for (Badge badge : badges) {
-            int badgeWidth = badgeWidth(font, badge);
-            if (lineWidth > 0 && lineWidth + BADGE_GAP + badgeWidth > maxWidth) {
-                y += BADGE_HEIGHT;
-                x = startX;
-                lineWidth = 0;
-            }
-
-            drawBadge(guiGraphics, font, badge, x, y, badgeWidth);
-            x += badgeWidth + BADGE_GAP;
-            lineWidth += lineWidth == 0 ? badgeWidth : badgeWidth + BADGE_GAP;
-        }
-
-        return y + BADGE_HEIGHT;
-    }
-
-    private static void drawBadge(GuiGraphics guiGraphics, Font font, Badge badge, int x, int y, int width) {
-        guiGraphics.fill(x, y, x + width, y + BADGE_HEIGHT - 1, badge.backgroundColor());
-        guiGraphics.fill(x, y, x + width, y + 1, 0x30FFFFFF);
-        guiGraphics.fill(x, y + BADGE_HEIGHT - 2, x + width, y + BADGE_HEIGHT - 1, 0x40000000);
-        guiGraphics.drawString(font, badge.text(), x + 4, y + 2, badge.textColor(), false);
-    }
-
-    private static int badgeWidth(Font font, Badge badge) {
-        return font.width(badge.text()) + 8;
-    }
-
-    private static String drugKey(DrugId id) {
-        return "mydrugs.addiction.drug." + id.name().toLowerCase(Locale.ROOT);
-    }
-
-    private static String categoryKey(DrugCategory category) {
-        return "mydrugs.addiction.category." + category.name().toLowerCase(Locale.ROOT);
-    }
-
-    private static String doseStateKey(DosePath path, DoseState state) {
-        String suffix = switch (state) {
-            case NORMAL -> "normal";
-            case HIGH -> "high";
-            case VERY_HIGH -> "very_high";
-            case OVERDOSE -> "overdose_risk";
-            case DRUNK -> "drunk";
-            case VERY_DRUNK -> "very_drunk";
-            case ETHYLIC_COMA -> "ethylic_coma";
-        };
-        return path == DosePath.ALCOHOL
-                ? "mydrugs.hud.dose.alcohol." + suffix
-                : "mydrugs.hud.dose.drug." + suffix;
-    }
-
-    private record Badge(Component text, int backgroundColor, int textColor) {
+    private interface IntensityProvider {
+        float get();
     }
 }

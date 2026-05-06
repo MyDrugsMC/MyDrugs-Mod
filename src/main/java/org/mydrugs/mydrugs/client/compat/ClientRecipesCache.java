@@ -26,6 +26,8 @@ import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
+import org.mydrugs.mydrugs.recipes.psy_anvil.PsyAnvilRecipe;
+import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
@@ -55,6 +57,8 @@ public final class ClientRecipesCache {
     private static final List<CatalyticReformerRecipe> CATALYTIC_REFORMER_RECIPES = new ArrayList<>();
     private static final List<SteamCrackerRecipe> STEAM_CRACKER_RECIPES = new ArrayList<>();
     private static final List<AromaticExtractorRecipe> AROMATIC_EXTRACTOR_RECIPES = new ArrayList<>();
+    private static final List<PsyAnvilRecipe> PSY_ANVIL_RECIPES = new ArrayList<>();
+    private static final List<PsyMixerRecipe> PSY_MIXER_RECIPES = new ArrayList<>();
 
 
     public static List<AdvancedFurnaceRecipe> getAdvancedFurnaceRecipes() {
@@ -137,6 +141,14 @@ public final class ClientRecipesCache {
         return List.copyOf(AROMATIC_EXTRACTOR_RECIPES);
     }
 
+    public static List<PsyAnvilRecipe> getPsyAnvilRecipes() {
+        return List.copyOf(PSY_ANVIL_RECIPES);
+    }
+
+    public static List<PsyMixerRecipe> getPsyMixerRecipes() {
+        return List.copyOf(PSY_MIXER_RECIPES);
+    }
+
     @SubscribeEvent
     public static void onRecipesReceived(RecipesReceivedEvent event) {
         ADVANCED_FURNACE_RECIPES.clear();
@@ -159,6 +171,8 @@ public final class ClientRecipesCache {
         CATALYTIC_REFORMER_RECIPES.clear();
         STEAM_CRACKER_RECIPES.clear();
         AROMATIC_EXTRACTOR_RECIPES.clear();
+        PSY_ANVIL_RECIPES.clear();
+        PSY_MIXER_RECIPES.clear();
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.ADVANCED_FURNACE.get())
@@ -279,6 +293,20 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(AROMATIC_EXTRACTOR_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.PSY_ANVIL.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .filter(recipe -> recipe.requiredKnowledge().isEmpty() || recipe.showIfLocked())
+                .forEach(PSY_ANVIL_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.PSY_MIXER.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .filter(recipe -> recipe.requiredKnowledge().isEmpty() || recipe.showIfLocked())
+                .forEach(PSY_MIXER_RECIPES::add);
     }
 
     @SubscribeEvent
@@ -303,5 +331,7 @@ public final class ClientRecipesCache {
         CATALYTIC_REFORMER_RECIPES.clear();
         STEAM_CRACKER_RECIPES.clear();
         AROMATIC_EXTRACTOR_RECIPES.clear();
+        PSY_ANVIL_RECIPES.clear();
+        PSY_MIXER_RECIPES.clear();
     }
 }

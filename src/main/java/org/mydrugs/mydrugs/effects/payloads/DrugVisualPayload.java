@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 
-public record DrugVisualPayload(@Nullable EffectType effectType, int duration, int potency)
+public record DrugVisualPayload(@Nullable EffectType effectType, int duration, float intensity)
         implements CustomPacketPayload {
 
     public static final Type<DrugVisualPayload> TYPE =
@@ -27,8 +27,8 @@ public record DrugVisualPayload(@Nullable EffectType effectType, int duration, i
                     DrugVisualPayload::effectType,
                     ByteBufCodecs.VAR_INT,
                     DrugVisualPayload::duration,
-                    ByteBufCodecs.VAR_INT,
-                    DrugVisualPayload::potency,
+                    ByteBufCodecs.FLOAT,
+                    DrugVisualPayload::intensity,
                     DrugVisualPayload::new
             );
 

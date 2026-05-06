@@ -1,0 +1,22 @@
+{
+  "render_type": "minecraft:cutout",
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/snow",
+    "powder": "minecraft:block/snow"
+  },
+  "elements": [
+    {
+      "from": [7, 0, 2],
+      "to": [9, 1, 14],
+      "faces": {
+        "down":  { "texture": "#powder", "cullface": "down" },
+        "up":    { "texture": "#powder" },
+        "north": { "texture": "#powder" },
+        "south": { "texture": "#powder" },
+        "east":  { "texture": "#powder" },
+        "west":  { "texture": "#powder" }
+      }
+    }
+  ]
+}

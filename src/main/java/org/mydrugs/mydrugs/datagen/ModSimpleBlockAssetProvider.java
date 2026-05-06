@@ -86,6 +86,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeMachineModel(futures, cachedOutput, "gas_pump", "gas_pump_front", "gas_pump_side", "gas_pump_top", "gas_pump_bottom");
         saveCubeMachineModel(futures, cachedOutput, "growth_chamber", "growth_chamber_front", "growth_chamber_side", "growth_chamber_top", "growth_chamber_bottom");
         saveSimpleBlockState(futures, cachedOutput, "psy_anvil");
+        saveVomitSplash(futures, cachedOutput);
 
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_furnace");
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_mixing_vat");
@@ -176,6 +177,19 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         variants.add("", modelVariant(name, 0));
         root.add("variants", variants);
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+    }
+
+    private void saveVomitSplash(List<CompletableFuture<?>> futures, CachedOutput cachedOutput) {
+        String name = "vomit_splash";
+        saveSimpleBlockState(futures, cachedOutput, name);
+
+        JsonObject modelRoot = new JsonObject();
+        JsonObject textures = new JsonObject();
+        modelRoot.addProperty("parent", "minecraft:block/carpet");
+        textures.addProperty("wool", MyDrugs.MODID + ":block/" + name);
+        modelRoot.add("textures", textures);
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
+        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
     }
 
     private void saveActiveHorizontalBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String property) {

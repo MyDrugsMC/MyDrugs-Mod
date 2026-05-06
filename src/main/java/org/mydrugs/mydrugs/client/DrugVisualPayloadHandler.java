@@ -26,7 +26,7 @@ public final class DrugVisualPayloadHandler {
             int duration = Config.CLIENT.reducedMotionMode.get()
                     ? Math.max(1, payload.duration() / 2)
                     : payload.duration();
-            ShaderManager.INSTANCE.add(duration, type);
+            ShaderManager.INSTANCE.addDirect(duration, type, payload.intensity());
             return;
         }
 

@@ -6,14 +6,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -28,6 +34,7 @@ public final class DrugEffectRuntimeManager {
     private static final Map<UUID, EnumMap<EffectType, ActiveDrugEffect>> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> VOMIT_COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Float> LAST_MOVEMENT_MULTIPLIER = new HashMap<>();
+    private static final Map<UUID, Integer> LAST_SYNC_SIGNATURE = new HashMap<>();
     private static final Set<UUID> DIRTY_PLAYERS = new java.util.HashSet<>();
     private static final ResourceLocation MOVEMENT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_movement_speed");
 
@@ -88,8 +95,9 @@ public final class DrugEffectRuntimeManager {
             dirty = dirty || false;
         }
 
-        if (dirty || DIRTY_PLAYERS.remove(id) || player.level().getGameTime() % 20L == 0L) {
-            sync(player, effects);
+        boolean forceSync = dirty || DIRTY_PLAYERS.remove(id);
+        if (forceSync || player.level().getGameTime() % 100L == 0L) {
+            syncIfChanged(player, effects, forceSync);
         }
     }
 
@@ -163,6 +171,7 @@ public final class DrugEffectRuntimeManager {
         }
         player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.8F, 0.6F);
         if (player.level() instanceof ServerLevel serverLevel) {
+            placeVomitSplash(player, serverLevel);
             Vec3 look = player.getLookAngle();
             serverLevel.sendParticles(
                     ParticleTypes.SPLASH,
@@ -174,13 +183,80 @@ public final class DrugEffectRuntimeManager {
                     0.03D
             );
         }
+        PacketDistributor.sendToPlayer(player, new VomitOverlayPayload(vomit));
         addEffect(player, EffectType.BLUR, Math.max(0.15F, vomit * 0.35F), 60);
         addEffect(player, EffectType.CAMERA_SWAY, Math.max(0.10F, vomit * 0.25F), 50);
+    }
+
+    private static void placeVomitSplash(ServerPlayer player, ServerLevel level) {
+        Direction forward = player.getDirection();
+        BlockPos feet = player.blockPosition();
+        BlockPos[] candidates = {
+                feet.relative(forward),
+                feet,
+                feet.relative(forward.getClockWise()),
+                feet.relative(forward.getCounterClockWise()),
+                feet.relative(forward).relative(forward.getClockWise()),
+                feet.relative(forward).relative(forward.getCounterClockWise())
+        };
+
+        for (BlockPos candidate : candidates) {
+            if (tryPlaceVomitSplash(level, candidate)) {
+                return;
+            }
+        }
+    }
+
+    private static boolean tryPlaceVomitSplash(ServerLevel level, BlockPos pos) {
+        BlockState current = level.getBlockState(pos);
+        if (current.is(ModBlocks.VOMIT_SPLASH.get()) || !current.canBeReplaced()) {
+            return false;
+        }
+
+        BlockState splash = ModBlocks.VOMIT_SPLASH.get().defaultBlockState();
+        if (!splash.canSurvive(level, pos)) {
+            return false;
+        }
+
+        return level.setBlock(pos, splash, Block.UPDATE_ALL);
     }
 
     private static float intensity(EnumMap<EffectType, ActiveDrugEffect> effects, EffectType type) {
         ActiveDrugEffect effect = effects.get(type);
         return effect == null ? 0.0F : effect.intensity();
+    }
+
+    private static void syncIfChanged(ServerPlayer player, Map<EffectType, ActiveDrugEffect> effects, boolean force) {
+        UUID id = player.getUUID();
+        int signature = syncSignature(effects);
+        Integer previous = LAST_SYNC_SIGNATURE.get(id);
+        if (!force && previous != null && previous == signature) {
+            return;
+        }
+
+        if (signature == 0) {
+            LAST_SYNC_SIGNATURE.remove(id);
+        } else {
+            LAST_SYNC_SIGNATURE.put(id, signature);
+        }
+        sync(player, effects);
+    }
+
+    private static int syncSignature(Map<EffectType, ActiveDrugEffect> effects) {
+        if (effects == null || effects.isEmpty()) {
+            return 0;
+        }
+
+        int hash = 1;
+        for (ActiveDrugEffect effect : effects.values()) {
+            if (effect.remainingTicks() <= 0 || effect.intensity() <= 0.0F) {
+                continue;
+            }
+            hash = 31 * hash + effect.type().serializedName().hashCode();
+            hash = 31 * hash + Math.round(effect.intensity() * 100.0F);
+            hash = 31 * hash + Math.max(1, effect.remainingTicks() / 20);
+        }
+        return hash;
     }
 
     private static void sync(ServerPlayer player, Map<EffectType, ActiveDrugEffect> effects) {

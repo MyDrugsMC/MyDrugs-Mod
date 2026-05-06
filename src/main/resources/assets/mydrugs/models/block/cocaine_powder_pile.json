@@ -1,0 +1,44 @@
+{
+  "render_type": "minecraft:cutout",
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/snow",
+    "powder": "minecraft:block/snow"
+  },
+  "elements": [
+    {
+      "from": [4, 0, 4],
+      "to": [12, 1, 12],
+      "faces": {
+        "down":  { "texture": "#powder", "cullface": "down" },
+        "up":    { "texture": "#powder" },
+        "north": { "texture": "#powder" },
+        "south": { "texture": "#powder" },
+        "east":  { "texture": "#powder" },
+        "west":  { "texture": "#powder" }
+      }
+    },
+    {
+      "from": [5, 1, 5],
+      "to": [11, 2, 11],
+      "faces": {
+        "up":    { "texture": "#powder" },
+        "north": { "texture": "#powder" },
+        "south": { "texture": "#powder" },
+        "east":  { "texture": "#powder" },
+        "west":  { "texture": "#powder" }
+      }
+    },
+    {
+      "from": [6, 2, 6],
+      "to": [10, 3, 10],
+      "faces": {
+        "up":    { "texture": "#powder" },
+        "north": { "texture": "#powder" },
+        "south": { "texture": "#powder" },
+        "east":  { "texture": "#powder" },
+        "west":  { "texture": "#powder" }
+      }
+    }
+  ]
+}

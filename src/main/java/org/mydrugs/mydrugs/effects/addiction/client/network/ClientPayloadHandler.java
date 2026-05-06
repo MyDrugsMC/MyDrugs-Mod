@@ -13,7 +13,9 @@ import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 import net.minecraft.client.Minecraft;
+import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientState;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 
 public final class ClientPayloadHandler {
@@ -46,11 +48,15 @@ public final class ClientPayloadHandler {
                 int duration = Config.CLIENT.reducedMotionMode.get()
                         ? Math.max(1, entry.remainingTicks() / 2)
                         : entry.remainingTicks();
-                ShaderManager.INSTANCE.add(duration, entry.type());
+                ShaderManager.INSTANCE.addDirect(duration, entry.type(), entry.intensity());
             } else if ((category == EffectCategory.SOUND || category == EffectCategory.SOUND_EFFECT) && Config.CLIENT.enableDrugSounds.get()) {
                 ClientSoundsHandler.setToStart(ModSounds.fromEffectType(entry.type()), entry.remainingTicks());
             }
         }
+    }
+
+    public static void handleVomitOverlay(VomitOverlayPayload payload, IPayloadContext context) {
+        VomitOverlayClientState.trigger(payload.intensity());
     }
 
     public static void handleAddictionDebugOpen(AddictionDebugOpenPayload payload, IPayloadContext context) {

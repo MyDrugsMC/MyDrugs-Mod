@@ -45,6 +45,8 @@ public class JEIModPlugin implements IModPlugin {
                 new SteamCrackerRecipeCategory(guiHelper),
                 new BTXFractionationTowerRecipeCategory(guiHelper),
                 new StompCraftingRecipeCategory(guiHelper),
+                new PsyAnvilRecipeCategory(guiHelper),
+                new PsyMixerRecipeCategory(guiHelper),
                 new AromaticExtractorRecipeCategory(guiHelper)
         );
     }
@@ -73,6 +75,8 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipes(SteamCrackerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getSteamCrackerRecipes"));
         registration.addRecipes(BTXFractionationTowerRecipeCategory.TYPE, BTXFractionationTowerRecipeCategory.RECIPES);
         registration.addRecipes(AromaticExtractorRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getAromaticExtractorRecipes"));
+        registration.addRecipes(PsyAnvilRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getPsyAnvilRecipes"));
+        registration.addRecipes(PsyMixerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getPsyMixerRecipes"));
     }
 
     @Override
@@ -99,6 +103,8 @@ public class JEIModPlugin implements IModPlugin {
         JeiCompatUtil.registerFieldCatalyst(registration, SteamCrackerRecipeCategory.TYPE, ModBlocks.class, "STEAM_CRACKER");
         JeiCompatUtil.registerFieldCatalyst(registration, BTXFractionationTowerRecipeCategory.TYPE, ModBlocks.class, "BTX_FRACTIONATION_TOWER_ITEM", "BTX_FRACTIONATION_TOWER");
         JeiCompatUtil.registerFieldCatalyst(registration, AromaticExtractorRecipeCategory.TYPE, ModBlocks.class, "AROMATIC_EXTRACTOR");
+        JeiCompatUtil.registerFieldCatalyst(registration, PsyAnvilRecipeCategory.TYPE, ModBlocks.class, "PSY_ANVIL_ITEM", "PSY_ANVIL");
+        JeiCompatUtil.registerFieldCatalyst(registration, PsyMixerRecipeCategory.TYPE, ModBlocks.class, "PAINTED_CLAY_BOWL_ITEM", "PAINTED_CLAY_BOWL");
     }
 
     @Override

@@ -18,6 +18,8 @@ import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.menu.client.*;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
+import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
+import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferConfigScreen;
 import org.mydrugs.mydrugs.pipe.client.PipeBlockEntityRenderer;
@@ -31,6 +33,11 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         ShaderManager.INSTANCE.registerShaders();
+    }
+
+    @SubscribeEvent
+    public static void registerRenderPipelines(RegisterRenderPipelinesEvent event) {
+        ShaderManager.INSTANCE.registerPipelines(event);
     }
 
     @SubscribeEvent
@@ -63,6 +70,8 @@ public class ClientModEvents {
     public static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(MachineTransferConfigSnapshotPayload.TYPE, MachineTransferClientPayloadHandler::handleSnapshot);
         event.register(DrugVisualPayload.TYPE, DrugVisualPayloadHandler::handle);
+        event.register(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayloadHandler::handle);
+        event.register(BiomeFinderOpenScreenPayload.TYPE, BiomeFinderClientPayloadHandler::handleOpenScreen);
     }
 
     @SubscribeEvent

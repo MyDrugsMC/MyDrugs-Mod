@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 
 public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixerCoreBlockEntity, PsyMixerRenderState> {
     private static final float ITEM_SCALE = 0.30F;
@@ -52,6 +53,8 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         state.ageInTicks = be.getLevel() == null ? 0.0F : be.getLevel().getGameTime() + partialTick;
         state.running = be.isRunning();
         state.progressFraction = be.getRitualMaxTime() > 0 ? (float) be.getProgress() / be.getRitualMaxTime() : 0.0F;
+        state.focusSlot = PsyMixerRitualFocus.byId(be.getFocusIndex()).slot();
+        state.resonance = be.getResonance();
     }
 
     @Override
@@ -79,8 +82,9 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         ItemStack stack = state.stacks[slot];
         if (stack.isEmpty()) return;
 
-        float spinSpeed = state.running ? 4.0F : 1.5F;
-        float bobAmplitude = state.running ? 0.06F : 0.025F;
+        boolean focused = state.running && slot == state.focusSlot;
+        float spinSpeed = state.running ? focused ? 7.0F : 4.0F : 1.5F;
+        float bobAmplitude = state.running ? focused ? 0.10F : 0.06F : 0.025F;
         float bobSpeed = state.running ? 0.16F : 0.08F;
 
         float pull = state.running ? Math.min(0.45F, state.progressFraction * 0.45F) : 0.0F;
@@ -93,7 +97,8 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         poseStack.pushPose();
         poseStack.translate(CENTER_X + ex, CENTER_Y + dy + bob, CENTER_Z + ez);
         poseStack.mulPose(Axis.YP.rotationDegrees(spin));
-        poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
+        float focusScale = focused ? 1.15F + state.resonance * 0.25F : 1.0F;
+        poseStack.scale(ITEM_SCALE * focusScale, ITEM_SCALE * focusScale, ITEM_SCALE * focusScale);
 
         ItemStackRenderState itemRenderState = new ItemStackRenderState();
         this.itemModelResolver.updateForTopItem(

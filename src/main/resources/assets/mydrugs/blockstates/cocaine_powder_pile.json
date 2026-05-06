@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "stage=pile,facing=north": { "model": "mydrugs:block/cocaine_powder_pile" },
+    "stage=pile,facing=south": { "model": "mydrugs:block/cocaine_powder_pile" },
+    "stage=pile,facing=east":  { "model": "mydrugs:block/cocaine_powder_pile" },
+    "stage=pile,facing=west":  { "model": "mydrugs:block/cocaine_powder_pile" },
+    "stage=rail,facing=north": { "model": "mydrugs:block/cocaine_powder_rail" },
+    "stage=rail,facing=south": { "model": "mydrugs:block/cocaine_powder_rail" },
+    "stage=rail,facing=east":  { "model": "mydrugs:block/cocaine_powder_rail", "y": 90 },
+    "stage=rail,facing=west":  { "model": "mydrugs:block/cocaine_powder_rail", "y": 90 }
+  }
+}

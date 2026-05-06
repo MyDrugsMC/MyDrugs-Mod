@@ -29,6 +29,7 @@ public abstract class AnimatedShader extends Shader {
     private GpuBuffer quadVertexBuffer;
 
     private RenderPipeline renderPipeline;
+    private boolean warnedMissingPipeline = false;
 
     private RenderTarget copiedInputTarget;
     private int copiedInputWidth = -1;
@@ -77,6 +78,7 @@ public abstract class AnimatedShader extends Shader {
         configurePipeline(builder);
 
         this.renderPipeline = builder.build();
+        this.warnedMissingPipeline = false;
     }
 
     /**
@@ -106,6 +108,10 @@ public abstract class AnimatedShader extends Shader {
             return;
         }
         if (renderPipeline == null) {
+            if (!warnedMissingPipeline) {
+                MyDrugs.getLOGGER().warn("Skipping shader '{}' because its render pipeline was not registered", name);
+                warnedMissingPipeline = true;
+            }
             return;
         }
 

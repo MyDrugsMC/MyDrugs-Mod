@@ -59,6 +59,15 @@ public final class ModPayloads {
                 PsyMixerRitualInputPayload.STREAM_CODEC,
                 PsyMixerRitualInputPayload::handleOnServer
         );
+        registrar.playToClient(
+                BiomeFinderOpenScreenPayload.TYPE,
+                BiomeFinderOpenScreenPayload.STREAM_CODEC
+        );
+        registrar.playToServer(
+                BiomeFinderSelectPayload.TYPE,
+                BiomeFinderSelectPayload.STREAM_CODEC,
+                BiomeFinderSelectPayload::handleOnServer
+        );
     }
 
     private static void handleSieveShake(SieveShakePayload payload, IPayloadContext context) {

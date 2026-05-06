@@ -9,6 +9,8 @@ public final class PsyMixerRenderState extends BlockEntityRenderState {
     public float ageInTicks;
     public boolean running;
     public float progressFraction;
+    public int focusSlot;
+    public float resonance;
 
     public PsyMixerRenderState() {
         for (int i = 0; i < stacks.length; i++) {

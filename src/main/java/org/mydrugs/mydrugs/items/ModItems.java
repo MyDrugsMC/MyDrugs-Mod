@@ -24,6 +24,7 @@ import org.mydrugs.mydrugs.energy.AutomationUpgradeItem;
 import org.mydrugs.mydrugs.energy.EnergyUpgradeItem;
 import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.items.data.BiomeFinderTarget;
 import org.mydrugs.mydrugs.items.drugs.*;
 import org.mydrugs.mydrugs.items.rolling.RollerItem;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
@@ -134,8 +135,8 @@ public class ModItems {
     public static final DeferredItem<Item> CIGARET_FILTER =
             ITEMS.registerSimpleItem("cigaret_filter");
 
-    public static final DeferredItem<Item> COCAINE_DUST =
-            ITEMS.registerItem("cocaine_dust", prop -> new CocaineDustItem(prop, DrugId.COCAINE, new SniffingStrategy()));
+    public static final DeferredItem<Item> COCAINE_POWDER =
+            ITEMS.registerItem("cocaine_powder", prop -> new CocainePowderItem(prop, DrugId.COCAINE, new SniffingStrategy()));
 
     public static final DeferredItem<Item> CRACK_SHARD =
             ITEMS.registerItem("crack_shard", prop -> new CrackShardItem(prop, DrugId.CRACK, new SmokingStrategy(true, false)));
@@ -247,6 +248,9 @@ public class ModItems {
     public static final DeferredItem<Item> PSY_RECEPTACLE =
             ITEMS.registerItem("psy_receptacle",
                     props -> new PsyTooltipItem(props, "tooltip.mydrugs.psy_receptacle"));
+
+    public static final DeferredItem<Item> PSY_BLUEPRINT =
+            ITEMS.registerItem("psy_blueprint", PsyBlueprintItem::new);
 
     public static final DeferredItem<Item> COPPER_PLATE =
             ITEMS.registerSimpleItem("copper_plate");
@@ -484,15 +488,15 @@ public class ModItems {
 
     public static final DeferredItem<Item> BRIGHTENED_CANNABIS_POWDER =
             ITEMS.registerItem("brightened_cannabis_powder",
-                    prop -> new org.mydrugs.mydrugs.items.drugs.CannabisPowderItem(
-                            prop, org.mydrugs.mydrugs.core.drug.DrugId.WEED,
-                            new org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy(true, true)));
+                    prop -> new CannabisPowderItem(
+                            prop, DrugId.WEED,
+                            new SmokingStrategy(true, true)));
 
     public static final DeferredItem<VanillaBiomeFinderItem> VANILLA_BIOME_FINDER =
             ITEMS.registerItem("vanilla_biome_finder",
                     props -> new VanillaBiomeFinderItem(props.stacksTo(1)
                             .component(ModDataComponents.BIOME_FINDER_TARGET.get(),
-                                    org.mydrugs.mydrugs.items.data.BiomeFinderTarget.EMPTY)));
+                                    BiomeFinderTarget.EMPTY)));
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

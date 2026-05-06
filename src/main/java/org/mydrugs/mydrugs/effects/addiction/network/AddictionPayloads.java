@@ -14,6 +14,7 @@ public class AddictionPayloads {
         registrar.playToClient(HeadphonesStatePayload.TYPE, HeadphonesStatePayload.STREAM_CODEC);
         registrar.playToClient(DoseSyncPayload.TYPE, DoseSyncPayload.STREAM_CODEC);
         registrar.playToClient(DrugEffectSyncPayload.TYPE, DrugEffectSyncPayload.STREAM_CODEC);
+        registrar.playToClient(VomitOverlayPayload.TYPE, VomitOverlayPayload.STREAM_CODEC);
         registrar.playToClient(AddictionDebugOpenPayload.TYPE, AddictionDebugOpenPayload.STREAM_CODEC);
         registrar.playToServer(
                 AddictionDebugActionPayload.TYPE,

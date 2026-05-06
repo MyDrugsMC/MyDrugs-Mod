@@ -1,10 +1,10 @@
 {
   "type": "mydrugs:psy_mixer",
-  "base": { "item": "mydrugs:cannabis_powder" },
-  "material": { "item": "minecraft:glowstone_dust" },
-  "catalyst": { "item": "mydrugs:psychotropic_pigment" },
-  "stabilizer": { "item": "mydrugs:ritual_resin" },
-  "vessel": { "item": "mydrugs:painted_clay_bowl" },
+  "base": "mydrugs:cannabis_powder",
+  "material": "minecraft:glowstone_dust",
+  "catalyst": "mydrugs:psychotropic_pigment",
+  "stabilizer": "mydrugs:ritual_resin",
+  "vessel":  "mydrugs:painted_clay_bowl",
   "result": {
     "id": "mydrugs:brightened_cannabis_powder",
     "count": 1

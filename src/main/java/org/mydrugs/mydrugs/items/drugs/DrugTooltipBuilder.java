@@ -13,6 +13,7 @@ import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -53,12 +54,12 @@ public final class DrugTooltipBuilder {
                 ).withStyle(ChatFormatting.DARK_AQUA));
                 for (DrugEffect effect : model.getDrugEffects()) {
                     int duration = strategy != null ? strategy.getNewDuration(effect) : effect.getBaseDuration();
-                    int potency = strategy != null ? strategy.getNewPotency(effect) : effect.getBasePotency();
+                    float intensity = strategy != null ? strategy.getNewIntensity(effect) : effect.getBaseIntensity();
                     tooltipAdder.accept(Component.translatable(
                             "tooltip.mydrugs.drug.effect",
                             Component.translatable("effect_type.mydrugs." + effect.getEffectType().serializedName()),
                             duration / 20,
-                            potency
+                            String.format(Locale.ROOT, "%.2f", intensity)
                     ).withStyle(ChatFormatting.DARK_GRAY));
                 }
             }

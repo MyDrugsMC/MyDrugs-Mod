@@ -11,9 +11,13 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
+import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
+import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.effects.addiction.client.render.AddictionHudRenderer;
 import org.mydrugs.mydrugs.effects.addiction.client.render.FlexibleDrugVisualOverlay;
+import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientState;
 import org.mydrugs.mydrugs.effects.addiction.client.render.hallucination.FakeEntityRenderController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.ClientSoundController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
@@ -23,6 +27,7 @@ import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.effects.addiction.client.input.ClientInputInterceptor;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
@@ -36,6 +41,7 @@ public final class ClientEventHandler {
         event.register(HeadphonesStatePayload.TYPE, ClientPayloadHandler::handleHeadphonesState);
         event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
         event.register(DrugEffectSyncPayload.TYPE, ClientPayloadHandler::handleDrugEffectSync);
+        event.register(VomitOverlayPayload.TYPE, ClientPayloadHandler::handleVomitOverlay);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
     }
 
@@ -53,6 +59,9 @@ public final class ClientEventHandler {
             HeadphonesMusicController.tick();
             FakeEntityRenderController.tick();
             HeartbeatPulse.tick();
+            PsychotropeAreaPreviewClientState.tick();
+            PsyBlueprintPreviewClientState.tick();
+            VomitOverlayClientState.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
             ClientInputInterceptor.tick(mc);
@@ -68,6 +77,7 @@ public final class ClientEventHandler {
         @SubscribeEvent
         public static void onRenderLevelStage(RenderLevelStageEvent.AfterParticles event) {
             FakeEntityRenderController.render(event);
+            PsyBlueprintGhostRenderer.render(event);
         }
 
         @SubscribeEvent
@@ -79,6 +89,7 @@ public final class ClientEventHandler {
             }
 
             FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
+            VomitOverlayClientState.render(event.getGuiGraphics());
             AddictionHudRenderer.render(event.getGuiGraphics());
         }
 

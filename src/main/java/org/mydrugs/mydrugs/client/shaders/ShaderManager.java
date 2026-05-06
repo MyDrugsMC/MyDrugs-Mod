@@ -7,6 +7,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.client.ClientState;
 import org.mydrugs.mydrugs.core.client.shader.ClientShaderManager;
@@ -29,14 +30,16 @@ import java.util.Set;
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     public static final ShaderManager INSTANCE = new ShaderManager(MyDrugs.CLIENT_STATE);
+    private static final int DOSE_SUSTAIN_TICKS = 40;
+    private boolean shadersRegistered = false;
 
     public ShaderManager(ClientState clientState) {
         super(clientState);
     }
 
-    @SubscribeEvent
-    public static void onRegisterRenderPipelines(RegisterRenderPipelinesEvent event) {
-        for (AnimatedShader shader : INSTANCE.getShaders()) {
+    public void registerPipelines(RegisterRenderPipelinesEvent event) {
+        registerShaders();
+        for (AnimatedShader shader : getShaders()) {
             MyDrugs.getLOGGER().info("registering shader {}...", shader.getClass());
             shader.buildPipeline();
             event.registerPipeline(shader.getRenderPipeline());
@@ -68,6 +71,10 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     }
 
     public void registerShaders() {
+        if (shadersRegistered) {
+            return;
+        }
+        shadersRegistered = true;
         register(EffectType.FOG, FogShader.INSTANCE);
         register(EffectType.ACID_WARP, AcidWarpShader.INSTANCE);
         register(EffectType.CHROMATIC_DREAM, ChromaticDreamShader.INSTANCE);
@@ -80,6 +87,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         register(EffectType.AURORA_RIBBONS, AuroraRibbonsShader.INSTANCE);
         register(EffectType.SPECTRAL_POSTER, SpectralPosterShader.INSTANCE);
         register(EffectType.DRUNK_VISION, DrunkVisionShader.INSTANCE);
+        register(EffectType.GAMMA_BOOST, GammaBoostShader.INSTANCE);
     }
 
     // -------------------------------------------------------------------------
@@ -88,6 +96,10 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
 
     /** Maps each dose-tracked DrugCategory to the set of SHADER EffectTypes it uses. */
     private final Map<DrugCategory, Set<EffectType>> categoryToShaders = new HashMap<>();
+    private final Map<EffectType, Integer> directDurations = new HashMap<>();
+    private final Map<EffectType, Float> directStrengths = new HashMap<>();
+    private final Map<EffectType, Float> doseStrengths = new HashMap<>();
+    private final Map<EffectType, Float> continuousStrengths = new HashMap<>();
     private boolean categoryMapBuilt = false;
 
     /**
@@ -124,6 +136,12 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
      */
     public void updateDoses(DoseSyncPayload payload) {
         ensureCategoryMap();
+        if (!Config.CLIENT.enableDrugShaders.get()) {
+            doseStrengths.clear();
+            rebuildActiveShaders();
+            return;
+        }
+
         for (Map.Entry<DrugCategory, Set<EffectType>> entry : categoryToShaders.entrySet()) {
             DrugCategory category = entry.getKey();
             Set<EffectType> types = entry.getValue();
@@ -131,15 +149,126 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
 
             if (dose > 0.001f) {
                 for (EffectType type : types) {
-                    // 40-tick sustain refreshed every 20 ticks keeps the shader alive.
-                    add(40, type);
-                    AnimatedShader shader = getRegisteredShader(type);
-                    if (shader != null) shader.setStrength(dose);
+                    doseStrengths.put(type, dose);
                 }
             } else {
                 for (EffectType type : types) {
-                    remove(type);
+                    doseStrengths.remove(type);
                 }
+            }
+        }
+        rebuildActiveShaders();
+    }
+
+    public void addDirect(int durationTicks, EffectType type, float intensity) {
+        if (durationTicks <= 0 || type == null || intensity <= 0.0F) {
+            return;
+        }
+        if (getRegisteredShader(type) == null) {
+            MyDrugs.getLOGGER().warn("Shader {} is not initialized!", type.name());
+            return;
+        }
+
+        directDurations.merge(type, durationTicks, Math::max);
+        directStrengths.merge(type, intensity, Math::max);
+        rebuildActiveShaders();
+    }
+
+    public void setContinuous(EffectType type, float intensity) {
+        if (type == null) {
+            return;
+        }
+        float clamped = Math.max(0.0F, intensity);
+        Float previous = continuousStrengths.get(type);
+        if (clamped <= 0.002F) {
+            if (previous != null) {
+                continuousStrengths.remove(type);
+                rebuildActiveShaders();
+            }
+            return;
+        }
+
+        if (getRegisteredShader(type) == null) {
+            return;
+        }
+        if (previous == null || Math.abs(previous - clamped) > 0.01F) {
+            continuousStrengths.put(type, clamped);
+            rebuildActiveShaders();
+        }
+    }
+
+    @Override
+    public void add(int durationTicks, EffectType type) {
+        addDirect(durationTicks, type, 1.0F);
+    }
+
+    @Override
+    public void remove(EffectType type) {
+        directDurations.remove(type);
+        directStrengths.remove(type);
+        doseStrengths.remove(type);
+        continuousStrengths.remove(type);
+        rebuildActiveShaders();
+    }
+
+    @Override
+    public void clearActive() {
+        directDurations.clear();
+        directStrengths.clear();
+        doseStrengths.clear();
+        continuousStrengths.clear();
+        super.clearActive();
+    }
+
+    @Override
+    public void tick() {
+        if (!directDurations.isEmpty()) {
+            java.util.Iterator<Map.Entry<EffectType, Integer>> iterator = directDurations.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<EffectType, Integer> entry = iterator.next();
+                int remaining = entry.getValue() - 1;
+                if (remaining <= 0) {
+                    directStrengths.remove(entry.getKey());
+                    iterator.remove();
+                } else {
+                    entry.setValue(remaining);
+                }
+            }
+            rebuildActiveShaders();
+        } else if (doseStrengths.isEmpty() && continuousStrengths.isEmpty() && hasActiveShaders()) {
+            super.clearActive();
+        }
+    }
+
+    private void rebuildActiveShaders() {
+        Set<EffectType> activeTypes = new HashSet<>();
+        activeTypes.addAll(directDurations.keySet());
+        activeTypes.addAll(doseStrengths.keySet());
+        activeTypes.addAll(continuousStrengths.keySet());
+
+        super.clearActive();
+        if (activeTypes.isEmpty()) {
+            return;
+        }
+
+        float configScale = Config.CLIENT.shaderIntensity.get().floatValue();
+        for (EffectType type : activeTypes) {
+            AnimatedShader shader = getRegisteredShader(type);
+            if (shader == null) {
+                continue;
+            }
+
+            float directStrength = directStrengths.getOrDefault(type, 0.0F);
+            float doseStrength = doseStrengths.getOrDefault(type, 0.0F);
+            float continuousStrength = continuousStrengths.getOrDefault(type, 0.0F);
+            shader.setStrength(Math.max(Math.max(directStrength, doseStrength), continuousStrength) * configScale);
+
+            int duration = Math.max(
+                    directDurations.getOrDefault(type, 0),
+                    (doseStrength > 0.001F || continuousStrength > 0.001F) ? DOSE_SUSTAIN_TICKS : 0
+            );
+            if (duration > 0) {
+                super.add(duration, type);
             }
         }
     }

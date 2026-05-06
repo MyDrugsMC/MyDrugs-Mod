@@ -2,11 +2,15 @@ package org.mydrugs.mydrugs.datagen;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.items.ModItems;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -77,6 +81,13 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                         "C", "mydrugs:pressure_casing"
                 ),
                 "mydrugs:fluid_pump", 1);
+        saveShaped(futures, cachedOutput, "psy_blueprint",
+                List.of("V", "P", "V"),
+                Map.of(
+                        "V", itemId(Items.VINE),
+                        "P", itemId(Items.PAPER)
+                ),
+                itemId(ModItems.PSY_BLUEPRINT.get()), 1);
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }
@@ -140,6 +151,10 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
             result.addProperty("count", count);
         }
         return result;
+    }
+
+    private String itemId(ItemLike item) {
+        return BuiltInRegistries.ITEM.getKey(item.asItem()).toString();
     }
 
     private void saveRecipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, JsonObject root) {

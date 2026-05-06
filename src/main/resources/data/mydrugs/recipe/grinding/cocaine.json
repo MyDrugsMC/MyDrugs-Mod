@@ -2,7 +2,7 @@
   "type": "mydrugs:grinding",
   "ingredient": "mydrugs:cocaine_plate",
   "result": {
-    "id": "mydrugs:cocaine_dust",
+    "id": "mydrugs:cocaine_powder",
     "count": 6
   },
   "work": 3

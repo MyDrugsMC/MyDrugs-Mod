@@ -188,7 +188,7 @@ public class ChemicalReactorRecipe implements Recipe<ChemicalReactorRecipeInput>
                 ChemicalReactorRecipe::secondaryGas,
                 ByteBufCodecs.optional(FLUID_REQ_STREAM_CODEC),
                 ChemicalReactorRecipe::secondaryFluid,
-                ByteBufCodecs.idMapper(id -> ReactorOutputKind.values()[id], ReactorOutputKind::ordinal),
+                ByteBufCodecs.STRING_UTF8.map(ReactorOutputKind::bySerializedName, ReactorOutputKind::getSerializedName),
                 ChemicalReactorRecipe::outputKind,
                 ResourceLocation.STREAM_CODEC,
                 ChemicalReactorRecipe::outputId,

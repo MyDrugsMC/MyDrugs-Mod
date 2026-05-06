@@ -375,6 +375,18 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> PSY_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(PSY_ANVIL);
 
+    public static final DeferredBlock<VomitSplashBlock> VOMIT_SPLASH = BLOCKS.registerBlock(
+            "vomit_splash",
+            VomitSplashBlock::new,
+            props -> props
+                    .strength(0.1F)
+                    .sound(SoundType.SLIME_BLOCK)
+                    .noCollision()
+                    .noOcclusion()
+                    .replaceable()
+                    .noLootTable()
+    );
+
     public static final DeferredBlock<Block> TREATED_PLANKS = BLOCKS.registerBlock(
             "treated_planks",
             Block::new,
@@ -605,6 +617,18 @@ public class ModBlocks {
             "formed_psy_mixer_part",
             FormedPsyMixerPartBlock::new,
             props -> props.strength(2.0F).sound(SoundType.WOOD).noOcclusion().noLootTable()
+    );
+
+    // Cocaine preparation: in-world powder pile / rail. No creative item form.
+    public static final DeferredBlock<CocainePowderPileBlock> COCAINE_POWDER_PILE = BLOCKS.registerBlock(
+            "cocaine_powder_pile",
+            CocainePowderPileBlock::new,
+            props -> props
+                    .strength(0.0F)
+                    .sound(SoundType.SAND)
+                    .noOcclusion()
+                    .noLootTable()
+                    .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)
     );
 
     private ModBlocks() {

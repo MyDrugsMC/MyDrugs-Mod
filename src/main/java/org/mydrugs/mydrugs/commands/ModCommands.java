@@ -44,7 +44,7 @@ public final class ModCommands {
                                                 return 0;
                                             }
 
-                                            PacketDistributor.sendToPlayer(player, new DrugVisualPayload(type, 5 * 20, 1));
+                                            PacketDistributor.sendToPlayer(player, new DrugVisualPayload(type, 5 * 20, 1.0F));
                                             context.getSource().sendSuccess(
                                                     () -> Component.translatable(
                                                             "command.mydrugs.shader.sent",

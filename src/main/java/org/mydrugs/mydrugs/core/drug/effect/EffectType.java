@@ -8,7 +8,7 @@ import java.util.Optional;
 public enum EffectType {
     CUSTOM_NAUSEA(EffectCategory.CAMERA),
     BLUR(EffectCategory.VISUAL),
-    GAMMA_BOOST(EffectCategory.VISUAL),
+    GAMMA_BOOST(EffectCategory.SHADER),
     LOW_LIGHT_VISION(EffectCategory.VISUAL),
     BRIGHTNESS_BOOST(EffectCategory.VISUAL),
     MOVEMENT_SPEED(EffectCategory.MOVEMENT),

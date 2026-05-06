@@ -16,4 +16,13 @@ public enum ReactorOutputKind implements StringRepresentable {
     public String getSerializedName() {
         return this.serializedName;
     }
+
+    public static ReactorOutputKind bySerializedName(String name) {
+        for (ReactorOutputKind kind : values()) {
+            if (kind.serializedName.equals(name)) {
+                return kind;
+            }
+        }
+        throw new IllegalArgumentException("Unknown reactor output kind: " + name);
+    }
 }

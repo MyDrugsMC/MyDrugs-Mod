@@ -4,11 +4,6 @@ import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 
 public class InjectingStrategy implements ConsumptionStrategy {
     @Override
-    public int getNewPotency(DrugEffect drugEffect) {
-        return (int) Math.round(drugEffect.getBasePotency() * 2.0);
-    }
-
-    @Override
     public float getNewIntensity(DrugEffect drugEffect) {
         return drugEffect.getBaseIntensity() * 2.0F;
     }

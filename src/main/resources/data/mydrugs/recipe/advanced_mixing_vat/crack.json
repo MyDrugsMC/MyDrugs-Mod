@@ -2,7 +2,7 @@
   "type": "mydrugs:advanced_mixing_vat",
   "item_inputs": [
     {
-      "ingredient": "mydrugs:cocaine_dust",
+      "ingredient": "mydrugs:cocaine_powder",
       "count": 1
     }
   ],

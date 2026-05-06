@@ -20,8 +20,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.items.data.BiomeFinderTarget;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
+import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,22 +54,12 @@ public final class VanillaBiomeFinderItem extends Item {
         BiomeFinderTarget target = stack.getOrDefault(ModDataComponents.BIOME_FINDER_TARGET.get(), BiomeFinderTarget.EMPTY);
 
         if (player.isShiftKeyDown()) {
-            BiomeFinderTarget cycled = cycleSelection(serverLevel, target);
-            stack.set(ModDataComponents.BIOME_FINDER_TARGET.get(), cycled);
-            cycled.selectedBiome().ifPresent(biome -> serverPlayer.displayClientMessage(
-                    Component.translatable("message.mydrugs.biome_finder.selected", prettyName(biome)),
-                    true
-            ));
+            openSelectionScreen(serverPlayer, serverLevel, hand, target);
             return InteractionResult.SUCCESS;
         }
 
         if (target.selectedBiome().isEmpty()) {
-            BiomeFinderTarget cycled = cycleSelection(serverLevel, target);
-            stack.set(ModDataComponents.BIOME_FINDER_TARGET.get(), cycled);
-            cycled.selectedBiome().ifPresent(biome -> serverPlayer.displayClientMessage(
-                    Component.translatable("message.mydrugs.biome_finder.selected", prettyName(biome)),
-                    true
-            ));
+            openSelectionScreen(serverPlayer, serverLevel, hand, target);
             return InteractionResult.SUCCESS;
         }
 
@@ -151,7 +143,20 @@ public final class VanillaBiomeFinderItem extends Item {
             if (isExcluded(id)) return;
             result.add(id);
         });
+        result.sort((a, b) -> prettyName(a).compareToIgnoreCase(prettyName(b)));
         return result;
+    }
+
+    private static void openSelectionScreen(
+            ServerPlayer player,
+            ServerLevel level,
+            InteractionHand hand,
+            BiomeFinderTarget current
+    ) {
+        PacketDistributor.sendToPlayer(
+                player,
+                new BiomeFinderOpenScreenPayload(hand, current.selectedBiome(), collectVanillaBiomes(level))
+        );
     }
 
     public static boolean isExcluded(ResourceLocation id) {
@@ -161,7 +166,7 @@ public final class VanillaBiomeFinderItem extends Item {
         return false;
     }
 
-    private static String prettyName(ResourceLocation id) {
+    public static String prettyName(ResourceLocation id) {
         String[] parts = id.getPath().split("_");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {

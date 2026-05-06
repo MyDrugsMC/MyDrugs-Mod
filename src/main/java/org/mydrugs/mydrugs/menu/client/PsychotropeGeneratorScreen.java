@@ -3,11 +3,12 @@ package org.mydrugs.mydrugs.menu.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.menu.PsychotropeGeneratorMenu;
 
@@ -32,9 +33,6 @@ public final class PsychotropeGeneratorScreen extends AbstractMachineScreen<Psyc
     private static final int STATUS_X = 150;
     private static final int STATUS_Y = 20;
     private static final int STATUS_SIZE = 14;
-    private int radiusParticleTicker;
-    private int radiusPreviewPulses;
-    private boolean showArea;
 
     public PsychotropeGeneratorScreen(PsychotropeGeneratorMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, GUI_W, GUI_H);
@@ -49,11 +47,8 @@ public final class PsychotropeGeneratorScreen extends AbstractMachineScreen<Psyc
     @Override
     protected void containerTick() {
         super.containerTick();
-        if (this.menu.isFormed() && (this.showArea || this.radiusPreviewPulses > 0) && ++this.radiusParticleTicker % 8 == 0) {
-            spawnRadiusPreviewParticles();
-            if (!this.showArea && this.radiusPreviewPulses > 0) {
-                this.radiusPreviewPulses--;
-            }
+        if (this.menu.isFormed() && isAreaPreviewEnabled()) {
+            PsychotropeAreaPreviewClientState.refreshPersistent(currentDimension(), this.menu.getBlockPos(), this.menu.getPowerRadius());
         }
     }
 
@@ -123,12 +118,15 @@ public final class PsychotropeGeneratorScreen extends AbstractMachineScreen<Psyc
             int localX = (int) event.x() - guiX(RADIUS_X);
             int radius = Math.clamp(localX * 8 / Math.max(1, RADIUS_W - 1) + 1, 1, 8);
             pressMenuButton(PsychotropeGeneratorMenu.RADIUS_BUTTON_BASE + radius - 1);
-            this.radiusPreviewPulses = 100;
+            PsychotropeAreaPreviewClientState.flash(currentDimension(), this.menu.getBlockPos(), radius, 100);
+            if (isAreaPreviewEnabled()) {
+                PsychotropeAreaPreviewClientState.setPersistent(currentDimension(), this.menu.getBlockPos(), radius, true);
+            }
             return true;
         }
         if (event.button() == 0 && isHoveringBox(SHOW_AREA_X, SHOW_AREA_Y, SHOW_AREA_SIZE, SHOW_AREA_SIZE, event.x(), event.y())) {
-            this.showArea = !this.showArea;
-            this.radiusPreviewPulses = this.showArea ? 0 : 100;
+            boolean enabled = !isAreaPreviewEnabled();
+            PsychotropeAreaPreviewClientState.setPersistent(currentDimension(), this.menu.getBlockPos(), this.menu.getPowerRadius(), enabled);
             return true;
         }
         return super.mouseClicked(event, doubleClicked);
@@ -149,9 +147,10 @@ public final class PsychotropeGeneratorScreen extends AbstractMachineScreen<Psyc
     private void drawShowAreaCheckbox(GuiGraphics graphics) {
         int x = guiX(SHOW_AREA_X);
         int y = guiY(SHOW_AREA_Y);
+        boolean showArea = isAreaPreviewEnabled();
         graphics.fill(x, y, x + SHOW_AREA_SIZE, y + SHOW_AREA_SIZE, 0xFF08070A);
-        graphics.fill(x + 1, y + 1, x + SHOW_AREA_SIZE - 1, y + SHOW_AREA_SIZE - 1, this.showArea ? 0xFF7E49D8 : 0xFF251D30);
-        if (this.showArea) {
+        graphics.fill(x + 1, y + 1, x + SHOW_AREA_SIZE - 1, y + SHOW_AREA_SIZE - 1, showArea ? 0xFF7E49D8 : 0xFF251D30);
+        if (showArea) {
             graphics.fill(x + 3, y + 5, x + 5, y + 7, 0xFFFFFFFF);
             graphics.fill(x + 5, y + 7, x + 7, y + 9, 0xFFFFFFFF);
             graphics.fill(x + 7, y + 3, x + 9, y + 7, 0xFFFFFFFF);
@@ -182,48 +181,12 @@ public final class PsychotropeGeneratorScreen extends AbstractMachineScreen<Psyc
         }
     }
 
-    private void spawnRadiusPreviewParticles() {
+    private boolean isAreaPreviewEnabled() {
+        return PsychotropeAreaPreviewClientState.isPersistentEnabled(currentDimension(), this.menu.getBlockPos());
+    }
+
+    private static @Nullable ResourceLocation currentDimension() {
         Minecraft minecraft = Minecraft.getInstance();
-        ClientLevel level = minecraft.level;
-        if (level == null) {
-            return;
-        }
-
-        BlockPos center = this.menu.getBlockPos();
-        int radius = this.menu.getPowerRadius();
-        double minX = center.getX() + 0.5D - radius;
-        double maxX = center.getX() + 0.5D + radius;
-        double minY = center.getY() + 0.5D - radius;
-        double maxY = center.getY() + 0.5D + radius;
-        double minZ = center.getZ() + 0.5D - radius;
-        double maxZ = center.getZ() + 0.5D + radius;
-
-        int points = Math.max(2, radius * 2);
-        for (int i = 0; i <= points; i++) {
-            double t = i / (double) points;
-            double x = lerp(minX, maxX, t);
-            double y = lerp(minY, maxY, t);
-            double z = lerp(minZ, maxZ, t);
-            spawnPreviewParticle(level, x, minY, minZ);
-            spawnPreviewParticle(level, x, minY, maxZ);
-            spawnPreviewParticle(level, x, maxY, minZ);
-            spawnPreviewParticle(level, x, maxY, maxZ);
-            spawnPreviewParticle(level, minX, y, minZ);
-            spawnPreviewParticle(level, minX, y, maxZ);
-            spawnPreviewParticle(level, maxX, y, minZ);
-            spawnPreviewParticle(level, maxX, y, maxZ);
-            spawnPreviewParticle(level, minX, minY, z);
-            spawnPreviewParticle(level, minX, maxY, z);
-            spawnPreviewParticle(level, maxX, minY, z);
-            spawnPreviewParticle(level, maxX, maxY, z);
-        }
-    }
-
-    private static double lerp(double from, double to, double t) {
-        return from + (to - from) * t;
-    }
-
-    private static void spawnPreviewParticle(ClientLevel level, double x, double y, double z) {
-        level.addParticle(ParticleTypes.WITCH, x, y, z, 0.0D, 0.01D, 0.0D);
+        return minecraft.level == null ? null : minecraft.level.dimension().location();
     }
 }

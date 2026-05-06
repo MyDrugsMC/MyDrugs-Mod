@@ -13,10 +13,6 @@ public class DrugEffect {
         this(type, baseDuration, 1.0F);
     }
 
-    public DrugEffect(EffectType type, int baseDuration, int basePotency) {
-        this(type, baseDuration, (float) basePotency);
-    }
-
     public DrugEffect(EffectType type, int baseDuration, float baseIntensity) {
         this.effectType = type;
         this.baseDuration = baseDuration;
@@ -25,15 +21,6 @@ public class DrugEffect {
 
     public int getBaseDuration() {
         return baseDuration;
-    }
-
-    /**
-     * Legacy compatibility for old integer-amplifier code paths. New drug effects should use
-     * {@link #getBaseIntensity()} and never translate this value to a vanilla potion amplifier.
-     */
-    @Deprecated
-    public int getBasePotency() {
-        return Math.round(baseIntensity);
     }
 
     public float getBaseIntensity() {
