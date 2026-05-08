@@ -43,10 +43,15 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlock(futures, cachedOutput, "deepslate_sulfur_ore");
         saveCubeAllBlock(futures, cachedOutput, "salt_block");
         saveCubeAllBlock(futures, cachedOutput, "treated_planks");
-        saveCubeAllBlock(futures, cachedOutput, "gas_tank");
+        saveGasTankBlock(futures, cachedOutput);
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "mechanical_frame", "minecraft:block/iron_block");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_anchor", "minecraft:block/crying_obsidian");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "therapist_desk", "minecraft:block/lectern_front");
 
         saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "advanced_mixing_vat");
+        saveHorizontalBlockState(futures, cachedOutput, "aromatic_extractor");
+        saveHorizontalBlockState(futures, cachedOutput, "btx_fractionation_tower");
         saveHorizontalBlockState(futures, cachedOutput, "catalytic_reformer");
         saveHorizontalBlockState(futures, cachedOutput, "centrifuge");
         saveHorizontalBlockState(futures, cachedOutput, "distiller");
@@ -64,6 +69,10 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
 
         saveOrientableBlock(futures, cachedOutput, "advanced_mixing_vat", "minecraft:block/orientable",
                 textures("front", "advanced_mixing_vat_front", "side", "advanced_mixing_vat_side", "top", "advanced_mixing_vat_top", "bottom", "advanced_mixing_vat_bottom", "particle", "advanced_mixing_vat_top"));
+        saveOrientableBlock(futures, cachedOutput, "aromatic_extractor", "minecraft:block/orientable_with_bottom",
+                textures("top", "chemical_reactor_top", "front", "chemical_reactor_front", "side", "chemical_reactor_side", "bottom", "chemical_reactor_bottom"));
+        saveOrientableBlock(futures, cachedOutput, "btx_fractionation_tower", "minecraft:block/orientable_with_bottom",
+                textures("top", "distiller_top", "front", "distiller_front", "side", "distiller_side", "bottom", "distiller_bottom"));
         saveOrientableBlock(futures, cachedOutput, "catalytic_reformer", "minecraft:block/orientable_with_bottom",
                 textures("top", "chemical_reactor_top", "front", "chemical_reactor_front", "side", "chemical_reactor_side", "bottom", "chemical_reactor_bottom"));
         saveOrientableBlock(futures, cachedOutput, "centrifuge", "minecraft:block/orientable_with_bottom",
@@ -90,7 +99,9 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
 
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_furnace");
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_mixing_vat");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "aromatic_extractor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "biochemical_reactor");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "btx_fractionation_tower");
         saveBlockItemViaBlockModel(futures, cachedOutput, "catalytic_reformer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "centrifuge");
         saveBlockItemViaBlockModel(futures, cachedOutput, "chemical_reactor");
@@ -107,18 +118,23 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "grinding_bowl");
         saveBlockItemViaBlockModel(futures, cachedOutput, "growth_chamber");
         saveBlockItemViaBlockModel(futures, cachedOutput, "magic_mushroom");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "mechanical_frame");
         saveBlockItemViaBlockModel(futures, cachedOutput, "mixing_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_grass");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_mycelium");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psy_anvil");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "recovery_anchor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "salt_block");
         saveBlockItemViaBlockModel(futures, cachedOutput, "sieve");
         saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_crafter");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_plate_block");
         saveBlockItemViaItemModel(futures, cachedOutput, "stomp_plate");
         saveBlockItemViaBlockModel(futures, cachedOutput, "sulfur_ore");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "therapist_desk");
         saveBlockItemViaItemModel(futures, cachedOutput, "treated_planks");
 
         saveCrop(futures, cachedOutput, "cannabis_crop", "cannabis_crop_stage");
+        saveCrossCrop(futures, cachedOutput, "aloe_vera_crop", "aloe_vera_stage", "minecraft:block/small_dripleaf_top");
         saveCrossCrop(futures, cachedOutput, "coca_crop", "coca_stage");
         saveCrop(futures, cachedOutput, "malt_crop", "malt_stage");
         saveCrop(futures, cachedOutput, "rye_crop", "rye_stage");
@@ -156,6 +172,55 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         clientItemRoot.add("model", clientItemModel);
         Path clientItemPath = this.itemClientPathProvider.json(id);
         futures.add(DataProvider.saveStable(cachedOutput, clientItemRoot, clientItemPath));
+    }
+
+    private void saveCubeAllBlockWithTexture(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String texture) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
+        String blockModel = MyDrugs.MODID + ":block/" + name;
+
+        JsonObject blockStateRoot = new JsonObject();
+        JsonObject variants = new JsonObject();
+        JsonObject defaultVariant = new JsonObject();
+        defaultVariant.addProperty("model", blockModel);
+        variants.add("", defaultVariant);
+        blockStateRoot.add("variants", variants);
+        futures.add(DataProvider.saveStable(cachedOutput, blockStateRoot, this.blockStatePathProvider.json(id)));
+
+        JsonObject modelRoot = new JsonObject();
+        JsonObject textures = new JsonObject();
+        modelRoot.addProperty("parent", "minecraft:block/cube_all");
+        textures.addProperty("all", texture);
+        textures.addProperty("particle", texture);
+        modelRoot.add("textures", textures);
+        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
+
+        JsonObject itemModelRoot = new JsonObject();
+        itemModelRoot.addProperty("parent", blockModel);
+        futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+
+        saveClientItemModel(futures, cachedOutput, id, MyDrugs.MODID + ":item/" + name);
+    }
+
+    private void saveGasTankBlock(List<CompletableFuture<?>> futures, CachedOutput cachedOutput) {
+        String name = "gas_tank";
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
+        String blockModel = MyDrugs.MODID + ":block/" + name;
+
+        JsonObject modelRoot = new JsonObject();
+        JsonObject textures = new JsonObject();
+        modelRoot.addProperty("parent", "minecraft:block/cube_all");
+        modelRoot.addProperty("render_type", "minecraft:translucent");
+        textures.addProperty("all", blockModel);
+        textures.addProperty("particle", blockModel);
+        modelRoot.add("textures", textures);
+        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
+
+        JsonObject clientItemRoot = new JsonObject();
+        JsonObject clientItemModel = new JsonObject();
+        clientItemModel.addProperty("type", "minecraft:model");
+        clientItemModel.addProperty("model", blockModel);
+        clientItemRoot.add("model", clientItemModel);
+        futures.add(DataProvider.saveStable(cachedOutput, clientItemRoot, this.itemClientPathProvider.json(id)));
     }
 
     private void saveHorizontalBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
@@ -302,25 +367,34 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
     }
 
     private void saveCrossCrop(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String modelPrefix) {
+        saveCrossCrop(futures, cachedOutput, blockStateName, modelPrefix, null);
+    }
+
+    private void saveCrossCrop(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String modelPrefix, String textureOverride) {
         ResourceLocation blockStateId = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, blockStateName);
         JsonObject root = new JsonObject();
         JsonObject variants = new JsonObject();
         for (int age = 0; age <= 7; age++) {
             variants.add("age=" + age, modelVariant(modelPrefix + age, 0));
-            saveCrossCropModel(futures, cachedOutput, modelPrefix + age);
+            saveCrossCropModel(futures, cachedOutput, modelPrefix + age, textureOverride);
         }
         root.add("variants", variants);
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
     }
 
     private void saveCrossCropModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
+        saveCrossCropModel(futures, cachedOutput, name, null);
+    }
+
+    private void saveCrossCropModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String textureOverride) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         JsonObject root = new JsonObject();
         JsonObject textures = new JsonObject();
         root.addProperty("parent", "minecraft:block/cross");
         root.addProperty("render_type", "minecraft:cutout");
-        textures.addProperty("cross", MyDrugs.MODID + ":block/" + name);
-        textures.addProperty("particle", MyDrugs.MODID + ":block/" + name);
+        String texture = textureOverride == null ? MyDrugs.MODID + ":block/" + name : textureOverride;
+        textures.addProperty("cross", texture);
+        textures.addProperty("particle", texture);
         root.add("textures", textures);
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
     }

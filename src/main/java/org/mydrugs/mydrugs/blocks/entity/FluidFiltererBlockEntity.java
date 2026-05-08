@@ -7,6 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,6 +40,8 @@ import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
@@ -58,6 +61,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
     private int progress = 0;
     private int maxProgress = 0;
     private boolean buttonHeld = false;
+    private float manualSpeedMultiplier = 1.0F;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -137,13 +141,13 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
                     changed = true;
                 }
             } else if (be.buttonHeld) {
-                if (be.advanceFiltering(recipe, null)) {
+                if (be.advanceFiltering(recipe, null, be.manualSpeedMultiplier)) {
                     changed = true;
                 }
             } else if (MachineEnergyAttachments.get(be).hasAutomationUpgrade()
                     && MachineEnergyAttachments.get(be).storage().extract(1, true) == 1) {
                 MachineEnergyAttachments.get(be).storage().extract(1, false);
-                if (be.advanceFiltering(recipe, null)) {
+                if (be.advanceFiltering(recipe, null, 1.0F)) {
                     changed = true;
                 }
             }
@@ -242,6 +246,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 0);
         this.buttonHeld = input.getBooleanOr("ButtonHeld", false);
+        this.manualSpeedMultiplier = 1.0F;
 
         this.inputTransferLocks.resetAll();
     }
@@ -284,11 +289,15 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         return switch (buttonId) {
             case FluidFiltererMenu.RUN_BUTTON_START_ID -> {
                 this.buttonHeld = true;
+                this.manualSpeedMultiplier = player instanceof ServerPlayer serverPlayer
+                        ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.FLUID_FILTERER)
+                        : 1.0F;
                 sync();
                 yield true;
             }
             case FluidFiltererMenu.RUN_BUTTON_STOP_ID -> {
                 this.buttonHeld = false;
+                this.manualSpeedMultiplier = 1.0F;
                 sync();
                 yield true;
             }
@@ -323,6 +332,10 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
     }
 
     private boolean advanceFiltering(FluidFiltererRecipe recipe, @Nullable Player player) {
+        return advanceFiltering(recipe, player, 1.0F);
+    }
+
+    private boolean advanceFiltering(FluidFiltererRecipe recipe, @Nullable Player player, float speedMultiplier) {
         this.maxProgress = Math.max(1, recipe.clicksRequired());
 
         if (!canCraft(recipe)) {
@@ -350,7 +363,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
             return false;
         }
 
-        this.progress++;
+        this.progress += Math.max(1, Math.round(Math.max(0.25F, speedMultiplier)));
 
         if (this.progress >= this.maxProgress) {
             craft(recipe);

@@ -37,6 +37,16 @@ public class DrugModel {
         return addictionRate;
     }
 
+    public DrugModel withAdditionalEffects(List<DrugEffect> extraEffects) {
+        if (extraEffects.isEmpty()) {
+            return this;
+        }
+
+        List<DrugEffect> combined = new ArrayList<>(this.drugEffects);
+        combined.addAll(extraEffects);
+        return new DrugModel(this.id, this.drugCategory, combined, this.addictionRate);
+    }
+
     public static class Builder {
         private final List<DrugEffect> effects = new ArrayList<>();
         private DrugId id = null;

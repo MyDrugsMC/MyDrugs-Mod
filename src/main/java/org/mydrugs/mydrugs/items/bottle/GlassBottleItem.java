@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.items.bottle;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -115,11 +116,10 @@ public class GlassBottleItem extends Item {
         int remaining = content.amountMb() - extracted;
 
         if (remaining <= 0) {
-            stack.remove(ModDataComponents.BOTTLE_CONTENT.get());
-            stack.remove(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE);
+            clearContent(stack);
         } else {
             stack.set(ModDataComponents.BOTTLE_CONTENT.get(), new BottleFluidContent(fluidId, remaining));
-            stack.set(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE, 1);
+            stack.set(DataComponents.MAX_STACK_SIZE, 1);
         }
 
         return extracted;
@@ -127,14 +127,18 @@ public class GlassBottleItem extends Item {
 
     public static void setContent(ItemStack stack, @Nullable ResourceLocation fluidId, int amountMb) {
         if (fluidId == null || amountMb <= 0) {
-            stack.remove(ModDataComponents.BOTTLE_CONTENT.get());
-            stack.remove(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE);
+            clearContent(stack);
             return;
         }
 
         int clamped = Math.min(CAPACITY_MB, amountMb);
         stack.set(ModDataComponents.BOTTLE_CONTENT.get(), new BottleFluidContent(fluidId, clamped));
-        stack.set(net.minecraft.core.component.DataComponents.MAX_STACK_SIZE, 1);
+        stack.set(DataComponents.MAX_STACK_SIZE, 1);
+    }
+
+    public static void clearContent(ItemStack stack) {
+        stack.remove(ModDataComponents.BOTTLE_CONTENT.get());
+        stack.set(DataComponents.MAX_STACK_SIZE, stack.getItem().getDefaultMaxStackSize());
     }
 
     private static boolean isReadyComposter(BlockState state) {

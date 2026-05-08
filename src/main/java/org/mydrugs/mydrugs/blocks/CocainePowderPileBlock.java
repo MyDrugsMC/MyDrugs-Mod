@@ -33,6 +33,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
+import org.mydrugs.mydrugs.core.drug.use.DrugUseResult;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 import org.mydrugs.mydrugs.items.ModItems;
 
@@ -159,7 +160,10 @@ public final class CocainePowderPileBlock extends Block {
         // The server should only consume the rail once the animation completes.
         startSnortingAnimation(serverPlayer, pos);
 
-        MyDrugs.DRUG_USE_SERVICE.consume(serverPlayer, model, new SniffingStrategy(), DrugUseSource.ITEM);
+        DrugUseResult result = MyDrugs.DRUG_USE_SERVICE.consume(serverPlayer, model, new SniffingStrategy(), DrugUseSource.ITEM);
+        if (!result.consumed()) {
+            return InteractionResult.SUCCESS;
+        }
         level.removeBlock(pos, false);
 
         level.playSound(null, pos, SoundEvents.PLAYER_BREATH, SoundSource.PLAYERS, 0.5F, 1.6F);

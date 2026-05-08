@@ -54,6 +54,13 @@ public class ModCrops {
                     props -> new BlockItem(TOBACCO_CROP.get(), props)
             );
 
+    public static final DeferredBlock<AloeVeraCropBlock> ALOE_VERA_CROP =
+            BLOCKS.registerBlock(
+                    "aloe_vera_crop",
+                    AloeVeraCropBlock::new,
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+            );
+
     public static final DeferredBlock<CannabisCropBlock> CANNABIS_CROP =
             BLOCKS.registerBlock(
                     "cannabis_crop",

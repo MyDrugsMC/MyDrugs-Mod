@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.menu.ManualCoffeePulperMenu;
+import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
 import org.mydrugs.mydrugs.menu.layout.ManualCoffeePulperLayout;
 import org.mydrugs.mydrugs.network.CoffeePulperDragPayload;
 
@@ -55,6 +56,7 @@ public class ManualCoffeePulperScreen extends AbstractMachineScreen<ManualCoffee
         graphics.drawString(this.font, this.title, 8, 5, 0xFFFFFF, false);
         graphics.drawString(this.font, this.playerInventoryTitle, ManualCoffeePulperLayout.PLAYER_INV_X, this.inventoryLabelY, 0xD0D0D0, false);
         graphics.drawCenteredString(this.font, Component.literal(this.menu.getProgress() + "/" + this.menu.getMaxProgress()), 88, 68, 0xE6D7BA);
+        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, 28, 82);
     }
 
     private void drawRoller(GuiGraphics graphics) {

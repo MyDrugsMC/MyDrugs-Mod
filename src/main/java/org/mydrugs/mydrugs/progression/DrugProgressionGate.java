@@ -43,6 +43,7 @@ public final class DrugProgressionGate {
         DrugCategory category = model.getDrugCategory();
 
         return switch (id) {
+            case COFFEE -> new Rule(null, PsyKnowledgeKey.CAFFEINE, true, false);
             case TOBACCO -> new Rule(null, PsyKnowledgeKey.NICOTINIC, true, false);
             case WEED, HASH -> new Rule(PsyKnowledgeKey.NICOTINIC, PsyKnowledgeKey.CANNABINOID, true, false);
             case ALCOHOL -> new Rule(PsyKnowledgeKey.CANNABINOID, PsyKnowledgeKey.FERMENTED, true, false);

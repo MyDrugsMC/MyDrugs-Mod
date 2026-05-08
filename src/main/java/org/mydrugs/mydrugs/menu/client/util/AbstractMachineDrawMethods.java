@@ -653,17 +653,31 @@ public interface AbstractMachineDrawMethods {
 
     default void drawArrow(GuiGraphics graphics, int x, int y, int width, int height, int color) {
         int midY = y + height / 2;
-        int shaftH = Math.max(2, height / 4);
+
+        int shaftH = Math.max(1, (height / 2) | 1);
         int shaftY = midY - shaftH / 2;
-        int headW = Math.max(4, height);
-        int shaftW = Math.max(1, width - headW);
 
-        graphics.fill(guiX(x), guiY(shaftY), guiX(x + shaftW), guiY(shaftY + shaftH), color);
+        int headW = Math.max(4, shaftH);
+        if (width < headW + 1) {
+            headW = Math.max(1, width);
+        }
+        int shaftW = width - headW;
 
-        for (int i = 0; i < headW; i++) {
-            int half = Mth.clamp(i, 0, height / 2);
-            int xx = x + shaftW + i;
-            graphics.fill(guiX(xx), guiY(midY - half), guiX(xx + 1), guiY(midY + half + 1), color);
+        if (shaftW > 0) {
+            graphics.fill(guiX(x), guiY(shaftY), guiX(x + shaftW), guiY(shaftY + shaftH), color);
+        }
+
+        int halfBase = shaftH / 2;
+
+        if (headW == 1) {
+            int xx = x + shaftW;
+            graphics.fill(guiX(xx), guiY(midY - halfBase), guiX(xx + 1), guiY(midY + halfBase + 1), color);
+        } else {
+            for (int i = 0; i < headW; i++) {
+                int half = halfBase * (headW - 1 - i) / (headW - 1);
+                int xx = x + shaftW + i;
+                graphics.fill(guiX(xx), guiY(midY - half), guiX(xx + 1), guiY(midY + half + 1), color);
+            }
         }
     }
 

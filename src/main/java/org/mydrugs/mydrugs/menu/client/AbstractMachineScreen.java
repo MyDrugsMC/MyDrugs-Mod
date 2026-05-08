@@ -15,6 +15,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.mydrugs.mydrugs.menu.AbstractMachineMenu;
 import org.mydrugs.mydrugs.menu.client.util.AbstractMachineDrawMethods;
 import org.mydrugs.mydrugs.menu.client.util.MachineStatusRenderer;
 import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
@@ -247,7 +248,7 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
 
     private void renderSharedEnergyBar(GuiGraphics graphics) {
         if (shouldRenderSharedEnergyBar()
-                && this.menu instanceof org.mydrugs.mydrugs.menu.AbstractMachineMenu machineMenu
+                && this.menu instanceof AbstractMachineMenu machineMenu
                 && machineMenu.hasSyncedEnergyStorage()) {
             drawExternalEnergyBar(graphics, machineMenu.syncedEnergyStored(), machineMenu.syncedEnergyCapacity());
         }
@@ -255,15 +256,15 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
 
     private void renderSharedEnergyTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         if (shouldRenderSharedEnergyBar()
-                && this.menu instanceof org.mydrugs.mydrugs.menu.AbstractMachineMenu machineMenu
+                && this.menu instanceof AbstractMachineMenu machineMenu
                 && machineMenu.hasSyncedEnergyStorage()) {
             renderExternalEnergyTooltip(graphics, mouseX, mouseY, machineMenu.syncedEnergyStored(), machineMenu.syncedEnergyCapacity());
         }
     }
 
     private void renderSharedMachineStatus(GuiGraphics graphics) {
-        if (this.menu instanceof org.mydrugs.mydrugs.menu.AbstractMachineMenu machineMenu) {
-            MachineStatusRenderer.render(graphics, this.font, this.leftPos + 8, this.topPos + 18, Math.max(40, this.imageWidth - 16), machineMenu.syncedMachineStatus());
+        if (this.menu instanceof AbstractMachineMenu machineMenu) {
+            MachineStatusRenderer.render(graphics, this.font, this.leftPos + 8, this.topPos - 18, Math.max(40, this.imageWidth - 16), machineMenu.syncedMachineStatus());
         }
     }
 

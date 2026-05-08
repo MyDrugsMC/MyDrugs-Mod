@@ -14,6 +14,7 @@ import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
 import org.mydrugs.mydrugs.client.compat.ClientRecipesCache;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
+import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
 import org.mydrugs.mydrugs.network.PsyMixerRitualInputPayload;
 import org.mydrugs.mydrugs.network.PsyMixerStartRitualPayload;
 
@@ -139,6 +140,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         //graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, MUTED, false);
         drawSideInstructions(graphics);
         drawChecklist(graphics);
+        drawActiveDrugBonuses(graphics);
         drawMeters(graphics);
         drawRitualCue(graphics);
     }
@@ -194,6 +196,10 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 
         int instabilityWidth = Mth.clamp((int) (Math.min(1.0F, menu.getInstability()) * layout.meterWidth), 0, layout.meterWidth);
         drawMeter(graphics, y, "screen.mydrugs.psy_mixer.instability", instabilityWidth, 0xFFCC2244);
+    }
+
+    private void drawActiveDrugBonuses(GuiGraphics graphics) {
+        DrugBonusClientText.drawRitualBonuses(graphics, font, -50, layout.bonusY, 45);
     }
 
     private void drawMeter(GuiGraphics graphics, int y, String labelKey, int fillWidth, int fillColor) {
@@ -332,6 +338,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         final int sideY = 20;
         final int sideWidth = 132;
         final int checklistY = 66;
+        final int bonusY = 120;
         final int meterY = 135;
         final int meterWidth = 64;
         final int actionX = 236;

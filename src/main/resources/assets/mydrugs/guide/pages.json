@@ -1,0 +1,457 @@
+{
+  "pages": [
+  {
+    "title": "MyDrugs Field Guide",
+    "elements": [
+      { "type": "title", "text": "MyDrugs Field Guide" },
+      { "type": "text", "text": "Welcome. This book explains the current progression path for MyDrugs: what to build, what to consume, and which knowledge gate should open next." },
+      { "type": "text", "text": "Keep JEI and the advancement tree open beside this guide. JEI is still the source for exact ingredients and fluid amounts. This guide explains the order. Open [[Table of Contents|the table of contents]] when you want to jump to a section." },
+      { "type": "tip", "text": "Right-click the guide at any time to reopen it. The guide item is not consumed." },
+      { "type": "goal", "text": "Find seeds, start crops, and prepare for the first tobacco route." }
+    ]
+  },
+  {
+    "title": "The Current Spine",
+    "elements": [
+      { "type": "text", "text": "The current main route is:" },
+      { "type": "text", "text": "Seeds → [[Coffee First|coffee]] → Caffeine Knowledge → Psy Receptacle → resin from logs → drying and grinding → tobacco → Nicotinic Knowledge → Psy Anvil → iron mesh and sieve → cannabis → Cannabinoid Knowledge → copper shaping → mixing vat → fermented mash → Fermented Knowledge → heavy iron → stomp crafter → hash → Steel Plating Knowledge → steel plates and machines → coca → Stimulant Knowledge → circuits → lysergic route → meth route → Overclocked Knowledge → mushrooms → Mycelial Knowledge → psychotrope research." },
+      { "type": "warning", "text": "Older notes may say hash comes before heavy iron. In the current recipes, the stomp crafter needs heavy iron, so hash comes after Fermented Knowledge." },
+      { "type": "tip", "text": "If a recipe is visible but refuses to run, check knowledge first. Most locked recipes are waiting for the next knowledge gate." }
+    ]
+  },
+  {
+    "title": "Coffee First",
+    "elements": [
+      { "type": "text", "text": "Coffee is now the first discovery branch. It teaches Caffeine Knowledge, and that first caffeine imprint awards the Psy Receptacle." },
+      { "type": "item", "text": "mydrugs:coffee_cherries" },
+      { "type": "item", "text": "mydrugs:manual_coffee_pulper" },
+      { "type": "item", "text": "mydrugs:wet_coffee_bean" },
+      { "type": "item", "text": "mydrugs:coffee_bean" },
+      { "type": "item", "text": "mydrugs:coffee_powder" },
+      { "type": "item", "text": "mydrugs:clay_vat" },
+      { "type": "item", "text": "mydrugs:cup" },
+      { "type": "item", "text": "mydrugs:coffee_cup" },
+      { "type": "item", "text": "mydrugs:psy_receptacle" },
+      { "type": "text", "text": "Pulp coffee cherries in the manual coffee pulper to get wet coffee beans and plant biomass. Dry the wet beans, then grind coffee beans into powder." },
+      { "type": "text", "text": "The reliable early route is the heated clay vat. Put a lit campfire, soul campfire, fire, or soul fire under a clay vat. Add water, then use coffee powder on the heated vat. Each powder brews 250 mB of water into 250 mB coffee. Craft a cup from one brick, then right-click the coffee-filled vat with the cup to make a coffee cup." },
+      { "type": "text", "text": "The mixing vat route still works later: coffee powder plus 250 mB water in a heated mixing vat produces 250 mB coffee." },
+      { "type": "tip", "text": "Caffeine Knowledge awards the Psy Receptacle. Nicotinic Knowledge still matters, but it no longer gives the receptacle." },
+      { "type": "goal", "text": "Brew coffee, drink a coffee cup, unlock Caffeine Knowledge, and keep the Psy Receptacle for the Psy Anvil route." },
+      { "type": "link", "text": "Continue to the Psy Receptacle", "target": "Psy Receptacle and Psy Anvil" }
+    ]
+  },
+  {
+    "title": "Seeds and First Crops",
+    "elements": [
+      { "type": "text", "text": "Break short grass, tall grass, ferns, and large ferns without shears to find crop seeds. Tobacco, cannabis, coca, rye, malt, and coffee seeds can all appear from these early drops." },
+      { "type": "item", "text": "mydrugs:tobacco_seeds" },
+      { "type": "item", "text": "mydrugs:cannabis_seeds" },
+      { "type": "item", "text": "mydrugs:coca_seeds" },
+      { "type": "item", "text": "mydrugs:rye_seeds" },
+      { "type": "item", "text": "mydrugs:malt_seeds" },
+      { "type": "item", "text": "mydrugs:coffee_seeds" },
+      { "type": "text", "text": "Plant seeds on farmland like vanilla crops. Keep a separate row for each crop because later routes need steady supplies, not one-off harvests." },
+      { "type": "goal", "text": "Grow tobacco, cannabis, rye, malt, coca, and coffee if you have the seeds." }
+    ]
+  },
+  {
+    "title": "Resin and Treated Planks",
+    "elements": [
+      { "type": "text", "text": "The first processing block depends on treated planks. To make them, gather ordinary resin by repeatedly using an axe on a strip-able log." },
+      { "type": "item", "text": "mydrugs:resin" },
+      { "type": "item", "text": "mydrugs:treated_planks" },
+      { "type": "text", "text": "Each axe step drops resin, then the log finishes stripping after enough hits. Combine resin with planks to make treated planks." },
+      { "type": "tip", "text": "This resin is not cannabis resin. Cannabis resin is a later sieve output used for hash." },
+      { "type": "goal", "text": "Make treated planks before trying to build the drying rack." }
+    ]
+  },
+  {
+    "title": "Early Processing Tools",
+    "elements": [
+      { "type": "text", "text": "Build the drying rack, grinding bowl, and grinding tool. These are the first reliable crop-processing stations." },
+      { "type": "item", "text": "mydrugs:drying_rack" },
+      { "type": "item", "text": "mydrugs:grinding_bowl" },
+      { "type": "item", "text": "mydrugs:grinding_tool" },
+      { "type": "text", "text": "The drying rack converts fresh or wet materials into dried forms. The grinding bowl plus grinding tool turns dried materials into powders, handfuls, paste, or other intermediates." },
+      { "type": "warning", "text": "The sieve is not truly a first-minute station anymore. It needs iron mesh, and iron mesh needs Nicotinic Knowledge through the Psy Anvil." },
+      { "type": "goal", "text": "Build a drying rack and grinding bowl, then dry your first tobacco leaves." }
+    ]
+  },
+  {
+    "title": "Tobacco to Nicotinic Knowledge",
+    "elements": [
+      { "type": "text", "text": "Tobacco is the first intended knowledge gate." },
+      { "type": "item", "text": "mydrugs:tobacco_leaf" },
+      { "type": "item", "text": "mydrugs:dried_tobacco_leaf" },
+      { "type": "item", "text": "mydrugs:tobacco_handful" },
+      { "type": "text", "text": "Dry tobacco leaves on the drying rack. Grind dried tobacco leaves in the grinding bowl to obtain tobacco handfuls. Put tobacco handfuls in the bang or roll three of them into a cigarette, then smoke the result to gain Nicotinic Knowledge." },
+      { "type": "goal", "text": "Consume tobacco and unlock Nicotinic Knowledge." },
+      { "type": "warning", "text": "Fresh tobacco leaf does not grant the knowledge. Process it first." },
+      { "type": "text", "text": "The Psy Receptacle comes from [[Coffee First|Caffeine Knowledge]], not from Nicotinic Knowledge. Tobacco still unlocks Nicotinic Knowledge and opens the first tobacco-gated Psy Anvil recipes." }
+    ]
+  },
+  {
+    "title": "Rolling and Smoking",
+    "elements": [
+      { "type": "text", "text": "The roller combines paper, a cigarette filter, and three rolling ingredients. Three tobacco ingredients make a cigarette. Mixed or non-tobacco smoking ingredients make a joint." },
+      { "type": "item", "text": "mydrugs:roller" },
+      { "type": "item", "text": "mydrugs:cigaret_filter" },
+      { "type": "item", "text": "mydrugs:cigaret" },
+      { "type": "item", "text": "mydrugs:joint" },
+      { "type": "text", "text": "The bang can hold a smoking item and consume it through the smoking route." },
+      { "type": "item", "text": "mydrugs:bang" },
+      { "type": "tip", "text": "Tobacco handfuls, cannabis powder, hash pieces, cocaine powder, and crack shards are rolling ingredients." },
+      { "type": "warning", "text": "The output depends on the three ingredients inside the roller, not only on the last item inserted." }
+    ]
+  },
+  {
+    "title": "Psy Receptacle and Psy Anvil",
+    "elements": [
+      { "type": "text", "text": "After [[Coffee First|Caffeine Knowledge]] gives you the Psy Receptacle and tobacco gives [[Tobacco to Nicotinic Knowledge|Nicotinic Knowledge]], use the receptacle to craft the Psy Anvil." },
+      { "type": "item", "text": "mydrugs:psy_receptacle" },
+      { "type": "item", "text": "mydrugs:psy_anvil" },
+      { "type": "item", "text": "mydrugs:stone_hammer" },
+      { "type": "text", "text": "The Psy Anvil handles knowledge-gated recipes. Place the required ingredients, then activate the anvil with the proper hammer or tool as shown by JEI." },
+      { "type": "heading", "text": "If the anvil refuses" },
+      { "type": "text", "text": "Check the ingredient list, the active knowledge, and the tool requirement. Recipes can be visible before you are allowed to complete them." },
+      { "type": "goal", "text": "Craft the Psy Anvil and use it for your first Nicotinic recipe." }
+    ]
+  },
+  {
+    "title": "Iron Mesh and the Sieve",
+    "elements": [
+      { "type": "text", "text": "The first important Psy Anvil product is iron mesh." },
+      { "type": "item", "text": "mydrugs:iron_mesh" },
+      { "type": "item", "text": "mydrugs:sieve" },
+      { "type": "text", "text": "Iron mesh requires Nicotinic Knowledge. Once crafted, use it with copper, sticks, and a wooden frame to make the sieve." },
+      { "type": "text", "text": "The sieve is essential for the cannabis route because it separates cured cannabis into dried cannabis leaf and cannabis resin." },
+      { "type": "goal", "text": "Craft iron mesh, then build the sieve." },
+      { "type": "tip", "text": "Do not spend all your early copper. The sieve, copper shaping, trays, tubes, and vats all compete for it." }
+    ]
+  },
+  {
+    "title": "Cannabis Preparation",
+    "elements": [
+      { "type": "text", "text": "Cannabis is the second knowledge route, but it has more steps than tobacco." },
+      { "type": "item", "text": "mydrugs:cannabis_leaf" },
+      { "type": "item", "text": "mydrugs:cured_cannabis_leaf" },
+      { "type": "item", "text": "mydrugs:dried_cannabis_leaf" },
+      { "type": "item", "text": "mydrugs:cannabis_powder" },
+      { "type": "text", "text": "Dry cannabis leaves into cured cannabis leaves. Run cured cannabis through the sieve. The main output is dried cannabis leaf, with cannabis resin as a bonus output. Grind dried cannabis leaf into cannabis powder." },
+      { "type": "text", "text": "Put cannabis powder in the bang or roll it into a smokable item to gain Cannabinoid Knowledge." },
+      { "type": "goal", "text": "Unlock Cannabinoid Knowledge." },
+      { "type": "warning", "text": "Sieve cured cannabis before grinding. Grinding the wrong stage skips the resin route." }
+    ]
+  },
+  {
+    "title": "Cannabis Resin",
+    "elements": [
+      { "type": "text", "text": "Cannabis resin is a bonus from sieving cured cannabis leaves. Save every piece." },
+      { "type": "item", "text": "mydrugs:cannabis_resin" },
+      { "type": "text", "text": "Resin is needed later for hash. You cannot finish the hash route as soon as you find resin because the stomp crafter is locked behind heavy iron." },
+      { "type": "tip", "text": "Keep a separate chest for cannabis resin. Ten resin make one hash brick later." },
+      { "type": "goal", "text": "Store cannabis resin while you continue toward Fermented Knowledge." }
+    ]
+  },
+  {
+    "title": "Copper Shaping",
+    "elements": [
+      { "type": "text", "text": "Cannabinoid Knowledge unlocks copper plate recipes on the Psy Anvil." },
+      { "type": "item", "text": "mydrugs:copper_plate" },
+      { "type": "item", "text": "mydrugs:copper_strapping" },
+      { "type": "item", "text": "mydrugs:copper_tube" },
+      { "type": "text", "text": "Copper plates become strapping, tubes, trays, and machine parts. This is the start of the workshop tier." },
+      { "type": "text", "text": "Use copper strapping, a clay vat, a wooden frame, and a stick to build the mixing vat." },
+      { "type": "item", "text": "mydrugs:clay_vat" },
+      { "type": "item", "text": "mydrugs:mixing_vat" },
+      { "type": "goal", "text": "Make copper plates and build a mixing vat." }
+    ]
+  },
+  {
+    "title": "Fermentation Setup",
+    "elements": [
+      { "type": "text", "text": "The first alcohol gate does not require a distiller. Use the mixing vat to make fermented mash, then drink it from a MyDrugs glass bottle." },
+      { "type": "item", "text": "mydrugs:glass_bottle" },
+      { "type": "item", "text": "mydrugs:rye" },
+      { "type": "item", "text": "mydrugs:malt" },
+      { "type": "item", "text": "mydrugs:malt_powder" },
+      { "type": "text", "text": "Grind malt into malt powder. Use water, crop mash, malt powder, and wild yeast in the mixing vat according to JEI. Heat is required for some mash steps." },
+      { "type": "tip", "text": "Wild yeast is made in the mixing vat from flour and water." },
+      { "type": "goal", "text": "Produce fermented mash in the mixing vat." }
+    ]
+  },
+  {
+    "title": "Fermented Knowledge",
+    "elements": [
+      { "type": "text", "text": "Fill a MyDrugs glass bottle with fermented mash and drink it after Cannabinoid Knowledge is active." },
+      { "type": "text", "text": "Fermented Knowledge unlocks heavy iron on the Psy Anvil and marks the first real industrial jump. It also gives you a small insulated-wire clue, but normal insulated-wire crafting comes later." },
+      { "type": "warning", "text": "Keep the insulated-wires to craft the centrifuge, and only the centrifuge ! Crafting anything else will break the crafting chain" },
+      { "type": "item", "text": "mydrugs:heavy_iron" },
+      { "type": "item", "text": "mydrugs:heavy_iron_plate" },
+      { "type": "item", "text": "mydrugs:insulated_wire" },
+      { "type": "goal", "text": "Drink fermented mash and unlock Fermented Knowledge." },
+      { "type": "warning", "text": "Distillation improves the alcohol chain later, but fermented mash is the practical first unlock for this gate." }
+    ]
+  },
+  {
+    "title": "Heavy Iron Workshop",
+    "elements": [
+      { "type": "text", "text": "With Fermented Knowledge, craft heavy iron and heavy iron plates on the Psy Anvil." },
+      { "type": "item", "text": "mydrugs:heavy_iron" },
+      { "type": "item", "text": "mydrugs:mechanical_frame" },
+      { "type": "item", "text": "mydrugs:reinforced_casing" },
+      { "type": "text", "text": "Heavy iron is used for stronger frames, casings, the stomp crafter, and the first serious machines." },
+      { "type": "tip", "text": "If a machine recipe asks for reinforced casing or mechanical frame, work backward through heavy iron parts in JEI." },
+      { "type": "goal", "text": "Craft enough heavy iron to build the stomp crafter and start machine construction." }
+    ]
+  },
+  {
+    "title": "Stomp Crafter and Hash",
+    "elements": [
+      { "type": "text", "text": "Now return to the cannabis resin you saved." },
+      { "type": "item", "text": "mydrugs:stomp_plate" },
+      { "type": "item", "text": "mydrugs:stomp_crafter" },
+      { "type": "item", "text": "mydrugs:hash_brick" },
+      { "type": "item", "text": "mydrugs:hash_piece" },
+      { "type": "text", "text": "Craft stomp plates and the stomp crafter. Press ten cannabis resin into a hash brick. Split the hash brick into hash pieces at a crafting table." },
+      { "type": "text", "text": "Put hash pieces in the bang or roll them into a smokable item to unlock Steel Plating Knowledge." },
+      { "type": "goal", "text": "Make hash and unlock Steel Plating Knowledge." },
+      { "type": "warning", "text": "Hash is not skipped by the machine route. Steel Plating Knowledge comes from hash consumption." }
+    ]
+  },
+  {
+    "title": "Steel Plating",
+    "elements": [
+      { "type": "text", "text": "Steel Plating Knowledge unlocks steel plates on the Psy Anvil." },
+      { "type": "item", "text": "mydrugs:steel_blend" },
+      { "type": "item", "text": "mydrugs:steel_ingot" },
+      { "type": "item", "text": "mydrugs:steel_plate" },
+      { "type": "text", "text": "Use JEI to reach steel ingots through the current furnace and steel-blend recipes. Then convert steel ingots into steel plates on the Psy Anvil." },
+      { "type": "text", "text": "Steel plates are a major material gate for stronger machines, seals, tanks, pipes, and late production blocks." },
+      { "type": "text", "text": "To craft them you will have to craft the advanced furnace. Have a greate mining session !" },
+      { "type": "goal", "text": "Craft your first steel plate." }
+    ]
+  },
+  {
+    "title": "Early Machines",
+    "elements": [
+      { "type": "text", "text": "After heavy iron and steel plates, begin assembling the larger processing blocks." },
+      { "type": "item", "text": "mydrugs:advanced_furnace" },
+      { "type": "item", "text": "mydrugs:distiller" },
+      { "type": "item", "text": "mydrugs:centrifuge" },
+      { "type": "item", "text": "mydrugs:fluid_filterer" },
+      { "type": "item", "text": "mydrugs:advanced_mixing_vat" },
+      { "type": "text", "text": "These machines take the mod from hand processing into fluid, gas, and chemical processing. Build them as JEI and advancements point to them." },
+      { "type": "tip", "text": "The advanced furnace is especially important because many later materials need heated processing." },
+      { "type": "goal", "text": "Build the advanced furnace, then expand into distillation, filtering, and centrifuging." }
+    ]
+  },
+  {
+    "title": "Material Checklist",
+    "elements": [
+      { "type": "text", "text": "Late workshop recipes reuse the same support materials many times." },
+      { "type": "item", "text": "mydrugs:activated_coal" },
+      { "type": "item", "text": "mydrugs:porous_ceramic" },
+      { "type": "item", "text": "mydrugs:thick_glass" },
+      { "type": "item", "text": "mydrugs:rubber" },
+      { "type": "item", "text": "mydrugs:tight_seal" },
+      { "type": "item", "text": "mydrugs:fluid_filter" },
+      { "type": "text", "text": "If progression feels blocked, search these ingredients in JEI and craft a small stockpile." },
+      { "type": "tip", "text": "Generic resin, plant biomass, clay, coal dust, glass tubes, and copper tubes are common bottlenecks." },
+      { "type": "goal", "text": "Prepare support materials before starting coca and laboratory chains." }
+    ]
+  },
+  {
+    "title": "Coca to Stimulant Knowledge",
+    "elements": [
+      { "type": "text", "text": "Coca begins after Fermented Knowledge and uses machine processing." },
+      { "type": "item", "text": "mydrugs:coca_leaf" },
+      { "type": "item", "text": "mydrugs:dried_coca_leaf" },
+      { "type": "item", "text": "mydrugs:coca_paste" },
+      { "type": "item", "text": "mydrugs:cocaine_plate" },
+      { "type": "item", "text": "mydrugs:cocaine_powder" },
+      { "type": "text", "text": "Dry coca leaves, grind them into coca paste, then follow JEI through the extract, centrifuge, evaporation tray, and grinding steps. Cocaine powder is the main Stimulant Knowledge unlock." },
+      { "type": "goal", "text": "Consume cocaine powder and unlock Stimulant Knowledge." },
+      { "type": "warning", "text": "This branch expects alcohol-era machines and fluids. Do not treat coca like the simple tobacco route." }
+    ]
+  },
+  {
+    "title": "Stimulant Unlocks",
+    "elements": [
+      { "type": "text", "text": "Stimulant Knowledge unlocks insulated wire crafting on the Psy Anvil." },
+      { "type": "item", "text": "mydrugs:insulated_wire" },
+      { "type": "item", "text": "mydrugs:control_circuit" },
+      { "type": "item", "text": "mydrugs:electric_motor" },
+      { "type": "item", "text": "mydrugs:heating_coil" },
+      { "type": "text", "text": "Make rubber, craft insulated wire, then build control circuits and powered machine parts." },
+      { "type": "text", "text": "This is the point where automation and chemical machines become much easier to connect." },
+      { "type": "goal", "text": "Craft insulated wire and your first control circuit." },
+      { "type": "tip", "text": "The insulated wire given at Fermented Knowledge was a hint. Stimulant Knowledge is what makes the recipe repeatable." }
+    ]
+  },
+  {
+    "title": "Pipes and Transfers",
+    "elements": [
+      { "type": "text", "text": "Machines can move items, fluids, and gases through separate pipe systems." },
+      { "type": "item", "text": "mydrugs:basic_item_pipe" },
+      { "type": "item", "text": "mydrugs:basic_fluid_pipe" },
+      { "type": "item", "text": "mydrugs:basic_gas_pipe" },
+      { "type": "item", "text": "mydrugs:pipe_wrench" },
+      { "type": "item", "text": "mydrugs:pipe_filter_upgrade" },
+      { "type": "item", "text": "mydrugs:machine_transfer_upgrade" },
+      { "type": "text", "text": "Use the pipe wrench and transfer upgrades to control which side accepts or outputs each resource." },
+      { "type": "tip", "text": "When a machine stops, check output slots, fluid tanks, gas tanks, pipe direction, and filters before assuming the recipe is broken." },
+      { "type": "goal", "text": "Connect at least one machine line with the correct pipe type." }
+    ]
+  },
+  {
+    "title": "Gas and Chemical Handling",
+    "elements": [
+      { "type": "text", "text": "Late recipes use gases and chemical fluids. Build the handling blocks before attempting the lysergic or meth chains." },
+      { "type": "item", "text": "mydrugs:gas_tank" },
+      { "type": "item", "text": "mydrugs:gas_pump" },
+      { "type": "item", "text": "mydrugs:fluid_pump" },
+      { "type": "item", "text": "mydrugs:chemical_reactor" },
+      { "type": "item", "text": "mydrugs:gasifier" },
+      { "type": "item", "text": "mydrugs:electrolyzer" },
+      { "type": "text", "text": "Chemical recipes often need exact fluid or gas inputs. JEI categories show which machine accepts each input." },
+      { "type": "warning", "text": "Fluids, gases, and items are not interchangeable. A full item inventory will not help if the missing input is a gas tank." },
+      { "type": "goal", "text": "Build a basic gas storage and chemical reactor setup." }
+    ]
+  },
+  {
+    "title": "Lysergic Route",
+    "elements": [
+      { "type": "text", "text": "The lysergic route starts from fungal culture, rye, ergot, and laboratory fluids." },
+      { "type": "item", "text": "mydrugs:fungal_culture" },
+      { "type": "item", "text": "mydrugs:ergot" },
+      { "type": "item", "text": "mydrugs:lsd_drop" },
+      { "type": "text", "text": "Use the growth chamber for ergot-related steps, then follow JEI through biochemical and advanced mixing recipes until LSD fluid is produced. To finish the route, drop cupboard pieces on the ground and right-click the dropped stack with a glass bottle containing LSD. Each 5 mB of LSD and one cupboard piece becomes one LSD Drop." },
+      { "type": "text", "text": "Lysergic Knowledge is granted by consuming the LSD Drop after Stimulant Knowledge is active." },
+      { "type": "goal", "text": "Unlock Lysergic Knowledge." }
+    ]
+  },
+  {
+    "title": "Advanced Control Circuits",
+    "elements": [
+      { "type": "text", "text": "Lysergic Knowledge unlocks advanced control circuits on the Psy Anvil." },
+      { "type": "item", "text": "mydrugs:advanced_control_circuit" },
+      { "type": "item", "text": "mydrugs:reaction_core" },
+      { "type": "item", "text": "mydrugs:catalyst_bed" },
+      { "type": "item", "text": "mydrugs:packed_column" },
+      { "type": "text", "text": "These parts push the mod into late laboratory machinery: catalytic reforming, cracking, aromatic extraction, and high-tier chemical chains." },
+      { "type": "goal", "text": "Craft an advanced control circuit." },
+      { "type": "tip", "text": "Advanced circuits are also required for psychotrope components later." }
+    ]
+  },
+  {
+    "title": "Overclocked Route",
+    "elements": [
+      { "type": "text", "text": "The meth route follows Lysergic Knowledge and uses the highest chemical machinery." },
+      { "type": "item", "text": "mydrugs:catalytic_reformer" },
+      { "type": "item", "text": "mydrugs:steam_cracker" },
+      { "type": "item", "text": "mydrugs:btx_fractionation_tower" },
+      { "type": "item", "text": "mydrugs:aromatic_extractor" },
+      { "type": "item", "text": "mydrugs:meth_shard" },
+      { "type": "item", "text": "mydrugs:meth_powder" },
+      { "type": "text", "text": "Use JEI to build the precursor chain through gases, reactors, reformers, and evaporation. Meth shards are the visible product; grind them into meth powder and use the appropriate smoking route when a consumable form is needed." },
+      { "type": "goal", "text": "Consume meth through a valid smoking route and unlock Overclocked Knowledge." },
+      { "type": "warning", "text": "Meth is a late route, not a shortcut. Start it only after advanced circuits and chemical handling are stable." }
+    ]
+  },
+  {
+    "title": "Mushrooms and Mycelial Knowledge",
+    "elements": [
+      { "type": "text", "text": "Magic mushrooms are available earlier than their knowledge gate." },
+      { "type": "item", "text": "mydrugs:magic_mushroom" },
+      { "type": "item", "text": "mydrugs:magic_mushroom_powder" },
+      { "type": "item", "text": "mydrugs:mycelial_resonator" },
+      { "type": "text", "text": "You can find mushrooms in psychedelic terrain and use them as a psychedelic item, but Mycelial Knowledge is only granted after Overclocked Knowledge is active." },
+      { "type": "text", "text": "Grind mushrooms into powder for late recipes. The mycelial resonator uses mushroom powder, amethyst, redstone, and an advanced control circuit on the Psy Anvil." },
+      { "type": "goal", "text": "After Overclocked Knowledge, consume a magic mushroom to unlock Mycelial Knowledge." },
+      { "type": "warning", "text": "Eating mushrooms too early does not open the mycelial tree. The knowledge is deferred until the required gate is met." }
+    ]
+  },
+  {
+    "title": "Psy Mixer Rituals",
+    "elements": [
+      { "type": "text", "text": "The Psy Mixer is a multiblock ritual system using the formed Psy Mixer core and parts." },
+      { "type": "item", "text": "mydrugs:painted_clay_bowl" },
+      { "type": "item", "text": "mydrugs:psychotropic_pigment" },
+      { "type": "item", "text": "mydrugs:ritual_resin" },
+      { "type": "item", "text": "mydrugs:brightened_cannabis_powder" },
+      { "type": "item", "text": "mydrugs:unstable_residue" },
+      { "type": "text", "text": "Psy Mixer recipes can require knowledge, a specific drug history, a catalyst, a stabilizer, and a vessel. Failure may return unstable residue." },
+      { "type": "tip", "text": "The brightened cannabis powder recipe requires Cannabinoid Knowledge and enough lifetime weed exposure." },
+      { "type": "goal", "text": "Use JEI\u0027s Psy Mixer category before building a ritual setup." }
+    ]
+  },
+  {
+    "title": "Psychotrope Research",
+    "elements": [
+      { "type": "text", "text": "Psychotrope systems are endgame research built from advanced control circuits and high-tier components." },
+      { "type": "item", "text": "mydrugs:psychotrope_lens" },
+      { "type": "item", "text": "mydrugs:psychotrope_component" },
+      { "type": "item", "text": "mydrugs:psychotrope_core" },
+      { "type": "item", "text": "mydrugs:recovery_anchor" },
+      { "type": "text", "text": "Craft the lens first, then components, then the core. The core belongs to a formed multiblock that can generate psychotrope energy." },
+      { "type": "warning", "text": "Psychotrope systems do not block tobacco, cannabis, fermented mash, hash, steel plating, or stimulant progression. They are a late research branch." },
+      { "type": "goal", "text": "Craft a psychotrope lens after advanced control circuits are available." }
+    ]
+  },
+  {
+    "title": "Injection and Bottles",
+    "elements": [
+      { "type": "text", "text": "Bottles and syringes are delivery tools, not the main unlock path by themselves." },
+      { "type": "item", "text": "mydrugs:glass_bottle" },
+      { "type": "item", "text": "mydrugs:syringe" },
+      { "type": "text", "text": "The MyDrugs glass bottle can hold mod fluids and drink fluids marked as drinkable. Syringes are higher-risk delivery items for compatible content." },
+      { "type": "warning", "text": "Injection and high-dose routes raise risk. Keep recovery items ready before experimenting." },
+      { "type": "tip", "text": "If a fluid will not drink from the bottle, it may be a processing fluid rather than a drinkable drug fluid." }
+    ]
+  },
+  {
+    "title": "Recovery",
+    "elements": [
+      { "type": "text", "text": "Addiction and recovery are active systems. Repeated use can build addiction, and withdrawal can create penalties." },
+      { "type": "item", "text": "mydrugs:personal_diary" },
+      { "type": "item", "text": "mydrugs:headphones" },
+      { "type": "item", "text": "mydrugs:herbal_tea" },
+      { "type": "item", "text": "mydrugs:calming_mixture" },
+      { "type": "item", "text": "mydrugs:sleeping_aid" },
+      { "type": "item", "text": "mydrugs:overdose_antidote" },
+      { "type": "item", "text": "mydrugs:therapist_desk" },
+      { "type": "item", "text": "mydrugs:recovery_anchor" },
+      { "type": "text", "text": "Recovery items reduce or manage addiction and overdose pressure. Build a plan before late-game stimulant, injection, or overclocked routes." },
+      { "type": "goal", "text": "Keep at least one recovery option available before repeated drug use." },
+      { "type": "tip", "text": "Recovery is not just flavor. It is part of surviving long production chains." }
+    ]
+  },
+  {
+    "title": "When You Are Stuck",
+    "elements": [
+      { "type": "text", "text": "Check these in order:" },
+      { "type": "heading", "text": "Advancement Tree" },
+      { "type": "text", "text": "The parent advancement usually shows the intended previous gate." },
+      { "type": "heading", "text": "JEI Category" },
+      { "type": "text", "text": "Search the item, fluid, and machine. Many routes move between several recipe categories." },
+      { "type": "heading", "text": "Knowledge Gate" },
+      { "type": "text", "text": "Confirm the needed Psy Knowledge is active. A visible recipe can still be locked." },
+      { "type": "heading", "text": "Inputs and Outputs" },
+      { "type": "text", "text": "Check item slots, fluid tanks, gas tanks, heat, pipe direction, filters, and output space." },
+      { "type": "heading", "text": "Prototype Content" },
+      { "type": "text", "text": "Some late research systems are visible before every connection is fully final." },
+      { "type": "tip", "text": "The main route through tobacco, cannabis, fermented mash, hash, steel plating, and stimulant should be completable." }
+    ]
+  },
+  {
+    "title": "Progression Summary",
+    "elements": [
+      { "type": "text", "text": "Quick route:" },
+      { "type": "text", "text": "Break grass → grow crops → [[Coffee First|coffee]] → Caffeine Knowledge → Psy Receptacle → strip logs for resin → treated planks → drying rack → grinding bowl → tobacco handful → Nicotinic Knowledge → Psy Anvil → iron mesh → sieve → cured cannabis → dried cannabis + resin → cannabis powder → Cannabinoid Knowledge → copper plates → mixing vat → fermented mash → Fermented Knowledge → heavy iron → stomp crafter → hash → Steel Plating Knowledge → steel plates → machines → coca paste and extracts → cocaine powder → Stimulant Knowledge → insulated wire → control circuits → lysergic lab route → LSD Drop → Lysergic Knowledge → meth route → Overclocked Knowledge → mushroom consumption → Mycelial Knowledge → psychotrope research." },
+      { "type": "text", "text": "Parallel branches: [[Recovery|recovery]], [[Injection and Bottles|injection]], [[Psy Mixer Rituals|Psy Mixer rituals]], and [[Psychotrope Research|psychotrope energy]]." },
+      { "type": "tip", "text": "When in doubt, follow the last knowledge you unlocked. The next locked Psy Anvil or machine recipe usually tells you where to go." }
+    ]
+  }
+  ]
+}

@@ -88,6 +88,7 @@ public class ClientModEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.FORMED_PSY_MIXER_CORE.get(), PsyMixerRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.FLUID_PUMP.get(), FluidPumpRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PIPES.get(), PipeBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.GAS_TANK.get(), GasTankRenderer::new);
     }
 
     @SubscribeEvent

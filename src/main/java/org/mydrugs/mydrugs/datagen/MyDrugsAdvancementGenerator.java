@@ -27,9 +27,10 @@ public final class MyDrugsAdvancementGenerator {
 
     private void onboarding() {
         root("onboarding/root", item("cannabis_leaf"));
-        inventoryAny("onboarding/first_seed", "onboarding/root", item("cannabis_seeds"),
-                recipes("drying_rack", "grinding_bowl", "grinding_tool"),
-                item("cannabis_seeds"), item("tobacco_seeds"), item("coca_seeds"), item("rye_seeds"), item("malt_seeds"), item("opium_poppy_seeds"));
+        inventoryAnyWithLoot("onboarding/first_seed", "onboarding/root", item("cannabis_seeds"),
+                recipes("drying_rack", "grinding_bowl", "grinding_tool", "progression_guide"),
+                loot("rewards/progression_guide"),
+                item("cannabis_seeds"), item("tobacco_seeds"), item("coca_seeds"), item("rye_seeds"), item("malt_seeds"), item("coffee_seeds"), item("opium_poppy_seeds"));
         inventoryAny("onboarding/first_harvest", "onboarding/first_seed", item("cannabis_leaf"), List.of(),
                 item("cannabis_leaf"), item("tobacco_leaf"), item("coca_leaf"), item("rye"), item("malt"), item("magic_mushroom"));
         placedAny("onboarding/drying_rack", "onboarding/first_harvest", item("drying_rack"), recipes("drying_rack"), block("drying_rack"));
@@ -96,10 +97,12 @@ public final class MyDrugsAdvancementGenerator {
         drug("knowledge/first_psychedelic", "consumption/first_drug", item("magic_mushroom"), "first_psychedelic", null, "psychedelic", null, null, false);
         drug("knowledge/first_depressant", "consumption/first_drug", item("glass_bottle"), "first_depressant", null, "depressant", null, null, true);
         drug("knowledge/first_nicotinic", "consumption/first_drug", item("tobacco_handful"), "first_nicotinic", null, "nicotinic", null, null, false);
+        drug("knowledge/first_hash", "knowledge/cannabinoid", item("hash_piece"), "first_hash", null, null, null, null, false, "hash");
         drug("knowledge/first_alcohol", "knowledge/first_depressant", item("glass_bottle"), "first_alcohol", null, null, null, null, true, "alcohol");
         drug("knowledge/first_high_value_psychotrope", "psychotrope/psychotrope_core", item("meth_shard"), "first_high_value_psychotrope", null, null, null, null, true, "meth");
         psyKnowledge("knowledge/nicotinic", "knowledge/first_nicotinic", item("psy_receptacle"), "mydrugs:nicotinic", false);
         psyKnowledge("knowledge/cannabinoid", "knowledge/nicotinic", item("cannabis_powder"), "mydrugs:cannabinoid", false);
+        psyKnowledge("knowledge/steel_plating", "knowledge/first_hash", item("steel_plate"), "mydrugs:steel_plating", false);
         psyKnowledge("knowledge/fermented", "knowledge/cannabinoid", item("glass_bottle"), "mydrugs:fermented", false);
         psyKnowledge("knowledge/stimulant", "knowledge/fermented", item("cocaine_powder"), "mydrugs:stimulant", false);
         psyKnowledge("knowledge/lysergic", "knowledge/stimulant", item("lsd_drop"), "mydrugs:lysergic", false);
@@ -242,6 +245,22 @@ public final class MyDrugsAdvancementGenerator {
 
     private void inventoryAny(String path, String parent, String icon, List<String> rewards, String... items) {
         inventoryAny(path, parent, icon, rewards, false, items);
+    }
+
+    private void inventoryAnyWithLoot(String path, String parent, String icon, List<String> rewards,
+                                      List<String> lootRewards, String... items) {
+        JsonObject advancement = base(path, parent, icon, "task", false, true, false);
+        JsonObject criteria = new JsonObject();
+        JsonArray group = new JsonArray();
+        for (int i = 0; i < items.length; i++) {
+            String name = "has_" + i;
+            criteria.add(name, inventoryCriterion(items[i]));
+            group.add(name);
+        }
+        advancement.add("criteria", criteria);
+        advancement.add("requirements", requirements(List.of(group)));
+        rewards(advancement, rewards, lootRewards);
+        output.accept(ModAdvancementIds.id(path), advancement);
     }
 
     private void inventoryAny(String path, String parent, String icon, List<String> rewards, boolean hidden, String... items) {
@@ -458,19 +477,36 @@ public final class MyDrugsAdvancementGenerator {
     }
 
     private void rewards(JsonObject advancement, List<String> recipePaths) {
-        if (recipePaths.isEmpty()) {
+        rewards(advancement, recipePaths, List.of());
+    }
+
+    private void rewards(JsonObject advancement, List<String> recipePaths, List<String> lootPaths) {
+        if (recipePaths.isEmpty() && lootPaths.isEmpty()) {
             return;
         }
         JsonObject rewards = new JsonObject();
-        JsonArray recipes = new JsonArray();
-        for (String path : recipePaths) {
-            recipes.add(MyDrugs.MODID + ":" + path);
+        if (!recipePaths.isEmpty()) {
+            JsonArray recipes = new JsonArray();
+            for (String path : recipePaths) {
+                recipes.add(MyDrugs.MODID + ":" + path);
+            }
+            rewards.add("recipes", recipes);
         }
-        rewards.add("recipes", recipes);
+        if (!lootPaths.isEmpty()) {
+            JsonArray loot = new JsonArray();
+            for (String path : lootPaths) {
+                loot.add(MyDrugs.MODID + ":" + path);
+            }
+            rewards.add("loot", loot);
+        }
         advancement.add("rewards", rewards);
     }
 
     private List<String> recipes(String... paths) {
+        return List.of(paths);
+    }
+
+    private List<String> loot(String... paths) {
         return List.of(paths);
     }
 

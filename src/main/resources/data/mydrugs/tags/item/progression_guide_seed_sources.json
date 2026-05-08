@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "mydrugs:cannabis_seeds",
+    "mydrugs:tobacco_seeds",
+    "mydrugs:coca_seeds",
+    "mydrugs:rye_seeds",
+    "mydrugs:malt_seeds",
+    "mydrugs:coffee_seeds",
+    "mydrugs:opium_poppy_seeds"
+  ]
+}

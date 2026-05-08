@@ -39,7 +39,18 @@ public abstract class DrugItem extends Item implements DrugHolder {
     }
 
     public List<DrugModel> getDrugModels(ItemStack stack) {
-        return this.model == null ? List.of() : List.of(this.model);
+        if (this.model == null) {
+            return List.of();
+        }
+
+        List<org.mydrugs.mydrugs.core.drug.effect.DrugEffect> extraEffects = getAdditionalDrugEffects(stack);
+        return extraEffects.isEmpty()
+                ? List.of(this.model)
+                : List.of(this.model.withAdditionalEffects(extraEffects));
+    }
+
+    protected List<org.mydrugs.mydrugs.core.drug.effect.DrugEffect> getAdditionalDrugEffects(ItemStack stack) {
+        return List.of();
     }
 
     @Override

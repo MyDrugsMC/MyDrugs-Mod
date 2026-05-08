@@ -205,6 +205,14 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
+        shapeless(futures, cachedOutput, "cup",
+                new Object[]{
+                        "minecraft:brick"
+                },
+                "mydrugs:cup",
+                1
+        );
+
         shapeless(futures, cachedOutput, "porous_clay",
                 new Object[]{
                         "minecraft:clay_ball",
@@ -273,6 +281,15 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
+        shapeless(futures, cachedOutput, "progression_guide",
+                new Object[]{
+                        "minecraft:book",
+                        "#mydrugs:progression_guide_seed_sources"
+                },
+                "mydrugs:progression_guide",
+                1
+        );
+
         shaped(futures, cachedOutput, "grinding_bowl",
                 new String[]{
                         "A A",
@@ -309,6 +326,21 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "S", "minecraft:stick"
                 ),
                 "mydrugs:stone_hammer",
+                1
+        );
+
+        shaped(futures, cachedOutput, "syringe",
+                new String[]{
+                        " A ",
+                        " B ",
+                        " C "
+                },
+                key(
+                        "A", "minecraft:iron_nugget",
+                        "B", "minecraft:glass_bottle",
+                        "C", "minecraft:copper_ingot"
+                ),
+                "mydrugs:syringe",
                 1
         );
 
@@ -556,6 +588,14 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 },
                 "mydrugs:cigaret_filter",
                 4
+        );
+
+        shapeless(futures, cachedOutput, "opium_poppy_seeds",
+                new Object[]{
+                        "minecraft:poppy"
+                },
+                "mydrugs:opium_poppy_seeds",
+                1
         );
 
         shaped(futures, cachedOutput, "fluid_filter",
@@ -808,6 +848,52 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 ),
                 "mydrugs:pipe_joint",
                 4
+        );
+
+        shaped(futures, cachedOutput, "pipe_wrench",
+                new String[]{
+                        " A ",
+                        " BA",
+                        "B  "
+                },
+                key(
+                        "A", "minecraft:iron_ingot",
+                        "B", "minecraft:stick"
+                ),
+                "mydrugs:pipe_wrench",
+                1
+        );
+
+        shaped(futures, cachedOutput, "pipe_filter_upgrade",
+                new String[]{
+                        "ABA",
+                        "CDC",
+                        "ABA"
+                },
+                key(
+                        "A", "mydrugs:pipe_joint",
+                        "B", "minecraft:redstone",
+                        "C", "mydrugs:iron_mesh",
+                        "D", "mydrugs:fluid_filter"
+                ),
+                "mydrugs:pipe_filter_upgrade",
+                1
+        );
+
+        shaped(futures, cachedOutput, "machine_transfer_upgrade",
+                new String[]{
+                        "ABA",
+                        "CDC",
+                        "ABA"
+                },
+                key(
+                        "A", "mydrugs:pipe_joint",
+                        "B", "mydrugs:copper_tube",
+                        "C", "minecraft:redstone",
+                        "D", "mydrugs:control_circuit"
+                ),
+                "mydrugs:machine_transfer_upgrade",
+                1
         );
 
         shaped(futures, cachedOutput, "psychotrope_lens",

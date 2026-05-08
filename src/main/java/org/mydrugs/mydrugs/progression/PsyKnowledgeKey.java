@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public record PsyKnowledgeKey(ResourceLocation id) {
+    public static final PsyKnowledgeKey CAFFEINE = create("caffeine");
     public static final PsyKnowledgeKey NICOTINIC = create("nicotinic");
     public static final PsyKnowledgeKey CANNABINOID = create("cannabinoid");
     public static final PsyKnowledgeKey FERMENTED = create("fermented");
@@ -17,6 +18,7 @@ public record PsyKnowledgeKey(ResourceLocation id) {
     public static final PsyKnowledgeKey STEEL_PLATING = create("steel_plating");
 
     public static final List<PsyKnowledgeKey> ORDERED = List.of(
+            CAFFEINE,
             NICOTINIC,
             CANNABINOID,
             FERMENTED,

@@ -35,6 +35,8 @@ public final class ModWorldGenKeys {
 
     public static final ResourceKey<ConfiguredFeature<?, ?>> PETROLEUM_LAKE =
             configured("petroleum_lake");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> ALOE_VERA_PATCH =
+            configured("aloe_vera_patch");
 
     public static final ResourceKey<PlacedFeature> PLATINUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, id("platinum_ore_placed"));
@@ -43,6 +45,8 @@ public final class ModWorldGenKeys {
 
     public static final ResourceKey<PlacedFeature> PETROLEUM_LAKE_SURFACE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, id("petroleum_lake_surface_placed"));
+    public static final ResourceKey<PlacedFeature> ALOE_VERA_PATCH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("aloe_vera_patch_placed"));
 
     public static final ResourceKey<BiomeModifier> ADD_PLATINUM_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_platinum_ore"));
@@ -51,6 +55,8 @@ public final class ModWorldGenKeys {
 
     public static final ResourceKey<BiomeModifier> ADD_PETROLEUM_LAKES_TO_DESERTS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_petroleum_lakes_to_deserts"));
+    public static final ResourceKey<BiomeModifier> ADD_ALOE_VERA_TO_OVERWORLD =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_aloe_vera_to_overworld"));
 
     private ModWorldGenKeys() {
     }

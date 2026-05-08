@@ -5,7 +5,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -54,6 +56,19 @@ public class GasTankBlock extends Block implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new GasTankBlockEntity(pos, state);
+    }
+
+    @Override
+    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+        ItemStack stack = new ItemStack(org.mydrugs.mydrugs.items.ModItems.GAS_TANK_ITEM.get());
+        if (level instanceof BlockGetter blockGetter && blockGetter.getBlockEntity(pos) instanceof GasTankBlockEntity tankBe) {
+            GasType gas = tankBe.getTank().getGasType();
+            stack.set(
+                    ModDataComponents.GAS_TANK_CONTENTS.get(),
+                    new GasTankContents(gas == null ? "" : gas.id().toString(), tankBe.getTank().getAmount())
+            );
+        }
+        return stack;
     }
 
     @Override

@@ -5,4 +5,8 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public interface RollingIngredient {
     DrugId getRollingDrug(ItemStack stack);
+
+    default boolean isBrightenedRollingIngredient(ItemStack stack) {
+        return false;
+    }
 }

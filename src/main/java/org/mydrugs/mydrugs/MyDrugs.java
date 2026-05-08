@@ -21,6 +21,7 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.crops.ModCrops;
 import org.mydrugs.mydrugs.core.client.ClientState;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
+import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugRegistry;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseService;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.fluids.ModFluids;
@@ -84,13 +85,13 @@ public class MyDrugs {
         ModAttachments.register(modEventBus);
         ModCrops.register(modEventBus);
         DrugRegistry.registerDrugs();
+        RitualDrugRegistry.registerDefaults();
 
         modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        LOGGER.info("HELLO FROM COMMON SETUP");
         event.enqueueWork(() -> {
             Regions.register(new ModRegions(ResourceLocation.fromNamespaceAndPath(MODID, "overworld"), 2));
             SurfaceRuleManager.addSurfaceRules(
@@ -103,7 +104,6 @@ public class MyDrugs {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
     }
 
     public static Logger getLOGGER() {

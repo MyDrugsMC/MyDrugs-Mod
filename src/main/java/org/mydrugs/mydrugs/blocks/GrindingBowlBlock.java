@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
@@ -22,6 +23,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.GrindingBowlBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipes;
 
 public class GrindingBowlBlock extends Block implements EntityBlock {
@@ -58,6 +61,10 @@ public class GrindingBowlBlock extends Block implements EntityBlock {
 
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
+        if (!bowl.isEmpty() && !bowl.canGrind()) {
+            return collectStoredStack(level, pos, player);
+        }
+
         // Grinding tool click
         if (stack.is(ModItems.GRINDING_TOOL.get())) {
             if (!bowl.canGrind()) {
@@ -68,7 +75,10 @@ public class GrindingBowlBlock extends Block implements EntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            if (bowl.grindOnce()) {
+            float speed = player instanceof ServerPlayer serverPlayer
+                    ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.GRINDING_BOWL)
+                    : 1.0F;
+            if (bowl.grindWork(speed)) {
                 level.playSound(null, pos, SoundEvents.STONE_HIT, SoundSource.BLOCKS, 0.8F, 1.1F);
                 return InteractionResult.CONSUME;
             }
@@ -112,6 +122,15 @@ public class GrindingBowlBlock extends Block implements EntityBlock {
 
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
+        }
+
+        return collectStoredStack(level, pos, player);
+    }
+
+    private static InteractionResult collectStoredStack(Level level, BlockPos pos, Player player) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof GrindingBowlBlockEntity bowl) || bowl.isEmpty()) {
+            return InteractionResult.PASS;
         }
 
         ItemStack out = bowl.removeStack();

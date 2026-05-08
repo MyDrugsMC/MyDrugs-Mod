@@ -52,14 +52,19 @@ public final class AddictionClientState {
         activeEffects.clear();
         for (DrugEffectSyncPayload.Entry entry : payload.effects()) {
             if (entry.type() != null && entry.intensity() > 0.0F && entry.remainingTicks() > 0) {
-                activeEffects.put(entry.type(), new ClientDrugEffect(entry.intensity(), entry.remainingTicks()));
+                activeEffects.put(entry.type(), new ClientDrugEffect(
+                        entry.intensity(),
+                        entry.remainingTicks(),
+                        entry.fadeTicksRemaining(),
+                        entry.fadeDurationTicks()
+                ));
             }
         }
     }
 
     public static float getEffectIntensity(EffectType type) {
         ClientDrugEffect effect = activeEffects.get(type);
-        return effect == null ? 0.0F : effect.intensity;
+        return effect == null ? 0.0F : effect.intensity();
     }
 
     public static boolean hasEffect(EffectType type) {
@@ -201,16 +206,40 @@ public final class AddictionClientState {
         if (overdoseTicksRemaining > 0) {
             overdoseTicksRemaining--;
         }
-        activeEffects.entrySet().removeIf(entry -> --entry.getValue().remainingTicks <= 0);
+        activeEffects.entrySet().removeIf(entry -> entry.getValue().tick());
     }
 
     private static final class ClientDrugEffect {
         private final float intensity;
         private int remainingTicks;
+        private int fadeTicksRemaining;
+        private final int fadeDurationTicks;
 
-        private ClientDrugEffect(float intensity, int remainingTicks) {
+        private ClientDrugEffect(float intensity, int remainingTicks, int fadeTicksRemaining, int fadeDurationTicks) {
             this.intensity = intensity;
             this.remainingTicks = remainingTicks;
+            this.fadeTicksRemaining = fadeTicksRemaining;
+            this.fadeDurationTicks = fadeDurationTicks;
+        }
+
+        private float intensity() {
+            if (this.fadeTicksRemaining <= 0 || this.fadeDurationTicks <= 0) {
+                return this.intensity;
+            }
+            return this.intensity * Math.clamp(this.fadeTicksRemaining / (float) this.fadeDurationTicks, 0.0F, 1.0F);
+        }
+
+        private boolean tick() {
+            if (this.remainingTicks > 0) {
+                this.remainingTicks--;
+            }
+            if (this.remainingTicks <= 0 && this.fadeTicksRemaining <= 0 && this.fadeDurationTicks > 0) {
+                this.fadeTicksRemaining = this.fadeDurationTicks;
+            }
+            if (this.fadeTicksRemaining > 0) {
+                this.fadeTicksRemaining--;
+            }
+            return this.remainingTicks <= 0 && this.fadeTicksRemaining <= 0;
         }
     }
 

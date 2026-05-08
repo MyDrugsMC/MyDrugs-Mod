@@ -6,14 +6,18 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCrafterRecipeResolver;
 
 import java.util.ArrayList;
@@ -82,6 +86,10 @@ public class StompCrafterBlockEntity extends BlockEntity {
     }
 
     public void addProgressFromFall(ServerLevel level, double fallDistance) {
+        addProgressFromFall(level, fallDistance, null);
+    }
+
+    public void addProgressFromFall(ServerLevel level, double fallDistance, Player player) {
         StompCrafterRecipeResolver.ProcessMatch match =
                 StompCrafterRecipeResolver.findExactMatch(level, this.insertedItems);
 
@@ -91,7 +99,10 @@ public class StompCrafterBlockEntity extends BlockEntity {
 
         this.requiredWork = Math.max(1, match.requiredWork());
 
-        int gained = Math.max(1, (int) Math.floor(fallDistance * 12.0D));
+        float speed = player instanceof ServerPlayer serverPlayer
+                ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.STOMP_CRAFTER)
+                : 1.0F;
+        int gained = Math.max(1, (int) Math.floor(fallDistance * 12.0D * speed));
         this.progress = Mth.clamp(this.progress + gained, 0, this.requiredWork);
         this.markUpdated();
 

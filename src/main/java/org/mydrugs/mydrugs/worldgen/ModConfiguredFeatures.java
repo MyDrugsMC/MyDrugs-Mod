@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.worldgen;
 
+import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.tags.BlockTags;
@@ -11,11 +12,14 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.minecraft.world.level.material.Fluids;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.blocks.crops.ModCrops;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 
 import java.util.List;
@@ -106,6 +110,22 @@ public final class ModConfiguredFeatures {
         context.register(
                 ModWorldGenKeys.PETROLEUM_LAKE,
                 new ConfiguredFeature<>(Feature.LAKE, petroleumLakeConfig)
+        );
+
+        context.register(
+                ModWorldGenKeys.ALOE_VERA_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                10,
+                                4,
+                                2,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(ModCrops.ALOE_VERA_CROP.get().defaultBlockState()))
+                                )
+                        )
+                )
         );
     }
 }

@@ -37,6 +37,18 @@ public class GasTankBlockEntity extends BlockEntity {
         return gasTank;
     }
 
+    public GasType getVisualGasType() {
+        return gasTank.getGasType();
+    }
+
+    public long getVisualGasAmount() {
+        return gasTank.getAmount();
+    }
+
+    public float getVisualGasRatio() {
+        return Math.min(1.0F, gasTank.getAmount() / (float) GasTankItemHandler.CAPACITY);
+    }
+
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);

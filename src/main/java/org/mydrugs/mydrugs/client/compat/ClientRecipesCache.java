@@ -305,7 +305,7 @@ public final class ClientRecipesCache {
                 .byType(ModRecipeTypes.PSY_MIXER.get())
                 .stream()
                 .map(RecipeHolder::value)
-                .filter(recipe -> recipe.requiredKnowledge().isEmpty() || recipe.showIfLocked())
+                .filter(recipe -> !recipe.hiddenBeforeDiscovery() && (recipe.requiredKnowledge().isEmpty() || recipe.showIfLocked()))
                 .forEach(PSY_MIXER_RECIPES::add);
     }
 

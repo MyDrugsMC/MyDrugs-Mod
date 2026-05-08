@@ -164,20 +164,26 @@ public final class PsychotropeGeneratorScreen extends AbstractMachineScreen<Psyc
         graphics.fill(x, y, x + STATUS_SIZE, y + STATUS_SIZE, 0xFF08080A);
         graphics.fill(x + 1, y + 1, x + STATUS_SIZE - 1, y + STATUS_SIZE - 1, fill);
 
+        int fontHeight = this.font.lineHeight;
+
         if (this.menu.isFormed()) {
-            graphics.fill(x + 4, y + 8, x + 6, y + 10, 0xFFFFFFFF);
-            graphics.fill(x + 6, y + 10, x + 8, y + 12, 0xFFFFFFFF);
-            graphics.fill(x + 8, y + 7, x + 10, y + 10, 0xFFFFFFFF);
-            graphics.fill(x + 10, y + 5, x + 12, y + 8, 0xFFFFFFFF);
+            graphics.drawCenteredString(this.font, "✓", x + STATUS_SIZE / 2, y + STATUS_SIZE / 2 - fontHeight / 2, 0xFFFFFFFF);
+
+//            graphics.fill(x + 4, y + 8, x + 6, y + 10, 0xFFFFFFFF);
+//            graphics.fill(x + 6, y + 10, x + 8, y + 12, 0xFFFFFFFF);
+//            graphics.fill(x + 8, y + 7, x + 10, y + 10, 0xFFFFFFFF);
+//            graphics.fill(x + 10, y + 5, x + 12, y + 8, 0xFFFFFFFF);
         } else {
-            graphics.fill(x + 4, y + 4, x + 6, y + 6, 0xFFFFFFFF);
-            graphics.fill(x + 6, y + 6, x + 8, y + 8, 0xFFFFFFFF);
-            graphics.fill(x + 8, y + 8, x + 10, y + 10, 0xFFFFFFFF);
-            graphics.fill(x + 10, y + 10, x + 12, y + 12, 0xFFFFFFFF);
-            graphics.fill(x + 10, y + 4, x + 12, y + 6, 0xFFFFFFFF);
-            graphics.fill(x + 8, y + 6, x + 10, y + 8, 0xFFFFFFFF);
-            graphics.fill(x + 6, y + 8, x + 8, y + 10, 0xFFFFFFFF);
-            graphics.fill(x + 4, y + 10, x + 6, y + 12, 0xFFFFFFFF);
+            graphics.drawCenteredString(this.font, "x", x + STATUS_SIZE / 2, y + STATUS_SIZE / 2 - fontHeight / 2, 0xFFFFFFFF);
+
+//            graphics.fill(x + 4, y + 4, x + 6, y + 6, 0xFFFFFFFF);
+//            graphics.fill(x + 6, y + 6, x + 8, y + 8, 0xFFFFFFFF);
+//            graphics.fill(x + 8, y + 8, x + 10, y + 10, 0xFFFFFFFF);
+//            graphics.fill(x + 10, y + 10, x + 12, y + 12, 0xFFFFFFFF);
+//            graphics.fill(x + 10, y + 4, x + 12, y + 6, 0xFFFFFFFF);
+//            graphics.fill(x + 8, y + 6, x + 10, y + 8, 0xFFFFFFFF);
+//            graphics.fill(x + 6, y + 8, x + 8, y + 10, 0xFFFFFFFF);
+//            graphics.fill(x + 4, y + 10, x + 6, y + 12, 0xFFFFFFFF);
         }
     }
 

@@ -40,11 +40,20 @@ import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.DrugRegistry;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
+import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
+import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
@@ -197,6 +206,20 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             }
         }
 
+        PlayerAddictionStats playerStats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        if (!hasRequiredDrugCategory(playerStats, recipe.requiredDrugCategory())) {
+            sendRandomMessage(player, MISSING_KNOWLEDGE);
+            return false;
+        }
+        if (!hasRequiredActiveEffect(player, recipe.requiredActiveEffect())) {
+            sendRandomMessage(player, MISSING_KNOWLEDGE);
+            return false;
+        }
+        if (recipe.requiredBadTripState() && !hasBadTripState(playerStats)) {
+            sendRandomMessage(player, MISSING_KNOWLEDGE);
+            return false;
+        }
+
         ItemStack resultPreview = recipe.result();
         if (!items.get(PsyMixerMultiblock.SLOT_OUTPUT).isEmpty()) {
             ItemStack out = items.get(PsyMixerMultiblock.SLOT_OUTPUT);
@@ -211,20 +234,24 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
         float speedMul = mastery.getSpeedMultiplier(recipeId);
         float instabReduction = mastery.getInstabilityReduction(recipeId);
+        float manualDrugSpeed = ManualMachineSpeedHelper.getSpeedMultiplier(player, ManualMachineType.PSY_MIXER);
+        float ritualTimingBonus = ManualMachineSpeedHelper.getRitualTimingBonus(player);
+        float ritualInstabilityReduction = ManualMachineSpeedHelper.getRitualInstabilityReduction(player);
 
-        float effInstab = recipe.baseInstability() - instabReduction;
+        float effInstab = recipe.baseInstability() + recipe.ritualStabilityModifier() - instabReduction - ritualInstabilityReduction;
         if (recipe.stabilizer().isPresent() && !items.get(PsyMixerMultiblock.SLOT_STABILIZER).isEmpty()) {
             effInstab -= 0.10F;
         }
         effInstab = Math.max(0.03F, Math.min(0.95F, effInstab));
 
         this.activeRecipeId = recipeId;
-        this.ritualMaxTime = Math.max(20, Math.round(recipe.ritualTime() * speedMul));
+        float recipeSpeed = Math.max(0.25F, 1.0F + recipe.machineSpeedModifier());
+        this.ritualMaxTime = Math.max(20, Math.round(recipe.ritualTime() * speedMul / (manualDrugSpeed * recipeSpeed)));
         this.progress = 0;
         this.instability = effInstab;
         this.running = true;
         this.ritualPlayer = player.getUUID();
-        this.timingWindow = 0.12F + mastery.getTimingWindowBonus(recipeId);
+        this.timingWindow = Math.min(1.0F, 0.12F + mastery.getTimingWindowBonus(recipeId) + ritualTimingBonus);
         this.goodHits = 0;
         this.badHits = 0;
         this.focusIndex = findNextAvailableFocus(-1);
@@ -306,6 +333,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             if (player != null) {
                 PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
                 mastery.incrementFailed(activeRecipeId);
+                applyFailureSeverity(player, recipe.failureSeverity());
                 sendRandomMessage(player, FAIL_MESSAGES);
             }
 
@@ -330,6 +358,73 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
     private static net.minecraft.world.item.Item ModItems_UNSTABLE_RESIDUE() {
         return org.mydrugs.mydrugs.items.ModItems.UNSTABLE_RESIDUE.get();
+    }
+
+    private static boolean hasRequiredDrugCategory(PlayerAddictionStats stats, Optional<String> requiredCategory) {
+        if (requiredCategory.isEmpty()) {
+            return true;
+        }
+
+        DrugCategory category;
+        try {
+            category = DrugCategory.valueOf(requiredCategory.get().trim().toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
+
+        for (DrugId drugId : stats.getTrackedDrugIds()) {
+            if (DrugRegistry.getCategory(drugId) != category) {
+                continue;
+            }
+            DrugAddictionStats drugStats = stats.getDrugStats(drugId);
+            if (drugStats != null && drugStats.currentDose() > 0.001F) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasRequiredActiveEffect(ServerPlayer player, Optional<String> requiredEffect) {
+        if (requiredEffect.isEmpty()) {
+            return true;
+        }
+
+        EffectType type = EffectType.bySerializedNameOrNull(requiredEffect.get());
+        return type != null && DrugEffectRuntimeManager.getServerIntensity(player, type) > 0.001F;
+    }
+
+    private static boolean hasBadTripState(PlayerAddictionStats stats) {
+        for (DrugId drugId : stats.getTrackedDrugIds()) {
+            DrugCategory category = DrugRegistry.getCategory(drugId);
+            DosePath path = DosePath.of(category);
+            if (path == DosePath.NONE) {
+                continue;
+            }
+
+            DrugAddictionStats drugStats = stats.getDrugStats(drugId);
+            if (drugStats == null) {
+                continue;
+            }
+
+            DoseState state = DoseManager.resolveState(path, drugStats.currentDose());
+            if (state == DoseState.VERY_HIGH || state == DoseState.OVERDOSE || state == DoseState.VERY_DRUNK || state == DoseState.ETHYLIC_COMA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void applyFailureSeverity(ServerPlayer player, float severity) {
+        if (severity <= 0.0F) {
+            return;
+        }
+
+        float clamped = Math.min(2.0F, severity);
+        DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.15F + clamped * 0.25F, 20 * 8);
+        DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, 0.10F + clamped * 0.20F, 20 * 6);
+        if (clamped >= 1.0F) {
+            DrugEffectRuntimeManager.addEffect(player, EffectType.CAMERA_SWAY, 0.10F + clamped * 0.10F, 20 * 5);
+        }
     }
 
     private void consumeInputs(PsyMixerRecipe recipe, boolean success) {

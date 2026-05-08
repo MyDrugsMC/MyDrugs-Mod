@@ -39,18 +39,30 @@ public final class ClientPayloadHandler {
         AddictionClientState.applyDrugEffectSync(payload);
 
         for (DrugEffectSyncPayload.Entry entry : payload.effects()) {
-            if (entry.type() == null || entry.remainingTicks() <= 0 || entry.intensity() <= 0.0F) {
+            float effectiveIntensity = entry.effectiveIntensity();
+            if (entry.type() == null || entry.remainingTicks() <= 0 || effectiveIntensity <= 0.0F) {
                 continue;
             }
 
             EffectCategory category = entry.type().getCategory();
             if (category == EffectCategory.SHADER && Config.CLIENT.enableDrugShaders.get()) {
+                int fadeTicks = entry.fadeTicksRemaining();
+                int fadeDuration = entry.fadeDurationTicks();
                 int duration = Config.CLIENT.reducedMotionMode.get()
                         ? Math.max(1, entry.remainingTicks() / 2)
                         : entry.remainingTicks();
-                ShaderManager.INSTANCE.addDirect(duration, entry.type(), entry.intensity());
+                if (Config.CLIENT.reducedMotionMode.get()) {
+                    fadeTicks = Math.max(0, fadeTicks / 2);
+                    fadeDuration = Math.max(0, fadeDuration / 2);
+                }
+                ShaderManager.INSTANCE.addDirect(duration, entry.type(), entry.intensity(), fadeTicks, fadeDuration);
             } else if ((category == EffectCategory.SOUND || category == EffectCategory.SOUND_EFFECT) && Config.CLIENT.enableDrugSounds.get()) {
-                ClientSoundsHandler.setToStart(ModSounds.fromEffectType(entry.type()), entry.remainingTicks());
+                ClientSoundsHandler.setToStart(
+                        ModSounds.fromEffectType(entry.type()),
+                        entry.remainingTicks(),
+                        entry.fadeTicksRemaining(),
+                        entry.fadeDurationTicks()
+                );
             }
         }
     }

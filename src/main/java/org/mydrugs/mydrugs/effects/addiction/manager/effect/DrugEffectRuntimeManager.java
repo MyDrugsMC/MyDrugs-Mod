@@ -35,6 +35,7 @@ public final class DrugEffectRuntimeManager {
     private static final Map<UUID, Integer> VOMIT_COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Float> LAST_MOVEMENT_MULTIPLIER = new HashMap<>();
     private static final Map<UUID, Integer> LAST_SYNC_SIGNATURE = new HashMap<>();
+    private static final Map<UUID, Long> LAST_ADRENALINE_TRIGGER = new HashMap<>();
     private static final Set<UUID> DIRTY_PLAYERS = new java.util.HashSet<>();
     private static final ResourceLocation MOVEMENT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_movement_speed");
 
@@ -74,8 +75,14 @@ public final class DrugEffectRuntimeManager {
         if (effects != null) {
             Iterator<Map.Entry<EffectType, ActiveDrugEffect>> iterator = effects.entrySet().iterator();
             while (iterator.hasNext()) {
-                if (iterator.next().getValue().tick()) {
+                ActiveDrugEffect effect = iterator.next().getValue();
+                boolean wasFading = effect.isFading();
+                if (effect.tick()) {
                     iterator.remove();
+                    dirty = true;
+                } else if (!wasFading && effect.isFading()) {
+                    dirty = true;
+                } else if (effect.isFading() && effect.fadeTicksRemaining() % 10 == 0) {
                     dirty = true;
                 }
             }
@@ -103,11 +110,43 @@ public final class DrugEffectRuntimeManager {
 
     public static float getMiningSpeedMultiplier(ServerPlayer player) {
         float haste = getServerIntensity(player, EffectType.MINING_SPEED);
-        return 1.0F + Math.min(2.0F, Math.max(0.0F, haste));
+        float precision = getServerIntensity(player, EffectType.PRECISION);
+        float adrenaline = getServerIntensity(player, EffectType.ADRENALINE_SURGE);
+        return 1.0F + Math.min(2.5F, Math.max(0.0F, haste + precision * 0.55F + adrenaline * 0.65F));
     }
 
     public static float getDamageResistance(ServerPlayer player) {
         return Math.min(0.80F, Math.max(0.0F, getServerIntensity(player, EffectType.DAMAGE_RESISTANCE)));
+    }
+
+    public static float getAttackDamageMultiplier(ServerPlayer player) {
+        float damage = getServerIntensity(player, EffectType.ATTACK_DAMAGE);
+        float adrenaline = getServerIntensity(player, EffectType.ADRENALINE_SURGE);
+        return 1.0F + Math.min(1.5F, Math.max(0.0F, damage + adrenaline * 0.45F));
+    }
+
+    public static void triggerStimulantAdrenaline(ServerPlayer player, float damageTaken) {
+        EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(player.getUUID());
+        if (effects == null || effects.isEmpty() || damageTaken <= 0.0F) {
+            return;
+        }
+
+        float stimulant = Math.max(intensity(effects, EffectType.VOID_PULSE) * 0.45F,
+                intensity(effects, EffectType.MANUAL_WORK_SPEED) - 0.30F);
+        stimulant = Math.max(stimulant, intensity(effects, EffectType.HEARTBEAT) * 0.20F);
+        if (stimulant <= 0.08F) {
+            return;
+        }
+
+        long now = player.level().getGameTime();
+        long previous = LAST_ADRENALINE_TRIGGER.getOrDefault(player.getUUID(), -200L);
+        if (now - previous < 30L) {
+            return;
+        }
+
+        LAST_ADRENALINE_TRIGGER.put(player.getUUID(), now);
+        float intensity = Math.min(1.6F, 0.25F + stimulant * 0.55F + Math.min(8.0F, damageTaken) * 0.06F);
+        addEffect(player, EffectType.ADRENALINE_SURGE, intensity, 20 * 12);
     }
 
     private static EffectType normalize(EffectType type) {
@@ -122,7 +161,8 @@ public final class DrugEffectRuntimeManager {
     private static void applyMovementAttribute(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {
         float boost = intensity(effects, EffectType.MOVEMENT_SPEED);
         float slow = intensity(effects, EffectType.MOVEMENT_SLOWDOWN);
-        float multiplier = Math.max(0.05F, 1.0F + boost - slow);
+        float adrenaline = intensity(effects, EffectType.ADRENALINE_SURGE);
+        float multiplier = Math.max(0.05F, 1.0F + boost + adrenaline * 0.12F - slow);
         float previous = LAST_MOVEMENT_MULTIPLIER.getOrDefault(player.getUUID(), 1.0F);
 
         if (Math.abs(multiplier - previous) < 0.005F) {
@@ -255,6 +295,7 @@ public final class DrugEffectRuntimeManager {
             hash = 31 * hash + effect.type().serializedName().hashCode();
             hash = 31 * hash + Math.round(effect.intensity() * 100.0F);
             hash = 31 * hash + Math.max(1, effect.remainingTicks() / 20);
+            hash = 31 * hash + Math.max(0, effect.fadeTicksRemaining() / 10);
         }
         return hash;
     }
@@ -264,7 +305,13 @@ public final class DrugEffectRuntimeManager {
         if (effects != null) {
             for (ActiveDrugEffect effect : effects.values()) {
                 if (effect.remainingTicks() > 0 && effect.intensity() > 0.0F) {
-                    entries.add(new DrugEffectSyncPayload.Entry(effect.type(), effect.intensity(), effect.remainingTicks()));
+                    entries.add(new DrugEffectSyncPayload.Entry(
+                            effect.type(),
+                            effect.baseIntensity(),
+                            effect.remainingTicks(),
+                            effect.fadeTicksRemaining(),
+                            effect.fadeDurationTicks()
+                    ));
                 }
             }
         }

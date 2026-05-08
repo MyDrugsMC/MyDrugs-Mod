@@ -56,6 +56,7 @@ public class ModLangProvider extends LanguageProvider {
 
         // Items
         add(ModItems.GLASS_BOTTLE.get(), "Glass Bottle");
+        add(ModItems.PROGRESSION_GUIDE.get(), "MyDrugs Field Guide");
         add(ModItems.MIXING_SPATULA.get(), "Mixing Spatula");
         add(ModItems.PIPE_WRENCH.get(), "Pipe Wrench");
         add(ModItems.PIPE_FILTER_UPGRADE.get(), "Pipe Filter Upgrade");
@@ -65,10 +66,12 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.CIGARET_FILTER.get(), "Cigarette Filter");
         add(ModItems.PSY_RECEPTACLE.get(), "Psy Receptacle");
         add(ModItems.HEAVY_IRON_PLATE.get(), "Heavy Iron Plate");
+        add(ModItems.INNER_DEMON_REMAINS.get(), "Inner Demon Remains");
         add(ModItems.MYCELIAL_RESONATOR.get(), "Mycelial Resonator");
         add(ModItems.INSULATED_WIRE.get(), "Insulated Wire");
         add(ModItems.CONTROL_CIRCUIT.get(), "Control Circuit");
         add(ModItems.ADVANCED_CONTROL_CIRCUIT.get(), "Advanced Control Circuit");
+        add(ModItems.ALOE_VERA.get(), "Aloe Vera");
         add(ModItems.ELECTRIC_MOTOR.get(), "Electric Motor");
         add(ModItems.HEATING_COIL.get(), "Heating Coil");
         add(ModItems.CONDENSER_COIL.get(), "Condenser Coil");
@@ -81,6 +84,7 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.PLATINUM_INGOT.get(), "Platinum Ingot");
         add(ModItems.RAW_ALUMINIUM.get(), "Raw Aluminium");
         add(ModItems.ALUMINIUM_INGOT.get(), "Aluminium Ingot");
+        add(ModItems.SOOTHING_TOBACCO_BLEND.get(), "Soothing Tobacco Blend");
         add("menu.mydrugs.pipe_filter", "Pipe Filter");
         add("menu.mydrugs.machine_transfer_config", "Machine Transfer Configuration");
         add("message.mydrugs.pipe.side_mode", "%s: %s");
@@ -88,8 +92,8 @@ public class ModLangProvider extends LanguageProvider {
         add("tooltip.mydrugs.pipe_filter.kind", "Kind: %s");
         add("tooltip.mydrugs.pipe_filter.mode", "Mode: %s");
         add("tooltip.mydrugs.pipe_filter.entries", "Entries: %s");
-        add("screen.mydrugs.pipe_filter.placeholder", "Filter editor skeleton");
-        add("screen.mydrugs.pipe_filter.instructions", "Configured data is stored on the upgrade item.");
+        add("screen.mydrugs.pipe_filter.placeholder", "Filter research prototype");
+        add("screen.mydrugs.pipe_filter.instructions", "Prototype filters store their configured data on the upgrade item.");
         add("message.mydrugs.transfer_upgrade.installed", "Transfer upgrade installed");
         add("message.mydrugs.transfer_upgrade.already_installed", "Transfer upgrade already installed");
         add("message.mydrugs.energy_upgrade.installed", "Energy Upgrade installed.");
@@ -154,8 +158,10 @@ public class ModLangProvider extends LanguageProvider {
         add("pipe.mydrugs.filter_mode.allow_list", "Allow List");
         add("pipe.mydrugs.filter_mode.deny_list", "Deny List");
         add("tooltip.mydrugs.psy_receptacle", "A vessel for the first imprint. Used to forge the Psy Anvil.");
+        add("tooltip.mydrugs.progression_guide", "A field guide for the full MyDrugs progression path.");
         add("tooltip.mydrugs.mycelial_resonator", "It hums toward places where the ground dreams.");
-        add("message.mydrugs.mycelial_resonator.use", "The hum points somewhere damp, strange, and not implemented yet.");
+        add("message.mydrugs.mycelial_resonator.use", "The hum points toward damp, strange ground. The research is still incomplete.");
+        add("knowledge.mydrugs.caffeine", "Caffeine Knowledge");
         add("knowledge.mydrugs.nicotinic", "Nicotinic Knowledge");
         add("knowledge.mydrugs.cannabinoid", "Cannabinoid Knowledge");
         add("knowledge.mydrugs.fermented", "Fermented Knowledge");
@@ -163,18 +169,41 @@ public class ModLangProvider extends LanguageProvider {
         add("knowledge.mydrugs.lysergic", "Lysergic Knowledge");
         add("knowledge.mydrugs.overclocked", "Overclocked Knowledge");
         add("knowledge.mydrugs.mycelial", "Mycelial Knowledge");
-        add("message.mydrugs.knowledge.nicotinic", "Your lungs have signed the tutorial waiver. The Psy Receptacle awakens.");
+        add("message.mydrugs.knowledge.caffeine", "Your hands will not stop moving. The Psy Receptacle wakes with them.");
+        add("message.mydrugs.knowledge.nicotinic", "Your lungs have signed the tutorial waiver.");
         add("message.mydrugs.knowledge.cannabinoid", "Your thoughts are buffering... and copper suddenly feels negotiable.");
         add("message.mydrugs.knowledge.fermented", "You have discovered structural confidence. Heavy iron unlocked.");
+        add("tooltip.mydrugs.insulated_wire.fermented_reward.1", "Gosh, I drank too much. I made a mess with my copper and ended up with this.");
+        add("tooltip.mydrugs.insulated_wire.fermented_reward.2", "What is it even for? I tried making it again while drinking, but it led to nothing.");
+        add("tooltip.mydrugs.insulated_wire.fermented_reward.3", "Maybe the first time only worked because of that overstimulation.");
+        add("tooltip.mydrugs.insulated_wire.fermented_reward.4", "Stimulation might be the key. I should find out quickly.");
         add("message.mydrugs.knowledge.stimulant", "Your neurons formed a committee and immediately overclocked it.");
         add("message.mydrugs.knowledge.lysergic", "The walls submitted a circuit diagram. It was correct.");
         add("message.mydrugs.knowledge.overclocked", "The lab heard boss music and started working faster.");
         add("message.mydrugs.knowledge.mycelial", "You found the valley. The valley found you back.");
         add("message.mydrugs.knowledge.blocked.generic", "Your mind has no receptacle for this yet. Start smaller.");
         add("message.mydrugs.knowledge.blocked.mushroom", "The valley speaks, but you do not yet know the language.");
+        add("message.mydrugs.clay_vat.needs_heat", "The clay vat needs heat below it.");
+        add("message.mydrugs.clay_vat.not_enough_water", "Add at least 250 mB water first.");
+        add("message.mydrugs.clay_vat.water_batch_size", "Use water in 250 mB batches.");
+        add("message.mydrugs.clay_vat.not_enough_powder", "Need %s coffee powder for this batch.");
         add("message.mydrugs.psy_anvil.no_recipe", "The Psy Anvil squints at those items and refuses to improvise.");
         add("message.mydrugs.psy_anvil.locked", "Knowledge missing: %s");
         add("screen.mydrugs.psy_anvil.unknown", "Unknown Knowledge");
+        add("screen.mydrugs.bonus.coffee_focus", "Coffee Focus: +%s%% work speed");
+        add("screen.mydrugs.bonus.stimulant_rush", "Stimulant Rush: +%s%% work speed");
+        add("screen.mydrugs.bonus.adrenaline_hands", "Overclocked Hands: +%s%% work speed");
+        add("screen.mydrugs.bonus.tobacco_precision", "Tobacco Precision: +%s%% work speed");
+        add("screen.mydrugs.bonus.ritual_focus", "Ritual Focus: golden zone widened");
+        add("screen.mydrugs.bonus.cannabis_calm", "Cannabis Calm: instability reduced");
+        add("screen.mydrugs.bonus.psychedelic_insight", "Psychedelic Insight: full ritual window");
+        add("key.categories.mydrugs", "MyDrugs");
+        add("key.mydrugs.stimulant_dash", "Stimulant Dash");
+        add("screen.mydrugs.jei.required_drug_category", "Needs active category: %s");
+        add("screen.mydrugs.jei.required_active_effect", "Needs active effect: %s");
+        add("screen.mydrugs.jei.required_bad_trip", "Requires a bad trip state");
+        add("screen.mydrugs.jei.machine_speed_modifier", "Ritual speed: +%s%%");
+        add("screen.mydrugs.jei.ritual_stability_modifier", "Stability: %+d%%");
 
         // Fluids + fluid buckets
         for (FluidEntry entry : ModFluids.ALL.values()) {

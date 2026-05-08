@@ -76,15 +76,7 @@ public final class VanillaBiomeFinderItem extends Item {
         );
 
         BlockPos searchOrigin = serverPlayer.blockPosition();
-        Pair<BlockPos, Holder<Biome>> found = serverLevel.findClosestBiome3d(
-                holder -> holder.unwrapKey()
-                        .map(key -> key.location().equals(selected))
-                        .orElse(false),
-                searchOrigin,
-                SEARCH_RADIUS,
-                SEARCH_HORIZONTAL_STEP,
-                SEARCH_VERTICAL_STEP
-        );
+        Pair<BlockPos, Holder<Biome>> found = findClosestSelectedBiome(serverLevel, searchOrigin, selected);
 
         long now = level.getGameTime();
         ResourceLocation dim = serverLevel.dimension().location();
@@ -145,6 +137,22 @@ public final class VanillaBiomeFinderItem extends Item {
         });
         result.sort((a, b) -> prettyName(a).compareToIgnoreCase(prettyName(b)));
         return result;
+    }
+
+    public static Pair<BlockPos, Holder<Biome>> findClosestSelectedBiome(
+            ServerLevel level,
+            BlockPos origin,
+            ResourceLocation selected
+    ) {
+        return level.findClosestBiome3d(
+                holder -> holder.unwrapKey()
+                        .map(key -> key.location().equals(selected))
+                        .orElse(false),
+                origin,
+                SEARCH_RADIUS,
+                SEARCH_HORIZONTAL_STEP,
+                SEARCH_VERTICAL_STEP
+        );
     }
 
     private static void openSelectionScreen(

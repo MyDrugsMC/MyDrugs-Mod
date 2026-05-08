@@ -13,7 +13,9 @@ import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
+import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 
 public final class AddictionHudRenderer {
     private static final int WITHDRAWAL_BAR_WIDTH = 81;
@@ -165,9 +167,15 @@ public final class AddictionHudRenderer {
             case MUSHROOMS -> new ItemStack(ModItems.MAGIC_MUSHROOM.get());
             case TOBACCO -> new ItemStack(ModItems.CIGARETTE.get());
             case COFFEE -> new ItemStack(ModItems.COFFEE_CUP.get());
-            case ALCOHOL -> new ItemStack(ModItems.HERBAL_TEA.get());
+            case ALCOHOL -> alcoholBottleStack();
             default -> ItemStack.EMPTY;
         };
+    }
+
+    private static ItemStack alcoholBottleStack() {
+        ItemStack stack = new ItemStack(ModItems.GLASS_BOTTLE.get());
+        GlassBottleItem.setContent(stack, ModFluids.rl("raw_alcohol"), GlassBottleItem.CAPACITY_MB);
+        return stack;
     }
 
     private static float flagIntensity(int flag) {

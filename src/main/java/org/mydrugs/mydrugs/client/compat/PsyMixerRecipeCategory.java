@@ -74,14 +74,35 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
         int infoY = 96;
         if (recipe.requiredLifetimeDose() > 0.0F) {
             g.drawString(font, Component.translatable("screen.mydrugs.jei.required_lifetime_dose", recipe.requiredLifetimeDose()), 8, infoY, TEXT, false);
+            infoY += 10;
         } else {
-            recipe.requiredKnowledge().ifPresent(id -> g.drawString(font,
-                    Component.translatable("screen.mydrugs.jei.required_knowledge", knowledgeName(id)),
-                    8,
-                    infoY,
-                    TEXT,
-                    false
-            ));
+            if (recipe.requiredKnowledge().isPresent()) {
+                g.drawString(font,
+                        Component.translatable("screen.mydrugs.jei.required_knowledge", knowledgeName(recipe.requiredKnowledge().get())),
+                        8,
+                        infoY,
+                        TEXT,
+                        false
+                );
+                infoY += 10;
+            }
+        }
+        if (recipe.requiredDrugCategory().isPresent() && infoY < height - 8) {
+            g.drawString(font, fit(Component.translatable("screen.mydrugs.jei.required_drug_category", recipe.requiredDrugCategory().get()), 158), 8, infoY, TEXT, false);
+            infoY += 10;
+        }
+        if (recipe.requiredActiveEffect().isPresent() && infoY < height - 8) {
+            g.drawString(font, fit(Component.translatable("screen.mydrugs.jei.required_active_effect", recipe.requiredActiveEffect().get()), 158), 8, infoY, TEXT, false);
+            infoY += 10;
+        }
+        if (recipe.requiredBadTripState() && infoY < height - 8) {
+            g.drawString(font, Component.translatable("screen.mydrugs.jei.required_bad_trip"), 8, infoY, WARN, false);
+            infoY += 10;
+        }
+        if (recipe.machineSpeedModifier() > 0.001F && infoY < height - 8) {
+            g.drawString(font, Component.translatable("screen.mydrugs.jei.machine_speed_modifier", Math.round(recipe.machineSpeedModifier() * 100.0F)), 8, infoY, MUTED, false);
+        } else if (recipe.ritualStabilityModifier() != 0.0F && infoY < height - 8) {
+            g.drawString(font, Component.translatable("screen.mydrugs.jei.ritual_stability_modifier", Math.round(recipe.ritualStabilityModifier() * 100.0F)), 8, infoY, MUTED, false);
         }
     }
 
@@ -111,5 +132,13 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
 
     private static String knowledgeName(ResourceLocation id) {
         return Component.translatable("knowledge." + id.getNamespace() + "." + id.getPath()).getString();
+    }
+
+    private static Component fit(Component component, int width) {
+        var font = Minecraft.getInstance().font;
+        if (font.width(component) <= width) {
+            return component;
+        }
+        return Component.literal(font.plainSubstrByWidth(component.getString(), width - font.width("...")) + "...");
     }
 }

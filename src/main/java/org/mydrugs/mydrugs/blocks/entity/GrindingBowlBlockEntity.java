@@ -71,11 +71,15 @@ public class GrindingBowlBlockEntity extends BlockEntity {
     }
 
     public boolean grindOnce() {
+        return grindWork(1.0F);
+    }
+
+    public boolean grindWork(float amount) {
         GrindingRecipe recipe = GrindingRecipes.get(storedStack, (ServerLevel) level);
 
         if (recipe == null) return false;
 
-        this.progress++;
+        this.progress += Math.max(1, Math.round(amount));
 
         if (this.progress >= recipe.work()) {
             this.storedStack = recipe.result().copy();

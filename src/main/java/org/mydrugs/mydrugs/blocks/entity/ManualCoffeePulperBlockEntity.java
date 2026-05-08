@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -30,6 +31,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.ManualCoffeePulperMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.coffee_pulping.CoffeePulpingRecipe;
@@ -114,7 +117,10 @@ public class ManualCoffeePulperBlockEntity extends BlockEntity implements Contai
         if (player.distanceToSqr(this.worldPosition.getX() + 0.5D, this.worldPosition.getY() + 0.5D, this.worldPosition.getZ() + 0.5D) > 64.0D) return;
         Optional<RecipeHolder<CoffeePulpingRecipe>> match = getRecipe();
         if (match.isEmpty() || !canCraft(match.get().value())) return;
-        float clamped = Mth.clamp(amount, 0.0F, 8.0F);
+        float multiplier = player instanceof ServerPlayer serverPlayer
+                ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.COFFEE_PULPER)
+                : 1.0F;
+        float clamped = Mth.clamp(amount * multiplier, 0.0F, 16.0F);
         this.workBuffer += clamped;
         this.rollerAngle = (this.rollerAngle + clamped * 18.0F) % 360.0F;
         markDirtyAndSync();

@@ -15,7 +15,7 @@ import java.util.Map;
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ClientSoundsHandler {
     private static final Map<SoundEvent, SoundInstance> ACTIVE = new HashMap<>();
-    private static final Map<SoundEvent, Integer> TO_START = new HashMap<>();
+    private static final Map<SoundEvent, PendingSound> TO_START = new HashMap<>();
 
     private ClientSoundsHandler() {
     }
@@ -34,6 +34,10 @@ public final class ClientSoundsHandler {
     }
 
     public static void setToStart(SoundEvent soundEvent, int durationTick) {
+        setToStart(soundEvent, durationTick, 0, 0);
+    }
+
+    public static void setToStart(SoundEvent soundEvent, int durationTick, int fadeTicksRemaining, int fadeDurationTicks) {
         if (soundEvent == null || durationTick <= 0) {
             return;
         }
@@ -45,11 +49,11 @@ public final class ClientSoundsHandler {
 
         SoundInstance existing = ACTIVE.get(soundEvent);
         if (existing != null && !existing.isStoppedFlag()) {
-            existing.refreshDuration(durationTick);
+            existing.refreshDuration(durationTick, fadeTicksRemaining, fadeDurationTicks);
             return;
         }
 
-        TO_START.merge(soundEvent, durationTick, Math::max);
+        TO_START.put(soundEvent, new PendingSound(durationTick, fadeTicksRemaining, fadeDurationTicks));
     }
 
     private static void startPending(Minecraft mc) {
@@ -57,17 +61,23 @@ public final class ClientSoundsHandler {
             return;
         }
 
-        for (Map.Entry<SoundEvent, Integer> entry : TO_START.entrySet()) {
+        for (Map.Entry<SoundEvent, PendingSound> entry : TO_START.entrySet()) {
             SoundEvent soundEvent = entry.getKey();
-            int duration = entry.getValue();
+            PendingSound pending = entry.getValue();
 
             SoundInstance existing = ACTIVE.get(soundEvent);
             if (existing != null && !existing.isStoppedFlag()) {
-                existing.refreshDuration(duration);
+                existing.refreshDuration(pending.durationTicks(), pending.fadeTicksRemaining(), pending.fadeDurationTicks());
                 continue;
             }
 
-            SoundInstance instance = new SoundInstance(soundEvent, mc.player, duration);
+            SoundInstance instance = new SoundInstance(
+                    soundEvent,
+                    mc.player,
+                    pending.durationTicks(),
+                    pending.fadeTicksRemaining(),
+                    pending.fadeDurationTicks()
+            );
             ACTIVE.put(soundEvent, instance);
             mc.getSoundManager().play(instance);
         }
@@ -96,5 +106,8 @@ public final class ClientSoundsHandler {
 
         ACTIVE.clear();
         TO_START.clear();
+    }
+
+    private record PendingSound(int durationTicks, int fadeTicksRemaining, int fadeDurationTicks) {
     }
 }

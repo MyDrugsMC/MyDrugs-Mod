@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.client.shaders;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -61,8 +62,10 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         }
     }
 
-    @SubscribeEvent
-    public static void onRenderGuiLayer(RenderLevelStageEvent.AfterLevel event) {
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRenderLevelPostShaders(RenderLevelStageEvent.AfterLevel event) {
+        if (true) return;
+
         Minecraft mc = Minecraft.getInstance();
 
         for (AnimatedShader shader : INSTANCE.getActiveShaders()) {
@@ -97,7 +100,9 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     /** Maps each dose-tracked DrugCategory to the set of SHADER EffectTypes it uses. */
     private final Map<DrugCategory, Set<EffectType>> categoryToShaders = new HashMap<>();
     private final Map<EffectType, Integer> directDurations = new HashMap<>();
-    private final Map<EffectType, Float> directStrengths = new HashMap<>();
+    private final Map<EffectType, Float> directBaseStrengths = new HashMap<>();
+    private final Map<EffectType, Integer> directFadeTicks = new HashMap<>();
+    private final Map<EffectType, Integer> directFadeDurations = new HashMap<>();
     private final Map<EffectType, Float> doseStrengths = new HashMap<>();
     private final Map<EffectType, Float> continuousStrengths = new HashMap<>();
     private boolean categoryMapBuilt = false;
@@ -161,6 +166,10 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     }
 
     public void addDirect(int durationTicks, EffectType type, float intensity) {
+        addDirect(durationTicks, type, intensity, 0, 0);
+    }
+
+    public void addDirect(int durationTicks, EffectType type, float intensity, int fadeTicksRemaining, int fadeDurationTicks) {
         if (durationTicks <= 0 || type == null || intensity <= 0.0F) {
             return;
         }
@@ -169,8 +178,19 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
             return;
         }
 
-        directDurations.merge(type, durationTicks, Math::max);
-        directStrengths.merge(type, intensity, Math::max);
+        directDurations.put(type, durationTicks);
+        directBaseStrengths.put(type, intensity);
+        if (fadeDurationTicks > 0) {
+            directFadeDurations.put(type, Math.max(1, fadeDurationTicks));
+            if (fadeTicksRemaining > 0) {
+                directFadeTicks.put(type, Math.min(fadeTicksRemaining, durationTicks));
+            } else {
+                directFadeTicks.remove(type);
+            }
+        } else {
+            directFadeTicks.remove(type);
+            directFadeDurations.remove(type);
+        }
         rebuildActiveShaders();
     }
 
@@ -205,7 +225,9 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     @Override
     public void remove(EffectType type) {
         directDurations.remove(type);
-        directStrengths.remove(type);
+        directBaseStrengths.remove(type);
+        directFadeTicks.remove(type);
+        directFadeDurations.remove(type);
         doseStrengths.remove(type);
         continuousStrengths.remove(type);
         rebuildActiveShaders();
@@ -214,7 +236,9 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     @Override
     public void clearActive() {
         directDurations.clear();
-        directStrengths.clear();
+        directBaseStrengths.clear();
+        directFadeTicks.clear();
+        directFadeDurations.clear();
         doseStrengths.clear();
         continuousStrengths.clear();
         super.clearActive();
@@ -226,10 +250,21 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
             java.util.Iterator<Map.Entry<EffectType, Integer>> iterator = directDurations.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<EffectType, Integer> entry = iterator.next();
+                EffectType type = entry.getKey();
                 int remaining = entry.getValue() - 1;
+                directFadeTicks.computeIfPresent(type, (ignored, fade) -> Math.max(0, fade - 1));
                 if (remaining <= 0) {
-                    directStrengths.remove(entry.getKey());
-                    iterator.remove();
+                    boolean fadeStarted = directFadeTicks.containsKey(type);
+                    int fadeDuration = directFadeDurations.getOrDefault(type, 0);
+                    if (!fadeStarted && fadeDuration > 0) {
+                        directFadeTicks.put(type, fadeDuration);
+                        entry.setValue(fadeDuration);
+                    } else {
+                        directBaseStrengths.remove(type);
+                        directFadeTicks.remove(type);
+                        directFadeDurations.remove(type);
+                        iterator.remove();
+                    }
                 } else {
                     entry.setValue(remaining);
                 }
@@ -258,7 +293,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
                 continue;
             }
 
-            float directStrength = directStrengths.getOrDefault(type, 0.0F);
+            float directStrength = directStrength(type);
             float doseStrength = doseStrengths.getOrDefault(type, 0.0F);
             float continuousStrength = continuousStrengths.getOrDefault(type, 0.0F);
             shader.setStrength(Math.max(Math.max(directStrength, doseStrength), continuousStrength) * configScale);
@@ -271,5 +306,15 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
                 super.add(duration, type);
             }
         }
+    }
+
+    private float directStrength(EffectType type) {
+        float base = directBaseStrengths.getOrDefault(type, 0.0F);
+        int fade = directFadeTicks.getOrDefault(type, 0);
+        int fadeDuration = directFadeDurations.getOrDefault(type, 0);
+        if (fade <= 0 || fadeDuration <= 0) {
+            return base;
+        }
+        return base * Math.clamp(fade / (float) fadeDuration, 0.0F, 1.0F);
     }
 }

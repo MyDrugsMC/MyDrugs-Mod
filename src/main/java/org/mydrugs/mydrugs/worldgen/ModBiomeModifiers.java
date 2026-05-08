@@ -66,5 +66,14 @@ public final class ModBiomeModifiers {
                         GenerationStep.Decoration.LAKES
                 )
         );
+
+        context.register(
+                ModWorldGenKeys.ADD_ALOE_VERA_TO_OVERWORLD,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.ALOE_VERA_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION
+                )
+        );
     }
 }

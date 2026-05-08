@@ -8,12 +8,15 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
@@ -24,9 +27,12 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.fluids.ModFluids;
+import org.mydrugs.mydrugs.items.ModItems;
 
 public class ClayVatBlockEntity extends BlockEntity {
     public static final int FLUID_CAPACITY = 8000;
+    private static final int COFFEE_BATCH_AMOUNT = 250;
 
     @Nullable
     private ResourceLocation fluidId = null;
@@ -51,6 +57,21 @@ public class ClayVatBlockEntity extends BlockEntity {
 
     public float getVisualFluidRatio() {
         return Math.min(1.0f, fluidAmount / (float) FLUID_CAPACITY);
+    }
+
+    public boolean isHeated() {
+        if (level == null) {
+            return false;
+        }
+
+        BlockState belowState = level.getBlockState(worldPosition.below());
+        Block belowBlock = belowState.getBlock();
+        if (belowBlock == Blocks.FIRE || belowBlock == Blocks.SOUL_FIRE) {
+            return true;
+        }
+
+        return (belowBlock == Blocks.CAMPFIRE || belowBlock == Blocks.SOUL_CAMPFIRE)
+                && belowState.getValue(BlockStateProperties.LIT);
     }
 
     private int getInsertableAmount(ResourceLocation incomingId, int requestedAmount) {
@@ -180,6 +201,72 @@ public class ClayVatBlockEntity extends BlockEntity {
         }
 
         removeFluid(transferred);
+        notifyUpdate();
+        return true;
+    }
+
+    public boolean tryBrewCoffee(Player player, ItemStack held) {
+        if (held.isEmpty() || !held.is(ModItems.COFFEE_POWDER.get())) {
+            return false;
+        }
+
+        ResourceLocation waterId = BuiltInRegistries.FLUID.getKey(Fluids.WATER);
+        if (waterId == null || !hasFluid() || !waterId.equals(fluidId)) {
+            return false;
+        }
+
+        if (!isHeated()) {
+            player.displayClientMessage(Component.translatable("message.mydrugs.clay_vat.needs_heat"), true);
+            return true;
+        }
+
+        if (fluidAmount < COFFEE_BATCH_AMOUNT) {
+            player.displayClientMessage(Component.translatable("message.mydrugs.clay_vat.not_enough_water"), true);
+            return true;
+        }
+
+        if (fluidAmount % COFFEE_BATCH_AMOUNT != 0) {
+            player.displayClientMessage(Component.translatable("message.mydrugs.clay_vat.water_batch_size"), true);
+            return true;
+        }
+
+        int requiredPowder = fluidAmount / COFFEE_BATCH_AMOUNT;
+        if (held.getCount() < requiredPowder) {
+            player.displayClientMessage(Component.translatable("message.mydrugs.clay_vat.not_enough_powder", requiredPowder), true);
+            return true;
+        }
+
+        if (!player.getAbilities().instabuild) {
+            held.shrink(requiredPowder);
+        }
+
+        fluidId = ModFluids.rl("coffee");
+        notifyUpdate();
+        return true;
+    }
+
+    public boolean tryFillCoffeeCup(Player player, InteractionHand hand, ItemStack held) {
+        if (held.isEmpty() || !held.is(ModItems.CUP.get())) {
+            return false;
+        }
+
+        ResourceLocation coffeeId = ModFluids.rl("coffee");
+        if (!hasFluid() || !coffeeId.equals(fluidId) || fluidAmount < COFFEE_BATCH_AMOUNT) {
+            return false;
+        }
+
+        ItemStack filled = new ItemStack(ModItems.COFFEE_CUP.get());
+        if (!player.getAbilities().instabuild) {
+            held.shrink(1);
+        }
+
+        if (held.isEmpty()) {
+            player.setItemInHand(hand, filled);
+        } else if (!player.getInventory().add(filled)) {
+            player.drop(filled, false);
+        }
+
+        removeFluid(COFFEE_BATCH_AMOUNT);
         notifyUpdate();
         return true;
     }

@@ -36,6 +36,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     private final Optional<ResourceLocation> requiredKnowledge;
     private final Optional<String> requiredDrug;
     private final float requiredLifetimeDose;
+    private final Optional<String> requiredDrugCategory;
+    private final Optional<String> requiredActiveEffect;
+    private final boolean requiredBadTripState;
+    private final Optional<String> requiredIngredientSource;
+    private final float failureSeverity;
+    private final float machineSpeedModifier;
+    private final float ritualStabilityModifier;
+    private final Optional<String> resultingCustomDrugVariant;
+    private final boolean hiddenBeforeDiscovery;
     private final boolean showIfLocked;
     private final ItemStack failureResult;
     private final boolean preserveVesselOnSuccess;
@@ -55,6 +64,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             Optional<ResourceLocation> requiredKnowledge,
             Optional<String> requiredDrug,
             float requiredLifetimeDose,
+            Optional<String> requiredDrugCategory,
+            Optional<String> requiredActiveEffect,
+            boolean requiredBadTripState,
+            Optional<String> requiredIngredientSource,
+            float failureSeverity,
+            float machineSpeedModifier,
+            float ritualStabilityModifier,
+            Optional<String> resultingCustomDrugVariant,
+            boolean hiddenBeforeDiscovery,
             boolean showIfLocked,
             ItemStack failureResult,
             boolean preserveVesselOnSuccess,
@@ -71,6 +89,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         this.requiredKnowledge = requiredKnowledge;
         this.requiredDrug = requiredDrug;
         this.requiredLifetimeDose = Math.max(0.0F, requiredLifetimeDose);
+        this.requiredDrugCategory = requiredDrugCategory;
+        this.requiredActiveEffect = requiredActiveEffect;
+        this.requiredBadTripState = requiredBadTripState;
+        this.requiredIngredientSource = requiredIngredientSource;
+        this.failureSeverity = Math.max(0.0F, failureSeverity);
+        this.machineSpeedModifier = machineSpeedModifier;
+        this.ritualStabilityModifier = ritualStabilityModifier;
+        this.resultingCustomDrugVariant = resultingCustomDrugVariant;
+        this.hiddenBeforeDiscovery = hiddenBeforeDiscovery;
         this.showIfLocked = showIfLocked;
         this.failureResult = failureResult.copy();
         this.preserveVesselOnSuccess = preserveVesselOnSuccess;
@@ -88,6 +115,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public Optional<ResourceLocation> requiredKnowledge() { return requiredKnowledge; }
     public Optional<String> requiredDrug() { return requiredDrug; }
     public float requiredLifetimeDose() { return requiredLifetimeDose; }
+    public Optional<String> requiredDrugCategory() { return requiredDrugCategory; }
+    public Optional<String> requiredActiveEffect() { return requiredActiveEffect; }
+    public boolean requiredBadTripState() { return requiredBadTripState; }
+    public Optional<String> requiredIngredientSource() { return requiredIngredientSource; }
+    public float failureSeverity() { return failureSeverity; }
+    public float machineSpeedModifier() { return machineSpeedModifier; }
+    public float ritualStabilityModifier() { return ritualStabilityModifier; }
+    public Optional<String> resultingCustomDrugVariant() { return resultingCustomDrugVariant; }
+    public boolean hiddenBeforeDiscovery() { return hiddenBeforeDiscovery; }
     public boolean showIfLocked() { return showIfLocked; }
     public ItemStack failureResult() { return failureResult.copy(); }
     public boolean preserveVesselOnSuccess() { return preserveVesselOnSuccess; }
@@ -149,24 +185,134 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         return ModRecipeTypes.PSY_MIXER.get();
     }
 
+    private CoreCodecData coreCodecData() {
+        return new CoreCodecData(
+                base,
+                material,
+                catalyst,
+                stabilizer,
+                vessel,
+                result(),
+                ritualTime,
+                baseInstability,
+                requiredKnowledge,
+                requiredDrug,
+                requiredLifetimeDose,
+                showIfLocked,
+                failureResult(),
+                preserveVesselOnSuccess,
+                preserveVesselOnFailure
+        );
+    }
+
+    private ExpansionCodecData expansionCodecData() {
+        return new ExpansionCodecData(
+                requiredDrugCategory,
+                requiredActiveEffect,
+                requiredBadTripState,
+                requiredIngredientSource,
+                failureSeverity,
+                machineSpeedModifier,
+                ritualStabilityModifier,
+                resultingCustomDrugVariant,
+                hiddenBeforeDiscovery
+        );
+    }
+
+    private static PsyMixerRecipe fromCodecData(CoreCodecData core, ExpansionCodecData expansion) {
+        return new PsyMixerRecipe(
+                core.base,
+                core.material,
+                core.catalyst,
+                core.stabilizer,
+                core.vessel,
+                core.result,
+                core.ritualTime,
+                core.baseInstability,
+                core.requiredKnowledge,
+                core.requiredDrug,
+                core.requiredLifetimeDose,
+                expansion.requiredDrugCategory,
+                expansion.requiredActiveEffect,
+                expansion.requiredBadTripState,
+                expansion.requiredIngredientSource,
+                expansion.failureSeverity,
+                expansion.machineSpeedModifier,
+                expansion.ritualStabilityModifier,
+                expansion.resultingCustomDrugVariant,
+                expansion.hiddenBeforeDiscovery,
+                core.showIfLocked,
+                core.failureResult,
+                core.preserveVesselOnSuccess,
+                core.preserveVesselOnFailure
+        );
+    }
+
+    private record CoreCodecData(
+            Ingredient base,
+            Ingredient material,
+            Optional<Ingredient> catalyst,
+            Optional<Ingredient> stabilizer,
+            Optional<Ingredient> vessel,
+            ItemStack result,
+            int ritualTime,
+            float baseInstability,
+            Optional<ResourceLocation> requiredKnowledge,
+            Optional<String> requiredDrug,
+            float requiredLifetimeDose,
+            boolean showIfLocked,
+            ItemStack failureResult,
+            boolean preserveVesselOnSuccess,
+            boolean preserveVesselOnFailure
+    ) {
+        private static final MapCodec<CoreCodecData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Ingredient.CODEC.fieldOf("base").forGetter(CoreCodecData::base),
+                Ingredient.CODEC.fieldOf("material").forGetter(CoreCodecData::material),
+                Ingredient.CODEC.optionalFieldOf("catalyst").forGetter(CoreCodecData::catalyst),
+                Ingredient.CODEC.optionalFieldOf("stabilizer").forGetter(CoreCodecData::stabilizer),
+                Ingredient.CODEC.optionalFieldOf("vessel").forGetter(CoreCodecData::vessel),
+                ItemStack.CODEC.fieldOf("result").forGetter(CoreCodecData::result),
+                Codec.INT.optionalFieldOf("ritual_time", 400).forGetter(CoreCodecData::ritualTime),
+                Codec.FLOAT.optionalFieldOf("base_instability", 0.25F).forGetter(CoreCodecData::baseInstability),
+                ResourceLocation.CODEC.optionalFieldOf("required_knowledge").forGetter(CoreCodecData::requiredKnowledge),
+                Codec.STRING.optionalFieldOf("required_drug").forGetter(CoreCodecData::requiredDrug),
+                Codec.FLOAT.optionalFieldOf("required_lifetime_dose", 0.0F).forGetter(CoreCodecData::requiredLifetimeDose),
+                Codec.BOOL.optionalFieldOf("show_if_locked", true).forGetter(CoreCodecData::showIfLocked),
+                ItemStack.CODEC.optionalFieldOf("failure_result", ItemStack.EMPTY).forGetter(CoreCodecData::failureResult),
+                Codec.BOOL.optionalFieldOf("preserve_vessel_on_success", false).forGetter(CoreCodecData::preserveVesselOnSuccess),
+                Codec.BOOL.optionalFieldOf("preserve_vessel_on_failure", true).forGetter(CoreCodecData::preserveVesselOnFailure)
+        ).apply(instance, CoreCodecData::new));
+    }
+
+    private record ExpansionCodecData(
+            Optional<String> requiredDrugCategory,
+            Optional<String> requiredActiveEffect,
+            boolean requiredBadTripState,
+            Optional<String> requiredIngredientSource,
+            float failureSeverity,
+            float machineSpeedModifier,
+            float ritualStabilityModifier,
+            Optional<String> resultingCustomDrugVariant,
+            boolean hiddenBeforeDiscovery
+    ) {
+        private static final MapCodec<ExpansionCodecData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Codec.STRING.optionalFieldOf("required_drug_category").forGetter(ExpansionCodecData::requiredDrugCategory),
+                Codec.STRING.optionalFieldOf("required_active_effect").forGetter(ExpansionCodecData::requiredActiveEffect),
+                Codec.BOOL.optionalFieldOf("required_bad_trip_state", false).forGetter(ExpansionCodecData::requiredBadTripState),
+                Codec.STRING.optionalFieldOf("required_ingredient_source").forGetter(ExpansionCodecData::requiredIngredientSource),
+                Codec.FLOAT.optionalFieldOf("failure_severity", 0.0F).forGetter(ExpansionCodecData::failureSeverity),
+                Codec.FLOAT.optionalFieldOf("machine_speed_modifier", 0.0F).forGetter(ExpansionCodecData::machineSpeedModifier),
+                Codec.FLOAT.optionalFieldOf("ritual_stability_modifier", 0.0F).forGetter(ExpansionCodecData::ritualStabilityModifier),
+                Codec.STRING.optionalFieldOf("resulting_custom_drug_variant").forGetter(ExpansionCodecData::resultingCustomDrugVariant),
+                Codec.BOOL.optionalFieldOf("hidden_before_discovery", false).forGetter(ExpansionCodecData::hiddenBeforeDiscovery)
+        ).apply(instance, ExpansionCodecData::new));
+    }
+
     public static final class Serializer implements RecipeSerializer<PsyMixerRecipe> {
         public static final MapCodec<PsyMixerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Ingredient.CODEC.fieldOf("base").forGetter(PsyMixerRecipe::base),
-                Ingredient.CODEC.fieldOf("material").forGetter(PsyMixerRecipe::material),
-                Ingredient.CODEC.optionalFieldOf("catalyst").forGetter(PsyMixerRecipe::catalyst),
-                Ingredient.CODEC.optionalFieldOf("stabilizer").forGetter(PsyMixerRecipe::stabilizer),
-                Ingredient.CODEC.optionalFieldOf("vessel").forGetter(PsyMixerRecipe::vessel),
-                ItemStack.CODEC.fieldOf("result").forGetter(PsyMixerRecipe::result),
-                Codec.INT.optionalFieldOf("ritual_time", 400).forGetter(PsyMixerRecipe::ritualTime),
-                Codec.FLOAT.optionalFieldOf("base_instability", 0.25F).forGetter(PsyMixerRecipe::baseInstability),
-                ResourceLocation.CODEC.optionalFieldOf("required_knowledge").forGetter(PsyMixerRecipe::requiredKnowledge),
-                Codec.STRING.optionalFieldOf("required_drug").forGetter(PsyMixerRecipe::requiredDrug),
-                Codec.FLOAT.optionalFieldOf("required_lifetime_dose", 0.0F).forGetter(PsyMixerRecipe::requiredLifetimeDose),
-                Codec.BOOL.optionalFieldOf("show_if_locked", true).forGetter(PsyMixerRecipe::showIfLocked),
-                ItemStack.CODEC.optionalFieldOf("failure_result", ItemStack.EMPTY).forGetter(PsyMixerRecipe::failureResult),
-                Codec.BOOL.optionalFieldOf("preserve_vessel_on_success", false).forGetter(PsyMixerRecipe::preserveVesselOnSuccess),
-                Codec.BOOL.optionalFieldOf("preserve_vessel_on_failure", true).forGetter(PsyMixerRecipe::preserveVesselOnFailure)
-        ).apply(instance, PsyMixerRecipe::new));
+                CoreCodecData.CODEC.forGetter(PsyMixerRecipe::coreCodecData),
+                ExpansionCodecData.CODEC.forGetter(PsyMixerRecipe::expansionCodecData)
+        ).apply(instance, PsyMixerRecipe::fromCodecData));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, PsyMixerRecipe> STREAM_CODEC = StreamCodec.of(
                 Serializer::encode,
@@ -185,6 +331,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buf, recipe.requiredKnowledge);
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).encode(buf, recipe.requiredDrug);
             buf.writeFloat(recipe.requiredLifetimeDose);
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).encode(buf, recipe.requiredDrugCategory);
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).encode(buf, recipe.requiredActiveEffect);
+            buf.writeBoolean(recipe.requiredBadTripState);
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).encode(buf, recipe.requiredIngredientSource);
+            buf.writeFloat(recipe.failureSeverity);
+            buf.writeFloat(recipe.machineSpeedModifier);
+            buf.writeFloat(recipe.ritualStabilityModifier);
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).encode(buf, recipe.resultingCustomDrugVariant);
+            buf.writeBoolean(recipe.hiddenBeforeDiscovery);
             buf.writeBoolean(recipe.showIfLocked);
             ItemStack.STREAM_CODEC.encode(buf, recipe.failureResult);
             buf.writeBoolean(recipe.preserveVesselOnSuccess);
@@ -203,6 +358,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             Optional<ResourceLocation> requiredKnowledge = ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf);
             Optional<String> requiredDrug = ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).decode(buf);
             float requiredLifetimeDose = buf.readFloat();
+            Optional<String> requiredDrugCategory = ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).decode(buf);
+            Optional<String> requiredActiveEffect = ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).decode(buf);
+            boolean requiredBadTripState = buf.readBoolean();
+            Optional<String> requiredIngredientSource = ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).decode(buf);
+            float failureSeverity = buf.readFloat();
+            float machineSpeedModifier = buf.readFloat();
+            float ritualStabilityModifier = buf.readFloat();
+            Optional<String> resultingCustomDrugVariant = ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).decode(buf);
+            boolean hiddenBeforeDiscovery = buf.readBoolean();
             boolean showIfLocked = buf.readBoolean();
             ItemStack failureResult = ItemStack.STREAM_CODEC.decode(buf);
             boolean preserveVesselOnSuccess = buf.readBoolean();
@@ -210,6 +374,9 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             return new PsyMixerRecipe(
                     base, material, catalyst, stabilizer, vessel, result,
                     ritualTime, baseInstability, requiredKnowledge, requiredDrug, requiredLifetimeDose,
+                    requiredDrugCategory, requiredActiveEffect, requiredBadTripState, requiredIngredientSource,
+                    failureSeverity, machineSpeedModifier, ritualStabilityModifier, resultingCustomDrugVariant,
+                    hiddenBeforeDiscovery,
                     showIfLocked, failureResult, preserveVesselOnSuccess, preserveVesselOnFailure
             );
         }

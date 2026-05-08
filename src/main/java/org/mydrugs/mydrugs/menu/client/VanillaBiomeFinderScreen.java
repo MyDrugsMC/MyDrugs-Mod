@@ -22,7 +22,7 @@ public final class VanillaBiomeFinderScreen extends Screen {
     private static final int SEARCH_W = 280;
     private static final int SEARCH_H = 20;
     private static final int LIST_W = 380;
-    private static final int ROW_H = 22;
+    private static final int ROW_H = 28;
     private static final int PANEL_BG = 0xAA0B0D12;
     private static final int PANEL_EDGE = 0xAA4F5260;
     private static final int ROW_HOVER = 0x66374655;

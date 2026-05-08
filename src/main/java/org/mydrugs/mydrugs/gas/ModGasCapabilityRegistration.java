@@ -20,7 +20,7 @@ public final class ModGasCapabilityRegistration {
         event.registerBlockEntity(
                 ModGasCapabilities.BLOCK,
                 ModBlockEntities.GAS_TANK.get(),
-                (be, side) -> MachineTransferResourceHandlers.restrictedGas(be, side, be.getGasHandler(side))
+                (be, side) -> be.getGasHandler(side)
         );
 
         event.registerBlockEntity(

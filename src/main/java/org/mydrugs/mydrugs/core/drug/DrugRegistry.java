@@ -17,6 +17,15 @@ public final class DrugRegistry {
     private static final Map<DrugId, DrugModel> drugs = new HashMap<>();
     private static final EnumMap<DrugId, Integer> psychotropeValues = new EnumMap<>(DrugId.class);
     private static final EnumMap<DrugCategory, DrugId> representativeDrugs = new EnumMap<>(DrugCategory.class);
+    public static final int COFFEE_MAIN_DURATION = DrugDurationScale.fromRealHours(2.0F, 12.0F);
+    public static final int TOBACCO_MAIN_DURATION = DrugDurationScale.fromRealHours(1.5F, 12.0F);
+    public static final int CANNABIS_MAIN_DURATION = DrugDurationScale.fromRealHours(3.0F, 12.0F);
+    public static final int ALCOHOL_MAIN_DURATION = DrugDurationScale.fromRealHours(2.5F, 12.0F);
+    public static final int COCAINE_HIGH_DURATION = DrugDurationScale.seconds(90);
+    public static final int COCAINE_AFTEREFFECT_DURATION = DrugDurationScale.seconds(160);
+    public static final int CRACK_HIGH_DURATION = DrugDurationScale.seconds(55);
+    public static final int METH_MAIN_DURATION = DrugDurationScale.fromRealHours(4.0F, 12.0F);
+    public static final int PSYCHEDELIC_MAIN_DURATION = DrugDurationScale.fromRealHours(5.0F, 12.0F);
 
     private DrugRegistry() {
     }
@@ -30,9 +39,12 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.WEED)
                 .setCategory(DrugCategory.CANNABINOID)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 15, 0.08F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 5, 1.0F))
-                .addEffect(new DrugEffect(EffectType.CHROMATIC_DREAM, 20 * 20, 1.0f))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, CANNABIS_MAIN_DURATION, 0.06F))
+                .addEffect(new DrugEffect(EffectType.FOG, DrugDurationScale.seconds(5), 0.65F))
+                .addEffect(new DrugEffect(EffectType.CHROMATIC_DREAM, CANNABIS_MAIN_DURATION, 0.85F))
+                .addEffect(new DrugEffect(EffectType.TREMOR_REDUCTION, CANNABIS_MAIN_DURATION, 0.20F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, CANNABIS_MAIN_DURATION, 0.25F))
+                .addEffect(new DrugEffect(EffectType.MOB_DETECTION_REDUCTION, CANNABIS_MAIN_DURATION, 0.15F))
                 .setAddictionRate(2)
                 .build()
         );
@@ -40,9 +52,12 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.HASH)
                 .setCategory(DrugCategory.CANNABINOID)
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 5, 2.0F))
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 12, 0.08F))
-                .addEffect(new DrugEffect(EffectType.CHROMATIC_DREAM, 20 * 20, 1.0f))
+                .addEffect(new DrugEffect(EffectType.FOG, DrugDurationScale.seconds(5), 1.10F))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, CANNABIS_MAIN_DURATION, 0.08F))
+                .addEffect(new DrugEffect(EffectType.CHROMATIC_DREAM, CANNABIS_MAIN_DURATION, 1.10F))
+                .addEffect(new DrugEffect(EffectType.TREMOR_REDUCTION, CANNABIS_MAIN_DURATION, 0.28F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, CANNABIS_MAIN_DURATION, 0.35F))
+                .addEffect(new DrugEffect(EffectType.MOB_DETECTION_REDUCTION, CANNABIS_MAIN_DURATION, 0.22F))
                 .setAddictionRate(2.5F)
                 .build()
         );
@@ -50,9 +65,12 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.METH)
                 .setCategory(DrugCategory.STIMULANT)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 18, 3.0F))
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 6, 0.18F))
-                .addEffect(new DrugEffect(EffectType.HEARTBEAT, 20 * 6, 1.0F))
+                .addEffect(new DrugEffect(EffectType.VOID_PULSE, METH_MAIN_DURATION, 2.6F))
+                .addEffect(new DrugEffect(EffectType.MANUAL_WORK_SPEED, METH_MAIN_DURATION, 1.20F))
+                .addEffect(new DrugEffect(EffectType.MINING_SPEED, METH_MAIN_DURATION, 0.35F))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SPEED, METH_MAIN_DURATION, 0.16F))
+                .addEffect(new DrugEffect(EffectType.TREMOR, METH_MAIN_DURATION, 0.35F))
+                .addEffect(new DrugEffect(EffectType.HEARTBEAT, METH_MAIN_DURATION, 1.25F))
                 .setAddictionRate(6)
                 .build()
         );
@@ -60,8 +78,12 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.COCAINE)
                 .setCategory(DrugCategory.STIMULANT)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 10, 2.0F))
-                .addEffect(new DrugEffect(EffectType.HEARTBEAT, 20 * 6, 1.0F))
+                .addEffect(new DrugEffect(EffectType.VOID_PULSE, COCAINE_HIGH_DURATION, 1.8F))
+                .addEffect(new DrugEffect(EffectType.MANUAL_WORK_SPEED, COCAINE_HIGH_DURATION, 0.75F))
+                .addEffect(new DrugEffect(EffectType.MINING_SPEED, COCAINE_HIGH_DURATION, 0.18F))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SPEED, COCAINE_HIGH_DURATION, 0.12F))
+                .addEffect(new DrugEffect(EffectType.HEARTBEAT, COCAINE_AFTEREFFECT_DURATION, 0.95F))
+                .addEffect(new DrugEffect(EffectType.TREMOR, COCAINE_AFTEREFFECT_DURATION, 0.20F))
                 .setAddictionRate(6)
                 .build()
         );
@@ -69,9 +91,12 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.CRACK)
                 .setCategory(DrugCategory.STIMULANT)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 8, 3.0F))
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 5, 0.20F))
-                .addEffect(new DrugEffect(EffectType.HEARTBEAT, 20 * 4, 1.0F))
+                .addEffect(new DrugEffect(EffectType.VOID_PULSE, CRACK_HIGH_DURATION, 2.8F))
+                .addEffect(new DrugEffect(EffectType.MANUAL_WORK_SPEED, CRACK_HIGH_DURATION, 1.10F))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SPEED, CRACK_HIGH_DURATION, 0.18F))
+                .addEffect(new DrugEffect(EffectType.HEARTBEAT, COCAINE_AFTEREFFECT_DURATION, 1.35F))
+                .addEffect(new DrugEffect(EffectType.TREMOR, COCAINE_AFTEREFFECT_DURATION, 0.35F))
+                .addEffect(new DrugEffect(EffectType.INPUT_FAIL, COCAINE_AFTEREFFECT_DURATION, 0.08F))
                 .setAddictionRate(6)
                 .build()
         );
@@ -86,7 +111,9 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.LSD)
                 .setCategory(DrugCategory.PSYCHEDELIC)
-                .addEffect(new DrugEffect(EffectType.ACID_WARP, 20 * 30, 3.0F))
+                .addEffect(new DrugEffect(EffectType.ACID_WARP, PSYCHEDELIC_MAIN_DURATION, 2.6F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_FOCUS, PSYCHEDELIC_MAIN_DURATION, 2.5F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, PSYCHEDELIC_MAIN_DURATION, 1.6F))
                 .setAddictionRate(0)
                 .build()
         );
@@ -94,7 +121,9 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.MUSHROOMS)
                 .setCategory(DrugCategory.PSYCHEDELIC)
-                .addEffect(new DrugEffect(EffectType.EVENT_HORIZON, 20 * 18, 1.0F))
+                .addEffect(new DrugEffect(EffectType.EVENT_HORIZON, PSYCHEDELIC_MAIN_DURATION, 1.2F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_FOCUS, PSYCHEDELIC_MAIN_DURATION, 2.0F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, PSYCHEDELIC_MAIN_DURATION, 1.8F))
                 .setAddictionRate(0)
                 .build()
         );
@@ -175,8 +204,12 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.ALCOHOL)
                 .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 10, 0.20F))
-                .addEffect(new DrugEffect(EffectType.DRUNK_VISION, 20 * 20, 1.0F))
+                .addEffect(new DrugEffect(EffectType.DAMAGE_RESISTANCE, ALCOHOL_MAIN_DURATION, 0.10F))
+                .addEffect(new DrugEffect(EffectType.ATTACK_DAMAGE, ALCOHOL_MAIN_DURATION, 0.10F))
+                .addEffect(new DrugEffect(EffectType.STUMBLE, ALCOHOL_MAIN_DURATION, 0.22F))
+                .addEffect(new DrugEffect(EffectType.INPUT_FAIL, ALCOHOL_MAIN_DURATION, 0.08F))
+                .addEffect(new DrugEffect(EffectType.VOMIT, ALCOHOL_MAIN_DURATION, 0.15F))
+                .addEffect(new DrugEffect(EffectType.DRUNK_VISION, ALCOHOL_MAIN_DURATION, 1.0F))
                 .build()
         );
 
@@ -199,7 +232,11 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.TOBACCO)
                 .setCategory(DrugCategory.NICOTINIC)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 6, 1.0F))
+                .addEffect(new DrugEffect(EffectType.VOID_PULSE, DrugDurationScale.seconds(30), 0.55F))
+                .addEffect(new DrugEffect(EffectType.MINING_SPEED, TOBACCO_MAIN_DURATION, 0.18F))
+                .addEffect(new DrugEffect(EffectType.PRECISION, TOBACCO_MAIN_DURATION, 0.22F))
+                .addEffect(new DrugEffect(EffectType.TREMOR_REDUCTION, TOBACCO_MAIN_DURATION, 0.35F))
+                .addEffect(new DrugEffect(EffectType.RITUAL_FOCUS, TOBACCO_MAIN_DURATION, 0.30F))
                 .setAddictionRate(0.8F)
                 .build()
         );
@@ -207,9 +244,13 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.COFFEE)
                 .setCategory(DrugCategory.CAFFEINE)
-                .addEffect(new DrugEffect(EffectType.MINING_SPEED, 20 * 45, 0.08F))
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SPEED, 20 * 35, 0.04F))
-                .addEffect(new DrugEffect(EffectType.FOCUS, 20 * 35, 0.05F))
+                .addEffect(new DrugEffect(EffectType.MINING_SPEED, COFFEE_MAIN_DURATION, 0.10F))
+                .addEffect(new DrugEffect(EffectType.MOVEMENT_SPEED, COFFEE_MAIN_DURATION, 0.05F))
+                .addEffect(new DrugEffect(EffectType.FOCUS, COFFEE_MAIN_DURATION, 0.18F))
+                .addEffect(new DrugEffect(EffectType.MANUAL_WORK_SPEED, COFFEE_MAIN_DURATION, 0.22F))
+                .addEffect(new DrugEffect(EffectType.CAMERA_SWAY, COFFEE_MAIN_DURATION, 0.045F))
+                .addEffect(new DrugEffect(EffectType.TREMOR, COFFEE_MAIN_DURATION, 0.04F))
+                .addEffect(new DrugEffect(EffectType.HEARTBEAT, COFFEE_MAIN_DURATION, 0.18F))
                 .setAddictionRate(0.2F)
                 .build()
         );

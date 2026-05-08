@@ -29,6 +29,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "activated_coal",
                 "advanced_control_circuit",
                 "aluminium_ingot",
+                "agitator",
                 "automation_upgrade",
                 "bang",
                 "basic_fluid_pipe",
@@ -115,6 +116,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "plant_biomass",
                 "plant_waste",
                 "platinum_ingot",
+                "overdose_antidote",
                 "porous_ceramic",
                 "porous_clay",
                 "portable_grinder",
@@ -135,6 +137,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "rubber",
                 "rye",
                 "rye_seeds",
+                "sleeping_aid",
                 "soft_seal",
                 "steel_blend",
                 "steel_hammer",
@@ -156,6 +159,10 @@ public class ModSimpleClientItemProvider implements DataProvider {
         )) {
             futures.add(saveFlatItem(cachedOutput, itemName, "mydrugs:item/" + itemName));
         }
+        futures.add(saveFlatItem(cachedOutput, "aloe_vera", "minecraft:item/cactus"));
+        futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
+        futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "minecraft:item/ghast_tear"));
+        futures.add(saveFlatItem(cachedOutput, "progression_guide", "minecraft:item/written_book"));
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

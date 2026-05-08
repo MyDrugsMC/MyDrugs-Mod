@@ -77,6 +77,14 @@ public class ClayVatBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
+        if (vat.tryFillCoffeeCup(player, hand, stack)) {
+            return InteractionResult.SUCCESS;
+        }
+
+        if (vat.tryBrewCoffee(player, stack)) {
+            return InteractionResult.SUCCESS;
+        }
+
         ItemAccess access = ItemAccess.forPlayerInteraction(player, hand).oneByOne();
         var fluidHandler = access.getCapability(Capabilities.Fluid.ITEM);
 

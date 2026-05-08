@@ -81,7 +81,7 @@ public class StompCrafterBlock extends BaseEntityBlock {
             return;
         }
 
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player player)) {
             return;
         }
 
@@ -91,7 +91,7 @@ public class StompCrafterBlock extends BaseEntityBlock {
 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof StompCrafterBlockEntity crafter && level instanceof ServerLevel serverLevel) {
-            crafter.addProgressFromFall(serverLevel, fallDistance);
+            crafter.addProgressFromFall(serverLevel, fallDistance, player);
         }
     }
 }

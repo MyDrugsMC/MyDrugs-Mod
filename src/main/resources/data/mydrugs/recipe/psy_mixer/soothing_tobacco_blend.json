@@ -1,0 +1,23 @@
+{
+  "type": "mydrugs:psy_mixer",
+  "base": "mydrugs:tobacco_handful",
+  "material": "mydrugs:aloe_vera",
+  "result": {
+    "id": "mydrugs:soothing_tobacco_blend",
+    "count": 1
+  },
+  "ritual_time": 340,
+  "base_instability": 0.18,
+  "required_knowledge": "mydrugs:nicotinic",
+  "required_drug": "tobacco",
+  "required_lifetime_dose": 2.0,
+  "show_if_locked": true,
+  "failure_result": {
+    "id": "mydrugs:plant_waste",
+    "count": 1
+  },
+  "ritual_stability_modifier": 0.05,
+  "resulting_custom_drug_variant": "soothing_tobacco_blend",
+  "preserve_vessel_on_success": true,
+  "preserve_vessel_on_failure": true
+}

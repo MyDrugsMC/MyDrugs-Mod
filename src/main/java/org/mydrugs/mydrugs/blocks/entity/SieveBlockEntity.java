@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -29,6 +30,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.SieveMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
@@ -147,6 +150,10 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
     }
 
     public void addShakeImpulse(float impulse) {
+        addShakeImpulse(impulse, null);
+    }
+
+    public void addShakeImpulse(float impulse, @Nullable Player player) {
         if (!(this.level instanceof ServerLevel)) {
             return;
         }
@@ -166,7 +173,10 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
             return;
         }
 
-        this.shakeProgressBuffer += clamped * 2.8F;
+        float speed = player instanceof ServerPlayer serverPlayer
+                ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.SIEVE)
+                : 1.0F;
+        this.shakeProgressBuffer += clamped * 2.8F * speed;
         this.idleTicks = 0;
         this.setChanged();
     }

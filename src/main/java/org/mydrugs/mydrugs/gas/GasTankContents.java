@@ -2,6 +2,9 @@ package org.mydrugs.mydrugs.gas;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 public record GasTankContents(String gasId, long amount) {
     public static final GasTankContents EMPTY = new GasTankContents("", 0);
@@ -11,5 +14,11 @@ public record GasTankContents(String gasId, long amount) {
                     Codec.STRING.optionalFieldOf("gas_id", "").forGetter(GasTankContents::gasId),
                     Codec.LONG.optionalFieldOf("amount", 0L).forGetter(GasTankContents::amount)
             ).apply(instance, GasTankContents::new)
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, GasTankContents> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, GasTankContents::gasId,
+            ByteBufCodecs.VAR_LONG, GasTankContents::amount,
+            GasTankContents::new
     );
 }

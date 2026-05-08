@@ -90,5 +90,18 @@ public final class ModPlacedFeatures {
                         )
                 )
         );
+
+        context.register(
+                ModWorldGenKeys.ALOE_VERA_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.ALOE_VERA_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(42),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
     }
 }

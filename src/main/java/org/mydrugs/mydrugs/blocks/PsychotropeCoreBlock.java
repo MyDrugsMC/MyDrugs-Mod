@@ -55,6 +55,7 @@ public final class PsychotropeCoreBlock extends BaseEntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            PsyBlueprintPreviewService.sendForPsychedelicInsight(serverPlayer, level, pos, net.minecraft.core.Direction.NORTH);
             MenuProvider provider = state.getMenuProvider(level, pos);
             if (provider != null) {
                 serverPlayer.openMenu(provider, buffer -> buffer.writeBlockPos(pos));

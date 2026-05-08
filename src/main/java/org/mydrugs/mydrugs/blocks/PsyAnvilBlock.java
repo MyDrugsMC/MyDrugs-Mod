@@ -70,7 +70,6 @@ public final class PsyAnvilBlock extends BaseEntityBlock {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
-        System.out.println("trying to take last...");
         return anvil.takeLast(player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 

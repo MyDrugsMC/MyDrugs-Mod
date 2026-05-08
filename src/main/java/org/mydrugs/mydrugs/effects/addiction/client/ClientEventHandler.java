@@ -11,6 +11,7 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
 import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
 import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
 import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
@@ -91,6 +92,7 @@ public final class ClientEventHandler {
             FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
             VomitOverlayClientState.render(event.getGuiGraphics());
             AddictionHudRenderer.render(event.getGuiGraphics());
+            BiomeFinderCompassOverlay.render(event.getGuiGraphics());
         }
 
         @SubscribeEvent
@@ -108,6 +110,46 @@ public final class ClientEventHandler {
             customPulse += AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.BLUR) * 1.5F;
 
             event.setFOV(original - baseTunnel - beatKick - customPulse);
+        }
+
+        @SubscribeEvent
+        public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+            if (!Config.CLIENT.enableCameraShake.get()) {
+                return;
+            }
+
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) {
+                return;
+            }
+
+            float sway = AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.CAMERA_SWAY);
+            float tremor = AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.TREMOR);
+            float reduction = AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.TREMOR_REDUCTION);
+            tremor = Math.max(0.0F, tremor - reduction);
+            if (sway <= 0.01F && tremor <= 0.01F) {
+                return;
+            }
+
+            float motionScale = Config.CLIENT.reducedMotionMode.get() ? 0.28F : 1.0F;
+            float configScale = Config.CLIENT.cameraShakeIntensity.get().floatValue();
+            float amplitude = Math.min(1.0F, sway) * 2.4F * motionScale * configScale;
+            float tremorAmplitude = Math.min(1.0F, tremor) * 0.85F * motionScale * configScale;
+            float time = mc.player.tickCount + (float) event.getPartialTick();
+
+            float yaw = (net.minecraft.util.Mth.sin(time * 0.113F) * 0.70F
+                    + net.minecraft.util.Mth.sin(time * 0.047F + 1.71F) * 0.55F) * amplitude;
+            float pitch = (net.minecraft.util.Mth.sin(time * 0.091F + 2.32F) * 0.62F
+                    + net.minecraft.util.Mth.cos(time * 0.035F + 0.43F) * 0.36F) * amplitude;
+            float roll = (net.minecraft.util.Mth.sin(time * 0.079F + 3.65F) * 1.00F
+                    + net.minecraft.util.Mth.sin(time * 0.161F + 0.90F) * 0.28F) * amplitude;
+            yaw += net.minecraft.util.Mth.sin(time * 0.91F + 0.7F) * tremorAmplitude;
+            pitch += net.minecraft.util.Mth.cos(time * 1.13F + 2.2F) * tremorAmplitude;
+            roll += net.minecraft.util.Mth.sin(time * 1.37F + 4.1F) * tremorAmplitude * 0.45F;
+
+            event.setYaw(event.getYaw() + yaw);
+            event.setPitch(event.getPitch() + pitch);
+            event.setRoll(event.getRoll() + roll);
         }
     }
 }

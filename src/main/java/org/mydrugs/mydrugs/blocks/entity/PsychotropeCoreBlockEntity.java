@@ -129,6 +129,7 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
 
         DrugSource source = be.findDrugSource();
         if (source == null) {
+            be.distributeStoredEnergy(serverLevel);
             if (be.progress != 0 || be.activeDrug != null) {
                 be.progress = 0;
                 be.activeDrug = null;
@@ -138,7 +139,10 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
         }
 
         int generated = be.effectiveEnergy(source.model().getId());
-        if (generated <= 0 || be.totalReceivable(serverLevel) < generated) {
+        if (generated <= 0 || be.totalReceivable(serverLevel, true) < generated) {
+            if (generated <= 0) {
+                be.distributeStoredEnergy(serverLevel);
+            }
             be.setMachineStatus(generated <= 0 ? MachineStatus.NO_MATCHING_RECIPE : MachineStatus.OUTPUT_TANK_FULL);
             return;
         }
@@ -149,9 +153,11 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
         be.progress++;
         be.handlePlayerExposure(serverLevel);
 
+        boolean generatedThisTick = false;
         if (be.progress >= OPERATION_TICKS) {
             if (source.consume()) {
                 be.distributeEnergy(serverLevel, generated);
+                generatedThisTick = true;
                 AdvancementEventHooks.psychotropeEvent(
                         serverLevel,
                         pos,
@@ -162,6 +168,10 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
                 );
             }
             be.progress = 0;
+        }
+
+        if (!generatedThisTick) {
+            be.distributeStoredEnergy(serverLevel);
         }
 
         be.sync();
@@ -290,8 +300,8 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
                 });
     }
 
-    private int totalReceivable(ServerLevel level) {
-        int total = this.energy.capacity() - this.energy.stored();
+    private int totalReceivable(ServerLevel level, boolean includeInternalBattery) {
+        int total = includeInternalBattery ? this.energy.capacity() - this.energy.stored() : 0;
         for (BlockPos pos : this.cachedEnergyTargets) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be != null && MachineEnergyAttachments.hasEnergyStorage(be)) {
@@ -301,7 +311,35 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
         return total;
     }
 
+    private void distributeStoredEnergy(ServerLevel level) {
+        if (this.energy.stored() <= 0 || this.cachedEnergyTargets.isEmpty()) {
+            return;
+        }
+
+        int receivable = totalReceivable(level, false);
+        if (receivable <= 0) {
+            return;
+        }
+
+        int amount = Math.min(this.energy.stored(), receivable);
+        int extracted = this.energy.extract(amount, false);
+        int remainder = distributeToExternalTargets(level, extracted);
+        if (remainder > 0) {
+            this.energy.receive(remainder, false);
+        }
+        if (remainder != extracted) {
+            sync();
+        }
+    }
+
     private void distributeEnergy(ServerLevel level, int amount) {
+        int remaining = distributeToExternalTargets(level, amount);
+        if (remaining > 0) {
+            this.energy.receive(remaining, false);
+        }
+    }
+
+    private int distributeToExternalTargets(ServerLevel level, int amount) {
         int remaining = amount;
         List<EnergyTarget> targets = new ArrayList<>();
         for (BlockPos pos : this.cachedEnergyTargets) {
@@ -334,9 +372,7 @@ public final class PsychotropeCoreBlockEntity extends BlockEntity implements Men
             }
         }
 
-        if (remaining > 0) {
-            this.energy.receive(remaining, false);
-        }
+        return remaining;
     }
 
     private void handlePlayerExposure(ServerLevel level) {

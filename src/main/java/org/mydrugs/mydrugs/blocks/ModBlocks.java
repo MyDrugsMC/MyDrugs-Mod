@@ -98,6 +98,9 @@ public class ModBlocks {
                     prop -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()
             );
 
+    public static final DeferredItem<BlockItem> STOMP_PLATE_BLOCK_ITEM =
+            ITEMS.registerSimpleBlockItem(STOMP_PLATE_BLOCK);
+
 
     public static final DeferredBlock<Block> ADVANCED_FURNACE =
             BLOCKS.registerBlock("advanced_furnace",
@@ -253,7 +256,7 @@ public class ModBlocks {
     public static final DeferredBlock<GasTankBlock> GAS_TANK = BLOCKS.registerBlock(
             "gas_tank",
             GasTankBlock::new,
-            props -> props.strength(3.0F)
+            props -> props.strength(3.0F).noOcclusion()
     );
 
     public static final DeferredBlock<GasPumpBlock> GAS_PUMP = BLOCKS.registerBlock(

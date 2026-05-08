@@ -7,6 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,6 +40,8 @@ import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.DistillerMenu;
@@ -62,6 +65,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     private int maxProgress = 200;
     private int clicksPerSec = 0;
     private int speedPercent = 0;
+    private float manualSpeedMultiplier = 1.0F;
     private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
@@ -334,6 +338,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         this.clicksPerSec = 0;
         this.speedPercent = 0;
+        this.manualSpeedMultiplier = 1.0F;
         this.recentClicks.clear();
         this.inputTransferLocks.resetAll();
     }
@@ -360,6 +365,9 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return switch (buttonId) {
             case DistillerMenu.RUN_BUTTON_ID -> {
                 long now = this.level.getGameTime();
+                this.manualSpeedMultiplier = player instanceof ServerPlayer serverPlayer
+                        ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.DISTILLER)
+                        : 1.0F;
                 this.recentClicks.addLast(now);
                 refreshClickStats(now);
                 sync();
@@ -526,7 +534,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
 
         this.clicksPerSec = this.recentClicks.size();
-        this.speedPercent = computeSpeedPercent(this.clicksPerSec);
+        this.speedPercent = Math.round(computeSpeedPercent(this.clicksPerSec) * this.manualSpeedMultiplier);
     }
 
     private int computeSpeedPercent(int cps) {
@@ -538,7 +546,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     }
 
     private int getProgressPerTickFromCps() {
-        return this.clicksPerSec <= 5 ? 0 : this.clicksPerSec - 5;
+        return this.clicksPerSec <= 5 ? 0 : Math.max(1, Math.round((this.clicksPerSec - 5) * this.manualSpeedMultiplier));
     }
 
     private void sync() {

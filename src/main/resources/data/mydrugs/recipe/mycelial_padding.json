@@ -9,7 +9,7 @@
   "key": {
     "B": "minecraft:brown_mushroom",
     "S": "minecraft:string",
-    "D": "minecraft:rooted_dirt"
+    "D": "minecraft:dirt"
   },
   "result": { "id": "mydrugs:mycelial_padding", "count": 2 }
 }

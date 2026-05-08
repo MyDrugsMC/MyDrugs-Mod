@@ -152,6 +152,12 @@ public class ModItems {
     public static final DeferredItem<Item> TOBACCO_HANDFUL =
             ITEMS.registerItem("tobacco_handful", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
 
+    public static final DeferredItem<Item> ALOE_VERA =
+            ITEMS.registerItem("aloe_vera", prop -> new BlockItem(org.mydrugs.mydrugs.blocks.crops.ModCrops.ALOE_VERA_CROP.get(), prop));
+
+    public static final DeferredItem<Item> SOOTHING_TOBACCO_BLEND =
+            ITEMS.registerItem("soothing_tobacco_blend", prop -> new SoothingTobaccoBlendItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
+
     public static final DeferredItem<Item> CIGARETTE =
             ITEMS.registerItem("cigaret",
                     prop -> new CigaretteItem(prop, DrugId.TOBACCO, new SmokingStrategy(false, true)));
@@ -223,6 +229,9 @@ public class ModItems {
 
     public static final DeferredItem<PersonalDiaryItem> PERSONAL_DIARY =
             ITEMS.registerItem("personal_diary", PersonalDiaryItem::new);
+
+    public static final DeferredItem<ProgressionGuideItem> PROGRESSION_GUIDE =
+            ITEMS.registerItem("progression_guide", ProgressionGuideItem::new, props -> props.stacksTo(1));
 
     public static final DeferredItem<HeadphonesItem> HEADPHONES =
             ITEMS.registerItem("headphones", HeadphonesItem::new);
@@ -486,11 +495,15 @@ public class ModItems {
     public static final DeferredItem<Item> UNSTABLE_RESIDUE =
             ITEMS.registerSimpleItem("unstable_residue");
 
+    public static final DeferredItem<Item> INNER_DEMON_REMAINS =
+            ITEMS.registerSimpleItem("inner_demon_remains");
+
     public static final DeferredItem<Item> BRIGHTENED_CANNABIS_POWDER =
             ITEMS.registerItem("brightened_cannabis_powder",
                     prop -> new CannabisPowderItem(
                             prop, DrugId.WEED,
-                            new SmokingStrategy(true, true)));
+                            new SmokingStrategy(true, true),
+                            true));
 
     public static final DeferredItem<VanillaBiomeFinderItem> VANILLA_BIOME_FINDER =
             ITEMS.registerItem("vanilla_biome_finder",

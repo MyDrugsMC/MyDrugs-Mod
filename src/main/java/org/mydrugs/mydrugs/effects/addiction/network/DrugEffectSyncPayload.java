@@ -15,7 +15,13 @@ public record DrugEffectSyncPayload(List<Entry> effects) implements CustomPacket
     public static final Type<DrugEffectSyncPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_sync"));
 
-    public record Entry(@Nullable EffectType type, float intensity, int remainingTicks) {
+    public record Entry(@Nullable EffectType type, float intensity, int remainingTicks, int fadeTicksRemaining, int fadeDurationTicks) {
+        public float effectiveIntensity() {
+            if (fadeTicksRemaining <= 0 || fadeDurationTicks <= 0) {
+                return intensity;
+            }
+            return intensity * Math.clamp(fadeTicksRemaining / (float) fadeDurationTicks, 0.0F, 1.0F);
+        }
     }
 
     public static final StreamCodec<ByteBuf, EffectType> EFFECT_TYPE_CODEC =
@@ -25,6 +31,8 @@ public record DrugEffectSyncPayload(List<Entry> effects) implements CustomPacket
             EFFECT_TYPE_CODEC, Entry::type,
             ByteBufCodecs.FLOAT, Entry::intensity,
             ByteBufCodecs.VAR_INT, Entry::remainingTicks,
+            ByteBufCodecs.VAR_INT, Entry::fadeTicksRemaining,
+            ByteBufCodecs.VAR_INT, Entry::fadeDurationTicks,
             Entry::new
     );
 

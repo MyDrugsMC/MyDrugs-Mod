@@ -1,5 +1,8 @@
 package org.mydrugs.mydrugs.network;
 
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.Biome;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.items.ModItems;
@@ -57,10 +61,14 @@ public record BiomeFinderSelectPayload(InteractionHand hand, ResourceLocation bi
             return;
         }
 
-        stack.set(
-                ModDataComponents.BIOME_FINDER_TARGET.get(),
-                BiomeFinderTarget.EMPTY.withSelected(payload.biome())
-        );
+        BiomeFinderTarget target = BiomeFinderTarget.EMPTY.withSelected(payload.biome());
+        BlockPos searchOrigin = player.blockPosition();
+        Pair<BlockPos, Holder<Biome>> found = VanillaBiomeFinderItem.findClosestSelectedBiome(level, searchOrigin, payload.biome());
+        if (found != null) {
+            target = target.withCachedPos(found.getFirst(), level.dimension().location(), level.getGameTime());
+        }
+
+        stack.set(ModDataComponents.BIOME_FINDER_TARGET.get(), target);
         player.displayClientMessage(
                 net.minecraft.network.chat.Component.translatable(
                         "message.mydrugs.biome_finder.selected",

@@ -83,7 +83,7 @@ public final class DrugUseService {
             grantedKnowledge = progression.grantedKnowledge();
         }
 
-        if (knowledgeResult.firstDrug() && knowledgeResult.drugId() == DrugId.HASH) {
+        if (knowledgeResult.drugId() == DrugId.HASH) {
             PsyKnowledgeManager.grant(player, PsyKnowledgeKey.STEEL_PLATING);
         }
 

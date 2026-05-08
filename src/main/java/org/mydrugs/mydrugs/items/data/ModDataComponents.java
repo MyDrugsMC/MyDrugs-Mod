@@ -62,7 +62,9 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<GasTankContents>> GAS_TANK_CONTENTS =
             DATA_COMPONENTS.registerComponentType(
                     "gas_tank_contents",
-                    builder -> builder.persistent(GasTankContents.CODEC)
+                    builder -> builder
+                            .persistent(GasTankContents.CODEC)
+                            .networkSynchronized(GasTankContents.STREAM_CODEC)
             );
 
     public static final Supplier<DataComponentType<BiomeFinderTarget>> BIOME_FINDER_TARGET =

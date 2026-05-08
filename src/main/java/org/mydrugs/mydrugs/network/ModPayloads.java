@@ -68,6 +68,11 @@ public final class ModPayloads {
                 BiomeFinderSelectPayload.STREAM_CODEC,
                 BiomeFinderSelectPayload::handleOnServer
         );
+        registrar.playToServer(
+                StimulantDashPayload.TYPE,
+                StimulantDashPayload.STREAM_CODEC,
+                StimulantDashPayload::handleOnServer
+        );
     }
 
     private static void handleSieveShake(SieveShakePayload payload, IPayloadContext context) {
@@ -89,6 +94,6 @@ public final class ModPayloads {
             return;
         }
 
-        sieve.addShakeImpulse(payload.impulse());
+        sieve.addShakeImpulse(payload.impulse(), player);
     }
 }

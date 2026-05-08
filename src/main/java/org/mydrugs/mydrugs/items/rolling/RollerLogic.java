@@ -33,15 +33,26 @@ public final class RollerLogic {
             return null;
         }
 
-        DrugId a = readIngredient(container.getItem(RollerMenu.INGREDIENT_1_SLOT));
-        DrugId b = readIngredient(container.getItem(RollerMenu.INGREDIENT_2_SLOT));
-        DrugId c = readIngredient(container.getItem(RollerMenu.INGREDIENT_3_SLOT));
+        ItemStack first = container.getItem(RollerMenu.INGREDIENT_1_SLOT);
+        ItemStack second = container.getItem(RollerMenu.INGREDIENT_2_SLOT);
+        ItemStack third = container.getItem(RollerMenu.INGREDIENT_3_SLOT);
+
+        DrugId a = readIngredient(first);
+        DrugId b = readIngredient(second);
+        DrugId c = readIngredient(third);
 
         if (a == null || b == null || c == null) {
             return null;
         }
 
-        return new RolledDrugContent(a, b, c);
+        return new RolledDrugContent(
+                a,
+                b,
+                c,
+                isBrightened(first),
+                isBrightened(second),
+                isBrightened(third)
+        );
     }
 
     private static @Nullable DrugId readIngredient(ItemStack stack) {
@@ -49,6 +60,12 @@ public final class RollerLogic {
             return null;
         }
         return ingredient.getRollingDrug(stack);
+    }
+
+    private static boolean isBrightened(ItemStack stack) {
+        return !stack.isEmpty()
+                && stack.getItem() instanceof RollingIngredient ingredient
+                && ingredient.isBrightenedRollingIngredient(stack);
     }
 
     public static ItemStack createResult(Container container) {
