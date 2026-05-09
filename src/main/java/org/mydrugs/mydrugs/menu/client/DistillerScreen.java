@@ -7,6 +7,7 @@ import org.mydrugs.mydrugs.menu.DistillerMenu;
 import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.DistillerLayout;
+import org.mydrugs.mydrugs.menu.layout.ManualCoffeePulperLayout;
 
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawDistillerLabels(this, graphics, this.font, this.title);
-        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, 8, 18);
+        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12);
     }
 
     @Override

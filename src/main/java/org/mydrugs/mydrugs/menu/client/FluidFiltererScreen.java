@@ -77,7 +77,7 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawFluidFiltererLabels(this, graphics, this.font, this.title, null);
-        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, 14, 18);
+        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12);
     }
 
     @Override

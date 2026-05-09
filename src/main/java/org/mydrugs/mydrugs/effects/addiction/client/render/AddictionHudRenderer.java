@@ -103,7 +103,7 @@ public final class AddictionHudRenderer {
         int offsetX = shake == 0 ? 0 : Math.round(Mth.sin(gameTime * 0.73F) * shake);
         int offsetY = shake == 0 ? 0 : Math.round(Mth.cos(gameTime * 0.61F) * shake * 0.65F);
         int x = width / 2 - 8 + offsetX;
-        int y = height - 42 + offsetY;
+        int y = height - 52 + offsetY;
 
         graphics.fill(x - 2, y - 2, x + 18, y + 18, 0x66000000);
         graphics.renderItem(stack, x, y);

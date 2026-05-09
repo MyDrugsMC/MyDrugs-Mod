@@ -81,7 +81,7 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawSieveLabels(this, graphics, this.font, this.title, this.playerInventoryTitle, this.inventoryLabelY, null);
-        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, 8, 18);
+        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12);
     }
 
     @Override
