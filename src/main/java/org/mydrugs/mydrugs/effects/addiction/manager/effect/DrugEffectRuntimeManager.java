@@ -34,10 +34,12 @@ public final class DrugEffectRuntimeManager {
     private static final Map<UUID, EnumMap<EffectType, ActiveDrugEffect>> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> VOMIT_COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Float> LAST_MOVEMENT_MULTIPLIER = new HashMap<>();
+    private static final Map<UUID, Float> LAST_MINING_MULTIPLIER = new HashMap<>();
     private static final Map<UUID, Integer> LAST_SYNC_SIGNATURE = new HashMap<>();
     private static final Map<UUID, Long> LAST_ADRENALINE_TRIGGER = new HashMap<>();
     private static final Set<UUID> DIRTY_PLAYERS = new java.util.HashSet<>();
     private static final ResourceLocation MOVEMENT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_movement_speed");
+    private static final ResourceLocation MINING_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_mining_speed");
 
     private DrugEffectRuntimeManager() {
     }
@@ -56,6 +58,8 @@ public final class DrugEffectRuntimeManager {
             existing.merge(intensity, duration);
         }
         DIRTY_PLAYERS.add(player.getUUID());
+        applyMovementAttribute(player, effects);
+        applyMiningAttribute(player, effects);
     }
 
     public static float getServerIntensity(ServerPlayer player, EffectType type) {
@@ -88,6 +92,7 @@ public final class DrugEffectRuntimeManager {
             }
 
             applyMovementAttribute(player, effects);
+            applyMiningAttribute(player, effects);
             maybeVomit(player, effects);
 
             if (effects.isEmpty()) {
@@ -96,6 +101,7 @@ public final class DrugEffectRuntimeManager {
             }
         } else {
             removeMovementAttribute(player);
+            removeMiningAttribute(player);
         }
 
         if (VOMIT_COOLDOWNS.computeIfPresent(id, (ignored, value) -> value > 0 ? value - 1 : null) != null) {
@@ -116,7 +122,7 @@ public final class DrugEffectRuntimeManager {
     }
 
     public static float getMiningSpeedMultiplier(float haste, float precision, float adrenaline) {
-        return 1.0F + Math.min(2.5F, Math.max(0.0F, haste + precision * 0.55F + adrenaline * 0.65F));
+        return Math.min(10.0F, 1.0F + Math.max(0.0F, haste + precision * 0.55F + adrenaline * 0.65F));
     }
 
     public static float getDamageResistance(ServerPlayer player) {
@@ -193,6 +199,40 @@ public final class DrugEffectRuntimeManager {
             instance.removeModifier(MOVEMENT_MODIFIER_ID);
         }
         LAST_MOVEMENT_MULTIPLIER.remove(player.getUUID());
+    }
+
+    private static void applyMiningAttribute(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {
+        float multiplier = getMiningSpeedMultiplier(
+                intensity(effects, EffectType.MINING_SPEED),
+                intensity(effects, EffectType.PRECISION),
+                intensity(effects, EffectType.ADRENALINE_SURGE)
+        );
+        float previous = LAST_MINING_MULTIPLIER.getOrDefault(player.getUUID(), 1.0F);
+
+        if (Math.abs(multiplier - previous) < 0.005F) {
+            return;
+        }
+
+        removeMiningAttribute(player);
+        if (Math.abs(multiplier - 1.0F) > 0.005F) {
+            var instance = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
+            if (instance != null) {
+                instance.addOrUpdateTransientModifier(new AttributeModifier(
+                        MINING_MODIFIER_ID,
+                        multiplier,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                ));
+            }
+        }
+        LAST_MINING_MULTIPLIER.put(player.getUUID(), multiplier);
+    }
+
+    private static void removeMiningAttribute(ServerPlayer player) {
+        var instance = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
+        if (instance != null) {
+            instance.removeModifier(MINING_MODIFIER_ID);
+        }
+        LAST_MINING_MULTIPLIER.remove(player.getUUID());
     }
 
     private static void maybeVomit(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {

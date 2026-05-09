@@ -16,18 +16,8 @@ import java.util.List;
 public final class RitualIngredientEffectRegistry {
     private static final List<Entry> ENTRIES = List.of(
             entry(DrugId.WEED, Items.GLOWSTONE_DUST, new RitualDrugEffectData(EffectType.GAMMA_BOOST, 30 * 20, 0.45F)),
-            entry(DrugId.WEED, ModItems.RITUAL_RESIN.get(), new RitualDrugEffectData(EffectType.RITUAL_STABILITY, 7200, 0.20F)),
             entry(DrugId.TOBACCO, ModItems.ALOE_VERA.get(),
-                    new RitualDrugEffectData(EffectType.MINING_SPEED, 90 * 20, 0.16F),
-                    new RitualDrugEffectData(EffectType.PRECISION, 90 * 20, 0.30F),
-                    new RitualDrugEffectData(EffectType.TREMOR_REDUCTION, 90 * 20, 0.30F),
-                    new RitualDrugEffectData(EffectType.RITUAL_FOCUS, 90 * 20, 0.18F)),
-            entry(DrugId.LSD, ModItems.UNSTABLE_RESIDUE.get(),
-                    new RitualDrugEffectData(EffectType.ACID_WARP, 45 * 20, 0.45F),
-                    new RitualDrugEffectData(EffectType.CONFUSION, 45 * 20, 0.30F)),
-            entry(DrugId.MUSHROOMS, ModItems.UNSTABLE_RESIDUE.get(),
-                    new RitualDrugEffectData(EffectType.FRACTAL_WARP, 45 * 20, 0.45F),
-                    new RitualDrugEffectData(EffectType.CONFUSION, 45 * 20, 0.25F))
+                    new RitualDrugEffectData(EffectType.PRECISION, 90 * 20, 1.30F))
     );
 
     private RitualIngredientEffectRegistry() {

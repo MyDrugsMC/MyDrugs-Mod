@@ -7,7 +7,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
@@ -15,17 +14,6 @@ import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeMan
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class CustomDrugEffectEvents {
     private CustomDrugEffectEvents() {
-    }
-
-    @SubscribeEvent
-    public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
-        }
-        float multiplier = DrugEffectRuntimeManager.getMiningSpeedMultiplier(player);
-        if (Math.abs(multiplier - 1.0F) > 0.001F) {
-            event.setNewSpeed(event.getNewSpeed() * multiplier);
-        }
     }
 
     @SubscribeEvent

@@ -9,6 +9,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -153,14 +154,16 @@ public final class ModCommands {
         float precision = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.PRECISION);
         float adrenaline = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.ADRENALINE_SURGE);
         float multiplier = DrugEffectRuntimeManager.getMiningSpeedMultiplier(mining, precision, adrenaline);
+        double attribute = player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
         source.sendSuccess(
                 () -> Component.literal(String.format(
                         Locale.ROOT,
-                        "Mining speed: mining_speed=%.2f precision=%.2f adrenaline=%.2f multiplier=x%.2f",
+                        "Mining speed: mining_speed=%.2f precision=%.2f adrenaline=%.2f multiplier=x%.2f block_break_speed=%.2f",
                         mining,
                         precision,
                         adrenaline,
-                        multiplier
+                        multiplier,
+                        attribute
                 )),
                 false
         );

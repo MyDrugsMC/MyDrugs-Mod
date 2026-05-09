@@ -54,7 +54,7 @@ public final class DrugFormulaNamingScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
+        graphics.fill(0, 0, this.width, this.height, 0xAA000000);
         int panelX = this.width / 2 - 120;
         int panelY = this.height / 2 - 86;
         graphics.fill(panelX, panelY, panelX + 240, panelY + 176, 0xEE17151C);
