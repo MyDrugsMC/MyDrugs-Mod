@@ -88,6 +88,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     private int rhythmMessageCooldown = 0;
     private int focusIndex = PsyMixerRitualFocus.CATALYST.id();
     private float resonance = PsyMixerRitualEngine.START_RESONANCE;
+    private float zoneMotionScale = 1.0F;
+    private float zoneSizeScale = 1.0F;
     private int streak = 0;
     private int lastJudgement = PsyMixerRitualJudgement.NONE.id();
     private int feedbackTicks = 0;
@@ -268,8 +270,9 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         float speedMul = mastery.getSpeedMultiplier(recipeId);
         float instabReduction = mastery.getInstabilityReduction(recipeId);
         float manualDrugSpeed = ManualMachineSpeedHelper.getSpeedMultiplier(player, ManualMachineType.PSY_MIXER);
-        float ritualTimingBonus = ManualMachineSpeedHelper.getRitualTimingBonus(player);
+        float ritualZoneWidthBonus = ManualMachineSpeedHelper.getRitualZoneWidthBonus(player);
         float ritualInstabilityReduction = ManualMachineSpeedHelper.getRitualInstabilityReduction(player);
+        float ritualZoneMotionScale = ManualMachineSpeedHelper.getRitualZoneMotionScale(player);
 
         float effInstab = recipe.baseInstability() + recipe.ritualStabilityModifier() - instabReduction - ritualInstabilityReduction;
         if (recipe.stabilizer().isPresent() && !items.get(PsyMixerMultiblock.SLOT_STABILIZER).isEmpty()) {
@@ -284,7 +287,11 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         this.instability = effInstab;
         this.running = true;
         this.ritualPlayer = player.getUUID();
-        this.timingWindow = Math.min(1.0F, 0.12F + mastery.getTimingWindowBonus(recipeId) + ritualTimingBonus);
+        this.timingWindow = ManualMachineSpeedHelper.hasPsychedelicRitualInsight(player)
+                ? 1.0F
+                : Math.min(0.62F, 0.08F + mastery.getTimingWindowBonus(recipeId) + ritualZoneWidthBonus);
+        this.zoneMotionScale = ritualZoneMotionScale;
+        this.zoneSizeScale = ritualZoneMotionScale;
         this.goodHits = 0;
         this.badHits = 0;
         this.focusIndex = findNextAvailableFocus(-1);
@@ -498,6 +505,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         goodHits = 0;
         badHits = 0;
         resonance = PsyMixerRitualEngine.START_RESONANCE;
+        zoneMotionScale = 1.0F;
+        zoneSizeScale = 1.0F;
         streak = 0;
         lastJudgement = PsyMixerRitualJudgement.NONE.id();
         feedbackTicks = 0;
@@ -507,6 +516,14 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
     public float getTimingWindow() {
         return timingWindow;
+    }
+
+    public float getCurrentTimingWindow() {
+        return PsyMixerRitualEngine.timingWindow(timingWindow, progress, ritualMaxTime, zoneSizeScale);
+    }
+
+    public float getCurrentTargetPhase() {
+        return PsyMixerRitualEngine.targetPhase(PsyMixerRitualFocus.byId(focusIndex), progress, ritualMaxTime, zoneMotionScale);
     }
 
     private int findNextAvailableFocus(int currentIndex) {
@@ -539,8 +556,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         PsyMixerRitualFocus focus = PsyMixerRitualFocus.byId(focusIndex);
         PsyMixerRitualEngine.JudgementResult result = PsyMixerRitualEngine.judge(
                 getServerPhase(),
-                focus,
-                timingWindow,
+                PsyMixerRitualEngine.targetPhase(focus, progress, ritualMaxTime, zoneMotionScale),
+                PsyMixerRitualEngine.timingWindow(timingWindow, progress, ritualMaxTime, zoneSizeScale),
                 streak
         );
         PsyMixerRitualJudgement judgement = result.judgement();
@@ -667,6 +684,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             badHits = 0;
             rhythmInputCooldown = 0;
             resonance = PsyMixerRitualEngine.START_RESONANCE;
+            zoneMotionScale = 1.0F;
+            zoneSizeScale = 1.0F;
             streak = 0;
             lastJudgement = PsyMixerRitualJudgement.NONE.id();
             feedbackTicks = 0;
@@ -801,6 +820,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         output.putInt("bad_hits", badHits);
         output.putInt("focus_index", focusIndex);
         output.putFloat("resonance", resonance);
+        output.putFloat("zone_motion_scale", zoneMotionScale);
+        output.putFloat("zone_size_scale", zoneSizeScale);
         output.putInt("streak", streak);
         output.putInt("last_judgement", lastJudgement);
         output.putInt("feedback_ticks", feedbackTicks);
@@ -850,6 +871,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         badHits = input.getIntOr("bad_hits", 0);
         focusIndex = input.getIntOr("focus_index", PsyMixerRitualFocus.CATALYST.id());
         resonance = input.getFloatOr("resonance", PsyMixerRitualEngine.START_RESONANCE);
+        zoneMotionScale = input.getFloatOr("zone_motion_scale", 1.0F);
+        zoneSizeScale = input.getFloatOr("zone_size_scale", 1.0F);
         streak = input.getIntOr("streak", 0);
         lastJudgement = input.getIntOr("last_judgement", PsyMixerRitualJudgement.NONE.id());
         feedbackTicks = input.getIntOr("feedback_ticks", 0);

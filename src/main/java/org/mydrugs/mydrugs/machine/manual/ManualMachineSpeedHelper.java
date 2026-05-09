@@ -18,22 +18,31 @@ public final class ManualMachineSpeedHelper {
         return Mth.clamp(multiplier, 0.25F, 4.0F);
     }
 
-    public static float getRitualTimingBonus(ServerPlayer player) {
-        float focus = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_FOCUS);
-        float stability = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_STABILITY);
-        if (focus >= 1.5F) {
-            return 0.88F;
-        }
-        return Mth.clamp(focus * 0.12F + stability * 0.06F, 0.0F, 0.42F);
-    }
-
     public static float getRitualInstabilityReduction(ServerPlayer player) {
         float stability = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_STABILITY);
         float focus = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_FOCUS);
-        if (focus >= 1.5F) {
+        if (hasPsychedelicRitualInsight(player)) {
             return 0.95F;
         }
         return Mth.clamp(stability * 0.18F + focus * 0.06F, 0.0F, 0.55F);
+    }
+
+    public static boolean hasPsychedelicRitualInsight(ServerPlayer player) {
+        return DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_FOCUS) >= 1.5F;
+    }
+
+    public static float getRitualZoneWidthBonus(ServerPlayer player) {
+        if (hasPsychedelicRitualInsight(player)) {
+            return 1.0F;
+        }
+        float focus = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_FOCUS);
+        float precision = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.PRECISION);
+        return Mth.clamp(focus * 0.10F + precision * 0.18F, 0.0F, 0.22F);
+    }
+
+    public static float getRitualZoneMotionScale(ServerPlayer player) {
+        float stability = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_STABILITY);
+        return Mth.clamp(1.0F / (1.0F + stability * 1.35F), 0.25F, 1.0F);
     }
 
     private static float bonus(ServerPlayer player, EffectType type, float scale) {

@@ -5,9 +5,14 @@ import net.minecraft.util.Mth;
 public final class PsyMixerRitualEngine {
     public static final int INPUT_COOLDOWN_TICKS = 5;
     public static final int FEEDBACK_TICKS = 28;
+    public static final int GOLDEN_ZONE_COUNT = 3;
     public static final float START_RESONANCE = 0.25F;
     public static final float MIN_INSTABILITY = 0.02F;
     public static final float MAX_INSTABILITY = 0.95F;
+    private static final float TWO_PI = (float) (Math.PI * 2.0);
+    private static final float ZONE_DRIFT_AMPLITUDE = 0.115F;
+    private static final float ZONE_SIZE_AMPLITUDE = 0.045F;
+    private static final float ZONE_SIZE_PHASE_OFFSET = (float) (Math.PI / 4.0);
 
     private PsyMixerRitualEngine() {
     }
@@ -20,8 +25,22 @@ public final class PsyMixerRitualEngine {
         return p - (float) Math.floor(p);
     }
 
-    public static JudgementResult judge(float phase, PsyMixerRitualFocus focus, float timingWindow, int streak) {
-        float distance = wrappedDistance(phase, focus.targetPhase());
+    public static float targetPhase(PsyMixerRitualFocus focus, int progress, int ritualMaxTime, float motionScale) {
+        float wave = oscillator(progress, ritualMaxTime, motionScale);
+        return wrapUnit(focus.targetPhase() + (float) Math.sin(wave) * ZONE_DRIFT_AMPLITUDE);
+    }
+
+    public static float timingWindow(float baseWindow, int progress, int ritualMaxTime, float sizeScale) {
+        if (baseWindow >= 1.0F) {
+            return 1.0F;
+        }
+        float wave = oscillator(progress, ritualMaxTime, sizeScale) + ZONE_SIZE_PHASE_OFFSET;
+        float sizeOffset = (float) Math.cos(wave) * ZONE_SIZE_AMPLITUDE;
+        return Mth.clamp(baseWindow + sizeOffset, 0.035F, 1.0F);
+    }
+
+    public static JudgementResult judge(float phase, float targetPhase, float timingWindow, int streak) {
+        float distance = nearestGoldenZoneDistance(phase, targetPhase);
         float halfWindow = Math.max(0.015F, timingWindow / 2.0F);
         PsyMixerRitualJudgement judgement;
 
@@ -40,6 +59,30 @@ public final class PsyMixerRitualEngine {
         float accuracy = Mth.clamp(1.0F - (distance / halfWindow), 0.0F, 1.0F);
         int streakBonus = judgement.isHit() ? Math.min(6, Math.max(0, streak) / 2) : 0;
         return new JudgementResult(judgement, distance, accuracy, judgement.progressBonus() + streakBonus);
+    }
+
+    public static float goldenZonePhase(float firstTargetPhase, int zoneIndex) {
+        return wrapUnit(firstTargetPhase + zoneIndex / (float) GOLDEN_ZONE_COUNT);
+    }
+
+    public static float nearestGoldenZoneDistance(float phase, float firstTargetPhase) {
+        float best = 1.0F;
+        for (int i = 0; i < GOLDEN_ZONE_COUNT; i++) {
+            best = Math.min(best, wrappedDistance(phase, goldenZonePhase(firstTargetPhase, i)));
+        }
+        return best;
+    }
+
+    private static float oscillator(int progress, int ritualMaxTime, float scale) {
+        if (ritualMaxTime <= 0) {
+            return 0.0F;
+        }
+        float normalized = Mth.clamp(progress / (float) ritualMaxTime, 0.0F, 1.0F);
+        return normalized * TWO_PI * Math.max(0.05F, scale);
+    }
+
+    private static float wrapUnit(float value) {
+        return value - (float) Math.floor(value);
     }
 
     public static float wrappedDistance(float a, float b) {

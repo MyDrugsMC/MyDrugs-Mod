@@ -51,7 +51,9 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     private static final int DATA_LAST_JUDGEMENT = 11;
     private static final int DATA_FEEDBACK_TICKS = 12;
     private static final int DATA_LAST_ACCURACY = 13;
-    private static final int DATA_COUNT = 14;
+    private static final int DATA_TARGET_PHASE = 14;
+    private static final int DATA_CURRENT_TIMING_WINDOW = 15;
+    private static final int DATA_COUNT = 16;
     private static final int FLOAT_SCALE = 10_000;
 
     // Convenience constructor for client deserialization
@@ -126,7 +128,7 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     }
 
     public float getTimingWindow() {
-        return Math.max(0.02F, ritualData.get(DATA_TIMING_WINDOW) / (float) FLOAT_SCALE);
+        return Math.max(0.02F, ritualData.get(DATA_CURRENT_TIMING_WINDOW) / (float) FLOAT_SCALE);
     }
 
     public int getRhythmInputCooldown() {
@@ -150,7 +152,7 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     }
 
     public float getTargetPhase() {
-        return getFocus().targetPhase();
+        return ritualData.get(DATA_TARGET_PHASE) / (float) FLOAT_SCALE;
     }
 
     public float getResonance() {
@@ -263,6 +265,8 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
                 case DATA_LAST_JUDGEMENT -> core.getLastJudgement();
                 case DATA_FEEDBACK_TICKS -> core.getFeedbackTicks();
                 case DATA_LAST_ACCURACY -> Math.round(core.getLastAccuracy() * FLOAT_SCALE);
+                case DATA_TARGET_PHASE -> Math.round(core.getCurrentTargetPhase() * FLOAT_SCALE);
+                case DATA_CURRENT_TIMING_WINDOW -> Math.round(core.getCurrentTimingWindow() * FLOAT_SCALE);
                 default -> 0;
             };
         }

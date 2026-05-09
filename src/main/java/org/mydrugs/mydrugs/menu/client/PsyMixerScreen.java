@@ -108,7 +108,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         float window = menu.getTimingWindow();
         for (int i = 0; i < 128; i++) {
             float p = i / 128.0F;
-            float dist = PsyMixerRitualEngine.wrappedDistance(p, menu.getTargetPhase());
+            float dist = PsyMixerRitualEngine.nearestGoldenZoneDistance(p, menu.getTargetPhase());
             if (dist <= window / 2.0F) {
                 double angle = -Math.PI / 2.0 + p * Math.PI * 2.0;
                 int dx = (int) Math.round(Math.cos(angle) * layout.markerRadius);
@@ -275,7 +275,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 
     private boolean isInTimingWindow() {
         float phase = menu.getServerPhase();
-        float dist = PsyMixerRitualEngine.wrappedDistance(phase, menu.getTargetPhase());
+        float dist = PsyMixerRitualEngine.nearestGoldenZoneDistance(phase, menu.getTargetPhase());
         return dist <= menu.getTimingWindow() / 2.0F;
     }
 
