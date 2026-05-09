@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
-import org.mydrugs.mydrugs.blocks.FormedPsyMixerPartBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
@@ -93,6 +92,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     private int lastJudgement = PsyMixerRitualJudgement.NONE.id();
     private int feedbackTicks = 0;
     private float lastAccuracy = 0.0F;
+    private boolean restoringStructure = false;
 
     public FormedPsyMixerCoreBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.FORMED_PSY_MIXER_CORE.get(), pos, state);
@@ -119,6 +119,39 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         this.savedSlots.clear();
         this.savedSlots.addAll(saved);
         markDirtyAndSync();
+    }
+
+    public boolean isStructureIntact() {
+        if (this.level == null || savedSlots.isEmpty()) {
+            return false;
+        }
+        if (!this.level.getBlockState(this.worldPosition).is(ModBlocks.FORMED_PSY_MIXER_CORE.get())) {
+            return false;
+        }
+        if (this.level.getBlockEntity(this.worldPosition) != this) {
+            return false;
+        }
+        for (SavedSlot slot : savedSlots) {
+            BlockPos worldPos = slot.worldPos;
+            if (worldPos.equals(this.worldPosition)) {
+                continue;
+            }
+            BlockState currentState = this.level.getBlockState(worldPos);
+            if (slot.blockState.isAir()) {
+                if (!currentState.isAir()) {
+                    return false;
+                }
+                continue;
+            }
+            if (!currentState.is(ModBlocks.FORMED_PSY_MIXER_PART.get())) {
+                return false;
+            }
+            if (!(this.level.getBlockEntity(worldPos) instanceof FormedPsyMixerPartBlockEntity part)
+                    || !this.worldPosition.equals(part.getCorePos())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public ItemStack getRenderStack(int slot) {
@@ -563,61 +596,94 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         rhythmMessageCooldown = 10;
     }
 
-    public void onPartBroken(ServerLevel level, BlockPos brokenPos) {
-        restoreStructure(level, brokenPos);
+    public boolean onPartBroken(ServerLevel level, BlockPos brokenPos) {
+        return restoreStructure(level, brokenPos, true);
     }
 
-    public void onBrokenByPlayer(ServerLevel level, BlockPos brokenPos) {
-        restoreStructure(level, brokenPos);
+    public boolean onBrokenByPlayer(ServerLevel level, BlockPos brokenPos) {
+        return restoreStructure(level, brokenPos, true);
     }
 
-    private void restoreStructure(ServerLevel level, BlockPos brokenPos) {
-        if (savedSlots.isEmpty()) return;
-        // Drop inventory
-        for (ItemStack stack : items) {
-            if (!stack.isEmpty()) {
-                Containers.dropItemStack(level, brokenPos.getX() + 0.5, brokenPos.getY() + 0.5, brokenPos.getZ() + 0.5, stack);
-            }
-        }
-        items.clear();
+    public boolean onExploded(ServerLevel level, BlockPos brokenPos) {
+        return restoreStructure(level, brokenPos, false);
+    }
 
-        for (SavedSlot slot : savedSlots) {
-            BlockPos worldPos = slot.worldPos;
-            BlockState currentState = level.getBlockState(worldPos);
-            boolean isThisCore = worldPos.equals(this.worldPosition);
-            boolean isFormedPart = currentState.is(ModBlocks.FORMED_PSY_MIXER_PART.get());
+    public boolean onPartExploded(ServerLevel level, BlockPos brokenPos) {
+        return restoreStructure(level, brokenPos, false);
+    }
 
-            if (worldPos.equals(brokenPos)) {
-                // The broken slot - drop original block and remove formed
-                BlockState original = slot.blockState;
-                ItemStack drop = new ItemStack(original.getBlock().asItem());
-                if (!drop.isEmpty()) {
-                    Containers.dropItemStack(level, worldPos.getX() + 0.5, worldPos.getY() + 0.5, worldPos.getZ() + 0.5, drop);
+    private boolean restoreStructure(ServerLevel level, BlockPos brokenPos, boolean dropBrokenOriginal) {
+        if (restoringStructure || savedSlots.isEmpty()) return false;
+        restoringStructure = true;
+        try {
+            closeOpenMenus(level);
+
+            // Drop inventory
+            for (ItemStack stack : items) {
+                if (!stack.isEmpty()) {
+                    Containers.dropItemStack(level, brokenPos.getX() + 0.5, brokenPos.getY() + 0.5, brokenPos.getZ() + 0.5, stack);
                 }
-                level.removeBlock(worldPos, false);
-            } else if (isThisCore || isFormedPart) {
-                // Restore original
-                level.setBlock(worldPos, slot.blockState, Block.UPDATE_ALL);
+            }
+            items.clear();
+
+            for (SavedSlot slot : savedSlots) {
+                BlockPos worldPos = slot.worldPos;
+                BlockState currentState = level.getBlockState(worldPos);
+                boolean isThisCore = worldPos.equals(this.worldPosition);
+                boolean isFormedPart = currentState.is(ModBlocks.FORMED_PSY_MIXER_PART.get());
+
+                if (worldPos.equals(brokenPos)) {
+                    // The broken slot - drop original block and remove formed
+                    BlockState original = slot.blockState;
+                    if (dropBrokenOriginal) {
+                        ItemStack drop = new ItemStack(original.getBlock().asItem());
+                        if (!drop.isEmpty()) {
+                            Containers.dropItemStack(level, worldPos.getX() + 0.5, worldPos.getY() + 0.5, worldPos.getZ() + 0.5, drop);
+                        }
+                    }
+                    level.removeBlock(worldPos, false);
+                } else if (isThisCore || isFormedPart) {
+                    // Restore original
+                    level.setBlock(worldPos, slot.blockState, Block.UPDATE_ALL);
+                }
+            }
+
+            // Visual rupture
+            level.playSound(null, brokenPos, SoundEvents.GLASS_BREAK, SoundSource.BLOCKS, 0.8F, 0.6F);
+            for (int i = 0; i < 20; i++) {
+                level.sendParticles(
+                        new DustParticleOptions(0x442233, 1.5F),
+                        brokenPos.getX() + 0.5, brokenPos.getY() + 0.5, brokenPos.getZ() + 0.5,
+                        1, 0.5, 0.5, 0.5, 0.0
+                );
+            }
+
+            savedSlots.clear();
+            running = false;
+            progress = 0;
+            activeRecipeId = null;
+            ritualPlayer = null;
+            goodHits = 0;
+            badHits = 0;
+            rhythmInputCooldown = 0;
+            resonance = PsyMixerRitualEngine.START_RESONANCE;
+            streak = 0;
+            lastJudgement = PsyMixerRitualJudgement.NONE.id();
+            feedbackTicks = 0;
+            lastAccuracy = 0.0F;
+            setChanged();
+            return true;
+        } finally {
+            restoringStructure = false;
+        }
+    }
+
+    private void closeOpenMenus(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            if (player.containerMenu instanceof PsyMixerMenu menu && this.worldPosition.equals(menu.getCorePos())) {
+                player.closeContainer();
             }
         }
-
-        // Visual rupture
-        level.playSound(null, brokenPos, SoundEvents.GLASS_BREAK, SoundSource.BLOCKS, 0.8F, 0.6F);
-        for (int i = 0; i < 20; i++) {
-            level.sendParticles(
-                    new DustParticleOptions(0x442233, 1.5F),
-                    brokenPos.getX() + 0.5, brokenPos.getY() + 0.5, brokenPos.getZ() + 0.5,
-                    1, 0.5, 0.5, 0.5, 0.0
-            );
-        }
-
-        savedSlots.clear();
-        running = false;
-        progress = 0;
-        activeRecipeId = null;
-        resonance = PsyMixerRitualEngine.START_RESONANCE;
-        streak = 0;
-        feedbackTicks = 0;
     }
 
     private void sendMessage(@Nullable ServerPlayer player, String key) {
@@ -659,6 +725,9 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        if (!isStructureIntact()) {
+            return null;
+        }
         return new PsyMixerMenu(containerId, inventory, this, this.worldPosition);
     }
 

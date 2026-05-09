@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -18,6 +19,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerPartBlockEntity;
+
+import java.util.function.BiConsumer;
 
 public final class FormedPsyMixerPartBlock extends BaseEntityBlock {
     public static final MapCodec<FormedPsyMixerPartBlock> CODEC = simpleCodec(FormedPsyMixerPartBlock::new);
@@ -65,11 +68,22 @@ public final class FormedPsyMixerPartBlock extends BaseEntityBlock {
         if (corePos == null) {
             return InteractionResult.PASS;
         }
-        if (level.getBlockEntity(corePos) instanceof FormedPsyMixerCoreBlockEntity core) {
+        if (level.getBlockEntity(corePos) instanceof FormedPsyMixerCoreBlockEntity core && core.isStructureIntact()) {
             serverPlayer.openMenu(core, buf -> buf.writeBlockPos(corePos));
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
+    }
+
+    @Override
+    protected void onExplosionHit(BlockState state, ServerLevel level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> dropConsumer) {
+        if (level.getBlockEntity(pos) instanceof FormedPsyMixerPartBlockEntity part) {
+            BlockPos corePos = part.getCorePos();
+            if (corePos != null && level.getBlockEntity(corePos) instanceof FormedPsyMixerCoreBlockEntity core && core.onPartExploded(level, pos)) {
+                return;
+            }
+        }
+        super.onExplosionHit(state, level, pos, explosion, dropConsumer);
     }
 
     @Override

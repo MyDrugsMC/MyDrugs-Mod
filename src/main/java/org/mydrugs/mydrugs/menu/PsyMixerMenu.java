@@ -179,10 +179,11 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        if (!(player.level().getBlockEntity(corePos) instanceof FormedPsyMixerCoreBlockEntity)) {
+        if (!(player.level().getBlockEntity(corePos) instanceof FormedPsyMixerCoreBlockEntity core)) {
             return false;
         }
-        return player.distanceToSqr(corePos.getX() + 0.5, corePos.getY() + 0.5, corePos.getZ() + 0.5) <= 64.0;
+        return core.isStructureIntact()
+                && player.distanceToSqr(corePos.getX() + 0.5, corePos.getY() + 0.5, corePos.getZ() + 0.5) <= 64.0;
     }
 
     @Override
