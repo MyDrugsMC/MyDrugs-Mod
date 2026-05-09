@@ -15,7 +15,7 @@ import java.util.List;
 
 public final class RitualIngredientEffectRegistry {
     private static final List<Entry> ENTRIES = List.of(
-            entry(DrugId.WEED, Items.GLOWSTONE_DUST, new RitualDrugEffectData(EffectType.GAMMA_BOOST, 30 * 20, 0.45F)),
+            entry(DrugId.WEED, Items.GLOWSTONE_DUST, new RitualDrugEffectData(EffectType.GAMMA_BOOST, 30 * 20, 1.45F)),
             entry(DrugId.TOBACCO, ModItems.ALOE_VERA.get(),
                     new RitualDrugEffectData(EffectType.PRECISION, 90 * 20, 1.30F))
     );
