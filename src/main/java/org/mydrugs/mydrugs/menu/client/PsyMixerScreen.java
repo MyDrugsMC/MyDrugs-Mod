@@ -199,7 +199,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     }
 
     private void drawActiveDrugBonuses(GuiGraphics graphics) {
-        DrugBonusClientText.drawRitualBonuses(graphics, font, 5, layout.bonusY, 45);
+        DrugBonusClientText.drawRitualBonuses(graphics, font, 0, layout.height + 5, leftPos - 10);
     }
 
     private void drawMeter(GuiGraphics graphics, int y, String labelKey, int fillWidth, int fillColor) {

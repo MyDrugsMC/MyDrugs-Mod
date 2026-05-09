@@ -13,6 +13,7 @@ public final class PsyMixerRitualEngine {
     private static final float ZONE_DRIFT_AMPLITUDE = 0.115F;
     private static final float ZONE_SIZE_AMPLITUDE = 0.045F;
     private static final float ZONE_SIZE_PHASE_OFFSET = (float) (Math.PI / 4.0);
+    private static final float ZONE_WIDTH_SCALE = 0.60F;
 
     private PsyMixerRitualEngine() {
     }
@@ -36,7 +37,7 @@ public final class PsyMixerRitualEngine {
         }
         float wave = oscillator(progress, ritualMaxTime, sizeScale) + ZONE_SIZE_PHASE_OFFSET;
         float sizeOffset = (float) Math.cos(wave) * ZONE_SIZE_AMPLITUDE;
-        return Mth.clamp(baseWindow + sizeOffset, 0.035F, 1.0F);
+        return Mth.clamp((baseWindow + sizeOffset) * ZONE_WIDTH_SCALE, 0.035F, 1.0F);
     }
 
     public static JudgementResult judge(float phase, float targetPhase, float timingWindow, int streak) {
