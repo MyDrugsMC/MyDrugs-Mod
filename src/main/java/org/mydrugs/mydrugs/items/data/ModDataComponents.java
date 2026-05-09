@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
 import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.BottleFluidContent;
 import org.mydrugs.mydrugs.items.data.BloodSample;
@@ -79,6 +80,14 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType(
                     "pipe_filter_config",
                     builder -> builder.persistent(PipeFilterConfig.CODEC).cacheEncoding()
+            );
+
+    public static final Supplier<DataComponentType<MixedDrugData>> MIXED_DRUG_DATA =
+            DATA_COMPONENTS.registerComponentType(
+                    "mixed_drug_data",
+                    builder -> builder
+                            .persistent(MixedDrugData.CODEC)
+                            .networkSynchronized(MixedDrugData.STREAM_CODEC)
             );
 
     private ModDataComponents() {

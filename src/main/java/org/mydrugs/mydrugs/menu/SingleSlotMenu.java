@@ -64,6 +64,10 @@ public class SingleSlotMenu extends AbstractMachineMenu {
         return player.getItemInHand(this.hand) == this.carrier;
     }
 
+    public ItemStack getStoredStack() {
+        return this.container.getItem(0);
+    }
+
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack quickMoved = ItemStack.EMPTY;

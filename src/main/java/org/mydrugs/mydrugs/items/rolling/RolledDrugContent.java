@@ -13,10 +13,7 @@ import java.util.List;
 public record RolledDrugContent(
         DrugId first,
         DrugId second,
-        DrugId third,
-        boolean firstBrightened,
-        boolean secondBrightened,
-        boolean thirdBrightened
+        DrugId third
 ) {
     public static final Codec<DrugId> DRUG_ID_CODEC =
             Codec.STRING.comapFlatMap(
@@ -35,25 +32,15 @@ public record RolledDrugContent(
     public static final Codec<RolledDrugContent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             DRUG_ID_CODEC.fieldOf("first").forGetter(RolledDrugContent::first),
             DRUG_ID_CODEC.fieldOf("second").forGetter(RolledDrugContent::second),
-            DRUG_ID_CODEC.fieldOf("third").forGetter(RolledDrugContent::third),
-            Codec.BOOL.optionalFieldOf("first_brightened", false).forGetter(RolledDrugContent::firstBrightened),
-            Codec.BOOL.optionalFieldOf("second_brightened", false).forGetter(RolledDrugContent::secondBrightened),
-            Codec.BOOL.optionalFieldOf("third_brightened", false).forGetter(RolledDrugContent::thirdBrightened)
+            DRUG_ID_CODEC.fieldOf("third").forGetter(RolledDrugContent::third)
     ).apply(instance, RolledDrugContent::new));
 
     public static final StreamCodec<ByteBuf, RolledDrugContent> STREAM_CODEC = StreamCodec.composite(
             DRUG_ID_STREAM_CODEC, RolledDrugContent::first,
             DRUG_ID_STREAM_CODEC, RolledDrugContent::second,
             DRUG_ID_STREAM_CODEC, RolledDrugContent::third,
-            ByteBufCodecs.BOOL, RolledDrugContent::firstBrightened,
-            ByteBufCodecs.BOOL, RolledDrugContent::secondBrightened,
-            ByteBufCodecs.BOOL, RolledDrugContent::thirdBrightened,
             RolledDrugContent::new
     );
-
-    public RolledDrugContent(DrugId first, DrugId second, DrugId third) {
-        this(first, second, third, false, false, false);
-    }
 
     public static RolledDrugContent allTobacco() {
         return new RolledDrugContent(DrugId.TOBACCO, DrugId.TOBACCO, DrugId.TOBACCO);
@@ -67,14 +54,5 @@ public record RolledDrugContent(
 
     public List<DrugId> asList() {
         return List.of(first, second, third);
-    }
-
-    public boolean isBrightened(int index) {
-        return switch (index) {
-            case 0 -> firstBrightened;
-            case 1 -> secondBrightened;
-            case 2 -> thirdBrightened;
-            default -> false;
-        };
     }
 }

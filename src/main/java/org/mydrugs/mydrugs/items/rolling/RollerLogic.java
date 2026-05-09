@@ -45,14 +45,7 @@ public final class RollerLogic {
             return null;
         }
 
-        return new RolledDrugContent(
-                a,
-                b,
-                c,
-                isBrightened(first),
-                isBrightened(second),
-                isBrightened(third)
-        );
+        return new RolledDrugContent(a, b, c);
     }
 
     private static @Nullable DrugId readIngredient(ItemStack stack) {
@@ -60,12 +53,6 @@ public final class RollerLogic {
             return null;
         }
         return ingredient.getRollingDrug(stack);
-    }
-
-    private static boolean isBrightened(ItemStack stack) {
-        return !stack.isEmpty()
-                && stack.getItem() instanceof RollingIngredient ingredient
-                && ingredient.isBrightenedRollingIngredient(stack);
     }
 
     public static ItemStack createResult(Container container) {

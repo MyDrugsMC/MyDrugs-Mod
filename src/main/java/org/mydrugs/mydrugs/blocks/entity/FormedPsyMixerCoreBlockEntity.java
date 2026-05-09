@@ -43,6 +43,8 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.core.drug.ritual.RitualIngredientEffectRegistry;
+import org.mydrugs.mydrugs.core.drug.ritual.ServerDrugFormulaRegistry;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
@@ -344,14 +346,19 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         boolean success = level.random.nextFloat() >= finalInstability;
 
         if (success) {
+            var formula = RitualIngredientEffectRegistry.buildFormula(
+                    input.base(),
+                    List.of(input.material(), input.catalyst(), input.stabilizer(), input.vessel())
+            );
             consumeInputs(recipe, true);
-            ItemStack result = recipe.assemble(input, level.registryAccess());
-            placeIntoOutput(result);
+            boolean completedOutput = player == null || ServerDrugFormulaRegistry.finishOrRequestName(player, this, formula);
 
             if (player != null) {
                 PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
                 mastery.incrementCompleted(activeRecipeId);
-                sendRandomMessage(player, SUCCESS_MESSAGES);
+                if (completedOutput) {
+                    sendRandomMessage(player, SUCCESS_MESSAGES);
+                }
             }
 
             level.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.6F, 1.4F);
@@ -487,7 +494,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
     }
 
-    private void placeIntoOutput(ItemStack result) {
+    public void placeIntoOutput(ItemStack result) {
         if (result.isEmpty()) return;
         ItemStack current = items.get(PsyMixerMultiblock.SLOT_OUTPUT);
         if (current.isEmpty()) {

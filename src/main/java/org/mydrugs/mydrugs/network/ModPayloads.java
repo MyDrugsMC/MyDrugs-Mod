@@ -73,6 +73,15 @@ public final class ModPayloads {
                 StimulantDashPayload.STREAM_CODEC,
                 StimulantDashPayload::handleOnServer
         );
+        registrar.playToClient(
+                OpenDrugFormulaNamingPayload.TYPE,
+                OpenDrugFormulaNamingPayload.STREAM_CODEC
+        );
+        registrar.playToServer(
+                SubmitDrugFormulaNamePayload.TYPE,
+                SubmitDrugFormulaNamePayload.STREAM_CODEC,
+                SubmitDrugFormulaNamePayload::handleOnServer
+        );
     }
 
     private static void handleSieveShake(SieveShakePayload payload, IPayloadContext context) {

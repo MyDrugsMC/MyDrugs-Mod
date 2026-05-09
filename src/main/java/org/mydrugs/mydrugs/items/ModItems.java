@@ -156,7 +156,13 @@ public class ModItems {
             ITEMS.registerItem("aloe_vera", prop -> new BlockItem(org.mydrugs.mydrugs.blocks.crops.ModCrops.ALOE_VERA_CROP.get(), prop));
 
     public static final DeferredItem<Item> SOOTHING_TOBACCO_BLEND =
-            ITEMS.registerItem("soothing_tobacco_blend", prop -> new SoothingTobaccoBlendItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
+            ITEMS.registerItem("soothing_tobacco_blend", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
+
+    public static final DeferredItem<Item> MIXED_DRUG =
+            ITEMS.registerItem("mixed_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
+
+    public static final DeferredItem<Item> DRUG_ANALYZER =
+            ITEMS.registerItem("drug_analyzer", DrugAnalyzerItem::new);
 
     public static final DeferredItem<Item> CIGARETTE =
             ITEMS.registerItem("cigaret",
@@ -502,8 +508,7 @@ public class ModItems {
             ITEMS.registerItem("brightened_cannabis_powder",
                     prop -> new CannabisPowderItem(
                             prop, DrugId.WEED,
-                            new SmokingStrategy(true, true),
-                            true));
+                            new SmokingStrategy(true, true)));
 
     public static final DeferredItem<VanillaBiomeFinderItem> VANILLA_BIOME_FINDER =
             ITEMS.registerItem("vanilla_biome_finder",

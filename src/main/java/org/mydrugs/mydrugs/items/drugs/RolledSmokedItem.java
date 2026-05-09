@@ -15,7 +15,6 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
-import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugRegistry;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
@@ -41,15 +40,8 @@ public class RolledSmokedItem extends DrugItem {
         RolledDrugContent resolvedContent = content;
         List<DrugId> drugs = resolvedContent.asList();
         return IntStream.range(0, drugs.size())
-                .mapToObj(index -> toDrugModel(drugs.get(index), resolvedContent.isBrightened(index)))
+                .mapToObj(index -> DrugRegistry.getDrug(drugs.get(index)))
                 .toList();
-    }
-
-    private static DrugModel toDrugModel(DrugId id, boolean brightened) {
-        DrugModel model = DrugRegistry.getDrug(id);
-        return brightened && id == DrugId.WEED
-                ? model.withAdditionalEffects(List.copyOf(RitualDrugRegistry.brightenedCannabisEffects()))
-                : model;
     }
 
     @Nullable
