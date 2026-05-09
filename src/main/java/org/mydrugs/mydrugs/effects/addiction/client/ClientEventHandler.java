@@ -9,6 +9,7 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
@@ -16,6 +17,7 @@ import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
 import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
 import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.client.render.AddictionHudRenderer;
 import org.mydrugs.mydrugs.effects.addiction.client.render.FlexibleDrugVisualOverlay;
 import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientState;
@@ -23,6 +25,7 @@ import org.mydrugs.mydrugs.effects.addiction.client.render.hallucination.FakeEnt
 import org.mydrugs.mydrugs.effects.addiction.client.sound.ClientSoundController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
 import org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
@@ -73,6 +76,18 @@ public final class ClientEventHandler {
         @SubscribeEvent
         public static void onMovementInput(net.neoforged.neoforge.client.event.MovementInputUpdateEvent event) {
             ClientInputInterceptor.applyToInput(event.getInput(), event.getEntity().tickCount);
+        }
+
+        @SubscribeEvent
+        public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
+            float multiplier = DrugEffectRuntimeManager.getMiningSpeedMultiplier(
+                    AddictionClientState.getEffectIntensity(EffectType.MINING_SPEED),
+                    AddictionClientState.getEffectIntensity(EffectType.PRECISION),
+                    AddictionClientState.getEffectIntensity(EffectType.ADRENALINE_SURGE)
+            );
+            if (Math.abs(multiplier - 1.0F) > 0.001F) {
+                event.setNewSpeed(event.getNewSpeed() * multiplier);
+            }
         }
 
         @SubscribeEvent

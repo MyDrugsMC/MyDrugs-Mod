@@ -112,6 +112,10 @@ public final class DrugEffectRuntimeManager {
         float haste = getServerIntensity(player, EffectType.MINING_SPEED);
         float precision = getServerIntensity(player, EffectType.PRECISION);
         float adrenaline = getServerIntensity(player, EffectType.ADRENALINE_SURGE);
+        return getMiningSpeedMultiplier(haste, precision, adrenaline);
+    }
+
+    public static float getMiningSpeedMultiplier(float haste, float precision, float adrenaline) {
         return 1.0F + Math.min(2.5F, Math.max(0.0F, haste + precision * 0.55F + adrenaline * 0.65F));
     }
 
