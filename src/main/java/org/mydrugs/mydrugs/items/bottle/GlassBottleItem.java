@@ -32,6 +32,7 @@ import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseResult;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
+import org.mydrugs.mydrugs.events.LsdDropConversion;
 import org.mydrugs.mydrugs.fluids.FluidTypesEx;
 import org.mydrugs.mydrugs.fluids.ModFluidTags;
 import org.mydrugs.mydrugs.fluids.ModFluids;
@@ -174,7 +175,11 @@ public class GlassBottleItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        InteractionResult result = LsdDropConversion.tryConvert(level, player, hand);
 
+        if (result != InteractionResult.PASS) {
+            return result;
+        }
 
         if (!isDrinkable(stack)) {
             return InteractionResult.PASS;

@@ -61,6 +61,9 @@ public class MyDrugs {
                         for (var holder : ModBlocks.ITEMS.getEntries()) {
                             output.accept(holder.get());
                         }
+                        for (var holder : ModCrops.ITEMS.getEntries()) {
+                            output.accept(holder.get());
+                        }
                     })
                     .build()
     );

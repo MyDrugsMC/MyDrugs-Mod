@@ -64,7 +64,6 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRenderLevelPostShaders(RenderLevelStageEvent.AfterLevel event) {
-        if (true) return;
 
         Minecraft mc = Minecraft.getInstance();
 
