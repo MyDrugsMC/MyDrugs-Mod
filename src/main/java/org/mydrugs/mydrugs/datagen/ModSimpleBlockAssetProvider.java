@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.datagen;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -19,6 +20,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
     private final PackOutput.PathProvider blockModelPathProvider;
     private final PackOutput.PathProvider itemClientPathProvider;
     private final PackOutput.PathProvider itemModelPathProvider;
+    private boolean emptyBlockModelSaved;
 
     public ModSimpleBlockAssetProvider(PackOutput output) {
         this.blockStatePathProvider = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "blockstates");
@@ -136,7 +138,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCrop(futures, cachedOutput, "cannabis_crop", "cannabis_crop_stage");
         saveCrossCrop(futures, cachedOutput, "aloe_vera_crop", "aloe_vera_stage", "minecraft:block/small_dripleaf_top");
         saveCrossCrop(futures, cachedOutput, "coca_crop", "coca_stage");
-        saveCrop(futures, cachedOutput, "malt_crop", "malt_stage");
+        saveTallCrop(futures, cachedOutput, "malt_crop", "malt_stage", 4);
         saveCrop(futures, cachedOutput, "rye_crop", "rye_stage");
         saveCrop(futures, cachedOutput, "tobacco_crop", "tobacco_stage");
 
@@ -363,6 +365,98 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         root.addProperty("render_type", "minecraft:cutout");
         textures.addProperty("crop", MyDrugs.MODID + ":block/" + name);
         root.add("textures", textures);
+        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+    }
+
+    private void saveTallCrop(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String texturePrefix, int tallStartAge) {
+        ResourceLocation blockStateId = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, blockStateName);
+        JsonObject root = new JsonObject();
+        JsonObject variants = new JsonObject();
+
+        for (int age = 0; age <= 7; age++) {
+            variants.add("age=" + age + ",half=lower", modelVariant(texturePrefix + age + "_lower", 0));
+            saveTallCropModel(futures, cachedOutput, texturePrefix + age + "_lower", texturePrefix + age, false);
+
+            String upperModel = age >= tallStartAge ? texturePrefix + age + "_upper" : "empty";
+            variants.add("age=" + age + ",half=upper", modelVariant(upperModel, 0));
+            if (age >= tallStartAge) {
+                saveTallCropModel(futures, cachedOutput, upperModel, texturePrefix + age, true);
+            }
+        }
+
+        saveEmptyBlockModel(futures, cachedOutput);
+        root.add("variants", variants);
+        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
+    }
+
+    private void saveTallCropModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String modelName, String textureName, boolean upper) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, modelName);
+        JsonObject root = new JsonObject();
+        JsonObject textures = new JsonObject();
+        root.addProperty("render_type", "minecraft:cutout");
+        textures.addProperty("crop", MyDrugs.MODID + ":block/" + textureName);
+        root.add("textures", textures);
+
+        JsonArray elements = new JsonArray();
+        int minV = upper ? 0 : 8;
+        int maxV = upper ? 8 : 16;
+        elements.add(tallCropPlane(
+                vector(0, 0, 8),
+                vector(16, 16, 8),
+                "north",
+                "south",
+                minV,
+                maxV
+        ));
+        elements.add(tallCropPlane(
+                vector(8, 0, 0),
+                vector(8, 16, 16),
+                "west",
+                "east",
+                minV,
+                maxV
+        ));
+        root.add("elements", elements);
+
+        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+    }
+
+    private JsonObject tallCropPlane(JsonArray from, JsonArray to, String firstFace, String secondFace, int minV, int maxV) {
+        JsonObject element = new JsonObject();
+        JsonObject faces = new JsonObject();
+        element.add("from", from);
+        element.add("to", to);
+        faces.add(firstFace, cropFace(minV, maxV));
+        faces.add(secondFace, cropFace(minV, maxV));
+        element.add("faces", faces);
+        return element;
+    }
+
+    private JsonObject cropFace(int minV, int maxV) {
+        JsonObject face = new JsonObject();
+        face.add("uv", vector(0, minV, 16, maxV));
+        face.addProperty("texture", "#crop");
+        return face;
+    }
+
+    private JsonArray vector(int... values) {
+        JsonArray vector = new JsonArray();
+        for (int value : values) {
+            vector.add(value);
+        }
+        return vector;
+    }
+
+    private void saveEmptyBlockModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput) {
+        if (this.emptyBlockModelSaved) {
+            return;
+        }
+
+        this.emptyBlockModelSaved = true;
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "empty");
+        JsonObject root = new JsonObject();
+        root.addProperty("parent", "minecraft:block/block");
+        root.add("elements", new JsonArray());
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
