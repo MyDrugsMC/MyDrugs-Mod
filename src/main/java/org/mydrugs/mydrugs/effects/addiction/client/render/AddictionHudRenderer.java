@@ -67,7 +67,7 @@ public final class AddictionHudRenderer {
     }
 
     private static void drawWithdrawalBar(GuiGraphics graphics, int width, int height) {
-        float target = Mth.clamp(AddictionClientState.globalSeverity, 0.0F, 1.0F);
+        float target = Mth.clamp(Math.max(AddictionClientState.globalSeverity, AddictionClientState.badTripSeverity), 0.0F, 1.0F);
         displayedWithdrawal += (target - displayedWithdrawal) * 0.18F;
         if (displayedWithdrawal < MIN_VISIBLE && target < MIN_VISIBLE) {
             displayedWithdrawal = 0.0F;
@@ -80,7 +80,7 @@ public final class AddictionHudRenderer {
         graphics.fill(x - 1, y - 1, x + WITHDRAWAL_BAR_WIDTH + 1, y + WITHDRAWAL_BAR_HEIGHT + 1, 0x66000000);
         graphics.fill(x, y, x + WITHDRAWAL_BAR_WIDTH, y + WITHDRAWAL_BAR_HEIGHT, 0xAA1C101A);
         if (fill > 0) {
-            int color = displayedWithdrawal > 0.66F ? 0xFFE45A61 : displayedWithdrawal > 0.33F ? 0xFFC06C9A : 0xFF8D73D9;
+            int color = AddictionClientState.badTripActive ? 0xFFFF4F6D : displayedWithdrawal > 0.66F ? 0xFFE45A61 : displayedWithdrawal > 0.33F ? 0xFFC06C9A : 0xFF8D73D9;
             graphics.fill(x, y, x + fill, y + WITHDRAWAL_BAR_HEIGHT, color);
         }
         graphics.fill(x, y, x + WITHDRAWAL_BAR_WIDTH, y + 1, 0x55FFFFFF);
@@ -179,6 +179,15 @@ public final class AddictionHudRenderer {
     }
 
     private static float flagIntensity(int flag) {
+        if (AddictionClientState.badTripActive && (
+                flag == SymptomFlags.HALLUCINATION
+                        || flag == SymptomFlags.VISION
+                        || flag == SymptomFlags.CONFUSION
+                        || flag == SymptomFlags.INTRUSIVE_THOUGHTS
+                        || flag == SymptomFlags.DISSOCIATION
+                        || flag == SymptomFlags.STRESS)) {
+            return Mth.clamp(Math.max(0.35F, AddictionClientState.badTripSeverity), 0.0F, 1.0F);
+        }
         return AddictionClientState.has(flag) ? Mth.clamp(AddictionClientState.globalSeverity, 0.25F, 1.0F) : 0.0F;
     }
 
@@ -194,6 +203,9 @@ public final class AddictionHudRenderer {
     }
 
     private static float heartbeatIntensity() {
+        if (AddictionClientState.badTripActive) {
+            return Mth.clamp(Math.max(0.35F, AddictionClientState.badTripSeverity), 0.0F, 1.0F);
+        }
         return AddictionClientState.has(SymptomFlags.STRESS) ? Mth.clamp(AddictionClientState.stressLevel, 0.3F, 1.0F) : 0.0F;
     }
 

@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
@@ -16,11 +17,11 @@ import org.mydrugs.mydrugs.effects.addiction.config.SymptomThresholds;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.TemporaryRecoveryEffects;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
 
 public final class SymptomManager {
-    private static final ResourceLocation FRAGILITY_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "withdrawal_fragility");
     private static final ResourceLocation FATIGUE_SPEED_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "withdrawal_fatigue_speed");
 
     private SymptomManager() {
@@ -47,20 +48,13 @@ public final class SymptomManager {
         AttributeInstance maxHealth = living.getAttribute(Attributes.MAX_HEALTH);
         AttributeInstance moveSpeed = living.getAttribute(Attributes.MOVEMENT_SPEED);
 
-        if (maxHealth != null) {
-            maxHealth.removeModifier(FRAGILITY_ID);
-        }
-
         if (moveSpeed != null) {
             moveSpeed.removeModifier(FATIGUE_SPEED_ID);
         }
 
         if (severity >= SymptomThresholds.FRAGILITY && maxHealth != null) {
-            double penalty = -Math.floor(2.0 + AddictionMath.mapRange(severity, 0.35F, 1.0F, 0.0F, 6.0F));
-            maxHealth.addPermanentModifier(new AttributeModifier(FRAGILITY_ID, penalty, AttributeModifier.Operation.ADD_VALUE));
-            if (player.getHealth() > player.getMaxHealth()) {
-                player.setHealth(player.getMaxHealth());
-            }
+            float healthPoints = (float) Math.floor(2.0 + AddictionMath.mapRange(severity, 0.35F, 1.0F, 0.0F, 6.0F));
+            DrugEffectRuntimeManager.addEffect(player, EffectType.HP_DECREASE, healthPoints / 2.0F, 45);
         }
 
         if (severity >= SymptomThresholds.FATIGUE && moveSpeed != null) {
@@ -80,6 +74,7 @@ public final class SymptomManager {
 
         int insomniaRemaining = (int) Math.max(0L, stats.sleepBlockedUntil - now);
         int flags = buildFlags(globalSeverity);
+        flags |= BadTripManager.symptomFlags(stats);
         if (effects.hasSleepBonus(now)) {
             flags &= ~SymptomFlags.INSOMNIA;
         }

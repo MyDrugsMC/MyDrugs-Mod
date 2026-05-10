@@ -8,6 +8,7 @@ import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
 import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
@@ -24,6 +25,13 @@ public final class AddictionClientState {
     public static int insomniaTicksRemaining;
     public static int recoveryFlags;
     public static int overdoseTicksRemaining;
+    public static boolean badTripActive;
+    public static float badTripThreshold;
+    public static float badTripSeverity;
+    public static int badTripTicksActive;
+    public static String badTripSourceDrug = "";
+    public static String badTripSourceCategory = "OTHER";
+    public static float badTripSymptomIntensity;
 
     private static final float[] categoryDoses = new float[DrugCategory.values().length];
     private static final EnumMap<EffectType, ClientDrugEffect> activeEffects = new EnumMap<>(EffectType.class);
@@ -46,6 +54,16 @@ public final class AddictionClientState {
         Arrays.fill(categoryDoses, 0.0F);
         float[] incoming = payload.doses();
         System.arraycopy(incoming, 0, categoryDoses, 0, Math.min(incoming.length, categoryDoses.length));
+    }
+
+    public static void applyBadTrip(BadTripPayload payload) {
+        badTripActive = payload.active();
+        badTripThreshold = payload.threshold();
+        badTripSeverity = payload.severity();
+        badTripTicksActive = payload.ticksActive();
+        badTripSourceDrug = payload.sourceDrug();
+        badTripSourceCategory = payload.sourceCategory();
+        badTripSymptomIntensity = payload.symptomIntensity();
     }
 
     public static void applyDrugEffectSync(DrugEffectSyncPayload payload) {
@@ -196,7 +214,7 @@ public final class AddictionClientState {
         boolean doseDanger = hasDangerousDoseState();
         boolean temporarySupport = hasDiaryCalm() || hasCalmingMixture() || hasHeadphonesCalm() || hasSleepBonus();
         boolean safeZoneContext = isInSafeZone() && unstable;
-        return unstable || doseDanger || temporarySupport || safeZoneContext;
+        return badTripActive || unstable || doseDanger || temporarySupport || safeZoneContext;
     }
 
     public static void tick() {
@@ -205,6 +223,9 @@ public final class AddictionClientState {
         }
         if (overdoseTicksRemaining > 0) {
             overdoseTicksRemaining--;
+        }
+        if (badTripActive) {
+            badTripTicksActive++;
         }
         activeEffects.entrySet().removeIf(entry -> entry.getValue().tick());
     }

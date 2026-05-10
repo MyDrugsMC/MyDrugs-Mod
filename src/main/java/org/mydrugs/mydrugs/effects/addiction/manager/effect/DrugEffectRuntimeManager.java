@@ -35,11 +35,13 @@ public final class DrugEffectRuntimeManager {
     private static final Map<UUID, Integer> VOMIT_COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Float> LAST_MOVEMENT_MULTIPLIER = new HashMap<>();
     private static final Map<UUID, Float> LAST_MINING_MULTIPLIER = new HashMap<>();
+    private static final Map<UUID, Float> LAST_HP_DECREASE_HEARTS = new HashMap<>();
     private static final Map<UUID, Integer> LAST_SYNC_SIGNATURE = new HashMap<>();
     private static final Map<UUID, Long> LAST_ADRENALINE_TRIGGER = new HashMap<>();
     private static final Set<UUID> DIRTY_PLAYERS = new java.util.HashSet<>();
     private static final ResourceLocation MOVEMENT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_movement_speed");
     private static final ResourceLocation MINING_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_mining_speed");
+    private static final ResourceLocation HP_DECREASE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_hp_decrease");
 
     private DrugEffectRuntimeManager() {
     }
@@ -60,6 +62,7 @@ public final class DrugEffectRuntimeManager {
         DIRTY_PLAYERS.add(player.getUUID());
         applyMovementAttribute(player, effects);
         applyMiningAttribute(player, effects);
+        applyHpDecreaseAttribute(player, effects);
     }
 
     public static float getServerIntensity(ServerPlayer player, EffectType type) {
@@ -93,6 +96,7 @@ public final class DrugEffectRuntimeManager {
 
             applyMovementAttribute(player, effects);
             applyMiningAttribute(player, effects);
+            applyHpDecreaseAttribute(player, effects);
             maybeVomit(player, effects);
 
             if (effects.isEmpty()) {
@@ -102,6 +106,7 @@ public final class DrugEffectRuntimeManager {
         } else {
             removeMovementAttribute(player);
             removeMiningAttribute(player);
+            removeHpDecreaseAttribute(player);
         }
 
         if (VOMIT_COOLDOWNS.computeIfPresent(id, (ignored, value) -> value > 0 ? value - 1 : null) != null) {
@@ -233,6 +238,39 @@ public final class DrugEffectRuntimeManager {
             instance.removeModifier(MINING_MODIFIER_ID);
         }
         LAST_MINING_MULTIPLIER.remove(player.getUUID());
+    }
+
+    private static void applyHpDecreaseAttribute(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {
+        float hearts = Math.max(0.0F, intensity(effects, EffectType.HP_DECREASE));
+        float previous = LAST_HP_DECREASE_HEARTS.getOrDefault(player.getUUID(), 0.0F);
+
+        if (Math.abs(hearts - previous) < 0.005F) {
+            return;
+        }
+
+        removeHpDecreaseAttribute(player);
+        if (hearts > 0.005F) {
+            var instance = player.getAttribute(Attributes.MAX_HEALTH);
+            if (instance != null) {
+                instance.addOrUpdateTransientModifier(new AttributeModifier(
+                        HP_DECREASE_MODIFIER_ID,
+                        -2.0D * hearts,
+                        AttributeModifier.Operation.ADD_VALUE
+                ));
+            }
+            if (player.getHealth() > player.getMaxHealth()) {
+                player.setHealth(player.getMaxHealth());
+            }
+        }
+        LAST_HP_DECREASE_HEARTS.put(player.getUUID(), hearts);
+    }
+
+    private static void removeHpDecreaseAttribute(ServerPlayer player) {
+        var instance = player.getAttribute(Attributes.MAX_HEALTH);
+        if (instance != null) {
+            instance.removeModifier(HP_DECREASE_MODIFIER_ID);
+        }
+        LAST_HP_DECREASE_HEARTS.remove(player.getUUID());
     }
 
     private static void maybeVomit(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {

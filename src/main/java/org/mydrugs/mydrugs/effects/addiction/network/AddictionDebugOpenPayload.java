@@ -25,6 +25,12 @@ public record AddictionDebugOpenPayload(
         float resilience,
         float stressLevel,
         float stressTarget,
+        boolean badTripActive,
+        float badTripThreshold,
+        float badTripSeverity,
+        float badTripSymptomIntensity,
+        String badTripSourceDrug,
+        String badTripSourceCategory,
         boolean symptomsImmune,
         List<DrugStatsRow> rows
 ) implements CustomPacketPayload {
@@ -38,6 +44,12 @@ public record AddictionDebugOpenPayload(
                         ByteBufCodecs.FLOAT.encode(buf, payload.resilience());
                         ByteBufCodecs.FLOAT.encode(buf, payload.stressLevel());
                         ByteBufCodecs.FLOAT.encode(buf, payload.stressTarget());
+                        ByteBufCodecs.BOOL.encode(buf, payload.badTripActive());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.badTripThreshold());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.badTripSeverity());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.badTripSymptomIntensity());
+                        ByteBufCodecs.STRING_UTF8.encode(buf, payload.badTripSourceDrug());
+                        ByteBufCodecs.STRING_UTF8.encode(buf, payload.badTripSourceCategory());
                         ByteBufCodecs.BOOL.encode(buf, payload.symptomsImmune());
                         ByteBufCodecs.VAR_INT.encode(buf, payload.rows().size());
                         for (DrugStatsRow row : payload.rows()) {
@@ -58,6 +70,12 @@ public record AddictionDebugOpenPayload(
                         float resilience = ByteBufCodecs.FLOAT.decode(buf);
                         float stressLevel = ByteBufCodecs.FLOAT.decode(buf);
                         float stressTarget = ByteBufCodecs.FLOAT.decode(buf);
+                        boolean badTripActive = ByteBufCodecs.BOOL.decode(buf);
+                        float badTripThreshold = ByteBufCodecs.FLOAT.decode(buf);
+                        float badTripSeverity = ByteBufCodecs.FLOAT.decode(buf);
+                        float badTripSymptomIntensity = ByteBufCodecs.FLOAT.decode(buf);
+                        String badTripSourceDrug = ByteBufCodecs.STRING_UTF8.decode(buf);
+                        String badTripSourceCategory = ByteBufCodecs.STRING_UTF8.decode(buf);
                         boolean symptomsImmune = ByteBufCodecs.BOOL.decode(buf);
                         int count = ByteBufCodecs.VAR_INT.decode(buf);
                         List<DrugStatsRow> rows = new ArrayList<>(count);
@@ -75,7 +93,20 @@ public record AddictionDebugOpenPayload(
                                     ByteBufCodecs.VAR_INT.decode(buf)
                             ));
                         }
-                        return new AddictionDebugOpenPayload(geneticFactor, resilience, stressLevel, stressTarget, symptomsImmune, rows);
+                        return new AddictionDebugOpenPayload(
+                                geneticFactor,
+                                resilience,
+                                stressLevel,
+                                stressTarget,
+                                badTripActive,
+                                badTripThreshold,
+                                badTripSeverity,
+                                badTripSymptomIntensity,
+                                badTripSourceDrug,
+                                badTripSourceCategory,
+                                symptomsImmune,
+                                rows
+                        );
                     }
             );
 
@@ -102,6 +133,12 @@ public record AddictionDebugOpenPayload(
                 stats.resilience,
                 stats.stressLevel,
                 currentStressTarget(player, stats),
+                stats.badTrip.active,
+                stats.badTrip.threshold,
+                stats.badTrip.severity,
+                stats.badTrip.symptomIntensity,
+                stats.badTrip.sourceDrug == null ? "" : stats.badTrip.sourceDrug.serializedName(),
+                stats.badTrip.sourceCategory.name(),
                 stats.addictionSymptomsImmune,
                 rows
         );

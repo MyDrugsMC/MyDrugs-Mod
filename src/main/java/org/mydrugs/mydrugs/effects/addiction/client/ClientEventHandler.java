@@ -25,6 +25,7 @@ import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicControl
 import org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
@@ -43,6 +44,7 @@ public final class ClientEventHandler {
         event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
         event.register(DrugEffectSyncPayload.TYPE, ClientPayloadHandler::handleDrugEffectSync);
         event.register(VomitOverlayPayload.TYPE, ClientPayloadHandler::handleVomitOverlay);
+        event.register(BadTripPayload.TYPE, ClientPayloadHandler::handleBadTrip);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
     }
 

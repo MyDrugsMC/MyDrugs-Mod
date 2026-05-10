@@ -15,6 +15,7 @@ public enum EffectType {
     MOVEMENT_SLOWDOWN(EffectCategory.MOVEMENT),
     MINING_SPEED(EffectCategory.MINING),
     DAMAGE_RESISTANCE(EffectCategory.STAT_MODIFIER),
+    HP_DECREASE(EffectCategory.STAT_MODIFIER),
     ATTACK_DAMAGE(EffectCategory.STAT_MODIFIER),
     ATTACK_SPEED(EffectCategory.STAT_MODIFIER),
     MANUAL_WORK_SPEED(EffectCategory.STAT_MODIFIER),

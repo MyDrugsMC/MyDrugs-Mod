@@ -181,6 +181,11 @@ public class ModLangProvider extends LanguageProvider {
         add("message.mydrugs.knowledge.lysergic", "The walls submitted a circuit diagram. It was correct.");
         add("message.mydrugs.knowledge.overclocked", "The lab heard boss music and started working faster.");
         add("message.mydrugs.knowledge.mycelial", "You found the valley. The valley found you back.");
+        add("message.mydrugs.bad_trip.start.1", "Something in your mind turns against you.");
+        add("message.mydrugs.bad_trip.start.2", "Your thoughts begin to move without you.");
+        add("message.mydrugs.bad_trip.start.3", "The trip has turned.");
+        add("message.mydrugs.bad_trip.start.4", "You are no longer alone in your own head.");
+        add("message.mydrugs.bad_trip.end", "Your thoughts begin to settle.");
         add("message.mydrugs.knowledge.blocked.generic", "Your mind has no receptacle for this yet. Start smaller.");
         add("message.mydrugs.knowledge.blocked.mushroom", "The valley speaks, but you do not yet know the language.");
         add("message.mydrugs.clay_vat.needs_heat", "The clay vat needs heat below it.");

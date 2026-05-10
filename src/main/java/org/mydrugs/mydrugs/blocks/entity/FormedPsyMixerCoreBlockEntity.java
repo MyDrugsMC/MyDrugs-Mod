@@ -48,11 +48,9 @@ import org.mydrugs.mydrugs.core.drug.ritual.ServerDrugFormulaRegistry;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
-import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
-import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
@@ -443,30 +441,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     }
 
     private static boolean hasBadTripState(ServerPlayer player, PlayerAddictionStats stats) {
-        float stress = StressManager.getStress(player);
-        for (DrugId drugId : stats.getTrackedDrugIds()) {
-            DrugCategory category = DrugRegistry.getCategory(drugId);
-            DosePath path = DosePath.of(category);
-            if (path == DosePath.NONE) {
-                continue;
-            }
-
-            DrugAddictionStats drugStats = stats.getDrugStats(drugId);
-            if (drugStats == null) {
-                continue;
-            }
-
-            DoseState state = DoseManager.resolveState(path, drugStats.currentDose());
-            if (state == DoseState.OVERDOSE || state == DoseState.ETHYLIC_COMA) {
-                return true;
-            }
-
-            if ((state == DoseState.VERY_HIGH || state == DoseState.VERY_DRUNK)
-                    && stress >= AddictionConstants.STRESS_BAD_TRIP_THRESHOLD) {
-                return true;
-            }
-        }
-        return false;
+        return BadTripManager.isActive(stats);
     }
 
     private static void applyFailureSeverity(ServerPlayer player, float severity) {

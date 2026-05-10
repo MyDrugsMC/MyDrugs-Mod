@@ -10,6 +10,7 @@ import org.mydrugs.mydrugs.effects.addiction.client.AddictionDebugScreen;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
@@ -33,6 +34,10 @@ public final class ClientPayloadHandler {
     public static void handleDoseSync(DoseSyncPayload payload, IPayloadContext context) {
         AddictionClientState.applyDoseSync(payload);
         ShaderManager.INSTANCE.updateDoses(payload);
+    }
+
+    public static void handleBadTrip(BadTripPayload payload, IPayloadContext context) {
+        AddictionClientState.applyBadTrip(payload);
     }
 
     public static void handleDrugEffectSync(DrugEffectSyncPayload payload, IPayloadContext context) {

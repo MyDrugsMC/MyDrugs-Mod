@@ -23,6 +23,7 @@ import org.mydrugs.mydrugs.effects.addiction.manager.progression.WithdrawalManag
 import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SafeZoneManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SocialReliefManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.ResilienceManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressDamageManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.SymptomManager;
@@ -163,6 +164,7 @@ public final class AddictionManager {
         float globalSeverity = AddictionMath.computeGlobalSeverity(maxSeverity, avg);
 
         if (stats.addictionSymptomsImmune) {
+            BadTripManager.stop(player, stats);
             SymptomManager.applyServerSymptoms(player, 0.0F);
             if (player.tickCount % 20 == 0) {
                 SymptomManager.sync(player, 0.0F, inSafeZone);
@@ -172,6 +174,7 @@ public final class AddictionManager {
         }
 
         StressManager.tick(player, stats, globalSeverity, inCombat, companions, inSafeZone);
+        BadTripManager.tick(player, stats);
         StressDamageManager.tick(player, stats);
         SymptomManager.applyServerSymptoms(player, globalSeverity);
         DoseManager.tickOverdoseTimer(player, stats);

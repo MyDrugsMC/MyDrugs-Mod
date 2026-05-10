@@ -49,6 +49,7 @@ public final class AddictionDebugScreen extends Screen {
         graphics.drawString(this.font, "Genetic " + fmt(this.payload.geneticFactor()), this.left + 12, statsY, 0xFFE6DFF0, false);
         graphics.drawString(this.font, "Resilience " + fmt(this.payload.resilience()), this.left + 110, statsY, 0xFFE6DFF0, false);
         graphics.drawString(this.font, "Stress " + fmt(this.payload.stressLevel()) + " -> " + fmt(this.payload.stressTarget()), this.left + 220, statsY, 0xFFE6DFF0, false);
+        graphics.drawString(this.font, badTripLine(), this.left + 12, statsY + 12, this.payload.badTripActive() ? 0xFFFFA0B8 : 0xFFB8B0C5, false);
 
         drawButton(graphics, resetX(), resetY(), 72, 18, "Reset", 0xFF4B2730, 0xFFFFB8C3);
         drawCheckbox(graphics, immuneX(), immuneY(), this.payload.symptomsImmune());
@@ -95,6 +96,12 @@ public final class AddictionDebugScreen extends Screen {
                         this.payload.resilience(),
                         this.payload.stressLevel(),
                         this.payload.stressTarget(),
+                        this.payload.badTripActive(),
+                        this.payload.badTripThreshold(),
+                        this.payload.badTripSeverity(),
+                        this.payload.badTripSymptomIntensity(),
+                        this.payload.badTripSourceDrug(),
+                        this.payload.badTripSourceCategory(),
                         next,
                         this.payload.rows()
                 );
@@ -211,7 +218,19 @@ public final class AddictionDebugScreen extends Screen {
     }
 
     private static String fmt(float value) {
-        return String.format(java.util.Locale.ROOT, "%.1f", value);
+        return String.format(java.util.Locale.ROOT, "%.2f", value);
+    }
+
+    private String badTripLine() {
+        String state = this.payload.badTripActive() ? "Bad trip ON" : "Bad trip off";
+        String source = this.payload.badTripSourceDrug().isBlank()
+                ? this.payload.badTripSourceCategory()
+                : this.payload.badTripSourceDrug() + "/" + this.payload.badTripSourceCategory();
+        return state
+                + "  thr " + fmt(this.payload.badTripThreshold())
+                + "  sev " + fmt(this.payload.badTripSeverity())
+                + "  int " + fmt(this.payload.badTripSymptomIntensity())
+                + "  src " + trim(source, 80);
     }
 
     private String trim(String text, int width) {

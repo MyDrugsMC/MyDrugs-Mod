@@ -9,6 +9,7 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public float resilience;
     public float stressLevel;
     public TemporaryRecoveryEffects temporaryEffects = new TemporaryRecoveryEffects();
+    public final BadTripState badTrip = new BadTripState();
 
     public long lastTherapyDay = -1L;
     public long sleepBlockedUntil = 0L;
@@ -303,6 +305,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         } else {
             geneticFactor = other.geneticFactor;
         }
+        badTrip.reset();
     }
 
     @Override
@@ -338,6 +341,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         sleepBlockedUntil = input.getLongOr("sleep_blocked_until", 0L);
         overdoseDeathTimer = input.getIntOr("overdose_death_timer", -1);
         addictionSymptomsImmune = input.getBooleanOr("addiction_symptoms_immune", false);
+        badTrip.reset();
 
         temporaryEffects = new TemporaryRecoveryEffects();
         temporaryEffects.deserialize(input.childOrEmpty("temporary_effects"));
