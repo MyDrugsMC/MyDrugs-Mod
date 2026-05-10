@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
@@ -98,9 +99,24 @@ public final class ServerDrugFormulaRegistry {
     }
 
     public static ItemStack createStack(MixedDrugData data) {
-        ItemStack stack = new ItemStack(ModItems.MIXED_DRUG.get());
+        ItemStack stack = new ItemStack(itemFor(data.baseDrug()));
         stack.set(ModDataComponents.MIXED_DRUG_DATA.get(), data);
         return stack;
+    }
+
+    private static Item itemFor(org.mydrugs.mydrugs.core.drug.DrugId baseDrug) {
+        return switch (baseDrug) {
+            case WEED -> ModItems.MIXED_WEED_DRUG.get();
+            case TOBACCO -> ModItems.MIXED_TOBACCO_DRUG.get();
+            case LSD -> ModItems.MIXED_LSD_DRUG.get();
+            case MUSHROOMS -> ModItems.MIXED_MUSHROOMS_DRUG.get();
+            case HASH -> ModItems.MIXED_HASH_DRUG.get();
+            case METH -> ModItems.MIXED_METH_DRUG.get();
+            case COCAINE -> ModItems.MIXED_COCAINE_DRUG.get();
+            case CRACK -> ModItems.MIXED_CRACK_DRUG.get();
+            case COFFEE -> ModItems.MIXED_COFFEE_DRUG.get();
+            default -> ModItems.MIXED_DRUG.get();
+        };
     }
 
     private record PendingFormula(BlockPos mixerPos, RitualDrugFormula formula) {

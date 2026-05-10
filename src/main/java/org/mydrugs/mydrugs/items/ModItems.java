@@ -161,6 +161,33 @@ public class ModItems {
     public static final DeferredItem<Item> MIXED_DRUG =
             ITEMS.registerItem("mixed_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
 
+    public static final DeferredItem<Item> MIXED_WEED_DRUG =
+            ITEMS.registerItem("mixed_weed_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
+
+    public static final DeferredItem<Item> MIXED_TOBACCO_DRUG =
+            ITEMS.registerItem("mixed_tobacco_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
+
+    public static final DeferredItem<Item> MIXED_LSD_DRUG =
+            ITEMS.registerItem("mixed_lsd_drug", prop -> new MixedDrugItem(prop, new EatingStrategy()));
+
+    public static final DeferredItem<Item> MIXED_MUSHROOMS_DRUG =
+            ITEMS.registerItem("mixed_mushrooms_drug", prop -> new MixedDrugItem(prop, new EatingStrategy()));
+
+    public static final DeferredItem<Item> MIXED_HASH_DRUG =
+            ITEMS.registerItem("mixed_hash_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
+
+    public static final DeferredItem<Item> MIXED_METH_DRUG =
+            ITEMS.registerItem("mixed_meth_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, false)));
+
+    public static final DeferredItem<Item> MIXED_COCAINE_DRUG =
+            ITEMS.registerItem("mixed_cocaine_drug", prop -> new MixedDrugItem(prop, new SniffingStrategy()));
+
+    public static final DeferredItem<Item> MIXED_CRACK_DRUG =
+            ITEMS.registerItem("mixed_crack_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, false)));
+
+    public static final DeferredItem<Item> MIXED_COFFEE_DRUG =
+            ITEMS.registerItem("mixed_coffee_drug", prop -> new MixedDrugItem(prop, new org.mydrugs.mydrugs.core.drug.strategy.DrinkingStrategy()));
+
     public static final DeferredItem<Item> DRUG_ANALYZER =
             ITEMS.registerItem("drug_analyzer", DrugAnalyzerItem::new);
 

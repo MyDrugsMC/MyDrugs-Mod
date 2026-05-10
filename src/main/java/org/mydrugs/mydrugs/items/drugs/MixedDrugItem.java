@@ -58,7 +58,6 @@ public final class MixedDrugItem extends DrugItem implements RollingIngredient {
         MixedDrugData data = stack.get(ModDataComponents.MIXED_DRUG_DATA.get());
         if (data != null) {
             tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mixed_drug.author", data.authorName()));
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mixed_drug.formula", data.formulaId()));
         }
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
     }
