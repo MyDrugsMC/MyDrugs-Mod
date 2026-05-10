@@ -103,7 +103,7 @@ public final class AddictionManager {
         drugStats.baseWithdrawalMeter = Math.max(0.0F, drugStats.baseWithdrawalMeter - relief);
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
 
-        playerStats.stressLevel = Math.max(0.0F, playerStats.stressLevel - AddictionConstants.STRESS_RELIEF_ON_CONSUME);
+        StressManager.reduceStress(playerStats, AddictionConstants.STRESS_RELIEF_ON_CONSUME);
 
         DoseManager.onConsume(drugStats, model, effectiveDose, strategy);
     }

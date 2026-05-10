@@ -9,8 +9,13 @@ import net.minecraft.server.level.ServerPlayer;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.recovery.SocialReliefManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +24,7 @@ public record AddictionDebugOpenPayload(
         float geneticFactor,
         float resilience,
         float stressLevel,
+        float stressTarget,
         boolean symptomsImmune,
         List<DrugStatsRow> rows
 ) implements CustomPacketPayload {
@@ -31,6 +37,7 @@ public record AddictionDebugOpenPayload(
                         ByteBufCodecs.FLOAT.encode(buf, payload.geneticFactor());
                         ByteBufCodecs.FLOAT.encode(buf, payload.resilience());
                         ByteBufCodecs.FLOAT.encode(buf, payload.stressLevel());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.stressTarget());
                         ByteBufCodecs.BOOL.encode(buf, payload.symptomsImmune());
                         ByteBufCodecs.VAR_INT.encode(buf, payload.rows().size());
                         for (DrugStatsRow row : payload.rows()) {
@@ -50,6 +57,7 @@ public record AddictionDebugOpenPayload(
                         float geneticFactor = ByteBufCodecs.FLOAT.decode(buf);
                         float resilience = ByteBufCodecs.FLOAT.decode(buf);
                         float stressLevel = ByteBufCodecs.FLOAT.decode(buf);
+                        float stressTarget = ByteBufCodecs.FLOAT.decode(buf);
                         boolean symptomsImmune = ByteBufCodecs.BOOL.decode(buf);
                         int count = ByteBufCodecs.VAR_INT.decode(buf);
                         List<DrugStatsRow> rows = new ArrayList<>(count);
@@ -67,7 +75,7 @@ public record AddictionDebugOpenPayload(
                                     ByteBufCodecs.VAR_INT.decode(buf)
                             ));
                         }
-                        return new AddictionDebugOpenPayload(geneticFactor, resilience, stressLevel, symptomsImmune, rows);
+                        return new AddictionDebugOpenPayload(geneticFactor, resilience, stressLevel, stressTarget, symptomsImmune, rows);
                     }
             );
 
@@ -93,9 +101,18 @@ public record AddictionDebugOpenPayload(
                 stats.geneticFactor,
                 stats.resilience,
                 stats.stressLevel,
+                currentStressTarget(player, stats),
                 stats.addictionSymptomsImmune,
                 rows
         );
+    }
+
+    private static float currentStressTarget(ServerPlayer player, PlayerAddictionStats stats) {
+        boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < AddictionConstants.COMBAT_DETECTION_TICKS;
+        int companions = SocialReliefManager.countCompanions(player, AddictionConstants.COMPANION_DETECTION_RADIUS);
+        boolean inSafeZone = SafeZoneManager.isInSafeZone(player);
+        float globalSeverity = AddictionManager.getGlobalSeverity(player);
+        return StressManager.getStressTarget(player, stats, globalSeverity, inCombat, companions, inSafeZone);
     }
 
     @Override

@@ -48,7 +48,7 @@ public final class AddictionDebugScreen extends Screen {
         int statsY = this.top + 26;
         graphics.drawString(this.font, "Genetic " + fmt(this.payload.geneticFactor()), this.left + 12, statsY, 0xFFE6DFF0, false);
         graphics.drawString(this.font, "Resilience " + fmt(this.payload.resilience()), this.left + 110, statsY, 0xFFE6DFF0, false);
-        graphics.drawString(this.font, "Stress " + fmt(this.payload.stressLevel()), this.left + 220, statsY, 0xFFE6DFF0, false);
+        graphics.drawString(this.font, "Stress " + fmt(this.payload.stressLevel()) + " -> " + fmt(this.payload.stressTarget()), this.left + 220, statsY, 0xFFE6DFF0, false);
 
         drawButton(graphics, resetX(), resetY(), 72, 18, "Reset", 0xFF4B2730, 0xFFFFB8C3);
         drawCheckbox(graphics, immuneX(), immuneY(), this.payload.symptomsImmune());
@@ -94,6 +94,7 @@ public final class AddictionDebugScreen extends Screen {
                         this.payload.geneticFactor(),
                         this.payload.resilience(),
                         this.payload.stressLevel(),
+                        this.payload.stressTarget(),
                         next,
                         this.payload.rows()
                 );

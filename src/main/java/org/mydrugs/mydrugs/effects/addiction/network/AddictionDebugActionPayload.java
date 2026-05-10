@@ -10,6 +10,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 
 public record AddictionDebugActionPayload(int action, boolean value) implements CustomPacketPayload {
@@ -35,7 +36,7 @@ public record AddictionDebugActionPayload(int action, boolean value) implements 
         if (payload.action() == RESET_STATS) {
             boolean immune = stats.addictionSymptomsImmune;
             stats.perDrug.clear();
-            stats.stressLevel = 0.15F;
+            stats.stressLevel = AddictionConstants.STRESS_BASELINE;
             stats.overdoseDeathTimer = -1;
             stats.addictionSymptomsImmune = immune;
         } else if (payload.action() == SET_SYMPTOM_IMMUNITY) {

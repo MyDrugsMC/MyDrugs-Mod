@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
+import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +60,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public void rerollLifeTraits(RandomSource random) {
         geneticFactor = 0.85F + random.nextFloat() * 0.30F;
         resilience = 0.05F + random.nextFloat() * 0.10F;
-        stressLevel = 0.15F;
+        stressLevel = AddictionConstants.STRESS_BASELINE;
     }
 
     public DrugAddictionStats getOrCreateDrugStats(DrugId drugId) {
@@ -332,7 +333,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public void deserialize(ValueInput input) {
         geneticFactor = input.getFloatOr("genetic_factor", 1.0F);
         resilience = input.getFloatOr("resilience", 0.05F);
-        stressLevel = input.getFloatOr("stress_level", 0.15F);
+        stressLevel = input.getFloatOr("stress_level", AddictionConstants.STRESS_BASELINE);
         lastTherapyDay = input.getLongOr("last_therapy_day", -1L);
         sleepBlockedUntil = input.getLongOr("sleep_blocked_until", 0L);
         overdoseDeathTimer = input.getIntOr("overdose_death_timer", -1);

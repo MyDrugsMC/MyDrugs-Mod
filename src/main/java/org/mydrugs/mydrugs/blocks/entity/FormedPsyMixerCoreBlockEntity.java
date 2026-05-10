@@ -50,8 +50,10 @@ import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
+import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
@@ -252,7 +254,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             sendRandomMessage(player, MISSING_KNOWLEDGE);
             return false;
         }
-        if (recipe.requiredBadTripState() && !hasBadTripState(playerStats)) {
+        if (recipe.requiredBadTripState() && !hasBadTripState(player, playerStats)) {
             sendRandomMessage(player, MISSING_KNOWLEDGE);
             return false;
         }
@@ -440,7 +442,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         return type != null && DrugEffectRuntimeManager.getServerIntensity(player, type) > 0.001F;
     }
 
-    private static boolean hasBadTripState(PlayerAddictionStats stats) {
+    private static boolean hasBadTripState(ServerPlayer player, PlayerAddictionStats stats) {
+        float stress = StressManager.getStress(player);
         for (DrugId drugId : stats.getTrackedDrugIds()) {
             DrugCategory category = DrugRegistry.getCategory(drugId);
             DosePath path = DosePath.of(category);
@@ -454,7 +457,12 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             }
 
             DoseState state = DoseManager.resolveState(path, drugStats.currentDose());
-            if (state == DoseState.VERY_HIGH || state == DoseState.OVERDOSE || state == DoseState.VERY_DRUNK || state == DoseState.ETHYLIC_COMA) {
+            if (state == DoseState.OVERDOSE || state == DoseState.ETHYLIC_COMA) {
+                return true;
+            }
+
+            if ((state == DoseState.VERY_HIGH || state == DoseState.VERY_DRUNK)
+                    && stress >= AddictionConstants.STRESS_BAD_TRIP_THRESHOLD) {
                 return true;
             }
         }
@@ -467,6 +475,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
 
         float clamped = Math.min(2.0F, severity);
+        StressManager.addStress(player, clamped * AddictionConstants.STRESS_PSY_MIXER_FAILURE_SPIKE_SCALE);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.15F + clamped * 0.25F, 20 * 8);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, 0.10F + clamped * 0.20F, 20 * 6);
         if (clamped >= 1.0F) {

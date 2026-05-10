@@ -13,17 +13,26 @@ public final class AddictionConstants {
     public static final double COMPANION_DETECTION_RADIUS = 12.0D;
 
     // --- Stress targets (StressManager) ---
-    public static final float STRESS_BASE = 0.15F;
-    public static final float STRESS_SEVERITY_SCALE = 0.75F;
-    public static final float STRESS_NIGHT_BONUS = 0.05F;
-    public static final float STRESS_COMBAT_BONUS = 0.15F;
-    public static final float STRESS_ALONE_BONUS = 0.08F;
+    public static final float STRESS_BASELINE = 0.10F;
+    public static final float STRESS_SEVERITY_SCALE = 0.35F;
+    public static final float STRESS_NIGHT_BONUS = 0.03F;
+    public static final float STRESS_COMBAT_BONUS = 0.12F;
+    public static final float STRESS_ALONE_BONUS = 0.02F;
     public static final float STRESS_SAFE_ZONE_REDUCTION = 0.08F;
     public static final float STRESS_DIARY_REDUCTION = 0.10F;
-    public static final float STRESS_HEADPHONES_REDUCTION = 0.08F;
-    public static final float STRESS_LERP_RATE = 0.08F;
+    public static final float STRESS_HEADPHONES_REDUCTION = 0.10F;
+    public static final float STRESS_CANNABIS_REDUCTION = 0.06F;
+    public static final float STRESS_HIGH_DOSE_BONUS = 0.04F;
+    public static final float STRESS_BAD_TRIP_DOSE_BONUS = 0.22F;
+    public static final float STRESS_OVERDOSE_DOSE_BONUS = 0.35F;
+    public static final float STRESS_RISE_RATE = 0.003F;
+    public static final float STRESS_FALL_RATE = 0.006F;
+    public static final float STRESS_HEADPHONES_EXTRA_FALL_RATE = 0.004F;
+    public static final float STRESS_CANNABIS_EXTRA_FALL_RATE = 0.002F;
     public static final float STRESS_DAMAGE_BONUS_PER_HP = 0.01F;
     public static final float STRESS_DAMAGE_FLAT_BONUS = 0.08F;
+    public static final float STRESS_BAD_TRIP_THRESHOLD = 0.30F;
+    public static final float STRESS_PSY_MIXER_FAILURE_SPIKE_SCALE = 0.08F;
 
     // --- Stress damage (StressDamageManager) ---
     public static final float STRESS_DAMAGE_START_THRESHOLD = 0.90F;
