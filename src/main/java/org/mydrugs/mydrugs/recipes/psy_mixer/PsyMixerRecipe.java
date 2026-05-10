@@ -17,6 +17,8 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.ritual.RitualIngredientEffectRegistry;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 
@@ -133,6 +135,12 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public boolean matches(PsyMixerRecipeInput input, Level level) {
         if (input.base().isEmpty() || !base.test(input.base())) return false;
         if (input.material().isEmpty() || !material.test(input.material())) return false;
+        if (requiredDrug.isPresent()) {
+            DrugId required = DrugId.bySerializedNameOrNull(requiredDrug.get());
+            if (required != null && RitualIngredientEffectRegistry.resolveBaseDrug(input.base()) != required) {
+                return false;
+            }
+        }
 
         if (catalyst.isPresent()) {
             if (input.catalyst().isEmpty() || !catalyst.get().test(input.catalyst())) return false;

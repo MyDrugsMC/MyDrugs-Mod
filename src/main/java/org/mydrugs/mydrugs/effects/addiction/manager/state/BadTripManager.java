@@ -21,6 +21,7 @@ import org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
+import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 
 public final class BadTripManager {
@@ -83,6 +84,7 @@ public final class BadTripManager {
         }
 
         applySymptoms(player, state);
+        InnerDemonSpawnManager.tickBadTrip(player, stats);
         syncIfNeeded(player, state, rerolled);
     }
 
@@ -120,6 +122,7 @@ public final class BadTripManager {
         state.ticksActive = 1;
         state.nextSymptomReroll = AddictionConstants.BAD_TRIP_SYMPTOM_REROLL_TICKS;
         state.nextDemonSpawnAttempt = 0;
+        state.firstDemonSpawnDelay = 60 + player.getRandom().nextInt(81);
         state.symptomIntensity = rerollSymptomIntensity(player);
         state.sourceDrug = candidate.drugId();
         state.sourceCategory = candidate.category();
@@ -133,6 +136,7 @@ public final class BadTripManager {
     }
 
     private static void stop(ServerPlayer player, BadTripState state) {
+        InnerDemonSpawnManager.markOwnedDemonsForDespawn(player);
         state.reset();
         player.displayClientMessage(Component.translatable("message.mydrugs.bad_trip.end"), true);
         sync(player, state);

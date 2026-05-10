@@ -17,7 +17,10 @@ public final class RitualIngredientEffectRegistry {
     private static final List<Entry> ENTRIES = List.of(
             entry(DrugId.WEED, Items.GLOWSTONE_DUST, new RitualDrugEffectData(EffectType.GAMMA_BOOST, 30 * 20, 1.45F)),
             entry(DrugId.TOBACCO, ModItems.ALOE_VERA.get(),
-                    new RitualDrugEffectData(EffectType.PRECISION, 90 * 20, 1.30F))
+                    new RitualDrugEffectData(EffectType.PRECISION, 90 * 20, 1.30F)),
+            entry(DrugId.ALCOHOL, ModItems.INNER_DEMON_REMAINS.get(),
+                    new RitualDrugEffectData(EffectType.DAMAGE_RESISTANCE, 120 * 20, 0.20F),
+                    new RitualDrugEffectData(EffectType.RITUAL_STABILITY, 90 * 20, 0.15F))
     );
 
     private RitualIngredientEffectRegistry() {

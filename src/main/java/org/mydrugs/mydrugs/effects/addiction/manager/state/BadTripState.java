@@ -11,6 +11,8 @@ public final class BadTripState {
     public int ticksActive;
     public int nextSymptomReroll;
     public int nextDemonSpawnAttempt;
+    public int firstDemonSpawnDelay = -1;
+    public int demonRemainsDropped;
     public float symptomIntensity;
     public @Nullable DrugId sourceDrug;
     public DrugCategory sourceCategory = DrugCategory.OTHER;
@@ -25,6 +27,8 @@ public final class BadTripState {
         this.ticksActive = 0;
         this.nextSymptomReroll = 0;
         this.nextDemonSpawnAttempt = 0;
+        this.firstDemonSpawnDelay = -1;
+        this.demonRemainsDropped = 0;
         this.symptomIntensity = 0.0F;
         this.sourceDrug = null;
         this.sourceCategory = DrugCategory.OTHER;

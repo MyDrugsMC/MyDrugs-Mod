@@ -30,6 +30,8 @@ import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.entity.ModEntityAttributes;
+import org.mydrugs.mydrugs.entity.ModEntities;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.worldgen.biomes.ModRegions;
 import org.mydrugs.mydrugs.worldgen.biomes.ModSurfaceRules;
@@ -70,6 +72,7 @@ public class MyDrugs {
 
     public MyDrugs(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(ModEntityAttributes::register);
         NeoForge.EVENT_BUS.register(this);
         ModBlocks.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
@@ -77,6 +80,7 @@ public class MyDrugs {
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
+        ModEntities.ENTITY_TYPES.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModFluids.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);

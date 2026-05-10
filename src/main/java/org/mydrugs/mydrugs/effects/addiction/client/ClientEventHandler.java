@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.effects.addiction.client.render.AddictionHudRenderer;
 import org.mydrugs.mydrugs.effects.addiction.client.render.FlexibleDrugVisualOverlay;
+import org.mydrugs.mydrugs.effects.addiction.client.render.BadTripScreamerOverlay;
 import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientState;
 import org.mydrugs.mydrugs.effects.addiction.client.render.hallucination.FakeEntityRenderController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.ClientSoundController;
@@ -26,6 +27,7 @@ import org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
@@ -45,6 +47,7 @@ public final class ClientEventHandler {
         event.register(DrugEffectSyncPayload.TYPE, ClientPayloadHandler::handleDrugEffectSync);
         event.register(VomitOverlayPayload.TYPE, ClientPayloadHandler::handleVomitOverlay);
         event.register(BadTripPayload.TYPE, ClientPayloadHandler::handleBadTrip);
+        event.register(BadTripScreamerPayload.TYPE, ClientPayloadHandler::handleBadTripScreamer);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
     }
 
@@ -65,6 +68,7 @@ public final class ClientEventHandler {
             PsychotropeAreaPreviewClientState.tick();
             PsyBlueprintPreviewClientState.tick();
             VomitOverlayClientState.tick();
+            BadTripScreamerOverlay.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
             ClientInputInterceptor.tick(mc);
@@ -93,6 +97,7 @@ public final class ClientEventHandler {
 
             FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
             VomitOverlayClientState.render(event.getGuiGraphics());
+            BadTripScreamerOverlay.render(event.getGuiGraphics());
             AddictionHudRenderer.render(event.getGuiGraphics());
             BiomeFinderCompassOverlay.render(event.getGuiGraphics());
         }

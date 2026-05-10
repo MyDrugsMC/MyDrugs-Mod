@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugHolder;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
+import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.drugs.DrugItem;
 
 import java.util.ArrayList;
@@ -22,6 +24,12 @@ public final class DrugStackResolver {
         if (stack.getItem() instanceof DrugItem drugItem) {
             ConsumptionStrategy strategy = overrideStrategy != null ? overrideStrategy : drugItem.getConsumptionStrategy();
             return toResolved(drugItem.getDrugModels(stack), strategy);
+        }
+
+        if (stack.getItem() instanceof GlassBottleItem) {
+            DrugModel model = GlassBottleItem.getBottleDrug(stack);
+            ConsumptionStrategy strategy = overrideStrategy != null ? overrideStrategy : new EatingStrategy();
+            return model == null ? List.of() : List.of(new ResolvedStackDrug(model, strategy));
         }
 
         if (stack.getItem() instanceof DrugHolder holder) {

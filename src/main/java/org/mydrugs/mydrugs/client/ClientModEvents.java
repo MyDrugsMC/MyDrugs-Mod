@@ -10,11 +10,13 @@ import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlers
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.*;
+import org.mydrugs.mydrugs.client.entity.InnerDemonRenderer;
 import org.mydrugs.mydrugs.client.item.BottleFillProperty;
 import org.mydrugs.mydrugs.client.item.LiquidColorTintSource;
 import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
+import org.mydrugs.mydrugs.entity.ModEntities;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.menu.client.*;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
@@ -78,6 +80,7 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.INNER_DEMON.get(), InnerDemonRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.GRINDING_BOWL.get(), ctx -> new GrindingBowlRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.STOMP_CRAFTER.get(), StompCrafterRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MIXING_VAT.get(), MixingVatRenderer::new);

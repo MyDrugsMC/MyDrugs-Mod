@@ -34,6 +34,8 @@ public class Config {
         public final ModConfigSpec.BooleanValue showAddictionHud;
         public final ModConfigSpec.BooleanValue compactAddictionHud;
         public final ModConfigSpec.BooleanValue reducedMotionMode;
+        public final ModConfigSpec.BooleanValue enableBadTripScreamers;
+        public final ModConfigSpec.DoubleValue screamerIntensity;
 
         private Client(ModConfigSpec.Builder builder) {
             builder.push("accessibility");
@@ -48,6 +50,8 @@ public class Config {
             showAddictionHud = builder.define("showAddictionHud", true);
             compactAddictionHud = builder.define("compactAddictionHud", false);
             reducedMotionMode = builder.define("reducedMotionMode", false);
+            enableBadTripScreamers = builder.define("enableBadTripScreamers", true);
+            screamerIntensity = builder.defineInRange("screamerIntensity", 1.0D, 0.0D, 2.0D);
             builder.pop();
         }
     }

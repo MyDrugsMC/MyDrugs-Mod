@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.commands;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -20,6 +21,7 @@ import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
+import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -101,7 +103,32 @@ public final class ModCommands {
                 )
                 .then(Commands.literal("print_mining_speed")
                         .executes(context -> printMiningSpeed(context.getSource()))
+                )
+                .then(Commands.literal("spawn_inner_demon")
+                        .executes(context -> spawnInnerDemon(context.getSource(), false))
+                        .then(Commands.argument("droppable", BoolArgumentType.bool())
+                                .requires(source -> source.hasPermission(2))
+                                .executes(context -> spawnInnerDemon(
+                                        context.getSource(),
+                                        BoolArgumentType.getBool(context, "droppable")
+                                ))
+                        )
                 );
+    }
+
+    private static int spawnInnerDemon(CommandSourceStack source, boolean droppable) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (!InnerDemonSpawnManager.spawnDebug(player, droppable)) {
+            source.sendFailure(Component.literal("Could not spawn inner demon."));
+            return 0;
+        }
+        source.sendSuccess(
+                () -> Component.literal(droppable
+                        ? "Spawned a droppable test Inner Demon."
+                        : "Spawned a non-droppable test Inner Demon."),
+                false
+        );
+        return 1;
     }
 
     private static int applyMiningSpeed(CommandSourceStack source, float intensity, int durationSeconds)

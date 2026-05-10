@@ -188,6 +188,9 @@ public class ModItems {
     public static final DeferredItem<Item> MIXED_COFFEE_DRUG =
             ITEMS.registerItem("mixed_coffee_drug", prop -> new MixedDrugItem(prop, new org.mydrugs.mydrugs.core.drug.strategy.DrinkingStrategy()));
 
+    public static final DeferredItem<Item> DEFIANT_SPIRIT_BOTTLE =
+            ITEMS.registerItem("defiant_spirit_bottle", prop -> new MixedDrugItem(prop, new org.mydrugs.mydrugs.core.drug.strategy.DrinkingStrategy()));
+
     public static final DeferredItem<Item> DRUG_ANALYZER =
             ITEMS.registerItem("drug_analyzer", DrugAnalyzerItem::new);
 
@@ -529,7 +532,8 @@ public class ModItems {
             ITEMS.registerSimpleItem("unstable_residue");
 
     public static final DeferredItem<Item> INNER_DEMON_REMAINS =
-            ITEMS.registerSimpleItem("inner_demon_remains");
+            ITEMS.registerItem("inner_demon_remains",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.inner_demon_remains"));
 
     public static final DeferredItem<Item> BRIGHTENED_CANNABIS_POWDER =
             ITEMS.registerItem("brightened_cannabis_powder",

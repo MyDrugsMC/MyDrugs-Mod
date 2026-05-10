@@ -115,6 +115,7 @@ public final class ServerDrugFormulaRegistry {
             case COCAINE -> ModItems.MIXED_COCAINE_DRUG.get();
             case CRACK -> ModItems.MIXED_CRACK_DRUG.get();
             case COFFEE -> ModItems.MIXED_COFFEE_DRUG.get();
+            case ALCOHOL -> ModItems.DEFIANT_SPIRIT_BOTTLE.get();
             default -> ModItems.MIXED_DRUG.get();
         };
     }

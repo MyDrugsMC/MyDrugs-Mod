@@ -11,11 +11,13 @@ import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicControl
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 import net.minecraft.client.Minecraft;
+import org.mydrugs.mydrugs.effects.addiction.client.render.BadTripScreamerOverlay;
 import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientState;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 
@@ -74,6 +76,10 @@ public final class ClientPayloadHandler {
 
     public static void handleVomitOverlay(VomitOverlayPayload payload, IPayloadContext context) {
         VomitOverlayClientState.trigger(payload.intensity());
+    }
+
+    public static void handleBadTripScreamer(BadTripScreamerPayload payload, IPayloadContext context) {
+        BadTripScreamerOverlay.trigger(payload.durationTicks(), payload.intensity());
     }
 
     public static void handleAddictionDebugOpen(AddictionDebugOpenPayload payload, IPayloadContext context) {
