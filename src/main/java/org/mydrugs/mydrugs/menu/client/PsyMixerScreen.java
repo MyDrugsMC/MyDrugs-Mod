@@ -7,6 +7,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
@@ -168,8 +169,47 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         drawChecklistLine(graphics, y, "screen.mydrugs.psy_mixer.offering", hasSlot(PsyMixerMultiblock.SLOT_BASE), true);
         drawChecklistLine(graphics, y + 10, "screen.mydrugs.psy_mixer.material", hasSlot(PsyMixerMultiblock.SLOT_MATERIAL), true);
         drawChecklistLine(graphics, y + 20, "screen.mydrugs.psy_mixer.vessel", hasSlot(PsyMixerMultiblock.SLOT_VESSEL), isSlotRequired(PsyMixerMultiblock.SLOT_VESSEL));
-        drawChecklistLine(graphics, y + 30, "screen.mydrugs.psy_mixer.catalyst", hasSlot(PsyMixerMultiblock.SLOT_CATALYST), isSlotRequired(PsyMixerMultiblock.SLOT_CATALYST));
-        drawChecklistLine(graphics, y + 40, "screen.mydrugs.psy_mixer.stabilizer", hasSlot(PsyMixerMultiblock.SLOT_STABILIZER), isSlotRequired(PsyMixerMultiblock.SLOT_STABILIZER));
+        drawBonusSlotLine(graphics, y + 30, "screen.mydrugs.psy_mixer.catalyst", PsyMixerMultiblock.SLOT_CATALYST);
+        drawBonusSlotLine(graphics, y + 40, "screen.mydrugs.psy_mixer.stabilizer", PsyMixerMultiblock.SLOT_STABILIZER);
+    }
+
+    private enum BonusSlotState { ACTIVE, MISSING, INVALID, OPTIONAL }
+
+    private BonusSlotState getBonusSlotState(int slot) {
+        var recipes = ClientRecipesCache.getPsyMixerRecipes();
+        ItemStack itemInSlot = menu.getSlot(slot).getItem();
+
+        boolean anySupports = recipes.stream().anyMatch(recipe -> switch (slot) {
+            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.catalyst().isPresent();
+            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.stabilizer().isPresent();
+            default -> false;
+        });
+
+        if (!anySupports) {
+            return itemInSlot.isEmpty() ? BonusSlotState.OPTIONAL : BonusSlotState.INVALID;
+        }
+        if (itemInSlot.isEmpty()) return BonusSlotState.MISSING;
+
+        boolean isValid = recipes.stream().anyMatch(recipe -> switch (slot) {
+            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.catalyst().map(ing -> ing.test(itemInSlot)).orElse(false);
+            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.stabilizer().map(ing -> ing.test(itemInSlot)).orElse(false);
+            default -> false;
+        });
+        return isValid ? BonusSlotState.ACTIVE : BonusSlotState.INVALID;
+    }
+
+    private void drawBonusSlotLine(GuiGraphics graphics, int y, String labelKey, int slot) {
+        BonusSlotState state = getBonusSlotState(slot);
+        int color;
+        Component stateText;
+        switch (state) {
+            case ACTIVE -> { color = GOOD; stateText = Component.translatable("screen.mydrugs.psy_mixer.bonus_active"); }
+            case MISSING -> { color = WARN; stateText = Component.translatable("screen.mydrugs.psy_mixer.missing"); }
+            case INVALID -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.invalid"); }
+            default -> { color = MUTED; stateText = Component.translatable("screen.mydrugs.psy_mixer.optional_short"); }
+        }
+        Component label = Component.translatable("screen.mydrugs.psy_mixer.checkline", Component.translatable(labelKey), stateText);
+        graphics.drawString(font, label, layout.sideX, y, color, false);
     }
 
     private void drawChecklistLine(GuiGraphics graphics, int y, String labelKey, boolean present, boolean required) {

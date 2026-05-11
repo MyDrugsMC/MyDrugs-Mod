@@ -51,6 +51,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     private final ItemStack failureResult;
     private final boolean preserveVesselOnSuccess;
     private final boolean preserveVesselOnFailure;
+    private final float catalystTimeMultiplier;
+    private final float missingCatalystTimeMultiplier;
+    private final float stabilizerInstabilityMultiplier;
+    private final float missingStabilizerInstabilityMultiplier;
 
     private PlacementInfo placementInfo;
 
@@ -78,7 +82,11 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             boolean showIfLocked,
             ItemStack failureResult,
             boolean preserveVesselOnSuccess,
-            boolean preserveVesselOnFailure
+            boolean preserveVesselOnFailure,
+            float catalystTimeMultiplier,
+            float missingCatalystTimeMultiplier,
+            float stabilizerInstabilityMultiplier,
+            float missingStabilizerInstabilityMultiplier
     ) {
         this.base = base;
         this.material = material;
@@ -104,6 +112,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         this.failureResult = failureResult.copy();
         this.preserveVesselOnSuccess = preserveVesselOnSuccess;
         this.preserveVesselOnFailure = preserveVesselOnFailure;
+        this.catalystTimeMultiplier = catalystTimeMultiplier;
+        this.missingCatalystTimeMultiplier = missingCatalystTimeMultiplier;
+        this.stabilizerInstabilityMultiplier = stabilizerInstabilityMultiplier;
+        this.missingStabilizerInstabilityMultiplier = missingStabilizerInstabilityMultiplier;
     }
 
     public Ingredient base() { return base; }
@@ -130,6 +142,32 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public ItemStack failureResult() { return failureResult.copy(); }
     public boolean preserveVesselOnSuccess() { return preserveVesselOnSuccess; }
     public boolean preserveVesselOnFailure() { return preserveVesselOnFailure; }
+    public float catalystTimeMultiplier() { return catalystTimeMultiplier; }
+    public float missingCatalystTimeMultiplier() { return missingCatalystTimeMultiplier; }
+    public float stabilizerInstabilityMultiplier() { return stabilizerInstabilityMultiplier; }
+    public float missingStabilizerInstabilityMultiplier() { return missingStabilizerInstabilityMultiplier; }
+
+    public boolean supportsCatalyst() { return catalyst.isPresent(); }
+    public boolean hasValidCatalyst(ItemStack stack) { return catalyst.isPresent() && !stack.isEmpty() && catalyst.get().test(stack); }
+    public boolean hasMissingCatalyst(ItemStack stack) { return catalyst.isPresent() && stack.isEmpty(); }
+
+    public boolean supportsStabilizer() { return stabilizer.isPresent(); }
+    public boolean hasValidStabilizer(ItemStack stack) { return stabilizer.isPresent() && !stack.isEmpty() && stabilizer.get().test(stack); }
+    public boolean hasMissingStabilizer(ItemStack stack) { return stabilizer.isPresent() && stack.isEmpty(); }
+
+    public float getEffectiveTimeMultiplier(ItemStack catalystStack) {
+        if (catalyst.isEmpty()) return 1.0F;
+        return (catalystStack.isEmpty() || !catalyst.get().test(catalystStack))
+                ? missingCatalystTimeMultiplier
+                : catalystTimeMultiplier;
+    }
+
+    public float getEffectiveInstabilityMultiplier(ItemStack stabilizerStack) {
+        if (stabilizer.isEmpty()) return 1.0F;
+        return (stabilizerStack.isEmpty() || !stabilizer.get().test(stabilizerStack))
+                ? missingStabilizerInstabilityMultiplier
+                : stabilizerInstabilityMultiplier;
+    }
 
     @Override
     public boolean matches(PsyMixerRecipeInput input, Level level) {
@@ -142,11 +180,18 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             }
         }
 
+        // Catalyst: supported by recipe = slot may be empty or hold the valid catalyst; wrong item = no match
+        // Not supported by recipe = slot must be empty
         if (catalyst.isPresent()) {
-            if (input.catalyst().isEmpty() || !catalyst.get().test(input.catalyst())) return false;
+            if (!input.catalyst().isEmpty() && !catalyst.get().test(input.catalyst())) return false;
+        } else {
+            if (!input.catalyst().isEmpty()) return false;
         }
+        // Stabilizer: same optional semantics as catalyst
         if (stabilizer.isPresent()) {
-            if (input.stabilizer().isEmpty() || !stabilizer.get().test(input.stabilizer())) return false;
+            if (!input.stabilizer().isEmpty() && !stabilizer.get().test(input.stabilizer())) return false;
+        } else {
+            if (!input.stabilizer().isEmpty()) return false;
         }
         if (vessel.isPresent()) {
             if (input.vessel().isEmpty() || !vessel.get().test(input.vessel())) return false;
@@ -223,7 +268,11 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 machineSpeedModifier,
                 ritualStabilityModifier,
                 resultingCustomDrugVariant,
-                hiddenBeforeDiscovery
+                hiddenBeforeDiscovery,
+                catalystTimeMultiplier,
+                missingCatalystTimeMultiplier,
+                stabilizerInstabilityMultiplier,
+                missingStabilizerInstabilityMultiplier
         );
     }
 
@@ -252,7 +301,11 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 core.showIfLocked,
                 core.failureResult,
                 core.preserveVesselOnSuccess,
-                core.preserveVesselOnFailure
+                core.preserveVesselOnFailure,
+                expansion.catalystTimeMultiplier,
+                expansion.missingCatalystTimeMultiplier,
+                expansion.stabilizerInstabilityMultiplier,
+                expansion.missingStabilizerInstabilityMultiplier
         );
     }
 
@@ -301,7 +354,11 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             float machineSpeedModifier,
             float ritualStabilityModifier,
             Optional<String> resultingCustomDrugVariant,
-            boolean hiddenBeforeDiscovery
+            boolean hiddenBeforeDiscovery,
+            float catalystTimeMultiplier,
+            float missingCatalystTimeMultiplier,
+            float stabilizerInstabilityMultiplier,
+            float missingStabilizerInstabilityMultiplier
     ) {
         private static final MapCodec<ExpansionCodecData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 Codec.STRING.optionalFieldOf("required_drug_category").forGetter(ExpansionCodecData::requiredDrugCategory),
@@ -312,7 +369,11 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 Codec.FLOAT.optionalFieldOf("machine_speed_modifier", 0.0F).forGetter(ExpansionCodecData::machineSpeedModifier),
                 Codec.FLOAT.optionalFieldOf("ritual_stability_modifier", 0.0F).forGetter(ExpansionCodecData::ritualStabilityModifier),
                 Codec.STRING.optionalFieldOf("resulting_custom_drug_variant").forGetter(ExpansionCodecData::resultingCustomDrugVariant),
-                Codec.BOOL.optionalFieldOf("hidden_before_discovery", false).forGetter(ExpansionCodecData::hiddenBeforeDiscovery)
+                Codec.BOOL.optionalFieldOf("hidden_before_discovery", false).forGetter(ExpansionCodecData::hiddenBeforeDiscovery),
+                Codec.FLOAT.optionalFieldOf("catalyst_time_multiplier", 0.75F).forGetter(ExpansionCodecData::catalystTimeMultiplier),
+                Codec.FLOAT.optionalFieldOf("missing_catalyst_time_multiplier", 1.30F).forGetter(ExpansionCodecData::missingCatalystTimeMultiplier),
+                Codec.FLOAT.optionalFieldOf("stabilizer_instability_multiplier", 0.75F).forGetter(ExpansionCodecData::stabilizerInstabilityMultiplier),
+                Codec.FLOAT.optionalFieldOf("missing_stabilizer_instability_multiplier", 1.35F).forGetter(ExpansionCodecData::missingStabilizerInstabilityMultiplier)
         ).apply(instance, ExpansionCodecData::new));
     }
 
@@ -352,6 +413,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             ItemStack.STREAM_CODEC.encode(buf, recipe.failureResult);
             buf.writeBoolean(recipe.preserveVesselOnSuccess);
             buf.writeBoolean(recipe.preserveVesselOnFailure);
+            buf.writeFloat(recipe.catalystTimeMultiplier);
+            buf.writeFloat(recipe.missingCatalystTimeMultiplier);
+            buf.writeFloat(recipe.stabilizerInstabilityMultiplier);
+            buf.writeFloat(recipe.missingStabilizerInstabilityMultiplier);
         }
 
         private static PsyMixerRecipe decode(RegistryFriendlyByteBuf buf) {
@@ -379,13 +444,19 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             ItemStack failureResult = ItemStack.STREAM_CODEC.decode(buf);
             boolean preserveVesselOnSuccess = buf.readBoolean();
             boolean preserveVesselOnFailure = buf.readBoolean();
+            float catalystTimeMultiplier = buf.readFloat();
+            float missingCatalystTimeMultiplier = buf.readFloat();
+            float stabilizerInstabilityMultiplier = buf.readFloat();
+            float missingStabilizerInstabilityMultiplier = buf.readFloat();
             return new PsyMixerRecipe(
                     base, material, catalyst, stabilizer, vessel, result,
                     ritualTime, baseInstability, requiredKnowledge, requiredDrug, requiredLifetimeDose,
                     requiredDrugCategory, requiredActiveEffect, requiredBadTripState, requiredIngredientSource,
                     failureSeverity, machineSpeedModifier, ritualStabilityModifier, resultingCustomDrugVariant,
                     hiddenBeforeDiscovery,
-                    showIfLocked, failureResult, preserveVesselOnSuccess, preserveVesselOnFailure
+                    showIfLocked, failureResult, preserveVesselOnSuccess, preserveVesselOnFailure,
+                    catalystTimeMultiplier, missingCatalystTimeMultiplier,
+                    stabilizerInstabilityMultiplier, missingStabilizerInstabilityMultiplier
             );
         }
 

@@ -1400,6 +1400,8 @@
   "screen.mydrugs.psy_mixer.ready_short": "OK",
   "screen.mydrugs.psy_mixer.missing_short": "Need",
   "screen.mydrugs.psy_mixer.optional_short": "Opt",
+  "screen.mydrugs.psy_mixer.bonus_active": "Active",
+  "screen.mydrugs.psy_mixer.invalid": "Invalid",
   "screen.mydrugs.psy_mixer.checkline": "%s: %s",
   "screen.mydrugs.psy_mixer.hit_count": "Good %s  Mistakes %s",
   "screen.mydrugs.psy_mixer.hit_count_streak": "Good %s  Miss %s  Streak %s",

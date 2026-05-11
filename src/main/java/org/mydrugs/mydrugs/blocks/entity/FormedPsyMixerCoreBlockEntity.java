@@ -277,14 +277,13 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         float ritualZoneMotionScale = ManualMachineSpeedHelper.getRitualZoneMotionScale(player);
 
         float effInstab = recipe.baseInstability() + recipe.ritualStabilityModifier() - instabReduction - ritualInstabilityReduction;
-        if (recipe.stabilizer().isPresent() && !items.get(PsyMixerMultiblock.SLOT_STABILIZER).isEmpty()) {
-            effInstab -= 0.10F;
-        }
-        effInstab = Math.max(0.03F, Math.min(0.95F, effInstab));
+        float stabMul = recipe.getEffectiveInstabilityMultiplier(items.get(PsyMixerMultiblock.SLOT_STABILIZER));
+        effInstab = Math.max(0.03F, Math.min(0.95F, effInstab * stabMul));
 
         this.activeRecipeId = recipeId;
         float recipeSpeed = Math.max(0.25F, 1.0F + recipe.machineSpeedModifier());
-        this.ritualMaxTime = Math.max(20, Math.round(recipe.ritualTime() * speedMul / (manualDrugSpeed * recipeSpeed)));
+        float catalystMul = recipe.getEffectiveTimeMultiplier(items.get(PsyMixerMultiblock.SLOT_CATALYST));
+        this.ritualMaxTime = Math.max(20, Math.round(recipe.ritualTime() * speedMul / (manualDrugSpeed * recipeSpeed) * catalystMul));
         this.progress = 0;
         this.instability = effInstab;
         this.running = true;
@@ -346,10 +345,12 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         boolean success = level.random.nextFloat() >= finalInstability;
 
         if (success) {
-            var formula = RitualIngredientEffectRegistry.buildFormula(
-                    input.base(),
-                    List.of(input.material(), input.catalyst(), input.stabilizer(), input.vessel())
-            );
+            List<ItemStack> additionalIngredients = new ArrayList<>(4);
+            additionalIngredients.add(input.material());
+            if (!input.catalyst().isEmpty()) additionalIngredients.add(input.catalyst());
+            if (!input.stabilizer().isEmpty()) additionalIngredients.add(input.stabilizer());
+            if (!input.vessel().isEmpty()) additionalIngredients.add(input.vessel());
+            var formula = RitualIngredientEffectRegistry.buildFormula(input.base(), additionalIngredients);
             consumeInputs(recipe, true);
             boolean completedOutput = player == null || ServerDrugFormulaRegistry.finishOrRequestName(player, this, formula);
 
@@ -461,8 +462,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     private void consumeInputs(PsyMixerRecipe recipe, boolean success) {
         shrink(PsyMixerMultiblock.SLOT_BASE);
         shrink(PsyMixerMultiblock.SLOT_MATERIAL);
-        if (recipe.catalyst().isPresent()) shrink(PsyMixerMultiblock.SLOT_CATALYST);
-        if (recipe.stabilizer().isPresent()) shrink(PsyMixerMultiblock.SLOT_STABILIZER);
+        if (recipe.hasValidCatalyst(items.get(PsyMixerMultiblock.SLOT_CATALYST))) shrink(PsyMixerMultiblock.SLOT_CATALYST);
+        if (recipe.hasValidStabilizer(items.get(PsyMixerMultiblock.SLOT_STABILIZER))) shrink(PsyMixerMultiblock.SLOT_STABILIZER);
         if (recipe.vessel().isPresent()) {
             boolean preserve = success ? recipe.preserveVesselOnSuccess() : recipe.preserveVesselOnFailure();
             if (!preserve) shrink(PsyMixerMultiblock.SLOT_VESSEL);

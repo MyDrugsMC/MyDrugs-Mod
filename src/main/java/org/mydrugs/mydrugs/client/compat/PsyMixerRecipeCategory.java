@@ -60,12 +60,12 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
         g.fill(6, 93, 166, 94, PANEL_LINE);
 
         drawRitualRing(g, CENTER_X + 8, CENTER_Y + 8);
-        drawSlotFrame(g, CENTER_X, CENTER_Y, true);
-        drawSlotFrame(g, CENTER_X - RADIUS, CENTER_Y, true);
-        drawSlotFrame(g, CENTER_X, CENTER_Y - RADIUS, recipe.catalyst().isPresent());
-        drawSlotFrame(g, CENTER_X + RADIUS, CENTER_Y, recipe.stabilizer().isPresent());
-        drawSlotFrame(g, CENTER_X, CENTER_Y + RADIUS, recipe.vessel().isPresent());
-        drawSlotFrame(g, OUTPUT_X, CENTER_Y, true);
+        drawSlotFrame(g, CENTER_X, CENTER_Y, true, false);
+        drawSlotFrame(g, CENTER_X - RADIUS, CENTER_Y, true, false);
+        drawSlotFrame(g, CENTER_X, CENTER_Y - RADIUS, recipe.catalyst().isPresent(), true);
+        drawSlotFrame(g, CENTER_X + RADIUS, CENTER_Y, recipe.stabilizer().isPresent(), true);
+        drawSlotFrame(g, CENTER_X, CENTER_Y + RADIUS, recipe.vessel().isPresent(), false);
+        drawSlotFrame(g, OUTPUT_X, CENTER_Y, true, false);
 
         var font = Minecraft.getInstance().font;
         g.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.ingredients"), 10, 5, MUTED, false);
@@ -123,11 +123,16 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
         }
     }
 
-    private void drawSlotFrame(GuiGraphics g, int x, int y, boolean active) {
-        int border = active ? 0xFF100407 : 0xFF4A2A34;
-        g.fill(x - 3, y - 3, x + 21, y + 21, active ? 0xFF100407 : 0xFF2A1A22);
+    private void drawSlotFrame(GuiGraphics g, int x, int y, boolean active, boolean isBonus) {
+        int bg = active ? (isBonus ? 0xFF1A1500 : 0xFF100407) : 0xFF2A1A22;
+        int border = active ? (isBonus ? 0xFF8B7020 : 0xFF100407) : 0xFF4A2A34;
+        g.fill(x - 3, y - 3, x + 21, y + 21, bg);
         g.fill(x - 2, y - 2, x + 20, y + 20, border);
         g.fill(x, y, x + 18, y + 18, 0xFF24111A);
+        if (active && isBonus) {
+            var font = Minecraft.getInstance().font;
+            g.drawString(font, "+", x + 14, y + 10, 0xFFB8A030, false);
+        }
     }
 
     private static String knowledgeName(ResourceLocation id) {
