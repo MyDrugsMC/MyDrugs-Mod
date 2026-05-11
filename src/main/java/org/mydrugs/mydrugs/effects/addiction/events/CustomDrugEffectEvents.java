@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.effects.addiction.events;
 
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +20,12 @@ public final class CustomDrugEffectEvents {
     @SubscribeEvent
     public static void onLivingDamagePre(LivingDamageEvent.Pre event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            if (event.getSource().is(DamageTypeTags.IS_FALL)) {
+                float fallControl = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.FALL_CONTROL);
+                if (fallControl > 0.0F) {
+                    event.setNewDamage(event.getNewDamage() * Math.max(0.0F, 1.0F - Math.min(1.0F, fallControl)));
+                }
+            }
             float resistance = DrugEffectRuntimeManager.getDamageResistance(player);
             if (resistance > 0.0F) {
                 event.setNewDamage(event.getNewDamage() * (1.0F - resistance));

@@ -56,7 +56,17 @@ public enum EffectType {
     AURORA_RIBBONS(EffectCategory.SHADER),
     SPECTRAL_POSTER(EffectCategory.SHADER),
     HEARTBEAT(EffectCategory.SOUND),
-    DRUNK_VISION(EffectCategory.SHADER);
+    DRUNK_VISION(EffectCategory.SHADER),
+
+    // Optional ritual bonus / drug mix effects (PR 2)
+    STRESS_RELIEF(EffectCategory.STAT_MODIFIER),
+    STRESS_RESISTANCE(EffectCategory.STAT_MODIFIER),
+    BAD_TRIP_RESISTANCE(EffectCategory.STAT_MODIFIER),
+    FALL_CONTROL(EffectCategory.STAT_MODIFIER),
+    DASH_POWER(EffectCategory.STAT_MODIFIER),
+    BURST_WINDOW(EffectCategory.STAT_MODIFIER),
+    ORE_AURA(EffectCategory.VISUAL),
+    MULTIBLOCK_VISION(EffectCategory.VISUAL);
 
     private final EffectCategory category;
 

@@ -4,7 +4,9 @@ import net.minecraft.server.level.ServerPlayer;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
@@ -33,7 +35,9 @@ public final class StressManager {
     }
 
     public static void addStress(ServerPlayer player, float amount) {
-        addStress(player.getData(ModAttachments.PLAYER_ADDICTION.get()), amount);
+        float resistance = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.STRESS_RESISTANCE);
+        float scaled = amount * Math.max(0.0F, 1.0F - resistance);
+        addStress(player.getData(ModAttachments.PLAYER_ADDICTION.get()), scaled);
     }
 
     public static void addStress(PlayerAddictionStats stats, float amount) {

@@ -353,8 +353,11 @@ public final class PsychedelicOreAuraClient {
 
     private static float insightIntensity() {
         return Math.max(
-                AddictionClientState.getEffectIntensity(EffectType.RITUAL_FOCUS),
-                AddictionClientState.getEffectIntensity(EffectType.ACID_WARP)
+                AddictionClientState.getEffectIntensity(EffectType.ORE_AURA),
+                Math.max(
+                        AddictionClientState.getEffectIntensity(EffectType.RITUAL_FOCUS),
+                        AddictionClientState.getEffectIntensity(EffectType.ACID_WARP)
+                )
         );
     }
 

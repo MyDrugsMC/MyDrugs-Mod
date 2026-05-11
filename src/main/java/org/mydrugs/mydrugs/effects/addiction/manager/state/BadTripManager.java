@@ -147,7 +147,9 @@ public final class BadTripManager {
             return;
         }
 
-        float intensity = AddictionMath.clamp(state.symptomIntensity * (0.70F + state.severity * 0.30F), 0.0F, 1.0F);
+        float rawIntensity = AddictionMath.clamp(state.symptomIntensity * (0.70F + state.severity * 0.30F), 0.0F, 1.0F);
+        float resistance = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.BAD_TRIP_RESISTANCE);
+        float intensity = rawIntensity * Math.max(0.0F, 1.0F - resistance);
         int duration = AddictionConstants.BAD_TRIP_EFFECT_DURATION_TICKS;
 
         DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.45F + intensity * 0.35F, duration);

@@ -22,12 +22,13 @@ public final class StimulantDashManager {
 
     public static boolean tryDash(ServerPlayer player, float requestedForward, float requestedStrafe) {
         float stimulant = stimulantIntensity(player);
-        if (stimulant <= 0.08F) {
+        float dashPower = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.DASH_POWER);
+        if (stimulant + dashPower <= 0.08F) {
             return false;
         }
 
         long gameTime = player.level().getGameTime();
-        int cooldownTicks = cooldownTicks(stimulant);
+        int cooldownTicks = cooldownTicks(stimulant + dashPower * 0.6F);
         long lastDash = COOLDOWNS.getOrDefault(player.getUUID(), (long) -cooldownTicks);
         if (gameTime - lastDash < cooldownTicks) {
             return false;
@@ -43,7 +44,7 @@ public final class StimulantDashManager {
             direction = direction.normalize();
         }
 
-        float strength = Mth.clamp(0.42F + stimulant * 0.28F, 0.42F, 0.95F);
+        float strength = Mth.clamp(0.42F + stimulant * 0.28F + dashPower * 0.40F, 0.42F, 1.30F);
         Vec3 current = player.getDeltaMovement();
         Vec3 impulse = direction.scale(strength);
         player.setDeltaMovement(

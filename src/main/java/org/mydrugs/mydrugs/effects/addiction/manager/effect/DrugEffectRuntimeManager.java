@@ -18,6 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 
@@ -98,6 +99,7 @@ public final class DrugEffectRuntimeManager {
             applyMiningAttribute(player, effects);
             applyHpDecreaseAttribute(player, effects);
             maybeVomit(player, effects);
+            applyStressRelief(player, effects);
 
             if (effects.isEmpty()) {
                 ACTIVE.remove(id);
@@ -271,6 +273,14 @@ public final class DrugEffectRuntimeManager {
             instance.removeModifier(HP_DECREASE_MODIFIER_ID);
         }
         LAST_HP_DECREASE_HEARTS.remove(player.getUUID());
+    }
+
+    private static void applyStressRelief(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {
+        float relief = intensity(effects, EffectType.STRESS_RELIEF);
+        if (relief <= 0.0F) {
+            return;
+        }
+        StressManager.reduceStress(player, relief * 0.0002F);
     }
 
     private static void maybeVomit(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {

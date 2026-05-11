@@ -62,6 +62,10 @@ public final class PsyBlueprintPreviewService {
     private static boolean hasPsychedelicInsight(ServerPlayer player) {
         float focus = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_FOCUS);
         float warp = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.ACID_WARP);
+        float vision = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.MULTIBLOCK_VISION);
+        if (vision >= 0.5F) {
+            return true;
+        }
         return Math.max(focus, warp) >= 1.25F;
     }
 
