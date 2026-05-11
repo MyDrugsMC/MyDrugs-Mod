@@ -135,7 +135,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "therapist_desk");
         saveBlockItemViaItemModel(futures, cachedOutput, "treated_planks");
 
-        saveCrop(futures, cachedOutput, "cannabis_crop", "cannabis_crop_stage");
+        saveTallCrop(futures, cachedOutput, "cannabis_crop", "cannabis_stage", 4);
         saveCrossCrop(futures, cachedOutput, "aloe_vera_crop", "aloe_vera_stage", "minecraft:block/small_dripleaf_top");
         saveCrossCrop(futures, cachedOutput, "coca_crop", "coca_stage");
         saveTallCrop(futures, cachedOutput, "malt_crop", "malt_stage", 4);
@@ -395,6 +395,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         JsonObject textures = new JsonObject();
         root.addProperty("render_type", "minecraft:cutout");
         textures.addProperty("crop", MyDrugs.MODID + ":block/" + textureName);
+        textures.addProperty("particle", MyDrugs.MODID + ":block/" + textureName);
         root.add("textures", textures);
 
         JsonArray elements = new JsonArray();
