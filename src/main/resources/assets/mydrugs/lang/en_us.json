@@ -1553,5 +1553,19 @@
   "tooltip.mydrugs.dreamcap_spores": "Brilliant spores that make rituals feel almost obvious.",
   "tooltip.mydrugs.shroom_harvester": "A crooked wooden tool for shaving spores from giant mushrooms.",
   "tooltip.mydrugs.thunder_bottle": "It waits for a storm to notice it.",
-  "tooltip.mydrugs.lightning_bottle": "A storm caught badly enough to keep."
+  "tooltip.mydrugs.lightning_bottle": "A storm caught badly enough to keep.",
+
+  "screen.mydrugs.diary.title": "Personal Diary",
+  "screen.mydrugs.diary.page.today": "Today",
+  "screen.mydrugs.diary.how_i_feel_today": "How I feel today",
+  "screen.mydrugs.diary.what_i_did_in_my_life": "What I did in my life",
+  "screen.mydrugs.diary.done": "Done",
+  "screen.mydrugs.diary.write_placeholder": "Write what today feels like...",
+  "screen.mydrugs.diary.cooldown": "I need a little time before writing again. (%ss)",
+  "screen.mydrugs.diary.empty_today": "Nothing written for today yet.",
+  "screen.mydrugs.diary.no_life_stats": "I have not used anything worth recording yet.",
+  "screen.mydrugs.diary.no_rituals": "I have not attempted any rituals yet.",
+  "screen.mydrugs.diary.auto_entry": "Written automatically",
+  "screen.mydrugs.diary.custom_entry": "Written by me",
+  "tooltip.mydrugs.personal_diary": "Hold right click to write what today feels like. Shift-right-click to read your pages."
 }

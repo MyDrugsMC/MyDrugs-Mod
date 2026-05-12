@@ -7,6 +7,8 @@ import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionDebugScreen;
+import org.mydrugs.mydrugs.effects.addiction.client.diary.PersonalDiaryScreen;
+import org.mydrugs.mydrugs.effects.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
@@ -84,5 +86,14 @@ public final class ClientPayloadHandler {
 
     public static void handleAddictionDebugOpen(AddictionDebugOpenPayload payload, IPayloadContext context) {
         Minecraft.getInstance().setScreen(new AddictionDebugScreen(payload));
+    }
+
+    public static void handlePersonalDiarySnapshot(PersonalDiarySnapshotPayload payload, IPayloadContext context) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof PersonalDiaryScreen open) {
+            open.applySnapshot(payload);
+        } else {
+            mc.setScreen(new PersonalDiaryScreen(payload));
+        }
     }
 }

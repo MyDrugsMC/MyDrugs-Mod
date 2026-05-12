@@ -5,6 +5,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -46,6 +47,28 @@ public final class PsyMixerMasteryAttachment implements ValueIOSerializable {
     public float getTimingWindowBonus(ResourceLocation recipeId) {
         int c = getCompleted(recipeId);
         return Math.min(0.20F, c * 0.01F);
+    }
+
+    /** Read-only view of all completed-count entries, in insertion order. */
+    public Map<ResourceLocation, Integer> getCompletedEntriesView() {
+        return Collections.unmodifiableMap(completed);
+    }
+
+    /** Read-only view of all failed-count entries, in insertion order. */
+    public Map<ResourceLocation, Integer> getFailedEntriesView() {
+        return Collections.unmodifiableMap(failed);
+    }
+
+    public int getTotalCompleted() {
+        int sum = 0;
+        for (int v : completed.values()) sum += v;
+        return sum;
+    }
+
+    public int getTotalFailed() {
+        int sum = 0;
+        for (int v : failed.values()) sum += v;
+        return sum;
     }
 
     @Override

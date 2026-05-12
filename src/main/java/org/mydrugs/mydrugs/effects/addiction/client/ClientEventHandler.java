@@ -31,6 +31,7 @@ import org.mydrugs.mydrugs.effects.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.effects.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.effects.addiction.client.input.ClientInputInterceptor;
 
@@ -49,6 +50,7 @@ public final class ClientEventHandler {
         event.register(BadTripPayload.TYPE, ClientPayloadHandler::handleBadTrip);
         event.register(BadTripScreamerPayload.TYPE, ClientPayloadHandler::handleBadTripScreamer);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
+        event.register(PersonalDiarySnapshotPayload.TYPE, ClientPayloadHandler::handlePersonalDiarySnapshot);
     }
 
     @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)

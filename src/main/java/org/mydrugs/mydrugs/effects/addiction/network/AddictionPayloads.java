@@ -18,10 +18,16 @@ public class AddictionPayloads {
         registrar.playToClient(BadTripPayload.TYPE, BadTripPayload.STREAM_CODEC);
         registrar.playToClient(BadTripScreamerPayload.TYPE, BadTripScreamerPayload.STREAM_CODEC);
         registrar.playToClient(AddictionDebugOpenPayload.TYPE, AddictionDebugOpenPayload.STREAM_CODEC);
+        registrar.playToClient(PersonalDiarySnapshotPayload.TYPE, PersonalDiarySnapshotPayload.STREAM_CODEC);
         registrar.playToServer(
                 AddictionDebugActionPayload.TYPE,
                 AddictionDebugActionPayload.STREAM_CODEC,
                 AddictionDebugActionPayload::handleOnServer
+        );
+        registrar.playToServer(
+                SubmitPersonalDiaryEntryPayload.TYPE,
+                SubmitPersonalDiaryEntryPayload.STREAM_CODEC,
+                SubmitPersonalDiaryEntryPayload::handleOnServer
         );
     }
 }

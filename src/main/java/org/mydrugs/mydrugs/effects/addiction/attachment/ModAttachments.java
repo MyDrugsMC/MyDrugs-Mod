@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.advancement.DrugKnowledgeAttachment;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.effects.addiction.diary.PlayerDiaryAttachment;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachment;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachment;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeAttachment;
@@ -47,6 +48,12 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<PsyMixerMasteryAttachment>> PSY_MIXER_MASTERY =
             ATTACHMENTS.register("psy_mixer_mastery", () ->
                     AttachmentType.serializable(PsyMixerMasteryAttachment::new)
+                            .copyOnDeath()
+                            .build()
+            );
+    public static final Supplier<AttachmentType<PlayerDiaryAttachment>> PLAYER_DIARY =
+            ATTACHMENTS.register("player_diary", () ->
+                    AttachmentType.serializable(PlayerDiaryAttachment::new)
                             .copyOnDeath()
                             .build()
             );
