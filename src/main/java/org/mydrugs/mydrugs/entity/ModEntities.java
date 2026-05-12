@@ -25,6 +25,17 @@ public final class ModEntities {
                         .build(key);
             });
 
+    public static final DeferredHolder<EntityType<?>, EntityType<ShroomDefenderEntity>> SHROOM_DEFENDER =
+            ENTITY_TYPES.register("shroom_defender", registryName -> {
+                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "shroom_defender");
+                ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+                return EntityType.Builder.of(ShroomDefenderEntity::new, MobCategory.MONSTER)
+                        .sized(0.6F, 1.95F)
+                        .eyeHeight(1.74F)
+                        .clientTrackingRange(8)
+                        .build(key);
+            });
+
     private ModEntities() {
     }
 }

@@ -7,6 +7,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.items.bottle.LightningBottleManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class PlayerTickEvents {
@@ -18,5 +19,6 @@ public final class PlayerTickEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         AddictionManager.tickPlayer(player);
         DrugEffectRuntimeManager.tickServer(player);
+        LightningBottleManager.tick(player);
     }
 }

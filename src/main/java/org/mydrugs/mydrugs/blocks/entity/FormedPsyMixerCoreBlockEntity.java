@@ -164,6 +164,10 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FormedPsyMixerCoreBlockEntity be) {
         if (!(level instanceof ServerLevel serverLevel)) return;
+        // Ambient: once per second (20 ticks), 0.5% chance to attempt a Third Eye Petal spawn near the altar.
+        if (serverLevel.getGameTime() % 20L == 0L && serverLevel.random.nextFloat() < 0.005F) {
+            tryAmbientThirdEyePetalSpawn(serverLevel, pos);
+        }
         if (!be.running) return;
         if (be.activeRecipeId == null) {
             be.cancelRitual();
@@ -378,6 +382,21 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             }
             placeIntoOutput(failureResult);
 
+            // BROKEN_COURAGE: 20% drop on severe ritual failures (failureSeverity >= 1.0F)
+            if (recipe.failureSeverity() >= 1.0F && level.random.nextFloat() < 0.20F) {
+                ItemStack brokenCourage = new ItemStack(org.mydrugs.mydrugs.items.ModItems.BROKEN_COURAGE.get());
+                ItemStack outSlot = items.get(org.mydrugs.mydrugs.blocks.PsyMixerMultiblock.SLOT_OUTPUT);
+                if (outSlot.isEmpty() || (ItemStack.isSameItemSameComponents(outSlot, brokenCourage)
+                        && outSlot.getCount() + 1 <= outSlot.getMaxStackSize())) {
+                    placeIntoOutput(brokenCourage);
+                } else {
+                    net.minecraft.world.Containers.dropItemStack(
+                            level,
+                            worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
+                            brokenCourage);
+                }
+            }
+
             if (player != null) {
                 PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
                 mastery.incrementFailed(activeRecipeId);
@@ -406,6 +425,21 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
     private static net.minecraft.world.item.Item ModItems_UNSTABLE_RESIDUE() {
         return org.mydrugs.mydrugs.items.ModItems.UNSTABLE_RESIDUE.get();
+    }
+
+    private static void tryAmbientThirdEyePetalSpawn(ServerLevel level, BlockPos origin) {
+        net.minecraft.world.level.block.Block petal = org.mydrugs.mydrugs.blocks.ModBlocks.THIRD_EYE_PETAL.get();
+        net.minecraft.world.level.block.state.BlockState petalState = petal.defaultBlockState();
+        for (int attempt = 0; attempt < 5; attempt++) {
+            int dx = level.random.nextInt(11) - 5;
+            int dz = level.random.nextInt(11) - 5;
+            int dy = level.random.nextInt(3) - 1;
+            BlockPos candidate = origin.offset(dx, dy, dz);
+            if (!level.getBlockState(candidate).isAir()) continue;
+            if (!petalState.canSurvive(level, candidate)) continue;
+            level.setBlock(candidate, petalState, Block.UPDATE_ALL);
+            return;
+        }
     }
 
     private static boolean hasRequiredDrugCategory(PlayerAddictionStats stats, Optional<String> requiredCategory) {

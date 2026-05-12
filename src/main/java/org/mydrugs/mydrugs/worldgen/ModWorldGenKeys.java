@@ -58,6 +58,22 @@ public final class ModWorldGenKeys {
     public static final ResourceKey<BiomeModifier> ADD_ALOE_VERA_TO_OVERWORLD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_aloe_vera_to_overworld"));
 
+    // PR 3 worldgen
+    public static final ResourceKey<ConfiguredFeature<?, ?>> BITTER_NUT_BUSH_PATCH =
+            configured("bitter_nut_bush_patch");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> THIRD_EYE_PETAL_PATCH =
+            configured("third_eye_petal_patch");
+
+    public static final ResourceKey<PlacedFeature> BITTER_NUT_BUSH_PATCH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("bitter_nut_bush_patch_placed"));
+    public static final ResourceKey<PlacedFeature> THIRD_EYE_PETAL_PATCH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("third_eye_petal_patch_placed"));
+
+    public static final ResourceKey<BiomeModifier> ADD_BITTER_NUT_BUSH =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_bitter_nut_bush"));
+    public static final ResourceKey<BiomeModifier> ADD_THIRD_EYE_PETAL =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_third_eye_petal"));
+
     private ModWorldGenKeys() {
     }
 

@@ -55,6 +55,7 @@ public final class StimulantDashManager {
         player.connection.send(new ClientboundSetEntityMotionPacket(player));
         COOLDOWNS.put(player.getUUID(), gameTime);
 
+        BurstWindowManager.trigger(player);
         DrugEffectRuntimeManager.addEffect(player, EffectType.ADRENALINE_SURGE, Math.min(1.2F, 0.18F + stimulant * 0.22F), 20 * 4);
         DrugEffectRuntimeManager.addEffect(player, EffectType.HEARTBEAT, Math.min(1.3F, 0.25F + stimulant * 0.18F), 20 * 5);
         DrugEffectRuntimeManager.addEffect(player, EffectType.TREMOR, Math.min(0.35F, stimulant * 0.045F), 20 * 4);

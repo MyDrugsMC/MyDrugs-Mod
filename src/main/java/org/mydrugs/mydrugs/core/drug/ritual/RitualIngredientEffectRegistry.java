@@ -114,7 +114,57 @@ public final class RitualIngredientEffectRegistry {
                     new RitualDrugEffectData(EffectType.RITUAL_STABILITY, 120 * 20, 0.20F)),
             entry(DrugId.MUSHROOMS, Items.GLOW_BERRIES,
                     new RitualDrugEffectData(EffectType.GAMMA_BOOST, 120 * 20, 1.25F),
-                    new RitualDrugEffectData(EffectType.ORE_AURA, 75 * 20, 2.5F))
+                    new RitualDrugEffectData(EffectType.ORE_AURA, 75 * 20, 2.5F)),
+
+            // ===== PR 3 CUSTOM INGREDIENTS =====
+            entry(DrugId.WEED, ModItems.CALMING_SPORES.get(),
+                    new RitualDrugEffectData(EffectType.RITUAL_STABILITY, 120 * 20, 0.25F),
+                    new RitualDrugEffectData(EffectType.STRESS_RELIEF, 120 * 20, 0.25F)),
+
+            entry(DrugId.COFFEE, ModItems.BITTER_NUT.get(),
+                    new RitualDrugEffectData(EffectType.MANUAL_WORK_SPEED, 150 * 20, 0.22F),
+                    new RitualDrugEffectData(EffectType.TREMOR, 60 * 20, 0.10F)),
+
+            entry(DrugId.COCAINE, ModItems.CHARGED_SINEW.get(),
+                    new RitualDrugEffectData(EffectType.ADRENALINE_SURGE, 75 * 20, 0.45F),
+                    new RitualDrugEffectData(EffectType.MANUAL_WORK_SPEED, 75 * 20, 0.30F)),
+
+            entry(DrugId.CRACK, ModItems.FRACTURED_IMPULSE.get(),
+                    new RitualDrugEffectData(EffectType.BURST_WINDOW, 50 * 20, 0.50F),
+                    new RitualDrugEffectData(EffectType.ADRENALINE_SURGE, 50 * 20, 0.35F)),
+
+            entry(DrugId.METH, ModItems.CHARGED_CORE.get(),
+                    new RitualDrugEffectData(EffectType.MANUAL_WORK_SPEED, 240 * 20, 0.40F),
+                    new RitualDrugEffectData(EffectType.MOVEMENT_SPEED, 120 * 20, 0.15F),
+                    new RitualDrugEffectData(EffectType.ADRENALINE_SURGE, 120 * 20, 0.30F)),
+
+            entry(DrugId.ALCOHOL, ModItems.BROKEN_COURAGE.get(),
+                    new RitualDrugEffectData(EffectType.DAMAGE_RESISTANCE, 150 * 20, 0.25F),
+                    new RitualDrugEffectData(EffectType.STRESS_RESISTANCE, 150 * 20, 0.25F),
+                    new RitualDrugEffectData(EffectType.STUMBLE, 150 * 20, 0.10F)),
+
+            entry(DrugId.LSD, org.mydrugs.mydrugs.blocks.ModBlocks.THIRD_EYE_PETAL_ITEM.get(),
+                    new RitualDrugEffectData(EffectType.ORE_AURA, 150 * 20, 4.0F),
+                    new RitualDrugEffectData(EffectType.MULTIBLOCK_VISION, 150 * 20, 1.00F)),
+
+            entry(DrugId.MUSHROOMS, ModItems.DREAMCAP_SPORES.get(),
+                    new RitualDrugEffectData(EffectType.RITUAL_FOCUS, 120 * 20, 1.00F),
+                    new RitualDrugEffectData(EffectType.ORE_AURA, 120 * 20, 4.0F),
+                    new RitualDrugEffectData(EffectType.BAD_TRIP_RESISTANCE, 120 * 20, 0.20F)),
+
+            // ===== HASH =====
+            // heavier cannabinoid niche: stronger calm/stability, slower body, safer bad trips
+            entry(DrugId.HASH, ModItems.CALMING_SPORES.get(),
+                    new RitualDrugEffectData(EffectType.RITUAL_STABILITY, 150 * 20, 0.35F),
+                    new RitualDrugEffectData(EffectType.STRESS_RELIEF, 150 * 20, 0.30F),
+                    new RitualDrugEffectData(EffectType.MOVEMENT_SLOWDOWN, 60 * 20, 0.04F)),
+            entry(DrugId.HASH, Items.PHANTOM_MEMBRANE,
+                    new RitualDrugEffectData(EffectType.FALL_CONTROL, 105 * 20, 0.45F),
+                    new RitualDrugEffectData(EffectType.BAD_TRIP_RESISTANCE, 105 * 20, 0.12F),
+                    new RitualDrugEffectData(EffectType.CAMERA_SWAY, 75 * 20, 0.10F)),
+            entry(DrugId.HASH, Items.GHAST_TEAR,
+                    new RitualDrugEffectData(EffectType.STRESS_RESISTANCE, 135 * 20, 0.28F),
+                    new RitualDrugEffectData(EffectType.RITUAL_STABILITY, 135 * 20, 0.20F))
     );
 
     private RitualIngredientEffectRegistry() {

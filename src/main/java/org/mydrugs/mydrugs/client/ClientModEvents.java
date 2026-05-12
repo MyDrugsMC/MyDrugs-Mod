@@ -81,6 +81,7 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.INNER_DEMON.get(), InnerDemonRenderer::new);
+        event.registerEntityRenderer(ModEntities.SHROOM_DEFENDER.get(), org.mydrugs.mydrugs.client.entity.ShroomDefenderRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.GRINDING_BOWL.get(), ctx -> new GrindingBowlRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.STOMP_CRAFTER.get(), StompCrafterRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MIXING_VAT.get(), MixingVatRenderer::new);

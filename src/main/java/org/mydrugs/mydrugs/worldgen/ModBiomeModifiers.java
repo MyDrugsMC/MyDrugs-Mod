@@ -75,5 +75,32 @@ public final class ModBiomeModifiers {
                         GenerationStep.Decoration.VEGETAL_DECORATION
                 )
         );
+
+        // Bitter Nut Bush in jungle + forest biomes
+        context.register(
+                ModWorldGenKeys.ADD_BITTER_NUT_BUSH,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.JUNGLE),
+                                biomes.getOrThrow(Biomes.SPARSE_JUNGLE),
+                                biomes.getOrThrow(Biomes.BAMBOO_JUNGLE),
+                                biomes.getOrThrow(Biomes.FOREST),
+                                biomes.getOrThrow(Biomes.DARK_FOREST),
+                                biomes.getOrThrow(Biomes.BIRCH_FOREST)
+                        ),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.BITTER_NUT_BUSH_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION
+                )
+        );
+
+        // Third Eye Petal: mountain biomes only (HeightRangePlacement gates Y >= 130 inside the placed feature)
+        context.register(
+                ModWorldGenKeys.ADD_THIRD_EYE_PETAL,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_MOUNTAIN),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.THIRD_EYE_PETAL_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION
+                )
+        );
     }
 }

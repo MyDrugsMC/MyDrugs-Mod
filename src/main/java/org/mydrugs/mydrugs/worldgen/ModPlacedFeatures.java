@@ -103,5 +103,37 @@ public final class ModPlacedFeatures {
                         )
                 )
         );
+
+        // Bitter Nut Bush patches in jungle/forest (uncommon)
+        context.register(
+                ModWorldGenKeys.BITTER_NUT_BUSH_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.BITTER_NUT_BUSH_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(28),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
+        // Third Eye Petal: very rare, restricted to Y >= 130
+        context.register(
+                ModWorldGenKeys.THIRD_EYE_PETAL_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.THIRD_EYE_PETAL_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(160),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(130),
+                                        VerticalAnchor.absolute(256)
+                                ),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
     }
 }

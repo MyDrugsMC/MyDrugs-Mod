@@ -67,6 +67,9 @@ public final class BadTripManager {
         state.sourceDrug = candidate.drugId();
         state.sourceCategory = candidate.category();
         state.violentDemonHook = severityBand(state.severity) >= 2;
+        if (state.severity >= AddictionConstants.BAD_TRIP_VIOLENT_THRESHOLD) {
+            state.reachedViolentSeverity = true;
+        }
         state.ticksActive++;
 
         if (candidate.stress() < candidate.threshold() - AddictionConstants.BAD_TRIP_STOP_HYSTERESIS) {
@@ -137,6 +140,13 @@ public final class BadTripManager {
 
     private static void stop(ServerPlayer player, BadTripState state) {
         InnerDemonSpawnManager.markOwnedDemonsForDespawn(player);
+        if (state.reachedViolentSeverity) {
+            net.minecraft.world.item.ItemStack reward = new net.minecraft.world.item.ItemStack(
+                    org.mydrugs.mydrugs.items.ModItems.BROKEN_COURAGE.get(), 1);
+            if (!player.getInventory().add(reward)) {
+                player.drop(reward, false);
+            }
+        }
         state.reset();
         player.displayClientMessage(Component.translatable("message.mydrugs.bad_trip.end"), true);
         sync(player, state);

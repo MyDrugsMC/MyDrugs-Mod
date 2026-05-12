@@ -66,6 +66,16 @@ public final class DrugEffectRuntimeManager {
         applyHpDecreaseAttribute(player, effects);
     }
 
+    public static void drainEffect(ServerPlayer player, EffectType type, int extraTicks) {
+        if (player == null || type == null || extraTicks <= 0) return;
+        EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(player.getUUID());
+        if (effects == null) return;
+        ActiveDrugEffect effect = effects.get(normalize(type));
+        if (effect == null) return;
+        effect.drain(extraTicks);
+        DIRTY_PLAYERS.add(player.getUUID());
+    }
+
     public static float getServerIntensity(ServerPlayer player, EffectType type) {
         EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(player.getUUID());
         if (effects == null) {
@@ -100,6 +110,7 @@ public final class DrugEffectRuntimeManager {
             applyHpDecreaseAttribute(player, effects);
             maybeVomit(player, effects);
             applyStressRelief(player, effects);
+            BurstWindowManager.tick(player);
 
             if (effects.isEmpty()) {
                 ACTIVE.remove(id);
@@ -109,6 +120,7 @@ public final class DrugEffectRuntimeManager {
             removeMovementAttribute(player);
             removeMiningAttribute(player);
             removeHpDecreaseAttribute(player);
+            BurstWindowManager.cleanup(player);
         }
 
         if (VOMIT_COOLDOWNS.computeIfPresent(id, (ignored, value) -> value > 0 ? value - 1 : null) != null) {

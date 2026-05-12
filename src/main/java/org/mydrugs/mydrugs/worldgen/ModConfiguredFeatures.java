@@ -127,5 +127,43 @@ public final class ModConfiguredFeatures {
                         )
                 )
         );
+
+        // Bitter Nut Bush: jungle/forest small patches (a few bushes per patch).
+        context.register(
+                ModWorldGenKeys.BITTER_NUT_BUSH_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                6,
+                                5,
+                                2,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(
+                                                ModBlocks.BITTER_NUT_BUSH.get().defaultBlockState()
+                                        ))
+                                )
+                        )
+                )
+        );
+
+        // Third Eye Petal: rare flower patches.
+        context.register(
+                ModWorldGenKeys.THIRD_EYE_PETAL_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                4,
+                                3,
+                                1,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(
+                                                ModBlocks.THIRD_EYE_PETAL.get().defaultBlockState()
+                                        ))
+                                )
+                        )
+                )
+        );
     }
 }

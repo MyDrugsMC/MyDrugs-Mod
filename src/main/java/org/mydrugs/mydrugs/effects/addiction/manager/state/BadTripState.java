@@ -17,6 +17,7 @@ public final class BadTripState {
     public @Nullable DrugId sourceDrug;
     public DrugCategory sourceCategory = DrugCategory.OTHER;
     public boolean violentDemonHook;
+    public boolean reachedViolentSeverity;
 
     int lastSyncedBand = -1;
 
@@ -33,6 +34,7 @@ public final class BadTripState {
         this.sourceDrug = null;
         this.sourceCategory = DrugCategory.OTHER;
         this.violentDemonHook = false;
+        this.reachedViolentSeverity = false;
         this.lastSyncedBand = -1;
     }
 }

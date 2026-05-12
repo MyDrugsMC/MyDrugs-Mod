@@ -547,6 +547,51 @@ public class ModItems {
                             .component(ModDataComponents.BIOME_FINDER_TARGET.get(),
                                     BiomeFinderTarget.EMPTY)));
 
+    // ===== PR 3: Ritual mix ingredients =====
+    public static final DeferredItem<Item> CALMING_SPORES =
+            ITEMS.registerItem("calming_spores",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.calming_spores"));
+
+    public static final DeferredItem<Item> BITTER_NUT =
+            ITEMS.registerItem("bitter_nut",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.bitter_nut"));
+
+    public static final DeferredItem<Item> CHARGED_SINEW =
+            ITEMS.registerItem("charged_sinew",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.charged_sinew"));
+
+    public static final DeferredItem<Item> FRACTURED_IMPULSE =
+            ITEMS.registerItem("fractured_impulse",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.fractured_impulse"));
+
+    public static final DeferredItem<Item> CHARGED_CORE =
+            ITEMS.registerItem("charged_core",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.charged_core"));
+
+    public static final DeferredItem<Item> BROKEN_COURAGE =
+            ITEMS.registerItem("broken_courage",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.broken_courage"));
+
+    public static final DeferredItem<Item> DREAMCAP_SPORES =
+            ITEMS.registerItem("dreamcap_spores",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.dreamcap_spores"));
+
+    // ===== PR 3: Support items =====
+    public static final DeferredItem<Item> COPPER_NUGGET =
+            ITEMS.registerSimpleItem("copper_nugget");
+
+    public static final DeferredItem<Item> THUNDER_BOTTLE =
+            ITEMS.registerItem("thunder_bottle",
+                    props -> new PsyTooltipItem(props.stacksTo(16), "tooltip.mydrugs.thunder_bottle"));
+
+    public static final DeferredItem<Item> LIGHTNING_BOTTLE =
+            ITEMS.registerItem("lightning_bottle",
+                    props -> new PsyTooltipItem(props.stacksTo(16), "tooltip.mydrugs.lightning_bottle"));
+
+    public static final DeferredItem<Item> SHROOM_HARVESTER =
+            ITEMS.registerItem("shroom_harvester",
+                    props -> new ShroomHarvesterItem(props.stacksTo(1).durability(59)));
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
 

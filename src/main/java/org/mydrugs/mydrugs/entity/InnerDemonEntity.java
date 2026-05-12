@@ -281,6 +281,13 @@ public class InnerDemonEntity extends Vex {
         }
 
         ServerPlayer owner = resolveOwner();
+        ServerPlayer relevant = owner != null ? owner : (killer instanceof ServerPlayer sp ? sp : null);
+
+        // FRACTURED_IMPULSE: 25% drop when killed by stimulant-overdosed bad-trip player
+        if (relevant != null && shouldDropFracturedImpulse(relevant) && level.random.nextFloat() < 0.25F) {
+            this.drop(new ItemStack(ModItems.FRACTURED_IMPULSE.get()), true, false);
+        }
+
         if (owner != null) {
             PlayerAddictionStats stats = owner.getData(ModAttachments.PLAYER_ADDICTION.get());
             if (stats.badTrip.demonRemainsDropped >= 2) {
@@ -294,6 +301,28 @@ public class InnerDemonEntity extends Vex {
         if (this.random.nextFloat() < chance) {
             this.drop(new ItemStack(ModItems.INNER_DEMON_REMAINS.get()), true, false);
         }
+    }
+
+    private static boolean shouldDropFracturedImpulse(ServerPlayer player) {
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        if (!org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripManager.isActive(stats)) {
+            return false;
+        }
+        for (org.mydrugs.mydrugs.core.drug.DrugId drugId : stats.getTrackedDrugIds()) {
+            if (org.mydrugs.mydrugs.core.drug.DrugRegistry.getCategory(drugId) != org.mydrugs.mydrugs.core.drug.DrugCategory.STIMULANT) {
+                continue;
+            }
+            var drugStats = stats.getDrugStats(drugId);
+            if (drugStats == null) continue;
+            org.mydrugs.mydrugs.effects.addiction.dose.DosePath path = org.mydrugs.mydrugs.effects.addiction.dose.DosePath.DRUG;
+            org.mydrugs.mydrugs.effects.addiction.dose.DoseState state =
+                    org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager.resolveState(path, drugStats.currentDose());
+            if (state == org.mydrugs.mydrugs.effects.addiction.dose.DoseState.VERY_HIGH
+                    || state == org.mydrugs.mydrugs.effects.addiction.dose.DoseState.OVERDOSE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int getLootingLevel(ServerLevel level, ItemStack weapon) {

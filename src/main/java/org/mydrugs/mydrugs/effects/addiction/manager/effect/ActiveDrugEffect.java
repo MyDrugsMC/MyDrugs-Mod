@@ -76,6 +76,22 @@ public final class ActiveDrugEffect {
         return fadeTicksRemaining <= 0;
     }
 
+    /**
+     * Drains the active phase of this effect by `extraTicks`, beyond the normal 1-tick decay.
+     * Respects fade behavior and never goes negative.
+     */
+    public void drain(int extraTicks) {
+        if (extraTicks <= 0) return;
+        if (remainingTicks > 0) {
+            remainingTicks = Math.max(0, remainingTicks - extraTicks);
+            if (remainingTicks == 0 && fadeTicksRemaining <= 0) {
+                fadeTicksRemaining = fadeDurationTicks;
+            }
+        } else if (fadeTicksRemaining > 0) {
+            fadeTicksRemaining = Math.max(0, fadeTicksRemaining - extraTicks);
+        }
+    }
+
     public ActiveDrugEffect copy() {
         ActiveDrugEffect copy = new ActiveDrugEffect(type, intensity, remainingTicks);
         copy.fadeTicksRemaining = this.fadeTicksRemaining;

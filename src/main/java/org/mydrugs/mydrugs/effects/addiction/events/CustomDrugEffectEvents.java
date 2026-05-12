@@ -10,6 +10,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.effects.addiction.manager.effect.BurstWindowManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
@@ -31,12 +32,18 @@ public final class CustomDrugEffectEvents {
                 event.setNewDamage(event.getNewDamage() * (1.0F - resistance));
             }
             DrugEffectRuntimeManager.triggerStimulantAdrenaline(player, event.getNewDamage());
+            if (event.getNewDamage() > 0.0F) {
+                BurstWindowManager.trigger(player);
+            }
         }
 
         if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
             float multiplier = DrugEffectRuntimeManager.getAttackDamageMultiplier(attacker);
             if (multiplier > 1.001F) {
                 event.setNewDamage(event.getNewDamage() * multiplier);
+            }
+            if (event.getNewDamage() > 0.0F) {
+                BurstWindowManager.trigger(attacker);
             }
         }
     }
