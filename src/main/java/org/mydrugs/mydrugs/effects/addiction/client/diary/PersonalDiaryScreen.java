@@ -16,6 +16,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.effects.addiction.client.render.HudSymptomIcons;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.effects.addiction.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.effects.addiction.diary.DiaryEntryDto;
@@ -290,7 +291,7 @@ public final class PersonalDiaryScreen extends Screen {
         int y = contentTop - scrollY;
         for (DiaryLine line : page.lines()) {
             if (y + LINE_H >= contentTop && y <= contentBottom) {
-                line.render(g, this.font, contentLeft, y);
+                line.render(g, this.font, contentLeft, contentRight - 4, y);
             }
             y += LINE_H;
         }
@@ -393,19 +394,20 @@ public final class PersonalDiaryScreen extends Screen {
             lines.add(DiaryLine.text("Sleep refuses me right now."));
         }
 
-        // Section: symptoms
-        if (s.symptomFlags() != 0) {
+        // Section: live HUD symptom column (every effect the left HUD shows, with %)
+        boolean anyHudEffect = false;
+        for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
+            if (icon.intensity() > HudSymptomIcons.MIN_VISIBLE) { anyHudEffect = true; break; }
+        }
+        if (anyHudEffect) {
             lines.add(DiaryLine.spacer());
-            lines.add(DiaryLine.heading("Symptoms"));
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.CONFUSION, "confusion", "Confusion");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.VISION, "vision", "Vision distortions");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.HALLUCINATION, "hallucination", "Hallucinations");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.STRESS, "stress", "Stress");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.DISSOCIATION, "dissociation", "Dissociation");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.FATIGUE, "fatigue", "Fatigue");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.INTRUSIVE_THOUGHTS, "intrusive_thoughts", "Intrusive thoughts");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.INSOMNIA, "insomnia", "Insomnia");
-            addSymptomIfSet(lines, s.symptomFlags(), SymptomFlags.FRAGILITY, "fragility", "Body fragility");
+            lines.add(DiaryLine.heading("What I feel right now"));
+            for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
+                float intensity = icon.intensity();
+                if (intensity <= HudSymptomIcons.MIN_VISIBLE) continue;
+                int pct = Math.round(Math.min(1.0F, intensity) * 100.0F);
+                lines.add(DiaryLine.withSymptomMeter(icon.texture(), icon.label(), intensity, pct + "%"));
+            }
         }
 
         // Section: supports
@@ -532,13 +534,6 @@ public final class PersonalDiaryScreen extends Screen {
         return out;
     }
 
-    private void addSymptomIfSet(List<DiaryLine> lines, int flags, int bit, String iconName, String label) {
-        if ((flags & bit) == 0) return;
-        ResourceLocation tex = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID,
-                "textures/gui/symptoms/" + iconName + ".png");
-        lines.add(DiaryLine.withTexture(tex, label));
-    }
-
     // ----------------------- Helpers (formatting) -----------------------
 
     private String stressLine(float stress) {
@@ -656,31 +651,38 @@ public final class PersonalDiaryScreen extends Screen {
 
     /** A single rendered line; optional icon (item-stack), optional texture icon, optional heading style. */
     private static final class DiaryLine {
-        enum Kind { TEXT, HEADING, SPACER, INDENTED }
+        enum Kind { TEXT, HEADING, SPACER, INDENTED, SYMPTOM_METER }
         final String text;
         final ItemStack icon;
         final ResourceLocation iconTexture;
         final Kind kind;
+        final float intensity;     // 0..1 for SYMPTOM_METER
+        final String tail;         // right-aligned suffix text (e.g. "73%")
 
-        private DiaryLine(String text, ItemStack icon, ResourceLocation tex, Kind kind) {
+        private DiaryLine(String text, ItemStack icon, ResourceLocation tex, Kind kind, float intensity, String tail) {
             this.text = text == null ? "" : text;
             this.icon = icon == null ? ItemStack.EMPTY : icon;
             this.iconTexture = tex;
             this.kind = kind;
+            this.intensity = intensity;
+            this.tail = tail == null ? "" : tail;
         }
 
-        static DiaryLine text(String s)        { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.TEXT); }
-        static DiaryLine indented(String s)    { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.INDENTED); }
-        static DiaryLine heading(String s)     { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.HEADING); }
-        static DiaryLine spacer()              { return new DiaryLine("", ItemStack.EMPTY, null, Kind.SPACER); }
+        static DiaryLine text(String s)        { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.TEXT, 0F, ""); }
+        static DiaryLine indented(String s)    { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.INDENTED, 0F, ""); }
+        static DiaryLine heading(String s)     { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.HEADING, 0F, ""); }
+        static DiaryLine spacer()              { return new DiaryLine("", ItemStack.EMPTY, null, Kind.SPACER, 0F, ""); }
         static DiaryLine withIcon(ItemStack stack, String s) {
-            return new DiaryLine(s, stack, null, Kind.TEXT);
+            return new DiaryLine(s, stack, null, Kind.TEXT, 0F, "");
         }
         static DiaryLine withTexture(ResourceLocation tex, String s) {
-            return new DiaryLine(s, ItemStack.EMPTY, tex, Kind.TEXT);
+            return new DiaryLine(s, ItemStack.EMPTY, tex, Kind.TEXT, 0F, "");
+        }
+        static DiaryLine withSymptomMeter(ResourceLocation tex, String label, float intensity, String tail) {
+            return new DiaryLine(label, ItemStack.EMPTY, tex, Kind.SYMPTOM_METER, intensity, tail);
         }
 
-        void render(GuiGraphics g, Font font, int x, int y) {
+        void render(GuiGraphics g, Font font, int x, int xRight, int y) {
             switch (kind) {
                 case SPACER -> { /* nothing */ }
                 case HEADING -> {
@@ -701,6 +703,33 @@ public final class PersonalDiaryScreen extends Screen {
                         textX += ICON_SIZE + ICON_GAP;
                     }
                     g.drawString(font, text, textX, y, INK, false);
+                }
+                case SYMPTOM_METER -> {
+                    // 1) HUD-style icon tile with dark backing
+                    int alpha = 0xCC;
+                    g.fill(x - 1, y - 1, x + ICON_SIZE + 1, y + ICON_SIZE + 1, (alpha << 24) | 0x08080B);
+                    if (iconTexture != null) {
+                        g.blit(RenderPipelines.GUI_TEXTURED, iconTexture,
+                                x, y, 0, 0, ICON_SIZE, ICON_SIZE, 16, 16, 16, 16);
+                    }
+                    // 2) Yellow intensity meter strip under the icon (mirrors HUD)
+                    int meter = Math.max(1, Math.round(ICON_SIZE * intensity));
+                    g.fill(x, y + ICON_SIZE - 1, x + meter, y + ICON_SIZE, 0xFFE6D06C);
+
+                    // 3) Label
+                    int textX = x + ICON_SIZE + ICON_GAP;
+                    g.drawString(font, text, textX, y + 2, INK, false);
+
+                    // 4) Right-aligned percentage tail
+                    if (!tail.isEmpty()) {
+                        int tw = font.width(tail);
+                        // Choose tail color by intensity bracket
+                        int tailColor =
+                                intensity >= 0.66F ? 0xFFB23A3A :
+                                intensity >= 0.33F ? 0xFF9C6B2B :
+                                INK_SOFT;
+                        g.drawString(font, tail, xRight - tw, y + 2, tailColor, false);
+                    }
                 }
             }
         }

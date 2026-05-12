@@ -7,12 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.Config;
-import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
-import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
-import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
-import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
@@ -22,30 +18,8 @@ public final class AddictionHudRenderer {
     private static final int WITHDRAWAL_BAR_HEIGHT = 5;
     private static final int SYMPTOM_ICON_SIZE = 13;
     private static final int SYMPTOM_ICON_GAP = 3;
-    private static final float MIN_VISIBLE = 0.015F;
 
     private static float displayedWithdrawal;
-
-    private static final SymptomIcon[] SYMPTOM_ICONS = {
-            new SymptomIcon("insomnia", AddictionHudRenderer::insomniaIntensity),
-            new SymptomIcon("hallucination", () -> flagIntensity(SymptomFlags.HALLUCINATION)),
-            new SymptomIcon("vision", () -> flagIntensity(SymptomFlags.VISION)),
-            new SymptomIcon("confusion", () -> Math.max(flagIntensity(SymptomFlags.CONFUSION), effectIntensity(EffectType.CONFUSION))),
-            new SymptomIcon("stress", () -> Math.max(flagIntensity(SymptomFlags.STRESS), AddictionClientState.stressLevel)),
-            new SymptomIcon("dissociation", () -> flagIntensity(SymptomFlags.DISSOCIATION)),
-            new SymptomIcon("fatigue", () -> flagIntensity(SymptomFlags.FATIGUE)),
-            new SymptomIcon("intrusive_thoughts", () -> flagIntensity(SymptomFlags.INTRUSIVE_THOUGHTS)),
-            new SymptomIcon("fragility", () -> flagIntensity(SymptomFlags.FRAGILITY)),
-            new SymptomIcon("blur", () -> effectIntensity(EffectType.BLUR)),
-            new SymptomIcon("vomit", () -> Math.max(effectIntensity(EffectType.VOMIT), effectIntensity(EffectType.CUSTOM_NAUSEA))),
-            new SymptomIcon("tremor", () -> effectIntensity(EffectType.TREMOR)),
-            new SymptomIcon("stumble", () -> effectIntensity(EffectType.STUMBLE)),
-            new SymptomIcon("input_fail", () -> effectIntensity(EffectType.INPUT_FAIL)),
-            new SymptomIcon("camera_sway", () -> effectIntensity(EffectType.CAMERA_SWAY)),
-            new SymptomIcon("heartbeat", () -> Math.max(effectIntensity(EffectType.HEARTBEAT), heartbeatIntensity())),
-            new SymptomIcon("overdose", AddictionHudRenderer::overdoseIntensity),
-            new SymptomIcon("dose", AddictionHudRenderer::doseIntensity)
-    };
 
     private AddictionHudRenderer() {
     }
@@ -69,7 +43,7 @@ public final class AddictionHudRenderer {
     private static void drawWithdrawalBar(GuiGraphics graphics, int width, int height) {
         float target = Mth.clamp(Math.max(AddictionClientState.globalSeverity, AddictionClientState.badTripSeverity), 0.0F, 1.0F);
         displayedWithdrawal += (target - displayedWithdrawal) * 0.18F;
-        if (displayedWithdrawal < MIN_VISIBLE && target < MIN_VISIBLE) {
+        if (displayedWithdrawal < HudSymptomIcons.MIN_VISIBLE && target < HudSymptomIcons.MIN_VISIBLE) {
             displayedWithdrawal = 0.0F;
             return;
         }
@@ -111,8 +85,8 @@ public final class AddictionHudRenderer {
 
     private static void drawSymptomColumn(GuiGraphics graphics, int width, int height) {
         int activeCount = 0;
-        for (SymptomIcon icon : SYMPTOM_ICONS) {
-            if (icon.intensity() > MIN_VISIBLE) {
+        for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
+            if (icon.intensity() > HudSymptomIcons.MIN_VISIBLE) {
                 activeCount++;
             }
         }
@@ -123,9 +97,9 @@ public final class AddictionHudRenderer {
         int columnHeight = activeCount * SYMPTOM_ICON_SIZE + (activeCount - 1) * SYMPTOM_ICON_GAP;
         int x = 7;
         int y = Mth.clamp(height / 2 - columnHeight / 2, 8, Math.max(8, height - columnHeight - 8));
-        for (SymptomIcon icon : SYMPTOM_ICONS) {
+        for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
             float intensity = Mth.clamp(icon.intensity(), 0.0F, 1.0F);
-            if (intensity <= MIN_VISIBLE) {
+            if (intensity <= HudSymptomIcons.MIN_VISIBLE) {
                 continue;
             }
             drawSymptomIcon(graphics, icon.texture(), x, y, intensity);
@@ -176,64 +150,5 @@ public final class AddictionHudRenderer {
         ItemStack stack = new ItemStack(ModItems.GLASS_BOTTLE.get());
         GlassBottleItem.setContent(stack, ModFluids.rl("raw_alcohol"), GlassBottleItem.CAPACITY_MB);
         return stack;
-    }
-
-    private static float flagIntensity(int flag) {
-        if (AddictionClientState.badTripActive && (
-                flag == SymptomFlags.HALLUCINATION
-                        || flag == SymptomFlags.VISION
-                        || flag == SymptomFlags.CONFUSION
-                        || flag == SymptomFlags.INTRUSIVE_THOUGHTS
-                        || flag == SymptomFlags.DISSOCIATION
-                        || flag == SymptomFlags.STRESS)) {
-            return Mth.clamp(Math.max(0.35F, AddictionClientState.badTripSeverity), 0.0F, 1.0F);
-        }
-        return AddictionClientState.has(flag) ? Mth.clamp(AddictionClientState.globalSeverity, 0.25F, 1.0F) : 0.0F;
-    }
-
-    private static float effectIntensity(EffectType type) {
-        return Mth.clamp(AddictionClientState.getEffectIntensity(type), 0.0F, 1.0F);
-    }
-
-    private static float insomniaIntensity() {
-        if (AddictionClientState.hasInsomnia()) {
-            return Mth.clamp(AddictionClientState.globalSeverity, 0.25F, 1.0F);
-        }
-        return 0.0F;
-    }
-
-    private static float heartbeatIntensity() {
-        if (AddictionClientState.badTripActive) {
-            return Mth.clamp(Math.max(0.35F, AddictionClientState.badTripSeverity), 0.0F, 1.0F);
-        }
-        return AddictionClientState.has(SymptomFlags.STRESS) ? Mth.clamp(AddictionClientState.stressLevel, 0.3F, 1.0F) : 0.0F;
-    }
-
-    private static float overdoseIntensity() {
-        return AddictionClientState.hasOverdoseTimer() ? 1.0F : 0.0F;
-    }
-
-    private static float doseIntensity() {
-        DoseState state = AddictionClientState.getDominantDoseState();
-        return switch (state) {
-            case NORMAL -> 0.0F;
-            case HIGH, DRUNK -> 0.45F;
-            case VERY_HIGH, VERY_DRUNK -> 0.75F;
-            case OVERDOSE, ETHYLIC_COMA -> 1.0F;
-        };
-    }
-
-    private record SymptomIcon(String name, IntensityProvider provider) {
-        private ResourceLocation texture() {
-            return ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "textures/gui/symptoms/" + name + ".png");
-        }
-
-        private float intensity() {
-            return provider.get();
-        }
-    }
-
-    private interface IntensityProvider {
-        float get();
     }
 }
