@@ -16,6 +16,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.client.render.HudSymptomIcons;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.effects.addiction.diary.DiaryDrugStatDto;
@@ -385,7 +387,7 @@ public final class PersonalDiaryScreen extends Screen {
             lines.add(DiaryLine.text("Dose: " + prettyDose(s.doseState())));
         }
         if (s.badTripActive()) {
-            lines.add(DiaryLine.text(String.format("Bad trip: active, %d%%", Math.round(s.badTripSeverity() * 100.0F))));
+            lines.add(DiaryLine.text(String.format(Locale.ROOT, "Bad trip: active, %d%%", Math.round(s.badTripSeverity() * 100.0F))));
         }
         if (s.overdoseTimerTicks() > 0) {
             lines.add(DiaryLine.text("Overdose danger: " + ((s.overdoseTimerTicks() + 19) / 20) + "s"));
@@ -394,37 +396,7 @@ public final class PersonalDiaryScreen extends Screen {
             lines.add(DiaryLine.text("Sleep refuses me right now."));
         }
 
-        // Section: live HUD symptom column (every effect the left HUD shows, with %)
-        boolean anyHudEffect = false;
-        for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
-            if (icon.intensity() > HudSymptomIcons.MIN_VISIBLE) { anyHudEffect = true; break; }
-        }
-        if (anyHudEffect) {
-            lines.add(DiaryLine.spacer());
-            lines.add(DiaryLine.heading("What I feel right now"));
-            for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
-                float intensity = icon.intensity();
-                if (intensity <= HudSymptomIcons.MIN_VISIBLE) continue;
-                int pct = Math.round(Math.min(1.0F, intensity) * 100.0F);
-                lines.add(DiaryLine.withSymptomMeter(icon.texture(), icon.label(), intensity, pct + "%"));
-            }
-        }
-
-        // Section: supports
-        if (s.recoveryFlags() != 0) {
-            lines.add(DiaryLine.spacer());
-            lines.add(DiaryLine.heading("Helping me right now"));
-            if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_DIARY) != 0)
-                lines.add(DiaryLine.text("- Diary calm"));
-            if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_HEADPHONES) != 0)
-                lines.add(DiaryLine.text("- Headphones"));
-            if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE) != 0)
-                lines.add(DiaryLine.text("- Calming mixture"));
-            if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS) != 0)
-                lines.add(DiaryLine.text("- Sleep bonus"));
-            if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE) != 0)
-                lines.add(DiaryLine.text("- Safe zone"));
-        }
+        appendFeelingReasonSections(lines, s);
 
         return new BasicPage(Component.translatable("screen.mydrugs.diary.how_i_feel_today"), lines);
     }
@@ -535,6 +507,168 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     // ----------------------- Helpers (formatting) -----------------------
+    private void appendFeelingReasonSections(List<DiaryLine> lines, DiaryPlayerStateDto s) {
+        List<DiaryLine> good = new ArrayList<>();
+        List<DiaryLine> bad = new ArrayList<>();
+
+        appendRecoveryGoodReasons(good, s);
+        appendGoodDrugEffectReasons(good);
+        appendBadStateReasons(bad, s);
+        appendBadDrugEffectReasons(bad);
+        appendHudSymptomReasons(bad);
+
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading("Why I feel good"));
+        if (good.isEmpty()) {
+            lines.add(DiaryLine.text("- No clear positive effect is active."));
+        } else {
+            lines.addAll(good);
+        }
+
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading("Why I feel bad"));
+        if (bad.isEmpty()) {
+            lines.add(DiaryLine.text("- No clear negative effect is active."));
+        } else {
+            lines.addAll(bad);
+        }
+    }
+
+    private void appendRecoveryGoodReasons(List<DiaryLine> good, DiaryPlayerStateDto s) {
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_DIARY) != 0) {
+            addWrappedReason(good, "Diary calm: writing things down is helping me stabilize.");
+        }
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_HEADPHONES) != 0) {
+            addWrappedReason(good, "Headphones: sound is keeping the pressure lower.");
+        }
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE) != 0) {
+            addWrappedReason(good, "Calming mixture: my body is settling down.");
+        }
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS) != 0) {
+            addWrappedReason(good, "Sleep bonus: rest is still protecting me.");
+        }
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE) != 0) {
+            addWrappedReason(good, "Safe zone: this place makes recovery easier.");
+        }
+    }
+
+    private void appendGoodDrugEffectReasons(List<DiaryLine> good) {
+        addGoodEffect(good, EffectType.MINING_SPEED, "Mining speed", "blocks break faster");
+        addGoodEffect(good, EffectType.MOVEMENT_SPEED, "Movement speed", "I move faster");
+        addGoodEffect(good, EffectType.DAMAGE_RESISTANCE, "Damage resistance", "incoming damage hurts less");
+        addGoodEffect(good, EffectType.ATTACK_DAMAGE, "Attack damage", "hits land harder");
+        addGoodEffect(good, EffectType.ATTACK_SPEED, "Attack speed", "I swing faster");
+        addGoodEffect(good, EffectType.MANUAL_WORK_SPEED, "Manual work speed", "tasks feel quicker");
+        addGoodEffect(good, EffectType.PRECISION, "Precision", "my hands feel steadier and mining improves");
+        addGoodEffect(good, EffectType.TREMOR_REDUCTION, "Tremor reduction", "my hands shake less");
+        addGoodEffect(good, EffectType.RITUAL_FOCUS, "Ritual focus", "rituals are easier to follow");
+        addGoodEffect(good, EffectType.RITUAL_STABILITY, "Ritual stability", "rituals feel less unstable");
+        addGoodEffect(good, EffectType.MOB_DETECTION_REDUCTION, "Mob detection reduction", "danger notices me less");
+        addGoodEffect(good, EffectType.ADRENALINE_SURGE, "Adrenaline surge", "I get a burst of energy");
+        addGoodEffect(good, EffectType.FOCUS, "Focus", "my mind locks onto the task");
+        addGoodEffect(good, EffectType.GAMMA_BOOST, "Better vision", "dark places are easier to read");
+        addGoodEffect(good, EffectType.LOW_LIGHT_VISION, "Low-light vision", "dark places are easier to read");
+        addGoodEffect(good, EffectType.BRIGHTNESS_BOOST, "Brightness boost", "the world looks clearer");
+        addGoodEffect(good, EffectType.STRESS_RELIEF, "Stress relief", "the pressure is draining away");
+        addGoodEffect(good, EffectType.STRESS_RESISTANCE, "Stress resistance", "stress has less grip on me");
+        addGoodEffect(good, EffectType.BAD_TRIP_RESISTANCE, "Bad trip resistance", "panic has less room to grow");
+        addGoodEffect(good, EffectType.FALL_CONTROL, "Fall control", "falling feels less dangerous");
+        addGoodEffect(good, EffectType.DASH_POWER, "Dash power", "I can push forward harder");
+        addGoodEffect(good, EffectType.BURST_WINDOW, "Burst window", "quick reactions are stronger");
+        addGoodEffect(good, EffectType.ORE_AURA, "Ore aura", "valuable blocks stand out");
+        addGoodEffect(good, EffectType.MULTIBLOCK_VISION, "Multiblock vision", "structures are easier to understand");
+    }
+
+    private void appendBadStateReasons(List<DiaryLine> bad, DiaryPlayerStateDto s) {
+        if (s.globalSeverity() > 0.15F) {
+            addWrappedReason(bad, "Withdrawal: " + formatPercent(s.globalSeverity()) + " - the lack is still pulling at me.");
+        }
+        if (s.badTripActive()) {
+            addWrappedReason(bad, "Bad trip: " + formatPercent(s.badTripSeverity()) + " - my thoughts are turning against me.");
+        }
+        if (s.overdoseTimerTicks() > 0) {
+            addWrappedReason(bad, "Overdose danger: " + ((s.overdoseTimerTicks() + 19) / 20) + "s left.");
+        }
+        if (s.sleepBlocked()) {
+            addWrappedReason(bad, "Insomnia: I cannot sleep even when I need to.");
+        }
+        if (!s.doseState().isEmpty() && !"NORMAL".equals(s.doseState())) {
+            addWrappedReason(bad, "Dose load: " + prettyDose(s.doseState()) + " - my body is carrying too much.");
+        }
+    }
+
+    private void appendBadDrugEffectReasons(List<DiaryLine> bad) {
+        // Most short-term bad body/camera/input effects are already surfaced by HudSymptomIcons.
+        // Keep this section for negative EffectType values that the HUD list does not explain directly.
+        addBadEffect(bad, EffectType.MOVEMENT_SLOWDOWN, "Movement slowdown", "my body feels heavy");
+        addBadEffect(bad, EffectType.FOG, "Fog", "the world feels covered and distant");
+        addBadEffect(bad, EffectType.DRUNK_VISION, "Drunk vision", "my sight is unstable");
+        addBadEffect(bad, EffectType.ACID_WARP, "Acid warp", "space bends around me");
+        addBadEffect(bad, EffectType.CHROMATIC_DREAM, "Chromatic dream", "colors refuse to stay normal");
+        addBadEffect(bad, EffectType.IRIDESCENT_HAZE, "Iridescent haze", "everything is too bright and strange");
+        addBadEffect(bad, EffectType.LUCID_DREAM, "Lucid dream", "reality feels thin");
+        addBadEffect(bad, EffectType.MELT_REALITY, "Melt reality", "the world feels like it is melting");
+        addBadEffect(bad, EffectType.VELVET_ECHO, "Velvet echo", "sensations keep echoing");
+        addBadEffect(bad, EffectType.EVENT_HORIZON, "Event horizon", "space feels like it is pulling me in");
+        addBadEffect(bad, EffectType.NEON_CELLS, "Neon cells", "vision breaks into patterns");
+        addBadEffect(bad, EffectType.OPAL_WAVE, "Opal wave", "waves move through my sight");
+        addBadEffect(bad, EffectType.QUANTUM_FLOWER, "Quantum flower", "patterns bloom everywhere");
+        addBadEffect(bad, EffectType.COSMIC_TUNNEL, "Cosmic tunnel", "the world tunnels inward");
+        addBadEffect(bad, EffectType.FRACTAL_WARP, "Fractal warp", "reality repeats itself");
+        addBadEffect(bad, EffectType.LIQUID_CHROMA, "Liquid chroma", "colors flow too much");
+        addBadEffect(bad, EffectType.MELTING_REALITY, "Melting reality", "solid things stop feeling solid");
+        addBadEffect(bad, EffectType.AURORA_RIBBONS, "Aurora ribbons", "light keeps dragging across my eyes");
+        addBadEffect(bad, EffectType.SPECTRAL_POSTER, "Spectral poster", "the world looks unreal");
+
+        float hpDecrease = effectIntensity(EffectType.HP_DECREASE);
+        if (isVisibleEffect(hpDecrease)) {
+            addWrappedReason(bad, "Body fragility: max health is lower by " + formatOneDecimal(hpDecrease) + " hearts.");
+        }
+    }
+
+    private void appendHudSymptomReasons(List<DiaryLine> bad) {
+        for (HudSymptomIcons.HudSymptomIcon icon : HudSymptomIcons.LIST) {
+            float intensity = icon.intensity();
+            if (intensity <= HudSymptomIcons.MIN_VISIBLE) continue;
+            addWrappedReason(bad, icon.label() + ": " + formatPercent(Math.min(1.0F, intensity)) + ".");
+        }
+    }
+
+    private void addGoodEffect(List<DiaryLine> target, EffectType type, String label, String explanation) {
+        float intensity = effectIntensity(type);
+        if (!isVisibleEffect(intensity)) return;
+        addWrappedReason(target, label + ": " + formatSignedPercent(intensity) + " - " + explanation + ".");
+    }
+
+    private void addBadEffect(List<DiaryLine> target, EffectType type, String label, String explanation) {
+        float intensity = effectIntensity(type);
+        if (!isVisibleEffect(intensity)) return;
+        addWrappedReason(target, label + ": " + formatPercent(Math.min(1.0F, intensity)) + " - " + explanation + ".");
+    }
+
+    private float effectIntensity(EffectType type) {
+        return AddictionClientState.getEffectIntensity(type);
+    }
+
+    private boolean isVisibleEffect(float intensity) {
+        return intensity > 0.015F;
+    }
+
+    private void addWrappedReason(List<DiaryLine> target, String text) {
+        target.addAll(wrapToLines("- " + text));
+    }
+
+    private String formatSignedPercent(float value) {
+        return "+" + Math.round(value * 100.0F) + "%";
+    }
+
+    private String formatPercent(float value) {
+        return Math.round(value * 100.0F) + "%";
+    }
+
+    private String formatOneDecimal(float value) {
+        return String.format(Locale.ROOT, "%.1f", value);
+    }
 
     private String stressLine(float stress) {
         int pct = Math.round(stress * 100.0F);

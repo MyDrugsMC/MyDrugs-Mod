@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.effects.addiction.client.diary;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.registries.DeferredItem;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.items.ModItems;
 
@@ -17,7 +18,7 @@ public final class DrugIconHelper {
         if (id == null) return ItemStack.EMPTY;
         return switch (id) {
             case WEED -> safeStack(ModItems.CANNABIS_POWDER);
-            case HASH -> safeStack(ModItems.CANNABIS_POWDER);
+            case HASH -> safeStack(ModItems.HASH_PIECE);
             case TOBACCO -> safeStack(ModItems.TOBACCO_LEAF);
             case COFFEE -> new ItemStack(Items.COCOA_BEANS);
             case ALCOHOL -> new ItemStack(Items.POTION);
@@ -30,7 +31,7 @@ public final class DrugIconHelper {
         };
     }
 
-    private static ItemStack safeStack(net.neoforged.neoforge.registries.DeferredItem<?> holder) {
+    private static ItemStack safeStack(DeferredItem<?> holder) {
         try {
             return new ItemStack(holder.get());
         } catch (Throwable ignored) {
