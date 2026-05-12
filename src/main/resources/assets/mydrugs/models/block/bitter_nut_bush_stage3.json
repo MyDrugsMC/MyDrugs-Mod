@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": { "cross": "mydrugs:block/bitter_nut_bush_stage3" }
+}

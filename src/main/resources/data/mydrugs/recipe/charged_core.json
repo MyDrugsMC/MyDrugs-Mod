@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CLC",
+    "CRC"
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "L": "mydrugs:lightning_bottle",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "mydrugs:charged_core",
+    "count": 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mydrugs:glass_bottle",
+    "mydrugs:copper_nugget"
+  ],
+  "result": {
+    "id": "mydrugs:thunder_bottle",
+    "count": 1
+  }
+}
