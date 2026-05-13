@@ -139,7 +139,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCrossCrop(futures, cachedOutput, "aloe_vera_crop", "aloe_vera_stage", "minecraft:block/small_dripleaf_top");
         saveCrossCrop(futures, cachedOutput, "coca_crop", "coca_stage");
         saveTallCrop(futures, cachedOutput, "malt_crop", "malt_stage", 4);
-        saveCrop(futures, cachedOutput, "rye_crop", "rye_stage");
+        saveTallCrop(futures, cachedOutput, "rye_crop", "rye_stage", 4);
         saveCrop(futures, cachedOutput, "tobacco_crop", "tobacco_stage");
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));

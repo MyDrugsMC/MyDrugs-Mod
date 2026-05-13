@@ -9,6 +9,15 @@
     {
       "rolls": 1.0,
       "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "mydrugs:rye_crop",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ],
       "entries": [
         {
           "type": "minecraft:alternatives",
@@ -20,7 +29,8 @@
                   "condition": "minecraft:block_state_property",
                   "block": "mydrugs:rye_crop",
                   "properties": {
-                    "age": "7"
+                    "age": "7",
+                    "half": "lower"
                   }
                 }
               ],
@@ -59,7 +69,8 @@
           "condition": "minecraft:block_state_property",
           "block": "mydrugs:rye_crop",
           "properties": {
-            "age": "7"
+            "age": "7",
+            "half": "lower"
           }
         }
       ],
@@ -85,7 +96,8 @@
           "condition": "minecraft:block_state_property",
           "block": "mydrugs:rye_crop",
           "properties": {
-            "age": "7"
+            "age": "7",
+            "half": "lower"
           }
         },
         {
