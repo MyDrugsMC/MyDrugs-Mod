@@ -62,12 +62,14 @@ public class StompCrafterBlock extends BaseEntityBlock {
             return InteractionResult.FAIL;
         }
 
+        ItemStack inserted = stack.copyWithCount(1);
+
         // Server performs the real mutation.
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
 
-        crafter.insertAcceptedItem(stack.copyWithCount(1));
+        crafter.insertAcceptedItem(inserted);
 
         level.playSound(null, pos, SoundEvents.STONE_HIT, SoundSource.BLOCKS, 0.8F, 1.1F);
         return InteractionResult.SUCCESS;
