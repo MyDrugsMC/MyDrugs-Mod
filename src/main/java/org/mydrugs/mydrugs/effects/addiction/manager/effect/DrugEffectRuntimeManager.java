@@ -141,7 +141,8 @@ public final class DrugEffectRuntimeManager {
     }
 
     public static float getMiningSpeedMultiplier(float haste, float precision, float adrenaline) {
-        return Math.min(10.0F, 1.0F + Math.max(0.0F, haste + precision * 0.55F + adrenaline * 0.65F));
+        float bonus = Math.max(0.0F, haste) + Math.max(0.0F, precision) * 0.20F + Math.max(0.0F, adrenaline) * 0.45F;
+        return Math.min(4.0F, Math.max(1.0F, 1.0F + bonus));
     }
 
     public static float getDamageResistance(ServerPlayer player) {
@@ -238,7 +239,7 @@ public final class DrugEffectRuntimeManager {
             if (instance != null) {
                 instance.addOrUpdateTransientModifier(new AttributeModifier(
                         MINING_MODIFIER_ID,
-                        multiplier,
+                        multiplier - 1.0F,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                 ));
             }

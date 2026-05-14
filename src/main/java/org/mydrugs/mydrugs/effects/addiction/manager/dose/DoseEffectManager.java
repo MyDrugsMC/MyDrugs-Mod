@@ -55,7 +55,7 @@ public final class DoseEffectManager {
     }
 
     private static void caffeine(ServerPlayer player, DoseState state, float i) {
-        add(player, EffectType.MINING_SPEED, 0.04F + i * 0.08F);
+        add(player, EffectType.MINING_SPEED, 0.02F + i * 0.04F);
         add(player, EffectType.MOVEMENT_SPEED, 0.02F + i * 0.05F);
         if (atLeast(state, DoseState.VERY_HIGH)) {
             add(player, EffectType.HEARTBEAT, 0.25F + i * 0.55F);
@@ -73,7 +73,7 @@ public final class DoseEffectManager {
 
     private static void stimulant(ServerPlayer player, DoseState state, float i) {
         add(player, EffectType.MOVEMENT_SPEED, 0.05F + i * 0.18F);
-        add(player, EffectType.MINING_SPEED, 0.08F + i * 0.22F);
+        add(player, EffectType.MINING_SPEED, 0.04F + i * 0.10F);
         add(player, EffectType.HEARTBEAT, i * 0.55F);
         if (atLeast(state, DoseState.VERY_HIGH)) {
             add(player, EffectType.INPUT_FAIL, i * 0.22F);
@@ -154,7 +154,7 @@ public final class DoseEffectManager {
     }
 
     private static void nicotine(ServerPlayer player, DoseState state, float i) {
-        add(player, EffectType.MINING_SPEED, 0.02F + i * 0.05F);
+        add(player, EffectType.PRECISION, 0.08F + i * 0.18F);
         if (atLeast(state, DoseState.HIGH)) {
             add(player, EffectType.HEARTBEAT, i * 0.20F);
             add(player, EffectType.CUSTOM_NAUSEA, i * 0.12F);

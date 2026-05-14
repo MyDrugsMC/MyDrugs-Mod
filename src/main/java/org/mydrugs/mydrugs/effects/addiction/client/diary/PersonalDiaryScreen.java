@@ -576,6 +576,7 @@ public final class PersonalDiaryScreen extends Screen {
         addGoodEffect(good, EffectType.DASH_POWER, "Dash power", "I can push forward harder");
         addGoodEffect(good, EffectType.BURST_WINDOW, "Burst window", "quick reactions are stronger");
         addGoodEffect(good, EffectType.ORE_AURA, "Ore aura", "valuable blocks stand out");
+        addGoodEffect(good, EffectType.ORE_FORTUNE, "Ore fortune", "ores seem to fracture along richer seams");
         addGoodEffect(good, EffectType.MULTIBLOCK_VISION, "Multiblock vision", "structures are easier to understand");
     }
 

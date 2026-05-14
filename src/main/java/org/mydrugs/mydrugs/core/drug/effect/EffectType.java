@@ -66,6 +66,7 @@ public enum EffectType {
     DASH_POWER(EffectCategory.STAT_MODIFIER),
     BURST_WINDOW(EffectCategory.STAT_MODIFIER),
     ORE_AURA(EffectCategory.VISUAL),
+    ORE_FORTUNE(EffectCategory.MINING),
     MULTIBLOCK_VISION(EffectCategory.VISUAL);
 
     private final EffectCategory category;

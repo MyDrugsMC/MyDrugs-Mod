@@ -7,12 +7,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
 
 import java.util.Map;
@@ -31,13 +28,12 @@ public final class ServerDrugFormulaRegistry {
     public static boolean finishOrRequestName(ServerPlayer player, FormedPsyMixerCoreBlockEntity mixer, RitualDrugFormula formula) {
         MinecraftServer server = player.level().getServer();
         if (server == null) {
-            mixer.placeIntoOutput(createStack(MixedDrugData.pending(formula)));
+            mixer.placeIntoOutput(MixedDrugStackFactory.createPendingStack(formula));
             return true;
         }
-        DrugPatentSavedData patents = DrugPatentSavedData.get(server);
-        MixedDrugData existing = patents.bySignature(formula.canonicalSignature()).orElse(null);
-        if (existing != null) {
-            mixer.placeIntoOutput(createStack(existing));
+        FormulaOutput output = resolveOutput(server, formula);
+        if (!output.requiresNaming()) {
+            mixer.placeIntoOutput(output.stack());
             return true;
         }
 
@@ -45,6 +41,15 @@ public final class ServerDrugFormulaRegistry {
         PacketDistributor.sendToPlayer(player, new OpenDrugFormulaNamingPayload(MixedDrugData.pending(formula)));
         player.displayClientMessage(Component.translatable("message.mydrugs.formula.naming_required").withStyle(ChatFormatting.LIGHT_PURPLE), true);
         return false;
+    }
+
+    public static FormulaOutput resolveOutput(MinecraftServer server, RitualDrugFormula formula) {
+        DrugPatentSavedData patents = DrugPatentSavedData.get(server);
+        MixedDrugData existing = patents.bySignature(formula.canonicalSignature()).orElse(null);
+        if (existing != null) {
+            return new FormulaOutput(MixedDrugStackFactory.createStack(existing), false);
+        }
+        return new FormulaOutput(MixedDrugStackFactory.createPendingStack(formula), true);
     }
 
     public static void submitName(ServerPlayer player, String rawName) {
@@ -86,40 +91,24 @@ public final class ServerDrugFormulaRegistry {
         if (!(player.level() instanceof ServerLevel level)
                 || !(level.getBlockEntity(pending.mixerPos) instanceof FormedPsyMixerCoreBlockEntity mixer)
                 || !mixer.stillValid(player)) {
-            player.getInventory().placeItemBackInInventory(createStack(data));
+            player.getInventory().placeItemBackInInventory(MixedDrugStackFactory.createStack(data));
             return;
         }
         ItemStack output = mixer.getItem(PsyMixerMultiblock.SLOT_OUTPUT);
         if (!output.isEmpty()) {
-            player.getInventory().placeItemBackInInventory(createStack(data));
+            player.getInventory().placeItemBackInInventory(MixedDrugStackFactory.createStack(data));
             return;
         }
-        mixer.placeIntoOutput(createStack(data));
+        mixer.placeIntoOutput(MixedDrugStackFactory.createStack(data));
         player.displayClientMessage(Component.translatable("message.mydrugs.formula.patented", data.displayName()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
     }
 
-    public static ItemStack createStack(MixedDrugData data) {
-        ItemStack stack = new ItemStack(itemFor(data.baseDrug()));
-        stack.set(ModDataComponents.MIXED_DRUG_DATA.get(), data);
-        return stack;
-    }
-
-    private static Item itemFor(org.mydrugs.mydrugs.core.drug.DrugId baseDrug) {
-        return switch (baseDrug) {
-            case WEED -> ModItems.MIXED_WEED_DRUG.get();
-            case TOBACCO -> ModItems.MIXED_TOBACCO_DRUG.get();
-            case LSD -> ModItems.MIXED_LSD_DRUG.get();
-            case MUSHROOMS -> ModItems.MIXED_MUSHROOMS_DRUG.get();
-            case HASH -> ModItems.MIXED_HASH_DRUG.get();
-            case METH -> ModItems.MIXED_METH_DRUG.get();
-            case COCAINE -> ModItems.MIXED_COCAINE_DRUG.get();
-            case CRACK -> ModItems.MIXED_CRACK_DRUG.get();
-            case COFFEE -> ModItems.MIXED_COFFEE_DRUG.get();
-            case ALCOHOL -> ModItems.DEFIANT_SPIRIT_BOTTLE.get();
-            default -> ModItems.MIXED_DRUG.get();
-        };
-    }
-
     private record PendingFormula(BlockPos mixerPos, RitualDrugFormula formula) {
+    }
+
+    public record FormulaOutput(ItemStack stack, boolean requiresNaming) {
+        public FormulaOutput {
+            stack = stack.copy();
+        }
     }
 }

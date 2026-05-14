@@ -48,7 +48,7 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
         recipe.catalyst().ifPresent(ingredient -> addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y - RADIUS, ingredient));
         recipe.stabilizer().ifPresent(ingredient -> addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X + RADIUS, CENTER_Y, ingredient));
         recipe.vessel().ifPresent(ingredient -> addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y + RADIUS, ingredient));
-        addItemStack(builder, RecipeIngredientRole.OUTPUT, OUTPUT_X, CENTER_Y, recipe.result());
+        addItemStack(builder, RecipeIngredientRole.OUTPUT, OUTPUT_X, CENTER_Y, recipe.dynamicPreviewResult());
     }
 
     @Override

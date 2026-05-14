@@ -35,6 +35,7 @@ public final class ModDataGenerators {
         event.createProvider(ModFluidBlockStateProvider::new);
         event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModPsyAnvilRecipeProvider::new);
+        event.createProvider(ModPsyMixerRecipeProvider::new);
 
         PackOutput output = event.getGenerator().getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();

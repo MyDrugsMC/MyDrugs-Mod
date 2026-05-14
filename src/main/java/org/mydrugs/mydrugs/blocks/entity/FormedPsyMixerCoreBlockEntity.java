@@ -43,7 +43,7 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.core.drug.ritual.RitualIngredientEffectRegistry;
+import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugFormula;
 import org.mydrugs.mydrugs.core.drug.ritual.ServerDrugFormulaRegistry;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
@@ -261,10 +261,24 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             return false;
         }
 
-        ItemStack resultPreview = recipe.result();
-        if (!items.get(PsyMixerMultiblock.SLOT_OUTPUT).isEmpty()) {
-            ItemStack out = items.get(PsyMixerMultiblock.SLOT_OUTPUT);
-            if (!ItemStack.isSameItemSameComponents(out, resultPreview) || out.getCount() + resultPreview.getCount() > out.getMaxStackSize()) {
+        Optional<RitualDrugFormula> formula = recipe.buildFormula(buildInput());
+        if (formula.isEmpty()) {
+            sendRandomMessage(player, NO_RECIPE);
+            return false;
+        }
+
+        ServerDrugFormulaRegistry.FormulaOutput expectedOutput =
+                ServerDrugFormulaRegistry.resolveOutput(player.level().getServer(), formula.get());
+        ItemStack out = items.get(PsyMixerMultiblock.SLOT_OUTPUT);
+        if (expectedOutput.requiresNaming()) {
+            if (!out.isEmpty()) {
+                sendMessage(player, "message.mydrugs.psy_mixer.output_blocked");
+                return false;
+            }
+        } else if (!out.isEmpty()) {
+            ItemStack resultPreview = expectedOutput.stack();
+            if (!ItemStack.isSameItemSameComponents(out, resultPreview)
+                    || out.getCount() + resultPreview.getCount() > out.getMaxStackSize()) {
                 sendMessage(player, "message.mydrugs.psy_mixer.output_blocked");
                 return false;
             }
@@ -349,14 +363,13 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         boolean success = level.random.nextFloat() >= finalInstability;
 
         if (success) {
-            List<ItemStack> additionalIngredients = new ArrayList<>(4);
-            additionalIngredients.add(input.material());
-            if (!input.catalyst().isEmpty()) additionalIngredients.add(input.catalyst());
-            if (!input.stabilizer().isEmpty()) additionalIngredients.add(input.stabilizer());
-            if (!input.vessel().isEmpty()) additionalIngredients.add(input.vessel());
-            var formula = RitualIngredientEffectRegistry.buildFormula(input.base(), additionalIngredients);
+            Optional<RitualDrugFormula> formula = recipe.buildFormula(input);
+            if (formula.isEmpty()) {
+                cancelRitual();
+                return;
+            }
             consumeInputs(recipe, true);
-            boolean completedOutput = player == null || ServerDrugFormulaRegistry.finishOrRequestName(player, this, formula);
+            boolean completedOutput = player == null || ServerDrugFormulaRegistry.finishOrRequestName(player, this, formula.get());
 
             if (player != null) {
                 PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());

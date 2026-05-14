@@ -185,7 +185,7 @@ public final class ModCommands {
         source.sendSuccess(
                 () -> Component.literal(String.format(
                         Locale.ROOT,
-                        "Mining speed: mining_speed=%.2f precision=%.2f adrenaline=%.2f multiplier=x%.2f block_break_speed=%.2f",
+                        "Mining speed: mining_speed=%.2f precision=%.2f adrenaline=%.2f formula=1+mining+precision*0.20+adrenaline*0.45 multiplier=x%.2f block_break_speed=%.2f",
                         mining,
                         precision,
                         adrenaline,

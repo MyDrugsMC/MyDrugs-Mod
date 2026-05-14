@@ -795,6 +795,7 @@
   "effect_type.mydrugs.spectral_poster": "Spectral Poster",
   "effect_type.mydrugs.heartbeat": "Heartbeat",
   "effect_type.mydrugs.drunk_vision": "Drunk Vision",
+  "effect_type.mydrugs.ore_fortune": "Ore Fortune",
   "machine_status.mydrugs.idle": "Idle",
   "machine_status.mydrugs.running": "Running",
   "machine_status.mydrugs.missing_input_item": "Missing input item",

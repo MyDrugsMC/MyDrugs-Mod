@@ -5,6 +5,6 @@ public final class RitualDrugRegistry {
     }
 
     public static void registerDefaults() {
-        // Dynamic ritual drugs are stack data now. See RitualIngredientEffectRegistry.
+        // Dynamic ritual drugs are stack data now. Psy Mixer effects come from recipe JSON.
     }
 }
