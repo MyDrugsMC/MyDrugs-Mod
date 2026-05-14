@@ -28,11 +28,26 @@ import org.mydrugs.mydrugs.blocks.entity.MixingVatBlockEntity;
 public class MixingVatBlock extends BaseEntityBlock {
     public static final MapCodec<MixingVatBlock> CODEC = simpleCodec(MixingVatBlock::new);
     private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(1, 0, 1, 15, 3, 15),   // base
-            Block.box(1, 3, 1, 15, 16, 3),   // north wall
-            Block.box(1, 3, 13, 15, 16, 15), // south wall
-            Block.box(1, 3, 3, 3, 16, 13),   // west wall
-            Block.box(13, 3, 3, 15, 16, 13)  // east wall
+            // bottom
+            Block.box(0.0, 0.0, 0.0, 16.0, 1.0, 16.0),
+
+            // main walls
+            Block.box(2.0, 1.0, 2.0, 3.0, 14.0, 14.0),
+            Block.box(13.0, 1.0, 2.0, 14.0, 14.0, 14.0),
+            Block.box(3.0, 1.0, 2.0, 13.0, 14.0, 3.0),
+            Block.box(3.0, 1.0, 13.0, 13.0, 14.0, 14.0),
+
+            // lower metal bands
+            Block.box(1.5, 4.0, 2.0, 2.0, 5.0, 14.0),
+            Block.box(14.0, 4.0, 2.0, 14.5, 5.0, 14.0),
+            Block.box(2.0, 4.0, 1.5, 14.0, 5.0, 2.0),
+            Block.box(2.0, 4.0, 14.0, 14.0, 5.0, 14.5),
+
+            // upper metal bands
+            Block.box(1.5, 10.0, 2.0, 2.0, 11.0, 14.0),
+            Block.box(14.0, 10.0, 2.0, 14.5, 11.0, 14.0),
+            Block.box(2.0, 10.0, 1.5, 14.0, 11.0, 2.0),
+            Block.box(2.0, 10.0, 14.0, 14.0, 11.0, 14.5)
     );
 
     public MixingVatBlock(BlockBehaviour.Properties properties) {

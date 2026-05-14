@@ -55,7 +55,7 @@ public final class CentrifugeLayout {
     public static final int FUEL_BAR_INNER_Y_OFFSET = 2;
     public static final int FUEL_BAR_INNER_W = 8;
     public static final int FUEL_BAR_INNER_H = 20;
-    public static final int FUEL_SLOT_X = LayoutMath.centeredAt(CENTER_PANEL_X, CENTER_PANEL_W, StandardInventoryLayout.SLOT_SIZE);
+    public static final int FUEL_SLOT_X = LayoutMath.centeredAt(CENTER_PANEL_X, CENTER_PANEL_W, StandardInventoryLayout.SLOT_SIZE) + 1;
     public static final int INPUT_SLOT_X = INPUT_TANK_X;
     public static final int INPUT_SLOT_Y = INPUT_TANK_Y + TANK_H + 3;
 

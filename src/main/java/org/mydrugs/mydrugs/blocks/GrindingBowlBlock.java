@@ -29,8 +29,11 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipes;
 
 public class GrindingBowlBlock extends Block implements EntityBlock {
     private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(3, 0, 3, 13, 2, 13),   // base
-            Block.box(2, 0, 2, 14, 4, 14)    // outer bowl bounds
+            Block.box(6.25, 0.0, 6.25, 9.75, 0.75, 9.75),      // bottom core
+            Block.box(5.50, 0.75, 5.50, 10.50, 1.50, 10.50),   // lower bowl
+            Block.box(4.75, 1.50, 4.75, 11.25, 2.25, 11.25),   // middle bowl
+            Block.box(4.00, 2.25, 4.00, 12.00, 3.00, 12.00),   // upper bowl
+            Block.box(3.75, 3.00, 3.75, 12.25, 3.50, 12.25)    // rim
     );
 
     public GrindingBowlBlock(Properties properties) {
