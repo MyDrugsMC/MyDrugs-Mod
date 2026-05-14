@@ -4,6 +4,10 @@
     "mydrugs:malt_crop",
     "mydrugs:rye_crop",
     "mydrugs:cannabis_crop",
-    "mydrugs:coca_crop"
+    "mydrugs:coca_crop",
+    "mydrugs:tobacco_crop",
+    "mydrugs:coffee_crop",
+    "mydrugs:aloe_vera_crop",
+    "mydrugs:opium_poppy_crop"
   ]
 }

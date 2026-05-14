@@ -165,7 +165,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FormedPsyMixerCoreBlockEntity be) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         // Ambient: once per second (20 ticks), 0.5% chance to attempt a Third Eye Petal spawn near the altar.
-        if (serverLevel.getGameTime() % 20L == 0L && serverLevel.random.nextFloat() < 0.005F) {
+        if (serverLevel.getGameTime() % 20L == 0L && serverLevel.random.nextFloat() < 0.0005F) {
             tryAmbientThirdEyePetalSpawn(serverLevel, pos);
         }
         if (!be.running) return;
@@ -441,8 +441,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     }
 
     private static void tryAmbientThirdEyePetalSpawn(ServerLevel level, BlockPos origin) {
-        net.minecraft.world.level.block.Block petal = org.mydrugs.mydrugs.blocks.ModBlocks.THIRD_EYE_PETAL.get();
-        net.minecraft.world.level.block.state.BlockState petalState = petal.defaultBlockState();
+        Block petal = ModBlocks.THIRD_EYE_PETAL.get();
+        BlockState petalState = petal.defaultBlockState();
         for (int attempt = 0; attempt < 5; attempt++) {
             int dx = level.random.nextInt(11) - 5;
             int dz = level.random.nextInt(11) - 5;

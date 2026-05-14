@@ -153,6 +153,28 @@
               "function": "minecraft:explosion_decay"
             }
           ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mydrugs:aloe_vera_seeds",
+          "conditions": [
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:apply_bonus",
+              "enchantment": "minecraft:fortune",
+              "formula": "minecraft:uniform_bonus_count",
+              "parameters": {
+                "bonusMultiplier": 2
+              }
+            },
+            {
+              "function": "minecraft:explosion_decay"
+            }
+          ]
         }
       ]
     }

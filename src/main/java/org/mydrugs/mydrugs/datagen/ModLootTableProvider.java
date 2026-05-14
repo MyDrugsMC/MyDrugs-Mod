@@ -12,20 +12,30 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.blocks.crops.CannabisCropBlock;
+import org.mydrugs.mydrugs.blocks.crops.CoffeeCropBlock;
+import org.mydrugs.mydrugs.blocks.crops.MaltCropBlock;
 import org.mydrugs.mydrugs.blocks.crops.ModCrops;
+import org.mydrugs.mydrugs.blocks.crops.RyeCropBlock;
 import org.mydrugs.mydrugs.items.ModItems;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class ModLootTableProvider extends LootTableProvider {
     public ModLootTableProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
@@ -84,8 +94,14 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.MAGIC_MUSHROOM_STEM.get());
             dropSelf(ModBlocks.EVAPORATION_TRAY.get());
 
-            crop(ModCrops.ALOE_VERA_CROP.get(), ModItems.ALOE_VERA.get(), ModItems.ALOE_VERA.get());
+            crop(ModCrops.ALOE_VERA_CROP.get(), ModItems.ALOE_VERA.get(), ModCrops.ALOE_VERA_SEEDS.get());
+            crop(ModCrops.TOBACCO_CROP.get(), ModItems.TOBACCO_LEAF.get(), ModCrops.TOBACCO_SEEDS.get());
+            crop(ModCrops.COCA_CROP.get(), ModItems.COCA_LEAF.get(), ModCrops.COCA_SEEDS.get());
             crop(ModCrops.OPIUM_POPPY_CROP.get(), ModCrops.OPIUM_POPPY_SEEDS.get(), ModCrops.OPIUM_POPPY_SEEDS.get());
+            tallCrop(ModCrops.CANNABIS_CROP.get(), ModItems.CANNABIS_LEAF.get(), ModCrops.CANNABIS_SEEDS.get(), CannabisCropBlock.HALF);
+            tallCrop(ModCrops.COFFEE_CROP.get(), ModItems.COFFEE_CHERRIES.get(), ModCrops.COFFEE_SEEDS.get(), CoffeeCropBlock.HALF);
+            tallCrop(ModCrops.MALT_CROP.get(), ModItems.MALT.get(), ModCrops.MALT_SEEDS.get(), MaltCropBlock.HALF);
+            tallCrop(ModCrops.RYE_CROP.get(), ModItems.RYE.get(), ModCrops.RYE_SEEDS.get(), RyeCropBlock.HALF);
 
             add(ModBlocks.SALT_BLOCK.get(),
                     block -> oreDropWithCount(block, ModItems.SALT_POWDER.get(), 2.0F, 5.0F));
@@ -152,6 +168,45 @@ public class ModLootTableProvider extends LootTableProvider {
             ));
         }
 
+        private void tallCrop(Block block, Item crop, Item seeds, EnumProperty<DoubleBlockHalf> halfProperty) {
+            add(block, cropDrops(
+                    block,
+                    crop,
+                    seeds,
+                    () -> LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)),
+                    () -> LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(halfProperty, DoubleBlockHalf.LOWER))
+            ));
+        }
+
+        private LootTable.Builder cropDrops(
+                Block block,
+                ItemLike crop,
+                ItemLike seeds,
+                Supplier<LootItemCondition.Builder> matureCondition,
+                Supplier<LootItemCondition.Builder> lowerHalfCondition
+        ) {
+            var fortune = this.registries
+                    .lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.FORTUNE);
+
+            return applyExplosionDecay(block, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .add(AlternativesEntry.alternatives(
+                                    LootItem.lootTableItem(crop)
+                                            .when(lowerHalfCondition.get())
+                                            .when(matureCondition.get()),
+                                    LootItem.lootTableItem(seeds)
+                                            .when(lowerHalfCondition.get())
+                            )))
+                    .withPool(LootPool.lootPool()
+                            .add(LootItem.lootTableItem(seeds)
+                                    .when(lowerHalfCondition.get())
+                                    .when(matureCondition.get())
+                                    .apply(ApplyBonusCount.addBonusBinomialDistributionCount(fortune, 0.5714286F, 3)))));
+        }
+
         @Override
         protected Iterable<Block> getKnownBlocks() {
             return List.of(
@@ -196,7 +251,13 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.EVAPORATION_TRAY.get(),
 
                     ModCrops.ALOE_VERA_CROP.get(),
+                    ModCrops.TOBACCO_CROP.get(),
+                    ModCrops.COCA_CROP.get(),
                     ModCrops.OPIUM_POPPY_CROP.get(),
+                    ModCrops.CANNABIS_CROP.get(),
+                    ModCrops.COFFEE_CROP.get(),
+                    ModCrops.MALT_CROP.get(),
+                    ModCrops.RYE_CROP.get(),
 
                     ModBlocks.SALT_BLOCK.get(),
 

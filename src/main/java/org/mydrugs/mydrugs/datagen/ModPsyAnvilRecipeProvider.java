@@ -56,7 +56,7 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
         psyAnvil(futures, cachedOutput, "heavy_iron",
                 "mydrugs:fermented",
                 ingredients(
-                        ingredient("minecraft:iron_ingot", 4)
+                        ingredient("minecraft:iron_ingot", 2)
                 ),
                 "mydrugs:heavy_iron",
                 1

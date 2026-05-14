@@ -403,7 +403,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "A", "mydrugs:copper_plate"
                 ),
                 "mydrugs:copper_strapping",
-                2
+                8
         );
 
         shaped(futures, cachedOutput, "iron_axle",

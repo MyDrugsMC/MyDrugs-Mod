@@ -7,7 +7,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.mydrugs.mydrugs.items.ModItems;
 
 public class AloeVeraCropBlock extends CropBlock {
     public static final MapCodec<AloeVeraCropBlock> CODEC = simpleCodec(AloeVeraCropBlock::new);
@@ -33,6 +32,6 @@ public class AloeVeraCropBlock extends CropBlock {
 
     @Override
     protected ItemLike getBaseSeedId() {
-        return ModItems.ALOE_VERA.get();
+        return ModCrops.ALOE_VERA_SEEDS.get();
     }
 }

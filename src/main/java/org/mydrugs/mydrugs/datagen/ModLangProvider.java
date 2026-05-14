@@ -4,6 +4,7 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.blocks.crops.ModCrops;
 import org.mydrugs.mydrugs.fluids.FluidEntry;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.items.ModItems;
@@ -72,6 +73,7 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.CONTROL_CIRCUIT.get(), "Control Circuit");
         add(ModItems.ADVANCED_CONTROL_CIRCUIT.get(), "Advanced Control Circuit");
         add(ModItems.ALOE_VERA.get(), "Aloe Vera");
+        add(ModCrops.ALOE_VERA_SEEDS.get(), "Aloe Vera Seeds");
         add(ModItems.ELECTRIC_MOTOR.get(), "Electric Motor");
         add(ModItems.HEATING_COIL.get(), "Heating Coil");
         add(ModItems.CONDENSER_COIL.get(), "Condenser Coil");

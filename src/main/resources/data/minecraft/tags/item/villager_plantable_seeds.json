@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "mydrugs:malt_seeds",
-    "mydrugs:rye_seeds"
+    "mydrugs:rye_seeds",
+    "mydrugs:aloe_vera_seeds"
   ]
 }

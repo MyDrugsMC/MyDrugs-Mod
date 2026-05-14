@@ -153,7 +153,7 @@ public class ModItems {
             ITEMS.registerItem("tobacco_handful", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
 
     public static final DeferredItem<Item> ALOE_VERA =
-            ITEMS.registerItem("aloe_vera", prop -> new BlockItem(org.mydrugs.mydrugs.blocks.crops.ModCrops.ALOE_VERA_CROP.get(), prop));
+            ITEMS.registerSimpleItem("aloe_vera");
 
     public static final DeferredItem<Item> SOOTHING_TOBACCO_BLEND =
             ITEMS.registerItem("soothing_tobacco_blend", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
