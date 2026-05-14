@@ -33,6 +33,13 @@ public final class HeadphonesMusicController {
         return enabled;
     }
 
+    public static void clear() {
+        enabled = false;
+        trackNonce = 0;
+        appliedNonce = Integer.MIN_VALUE;
+        stopCustom(Minecraft.getInstance());
+    }
+
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) {

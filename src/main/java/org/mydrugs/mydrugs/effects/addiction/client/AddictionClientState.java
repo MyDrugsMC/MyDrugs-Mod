@@ -39,6 +39,26 @@ public final class AddictionClientState {
     private AddictionClientState() {
     }
 
+    public static void clear() {
+        globalSeverity = 0.0F;
+        stressLevel = 0.0F;
+        dominantDrugId = "";
+        dominantCategory = "OTHER";
+        symptomFlags = 0;
+        insomniaTicksRemaining = 0;
+        recoveryFlags = 0;
+        overdoseTicksRemaining = 0;
+        badTripActive = false;
+        badTripThreshold = 0.0F;
+        badTripSeverity = 0.0F;
+        badTripTicksActive = 0;
+        badTripSourceDrug = "";
+        badTripSourceCategory = "OTHER";
+        badTripSymptomIntensity = 0.0F;
+        Arrays.fill(categoryDoses, 0.0F);
+        activeEffects.clear();
+    }
+
     public static void apply(AddictionClientSnapshotPayload payload) {
         globalSeverity = payload.globalSeverity();
         stressLevel = payload.stressLevel();

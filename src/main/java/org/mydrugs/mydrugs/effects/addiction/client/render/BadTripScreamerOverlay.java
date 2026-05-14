@@ -33,6 +33,12 @@ public final class BadTripScreamerOverlay {
         ticksRemaining = Math.max(ticksRemaining, duration);
     }
 
+    public static void clear() {
+        ticksRemaining = 0;
+        totalTicks = 0;
+        intensity = 0.0F;
+    }
+
     public static void tick() {
         if (ticksRemaining > 0) {
             ticksRemaining--;

@@ -56,6 +56,10 @@ public final class ClientSoundsHandler {
         TO_START.put(soundEvent, new PendingSound(durationTick, fadeTicksRemaining, fadeDurationTicks));
     }
 
+    public static void clear() {
+        stopAll(Minecraft.getInstance());
+    }
+
     private static void startPending(Minecraft mc) {
         if (TO_START.isEmpty()) {
             return;

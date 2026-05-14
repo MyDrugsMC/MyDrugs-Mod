@@ -16,6 +16,10 @@ public final class HeartbeatPulse {
         ticksSinceBeat++;
     }
 
+    public static void clear() {
+        ticksSinceBeat = 9999;
+    }
+
     // 0 -> strong kick -> quickly decays
     public static float getEnvelope() {
         float t = ticksSinceBeat / 20.0F; // seconds

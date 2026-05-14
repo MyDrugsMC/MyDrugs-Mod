@@ -43,6 +43,10 @@ public final class FakeEntityRenderController {
     private FakeEntityRenderController() {
     }
 
+    public static void clear() {
+        ACTIVE.clear();
+    }
+
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;

@@ -25,6 +25,12 @@ public final class VomitOverlayClientState {
         ticksRemaining = Math.max(ticksRemaining, totalTicks);
     }
 
+    public static void clear() {
+        ticksRemaining = 0;
+        totalTicks = 0;
+        intensity = 0.0F;
+    }
+
     public static void tick() {
         if (ticksRemaining > 0) {
             ticksRemaining--;

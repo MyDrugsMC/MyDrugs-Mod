@@ -5,6 +5,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
@@ -15,6 +16,8 @@ import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
 import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
 import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
 import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
+import org.mydrugs.mydrugs.client.shaders.ShaderManager;
+import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.effects.addiction.client.render.AddictionHudRenderer;
 import org.mydrugs.mydrugs.effects.addiction.client.render.FlexibleDrugVisualOverlay;
@@ -56,6 +59,27 @@ public final class ClientEventHandler {
     @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
     public static final class Game {
         private Game() {
+        }
+
+        @SubscribeEvent
+        public static void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+            clearWorldScopedState();
+        }
+
+        @SubscribeEvent
+        public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+            clearWorldScopedState();
+        }
+
+        private static void clearWorldScopedState() {
+            AddictionClientState.clear();
+            ShaderManager.INSTANCE.clearActive();
+            ClientSoundsHandler.clear();
+            HeadphonesMusicController.clear();
+            HeartbeatPulse.clear();
+            FakeEntityRenderController.clear();
+            VomitOverlayClientState.clear();
+            BadTripScreamerOverlay.clear();
         }
 
         @SubscribeEvent
