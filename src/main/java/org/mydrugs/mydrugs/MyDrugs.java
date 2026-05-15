@@ -19,7 +19,6 @@ import org.mydrugs.mydrugs.advancement.ModCriteriaTriggers;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.crops.ModCrops;
-import org.mydrugs.mydrugs.core.client.ClientState;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugRegistry;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseService;
@@ -47,7 +46,6 @@ public class MyDrugs {
     public static final String NETWORK_VERSION = "1";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final DrugUseService DRUG_USE_SERVICE = new DrugUseService();
-    public static final ClientState CLIENT_STATE = new ClientState();
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MyDrugs.MODID);

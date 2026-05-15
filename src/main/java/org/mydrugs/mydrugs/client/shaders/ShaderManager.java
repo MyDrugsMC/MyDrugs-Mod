@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.client.ClientStateHolder;
 import org.mydrugs.mydrugs.core.client.ClientState;
 import org.mydrugs.mydrugs.core.client.shader.ClientShaderManager;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
@@ -30,7 +31,7 @@ import java.util.Set;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
-    public static final ShaderManager INSTANCE = new ShaderManager(MyDrugs.CLIENT_STATE);
+    public static final ShaderManager INSTANCE = new ShaderManager(ClientStateHolder.get());
     private static final int DOSE_SUSTAIN_TICKS = 40;
     private boolean shadersRegistered = false;
 

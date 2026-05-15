@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.client.ClientStateHolder;
 import org.mydrugs.mydrugs.core.client.shader.Shader;
 
 import java.util.List;
@@ -118,7 +119,7 @@ public abstract class AnimatedShader extends Shader {
         try {
             renderInternal(mc);
         } catch (RuntimeException e) {
-            MyDrugs.CLIENT_STATE.setShader(null);
+            ClientStateHolder.get().setShader(null);
             MyDrugs.getLOGGER().error("Disabled shader '{}' after render failure", name, e);
         }
     }
