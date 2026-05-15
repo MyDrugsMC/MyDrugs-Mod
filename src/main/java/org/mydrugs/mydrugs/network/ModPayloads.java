@@ -1,6 +1,6 @@
 package org.mydrugs.mydrugs.network;
 
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -85,24 +85,22 @@ public final class ModPayloads {
     }
 
     private static void handleSieveShake(SieveShakePayload payload, IPayloadContext context) {
-        Player player = context.player();
-
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
+        }
         if (!(player.containerMenu instanceof SieveMenu menu)) {
             return;
         }
-
         if (menu.getMenuId() != payload.menuId()) {
             return;
         }
-
         if (!(menu.getMachineContainer() instanceof SieveBlockEntity sieve)) {
             return;
         }
-
         if (!menu.stillValid(player)) {
             return;
         }
-
-        sieve.addShakeImpulse(payload.impulse(), player);
+        float impulse = PayloadValidation.clampNonNegative(payload.impulse(), 4.0F);
+        sieve.addShakeImpulse(impulse, player);
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.menu.RollerMenu;
@@ -20,20 +21,19 @@ public record RollerDragPayload(int menuId, float amount) implements CustomPacke
     );
 
     public static void handleOnServer(RollerDragPayload payload, IPayloadContext context) {
-        var player = context.player();
-        if (player == null) {
+        if (!(context.player() instanceof ServerPlayer player)) {
             return;
         }
-
         if (!(player.containerMenu instanceof RollerMenu menu)) {
             return;
         }
-
         if (menu.getMenuId() != payload.menuId()) {
             return;
         }
-
-        float clamped = Math.max(0.0F, Math.min(payload.amount(), 6.0F));
+        if (!menu.stillValid(player)) {
+            return;
+        }
+        float clamped = PayloadValidation.clampNonNegative(payload.amount(), 6.0F);
         menu.addRollProgress(clamped);
     }
 

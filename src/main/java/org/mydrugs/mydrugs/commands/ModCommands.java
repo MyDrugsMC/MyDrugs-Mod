@@ -36,7 +36,7 @@ public final class ModCommands {
         event.getDispatcher().register(
                 Commands.literal("mydrugs")
                         .then(Commands.literal("shader")
-                                .requires(source -> source.getEntity() instanceof ServerPlayer player && player.isCreative())
+                                .requires(source -> source.hasPermission(2) && source.getEntity() instanceof ServerPlayer)
                                 .then(Commands.argument("name", StringArgumentType.word())
                                         .suggests((context, builder) -> suggestShaderNames(builder))
                                         .executes(context -> {
@@ -66,7 +66,7 @@ public final class ModCommands {
                                 )
                         )
                         .then(Commands.literal("addiction_debug")
-                                .requires(source -> source.getEntity() instanceof ServerPlayer player && player.isCreative())
+                                .requires(source -> source.hasPermission(2) && source.getEntity() instanceof ServerPlayer)
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     PacketDistributor.sendToPlayer(player, AddictionDebugOpenPayload.from(player));

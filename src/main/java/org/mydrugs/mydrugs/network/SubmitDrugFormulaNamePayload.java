@@ -20,10 +20,18 @@ public record SubmitDrugFormulaNamePayload(String name) implements CustomPacketP
                     SubmitDrugFormulaNamePayload::new
             );
 
+    /** Hard cap so malicious clients cannot stuff arbitrarily long strings into server state. */
+    private static final int MAX_NAME_BYTES = 128;
+
     public static void handleOnServer(SubmitDrugFormulaNamePayload payload, IPayloadContext context) {
-        if (context.player() instanceof ServerPlayer player) {
-            ServerDrugFormulaRegistry.submitName(player, payload.name());
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
         }
+        String name = payload.name();
+        if (name == null || name.length() > MAX_NAME_BYTES) {
+            return;
+        }
+        ServerDrugFormulaRegistry.submitName(player, name);
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.menu.ManualCoffeePulperMenu;
@@ -19,10 +20,11 @@ public record CoffeePulperDragPayload(int menuId, float amount) implements Custo
     );
 
     public static void handleOnServer(CoffeePulperDragPayload payload, IPayloadContext context) {
-        var player = context.player();
-        if (player == null || !(player.containerMenu instanceof ManualCoffeePulperMenu menu)) return;
+        if (!(context.player() instanceof ServerPlayer player)) return;
+        if (!(player.containerMenu instanceof ManualCoffeePulperMenu menu)) return;
         if (menu.getMenuId() != payload.menuId()) return;
-        menu.addPulperWork(player, Math.max(0.0F, Math.min(payload.amount(), 8.0F)));
+        if (!menu.stillValid(player)) return;
+        menu.addPulperWork(player, PayloadValidation.clampNonNegative(payload.amount(), 8.0F));
     }
 
     @Override

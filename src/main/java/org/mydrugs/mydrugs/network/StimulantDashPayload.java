@@ -30,6 +30,12 @@ public record StimulantDashPayload(float forward, float strafe) implements Custo
         if (!(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        StimulantDashManager.tryDash(player, payload.forward(), payload.strafe());
+        if (!PayloadValidation.isFinite(payload.forward()) || !PayloadValidation.isFinite(payload.strafe())) {
+            return;
+        }
+        // Vanilla Player.zza/xxa are normalised to [-1, 1]; clamp for safety.
+        float forward = PayloadValidation.clamp(payload.forward(), -1.0F, 1.0F);
+        float strafe = PayloadValidation.clamp(payload.strafe(), -1.0F, 1.0F);
+        StimulantDashManager.tryDash(player, forward, strafe);
     }
 }

@@ -67,6 +67,7 @@ public class Config {
         public final ModConfigSpec.DoubleValue overdoseThresholdMultiplier;
         public final ModConfigSpec.DoubleValue safeZoneRecoveryMultiplier;
         public final ModConfigSpec.DoubleValue therapyCooldownMultiplier;
+        public final ModConfigSpec.BooleanValue allowDebugActionPayloads;
 
         private Server(ModConfigSpec.Builder builder) {
             builder.push("gameplay");
@@ -80,6 +81,12 @@ public class Config {
             overdoseThresholdMultiplier = builder.defineInRange("overdoseThresholdMultiplier", 1.0D, 0.1D, 100.0D);
             safeZoneRecoveryMultiplier = builder.defineInRange("safeZoneRecoveryMultiplier", 1.0D, 0.0D, 100.0D);
             therapyCooldownMultiplier = builder.defineInRange("therapyCooldownMultiplier", 1.0D, 0.0D, 100.0D);
+            builder.pop();
+
+            builder.push("admin");
+            allowDebugActionPayloads = builder
+                    .comment("Allow privileged players (permission level >= 2) to send debug action payloads that mutate addiction stats. Default false — keep disabled on public servers.")
+                    .define("allowDebugActionPayloads", false);
             builder.pop();
         }
     }

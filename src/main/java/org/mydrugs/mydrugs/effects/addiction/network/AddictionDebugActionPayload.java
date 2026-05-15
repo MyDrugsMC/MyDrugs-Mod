@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
@@ -28,7 +29,12 @@ public record AddictionDebugActionPayload(int action, boolean value) implements 
             );
 
     public static void handleOnServer(AddictionDebugActionPayload payload, IPayloadContext context) {
-        if (!(context.player() instanceof ServerPlayer player) || !player.isCreative()) {
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
+        }
+        // Debug mutation: require permission level 2 (op) AND a server config opt-in.
+        // Creative mode alone is not authorization on a server you do not own.
+        if (!Config.SERVER.allowDebugActionPayloads.get() || !player.hasPermissions(2)) {
             return;
         }
 
