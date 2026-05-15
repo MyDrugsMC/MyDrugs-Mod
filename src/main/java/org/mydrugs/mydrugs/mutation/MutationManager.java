@@ -17,6 +17,9 @@ import java.util.Map;
 
 public final class MutationManager {
     private static final int SYNC_INTERVAL_TICKS = 100;
+    private static final int INFECTION_EFFECT_REFRESH_TICKS = 100;
+    private static final int INFECTION_EFFECT_DURATION_TICKS = 20 * 6;
+    private static final int INFECTION_ONSET_EFFECT_DURATION_TICKS = 20 * 8;
 
     private MutationManager() {
     }
@@ -73,12 +76,20 @@ public final class MutationManager {
     public static void startInfection(ServerPlayer player, float severity) {
         PlayerMutationsAttachment attachment = player.getData(ModAttachments.PLAYER_MUTATIONS.get());
         attachment.infection().start(severity);
-        DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, 0.35F, 20 * 8);
-        DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.25F, 20 * 8);
+        DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, 0.35F, INFECTION_ONSET_EFFECT_DURATION_TICKS);
+        DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.25F, INFECTION_ONSET_EFFECT_DURATION_TICKS);
     }
 
     public static void cureInfection(ServerPlayer player, float strength) {
         player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection().cure(strength);
+    }
+
+    public static void clearInfection(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+
+        player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection().clear();
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -163,9 +174,19 @@ public final class MutationManager {
             player.displayClientMessage(Component.translatable(key).withStyle(ChatFormatting.RED), true);
         }
 
-        if (infection.ticks() % 100 == 0) {
-            DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, Math.min(0.8F, 0.25F + infection.severity() * 0.35F), 80);
-            DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, Math.min(0.7F, 0.15F + infection.severity() * 0.30F), 80);
+        if (player.tickCount % INFECTION_EFFECT_REFRESH_TICKS == 0) {
+            DrugEffectRuntimeManager.addEffect(
+                    player,
+                    EffectType.CUSTOM_NAUSEA,
+                    Math.min(0.8F, 0.25F + infection.severity() * 0.35F),
+                    INFECTION_EFFECT_DURATION_TICKS
+            );
+            DrugEffectRuntimeManager.addEffect(
+                    player,
+                    EffectType.CONFUSION,
+                    Math.min(0.7F, 0.15F + infection.severity() * 0.30F),
+                    INFECTION_EFFECT_DURATION_TICKS
+            );
         }
 
         if (stage >= 2 && infection.ticks() % 80 == 0) {

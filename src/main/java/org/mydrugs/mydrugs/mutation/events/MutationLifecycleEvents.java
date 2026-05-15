@@ -13,6 +13,17 @@ public final class MutationLifecycleEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        if (!event.isWasDeath()) {
+            return;
+        }
+
+        if (event.getEntity() instanceof ServerPlayer player) {
+            MutationManager.clearInfection(player);
+        }
+    }
+
+    @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             MutationManager.syncToClient(player);
