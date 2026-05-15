@@ -22,6 +22,10 @@ public final class OverdoseAntidoteItem extends AbstractRecoveryItem {
 
     @Override
     protected void applyEffects(ServerPlayer player) {
+        // Intentional direct call to DoseManager: antidote is a recovery action
+        // (reduces existing dose contributions) not a drug consumption, so it does
+        // not belong on the DrugUseService canonical-consume path. Bypass is
+        // documented; do not move this behind DrugUseService.
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         DoseManager.applyAntidote(stats);
     }
