@@ -6,7 +6,7 @@ import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
+import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public final class DrugVisualPayloadHandler {

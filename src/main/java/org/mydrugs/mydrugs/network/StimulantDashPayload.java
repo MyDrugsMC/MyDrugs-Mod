@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.effects.addiction.manager.effect.StimulantDashManager;
+import org.mydrugs.mydrugs.core.drug.runtime.StimulantDashManager;
 
 public record StimulantDashPayload(float forward, float strafe) implements CustomPacketPayload {
     public static final Type<StimulantDashPayload> TYPE = new Type<>(

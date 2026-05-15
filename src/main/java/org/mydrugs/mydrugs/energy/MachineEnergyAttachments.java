@@ -4,7 +4,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.DistillerBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.FluidFiltererBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachments;
 

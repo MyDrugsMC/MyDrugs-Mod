@@ -4,7 +4,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
+import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 

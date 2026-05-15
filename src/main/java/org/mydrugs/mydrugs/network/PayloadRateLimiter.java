@@ -27,8 +27,12 @@ public final class PayloadRateLimiter {
     private PayloadRateLimiter() {
     }
 
+    private static final long CLEANUP_INTERVAL_MS = 60_000L;
+    private static final long STALE_PLAYER_MS = 10 * 60_000L;
+
     /** Per-player last-accept timestamp (millis) keyed by {@link Kind}. */
     private static final Map<UUID, EnumMap<Kind, Long>> LAST_ACCEPT = new ConcurrentHashMap<>();
+    private static volatile long nextCleanupAtMs;
 
     public enum Kind {
         // Drag/shake naturally pulse at ~20 Hz from the client; allow that with a
@@ -62,7 +66,31 @@ public final class PayloadRateLimiter {
             return false;
         }
         perPlayer.put(kind, now);
+        cleanupStalePlayers(now);
         return true;
+    }
+
+    public static int trackedPlayerCount() {
+        return LAST_ACCEPT.size();
+    }
+
+    private static void cleanupStalePlayers(long now) {
+        if (now < nextCleanupAtMs) {
+            return;
+        }
+
+        nextCleanupAtMs = now + CLEANUP_INTERVAL_MS;
+        LAST_ACCEPT.entrySet().removeIf(entry -> latestAccept(entry.getValue()) + STALE_PLAYER_MS < now);
+    }
+
+    private static long latestAccept(EnumMap<Kind, Long> timestamps) {
+        long latest = 0L;
+        for (Long timestamp : timestamps.values()) {
+            if (timestamp != null && timestamp > latest) {
+                latest = timestamp;
+            }
+        }
+        return latest;
     }
 
     /** Drop per-player state on logout so a long-running server does not accumulate UUIDs. */

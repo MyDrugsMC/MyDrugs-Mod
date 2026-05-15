@@ -33,13 +33,13 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugId;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
-import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
-import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
-import org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripState;
-import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
-import org.mydrugs.mydrugs.effects.addiction.network.BadTripScreamerPayload;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
+import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
+import org.mydrugs.mydrugs.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.items.ModItems;
 
@@ -305,7 +305,7 @@ public class InnerDemonEntity extends Vex {
 
     private static boolean shouldDropFracturedImpulse(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        if (!org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripManager.isActive(stats)) {
+        if (!org.mydrugs.mydrugs.addiction.manager.state.BadTripManager.isActive(stats)) {
             return false;
         }
         for (org.mydrugs.mydrugs.core.drug.DrugId drugId : stats.getTrackedDrugIds()) {
@@ -314,11 +314,11 @@ public class InnerDemonEntity extends Vex {
             }
             var drugStats = stats.getDrugStats(drugId);
             if (drugStats == null) continue;
-            org.mydrugs.mydrugs.effects.addiction.dose.DosePath path = org.mydrugs.mydrugs.effects.addiction.dose.DosePath.DRUG;
-            org.mydrugs.mydrugs.effects.addiction.dose.DoseState state =
-                    org.mydrugs.mydrugs.effects.addiction.manager.dose.DoseManager.resolveState(path, drugStats.currentDose());
-            if (state == org.mydrugs.mydrugs.effects.addiction.dose.DoseState.VERY_HIGH
-                    || state == org.mydrugs.mydrugs.effects.addiction.dose.DoseState.OVERDOSE) {
+            org.mydrugs.mydrugs.core.drug.dose.DosePath path = org.mydrugs.mydrugs.core.drug.dose.DosePath.DRUG;
+            org.mydrugs.mydrugs.core.drug.dose.DoseState state =
+                    org.mydrugs.mydrugs.core.drug.dose.DoseManager.resolveState(path, drugStats.currentDose());
+            if (state == org.mydrugs.mydrugs.core.drug.dose.DoseState.VERY_HIGH
+                    || state == org.mydrugs.mydrugs.core.drug.dose.DoseState.OVERDOSE) {
                 return true;
             }
         }

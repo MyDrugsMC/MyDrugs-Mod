@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.menu.client;
 
+import net.minecraft.core.Direction;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -54,12 +55,12 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
     private static final int TRANSFER_PANEL_HEADER_H = 24;
     private static final int TRANSFER_PANEL_RESIZE_SIZE = 10;
     private static final TransferSideButton[] TRANSFER_SIDE_BUTTONS = {
-            new TransferSideButton(MachineLocalSide.TOP, "T", 138, 34),
-            new TransferSideButton(MachineLocalSide.LEFT, "L", 96, 76),
-            new TransferSideButton(MachineLocalSide.FRONT, "F", 138, 76),
-            new TransferSideButton(MachineLocalSide.RIGHT, "R", 180, 76),
-            new TransferSideButton(MachineLocalSide.BACK, "Ba", 117, 118),
-            new TransferSideButton(MachineLocalSide.BOTTOM, "Bo", 159, 118)
+            new TransferSideButton(MachineLocalSide.TOP, 138, 34),
+            new TransferSideButton(MachineLocalSide.LEFT, 96, 76),
+            new TransferSideButton(MachineLocalSide.FRONT, 138, 76),
+            new TransferSideButton(MachineLocalSide.RIGHT, 180, 76),
+            new TransferSideButton(MachineLocalSide.BACK, 117, 118),
+            new TransferSideButton(MachineLocalSide.BOTTOM, 159, 118)
     };
     private boolean transferOverlayOpen;
     private int transferSelectedPort;
@@ -361,11 +362,12 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
             int y = panelY + sideButton.y();
             graphics.fill(x, y, x + TRANSFER_SIDE_SIZE, y + TRANSFER_SIDE_SIZE, 0xFF16191D);
             graphics.fill(x + 1, y + 1, x + TRANSFER_SIDE_SIZE - 1, y + TRANSFER_SIDE_SIZE - 1, transferRuleColor(rule));
-            graphics.drawCenteredString(this.font, Component.literal(sideButton.label()), x + TRANSFER_SIDE_SIZE / 2, y + 10, 0xFFFFFFFF);
+            graphics.drawCenteredString(this.font, transferSideLabel(sideButton.side()), x + TRANSFER_SIDE_SIZE / 2, y + 10, 0xFFFFFFFF);
             graphics.drawCenteredString(this.font, transferRuleLabel(rule), x + TRANSFER_SIDE_SIZE / 2, y + 23, 0xFFFFFFFF);
-            graphics.drawCenteredString(this.font, Component.literal(MachineOrientation.toWorld(this.transferPorts.isEmpty()
-                    ? net.minecraft.core.Direction.NORTH
-                    : getTransferFrontDirection(), sideButton.side()).getSerializedName().substring(0, 1).toUpperCase()), x + TRANSFER_SIDE_SIZE / 2, y + 2, 0xFFD6DEE8);
+            Direction worldSide = MachineOrientation.toWorld(this.transferPorts.isEmpty()
+                    ? Direction.NORTH
+                    : getTransferFrontDirection(), sideButton.side());
+            graphics.drawCenteredString(this.font, transferWorldSideLabel(worldSide), x + TRANSFER_SIDE_SIZE / 2, y + 2, 0xFFD6DEE8);
         }
     }
 
@@ -503,6 +505,14 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
         return Component.translatable("screen.mydrugs.machine_transfer.toggle." + (rule == MachineTransferSideRule.DISABLED ? "off" : "on"));
     }
 
+    private static Component transferSideLabel(MachineLocalSide side) {
+        return Component.translatable("gui.mydrugs.transfer_side." + side.getSerializedName());
+    }
+
+    private static Component transferWorldSideLabel(Direction direction) {
+        return Component.translatable("gui.mydrugs.transfer_world_side." + direction.getSerializedName());
+    }
+
     private static int transferRuleColor(MachineTransferSideRule rule) {
         return switch (rule) {
             case DISABLED -> 0xFF3A4047;
@@ -636,6 +646,6 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
     protected record TransferHighlight(int x, int y, int width, int height) {
     }
 
-    private record TransferSideButton(MachineLocalSide side, String label, int x, int y) {
+    private record TransferSideButton(MachineLocalSide side, int x, int y) {
     }
 }

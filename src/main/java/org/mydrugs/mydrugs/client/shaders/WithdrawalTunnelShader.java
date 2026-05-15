@@ -4,10 +4,10 @@ import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
-import org.mydrugs.mydrugs.effects.addiction.client.HeartbeatPulse;
-import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
-import org.mydrugs.mydrugs.effects.addiction.config.SymptomThresholds;
+import org.mydrugs.mydrugs.client.effects.AddictionClientState;
+import org.mydrugs.mydrugs.client.effects.HeartbeatPulse;
+import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
+import org.mydrugs.mydrugs.addiction.config.SymptomThresholds;
 
 public final class WithdrawalTunnelShader extends AnimatedShader {
     public static final WithdrawalTunnelShader INSTANCE = new WithdrawalTunnelShader();

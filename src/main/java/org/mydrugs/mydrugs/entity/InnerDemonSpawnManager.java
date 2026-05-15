@@ -9,9 +9,9 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import org.mydrugs.mydrugs.core.drug.DrugId;
-import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
-import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripState;
+import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
 
 import java.util.List;
 

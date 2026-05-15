@@ -28,7 +28,7 @@ import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.entity.ModEntityAttributes;
 import org.mydrugs.mydrugs.entity.ModEntities;
 import org.mydrugs.mydrugs.sounds.ModSounds;

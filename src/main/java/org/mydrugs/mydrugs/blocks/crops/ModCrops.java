@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.blocks.crops;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -15,115 +16,83 @@ public class ModCrops {
     public static final DeferredRegister.Blocks BLOCKS =
             DeferredRegister.createBlocks(MyDrugs.MODID);
 
+    private static final CropSpec<RyeCropBlock> RYE = new CropSpec<>("rye_crop", "rye_seeds", RyeCropBlock::new);
+    private static final CropSpec<MaltCropBlock> MALT = new CropSpec<>("malt_crop", "malt_seeds", MaltCropBlock::new);
+    private static final CropSpec<TobaccoCropBlock> TOBACCO = new CropSpec<>("tobacco_crop", "tobacco_seeds", TobaccoCropBlock::new);
+    private static final CropSpec<AloeVeraCropBlock> ALOE_VERA = new CropSpec<>("aloe_vera_crop", "aloe_vera_seeds", AloeVeraCropBlock::new);
+    private static final CropSpec<CannabisCropBlock> CANNABIS = new CropSpec<>("cannabis_crop", "cannabis_seeds", CannabisCropBlock::new);
+    private static final CropSpec<CocaCropBlock> COCA = new CropSpec<>("coca_crop", "coca_seeds", CocaCropBlock::new);
+    private static final CropSpec<CoffeeCropBlock> COFFEE = new CropSpec<>("coffee_crop", "coffee_seeds", CoffeeCropBlock::new);
+    private static final CropSpec<OpiumPoppyCropBlock> OPIUM_POPPY = new CropSpec<>("opium_poppy_crop", "opium_poppy_seeds", OpiumPoppyCropBlock::new);
+
     public static final DeferredBlock<RyeCropBlock> RYE_CROP =
-            BLOCKS.registerBlock(
-                    "rye_crop",
-                    RyeCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(RYE);
 
     public static final DeferredItem<BlockItem> RYE_SEEDS =
-            ITEMS.registerItem(
-                    "rye_seeds",
-                    props -> new BlockItem(RYE_CROP.get(), props)
-            );
+            registerSeeds(RYE, RYE_CROP);
 
     public static final DeferredBlock<MaltCropBlock> MALT_CROP =
-            BLOCKS.registerBlock(
-                    "malt_crop",
-                    MaltCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(MALT);
 
     public static final DeferredItem<BlockItem> MALT_SEEDS =
-            ITEMS.registerItem(
-                    "malt_seeds",
-                    props -> new BlockItem(MALT_CROP.get(), props)
-            );
+            registerSeeds(MALT, MALT_CROP);
 
     public static final DeferredBlock<TobaccoCropBlock> TOBACCO_CROP =
-            BLOCKS.registerBlock(
-                    "tobacco_crop",
-                    TobaccoCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(TOBACCO);
 
     public static final DeferredItem<BlockItem> TOBACCO_SEEDS =
-            ITEMS.registerItem(
-                    "tobacco_seeds",
-                    props -> new BlockItem(TOBACCO_CROP.get(), props)
-            );
+            registerSeeds(TOBACCO, TOBACCO_CROP);
 
     public static final DeferredBlock<AloeVeraCropBlock> ALOE_VERA_CROP =
-            BLOCKS.registerBlock(
-                    "aloe_vera_crop",
-                    AloeVeraCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(ALOE_VERA);
 
     public static final DeferredItem<BlockItem> ALOE_VERA_SEEDS =
-            ITEMS.registerItem(
-                    "aloe_vera_seeds",
-                    props -> new BlockItem(ALOE_VERA_CROP.get(), props)
-            );
+            registerSeeds(ALOE_VERA, ALOE_VERA_CROP);
 
     public static final DeferredBlock<CannabisCropBlock> CANNABIS_CROP =
-            BLOCKS.registerBlock(
-                    "cannabis_crop",
-                    CannabisCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(CANNABIS);
 
     public static final DeferredItem<BlockItem> CANNABIS_SEEDS =
-            ITEMS.registerItem(
-                    "cannabis_seeds",
-                    props -> new BlockItem(CANNABIS_CROP.get(), props)
-            );
+            registerSeeds(CANNABIS, CANNABIS_CROP);
 
     public static final DeferredBlock<CocaCropBlock> COCA_CROP =
-            BLOCKS.registerBlock(
-                    "coca_crop",
-                    CocaCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(COCA);
 
     public static final DeferredItem<BlockItem> COCA_SEEDS =
-            ITEMS.registerItem(
-                    "coca_seeds",
-                    props -> new BlockItem(COCA_CROP.get(), props)
-            );
+            registerSeeds(COCA, COCA_CROP);
 
 
     public static final DeferredBlock<CoffeeCropBlock> COFFEE_CROP =
-            BLOCKS.registerBlock(
-                    "coffee_crop",
-                    CoffeeCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(COFFEE);
 
     public static final DeferredItem<BlockItem> COFFEE_SEEDS =
-            ITEMS.registerItem(
-                    "coffee_seeds",
-                    props -> new BlockItem(COFFEE_CROP.get(), props)
-            );
+            registerSeeds(COFFEE, COFFEE_CROP);
 
     public static final DeferredBlock<OpiumPoppyCropBlock> OPIUM_POPPY_CROP =
-            BLOCKS.registerBlock(
-                    "opium_poppy_crop",
-                    OpiumPoppyCropBlock::new,
-                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
-            );
+            registerCropBlock(OPIUM_POPPY);
 
     public static final DeferredItem<BlockItem> OPIUM_POPPY_SEEDS =
-            ITEMS.registerItem(
-                    "opium_poppy_seeds",
-                    props -> new BlockItem(OPIUM_POPPY_CROP.get(), props)
-            );
+            registerSeeds(OPIUM_POPPY, OPIUM_POPPY_CROP);
 
     private ModCrops() {}
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
         ITEMS.register(bus);
+    }
+
+    private static <T extends CropBlock> DeferredBlock<T> registerCropBlock(CropSpec<T> spec) {
+        return BLOCKS.registerBlock(
+                spec.cropId(),
+                spec.factory(),
+                () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT)
+        );
+    }
+
+    private static DeferredItem<BlockItem> registerSeeds(CropSpec<?> spec, DeferredBlock<? extends CropBlock> crop) {
+        return ITEMS.registerItem(
+                spec.seedId(),
+                props -> new BlockItem(crop.get(), props)
+        );
     }
 }

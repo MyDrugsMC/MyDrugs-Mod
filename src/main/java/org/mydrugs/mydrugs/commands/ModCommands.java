@@ -18,9 +18,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
-import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
+import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 
 import java.util.Locale;

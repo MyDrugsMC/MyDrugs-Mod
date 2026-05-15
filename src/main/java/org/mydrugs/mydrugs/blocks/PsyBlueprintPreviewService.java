@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
 
 import java.util.ArrayList;

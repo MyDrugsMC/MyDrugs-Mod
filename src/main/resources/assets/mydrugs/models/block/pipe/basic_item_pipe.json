@@ -1,4 +1,4 @@
-﻿{
+{
   "parent": "mydrugs:block/pipe/pipe_inventory_cross",
   "textures": {
     "pipe": "mydrugs:block/pipe/basic_item_pipe"

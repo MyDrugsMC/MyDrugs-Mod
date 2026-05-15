@@ -20,8 +20,8 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
-import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.core.drug.dose.DosePath;
+import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -129,7 +129,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     }
 
     /**
-     * Called from {@link org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler}
+     * Called from {@link org.mydrugs.mydrugs.client.effects.network.ClientPayloadHandler}
      * when a {@link DoseSyncPayload} arrives.
      * <ul>
      *   <li>dose > 0 → activate all shaders for that category and call

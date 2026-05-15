@@ -35,7 +35,7 @@ public final class FluidPipeNetworkLogic {
 
             int amount = resolveTier(level, source).fluidAmountPerTick();
             if (amount > 0 && tryMoveFromSource(level, network, source, sourceHandler, amount)) {
-                int nextRotation = (network.fluidOutputRotation(source) + 1) % Math.max(1, network.outputs().size());
+                int nextRotation = (network.fluidOutputRotation(source) + 1) % Math.max(1, network.outputCandidates(source).size());
                 network.setFluidOutputRotation(source, nextRotation);
             }
         }
@@ -115,11 +115,11 @@ public final class FluidPipeNetworkLogic {
             int amount
     ) {
         ArrayList<Candidate> candidates = new ArrayList<>();
-        List<PipeEndpoint> outputs = network.outputs();
+        List<PipeEndpoint> outputs = network.outputCandidates(source);
         int rotation = outputs.isEmpty() ? 0 : Math.floorMod(network.fluidOutputRotation(source), outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
             PipeEndpoint target = outputs.get((rotation + i) % outputs.size());
-            if (target.targetPos().equals(source.targetPos()) || !allows(target, resource)) {
+            if (!allows(target, resource)) {
                 continue;
             }
 

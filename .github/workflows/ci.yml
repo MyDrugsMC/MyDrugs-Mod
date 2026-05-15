@@ -24,10 +24,11 @@ jobs:
 
     env:
       # The build.gradle declares a GitHub Packages repo (mydrugsmc/mydrugs-core)
-      # that authenticates with GITHUB_ACTOR / GITHUB_TOKEN. The secrets.GITHUB_TOKEN
-      # is auto-provisioned by Actions and has read access to public packages.
+      # that authenticates with GITHUB_ACTOR / GITHUB_TOKEN. GITHUB_TOKEN can read
+      # public packages; set MYDRUGS_PACKAGES_TOKEN to a PAT if the package is
+      # private or lives in an org this workflow token cannot read.
       GITHUB_ACTOR: ${{ github.actor }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.MYDRUGS_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx3G"
 
     steps:
@@ -60,6 +61,9 @@ jobs:
 
       - name: runData
         run: ./gradlew --no-daemon --stacktrace runData
+
+      - name: validateResources
+        run: ./gradlew --no-daemon --stacktrace validateResources
 
       - name: build
         run: ./gradlew --no-daemon --stacktrace build

@@ -100,10 +100,10 @@ public final class GuideBookScreen extends Screen {
         clampScroll();
 
         int btnY = this.bookY + FOOTER_SEP_Y + 7;
-        addRenderableWidget(Button.builder(Component.literal("<"), button -> navigate(-1))
+        addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.guide.previous"), button -> navigate(-1))
                 .bounds(this.bookX + SPINE_W + 4, btnY, 22, 15)
                 .build());
-        addRenderableWidget(Button.builder(Component.literal(">"), button -> navigate(1))
+        addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.guide.next"), button -> navigate(1))
                 .bounds(this.bookX + BOOK_W - BORDER_R - 26, btnY, 22, 15)
                 .build());
 

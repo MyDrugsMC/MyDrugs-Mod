@@ -11,7 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.items.data.AdnScrapData;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.items.data.MutationStatValue;

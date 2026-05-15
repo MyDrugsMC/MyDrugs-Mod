@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.pipe.network;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.profiling.Profiler;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -14,7 +15,14 @@ public final class PipeServerEvents {
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Post event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
-            PipeNetworkManager.get(serverLevel).tick();
+            Profiler.get().push("mydrugs:world_tick");
+            try {
+                Profiler.get().push("pipe_networks");
+                PipeNetworkManager.get(serverLevel).tick();
+            } finally {
+                Profiler.get().pop();
+                Profiler.get().pop();
+            }
         }
     }
 }

@@ -776,7 +776,6 @@ Some late ingredients are tied to exploration rather than simple crafting.
 @item mydrugs:shroom_harvester
 @item mydrugs:magic_mushroom
 @item mydrugs:magic_mushroom_powder
-@item mydrugs:psychedelic_grass
 @item mydrugs:psychedelic_mycelium
 @item mydrugs:calming_spores
 @item mydrugs:dreamcap_spores
@@ -882,7 +881,7 @@ Bottles and syringes are utility tools, but they do not replace the main unlock 
 
 @item mydrugs:glass_bottle
 @item mydrugs:syringe
-@item mydrugs:lsd_bottle
+@item mydrugs:lsd_drop
 @item mydrugs:blood_bucket
 @item mydrugs:autoclave
 

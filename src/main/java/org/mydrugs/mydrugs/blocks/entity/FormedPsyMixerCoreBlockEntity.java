@@ -45,13 +45,13 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugFormula;
 import org.mydrugs.mydrugs.core.drug.ritual.ServerDrugFormulaRegistry;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
-import org.mydrugs.mydrugs.effects.addiction.data.DrugAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
-import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
-import org.mydrugs.mydrugs.effects.addiction.manager.state.BadTripManager;
-import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
+import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
+import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
+import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
@@ -762,11 +762,10 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     }
 
     private static Component ritualComponent(String key, Object... args) {
-        return Component.literal("[")
-                .withStyle(ChatFormatting.RED)
-                .append(Component.literal("???").withStyle(ChatFormatting.RED, ChatFormatting.OBFUSCATED))
-                .append(Component.literal("] ").withStyle(ChatFormatting.RED))
-                .append(Component.translatable(key, args).withStyle(ChatFormatting.LIGHT_PURPLE));
+        return Component.translatable(
+                "screen.mydrugs.psy_mixer.unknown_drug",
+                Component.translatable(key, args).withStyle(ChatFormatting.LIGHT_PURPLE)
+        ).withStyle(ChatFormatting.RED);
     }
 
     private void markDirtyAndSync() {

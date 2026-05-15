@@ -9,7 +9,7 @@ import org.mydrugs.mydrugs.core.drug.strategy.InjectingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
 import org.mydrugs.mydrugs.core.drug.use.ResolvedDrugUse;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 
 public final class DrugKnowledge {
     private DrugKnowledge() {

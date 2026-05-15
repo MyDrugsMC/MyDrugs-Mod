@@ -32,6 +32,7 @@ public final class PipeNetwork {
     private final Map<PipeEndpoint, Integer> fluidOutputRotation = new HashMap<>();
     private final Map<PipeEndpoint, Integer> gasOutputRotation = new HashMap<>();
     private final Map<PipeEndpoint, Long> lastItemTransferTick = new HashMap<>();
+    private final Map<PipeEndpoint, List<PipeEndpoint>> outputCandidatesBySource = new HashMap<>();
     private final Map<PipeEndpoint, BlockCapabilityCache<ResourceHandler<ItemResource>, Direction>> itemCapabilityCaches = new HashMap<>();
     private final Map<PipeEndpoint, BlockCapabilityCache<ResourceHandler<FluidResource>, Direction>> fluidCapabilityCaches = new HashMap<>();
     private final Map<PipeEndpoint, BlockCapabilityCache<IGasHandler, Direction>> gasCapabilityCaches = new HashMap<>();
@@ -59,6 +60,10 @@ public final class PipeNetwork {
 
     public List<PipeEndpoint> outputs() {
         return this.outputs;
+    }
+
+    public List<PipeEndpoint> outputCandidates(PipeEndpoint source) {
+        return this.outputCandidatesBySource.getOrDefault(source, List.of());
     }
 
     public PipeRouteCache routeCache() {
@@ -170,14 +175,25 @@ public final class PipeNetwork {
         this.itemCapabilityCaches.clear();
         this.fluidCapabilityCaches.clear();
         this.gasCapabilityCaches.clear();
+        this.outputCandidatesBySource.clear();
         for (PipeEndpoint input : this.inputs) {
+            this.outputCandidatesBySource.put(input, transferOutputsFor(input));
             for (PipeEndpoint output : this.outputs) {
                 findPath(input.pipePos(), output.pipePos()).ifPresent(path ->
                         this.routeCache.addItemRoute(new PipeRoute(input, output, path))
                 );
             }
         }
-        // TODO Phase 4/5: precompute source/output sets for fair fluid and gas distribution.
+    }
+
+    private List<PipeEndpoint> transferOutputsFor(PipeEndpoint source) {
+        ArrayList<PipeEndpoint> candidates = new ArrayList<>(this.outputs.size());
+        for (PipeEndpoint output : this.outputs) {
+            if (!output.targetPos().equals(source.targetPos())) {
+                candidates.add(output);
+            }
+        }
+        return List.copyOf(candidates);
     }
 
     private java.util.Optional<List<BlockPos>> findPath(BlockPos start, BlockPos target) {

@@ -5,25 +5,25 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugActionPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.BadTripScreamerPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
-import org.mydrugs.mydrugs.effects.addiction.network.PersonalDiarySnapshotPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.SubmitPersonalDiaryEntryPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
-import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
+import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.AddictionDebugActionPayload;
+import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
+import org.mydrugs.mydrugs.addiction.network.BadTripScreamerPayload;
+import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
+import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
+import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
+import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 
 /**
  * Single source of truth for {@link RegisterPayloadHandlersEvent}.
  *
  * Replaces the previous trio: network.ModPayloads, effects.EffectsNetworkHandler,
- * and effects.addiction.events.RegisterPayloadEvents. Client-side handler lambdas
+ * and addiction.events.RegisterPayloadEvents. Client-side handler lambdas
  * for {@code playToClient} payloads are registered in
  * {@link org.mydrugs.mydrugs.client.network.ClientPayloadHandlers}.
  *

@@ -3,7 +3,7 @@ package org.mydrugs.mydrugs.machine.manual;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.mutation.MutationManager;
 import org.mydrugs.mydrugs.mutation.MutationStat;
 

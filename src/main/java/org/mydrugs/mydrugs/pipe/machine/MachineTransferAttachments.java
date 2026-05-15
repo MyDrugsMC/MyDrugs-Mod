@@ -3,7 +3,7 @@ package org.mydrugs.mydrugs.pipe.machine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.mydrugs.mydrugs.effects.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
 import org.mydrugs.mydrugs.pipe.network.PipeNetworkDirtyReason;

@@ -27,9 +27,13 @@ import org.mydrugs.mydrugs.menu.SteamCrackerMenu;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class MachineTransferSpecs {
+    private static final Map<BlockEntityType<?>, MachineTransferSpec> CACHE = new ConcurrentHashMap<>();
+
     private static final Set<MachineLocalSide> INPUT_DEFAULT = EnumSet.of(MachineLocalSide.LEFT);
     private static final Set<MachineLocalSide> SECONDARY_INPUT_DEFAULT = EnumSet.of(MachineLocalSide.BACK);
     private static final Set<MachineLocalSide> OUTPUT_DEFAULT = EnumSet.of(MachineLocalSide.RIGHT);
@@ -44,6 +48,10 @@ public final class MachineTransferSpecs {
     }
 
     public static MachineTransferSpec get(BlockEntityType<?> type) {
+        return CACHE.computeIfAbsent(type, MachineTransferSpecs::create);
+    }
+
+    private static MachineTransferSpec create(BlockEntityType<?> type) {
         if (type == ModBlockEntities.ADVANCED_FURNACE.get()) {
             return spec(
                     itemIn("input_a", 0, AdvancedFurnaceBlockEntity.INPUT_A_SLOT, INPUT_DEFAULT),

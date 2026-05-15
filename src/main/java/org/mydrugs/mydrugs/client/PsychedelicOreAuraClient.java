@@ -21,7 +21,7 @@ import net.neoforged.neoforge.common.Tags;
 import org.joml.Vector3f;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
-import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
+import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 
 import java.util.ArrayList;
 import java.util.Comparator;

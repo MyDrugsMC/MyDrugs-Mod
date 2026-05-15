@@ -34,7 +34,7 @@ public final class GasPipeNetworkLogic {
 
             long amount = resolveTier(level, source).gasAmountPerTick();
             if (amount > 0 && tryMoveFromSource(level, network, source, sourceHandler, amount)) {
-                int nextRotation = (network.gasOutputRotation(source) + 1) % Math.max(1, network.outputs().size());
+                int nextRotation = (network.gasOutputRotation(source) + 1) % Math.max(1, network.outputCandidates(source).size());
                 network.setGasOutputRotation(source, nextRotation);
             }
         }
@@ -106,7 +106,7 @@ public final class GasPipeNetworkLogic {
 
     private static List<Candidate> collectCandidates(ServerLevel level, PipeNetwork network, PipeEndpoint source, GasStack resource) {
         ArrayList<Candidate> candidates = new ArrayList<>();
-        List<PipeEndpoint> outputs = network.outputs();
+        List<PipeEndpoint> outputs = network.outputCandidates(source);
         int rotation = outputs.isEmpty() ? 0 : Math.floorMod(network.gasOutputRotation(source), outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
             PipeEndpoint target = outputs.get((rotation + i) % outputs.size());

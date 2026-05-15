@@ -18,6 +18,17 @@ Drug item / fluid / block use
 
 Do not apply effects, addiction, tolerance, or knowledge grants through separate ad-hoc paths unless there is a documented reason.
 
+Current package boundaries:
+
+- `org.mydrugs.mydrugs.core.drug.use` owns canonical drug use.
+- `org.mydrugs.mydrugs.core.drug.dose` owns dose state and dose ticking.
+- `org.mydrugs.mydrugs.core.drug.runtime` owns active custom drug effects.
+- `org.mydrugs.mydrugs.addiction.*` owns addiction-only attachments, data, state managers, progression, withdrawal, tolerance, and addiction payloads.
+- `org.mydrugs.mydrugs.recovery.*` owns recovery managers, blocks, and items.
+- `org.mydrugs.mydrugs.diary` and `org.mydrugs.mydrugs.client.diary` own diary common and client UI code.
+- `org.mydrugs.mydrugs.client.effects.*` owns client-only effect presentation: HUD, overlays, hallucinations, input distortion, sounds, and client payload handling.
+- `org.mydrugs.mydrugs.network` owns common payload registration and shared payload records such as `DrugVisualPayload`.
+
 ## Custom effect system
 
 The mod should use custom float-based effects, not vanilla potion effects.
@@ -26,7 +37,7 @@ Main responsibilities:
 
 - `DrugEffect` stores effect type, duration, and intensity.
 - `ConsumptionStrategy` adjusts duration, intensity, and dose for the route.
-- `DrugEffectRuntimeManager` owns server-side active custom effects.
+- `core.drug.runtime.DrugEffectRuntimeManager` owns server-side active custom effects.
 - `DrugEffectSyncPayload` mirrors active effects to the client.
 - `AddictionClientState` exposes client-readable effect and addiction state.
 
@@ -56,7 +67,7 @@ Addiction/dose tracking
   -> DrugEffectRuntimeManager
 ```
 
-`DoseEffectManager` should express high-dose effects through the same custom effect runtime. It should not add vanilla `MobEffectInstance`s.
+`core.drug.dose.DoseEffectManager` should express high-dose effects through the same custom effect runtime. It should not add vanilla `MobEffectInstance`s.
 
 Small speed/mining buffs in `DoseEffectManager` are intended to be float-based custom effects. Tune values through playtesting, but do not replace them with vanilla Speed/Haste.
 
@@ -177,3 +188,20 @@ Simple generated assets/data should come from datagen providers when possible:
 - tags.
 
 Keep hand-authored textures, sounds, complex models, guide source, and shaders in main resources.
+
+`src/main/resources/assets/mydrugs/lang/en_us.json` is currently the canonical lang source. `ModLangProvider` is retained but not registered as a full replacement until it covers the complete hand-authored file.
+
+Run `validateResources` after resource or datagen changes. It fails on BOM JSON, missing blockstates/item definitions/lang keys, unresolved guide `@item` references, backup files, and generated-cache hygiene. Missing texture/model references are written to `docs/ASSET_TODO.md` for artist follow-up rather than filled with placeholder art.
+
+## Registries
+
+Top-level registration remains stable through `ModItems.register(...)`, `ModBlocks.register(...)`, `ModCrops.register(...)`, and the existing fluid/gas registries. New grouped registries should use small records or domain helpers rather than adding another long static section.
+
+Current examples:
+
+- `ItemSpec` for small item definitions.
+- `MachineSpec` for machine-like block definitions.
+- `FluidSpec`, `GasSpec`, and `CropSpec` for resource families.
+- `ModRecoveryItems`, `ModMutationItems`, `ModPipeItems`, `ModRecoveryBlocks`, and `ModPipeBlocks` as domain owners with compatibility aliases kept on `ModItems` and `ModBlocks`.
+
+Registry IDs are not changed by moving a holder into a domain helper. Keep aliases when existing code expects `ModItems.X` or `ModBlocks.X`.

@@ -19,7 +19,8 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.strategy.EatingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
-import org.mydrugs.mydrugs.effects.addiction.item.*;
+import org.mydrugs.mydrugs.diary.ModDiaryItems;
+import org.mydrugs.mydrugs.recovery.item.*;
 import org.mydrugs.mydrugs.energy.AutomationUpgradeItem;
 import org.mydrugs.mydrugs.energy.EnergyUpgradeItem;
 import org.mydrugs.mydrugs.gas.GasTankContents;
@@ -28,11 +29,8 @@ import org.mydrugs.mydrugs.items.data.BiomeFinderTarget;
 import org.mydrugs.mydrugs.items.drugs.*;
 import org.mydrugs.mydrugs.items.rolling.RollerItem;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
-import org.mydrugs.mydrugs.pipe.PipeResourceKind;
-import org.mydrugs.mydrugs.pipe.filter.PipeFilterConfig;
-import org.mydrugs.mydrugs.pipe.filter.PipeFilterUpgradeItem;
-import org.mydrugs.mydrugs.pipe.item.PipeWrenchItem;
-import org.mydrugs.mydrugs.pipe.machine.MachineTransferUpgradeItem;
+import org.mydrugs.mydrugs.mutation.ModMutationItems;
+import org.mydrugs.mydrugs.pipe.item.ModPipeItems;
 
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -102,34 +100,19 @@ public class ModItems {
     public static final DeferredItem<Item> STOMP_PLATE =
             ITEMS.registerSimpleItem("stomp_plate");
 
-    public static final DeferredItem<Item> SYRINGE =
-            ITEMS.registerItem("syringe", SyringeItem::new, props -> props.stacksTo(1));
+    public static final DeferredItem<Item> SYRINGE = ModMutationItems.SYRINGE;
 
-    public static final DeferredItem<Item> ADN_SCRAPER =
-            ITEMS.registerItem("adn_scraper", AdnScraperItem::new, props -> props.stacksTo(1).durability(96));
+    public static final DeferredItem<Item> ADN_SCRAPER = ModMutationItems.ADN_SCRAPER;
 
-    public static final DeferredItem<Item> ADN_SCRAP =
-            ITEMS.registerItem("adn_scrap", AdnScrapItem::new);
+    public static final DeferredItem<Item> ADN_SCRAP = ModMutationItems.ADN_SCRAP;
 
-    public static final DeferredItem<Item> ADN_GENE =
-            ITEMS.registerItem("adn_gene", AdnGeneItem::new);
+    public static final DeferredItem<Item> ADN_GENE = ModMutationItems.ADN_GENE;
 
-    public static final DeferredItem<Item> MUTATION_VECTOR =
-            ITEMS.registerItem("mutation_vector", props -> new MutationPayloadItem(
-                    props,
-                    "tooltip.mydrugs.mutation_vector.empty",
-                    "tooltip.mydrugs.mutation_vector.footer"
-            ));
+    public static final DeferredItem<Item> MUTATION_VECTOR = ModMutationItems.MUTATION_VECTOR;
 
-    public static final DeferredItem<Item> MUTAGENIC_BLOOD_VIAL =
-            ITEMS.registerItem("mutagenic_blood_vial", props -> new MutationPayloadItem(
-                    props,
-                    "tooltip.mydrugs.mutagenic_blood_vial.empty",
-                    "tooltip.mydrugs.mutagenic_blood_vial.footer"
-            ));
+    public static final DeferredItem<Item> MUTAGENIC_BLOOD_VIAL = ModMutationItems.MUTAGENIC_BLOOD_VIAL;
 
-    public static final DeferredItem<Item> NUTRIENT_GEL =
-            ITEMS.registerSimpleItem("nutrient_gel");
+    public static final DeferredItem<Item> NUTRIENT_GEL = ModMutationItems.NUTRIENT_GEL;
 
     public static final DeferredItem<Item> CURED_CANNABIS_LEAF =
             ITEMS.registerSimpleItem("cured_cannabis_leaf");
@@ -289,26 +272,21 @@ public class ModItems {
 
     public static final DeferredItem<Item> SULFUR_POWDER = ITEMS.registerSimpleItem("sulfur_powder");
 
-    public static final DeferredItem<PersonalDiaryItem> PERSONAL_DIARY =
-            ITEMS.registerItem("personal_diary", PersonalDiaryItem::new);
+    public static final DeferredItem<org.mydrugs.mydrugs.diary.PersonalDiaryItem> PERSONAL_DIARY =
+            ModDiaryItems.PERSONAL_DIARY;
 
     public static final DeferredItem<ProgressionGuideItem> PROGRESSION_GUIDE =
             ITEMS.registerItem("progression_guide", ProgressionGuideItem::new, props -> props.stacksTo(1));
 
-    public static final DeferredItem<HeadphonesItem> HEADPHONES =
-            ITEMS.registerItem("headphones", HeadphonesItem::new);
+    public static final DeferredItem<HeadphonesItem> HEADPHONES = ModRecoveryItems.HEADPHONES;
 
-    public static final DeferredItem<HerbalTeaItem> HERBAL_TEA =
-            ITEMS.registerItem("herbal_tea", HerbalTeaItem::new);
+    public static final DeferredItem<HerbalTeaItem> HERBAL_TEA = ModRecoveryItems.HERBAL_TEA;
 
-    public static final DeferredItem<CalmingMixtureItem> CALMING_MIXTURE =
-            ITEMS.registerItem("calming_mixture", CalmingMixtureItem::new);
+    public static final DeferredItem<CalmingMixtureItem> CALMING_MIXTURE = ModRecoveryItems.CALMING_MIXTURE;
 
-    public static final DeferredItem<SleepingAidItem> SLEEPING_AID =
-            ITEMS.registerItem("sleeping_aid", SleepingAidItem::new);
+    public static final DeferredItem<SleepingAidItem> SLEEPING_AID = ModRecoveryItems.SLEEPING_AID;
 
-    public static final DeferredItem<OverdoseAntidoteItem> OVERDOSE_ANTIDOTE =
-            ITEMS.registerItem("overdose_antidote", OverdoseAntidoteItem::new);
+    public static final DeferredItem<OverdoseAntidoteItem> OVERDOSE_ANTIDOTE = ModRecoveryItems.OVERDOSE_ANTIDOTE;
 
     public static final DeferredItem<Item> RESIN =
             ITEMS.registerSimpleItem("resin");
@@ -389,21 +367,11 @@ public class ModItems {
     public static final DeferredItem<Item> STEEL_HAMMER =
             ITEMS.registerSimpleItem("steel_hammer", props -> props.stacksTo(1).durability(384));
 
-    public static final DeferredItem<Item> PIPE_WRENCH =
-            ITEMS.registerItem("pipe_wrench", PipeWrenchItem::new, props -> props.stacksTo(1).durability(256));
+    public static final DeferredItem<Item> PIPE_WRENCH = ModPipeItems.PIPE_WRENCH;
 
-    public static final DeferredItem<Item> PIPE_FILTER_UPGRADE =
-            ITEMS.registerItem(
-                    "pipe_filter_upgrade",
-                    PipeFilterUpgradeItem::new,
-                    props -> props.stacksTo(1).component(
-                            ModDataComponents.PIPE_FILTER_CONFIG.get(),
-                            PipeFilterConfig.empty(PipeResourceKind.ITEM)
-                    )
-            );
+    public static final DeferredItem<Item> PIPE_FILTER_UPGRADE = ModPipeItems.PIPE_FILTER_UPGRADE;
 
-    public static final DeferredItem<Item> MACHINE_TRANSFER_UPGRADE =
-            ITEMS.registerItem("machine_transfer_upgrade", MachineTransferUpgradeItem::new, props -> props.stacksTo(1));
+    public static final DeferredItem<Item> MACHINE_TRANSFER_UPGRADE = ModPipeItems.MACHINE_TRANSFER_UPGRADE;
 
     public static final DeferredItem<Item> ENERGY_UPGRADE =
             ITEMS.registerItem("energy_upgrade", EnergyUpgradeItem::new, props -> props.stacksTo(1));
