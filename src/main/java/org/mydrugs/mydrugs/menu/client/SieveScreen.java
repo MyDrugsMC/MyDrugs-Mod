@@ -11,6 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.SieveMenu;
 import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
@@ -81,7 +82,7 @@ public class SieveScreen extends AbstractMachineScreen<SieveMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawSieveLabels(this, graphics, this.font, this.title, this.playerInventoryTitle, this.inventoryLabelY, null);
-        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12);
+        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12, ManualMachineType.SIEVE);
     }
 
     @Override

@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
 import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
@@ -77,7 +78,7 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawFluidFiltererLabels(this, graphics, this.font, this.title, null);
-        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12);
+        DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12, ManualMachineType.FLUID_FILTERER);
     }
 
     @Override

@@ -5,6 +5,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 
 public final class DrugBonusClientText {
     private static final int GOOD = 0xFF76E08A;
@@ -14,12 +16,15 @@ public final class DrugBonusClientText {
     private DrugBonusClientText() {
     }
 
-    public static void drawManualWorkBonus(GuiGraphics graphics, Font font, int x, int y) {
+    public static void drawManualWorkBonus(GuiGraphics graphics, Font font, int x, int y, ManualMachineType type) {
         float manual = effect(EffectType.MANUAL_WORK_SPEED);
         float focus = effect(EffectType.FOCUS);
         float precision = effect(EffectType.PRECISION);
         float adrenaline = effect(EffectType.ADRENALINE_SURGE);
-        float bonus = manual + focus * 0.35F + precision * 0.12F + adrenaline * 0.65F;
+        // Use the server-side formula directly so the hint matches the bonus the
+        // player actually receives. Earlier the client hard-coded precision*0.12F
+        // and understated the bonus for SIEVE / PSY_MIXER / GRINDING_BOWL.
+        float bonus = ManualMachineSpeedHelper.computeBonus(type, manual, focus, precision, adrenaline);
         if (bonus <= 0.01F) {
             return;
         }
