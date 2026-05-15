@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same ref when a new push lands.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    name: Compile / Datagen / Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      # The build.gradle declares a GitHub Packages repo (mydrugsmc/mydrugs-core)
+      # that authenticates with GITHUB_ACTOR / GITHUB_TOKEN. The secrets.GITHUB_TOKEN
+      # is auto-provisioned by Actions and has read access to public packages.
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx3G"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Cache Gradle caches keyed on wrapper + build script hashes so a change in
+      # either invalidates the cache. read-only on non-default branches to avoid
+      # cache poisoning from PRs.
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          gradle-home-cache-cleanup: true
+
+      - name: Verify Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: compileJava
+        run: ./gradlew --no-daemon --stacktrace compileJava
+
+      - name: runData
+        run: ./gradlew --no-daemon --stacktrace runData
+
+      - name: build
+        run: ./gradlew --no-daemon --stacktrace build
+
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mydrugs-build-${{ github.sha }}
+          path: |
+            build/libs/*.jar
+          if-no-files-found: warn
+          retention-days: 7
