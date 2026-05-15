@@ -23,7 +23,7 @@
 
 @title MyDrugs Field Guide
 
-Welcome. This book explains the survival progression currently available in MyDrugs: crops, hand processing, knowledge gates, machines, laboratory chemistry, rituals, psychotrope energy, addiction, and recovery.
+Welcome. This book explains the survival progression currently available in MyDrugs: crops, hand processing, knowledge gates, machines, laboratory chemistry, rituals, psychotrope energy, mutations, addiction, and recovery.
 
 Keep JEI and the advancement tree open beside this guide. JEI is still the source for exact ingredient counts, fluid amounts, gas amounts, heat, time, and machine category. This guide explains the order and the gameplay purpose of each step.
 
@@ -53,6 +53,7 @@ Keep JEI and the advancement tree open beside this guide. JEI is still the sourc
 @link Mushrooms and Mycelial Knowledge|Mushrooms and Mycelial Knowledge
 @link Psy Mixer Rituals|Psy Mixer rituals
 @link Psychotrope Research|Psychotrope research
+@link Mutation Overview|Mutations
 @link Recovery and Addiction|Recovery and addiction
 @link When You Are Stuck|Troubleshooting
 
@@ -62,9 +63,9 @@ Keep JEI and the advancement tree open beside this guide. JEI is still the sourc
 
 The main route is:
 
-Seeds and wild materials -> coffee -> Caffeine Knowledge -> Psy Receptacle -> resin from logs -> treated planks -> drying and grinding -> tobacco -> Nicotinic Knowledge -> Psy Anvil -> iron mesh and sieve -> cannabis -> Cannabinoid Knowledge -> copper shaping -> mixing vat -> fermented mash -> Fermented Knowledge -> heavy iron -> stomp crafter -> hash -> Steel Plating Knowledge -> steel plates and machines -> coca -> Stimulant Knowledge -> insulated wire and circuits -> lysergic route -> Lysergic Knowledge -> advanced circuits -> meth route -> Overclocked Knowledge -> mushrooms -> Mycelial Knowledge -> psychotrope research.
+Seeds and wild materials -> coffee -> Caffeine Knowledge -> Psy Receptacle -> resin from logs -> treated planks -> drying and grinding -> tobacco -> Nicotinic Knowledge -> Psy Anvil -> iron mesh and sieve -> cannabis -> Cannabinoid Knowledge -> copper shaping -> mixing vat -> fermented mash -> Fermented Knowledge -> heavy iron -> stomp crafter -> hash -> Steel Plating Knowledge -> steel plates and machines -> coca -> Stimulant Knowledge -> insulated wire and circuits -> lysergic route -> Lysergic Knowledge -> advanced circuits -> meth route -> Overclocked Knowledge -> mushrooms -> Mycelial Knowledge -> psychotrope research -> mutation machines.
 
-Parallel systems include recovery, pipes, gases, acids, petroleum chemistry, Psy Mixer rituals, cocaine rails, crack, blood syringes, biome exploration, and psychotrope energy.
+Parallel systems include recovery, pipes, gases, acids, petroleum chemistry, Psy Mixer rituals, cocaine rails, crack, blood syringes, biome exploration, psychotrope energy, and mutations.
 
 > [WARN] Older notes may say hash comes before heavy iron. In the current recipes, the stomp crafter needs heavy iron, so hash comes after Fermented Knowledge.
 
@@ -867,28 +868,186 @@ The psychotrope core can convert drug value into energy for machines.
 
 Different drugs have different psychotrope values. Late drugs such as meth and LSD are far stronger inputs than early cannabis. Energy upgrades and automation upgrades help machines use this late power system.
 
+Mutation machines also use psychotrope energy. They drain energy over time, so they need an energy upgrade or automation support and a steady supply from the psychotrope core. The Gene Extractor is the cheapest mutation machine. The CRISPR-CAS9 Combinator, Bacterial Incubator, and Hemogenic Infuser are much more expensive.
+
 > [WARN] Feeding your best drugs into energy is a resource trade. Do it when your production chain can replace them.
 
-> [GOAL] Generate psychotrope energy and use it to support late machine lines.
+> [GOAL] Generate psychotrope energy and use it to support late machine lines, then start mutation work.
 
 ---
 
 # Bottles Syringes and Fluid Use
 
-Bottles and syringes are utility tools, but they do not replace the main unlock path.
+Bottles and syringes are utility tools, but they do not replace the main unlock path. Syringes also become important for the mutation branch.
 
 @item mydrugs:glass_bottle
 @item mydrugs:syringe
 @item mydrugs:lsd_bottle
 @item mydrugs:blood_bucket
+@item mydrugs:autoclave
 
 The MyDrugs glass bottle can hold mod fluids and drink fluids that are marked as drinkable, such as coffee and fermented mash. It is also used to convert LSD fluid plus cupboard pieces into LSD Drops.
 
-The syringe currently focuses on blood sampling and blood handling. Use it as a utility item, not as a shortcut for the drug knowledge chain.
+The syringe can draw blood and can later carry mutagenic blood. New syringes are dirty by default. Use the Autoclave with psychotrope energy to sterilize empty dirty syringes before blood handling or mutation injection.
 
 > [WARN] If a fluid will not drink from the bottle, it may be a processing fluid rather than a drinkable drug fluid.
 
-> [GOAL] Use bottles for drinkable fluids and LSD drop creation. Use syringes for blood-related utility.
+> [WARN] Drawing blood from yourself with a dirty syringe can start infection. Injecting mutagenic blood with a dirty syringe rejects the payload and starts infection.
+
+> [GOAL] Use bottles for drinkable fluids and LSD drop creation. Keep sterile syringes ready for mutation work.
+
+---
+
+# Mutation Overview
+
+Mutations are an endgame biological progression branch. They use fictional ADN data, psychotrope energy, blood handling, and dangerous injections to change how your body reacts to the mod's drug systems.
+
+@item mydrugs:adn_scraper
+@item mydrugs:adn_scrap
+@item mydrugs:adn_gene
+@item mydrugs:mutation_vector
+@item mydrugs:mutagenic_blood_vial
+@item mydrugs:syringe
+
+The full route is: scrape ADN -> extract genes -> combine compatible genes -> incubate a mutation vector -> infuse it with blood -> load a sterile syringe -> inject -> assimilate the mutation over time.
+
+Mutations can reduce negative visual distortion, internal drug damage, addiction gain, mental symptoms, withdrawal symptoms, overdose pressure, ritual instability, infection progression, and gene instability. Pleasure Sensitivity improves positive drug effects, but it also increases addiction pressure slightly.
+
+> [WARN] Mutations are powerful but not free. Dirty injections can cause infection, infection can damage you, and severe infection can erase mutations.
+
+> [GOAL] Build a stable psychotrope energy setup before trying mutations.
+
+---
+
+# ADN Scraping
+
+Use the ADN Scraper on living mobs to collect ADN Scrap. Right-click air with the scraper to sample yourself.
+
+@item mydrugs:adn_scraper
+@item mydrugs:adn_scrap
+
+Mob ADN is deterministic: the same mob UUID produces the same scrap stats, while different mobs of the same type can roll different stats. Basic mobs usually have only two or three low stats. Mythic sources can have more stats and better odds.
+
+Player ADN is different. Scraping a player copies that player's current active mutation stats. If the player has no mutations, the scrap is empty. This lets player ADN reflect the body as it exists now, not a fresh random profile.
+
+You cannot inject mutation payloads sourced from your own player UUID. Self-scraping is for sharing, study, or future systems, not for looping your own stats back into yourself.
+
+ADN Scrap tooltips show source, rarity, signature, and stat percentages. Advanced tooltips show source UUID and improbability scores.
+
+> [TIP] Basic mob scraps are supposed to be weak. Use them for early testing, then hunt rarer sources when the machine chain is ready.
+
+> [GOAL] Collect several scraps from different sources before building the extractor.
+
+---
+
+# Gene Extractor
+
+The Gene Extractor turns ADN Scrap into single-stat ADN Genes.
+
+@item mydrugs:gene_extractor
+@item mydrugs:adn_scrap
+@item mydrugs:adn_gene
+@item mydrugs:energy_upgrade
+
+Install energy support, feed the machine from psychotrope energy, place one ADN Scrap in the input, and keep the three output slots clear. Extraction takes time and pauses when energy is missing.
+
+The extractor chooses up to three unique stats from the scrap. If the scrap has fewer than three stats, it only outputs those stats. No duplicate genes are created from one extraction.
+
+> [TIP] Extraction selection is random. If you want a specific stat from a good source, collect multiple scraps from that source.
+
+> [GOAL] Extract a set of single-stat ADN Genes from several different sources.
+
+---
+
+# CRISPR-CAS9 Combinator
+
+The CRISPR-CAS9 Combinator merges two ADN Genes into one multi-stat gene.
+
+@item mydrugs:crispr_cas9_combinator
+@item mydrugs:adn_gene
+@item mydrugs:energy_upgrade
+
+Genes from the same source UUID cannot be combined. This means you need genes from different mobs or players to build larger profiles.
+
+Successful combinations preserve all sources and stats. If both genes contain the same stat, the stat values are added together and clamped at 100 percent. For example, 2 percent Genetic Stability plus 1 percent Genetic Stability becomes 3 percent Genetic Stability.
+
+Combination can fail. Failure consumes both inputs and creates a broken statless ADN Gene. More complex genes have a higher failure chance.
+
+> [WARN] Do not feed your only good gene into a risky high-complexity combine unless you can afford to lose it.
+
+> [GOAL] Combine compatible genes from different sources into a profile worth cultivating.
+
+---
+
+# Incubation and Infusion
+
+The Bacterial Incubator converts a valid ADN Gene into a Mutation Vector. The Hemogenic Infuser mixes that vector with blood to create a Mutagenic Blood Vial.
+
+@item mydrugs:bacterial_incubator
+@item mydrugs:nutrient_gel
+@item mydrugs:mutation_vector
+@item mydrugs:hemogenic_infuser
+@item mydrugs:mutagenic_blood_vial
+
+The incubator requires a non-broken ADN Gene, Nutrient Gel, output space, and psychotrope energy. The vector keeps the gene's sources, stats, assimilation difficulty, and rejection risk.
+
+The Hemogenic Infuser requires a Mutation Vector and a syringe filled with blood. It outputs a Mutagenic Blood Vial and empties the blood syringe, leaving it dirty.
+
+> [TIP] Higher stat counts and stronger stat values make vectors harder to assimilate and more likely to reject.
+
+> [GOAL] Turn one combined gene into a Mutation Vector, then into a Mutagenic Blood Vial.
+
+---
+
+# Sterile Injection
+
+Use the Autoclave to sterilize empty dirty syringes, then load a Mutagenic Blood Vial into a sterile empty syringe.
+
+@item mydrugs:autoclave
+@item mydrugs:syringe
+@item mydrugs:mutagenic_blood_vial
+
+A syringe loaded with mutagenic blood stays sterile until injection. It uses the filled syringe texture and shows the mutation payload in its tooltip.
+
+Hold use with the loaded syringe to inject yourself. Sterile injection starts assimilation: mutation values move gradually toward their target values over time instead of applying instantly. If you already have the same stat, the new target is averaged with the injected value and rounded to the nearest percent. Genetic Stability bends that average toward the better value. The syringe becomes empty and dirty afterward.
+
+> [WARN] Only sterile empty syringes can be safely loaded for mutation injection.
+
+> [GOAL] Sterilize a syringe, load mutagenic blood, and inject when you are ready to wait through assimilation.
+
+---
+
+# Infection and Mutation Risk
+
+Dirty syringe use can start infection. Infection is dangerous and can undo mutation progress.
+
+@item mydrugs:syringe
+@item mydrugs:autoclave
+@item mydrugs:personal_diary
+@item mydrugs:herbal_tea
+@item mydrugs:calming_mixture
+
+Dirty self blood draw can infect you. Dirty mutagenic injection starts infection and rejects the payload. Infection progresses through contamination, infection, sepsis, and collapse. It can apply nausea or confusion pressure, damage you, decay mutations, or remove mutations at severe stages.
+
+Infection Resistance slows infection progression and mutation loss, but it does not make dirty injections safe. Health Stability helps with internal mutation and infection damage, but it is not armor against normal combat or environmental damage.
+
+> [WARN] If infection reaches the worst stages, your mutations can collapse completely.
+
+> [GOAL] Autoclave syringes before risky use and keep recovery support near your mutation lab.
+
+---
+
+# Mutation Effects
+
+Assimilated mutations change existing drug, symptom, dose, visual, and work-speed systems.
+
+Visual Accuracy reduces negative visual distortion, but it does not reduce Gamma Boost. Health Stability reduces internal drug-system damage. Addiction Resistance reduces addiction gain. Mental Strength reduces mental symptoms and bad-trip pressure. Withdrawal Resilience reduces physical withdrawal symptoms.
+
+Metabolic Control helps dangerous dose states resolve more safely. Ritual Neural Sync improves ritual and manual-machine compatibility. Infection Resistance slows infection. Genetic Stability improves assimilation stability and future mutation safety. Pleasure Sensitivity boosts positive drug effects, but it also slightly increases addiction pressure.
+
+> [TIP] A balanced profile is safer than chasing one huge number. The strongest genes are expensive, risky, and slow to assimilate.
+
+> [GOAL] Build mutations that match the risks you actually face: visuals, addiction, withdrawal, infection, or dose pressure.
 
 ---
 
@@ -905,9 +1064,9 @@ Addiction and recovery are active systems. Repeated use can build addiction, wit
 @item mydrugs:therapist_desk
 @item mydrugs:recovery_anchor
 
-Recovery items reduce or manage stress, withdrawal, addiction pressure, sleep blocking, and overdose danger. The personal diary, headphones, teas, calming mixture, sleeping aid, antidote, therapist desk, and recovery anchor all matter.
+Recovery items reduce or manage stress, withdrawal, addiction pressure, sleep blocking, overdose danger, and mutation-adjacent risk. The personal diary, headphones, teas, calming mixture, sleeping aid, antidote, therapist desk, and recovery anchor all matter.
 
-> [WARN] Recovery is not just flavor. It is part of surviving long production chains, especially stimulant, crack, meth, injection-adjacent, and psychedelic experiments.
+> [WARN] Recovery is not just flavor. It is part of surviving long production chains, especially stimulant, crack, meth, mutation injection, infection, and psychedelic experiments.
 
 > [GOAL] Keep at least one recovery option available before repeated drug use.
 
@@ -997,8 +1156,8 @@ Some research, ritual, or side systems are visible before every connection is ob
 
 Quick route:
 
-Break grass -> grow crops -> coffee -> Caffeine Knowledge -> Psy Receptacle -> strip logs for resin -> treated planks -> drying rack -> grinding bowl -> tobacco handful -> Nicotinic Knowledge -> Psy Anvil -> iron mesh -> sieve -> cured cannabis -> dried cannabis plus resin -> cannabis powder -> Cannabinoid Knowledge -> copper plates -> mixing vat -> fermented mash -> Fermented Knowledge -> heavy iron -> stomp crafter -> hash -> Steel Plating Knowledge -> steel plates -> advanced furnace and machines -> absolute ethanol -> coca paste and extracts -> cocaine powder -> Stimulant Knowledge -> insulated wire -> control circuits -> acids and gases -> fungal culture and ergot -> LSD Drop -> Lysergic Knowledge -> advanced control circuits -> petroleum and aromatic chemistry -> meth powder -> Overclocked Knowledge -> magic mushroom consumption -> Mycelial Knowledge -> psychotrope research.
+Break grass -> grow crops -> coffee -> Caffeine Knowledge -> Psy Receptacle -> strip logs for resin -> treated planks -> drying rack -> grinding bowl -> tobacco handful -> Nicotinic Knowledge -> Psy Anvil -> iron mesh -> sieve -> cured cannabis -> dried cannabis plus resin -> cannabis powder -> Cannabinoid Knowledge -> copper plates -> mixing vat -> fermented mash -> Fermented Knowledge -> heavy iron -> stomp crafter -> hash -> Steel Plating Knowledge -> steel plates -> advanced furnace and machines -> absolute ethanol -> coca paste and extracts -> cocaine powder -> Stimulant Knowledge -> insulated wire -> control circuits -> acids and gases -> fungal culture and ergot -> LSD Drop -> Lysergic Knowledge -> advanced control circuits -> petroleum and aromatic chemistry -> meth powder -> Overclocked Knowledge -> magic mushroom consumption -> Mycelial Knowledge -> psychotrope research -> ADN Scraper -> Gene Extractor -> CRISPR-CAS9 Combinator -> Bacterial Incubator -> Hemogenic Infuser -> Autoclave -> sterile mutagenic injection.
 
-Parallel branches: recovery, rolling, bang use, cocaine rails, crack, alcohol distillation, pipes and transfers, gas handling, Psy Mixer rituals, psychedelic exploration, space food, and psychotrope energy.
+Parallel branches: recovery, rolling, bang use, cocaine rails, crack, alcohol distillation, pipes and transfers, gas handling, Psy Mixer rituals, psychedelic exploration, space food, psychotrope energy, and mutation management.
 
-> [GOAL] Complete every knowledge gate, then use psychotrope energy and rituals as the endgame sandbox.
+> [GOAL] Complete every knowledge gate, then use psychotrope energy, rituals, and mutations as the endgame sandbox.

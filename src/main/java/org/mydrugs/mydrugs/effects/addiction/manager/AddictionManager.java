@@ -30,6 +30,8 @@ import org.mydrugs.mydrugs.effects.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.ToleranceManager;
 import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.util.AddictionMath;
+import org.mydrugs.mydrugs.mutation.MutationManager;
+import org.mydrugs.mydrugs.mutation.MutationStat;
 
 public final class AddictionManager {
     private AddictionManager() {
@@ -92,6 +94,11 @@ public final class AddictionManager {
                 model.getAddictionRate()
         ) * Config.SERVER.addictionGainMultiplier.get().floatValue();
         float finalGain = RelapseManager.applyRelapseMultiplier(baseGain, drugStats);
+
+        float pleasureSensitivity = MutationManager.getValue(player, MutationStat.PLEASURE_SENSITIVITY);
+        float addictionResistance = MutationManager.getValue(player, MutationStat.ADDICTION_RESISTANCE);
+        finalGain *= (1.0F + pleasureSensitivity * 0.20F);
+        finalGain *= Math.max(0.0F, 1.0F - addictionResistance);
 
         drugStats.addictionValue = AddictionMath.clamp(drugStats.addictionValue + finalGain, 0.0F, 1000.0F);
         drugStats.lastUseTime = player.level().getGameTime();

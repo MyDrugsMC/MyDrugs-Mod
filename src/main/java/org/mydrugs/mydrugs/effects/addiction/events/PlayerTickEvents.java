@@ -8,6 +8,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.manager.AddictionManager;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.items.bottle.LightningBottleManager;
+import org.mydrugs.mydrugs.mutation.MutationManager;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class PlayerTickEvents {
@@ -20,5 +21,6 @@ public final class PlayerTickEvents {
         AddictionManager.tickPlayer(player);
         DrugEffectRuntimeManager.tickServer(player);
         LightningBottleManager.tick(player);
+        MutationManager.tickPlayer(player);
     }
 }

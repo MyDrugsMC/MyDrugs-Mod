@@ -57,9 +57,11 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.ADVANCED_FURNACE.get());
             dropSelf(ModBlocks.ADVANCED_MIXING_VAT.get());
             dropSelf(ModBlocks.AROMATIC_EXTRACTOR.get());
+            dropSelf(ModBlocks.AUTOCLAVE.get());
             dropSelf(ModBlocks.BASIC_FLUID_PIPE.get());
             dropSelf(ModBlocks.BASIC_GAS_PIPE.get());
             dropSelf(ModBlocks.BASIC_ITEM_PIPE.get());
+            dropSelf(ModBlocks.BACTERIAL_INCUBATOR.get());
             dropSelf(ModBlocks.BIOCHEMICAL_REACTOR.get());
             dropSelf(ModBlocks.BTX_FRACTIONATION_TOWER.get());
             dropSelf(ModBlocks.CATALYTIC_REFORMER.get());
@@ -76,7 +78,10 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.FLUID_PUMP.get());
             dropSelf(ModBlocks.GASIFIER.get());
             dropSelf(ModBlocks.GAS_PUMP.get());
+            dropSelf(ModBlocks.GENE_EXTRACTOR.get());
+            dropSelf(ModBlocks.HEMOGENIC_INFUSER.get());
             dropSelf(ModBlocks.GROWTH_CHAMBER.get());
+            dropSelf(ModBlocks.CRISPR_CAS9_COMBINATOR.get());
             dropSelf(ModBlocks.MIXING_VAT.get());
             dropSelf(ModBlocks.GRINDING_BOWL.get());
             dropSelf(ModBlocks.MECHANICAL_FRAME.get());
@@ -213,9 +218,11 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.ADVANCED_FURNACE.get(),
                     ModBlocks.ADVANCED_MIXING_VAT.get(),
                     ModBlocks.AROMATIC_EXTRACTOR.get(),
+                    ModBlocks.AUTOCLAVE.get(),
                     ModBlocks.BASIC_FLUID_PIPE.get(),
                     ModBlocks.BASIC_GAS_PIPE.get(),
                     ModBlocks.BASIC_ITEM_PIPE.get(),
+                    ModBlocks.BACTERIAL_INCUBATOR.get(),
                     ModBlocks.BIOCHEMICAL_REACTOR.get(),
                     ModBlocks.BTX_FRACTIONATION_TOWER.get(),
                     ModBlocks.CATALYTIC_REFORMER.get(),
@@ -232,7 +239,10 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.FLUID_PUMP.get(),
                     ModBlocks.GASIFIER.get(),
                     ModBlocks.GAS_PUMP.get(),
+                    ModBlocks.GENE_EXTRACTOR.get(),
+                    ModBlocks.HEMOGENIC_INFUSER.get(),
                     ModBlocks.GROWTH_CHAMBER.get(),
+                    ModBlocks.CRISPR_CAS9_COMBINATOR.get(),
                     ModBlocks.MIXING_VAT.get(),
                     ModBlocks.GRINDING_BOWL.get(),
                     ModBlocks.MECHANICAL_FRAME.get(),

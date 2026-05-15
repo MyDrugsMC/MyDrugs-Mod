@@ -164,6 +164,12 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
         futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "minecraft:item/ghast_tear"));
         futures.add(saveFlatItem(cachedOutput, "progression_guide", "minecraft:item/written_book"));
+        futures.add(saveFlatItem(cachedOutput, "adn_scraper", "minecraft:item/shears"));
+        futures.add(saveFlatItem(cachedOutput, "adn_scrap", "minecraft:item/paper"));
+        futures.add(saveFlatItem(cachedOutput, "adn_gene", "minecraft:item/amethyst_shard"));
+        futures.add(saveFlatItem(cachedOutput, "mutation_vector", "minecraft:item/glass_bottle"));
+        futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "minecraft:item/honey_bottle"));
+        futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "minecraft:item/slime_ball"));
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

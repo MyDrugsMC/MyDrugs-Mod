@@ -23,6 +23,11 @@ public final class ModDamageTypes {
             ResourceLocation.fromNamespaceAndPath("mydrugs", "overdose")
     );
 
+    public static final ResourceKey<DamageType> MUTATION_INFECTION = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            ResourceLocation.fromNamespaceAndPath("mydrugs", "mutation_infection")
+    );
+
     private ModDamageTypes() {
     }
 
@@ -48,6 +53,14 @@ public final class ModDamageTypes {
                 level.registryAccess()
                         .lookupOrThrow(Registries.DAMAGE_TYPE)
                         .getOrThrow(OVERDOSE)
+        );
+    }
+
+    public static DamageSource mutationInfection(Level level) {
+        return new DamageSource(
+                level.registryAccess()
+                        .lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(MUTATION_INFECTION)
         );
     }
 }

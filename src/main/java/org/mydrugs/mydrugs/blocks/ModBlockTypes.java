@@ -42,6 +42,21 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<GrowthChamberBlock>> GROWTH_CHAMBER_CODEC =
             BLOCK_TYPES.register("growth_chamber", () -> Block.simpleCodec(GrowthChamberBlock::new));
 
+    public static final Supplier<MapCodec<GeneExtractorBlock>> GENE_EXTRACTOR_CODEC =
+            BLOCK_TYPES.register("gene_extractor", () -> Block.simpleCodec(GeneExtractorBlock::new));
+
+    public static final Supplier<MapCodec<KrisprKas9CombinatorBlock>> CRISPR_CAS9_COMBINATOR_CODEC =
+            BLOCK_TYPES.register("crispr_cas9_combinator", () -> Block.simpleCodec(KrisprKas9CombinatorBlock::new));
+
+    public static final Supplier<MapCodec<BacterialIncubatorBlock>> BACTERIAL_INCUBATOR_CODEC =
+            BLOCK_TYPES.register("bacterial_incubator", () -> Block.simpleCodec(BacterialIncubatorBlock::new));
+
+    public static final Supplier<MapCodec<HemogenicInfuserBlock>> HEMOGENIC_INFUSER_CODEC =
+            BLOCK_TYPES.register("hemogenic_infuser", () -> Block.simpleCodec(HemogenicInfuserBlock::new));
+
+    public static final Supplier<MapCodec<AutoclaveBlock>> AUTOCLAVE_CODEC =
+            BLOCK_TYPES.register("autoclave", () -> Block.simpleCodec(AutoclaveBlock::new));
+
     public static final Supplier<MapCodec<CatalyticReformerBlock>> CATALYTIC_REFORMER_CODEC =
             BLOCK_TYPES.register("catalytic_reformer", () -> Block.simpleCodec(CatalyticReformerBlock::new));
 

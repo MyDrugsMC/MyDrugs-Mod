@@ -53,6 +53,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "advanced_mixing_vat");
         saveHorizontalBlockState(futures, cachedOutput, "aromatic_extractor");
+        saveHorizontalBlockState(futures, cachedOutput, "autoclave");
+        saveHorizontalBlockState(futures, cachedOutput, "bacterial_incubator");
         saveHorizontalBlockState(futures, cachedOutput, "btx_fractionation_tower");
         saveHorizontalBlockState(futures, cachedOutput, "catalytic_reformer");
         saveHorizontalBlockState(futures, cachedOutput, "centrifuge");
@@ -63,7 +65,10 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "gasifier");
         saveHorizontalBlockState(futures, cachedOutput, "gas_tank");
         saveHorizontalBlockState(futures, cachedOutput, "gas_pump");
+        saveHorizontalBlockState(futures, cachedOutput, "gene_extractor");
+        saveHorizontalBlockState(futures, cachedOutput, "hemogenic_infuser");
         saveHorizontalBlockState(futures, cachedOutput, "growth_chamber");
+        saveHorizontalBlockState(futures, cachedOutput, "crispr_cas9_combinator");
         saveHorizontalBlockState(futures, cachedOutput, "sieve");
         saveHorizontalBlockState(futures, cachedOutput, "steam_cracker");
         saveActiveHorizontalBlockState(futures, cachedOutput, "chemical_reactor", "active");
@@ -94,14 +99,21 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveAdvancedFurnaceModel(futures, cachedOutput);
         saveCubeMachineModel(futures, cachedOutput, "biochemical_reactor", "biochemical_reactor_front", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "biochemical_reactor_on", "biochemical_reactor_front_on", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
+        saveCubeMachineModel(futures, cachedOutput, "autoclave", "biochemical_reactor_front", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
+        saveCubeMachineModel(futures, cachedOutput, "bacterial_incubator", "growth_chamber_front", "growth_chamber_side", "growth_chamber_top", "growth_chamber_bottom");
         saveCubeMachineModel(futures, cachedOutput, "gas_pump", "gas_pump_front", "gas_pump_side", "gas_pump_top", "gas_pump_bottom");
+        saveCubeMachineModel(futures, cachedOutput, "gene_extractor", "chemical_reactor_front", "chemical_reactor_side", "chemical_reactor_top", "chemical_reactor_bottom");
+        saveCubeMachineModel(futures, cachedOutput, "hemogenic_infuser", "biochemical_reactor_front", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "growth_chamber", "growth_chamber_front", "growth_chamber_side", "growth_chamber_top", "growth_chamber_bottom");
+        saveCubeMachineModel(futures, cachedOutput, "crispr_cas9_combinator", "advanced_mixing_vat_front", "advanced_mixing_vat_side", "advanced_mixing_vat_top", "advanced_mixing_vat_bottom");
         saveSimpleBlockState(futures, cachedOutput, "psy_anvil");
         saveVomitSplash(futures, cachedOutput);
 
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_furnace");
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_mixing_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "aromatic_extractor");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "autoclave");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "bacterial_incubator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "biochemical_reactor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "btx_fractionation_tower");
         saveBlockItemViaBlockModel(futures, cachedOutput, "catalytic_reformer");
@@ -117,8 +129,11 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "gas_pump");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gas_tank");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gasifier");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "gene_extractor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "grinding_bowl");
         saveBlockItemViaBlockModel(futures, cachedOutput, "growth_chamber");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "hemogenic_infuser");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "crispr_cas9_combinator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "magic_mushroom");
         saveBlockItemViaBlockModel(futures, cachedOutput, "mechanical_frame");
         saveBlockItemViaBlockModel(futures, cachedOutput, "mixing_vat");

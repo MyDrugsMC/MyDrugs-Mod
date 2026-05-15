@@ -21,6 +21,8 @@ import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
+import org.mydrugs.mydrugs.mutation.MutationManager;
+import org.mydrugs.mydrugs.mutation.MutationStat;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -53,6 +55,9 @@ public final class DrugEffectRuntimeManager {
         }
 
         EffectType type = normalize(rawType);
+        if (isPositiveEffect(type)) {
+            intensity = MutationManager.boostPositive(player, MutationStat.PLEASURE_SENSITIVITY, intensity, 0.50F);
+        }
         EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.computeIfAbsent(player.getUUID(), ignored -> new EnumMap<>(EffectType.class));
         ActiveDrugEffect existing = effects.get(type);
         if (existing == null) {
@@ -177,6 +182,40 @@ public final class DrugEffectRuntimeManager {
         LAST_ADRENALINE_TRIGGER.put(player.getUUID(), now);
         float intensity = Math.min(1.6F, 0.25F + stimulant * 0.55F + Math.min(8.0F, damageTaken) * 0.06F);
         addEffect(player, EffectType.ADRENALINE_SURGE, intensity, 20 * 12);
+    }
+
+    public static boolean isPositiveEffect(EffectType type) {
+        if (type == null) {
+            return false;
+        }
+        return switch (type) {
+            case MINING_SPEED,
+                 MOVEMENT_SPEED,
+                 GAMMA_BOOST,
+                 LOW_LIGHT_VISION,
+                 BRIGHTNESS_BOOST,
+                 FOCUS,
+                 RITUAL_FOCUS,
+                 RITUAL_STABILITY,
+                 MANUAL_WORK_SPEED,
+                 STRESS_RELIEF,
+                 STRESS_RESISTANCE,
+                 BAD_TRIP_RESISTANCE,
+                 PRECISION,
+                 TREMOR_REDUCTION,
+                 DASH_POWER,
+                 ORE_AURA,
+                 ORE_FORTUNE,
+                 MULTIBLOCK_VISION,
+                 ADRENALINE_SURGE,
+                 DAMAGE_RESISTANCE,
+                 ATTACK_DAMAGE,
+                 ATTACK_SPEED,
+                 FALL_CONTROL,
+                 BURST_WINDOW,
+                 MOB_DETECTION_REDUCTION -> true;
+            default -> false;
+        };
     }
 
     private static EffectType normalize(EffectType type) {

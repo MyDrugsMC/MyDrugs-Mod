@@ -6,7 +6,12 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedFurnaceBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.AutoclaveBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.BacterialIncubatorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.GeneExtractorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.HemogenicInfuserBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.KrisprKas9CombinatorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
 import org.mydrugs.mydrugs.menu.AromaticExtractorMenu;
 import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
@@ -138,6 +143,41 @@ public final class MachineTransferSpecs {
                     itemOut("final_output", 3, GrowthChamberMenu.FINAL_SLOT, OUTPUT_DEFAULT),
                     itemIn("water_container", 4, GrowthChamberMenu.WATER_INPUT_SLOT, TOP_INPUT_DEFAULT),
                     fluidIn("water_input", 5, 0, INPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.GENE_EXTRACTOR.get()) {
+            return spec(
+                    itemIn("adn_input", 0, GeneExtractorBlockEntity.INPUT_SLOT, INPUT_DEFAULT),
+                    itemOut("gene_output_a", 1, GeneExtractorBlockEntity.OUTPUT_SLOT_A, OUTPUT_DEFAULT),
+                    itemOut("gene_output_b", 2, GeneExtractorBlockEntity.OUTPUT_SLOT_B, OUTPUT_DEFAULT),
+                    itemOut("gene_output_c", 3, GeneExtractorBlockEntity.OUTPUT_SLOT_C, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.CRISPR_CAS9_COMBINATOR.get()) {
+            return spec(
+                    itemIn("gene_input_a", 0, KrisprKas9CombinatorBlockEntity.INPUT_A_SLOT, INPUT_DEFAULT),
+                    itemIn("gene_input_b", 1, KrisprKas9CombinatorBlockEntity.INPUT_B_SLOT, SECONDARY_INPUT_DEFAULT),
+                    itemOut("gene_output", 2, KrisprKas9CombinatorBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.BACTERIAL_INCUBATOR.get()) {
+            return spec(
+                    itemIn("gene_input", 0, BacterialIncubatorBlockEntity.GENE_SLOT, INPUT_DEFAULT),
+                    itemIn("nutrient_input", 1, BacterialIncubatorBlockEntity.NUTRIENT_SLOT, SECONDARY_INPUT_DEFAULT),
+                    itemOut("vector_output", 2, BacterialIncubatorBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.HEMOGENIC_INFUSER.get()) {
+            return spec(
+                    itemIn("vector_input", 0, HemogenicInfuserBlockEntity.VECTOR_SLOT, INPUT_DEFAULT),
+                    itemIn("blood_input", 1, HemogenicInfuserBlockEntity.BLOOD_SLOT, SECONDARY_INPUT_DEFAULT),
+                    itemOut("mutagenic_blood_output", 2, HemogenicInfuserBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.AUTOCLAVE.get()) {
+            return spec(
+                    itemIn("syringe_input", 0, AutoclaveBlockEntity.INPUT_SLOT, INPUT_DEFAULT),
+                    itemOut("syringe_output", 1, AutoclaveBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
             );
         }
         if (type == ModBlockEntities.BIOCHEMICAL_REACTOR.get()) {

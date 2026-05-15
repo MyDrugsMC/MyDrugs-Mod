@@ -6,6 +6,8 @@ import net.minecraft.world.level.GameType;
 import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import org.mydrugs.mydrugs.effects.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.mutation.MutationManager;
+import org.mydrugs.mydrugs.mutation.MutationStat;
 
 public final class StressDamageManager {
     private static final float DAMAGE_START_THRESHOLD = AddictionConstants.STRESS_DAMAGE_START_THRESHOLD;
@@ -42,6 +44,7 @@ public final class StressDamageManager {
         normalized = Mth.clamp(normalized, 0.0F, 1.0F);
 
         float damage = normalized * MAX_DAMAGE_PER_SECOND;
+        damage = MutationManager.scaleNegative(player, MutationStat.HEALTH_STABILITY, damage);
         if (damage <= 0.0F) {
             return;
         }

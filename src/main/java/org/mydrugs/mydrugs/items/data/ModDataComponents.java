@@ -9,7 +9,6 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
 import org.mydrugs.mydrugs.gas.GasTankContents;
 import org.mydrugs.mydrugs.items.bottle.BottleFluidContent;
-import org.mydrugs.mydrugs.items.data.BloodSample;
 import org.mydrugs.mydrugs.items.rolling.RolledDrugContent;
 import org.mydrugs.mydrugs.pipe.filter.PipeFilterConfig;
 
@@ -27,12 +26,44 @@ public class ModDataComponents {
                             .networkSynchronized(ByteBufCodecs.BOOL)
             );
 
+    public static final Supplier<DataComponentType<Boolean>> STERILE =
+            DATA_COMPONENTS.registerComponentType(
+                    "sterile",
+                    builder -> builder
+                            .persistent(Codec.BOOL)
+                            .networkSynchronized(ByteBufCodecs.BOOL)
+            );
+
     public static final Supplier<DataComponentType<BloodSample>> BLOOD_SAMPLE =
             DATA_COMPONENTS.registerComponentType(
                     "blood_sample",
                     builder -> builder
                             .persistent(BloodSample.CODEC)
                             .networkSynchronized(BloodSample.STREAM_CODEC)
+            );
+
+    public static final Supplier<DataComponentType<AdnScrapData>> ADN_SCRAP_DATA =
+            DATA_COMPONENTS.registerComponentType(
+                    "adn_scrap_data",
+                    builder -> builder
+                            .persistent(AdnScrapData.CODEC)
+                            .networkSynchronized(AdnScrapData.STREAM_CODEC)
+            );
+
+    public static final Supplier<DataComponentType<AdnGeneData>> ADN_GENE_DATA =
+            DATA_COMPONENTS.registerComponentType(
+                    "adn_gene_data",
+                    builder -> builder
+                            .persistent(AdnGeneData.CODEC)
+                            .networkSynchronized(AdnGeneData.STREAM_CODEC)
+            );
+
+    public static final Supplier<DataComponentType<MutationPayloadData>> MUTATION_PAYLOAD =
+            DATA_COMPONENTS.registerComponentType(
+                    "mutation_payload",
+                    builder -> builder
+                            .persistent(MutationPayloadData.CODEC)
+                            .networkSynchronized(MutationPayloadData.STREAM_CODEC)
             );
 
     public static final Supplier<DataComponentType<Integer>> BLOOD_AMOUNT =

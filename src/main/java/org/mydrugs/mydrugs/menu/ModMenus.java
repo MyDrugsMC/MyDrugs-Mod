@@ -57,6 +57,26 @@ public class ModMenus {
             MENUS.register("growth_chamber",
                     () -> new MenuType<>(GrowthChamberMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<GeneExtractorMenu>> GENE_EXTRACTOR =
+            MENUS.register("gene_extractor",
+                    () -> new MenuType<>(GeneExtractorMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<KrisprKas9CombinatorMenu>> CRISPR_CAS9_COMBINATOR =
+            MENUS.register("crispr_cas9_combinator",
+                    () -> new MenuType<>(KrisprKas9CombinatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<BacterialIncubatorMenu>> BACTERIAL_INCUBATOR =
+            MENUS.register("bacterial_incubator",
+                    () -> new MenuType<>(BacterialIncubatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<HemogenicInfuserMenu>> HEMOGENIC_INFUSER =
+            MENUS.register("hemogenic_infuser",
+                    () -> new MenuType<>(HemogenicInfuserMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<AutoclaveMenu>> AUTOCLAVE =
+            MENUS.register("autoclave",
+                    () -> new MenuType<>(AutoclaveMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
     public static final Supplier<MenuType<BiochemicalReactorMenu>> BIOCHEMICAL_REACTOR =
             MENUS.register(
                     "biochemical_reactor",

@@ -6,6 +6,8 @@ import net.minecraft.util.Mth;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
+import org.mydrugs.mydrugs.mutation.MutationClientState;
+import org.mydrugs.mydrugs.mutation.MutationStat;
 
 public final class FlexibleDrugVisualOverlay {
     private FlexibleDrugVisualOverlay() {
@@ -20,9 +22,11 @@ public final class FlexibleDrugVisualOverlay {
             return;
         }
 
-        float blur = AddictionClientState.getEffectIntensity(EffectType.BLUR);
-        float confusion = AddictionClientState.getEffectIntensity(EffectType.CONFUSION);
-        float nausea = AddictionClientState.getEffectIntensity(EffectType.CUSTOM_NAUSEA);
+        float visualAccuracy = MutationClientState.get(MutationStat.VISUAL_ACCURACY);
+        float negativeScale = Math.max(0.0F, 1.0F - visualAccuracy);
+        float blur = AddictionClientState.getEffectIntensity(EffectType.BLUR) * negativeScale;
+        float confusion = AddictionClientState.getEffectIntensity(EffectType.CONFUSION) * negativeScale;
+        float nausea = AddictionClientState.getEffectIntensity(EffectType.CUSTOM_NAUSEA) * negativeScale;
         float adrenaline = AddictionClientState.getEffectIntensity(EffectType.ADRENALINE_SURGE);
         float strength = Mth.clamp((blur * 0.55F + confusion * 0.35F + nausea * 0.25F) * Config.CLIENT.shaderIntensity.get().floatValue(), 0.0F, 0.75F);
         float adrenalineStrength = Mth.clamp(adrenaline * Config.CLIENT.shaderIntensity.get().floatValue(), 0.0F, 1.0F);

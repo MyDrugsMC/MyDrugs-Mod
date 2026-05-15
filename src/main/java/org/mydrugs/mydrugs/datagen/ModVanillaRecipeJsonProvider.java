@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.items.ModItems;
 
 import java.nio.file.Path;
@@ -88,6 +89,78 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                         "P", itemId(Items.PAPER)
                 ),
                 itemId(ModItems.PSY_BLUEPRINT.get()), 1);
+        saveShaped(futures, cachedOutput, "adn_scraper",
+                List.of(" IA", "CRG", " I "),
+                Map.of(
+                        "I", itemId(Items.IRON_INGOT),
+                        "A", itemId(Items.AMETHYST_SHARD),
+                        "C", itemId(Items.COPPER_INGOT),
+                        "R", itemId(Items.REDSTONE),
+                        "G", itemId(Items.GLASS_PANE)
+                ),
+                itemId(ModItems.ADN_SCRAPER.get()), 1);
+        saveShaped(futures, cachedOutput, "gene_extractor",
+                List.of("GAG", "CRC", "IPI"),
+                Map.of(
+                        "G", itemId(Items.GLASS),
+                        "A", itemId(Items.AMETHYST_SHARD),
+                        "C", itemId(Items.COPPER_INGOT),
+                        "R", itemId(Items.REDSTONE_BLOCK),
+                        "I", itemId(Items.IRON_INGOT),
+                        "P", itemId(ModItems.PSYCHOTROPE_LENS.get())
+                ),
+                itemId(ModBlocks.GENE_EXTRACTOR.get()), 1);
+        saveShaped(futures, cachedOutput, "crispr_cas9_combinator",
+                List.of("DAD", "CGC", "RER"),
+                Map.of(
+                        "D", itemId(Items.DIAMOND),
+                        "A", itemId(Items.AMETHYST_BLOCK),
+                        "C", itemId(Items.COPPER_BLOCK),
+                        "G", itemId(Items.GLASS),
+                        "R", itemId(Items.REDSTONE_BLOCK),
+                        "E", itemId(ModBlocks.GENE_EXTRACTOR.get())
+                ),
+                itemId(ModBlocks.CRISPR_CAS9_COMBINATOR.get()), 1);
+        saveShaped(futures, cachedOutput, "nutrient_gel",
+                List.of("SMS", " B ", "SMS"),
+                Map.of(
+                        "S", itemId(Items.SUGAR),
+                        "M", itemId(Items.BROWN_MUSHROOM),
+                        "B", itemId(Items.SLIME_BALL)
+                ),
+                itemId(ModItems.NUTRIENT_GEL.get()), 4);
+        saveShaped(futures, cachedOutput, "bacterial_incubator",
+                List.of("GAG", "CSC", "RPR"),
+                Map.of(
+                        "G", itemId(Items.GLASS),
+                        "A", itemId(Items.AMETHYST_SHARD),
+                        "C", itemId(Items.COPPER_INGOT),
+                        "S", itemId(Items.SLIME_BALL),
+                        "R", itemId(Items.REDSTONE),
+                        "P", itemId(ModItems.PSYCHOTROPE_LENS.get())
+                ),
+                itemId(ModBlocks.BACTERIAL_INCUBATOR.get()), 1);
+        saveShaped(futures, cachedOutput, "hemogenic_infuser",
+                List.of("GAG", "CBC", "RIR"),
+                Map.of(
+                        "G", itemId(Items.GLASS),
+                        "A", itemId(Items.AMETHYST_SHARD),
+                        "C", itemId(Items.COPPER_INGOT),
+                        "B", itemId(ModBlocks.BACTERIAL_INCUBATOR.get()),
+                        "R", itemId(Items.REDSTONE_BLOCK),
+                        "I", itemId(Items.OBSIDIAN)
+                ),
+                itemId(ModBlocks.HEMOGENIC_INFUSER.get()), 1);
+        saveShaped(futures, cachedOutput, "autoclave",
+                List.of("IGI", "CRC", "IPI"),
+                Map.of(
+                        "I", itemId(Items.IRON_INGOT),
+                        "G", itemId(Items.GLASS),
+                        "C", itemId(Items.COPPER_INGOT),
+                        "R", itemId(Items.REDSTONE),
+                        "P", itemId(ModItems.PSYCHOTROPE_LENS.get())
+                ),
+                itemId(ModBlocks.AUTOCLAVE.get()), 1);
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

@@ -115,6 +115,46 @@ public final class ModBlockEntities {
                             ModBlocks.GROWTH_CHAMBER.get()
                     ));
 
+    public static final Supplier<BlockEntityType<GeneExtractorBlockEntity>> GENE_EXTRACTOR =
+            BLOCK_ENTITY_TYPES.register("gene_extractor",
+                    () -> new BlockEntityType<>(
+                            GeneExtractorBlockEntity::new,
+                            false,
+                            ModBlocks.GENE_EXTRACTOR.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<KrisprKas9CombinatorBlockEntity>> CRISPR_CAS9_COMBINATOR =
+            BLOCK_ENTITY_TYPES.register("crispr_cas9_combinator",
+                    () -> new BlockEntityType<>(
+                            KrisprKas9CombinatorBlockEntity::new,
+                            false,
+                            ModBlocks.CRISPR_CAS9_COMBINATOR.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<BacterialIncubatorBlockEntity>> BACTERIAL_INCUBATOR =
+            BLOCK_ENTITY_TYPES.register("bacterial_incubator",
+                    () -> new BlockEntityType<>(
+                            BacterialIncubatorBlockEntity::new,
+                            false,
+                            ModBlocks.BACTERIAL_INCUBATOR.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<HemogenicInfuserBlockEntity>> HEMOGENIC_INFUSER =
+            BLOCK_ENTITY_TYPES.register("hemogenic_infuser",
+                    () -> new BlockEntityType<>(
+                            HemogenicInfuserBlockEntity::new,
+                            false,
+                            ModBlocks.HEMOGENIC_INFUSER.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<AutoclaveBlockEntity>> AUTOCLAVE =
+            BLOCK_ENTITY_TYPES.register("autoclave",
+                    () -> new BlockEntityType<>(
+                            AutoclaveBlockEntity::new,
+                            false,
+                            ModBlocks.AUTOCLAVE.get()
+                    ));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BiochemicalReactorBlockEntity>> BIOCHEMICAL_REACTOR =
             BLOCK_ENTITY_TYPES.register(
                     "biochemical_reactor",

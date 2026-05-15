@@ -4,6 +4,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.effects.addiction.manager.effect.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.mutation.MutationManager;
+import org.mydrugs.mydrugs.mutation.MutationStat;
 
 public final class ManualMachineSpeedHelper {
     private ManualMachineSpeedHelper() {
@@ -24,7 +26,9 @@ public final class ManualMachineSpeedHelper {
         if (hasPsychedelicRitualInsight(player)) {
             return 0.95F;
         }
-        return Mth.clamp(stability * 0.18F + focus * 0.06F, 0.0F, 0.55F);
+        float ritualSync = MutationManager.getValue(player, MutationStat.RITUAL_NEURAL_SYNC);
+        float mutationBonus = ritualSync * 0.20F;
+        return Mth.clamp(stability * 0.18F + focus * 0.06F + mutationBonus, 0.0F, 0.75F);
     }
 
     public static boolean hasPsychedelicRitualInsight(ServerPlayer player) {
@@ -37,7 +41,8 @@ public final class ManualMachineSpeedHelper {
         }
         float focus = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_FOCUS);
         float precision = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.PRECISION);
-        return Mth.clamp(focus * 0.10F + precision * 0.18F, 0.0F, 0.22F);
+        float ritualSync = MutationManager.getValue(player, MutationStat.RITUAL_NEURAL_SYNC);
+        return Mth.clamp(focus * 0.10F + precision * 0.18F + ritualSync * 0.10F, 0.0F, 0.32F);
     }
 
     public static float getRitualZoneMotionScale(ServerPlayer player) {

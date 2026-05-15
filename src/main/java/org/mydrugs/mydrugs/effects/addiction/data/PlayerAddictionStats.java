@@ -52,6 +52,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastDrugHintTick = 0L;
 
     public int overdoseDeathTimer = -1;
+    public float overdoseProtectionAccumulator = 0.0F;
     public boolean addictionSymptomsImmune = false;
 
     public PlayerAddictionStats() {

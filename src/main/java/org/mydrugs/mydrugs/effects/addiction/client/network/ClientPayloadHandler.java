@@ -18,7 +18,12 @@ import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
+import org.mydrugs.mydrugs.mutation.MutationClientState;
+import org.mydrugs.mydrugs.mutation.MutationStat;
+import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 import net.minecraft.client.Minecraft;
+import java.util.EnumMap;
+import java.util.Map;
 import org.mydrugs.mydrugs.effects.addiction.client.render.BadTripScreamerOverlay;
 import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientState;
 import org.mydrugs.mydrugs.sounds.ModSounds;
@@ -86,6 +91,17 @@ public final class ClientPayloadHandler {
 
     public static void handleAddictionDebugOpen(AddictionDebugOpenPayload payload, IPayloadContext context) {
         Minecraft.getInstance().setScreen(new AddictionDebugScreen(payload));
+    }
+
+    public static void handleMutationSync(MutationSyncPayload payload, IPayloadContext context) {
+        Map<MutationStat, Float> values = new EnumMap<>(MutationStat.class);
+        for (MutationSyncPayload.Entry entry : payload.entries()) {
+            MutationStat stat = MutationStat.bySerializedNameOrNull(entry.statId());
+            if (stat != null) {
+                values.put(stat, entry.value());
+            }
+        }
+        MutationClientState.apply(values);
     }
 
     public static void handlePersonalDiarySnapshot(PersonalDiarySnapshotPayload payload, IPayloadContext context) {

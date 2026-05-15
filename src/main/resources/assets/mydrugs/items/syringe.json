@@ -2,7 +2,7 @@
   "model": {
     "type": "minecraft:condition",
     "property": "minecraft:has_component",
-    "component": "mydrugs:blood_sample",
+    "component": "mydrugs:filled",
     "on_true": {
       "type": "minecraft:model",
       "model": "mydrugs:item/syringe_filled",

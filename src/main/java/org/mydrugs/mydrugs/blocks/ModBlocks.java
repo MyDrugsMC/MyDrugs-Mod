@@ -215,6 +215,61 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> GROWTH_CHAMBER_ITEM = ITEMS.registerSimpleBlockItem(GROWTH_CHAMBER);
 
+    public static final DeferredBlock<GeneExtractorBlock> GENE_EXTRACTOR = BLOCKS.registerBlock(
+            "gene_extractor",
+            GeneExtractorBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> GENE_EXTRACTOR_ITEM = ITEMS.registerSimpleBlockItem(GENE_EXTRACTOR);
+
+    public static final DeferredBlock<KrisprKas9CombinatorBlock> CRISPR_CAS9_COMBINATOR = BLOCKS.registerBlock(
+            "crispr_cas9_combinator",
+            KrisprKas9CombinatorBlock::new,
+            props -> props
+                    .strength(4.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> CRISPR_CAS9_COMBINATOR_ITEM = ITEMS.registerSimpleBlockItem(CRISPR_CAS9_COMBINATOR);
+
+    public static final DeferredBlock<BacterialIncubatorBlock> BACTERIAL_INCUBATOR = BLOCKS.registerBlock(
+            "bacterial_incubator",
+            BacterialIncubatorBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> BACTERIAL_INCUBATOR_ITEM = ITEMS.registerSimpleBlockItem(BACTERIAL_INCUBATOR);
+
+    public static final DeferredBlock<HemogenicInfuserBlock> HEMOGENIC_INFUSER = BLOCKS.registerBlock(
+            "hemogenic_infuser",
+            HemogenicInfuserBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> HEMOGENIC_INFUSER_ITEM = ITEMS.registerSimpleBlockItem(HEMOGENIC_INFUSER);
+
+    public static final DeferredBlock<AutoclaveBlock> AUTOCLAVE = BLOCKS.registerBlock(
+            "autoclave",
+            AutoclaveBlock::new,
+            props -> props
+                    .strength(3.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+    );
+
+    public static final DeferredItem<BlockItem> AUTOCLAVE_ITEM = ITEMS.registerSimpleBlockItem(AUTOCLAVE);
+
     public static final DeferredBlock<Block> BIOCHEMICAL_REACTOR = BLOCKS.register(
             "biochemical_reactor",
             registryName -> new BiochemicalReactorBlock(

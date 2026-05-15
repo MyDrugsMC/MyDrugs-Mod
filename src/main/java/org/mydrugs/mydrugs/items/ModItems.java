@@ -105,6 +105,32 @@ public class ModItems {
     public static final DeferredItem<Item> SYRINGE =
             ITEMS.registerItem("syringe", SyringeItem::new, props -> props.stacksTo(1));
 
+    public static final DeferredItem<Item> ADN_SCRAPER =
+            ITEMS.registerItem("adn_scraper", AdnScraperItem::new, props -> props.stacksTo(1).durability(96));
+
+    public static final DeferredItem<Item> ADN_SCRAP =
+            ITEMS.registerItem("adn_scrap", AdnScrapItem::new);
+
+    public static final DeferredItem<Item> ADN_GENE =
+            ITEMS.registerItem("adn_gene", AdnGeneItem::new);
+
+    public static final DeferredItem<Item> MUTATION_VECTOR =
+            ITEMS.registerItem("mutation_vector", props -> new MutationPayloadItem(
+                    props,
+                    "tooltip.mydrugs.mutation_vector.empty",
+                    "tooltip.mydrugs.mutation_vector.footer"
+            ));
+
+    public static final DeferredItem<Item> MUTAGENIC_BLOOD_VIAL =
+            ITEMS.registerItem("mutagenic_blood_vial", props -> new MutationPayloadItem(
+                    props,
+                    "tooltip.mydrugs.mutagenic_blood_vial.empty",
+                    "tooltip.mydrugs.mutagenic_blood_vial.footer"
+            ));
+
+    public static final DeferredItem<Item> NUTRIENT_GEL =
+            ITEMS.registerSimpleItem("nutrient_gel");
+
     public static final DeferredItem<Item> CURED_CANNABIS_LEAF =
             ITEMS.registerSimpleItem("cured_cannabis_leaf");
 

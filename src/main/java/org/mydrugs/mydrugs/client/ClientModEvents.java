@@ -56,6 +56,11 @@ public class ClientModEvents {
         event.register(ModMenus.BTX_FRACTIONATION_TOWER.get(), BTXFractionationTowerScreen::new);
         event.register(ModMenus.ELECTROLYZER.get(), ElectrolyzerScreen::new);
         event.register(ModMenus.GROWTH_CHAMBER.get(), GrowthChamberScreen::new);
+        event.register(ModMenus.GENE_EXTRACTOR.get(), GeneExtractorScreen::new);
+        event.register(ModMenus.CRISPR_CAS9_COMBINATOR.get(), KrisprKas9CombinatorScreen::new);
+        event.register(ModMenus.BACTERIAL_INCUBATOR.get(), BacterialIncubatorScreen::new);
+        event.register(ModMenus.HEMOGENIC_INFUSER.get(), HemogenicInfuserScreen::new);
+        event.register(ModMenus.AUTOCLAVE.get(), AutoclaveScreen::new);
         event.register(ModMenus.BIOCHEMICAL_REACTOR.get(), BiochemicalReactorScreen::new);
         event.register(ModMenus.GASIFIER.get(), GasifierScreen::new);
         event.register(ModMenus.CHEMICAL_REACTOR.get(), ChemicalReactorScreen::new);

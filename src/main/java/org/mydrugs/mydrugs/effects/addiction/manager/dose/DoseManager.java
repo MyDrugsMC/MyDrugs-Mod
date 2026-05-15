@@ -17,6 +17,8 @@ import org.mydrugs.mydrugs.effects.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseContribution;
 import org.mydrugs.mydrugs.effects.addiction.dose.DosePath;
 import org.mydrugs.mydrugs.effects.addiction.dose.DoseState;
+import org.mydrugs.mydrugs.mutation.MutationManager;
+import org.mydrugs.mydrugs.mutation.MutationStat;
 
 import java.util.Iterator;
 
@@ -144,7 +146,13 @@ public final class DoseManager {
             return;
         }
 
-        playerStats.overdoseDeathTimer--;
+        float metabolicControl = MutationManager.getValue(player, MutationStat.METABOLIC_CONTROL);
+        playerStats.overdoseProtectionAccumulator += Math.min(0.95F, metabolicControl * 0.75F);
+        int skip = (int) playerStats.overdoseProtectionAccumulator;
+        playerStats.overdoseProtectionAccumulator -= skip;
+        if (skip <= 0) {
+            playerStats.overdoseDeathTimer--;
+        }
         if (playerStats.overdoseDeathTimer <= 0) {
             player.hurt(ModDamageTypes.overdose(player.level()), Float.MAX_VALUE);
             playerStats.overdoseDeathTimer = -1;
