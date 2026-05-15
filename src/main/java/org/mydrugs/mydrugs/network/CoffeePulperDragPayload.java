@@ -24,6 +24,7 @@ public record CoffeePulperDragPayload(int menuId, float amount) implements Custo
         if (!(player.containerMenu instanceof ManualCoffeePulperMenu menu)) return;
         if (menu.getMenuId() != payload.menuId()) return;
         if (!menu.stillValid(player)) return;
+        if (!PayloadRateLimiter.accept(player, PayloadRateLimiter.Kind.COFFEE_PULPER_DRAG)) return;
         menu.addPulperWork(player, PayloadValidation.clampNonNegative(payload.amount(), 8.0F));
     }
 

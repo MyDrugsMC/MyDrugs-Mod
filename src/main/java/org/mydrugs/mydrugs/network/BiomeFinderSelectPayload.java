@@ -33,6 +33,9 @@ public record BiomeFinderSelectPayload(InteractionHand hand, ResourceLocation bi
     }
 
     private static BiomeFinderSelectPayload decode(RegistryFriendlyByteBuf buf) {
+        // Unknown hand strings are decoded to null and rejected at handle time.
+        // Previously we silently coerced to MAIN_HAND, which would let a malicious
+        // client trigger the handler with an unexpected hand mapping.
         InteractionHand hand = decodeHand(ByteBufCodecs.STRING_UTF8.decode(buf));
         ResourceLocation biome = ResourceLocation.STREAM_CODEC.decode(buf);
         return new BiomeFinderSelectPayload(hand, biome);
@@ -42,13 +45,14 @@ public record BiomeFinderSelectPayload(InteractionHand hand, ResourceLocation bi
         try {
             return InteractionHand.valueOf(name);
         } catch (IllegalArgumentException ignored) {
-            return InteractionHand.MAIN_HAND;
+            return null;
         }
     }
 
     public static void handleOnServer(BiomeFinderSelectPayload payload, IPayloadContext context) {
         if (!(context.player() instanceof ServerPlayer player)) return;
         if (!(player.level() instanceof ServerLevel level)) return;
+        if (payload.hand() == null) return;
         if (VanillaBiomeFinderItem.isExcluded(payload.biome())) return;
 
         ItemStack stack = player.getItemInHand(payload.hand());

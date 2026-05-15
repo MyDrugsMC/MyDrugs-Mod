@@ -32,6 +32,7 @@ public record PsyMixerRitualInputPayload(int menuId, float clientPhase) implemen
         if (!(player.containerMenu instanceof PsyMixerMenu menu)) return;
         if (menu.getMenuId() != payload.menuId()) return;
         if (!menu.stillValid(player)) return;
+        if (!PayloadRateLimiter.accept(player, PayloadRateLimiter.Kind.PSY_MIXER_RITUAL_INPUT)) return;
 
         if (player.level().getBlockEntity(menu.getCorePos()) instanceof FormedPsyMixerCoreBlockEntity core) {
             core.handleRhythmInput(player);

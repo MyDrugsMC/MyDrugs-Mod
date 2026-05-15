@@ -33,6 +33,9 @@ public record RollerDragPayload(int menuId, float amount) implements CustomPacke
         if (!menu.stillValid(player)) {
             return;
         }
+        if (!PayloadRateLimiter.accept(player, PayloadRateLimiter.Kind.ROLLER_DRAG)) {
+            return;
+        }
         float clamped = PayloadValidation.clampNonNegative(payload.amount(), 6.0F);
         menu.addRollProgress(clamped);
     }

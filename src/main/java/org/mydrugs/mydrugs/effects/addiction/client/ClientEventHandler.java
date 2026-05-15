@@ -9,7 +9,6 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
@@ -26,36 +25,15 @@ import org.mydrugs.mydrugs.effects.addiction.client.render.VomitOverlayClientSta
 import org.mydrugs.mydrugs.effects.addiction.client.render.hallucination.FakeEntityRenderController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.ClientSoundController;
 import org.mydrugs.mydrugs.effects.addiction.client.sound.HeadphonesMusicController;
-import org.mydrugs.mydrugs.effects.addiction.client.network.ClientPayloadHandler;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionClientSnapshotPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.AddictionDebugOpenPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.BadTripPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.BadTripScreamerPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.DoseSyncPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.HeadphonesStatePayload;
-import org.mydrugs.mydrugs.effects.addiction.network.DrugEffectSyncPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.PersonalDiarySnapshotPayload;
-import org.mydrugs.mydrugs.effects.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.effects.addiction.client.input.ClientInputInterceptor;
-import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 
-@EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
+/**
+ * Inner {@code Game} class hosts the actual {@link Dist#CLIENT}-side gameplay subscribers.
+ * Client payload handler registration moved to
+ * {@link org.mydrugs.mydrugs.client.network.ClientPayloadHandlers}.
+ */
 public final class ClientEventHandler {
     private ClientEventHandler() {
-    }
-
-    @SubscribeEvent
-    public static void onRegisterClientPayloads(RegisterClientPayloadHandlersEvent event) {
-        event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);
-        event.register(HeadphonesStatePayload.TYPE, ClientPayloadHandler::handleHeadphonesState);
-        event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
-        event.register(DrugEffectSyncPayload.TYPE, ClientPayloadHandler::handleDrugEffectSync);
-        event.register(VomitOverlayPayload.TYPE, ClientPayloadHandler::handleVomitOverlay);
-        event.register(BadTripPayload.TYPE, ClientPayloadHandler::handleBadTrip);
-        event.register(BadTripScreamerPayload.TYPE, ClientPayloadHandler::handleBadTripScreamer);
-        event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
-        event.register(PersonalDiarySnapshotPayload.TYPE, ClientPayloadHandler::handlePersonalDiarySnapshot);
-        event.register(MutationSyncPayload.TYPE, ClientPayloadHandler::handleMutationSync);
     }
 
     @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)

@@ -6,7 +6,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.*;
@@ -15,15 +14,9 @@ import org.mydrugs.mydrugs.client.item.BottleFillProperty;
 import org.mydrugs.mydrugs.client.item.LiquidColorTintSource;
 import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
-import org.mydrugs.mydrugs.effects.payloads.DrugVisualPayload;
 import org.mydrugs.mydrugs.entity.ModEntities;
 import org.mydrugs.mydrugs.menu.ModMenus;
 import org.mydrugs.mydrugs.menu.client.*;
-import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
-import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
-import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
-import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
-import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferConfigScreen;
 import org.mydrugs.mydrugs.pipe.client.PipeBlockEntityRenderer;
 import org.mydrugs.mydrugs.pipe.client.PipeFilterScreen;
@@ -72,15 +65,6 @@ public class ClientModEvents {
         event.register(ModMenus.AROMATIC_EXTRACTOR.get(), AromaticExtractorScreen::new);
         event.register(ModMenus.PIPE_FILTER.get(), PipeFilterScreen::new);
         event.register(ModMenus.MACHINE_TRANSFER_CONFIG.get(), MachineTransferConfigScreen::new);
-    }
-
-    @SubscribeEvent
-    public static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
-        event.register(MachineTransferConfigSnapshotPayload.TYPE, MachineTransferClientPayloadHandler::handleSnapshot);
-        event.register(DrugVisualPayload.TYPE, DrugVisualPayloadHandler::handle);
-        event.register(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayloadHandler::handle);
-        event.register(BiomeFinderOpenScreenPayload.TYPE, BiomeFinderClientPayloadHandler::handleOpenScreen);
-        event.register(OpenDrugFormulaNamingPayload.TYPE, DrugFormulaNamingPayloadHandler::handle);
     }
 
     @SubscribeEvent
