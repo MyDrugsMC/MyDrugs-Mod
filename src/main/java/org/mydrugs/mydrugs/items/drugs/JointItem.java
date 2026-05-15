@@ -42,7 +42,7 @@ public class JointItem extends RolledSmokedItem {
         for (Map.Entry<DrugId, Integer> entry : counts.entrySet()) {
             String idName = TextUtils.prettify(entry.getKey().name());
             int percent = Math.round(entry.getValue() / 3.0f * 100.0f);
-            tooltipAdder.accept(Component.literal(idName + " : " + percent + "%"));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.joint.composition", idName, percent));
         }
     }
 }

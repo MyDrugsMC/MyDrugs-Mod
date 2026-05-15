@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.effects.addiction.client.sound;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.client.HeartbeatPulse;
@@ -23,7 +24,11 @@ public final class ClientSoundController {
 
         if (AddictionClientState.has(SymptomFlags.STRESS) && gameTime >= nextHeartbeatAt) {
             HeartbeatPulse.triggerBeat();
-            mc.player.playNotifySound(ModSounds.SINGLE_HEARTBEAT.get(), SoundSource.PLAYERS, 0.5F, 1.0F);
+            // Accessibility: visual pulse still fires (it follows enableCameraShake),
+            // only the audible heartbeat is gated by enableHeartbeatSounds.
+            if (Config.CLIENT.enableHeartbeatSounds.get()) {
+                mc.player.playNotifySound(ModSounds.SINGLE_HEARTBEAT.get(), SoundSource.PLAYERS, 0.5F, 1.0F);
+            }
             nextHeartbeatAt = gameTime + Math.max(8L, 40L - (long) (AddictionClientState.stressLevel * 25L));
         }
 
@@ -34,7 +39,9 @@ public final class ClientSoundController {
             nextThoughtAt = gameTime + 20L * (20L + RANDOM.nextInt(40));
         }
 
-        if (AddictionClientState.has(SymptomFlags.HALLUCINATION) && RANDOM.nextFloat() < 0.008F) {
+        if (AddictionClientState.has(SymptomFlags.HALLUCINATION)
+                && Config.CLIENT.enableHallucinations.get()
+                && RANDOM.nextFloat() < 0.008F * Config.CLIENT.hallucinationIntensity.get().floatValue()) {
             mc.player.playNotifySound(ModSounds.HALLUCINATION_CUE.get(), SoundSource.PLAYERS, 0.30F, 1.0F);
         }
     }

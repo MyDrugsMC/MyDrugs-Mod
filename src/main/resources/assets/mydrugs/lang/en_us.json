@@ -1696,5 +1696,11 @@
   "screen.mydrugs.diary.no_rituals": "I have not attempted any rituals yet.",
   "screen.mydrugs.diary.auto_entry": "Written automatically",
   "screen.mydrugs.diary.custom_entry": "Written by me",
-  "tooltip.mydrugs.personal_diary": "Hold right click to write what today feels like. Shift-right-click to read your pages."
+  "screen.mydrugs.diary.day": "Day %s",
+  "screen.mydrugs.guide.title": "MyDrugs Field Guide",
+  "screen.mydrugs.guide.menu": "Menu",
+  "tooltip.mydrugs.personal_diary": "Hold right click to write what today feels like. Shift-right-click to read your pages.",
+  "tooltip.mydrugs.joint.composition": "%s : %s%%",
+  "message.mydrugs.food_recovery.steady": "A decent meal helps you steady yourself.",
+  "entity.minecraft.villager.mydrugs.therapist": "Therapist"
 }

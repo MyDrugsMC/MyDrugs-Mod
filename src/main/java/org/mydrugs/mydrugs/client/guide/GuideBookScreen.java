@@ -78,7 +78,7 @@ public final class GuideBookScreen extends Screen {
     private int lastMouseY;
 
     public GuideBookScreen() {
-        super(Component.literal("MyDrugs Field Guide"));
+        super(Component.translatable("screen.mydrugs.guide.title"));
     }
 
     @Override
@@ -107,7 +107,7 @@ public final class GuideBookScreen extends Screen {
                 .bounds(this.bookX + BOOK_W - BORDER_R - 26, btnY, 22, 15)
                 .build());
 
-        addRenderableWidget(Button.builder(Component.literal("menu"), button -> navigateTo(1))
+        addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.guide.menu"), button -> navigateTo(1))
                 .bounds(this.bookX + BOOK_W - BORDER_R + 16, btnY, 52, 15)
                 .build());
     }

@@ -477,7 +477,7 @@ public final class PersonalDiaryScreen extends Screen {
                 idx++;
             }
         }
-        return new DayPage(Component.literal("Day " + day), lines, isToday);
+        return new DayPage(Component.translatable("screen.mydrugs.diary.day", day), lines, isToday);
     }
 
     private List<DiaryLine> wrapToLines(String text) {

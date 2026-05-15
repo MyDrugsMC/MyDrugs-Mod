@@ -18,7 +18,7 @@ public final class ModVillagerProfessions {
     public static final Supplier<VillagerProfession> THERAPIST =
             PROFESSIONS.register("therapist", () ->
                     new VillagerProfession(
-                            Component.literal("therapist"),
+                            Component.translatable("entity.minecraft.villager.mydrugs.therapist"),
                             holder -> holder.is(ModPoiTypes.THERAPIST_POI_KEY),
                             holder -> holder.is(ModPoiTypes.THERAPIST_POI_KEY),
                             ImmutableSet.of(),

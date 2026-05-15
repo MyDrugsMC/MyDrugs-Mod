@@ -36,8 +36,12 @@ public final class AddictionHudRenderer {
         int width = mc.getWindow().getGuiScaledWidth();
         int height = mc.getWindow().getGuiScaledHeight();
         drawWithdrawalBar(guiGraphics, width, height);
-        drawDominantDrugIcon(guiGraphics, mc, width, height);
-        drawSymptomColumn(guiGraphics, width, height);
+        // Accessibility: compact HUD drops the dominant-drug glyph and the symptom
+        // icon column, keeping only the withdrawal bar so the playfield stays clear.
+        if (!Config.CLIENT.compactAddictionHud.get()) {
+            drawDominantDrugIcon(guiGraphics, mc, width, height);
+            drawSymptomColumn(guiGraphics, width, height);
+        }
     }
 
     private static void drawWithdrawalBar(GuiGraphics graphics, int width, int height) {

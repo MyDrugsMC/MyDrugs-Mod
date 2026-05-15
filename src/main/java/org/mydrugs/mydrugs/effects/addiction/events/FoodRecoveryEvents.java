@@ -37,8 +37,9 @@ public final class FoodRecoveryEvents {
         // Tiny resilience gain
         ResilienceManager.add(stats, 0.001F);
 
-        player.displayClientMessage(Component.literal(
-                "A decent meal helps you steady yourself."
-        ), true);
+        player.displayClientMessage(
+                Component.translatable("message.mydrugs.food_recovery.steady"),
+                true
+        );
     }
 }

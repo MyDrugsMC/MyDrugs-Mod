@@ -19,6 +19,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Vector3f;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.effects.addiction.client.AddictionClientState;
 import org.mydrugs.mydrugs.effects.addiction.config.SymptomFlags;
@@ -58,11 +59,19 @@ public final class FakeEntityRenderController {
         if (!AddictionClientState.has(SymptomFlags.HALLUCINATION)) {
             return;
         }
+        // Accessibility: full off-switch and per-intensity scaling for spawn rate.
+        if (!Config.CLIENT.enableHallucinations.get()) {
+            return;
+        }
+        float intensityScale = Config.CLIENT.hallucinationIntensity.get().floatValue();
+        if (intensityScale <= 0.0F) {
+            return;
+        }
 
         updateStareReaction(mc, time);
 
         if (ACTIVE.size() >= MAX_ACTIVE) return;
-        if (RANDOM.nextFloat() > 0.015F + AddictionClientState.globalSeverity * 0.035F) return;
+        if (RANDOM.nextFloat() > (0.015F + AddictionClientState.globalSeverity * 0.035F) * intensityScale) return;
 
         Camera camera = mc.gameRenderer.getMainCamera();
         Vec3 spawnPos = findHiddenSpawn(mc, camera);
