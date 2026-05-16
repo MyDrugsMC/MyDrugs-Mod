@@ -321,12 +321,12 @@ public class MixingVatBlockEntity extends BlockEntity {
         if (held.isEmpty() || !held.is(ModItems.CUP.get())) {
             return false;
         }
-        ResourceLocation coffeeId = ModFluids.rl("coffee");
-        if (resultFluidId == null || !resultFluidId.equals(coffeeId) || resultFluidAmount < 250) {
+
+        ItemStack filled = filledCupForResultFluid();
+        if (filled.isEmpty() || resultFluidAmount < 250) {
             return false;
         }
 
-        ItemStack filled = new ItemStack(ModItems.COFFEE_CUP.get());
         if (!player.getAbilities().instabuild) {
             held.shrink(1);
         }
@@ -343,6 +343,22 @@ public class MixingVatBlockEntity extends BlockEntity {
         resetMixingProgress();
         notifyUpdate();
         return true;
+    }
+
+    private ItemStack filledCupForResultFluid() {
+        if (resultFluidId == null) {
+            return ItemStack.EMPTY;
+        }
+
+        if (resultFluidId.equals(ModFluids.rl("coffee"))) {
+            return new ItemStack(ModItems.COFFEE_CUP.get());
+        }
+
+        if (resultFluidId.equals(ModFluids.rl("herbal_tea"))) {
+            return new ItemStack(ModItems.HERBAL_TEA.get());
+        }
+
+        return ItemStack.EMPTY;
     }
 
     public boolean tryInsertFluidFromHeld(Player player, InteractionHand hand, ItemStack held) {

@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:aloe_vera",
+  "fluid_input_1": {
+    "fluid": "minecraft:water",
+    "amount": 1000
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:herbal_tea",
+    "amount": 1000
+  },
+  "required_stirs": 2,
+  "requires_heat": true
+}

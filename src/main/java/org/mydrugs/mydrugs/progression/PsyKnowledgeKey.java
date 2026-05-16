@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.progression;
 
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 
 import java.util.List;
 import java.util.Objects;

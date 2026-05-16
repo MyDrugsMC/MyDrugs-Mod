@@ -63,6 +63,19 @@ public final class DrugProgressionGate {
         };
     }
 
+    public static DrugId required(PsyKnowledgeKey key) {
+        if (key == PsyKnowledgeKey.CAFFEINE) return DrugId.COFFEE;
+        if (key == PsyKnowledgeKey.NICOTINIC) return DrugId.TOBACCO;
+        if (key == PsyKnowledgeKey.STEEL_PLATING) return DrugId.HASH;
+        if (key == PsyKnowledgeKey.CANNABINOID) return DrugId.WEED;
+        if (key == PsyKnowledgeKey.FERMENTED) return DrugId.ALCOHOL;
+        if (key == PsyKnowledgeKey.LYSERGIC) return DrugId.LSD;
+        if (key == PsyKnowledgeKey.STIMULANT) return DrugId.COCAINE;
+        if (key == PsyKnowledgeKey.OVERCLOCKED) return DrugId.METH;
+        if (key == PsyKnowledgeKey.MYCELIAL) return DrugId.MUSHROOMS;
+        return null;
+    }
+
     private record Rule(
             @Nullable PsyKnowledgeKey requiredKnowledge,
             @Nullable PsyKnowledgeKey grantedKnowledge,
