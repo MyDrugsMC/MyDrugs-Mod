@@ -25,7 +25,9 @@
 
 Welcome. This book explains the survival progression currently available in MyDrugs: crops, hand processing, knowledge gates, machines, laboratory chemistry, rituals, psychotrope energy, mutations, addiction, and recovery.
 
-Keep JEI and the advancement tree open beside this guide. JEI is still the source for exact ingredient counts, fluid amounts, gas amounts, heat, time, and machine category. This guide explains the order and the gameplay purpose of each step.
+Pages now use quest labels. MAIN QUEST pages advance the knowledge spine. SUPPORT QUEST pages build materials or infrastructure. RECOVERY QUEST pages keep you alive. SIDE QUEST pages are useful but not required immediately. RITUAL QUEST pages change drugs into stronger or safer mixes. ENDGAME QUEST pages belong to psychotrope energy and mutations.
+
+Keep JEI and the advancement tree open beside this guide. JEI is still the source for exact ingredient counts, fluid amounts, gas amounts, heat, time, and machine category. This guide explains the order and the gameplay purpose of each step. If a GUI refuses to work, read its status text first: the Psy Anvil tells you when knowledge is missing, and machines report their blocked recipe state.
 
 > [TIP] Right-click the guide at any time to reopen it. The guide item is not consumed.
 
@@ -40,10 +42,12 @@ Keep JEI and the advancement tree open beside this guide. JEI is still the sourc
 @title Table of Contents
 
 @link The Current Spine|Main progression spine
+@link Quest Labels and Route Types|How to read quest labels
 @link Knowledge Gates and Consumption Order|Knowledge gates
 @link Seeds and Wild Finds|Seeds and wild plants
 @link Coffee First|Coffee and Caffeine Knowledge
 @link Tobacco to Nicotinic Knowledge|Tobacco and Nicotinic Knowledge
+@link Early Recovery Before Trouble|Start recovery early
 @link Cannabis Preparation|Cannabis and Cannabinoid Knowledge
 @link Fermentation Setup|Fermentation and alcohol
 @link Stomp Crafter and Hash|Hash and Steel Plating Knowledge
@@ -52,14 +56,32 @@ Keep JEI and the advancement tree open beside this guide. JEI is still the sourc
 @link Overclocked Route|Meth and Overclocked Knowledge
 @link Mushrooms and Mycelial Knowledge|Mushrooms and Mycelial Knowledge
 @link Psy Mixer Rituals|Psy Mixer rituals
+@link Psy Mixer Recipe Families|Psy Mixer recipe families
 @link Psychotrope Research|Psychotrope research
 @link Mutation Overview|Mutations
+@link Mutation Build Archetypes|Mutation build archetypes
 @link Recovery and Addiction|Recovery and addiction
 @link When You Are Stuck|Troubleshooting
 
 ---
 
+# Quest Labels and Route Types
+
+@title Quest Labels
+
+Quest labels tell you how urgent a page is. Follow MAIN QUEST pages when you want the next knowledge gate. Use SUPPORT QUEST pages when a main recipe asks for materials, machines, fluids, gases, or world resources.
+
+MAIN QUEST means the step advances the central chain. SUPPORT QUEST means it prepares tools or materials. RECOVERY QUEST means it protects you from addiction, withdrawal, stress, overdose pressure, infection, or bad trips. UTILITY QUEST means it improves handling, transport, storage, or automation. SIDE QUEST means useful content that is not required immediately. RITUAL QUEST means Psy Mixer work. ENDGAME QUEST means psychotrope energy or mutations.
+
+> [TIP] If you feel lost, follow the last MAIN QUEST you completed, then read the next SUPPORT QUEST it points to.
+
+> [WARN] Recovery is not late-game flavor. Addiction rates are high enough that you should learn recovery while you are still in the tobacco and cannabis era.
+
+---
+
 # The Current Spine
+
+Quest label: OVERVIEW — read this to understand the full route before choosing your next step.
 
 The main route is:
 
@@ -77,6 +99,8 @@ Parallel systems include recovery, pipes, gases, acids, petroleum chemistry, Psy
 
 # Knowledge Gates and Consumption Order
 
+Quest label: MAIN QUEST — this is the order that turns consumption into new crafting knowledge.
+
 Knowledge is the backbone of progression. Most gates are unlocked by consuming a processed drug after its prerequisite knowledge is already active.
 
 Coffee grants Caffeine Knowledge with no prerequisite. Tobacco grants Nicotinic Knowledge. Cannabis grants Cannabinoid Knowledge after Nicotinic Knowledge. Fermented mash grants Fermented Knowledge after Cannabinoid Knowledge. Cocaine grants Stimulant Knowledge after Fermented Knowledge. LSD grants Lysergic Knowledge after Stimulant Knowledge. Meth grants Overclocked Knowledge after Lysergic Knowledge. Magic mushrooms grant Mycelial Knowledge after Overclocked Knowledge.
@@ -87,9 +111,13 @@ Hash is special. Smoking hash after the cannabis route unlocks Steel Plating Kno
 
 > [GOAL] Follow the drug order instead of trying to rush the chemical routes.
 
+> [TIP] Knowledge unlocks should feel important. If you see a visual pulse, hear a special cue, or get a diary entry after first knowledge, treat it as the chapter marker for your next route.
+
 ---
 
 # Seeds and Wild Finds
+
+Quest label: MAIN QUEST + EXPLORATION — gather the crops and wild materials that feed every later route.
 
 Break short grass, tall grass, ferns, and large ferns without shears to find the main crop seeds.
 
@@ -126,6 +154,8 @@ Wild materials also matter. Aloe vera appears in overworld patches. Bitter nut b
 
 # Coffee First
 
+Quest label: MAIN QUEST, Chapter 1 — first drink, first knowledge, first mystical tool.
+
 Coffee is the first discovery branch. It teaches Caffeine Knowledge, and the first caffeine imprint awards the Psy Receptacle.
 
 @item mydrugs:coffee_cherries
@@ -148,11 +178,15 @@ The mixing vat route also works later: coffee powder plus water in a heated mixi
 
 > [GOAL] Brew coffee, drink a coffee cup, unlock Caffeine Knowledge, and keep the Psy Receptacle.
 
+> [TIP] After your first coffee, check the diary once first-time entries are available. It should feel like your character noticed the taste, the energy, and the next curiosity: tobacco.
+
 @link Resin and Treated Planks|Next: resin and treated planks
 
 ---
 
 # Resin and Treated Planks
+
+Quest label: SUPPORT QUEST — prepare the first workshop material.
 
 The first processing block depends on treated planks. To make them, gather ordinary resin by repeatedly using an axe on a strip-able log.
 
@@ -168,6 +202,8 @@ Each axe step drops resin, then the log finishes stripping after enough hits. Co
 ---
 
 # Early Processing Tools
+
+Quest label: SUPPORT QUEST — unlock drying and grinding, the basic verbs of the mod.
 
 Build the drying rack, grinding bowl, and grinding tool. These are the first reliable crop-processing stations.
 
@@ -187,6 +223,8 @@ The portable grinder is useful later when you want mobile grinding, but the bowl
 ---
 
 # Tobacco to Nicotinic Knowledge
+
+Quest label: MAIN QUEST, Chapter 2 — first smoking gate and first serious addiction warning.
 
 Tobacco is the first intended smoking gate.
 
@@ -208,6 +246,8 @@ Consuming processed tobacco grants Nicotinic Knowledge.
 
 # Rolling and Smoking
 
+Quest label: UTILITY QUEST — learn controlled smoking routes before stronger substances appear.
+
 The roller combines paper, a cigarette filter, and three rolling ingredients. Three tobacco ingredients make a cigarette. Mixed or non-tobacco smoking ingredients make a joint.
 
 @item mydrugs:roller
@@ -227,7 +267,32 @@ Tobacco handfuls, cannabis powder, hash pieces, cocaine powder, crack shards, an
 
 ---
 
+# Early Recovery Before Trouble
+
+Quest label: RECOVERY QUEST — start this before the late drugs, not after.
+
+Addiction can build quickly in MyDrugs. Even tobacco, cannabis, coffee, and fermented mash can become problems if you repeat them carelessly while chasing knowledge gates. Recovery is not a punishment screen at the end of the mod; it is part of the survival route.
+
+@item mydrugs:personal_diary
+@item mydrugs:headphones
+@item mydrugs:herbal_tea
+@item mydrugs:calming_mixture
+
+Your first recovery goal is simple: keep at least one calming item available, learn what the diary says about your state, and avoid turning every knowledge test into repeated use. If a substance already unlocked its knowledge, stop using it unless you need its effect, its ritual route, or its psychotrope value.
+
+First-time consumption diary entries can act like a compass. After coffee, the diary should push you toward tobacco. After tobacco, it should warn you that repeated use leaves marks. After cannabis, it should remind you to save resin and prepare recovery before stronger branches.
+
+> [TIP] Build a small recovery corner near your first workshop: storage for tea and calming mixture, a diary, and later headphones or a recovery anchor.
+
+> [WARN] High addiction rates mean early mistakes matter. If you feel symptoms before coca or meth, that is not a bug; it is the system telling you to slow down.
+
+> [GOAL] Before the cannabis and fermentation route becomes repetitive, make a basic recovery kit and start checking the diary.
+
+---
+
 # Psy Receptacle and Psy Anvil
+
+Quest label: MAIN QUEST + WORKSHOP QUEST — turn knowledge into special crafting techniques.
 
 After Caffeine Knowledge gives you the Psy Receptacle and tobacco gives Nicotinic Knowledge, craft the Psy Anvil.
 
@@ -252,6 +317,8 @@ Check the ingredient list, active knowledge, and tool requirement. Recipes can b
 
 # Iron Mesh and the Sieve
 
+Quest label: MAIN QUEST — build the station that makes the cannabis route work.
+
 The first important Psy Anvil product is iron mesh.
 
 @item mydrugs:iron_mesh
@@ -268,6 +335,8 @@ The sieve is essential for the cannabis route because it separates cured cannabi
 ---
 
 # Cannabis Preparation
+
+Quest label: MAIN QUEST, Chapter 3 — process cannabis correctly and save resin for the later hash gate.
 
 Cannabis is the second knowledge route, but it has more steps than tobacco.
 
@@ -288,6 +357,8 @@ Put cannabis powder in the bang or roll it into a smokable item to gain Cannabin
 
 # Cannabis Resin
 
+Quest label: SUPPORT QUEST — preserve this byproduct now; it becomes a main requirement later.
+
 Cannabis resin is a bonus from sieving cured cannabis leaves. Save every piece.
 
 @item mydrugs:cannabis_resin
@@ -301,6 +372,8 @@ Resin is needed later for hash. You cannot finish the hash route as soon as you 
 ---
 
 # Copper Shaping
+
+Quest label: MAIN QUEST + WORKSHOP QUEST — begin the copper workshop tier.
 
 Cannabinoid Knowledge unlocks copper plate recipes on the Psy Anvil.
 
@@ -322,6 +395,8 @@ Use copper strapping, a clay vat, a wooden frame, and a stick to build the mixin
 ---
 
 # Fermentation Setup
+
+Quest label: MAIN QUEST + FLUID QUEST — use the mixing vat to enter fluid processing.
 
 The first alcohol gate does not require a distiller. Use the mixing vat to make fermented mash, then drink it from a MyDrugs glass bottle.
 
@@ -351,6 +426,8 @@ Mash can begin from rye, wheat, potato, or malt. Rye mash, wheat mash, and potat
 
 # Fermented Knowledge
 
+Quest label: MAIN QUEST, Chapter 4 — first industrial jump and heavy iron unlock.
+
 Fill a MyDrugs glass bottle with fermented mash and drink it after Cannabinoid Knowledge is active.
 
 @item mydrugs:glass_bottle
@@ -369,6 +446,8 @@ Fermented Knowledge unlocks heavy iron on the Psy Anvil and marks the first real
 ---
 
 # Heavy Iron Workshop
+
+Quest label: SUPPORT QUEST — build the stronger frame materials required for real machines.
 
 With Fermented Knowledge, craft heavy iron and heavy iron plates on the Psy Anvil.
 
@@ -389,6 +468,8 @@ Heavy iron is used for stronger frames, casings, the stomp crafter, and the firs
 
 # Stomp Crafter and Hash
 
+Quest label: MAIN QUEST, Chapter 5 — return to saved cannabis resin and unlock steel plating.
+
 Now return to the cannabis resin you saved.
 
 @item mydrugs:stomp_plate
@@ -407,6 +488,8 @@ Put hash pieces in the bang or roll them into a smokable item to unlock Steel Pl
 ---
 
 # Steel Plating
+
+Quest label: MAIN QUEST + INDUSTRIAL QUEST — enter the steel machine era.
 
 Steel Plating Knowledge unlocks steel plates on the Psy Anvil.
 
@@ -427,6 +510,8 @@ Steel plates are a major material gate for stronger machines, seals, tanks, pipe
 
 # Early Machines
 
+Quest label: SUPPORT QUEST + INDUSTRIAL QUEST — build the machines that carry the next routes.
+
 After heavy iron and steel plates, begin assembling the larger processing blocks.
 
 @item mydrugs:advanced_furnace
@@ -445,6 +530,8 @@ The advanced furnace is especially important because many later materials need h
 ---
 
 # Material Checklist
+
+Quest label: SUPPORT QUEST — stock the bottleneck materials that prevent late-game stalls.
 
 Late workshop recipes reuse the same support materials many times.
 
@@ -473,6 +560,8 @@ Plant biomass comes from pulping coffee and drying or evaporating plant material
 
 # Ores and World Materials
 
+Quest label: EXPLORATION QUEST — collect underground and biome materials before lab chemistry blocks you.
+
 The world adds aluminium, platinum, sulfur, salt, and petroleum.
 
 @item mydrugs:aluminium_ore
@@ -495,6 +584,8 @@ Platinum matters for advanced catalytic chemistry. Aluminium matters in late che
 ---
 
 # Alcohol Distillation
+
+Quest label: SUPPORT QUEST + CHEMISTRY QUEST — turn fermented mash into laboratory alcohol products.
 
 Fermented mash is enough for Fermented Knowledge, but distillation matters for chemistry.
 
@@ -519,6 +610,8 @@ Absolute ethanol is used in the coca route and in laboratory chemistry.
 
 # Coca to Stimulant Knowledge
 
+Quest label: MAIN QUEST, Chapter 6 — first serious machine-processed stimulant branch.
+
 Coca begins after Fermented Knowledge and uses machine processing.
 
 @item mydrugs:coca_leaf
@@ -541,6 +634,8 @@ Consume cocaine powder to unlock Stimulant Knowledge after Fermented Knowledge i
 
 # Cocaine Use and Crack
 
+Quest label: SIDE QUEST + HIGH-RISK QUEST — optional stronger stimulant use; prepare recovery first.
+
 Cocaine powder can be consumed directly, rolled into some mixed smoking items, or placed as a powder pile.
 
 @item mydrugs:cocaine_powder
@@ -559,6 +654,8 @@ Crack is the later smoking branch. Use the advanced mixing vat and evaporation t
 ---
 
 # Stimulant Unlocks
+
+Quest label: MAIN QUEST + ELECTRICAL QUEST — unlock repeatable wire, circuits, and powered parts.
 
 Stimulant Knowledge unlocks insulated wire crafting on the Psy Anvil.
 
@@ -580,6 +677,8 @@ This is the point where automation, chemical machines, and advanced laboratory b
 ---
 
 # Pipes and Transfers
+
+Quest label: UTILITY QUEST — make machines cooperate instead of hand-carrying every resource.
 
 Machines can move items, fluids, and gases through separate pipe systems.
 
@@ -603,7 +702,25 @@ Use the pipe wrench and transfer upgrades to control which side accepts or outpu
 
 ---
 
+# Machine Status and Blocked Recipes
+
+Quest label: UTILITY QUEST + TROUBLESHOOTING — read the machine before rebuilding the line.
+
+Machines already explain why they refuse to work. If a recipe does not start, first read the machine status in the GUI. The status can point to missing inputs, blocked outputs, missing heat, missing energy, missing fluid, missing gas, transfer-side problems, or a locked recipe.
+
+The Psy Anvil also reports missing knowledge. If an anvil recipe is visible but refuses to complete, do not assume the item list is wrong. Check the required knowledge, the hammer or tool, and the current Psy Knowledge state.
+
+> [TIP] JEI tells you what the recipe wants. The machine status tells you why your current setup is failing. Use both.
+
+> [WARN] Fluids, gases, and items have separate tanks and pipes. A full item inventory does not matter if the missing ingredient is gas.
+
+> [GOAL] Before moving a machine or changing recipes, read the status line and fix the exact missing condition.
+
+---
+
 # Gas and Chemical Handling
+
+Quest label: SUPPORT QUEST + CHEMISTRY QUEST — build gas infrastructure before the high laboratory routes.
 
 Late recipes use gases and chemical fluids. Build handling blocks before attempting the lysergic or meth chains.
 
@@ -627,6 +744,8 @@ The electrolyzer splits water or brine into gases and chemical outputs. The gasi
 
 # Acids and Laboratory Reagents
 
+Quest label: SUPPORT QUEST + CHEMISTRY QUEST — stock the reagents that make the lysergic route possible.
+
 Lysergic and meth chemistry need acids and activated reagents.
 
 @item mydrugs:brine_bucket
@@ -648,6 +767,8 @@ Mix sulfuric acid and hydrochloric acid into acylating agent. Use plant biomass,
 ---
 
 # Lysergic Route
+
+Quest label: MAIN QUEST, Chapter 7 — combine fungal, fluid, gas, and laboratory systems.
 
 The lysergic route starts from fungal culture, rye, ergot, and laboratory fluids.
 
@@ -678,6 +799,8 @@ Lysergic Knowledge is granted by consuming the LSD Drop after Stimulant Knowledg
 
 # Advanced Control Circuits
 
+Quest label: MAIN QUEST + ADVANCED WORKSHOP QUEST — unlock the high-tier machine components.
+
 Lysergic Knowledge unlocks advanced control circuits on the Psy Anvil.
 
 @item mydrugs:advanced_control_circuit
@@ -698,6 +821,8 @@ These parts push the mod into late laboratory machinery: catalytic reforming, cr
 ---
 
 # Petroleum and Aromatics
+
+Quest label: SUPPORT QUEST + CHEMISTRY QUEST — prepare the heavy chemical route for Overclocked Knowledge.
 
 The meth route depends on petroleum, aromatics, and gas chemistry.
 
@@ -729,6 +854,8 @@ Benzene, propylene, acetone, chloroacetone, methylamine, and phenylacetone are t
 
 # Overclocked Route
 
+Quest label: MAIN QUEST, Chapter 8 — highest chemical machinery and strongest stimulant pressure.
+
 The meth route follows Lysergic Knowledge and uses the highest chemical machinery.
 
 @item mydrugs:methanol_bucket
@@ -752,6 +879,8 @@ Consume meth through a valid smoking route after Lysergic Knowledge is active to
 
 # Mushrooms and Mycelial Knowledge
 
+Quest label: MAIN QUEST, Chapter 9 — late psychedelic gate after Overclocked Knowledge.
+
 Magic mushrooms are available earlier than their knowledge gate.
 
 @item mydrugs:magic_mushroom
@@ -769,6 +898,8 @@ Grind mushrooms into powder for late recipes. The mycelial resonator uses mushro
 ---
 
 # Psychedelic Exploration Tools
+
+Quest label: EXPLORATION QUEST — leave the lab and gather terrain-bound psychedelic materials.
 
 Some late ingredients are tied to exploration rather than simple crafting.
 
@@ -790,7 +921,9 @@ The vanilla biome finder helps search for target biomes. The shroom harvester is
 
 # Psy Mixer Rituals
 
-The Psy Mixer is a multiblock ritual system using a formed core and ritual parts.
+Quest label: RITUAL QUEST — transform known drugs into specialized mixes with stronger, safer, or stranger effects.
+
+The Psy Mixer is a multiblock ritual system using a formed core and ritual parts. It is not a second main spine, but it becomes important once you want better mixes, safer experiments, ritual focus, work-speed bursts, mining visions, stress resistance, or mutation-adjacent stability.
 
 @item mydrugs:painted_clay_bowl
 @item mydrugs:psychotropic_pigment
@@ -803,39 +936,140 @@ The Psy Mixer is a multiblock ritual system using a formed core and ritual parts
 @item mydrugs:mycelial_padding
 @item mydrugs:unstable_residue
 
-Psy Mixer recipes can require knowledge, a specific drug history, a catalyst, a stabilizer, and a vessel. Failure may return unstable residue or another failure item.
+Psy Mixer recipes can require knowledge, a specific drug history, a catalyst, a stabilizer, and a vessel. Failure may return unstable residue, plant waste, or another failure output. The structure rewards preparation: better materials, correct knowledge, and the right player history make the ritual less wasteful.
 
-> [TIP] Use JEI's Psy Mixer category before building or activating a ritual setup.
-
-> [GOAL] Build ritual materials after the workshop and knowledge routes are stable.
-
----
-
-# Psy Mixer Recipes
-
-Current ritual outputs include brightened cannabis powder, soothing tobacco blend, and defiant spirit bottle.
-
-@item mydrugs:brightened_cannabis_powder
-@item mydrugs:soothing_tobacco_blend
-@item mydrugs:defiant_spirit_bottle
-@item mydrugs:inner_demon_remains
-@item mydrugs:aloe_vera
-@item mydrugs:charged_sinew
-@item mydrugs:fractured_impulse
-@item mydrugs:charged_core
-@item mydrugs:broken_courage
-
-Brightened cannabis powder requires Cannabinoid Knowledge and enough lifetime weed exposure. Soothing tobacco blend requires Nicotinic Knowledge and tobacco exposure. Defiant spirit bottle requires Fermented Knowledge and alcohol history.
-
-The recipe details are intentionally ritual-specific, so follow the JEI Psy Mixer page for catalyst, stabilizer, vessel, and failure output.
+> [TIP] Treat Psy Mixer recipes as build choices. Some mixes are for work speed, some for recovery pressure, some for mining vision, some for ritual focus, and some for dangerous bursts.
 
 > [WARN] Psy Mixer recipes care about your drug history, not only the items on the structure.
 
-> [GOAL] Try the tobacco and cannabis rituals first, then the fermented ritual.
+> [GOAL] Build ritual materials after the workshop and knowledge routes are stable, then start with tobacco, coffee, cannabis, and hash mixes before late stimulant mixes.
+
+---
+
+# Psy Mixer Recipe Families
+
+Quest label: RITUAL QUEST + CHOICE QUEST — choose the mix family that fits the problem you are solving.
+
+Current Psy Mixer recipes are grouped by base drug. Each family keeps the identity of the base drug but bends it toward a specific purpose. Use JEI for exact inputs, vessel rules, instability, and failure outputs.
+
+Coffee mixes focus on manual work speed, light movement, mining speed, heartbeat, and sometimes stress relief. They are good when you want a temporary workshop push without jumping directly into stronger stimulant branches.
+
+Tobacco mixes focus on precision, tremor reduction, and controlled manual work. The special soothing tobacco blend uses aloe vera, requires tobacco history, has lower instability than many mixes, preserves the vessel on success, and gives strong precision plus tremor reduction.
+
+Cannabis and hash mixes focus on stress relief, ritual stability, fall control, bad-trip resistance, and slower but safer states. Hash with calming spores is one of the clearest recovery-ritual mixes: strong ritual stability, stress relief, and a small movement slowdown.
+
+Cocaine and crack mixes focus on speed, manual work, adrenaline, dash power, burst windows, and heartbeat pressure. These are powerful but should be treated as high-risk tactical tools, not casual workshop snacks.
+
+Alcohol mixes focus on damage resistance, stress resistance, ritual stability, and sometimes stumble. The defiant spirit bottle is the named alcohol ritual output and belongs to the courage/resistance side of the system.
+
+LSD and mushroom mixes focus on ore aura, ore fortune, multiblock vision, ritual focus, ritual stability, gamma boost, and bad-trip resistance. They are especially useful for exploration, mining support, ritual execution, and reading complex structures.
+
+Meth mixes focus on extreme mining speed, manual work speed, adrenaline, precision, heartbeat, tremor, and input failure risk. Use them as late-game overclock tools, not as baseline productivity.
+
+> [TIP] If you want safer ritual work, look at cannabis, hash, mushroom, and LSD focus/stability recipes. If you want raw speed, look at coffee, cocaine, crack, or meth recipes.
+
+> [WARN] Strong mixes can add drawbacks such as heartbeat, tremor, camera sway, stumble, or input failure. Read the full JEI effect list before using them in a dangerous place.
+
+> [GOAL] Match the mix to the task: workshop speed, ritual stability, mining vision, stress control, movement burst, or resistance.
+
+---
+
+# Early Better Mixes
+
+Quest label: RITUAL QUEST + RECOVERY QUEST — use early rituals to reduce chaos, not only to get stronger.
+
+Start with mixes that make the rest of the mod easier to survive. They are not mandatory for the main knowledge chain, but they help with high addiction rates and repeated manual processing.
+
+@item mydrugs:soothing_tobacco_blend
+@item mydrugs:brightened_cannabis_powder
+@item mydrugs:calming_spores
+@item mydrugs:hash_piece
+
+Soothing tobacco blend is the cleanest early named support mix. It uses tobacco history and aloe vera, then gives precision and tremor reduction. Use it when manual work, ritual timing, or shaky effects become annoying.
+
+Brightened cannabis powder is a named cannabis ritual output. It requires Cannabinoid Knowledge and enough lifetime weed exposure, and it turns cannabis toward a strong short gamma boost.
+
+Cannabis with moss carpet or calming spores leans into stress relief and ritual stability. Hash with calming spores leans even harder into ritual stability and stress relief, at the cost of slight movement slowdown.
+
+Hash with phantom membrane adds fall control and bad-trip resistance. Hash with ghast tear adds stress resistance and ritual stability. These are good examples of the Psy Mixer turning a substance into a specialized support tool.
+
+> [TIP] If you are getting addicted early, do not answer every problem with more drug use. Use recovery items first, then use Psy Mixer support mixes only when the task needs them.
+
+> [GOAL] Try soothing tobacco blend and one cannabis or hash stability mix before moving into crack, meth, or mutation work.
+
+---
+
+# Work Speed and Burst Mixes
+
+Quest label: RITUAL QUEST + HIGH-RISK QUEST — powerful temporary productivity with real pressure.
+
+@item mydrugs:coffee_cup
+@item mydrugs:cocaine_powder
+@item mydrugs:crack_shard
+@item mydrugs:meth_powder
+
+Coffee plus sugar, redstone, cocoa beans, or bitter nut creates temporary work-speed style mixes. Redstone coffee is the strongest early work push, adding manual work speed and mining speed, but also heartbeat and tremor pressure.
+
+Cocaine plus redstone or charged sinew creates short, sharp work-speed and adrenaline tools. Cocaine plus rabbit foot leans toward dash power and movement. Cocaine plus blaze powder leans toward adrenaline and speed with camera sway.
+
+Crack mixes are burst tools. Gunpowder and fractured impulse push burst windows and dash/adrenaline power. Echo shard crack gives a strong burst window but can add input failure.
+
+Meth mixes are late overclock tools. Netherite scrap meth gives extreme mining speed, strong manual work speed, adrenaline, heartbeat, tremor, and input failure risk. Diamond meth is more controlled, leaning into mining speed and precision with less chaos.
+
+> [WARN] Work-speed mixes are tempting, but addiction, tremor, heartbeat, input failure, and overdose pressure can erase the time you saved.
+
+> [GOAL] Use burst mixes for planned tasks: a mining run, a manual processing batch, a dangerous fight, or a short machine-building session.
+
+---
+
+# Vision Ritual Mixes
+
+Quest label: RITUAL QUEST + EXPLORATION QUEST — use altered perception as a tool.
+
+@item mydrugs:lsd_drop
+@item mydrugs:magic_mushroom_powder
+@item mydrugs:third_eye_petal
+@item mydrugs:dreamcap_spores
+
+LSD with lapis lazuli grants ore aura, ore fortune, and ritual focus. LSD with diamond pushes ore fortune and ore aura harder, with acid warp and camera sway. LSD with ender pearl grants multiblock vision and ritual focus.
+
+LSD with third eye petal is the strongest vision-mining ritual route in the current set: high ore aura, high ore fortune, multiblock vision, ritual focus, and camera sway.
+
+Mushroom powder with amethyst shard gives ore aura and ritual stability. Mushroom powder with glow berries gives gamma boost and ore aura. Mushroom powder with dreamcap spores gives ritual focus, ore aura, and bad-trip resistance.
+
+> [TIP] Vision mixes are best when you already know what you are looking for: ore, multiblock mistakes, ritual timing, or psychedelic terrain resources.
+
+> [WARN] Vision is not safety. Bring recovery support before exploring psychedelic terrain or using camera-heavy mixes underground.
+
+> [GOAL] Use LSD or mushroom vision mixes to support mining, multiblock building, and ritual execution.
+
+---
+
+# Defiant Spirit and Ritual Resistance
+
+Quest label: RITUAL QUEST + RECOVERY QUEST — turn alcohol history into resistance and stability.
+
+@item mydrugs:defiant_spirit_bottle
+@item mydrugs:inner_demon_remains
+@item mydrugs:broken_courage
+
+The defiant spirit bottle is the named alcohol ritual output. It belongs to the resistance side of the Psy Mixer: damage resistance, ritual stability, stress resistance, and courage-themed materials.
+
+Alcohol with iron ingot gives simple damage resistance but adds stumble. Alcohol with ghast tear gives stress resistance and damage resistance. Alcohol with broken courage gives stronger damage and stress resistance, but still carries stumble risk.
+
+The inner demon remains recipe creates defiant spirit bottle with damage resistance and ritual stability, but it has higher instability and a failure severity. Prepare the structure properly before attempting it.
+
+> [TIP] Defiant spirit is not a main knowledge gate. It is a support branch for dangerous rituals, exploration, and mutation-adjacent risk.
+
+> [WARN] Resistance is not immunity. If a mix adds stumble or instability, do not use it before precise building, lava work, or syringe handling.
+
+> [GOAL] Use defiant spirit when you need courage and resistance, not when you need clean precision.
 
 ---
 
 # Psychotrope Research
+
+Quest label: ENDGAME QUEST — begin research into psychotrope components and energy systems.
 
 Psychotrope systems are endgame research built from advanced control circuits and high-tier components.
 
@@ -853,6 +1087,8 @@ Psychotrope systems do not block tobacco, cannabis, fermented mash, hash, steel 
 ---
 
 # Psychotrope Energy
+
+Quest label: ENDGAME QUEST + POWER QUEST — convert drug value into late machine energy.
 
 The psychotrope core can convert drug value into energy for machines.
 
@@ -877,6 +1113,8 @@ Mutation machines also use psychotrope energy. They drain energy over time, so t
 
 # Bottles Syringes and Fluid Use
 
+Quest label: UTILITY QUEST + MUTATION SUPPORT — handle fluids, LSD drops, blood, and sterile injection tools.
+
 Bottles and syringes are utility tools, but they do not replace the main unlock path. Syringes also become important for the mutation branch.
 
 @item mydrugs:glass_bottle
@@ -899,6 +1137,8 @@ The syringe can draw blood and can later carry mutagenic blood. New syringes are
 
 # Mutation Overview
 
+Quest label: ENDGAME QUEST — turn body risk into long-term body progression.
+
 Mutations are an endgame biological progression branch. They use fictional ADN data, psychotrope energy, blood handling, and dangerous injections to change how your body reacts to the mod's drug systems.
 
 @item mydrugs:adn_scraper
@@ -919,6 +1159,8 @@ Mutations can reduce negative visual distortion, internal drug damage, addiction
 ---
 
 # ADN Scraping
+
+Quest label: ENDGAME QUEST + COLLECTION QUEST — gather genetic material from mobs, players, and yourself.
 
 Use the ADN Scraper on living mobs to collect ADN Scrap. Right-click air with the scraper to sample yourself.
 
@@ -941,6 +1183,8 @@ ADN Scrap tooltips show source, rarity, signature, and stat percentages. Advance
 
 # Gene Extractor
 
+Quest label: ENDGAME QUEST + MACHINE QUEST — split ADN scraps into usable single-stat genes.
+
 The Gene Extractor turns ADN Scrap into single-stat ADN Genes.
 
 @item mydrugs:gene_extractor
@@ -959,6 +1203,8 @@ The extractor chooses up to three unique stats from the scrap. If the scrap has 
 ---
 
 # CRISPR-CAS9 Combinator
+
+Quest label: ENDGAME QUEST + RISK QUEST — combine genes and accept the possibility of failure.
 
 The CRISPR-CAS9 Combinator merges two ADN Genes into one multi-stat gene.
 
@@ -980,6 +1226,8 @@ Combination can fail. Failure consumes both inputs and creates a broken statless
 
 # Incubation and Infusion
 
+Quest label: ENDGAME QUEST + BIOLOGY QUEST — convert genes into mutation vectors and blood vials.
+
 The Bacterial Incubator converts a valid ADN Gene into a Mutation Vector. The Hemogenic Infuser mixes that vector with blood to create a Mutagenic Blood Vial.
 
 @item mydrugs:bacterial_incubator
@@ -1000,6 +1248,8 @@ The Hemogenic Infuser requires a Mutation Vector and a syringe filled with blood
 
 # Sterile Injection
 
+Quest label: ENDGAME QUEST + SAFETY QUEST — inject only when your syringe is sterile and your lab is ready.
+
 Use the Autoclave to sterilize empty dirty syringes, then load a Mutagenic Blood Vial into a sterile empty syringe.
 
 @item mydrugs:autoclave
@@ -1017,6 +1267,8 @@ Hold use with the loaded syringe to inject yourself. Sterile injection starts as
 ---
 
 # Infection and Mutation Risk
+
+Quest label: RECOVERY QUEST + ENDGAME RISK — understand the cost of dirty tools and failed biology.
 
 Dirty syringe use can start infection. Infection is dangerous and can undo mutation progress.
 
@@ -1038,6 +1290,8 @@ Infection Resistance slows infection progression and mutation loss, but it does 
 
 # Mutation Effects
 
+Quest label: ENDGAME BUILD QUEST — choose the risks your body is built to resist.
+
 Assimilated mutations change existing drug, symptom, dose, visual, and work-speed systems.
 
 Visual Accuracy reduces negative visual distortion, but it does not reduce Gamma Boost. Health Stability reduces internal drug-system damage. Addiction Resistance reduces addiction gain. Mental Strength reduces mental symptoms and bad-trip pressure. Withdrawal Resilience reduces physical withdrawal symptoms.
@@ -1050,9 +1304,35 @@ Metabolic Control helps dangerous dose states resolve more safely. Ritual Neural
 
 ---
 
+# Mutation Build Archetypes
+
+Quest label: ENDGAME BUILD QUEST — choose a body plan, not only the highest numbers.
+
+Mutations are easier to understand when you build toward a role. A balanced profile is usually safer than one huge stat, because the mutation branch attacks you through several systems at once: infection, rejection, dose pressure, withdrawal, visuals, stress, and instability.
+
+The Clear Mind build focuses on Visual Accuracy, Mental Strength, and Withdrawal Resilience. Choose it if bad trips, screen effects, and mental symptoms are your biggest problem.
+
+The Durable Body build focuses on Health Stability, Metabolic Control, and Infection Resistance. Choose it if you handle syringes, dangerous doses, infection risk, or internal drug damage often.
+
+The Ritualist build focuses on Ritual Neural Sync, Genetic Stability, and Visual Accuracy. Choose it if you use Psy Mixer rituals, multiblocks, ritual focus mixes, and unstable late recipes.
+
+The Safe Chemist build focuses on Infection Resistance, Health Stability, and Genetic Stability. Choose it if your base revolves around mutation machines, sterile syringes, and repeated biological experiments.
+
+The Overclocker build focuses on Metabolic Control, Pleasure Sensitivity, and Addiction Resistance. Choose it if you rely on strong positive effects and work-speed mixes, but remember that Pleasure Sensitivity can increase addiction pressure.
+
+> [TIP] Build against the failures you actually suffer. If you never use dirty syringes, Infection Resistance is less urgent. If you live in visual effects, Visual Accuracy matters much more.
+
+> [WARN] Do not chase Pleasure Sensitivity without addiction control. More pleasure can mean more pressure.
+
+> [GOAL] Pick one body plan before combining expensive genes, then collect scraps that support that plan.
+
+---
+
 # Recovery and Addiction
 
-Addiction and recovery are active systems. Repeated use can build addiction, withdrawal, bad trips, sleep problems, and overdose pressure.
+Quest label: RECOVERY QUEST — learn this early; it is part of the main survival loop.
+
+Addiction and recovery are active systems. Repeated use can build addiction, withdrawal, bad trips, sleep problems, and overdose pressure. Because addiction rates are high, recovery belongs near the beginning of your route, not only beside meth, crack, or mutations.
 
 @item mydrugs:personal_diary
 @item mydrugs:headphones
@@ -1065,13 +1345,15 @@ Addiction and recovery are active systems. Repeated use can build addiction, wit
 
 Recovery items reduce or manage stress, withdrawal, addiction pressure, sleep blocking, overdose danger, and mutation-adjacent risk. The personal diary, headphones, teas, calming mixture, sleeping aid, antidote, therapist desk, and recovery anchor all matter.
 
-> [WARN] Recovery is not just flavor. It is part of surviving long production chains, especially stimulant, crack, meth, mutation injection, infection, and psychedelic experiments.
+> [WARN] Recovery is not just flavor. It is part of surviving the whole mod. Start using recovery around tobacco, cannabis, and fermentation, then take it seriously before stimulant, crack, meth, mutation injection, infection, and psychedelic experiments.
 
 > [GOAL] Keep at least one recovery option available before repeated drug use.
 
 ---
 
 # Diary Headphones Therapy Anchor
+
+Quest label: RECOVERY QUEST + BASE QUEST — build a place and kit that can bring you back.
 
 The personal diary gives a short calming recovery window and helps you read your current state. Headphones are a toggleable support item while carried. Herbal tea and calming mixture reduce stress and withdrawal. Sleeping aid helps when sleep is blocked. Overdose antidote reduces dose pressure and interrupts overdose danger.
 
@@ -1095,6 +1377,8 @@ The recovery anchor creates a safe-zone style recovery support area.
 ---
 
 # Space Food and Side Content
+
+Quest label: SIDE QUEST — collect or experiment, but do not treat this as the main spine.
 
 Space food variants are side content generated from many vanilla foods.
 
@@ -1121,7 +1405,13 @@ Other visible side materials include lightning, thunder, impulse, courage, core,
 
 # When You Are Stuck
 
+Quest label: TROUBLESHOOTING — use this before assuming a recipe or route is broken.
+
 Check these in order.
+
+## Machine Status
+
+If you are standing at a machine, read the GUI status first. It can tell you whether the problem is input, output, heat, energy, tank space, gas, fluid, side transfer, or knowledge.
 
 ## Advancement Tree
 
@@ -1153,10 +1443,12 @@ Some research, ritual, or side systems are visible before every connection is ob
 
 # Progression Summary
 
+Quest label: OVERVIEW — compressed route for players who already understand the systems.
+
 Quick route:
 
 Break grass -> grow crops -> coffee -> Caffeine Knowledge -> Psy Receptacle -> strip logs for resin -> treated planks -> drying rack -> grinding bowl -> tobacco handful -> Nicotinic Knowledge -> Psy Anvil -> iron mesh -> sieve -> cured cannabis -> dried cannabis plus resin -> cannabis powder -> Cannabinoid Knowledge -> copper plates -> mixing vat -> fermented mash -> Fermented Knowledge -> heavy iron -> stomp crafter -> hash -> Steel Plating Knowledge -> steel plates -> advanced furnace and machines -> absolute ethanol -> coca paste and extracts -> cocaine powder -> Stimulant Knowledge -> insulated wire -> control circuits -> acids and gases -> fungal culture and ergot -> LSD Drop -> Lysergic Knowledge -> advanced control circuits -> petroleum and aromatic chemistry -> meth powder -> Overclocked Knowledge -> magic mushroom consumption -> Mycelial Knowledge -> psychotrope research -> ADN Scraper -> Gene Extractor -> CRISPR-CAS9 Combinator -> Bacterial Incubator -> Hemogenic Infuser -> Autoclave -> sterile mutagenic injection.
 
-Parallel branches: recovery, rolling, bang use, cocaine rails, crack, alcohol distillation, pipes and transfers, gas handling, Psy Mixer rituals, psychedelic exploration, space food, psychotrope energy, and mutation management.
+Parallel branches: early recovery, diary use, rolling, bang use, cocaine rails, crack, alcohol distillation, pipes and transfers, machine status troubleshooting, gas handling, Psy Mixer rituals, psychedelic exploration, space food, psychotrope energy, and mutation management.
 
 > [GOAL] Complete every knowledge gate, then use psychotrope energy, rituals, and mutations as the endgame sandbox.
