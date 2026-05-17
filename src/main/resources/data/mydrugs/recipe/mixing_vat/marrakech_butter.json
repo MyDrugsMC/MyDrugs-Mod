@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:cannabis_powder",
+  "fluid_input_1": {
+    "fluid": "minecraft:milk",
+    "amount": 250
+  },
+  "result_item": {
+    "id": "mydrugs:marrakech_butter",
+    "count": 1
+  },
+  "required_stirs": 2,
+  "requires_heat": true
+}

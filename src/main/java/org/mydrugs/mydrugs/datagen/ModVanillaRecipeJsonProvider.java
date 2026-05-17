@@ -45,6 +45,18 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                 "mydrugs:aluminium_ore", "mydrugs:aluminium_ingot");
         saveCookingPair(futures, cachedOutput, "aluminium_ingot_from_deepslate_aluminium_ore",
                 "mydrugs:deepslate_aluminium_ore", "mydrugs:aluminium_ingot");
+        saveCooking(futures, cachedOutput, "space_cooked_beef_from_space_beef_smelting", "minecraft:smelting",
+                "mydrugs:space_beef", "mydrugs:space_cooked_beef", 0.35F, 200);
+        saveCooking(futures, cachedOutput, "space_cooked_beef_from_space_beef_smoking", "minecraft:smoking",
+                "mydrugs:space_beef", "mydrugs:space_cooked_beef", 0.35F, 100);
+
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_BEEF, "mydrugs:space_cooked_beef");
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_PORKCHOP, "mydrugs:space_cooked_porkchop");
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_CHICKEN, "mydrugs:space_cooked_chicken");
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_MUTTON, "mydrugs:space_cooked_mutton");
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_RABBIT, "mydrugs:space_cooked_rabbit");
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_COD, "mydrugs:space_cooked_cod");
+        saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_SALMON, "mydrugs:space_cooked_salmon");
 
         saveStorageBlock(futures, cachedOutput, "raw_platinum_block", "mydrugs:raw_platinum", "mydrugs:raw_platinum_block");
         saveUnpackBlock(futures, cachedOutput, "raw_platinum_from_block", "mydrugs:raw_platinum_block", "mydrugs:raw_platinum");
@@ -194,6 +206,26 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
         ingredients.add(ingredient);
         root.add("ingredients", ingredients);
         root.add("result", result(result, 9));
+        saveRecipe(futures, cachedOutput, name, root);
+    }
+
+    private void saveSpaceMeatRecipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, ItemLike cookedMeat, String result) {
+        String meatId = itemId(cookedMeat);
+        saveShapeless(futures, cachedOutput, "marrakech_butter_" + meatId.substring(meatId.indexOf(':') + 1),
+                List.of(meatId, itemId(ModItems.MARRAKECH_BUTTER.get())), result, 1);
+    }
+
+    private void saveShapeless(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name,
+                               List<String> ingredients, String result, int count) {
+        JsonObject root = new JsonObject();
+        root.addProperty("type", "minecraft:crafting_shapeless");
+        root.addProperty("category", "food");
+        JsonArray ingredientArray = new JsonArray();
+        for (String ingredient : ingredients) {
+            ingredientArray.add(ingredient);
+        }
+        root.add("ingredients", ingredientArray);
+        root.add("result", result(result, count));
         saveRecipe(futures, cachedOutput, name, root);
     }
 

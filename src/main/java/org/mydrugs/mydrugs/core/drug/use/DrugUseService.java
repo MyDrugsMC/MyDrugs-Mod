@@ -2,16 +2,21 @@ package org.mydrugs.mydrugs.core.drug.use;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.advancement.DrugKnowledge;
 import org.mydrugs.mydrugs.advancement.DrugKnowledgeResult;
+import org.mydrugs.mydrugs.core.drug.DrugDurationScale;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
-import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
+import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.progression.DrugProgressionGate;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
@@ -20,6 +25,8 @@ import java.util.Optional;
 
 public final class DrugUseService {
     private static final float BASE_DOSE = 1.0F;
+    private static final int SMOKING_FOG_DURATION = DrugDurationScale.seconds(5);
+    private static final float SMOKING_FOG_INTENSITY = 1.0F;
 
     public DrugUseResult consumeStack(ServerPlayer player,
                                       ItemStack stack,
@@ -72,6 +79,7 @@ public final class DrugUseService {
         );
 
         applyEffects(use);
+        applySmokingVisual(use);
         AddictionManager.consume(use);
         DrugKnowledgeResult knowledgeResult = DrugKnowledge.markConsumed(use);
         AdvancementEventHooks.drugConsumed(player, knowledgeResult);
@@ -100,6 +108,15 @@ public final class DrugUseService {
                     : effect.getBaseIntensity();
 
             DrugEffectRuntimeManager.addEffect(use.player(), effect.getEffectType(), intensity, duration);
+        }
+    }
+
+    private void applySmokingVisual(ResolvedDrugUse use) {
+        if (use.strategy() instanceof SmokingStrategy) {
+            PacketDistributor.sendToPlayer(
+                    use.player(),
+                    new DrugVisualPayload(EffectType.FOG, SMOKING_FOG_DURATION, SMOKING_FOG_INTENSITY)
+            );
         }
     }
 }

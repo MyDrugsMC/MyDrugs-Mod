@@ -10,6 +10,8 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.*;
 import org.mydrugs.mydrugs.client.entity.InnerDemonRenderer;
+import org.mydrugs.mydrugs.client.entity.StonedCowRenderer;
+import org.mydrugs.mydrugs.client.entity.StonedMooshroomRenderer;
 import org.mydrugs.mydrugs.client.item.BottleFillProperty;
 import org.mydrugs.mydrugs.client.item.LiquidColorTintSource;
 import org.mydrugs.mydrugs.client.model.SpaceOverlayItemModel;
@@ -71,6 +73,8 @@ public class ClientModEvents {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.INNER_DEMON.get(), InnerDemonRenderer::new);
         event.registerEntityRenderer(ModEntities.SHROOM_DEFENDER.get(), org.mydrugs.mydrugs.client.entity.ShroomDefenderRenderer::new);
+        event.registerEntityRenderer(ModEntities.STONED_COW.get(), StonedCowRenderer::new);
+        event.registerEntityRenderer(ModEntities.STONED_MOOSHROOM.get(), StonedMooshroomRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.GRINDING_BOWL.get(), ctx -> new GrindingBowlRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.STOMP_CRAFTER.get(), StompCrafterRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MIXING_VAT.get(), MixingVatRenderer::new);

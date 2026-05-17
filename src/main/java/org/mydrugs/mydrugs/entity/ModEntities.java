@@ -36,6 +36,28 @@ public final class ModEntities {
                         .build(key);
             });
 
+    public static final DeferredHolder<EntityType<?>, EntityType<StonedCowEntity>> STONED_COW =
+            ENTITY_TYPES.register("stoned_cow", registryName -> {
+                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "stoned_cow");
+                ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+                return EntityType.Builder.of(StonedCowEntity::new, MobCategory.CREATURE)
+                        .sized(0.9F, 1.4F)
+                        .eyeHeight(1.3F)
+                        .clientTrackingRange(10)
+                        .build(key);
+            });
+
+    public static final DeferredHolder<EntityType<?>, EntityType<StonedMooshroomEntity>> STONED_MOOSHROOM =
+            ENTITY_TYPES.register("stoned_mooshroom", registryName -> {
+                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "stoned_mooshroom");
+                ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+                return EntityType.Builder.of(StonedMooshroomEntity::new, MobCategory.CREATURE)
+                        .sized(0.9F, 1.4F)
+                        .eyeHeight(1.3F)
+                        .clientTrackingRange(10)
+                        .build(key);
+            });
+
     private ModEntities() {
     }
 }

@@ -665,7 +665,7 @@ public class ModBlocks {
     );
 
     // ===== PR 3 worldgen blocks =====
-    // Bitter Nut Bush: worldgen-only, non-replantable, random-tick regrowth. No BlockItem on purpose.
+    // Bitter Nut Bush: pickable wild plant; the bush item replants it.
     public static final DeferredBlock<BitterNutBushBlock> BITTER_NUT_BUSH = BLOCKS.registerBlock(
             "bitter_nut_bush",
             BitterNutBushBlock::new,
@@ -676,6 +676,9 @@ public class ModBlocks {
                     .sound(SoundType.SWEET_BERRY_BUSH)
                     .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)
     );
+
+    public static final DeferredItem<BlockItem> BITTER_NUT_BUSH_ITEM =
+            ITEMS.registerSimpleBlockItem(BITTER_NUT_BUSH);
 
     // Third Eye Petal: rare flower from worldgen, also obtainable as item.
     public static final DeferredBlock<ThirdEyePetalBlock> THIRD_EYE_PETAL = BLOCKS.registerBlock(

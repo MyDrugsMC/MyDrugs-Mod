@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:coffee_paste",
+  "input_amount": 50,
+  "result": {
+    "id": "mydrugs:caffeine_bar",
+    "count": 1
+  },
+  "processing_time": 120
+}

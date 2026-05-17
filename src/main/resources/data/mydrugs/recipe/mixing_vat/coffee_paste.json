@@ -1,0 +1,13 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:flour",
+  "fluid_input_1": {
+    "fluid": "mydrugs:coffee",
+    "amount": 50
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:coffee_paste",
+    "amount": 50
+  },
+  "required_stirs": 2
+}

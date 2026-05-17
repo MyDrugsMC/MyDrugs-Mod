@@ -9,5 +9,7 @@ public final class ModEntityAttributes {
     public static void register(EntityAttributeCreationEvent event) {
         event.put(ModEntities.INNER_DEMON.get(), InnerDemonEntity.createAttributes().build());
         event.put(ModEntities.SHROOM_DEFENDER.get(), ShroomDefenderEntity.createAttributes().build());
+        event.put(ModEntities.STONED_COW.get(), StonedCowEntity.createAttributes().build());
+        event.put(ModEntities.STONED_MOOSHROOM.get(), StonedMooshroomEntity.createAttributes().build());
     }
 }

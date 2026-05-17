@@ -62,7 +62,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "AAA"
                 },
                 key(
-                        "A", "mydrugs:salt"
+                        "A", "mydrugs:salt_powder"
                 ),
                 "mydrugs:salt_block",
                 1
@@ -72,7 +72,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 new Object[]{
                         "mydrugs:salt_block"
                 },
-                "mydrugs:salt",
+                "mydrugs:salt_powder",
                 9
         );
 
@@ -113,28 +113,28 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
 
         smelting(futures, cachedOutput, "sulfur_from_sulfur_ore",
                 "mydrugs:sulfur_ore",
-                "mydrugs:sulfur",
+                "mydrugs:sulfur_powder",
                 0.5F,
                 200
         );
 
         blasting(futures, cachedOutput, "sulfur_from_blasting_sulfur_ore",
                 "mydrugs:sulfur_ore",
-                "mydrugs:sulfur",
+                "mydrugs:sulfur_powder",
                 0.5F,
                 100
         );
 
         smelting(futures, cachedOutput, "sulfur_from_deepslate_sulfur_ore",
                 "mydrugs:deepslate_sulfur_ore",
-                "mydrugs:sulfur",
+                "mydrugs:sulfur_powder",
                 0.7F,
                 200
         );
 
         blasting(futures, cachedOutput, "sulfur_from_blasting_deepslate_sulfur_ore",
                 "mydrugs:deepslate_sulfur_ore",
-                "mydrugs:sulfur",
+                "mydrugs:sulfur_powder",
                 0.7F,
                 100
         );

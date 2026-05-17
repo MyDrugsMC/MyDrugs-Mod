@@ -13,6 +13,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.advancement.ModCriteriaTriggers;
@@ -69,6 +70,8 @@ public class MyDrugs {
     );
 
     public MyDrugs(IEventBus modEventBus, ModContainer modContainer) {
+        NeoForgeMod.enableMilkFluid();
+
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(ModEntityAttributes::register);
         NeoForge.EVENT_BUS.register(this);

@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
@@ -98,6 +99,18 @@ public final class BitterNutBushBlock extends VegetationBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return harvest(state, level, pos);
+    }
+
+    @Override
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (state.getValue(AGE) >= MAX_AGE) {
+            return harvest(state, level, pos);
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hit);
+    }
+
+    private InteractionResult harvest(BlockState state, Level level, BlockPos pos) {
         int age = state.getValue(AGE);
         if (age < MAX_AGE) {
             return InteractionResult.PASS;

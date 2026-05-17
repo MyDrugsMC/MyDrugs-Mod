@@ -101,6 +101,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "lsd_drop",
                 "machine_transfer_upgrade",
                 "magic_mushroom_powder",
+                "marrakech_butter",
                 "malt",
                 "malt_powder",
                 "malt_seeds",

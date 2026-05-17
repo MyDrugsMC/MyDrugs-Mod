@@ -98,6 +98,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.MAGIC_MUSHROOM_BLOCK.get());
             dropSelf(ModBlocks.MAGIC_MUSHROOM_STEM.get());
             dropSelf(ModBlocks.EVAPORATION_TRAY.get());
+            dropSelf(ModBlocks.BITTER_NUT_BUSH.get());
 
             crop(ModCrops.ALOE_VERA_CROP.get(), ModItems.ALOE_VERA.get(), ModCrops.ALOE_VERA_SEEDS.get());
             crop(ModCrops.TOBACCO_CROP.get(), ModItems.TOBACCO_LEAF.get(), ModCrops.TOBACCO_SEEDS.get());
@@ -259,6 +260,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.MAGIC_MUSHROOM_BLOCK.get(),
                     ModBlocks.MAGIC_MUSHROOM_STEM.get(),
                     ModBlocks.EVAPORATION_TRAY.get(),
+                    ModBlocks.BITTER_NUT_BUSH.get(),
 
                     ModCrops.ALOE_VERA_CROP.get(),
                     ModCrops.TOBACCO_CROP.get(),

@@ -40,7 +40,6 @@ public final class DrugRegistry {
                 .setId(DrugId.WEED)
                 .setCategory(DrugCategory.CANNABINOID)
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, CANNABIS_MAIN_DURATION, 0.06F))
-                .addEffect(new DrugEffect(EffectType.FOG, DrugDurationScale.seconds(5), 0.65F))
                 .addEffect(new DrugEffect(EffectType.CHROMATIC_DREAM, CANNABIS_MAIN_DURATION, 0.85F))
                 .addEffect(new DrugEffect(EffectType.TREMOR_REDUCTION, CANNABIS_MAIN_DURATION, 0.20F))
                 .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, CANNABIS_MAIN_DURATION, 0.25F))
@@ -52,7 +51,6 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.HASH)
                 .setCategory(DrugCategory.CANNABINOID)
-                .addEffect(new DrugEffect(EffectType.FOG, DrugDurationScale.seconds(5), 1.10F))
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, CANNABIS_MAIN_DURATION, 0.08F))
                 .addEffect(new DrugEffect(EffectType.CHROMATIC_DREAM, CANNABIS_MAIN_DURATION, 1.10F))
                 .addEffect(new DrugEffect(EffectType.TREMOR_REDUCTION, CANNABIS_MAIN_DURATION, 0.28F))
@@ -147,7 +145,6 @@ public final class DrugRegistry {
                 .setId(DrugId.HEROIN)
                 .setCategory(DrugCategory.OPIOID)
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 18, 0.18F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 1.0F))
                 .setAddictionRate(9)
                 .build()
         );
@@ -156,7 +153,6 @@ public final class DrugRegistry {
                 .setId(DrugId.MORPHINE)
                 .setCategory(DrugCategory.OPIOID)
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 20, 0.18F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 12, 1.0F))
                 .build()
         );
 
@@ -164,7 +160,6 @@ public final class DrugRegistry {
                 .setId(DrugId.FENTANYL)
                 .setCategory(DrugCategory.OPIOID)
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 14, 0.35F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 10, 2.0F))
                 .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 8, 0.35F))
                 .build()
         );
@@ -173,14 +168,12 @@ public final class DrugRegistry {
                 .setId(DrugId.OPIUM)
                 .setCategory(DrugCategory.OPIOID)
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 22, 0.12F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 18, 1.0F))
                 .build()
         );
 
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.KETAMINE)
                 .setCategory(DrugCategory.DISSOCIATIVE)
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 2.0F))
                 .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 12, 2.0F))
                 .build()
         );
@@ -196,7 +189,6 @@ public final class DrugRegistry {
         addDrug(new DrugModel.Builder()
                 .setId(DrugId.DXM)
                 .setCategory(DrugCategory.DISSOCIATIVE)
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 2.0F))
                 .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 6, 0.18F))
                 .build()
         );
@@ -217,7 +209,6 @@ public final class DrugRegistry {
                 .setId(DrugId.BENZODIAZEPINE)
                 .setCategory(DrugCategory.DEPRESSANT)
                 .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 20, 0.18F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 16, 1.0F))
                 .build()
         );
 
@@ -259,7 +250,6 @@ public final class DrugRegistry {
                 .setId(DrugId.NITROUS_OXIDE)
                 .setCategory(DrugCategory.INHALANT)
                 .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 5, 2.0F))
-                .addEffect(new DrugEffect(EffectType.FOG, 20 * 4, 1.0F))
                 .build()
         );
 
