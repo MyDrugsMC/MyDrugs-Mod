@@ -18,7 +18,9 @@ import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
+import org.mydrugs.mydrugs.client.diary.MemoryCaptureClient;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
@@ -60,6 +62,7 @@ public final class ClientPayloadHandlers {
         event.register(BadTripScreamerPayload.TYPE, ClientPayloadHandler::handleBadTripScreamer);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
         event.register(PersonalDiarySnapshotPayload.TYPE, ClientPayloadHandler::handlePersonalDiarySnapshot);
+        event.register(StartMemoryCapturePayload.TYPE, (payload, context) -> MemoryCaptureClient.start(payload));
 
         // Mutation stat sync from server.
         event.register(MutationSyncPayload.TYPE, ClientPayloadHandler::handleMutationSync);

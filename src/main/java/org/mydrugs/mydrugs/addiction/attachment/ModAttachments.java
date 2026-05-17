@@ -13,6 +13,7 @@ import org.mydrugs.mydrugs.mutation.PlayerMutationsAttachment;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachment;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeAttachment;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
+import org.mydrugs.mydrugs.psyche.PlayerPsycheMapAttachment;
 
 import java.util.function.Supplier;
 
@@ -55,6 +56,12 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<PlayerDiaryAttachment>> PLAYER_DIARY =
             ATTACHMENTS.register("player_diary", () ->
                     AttachmentType.serializable(PlayerDiaryAttachment::new)
+                            .copyOnDeath()
+                            .build()
+            );
+    public static final Supplier<AttachmentType<PlayerPsycheMapAttachment>> PLAYER_PSYCHE_MAP =
+            ATTACHMENTS.register("player_psyche_map", () ->
+                    AttachmentType.serializable(PlayerPsycheMapAttachment::new)
                             .copyOnDeath()
                             .build()
             );

@@ -16,6 +16,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.mydrugs.mydrugs.blocks.FluidPumpBlock;
 import org.mydrugs.mydrugs.blocks.FluidPumpLoggedFluid;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 
 public class FluidPumpBlockEntity extends BlockEntity {
     private static final int MAX_MANUAL_CREDIT = 5000;
@@ -38,6 +39,16 @@ public class FluidPumpBlockEntity extends BlockEntity {
         super(ModBlockEntities.FLUID_PUMP.get(), pos, state);
     }
 
+    public static void serverTick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state, FluidPumpBlockEntity be) {
+        if (!(level instanceof ServerLevel serverLevel) || !be.canPumpAutomatically(serverLevel)) {
+            return;
+        }
+
+        if (PsychotropeEnergyMachines.tryUseAutomationEnergyTick(be)) {
+            be.pumpAutomatically(serverLevel, Direction.UP, 50);
+        }
+    }
+
     /**
      * Manual crank behavior:
      * - First tries to push directly into the block above.
@@ -55,7 +66,26 @@ public class FluidPumpBlockEntity extends BlockEntity {
         this.lastCrankTick = (int) level.getGameTime();
         this.markUpdated();
 
-        int directlyPushed = this.tryPushUp(level, amount);
+        int directlyPushed = this.tryPushUp(level, amount, false);
+        int remaining = amount - directlyPushed;
+
+        if (remaining <= 0) {
+            return directlyPushed;
+        }
+
+        int credited = this.addManualCredit(remaining);
+        return directlyPushed + credited;
+    }
+
+    private int pumpAutomatically(ServerLevel level, Direction outputDirection, int amount) {
+        if (outputDirection != Direction.UP || amount <= 0 || this.sourceResource().isEmpty()) {
+            return 0;
+        }
+
+        this.lastCrankTick = (int) level.getGameTime();
+        this.markUpdated();
+
+        int directlyPushed = this.tryPushUp(level, amount, false);
         int remaining = amount - directlyPushed;
 
         if (remaining <= 0) {
@@ -88,7 +118,15 @@ public class FluidPumpBlockEntity extends BlockEntity {
         return side == Direction.UP ? this.fluidHandler : null;
     }
 
-    private int tryPushUp(ServerLevel level, int amount) {
+    private boolean canPumpAutomatically(ServerLevel level) {
+        if (this.sourceResource().isEmpty()) {
+            return false;
+        }
+
+        return this.manualCredit < MAX_MANUAL_CREDIT || this.tryPushUp(level, 1, true) > 0;
+    }
+
+    private int tryPushUp(ServerLevel level, int amount, boolean simulate) {
         ResourceHandler<FluidResource> target = level.getCapability(
                 Capabilities.Fluid.BLOCK,
                 this.worldPosition.above(),
@@ -111,7 +149,9 @@ public class FluidPumpBlockEntity extends BlockEntity {
             try (Transaction tx = Transaction.openRoot()) {
                 int inserted = target.insert(slot, resource, remaining, tx);
                 if (inserted > 0) {
-                    tx.commit();
+                    if (!simulate) {
+                        tx.commit();
+                    }
                     insertedTotal += inserted;
                     remaining -= inserted;
                 }

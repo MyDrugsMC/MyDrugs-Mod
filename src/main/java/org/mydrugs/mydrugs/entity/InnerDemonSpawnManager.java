@@ -126,6 +126,9 @@ public final class InnerDemonSpawnManager {
         demon.setXRot(0.0F);
         demon.configure(player, droppable, badTripBound);
         level.addFreshEntity(demon);
+        if (player != null) {
+            org.mydrugs.mydrugs.psyche.PsycheMapMilestones.innerDemon(player);
+        }
         return demon;
     }
 

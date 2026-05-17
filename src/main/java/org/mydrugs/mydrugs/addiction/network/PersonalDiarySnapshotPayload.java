@@ -10,6 +10,7 @@ import org.mydrugs.mydrugs.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.diary.DiaryEntryDto;
 import org.mydrugs.mydrugs.diary.DiaryMasteryStatDto;
 import org.mydrugs.mydrugs.diary.DiaryPlayerStateDto;
+import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,8 @@ public record PersonalDiarySnapshotPayload(
         List<DiaryMasteryStatDto> masteryStats,
         DiaryPlayerStateDto playerState,
         long currentDay,
-        int cooldownTicksRemaining
+        int cooldownTicksRemaining,
+        List<PsycheMapNodeDto> psycheNodes
 ) implements CustomPacketPayload {
 
     public static final Type<PersonalDiarySnapshotPayload> TYPE =
@@ -75,6 +77,15 @@ public record PersonalDiarySnapshotPayload(
 
                         ByteBufCodecs.VAR_LONG.encode(buf, payload.currentDay());
                         ByteBufCodecs.VAR_INT.encode(buf, payload.cooldownTicksRemaining());
+
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.psycheNodes().size());
+                        for (PsycheMapNodeDto n : payload.psycheNodes()) {
+                            ByteBufCodecs.STRING_UTF8.encode(buf, n.nodeId());
+                            ByteBufCodecs.VAR_LONG.encode(buf, n.unlockedAtGameTime());
+                            ByteBufCodecs.VAR_LONG.encode(buf, n.unlockedDay());
+                            ByteBufCodecs.STRING_UTF8.encode(buf, n.trigger());
+                            ByteBufCodecs.STRING_UTF8.encode(buf, n.dominantDrugId());
+                        }
                     },
                     buf -> {
                         int entryCount = ByteBufCodecs.VAR_INT.decode(buf);
@@ -128,7 +139,19 @@ public record PersonalDiarySnapshotPayload(
                         );
                         long currentDay = ByteBufCodecs.VAR_LONG.decode(buf);
                         int cooldown = ByteBufCodecs.VAR_INT.decode(buf);
-                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown);
+
+                        int psycheCount = ByteBufCodecs.VAR_INT.decode(buf);
+                        List<PsycheMapNodeDto> psycheNodes = new ArrayList<>(psycheCount);
+                        for (int i = 0; i < psycheCount; i++) {
+                            psycheNodes.add(new PsycheMapNodeDto(
+                                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                                    ByteBufCodecs.VAR_LONG.decode(buf),
+                                    ByteBufCodecs.VAR_LONG.decode(buf),
+                                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                                    ByteBufCodecs.STRING_UTF8.decode(buf)
+                            ));
+                        }
+                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes);
                     }
             );
 

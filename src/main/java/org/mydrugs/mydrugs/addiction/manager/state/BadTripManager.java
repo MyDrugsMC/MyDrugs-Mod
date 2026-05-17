@@ -22,6 +22,7 @@ import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
+import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 
 public final class BadTripManager {
@@ -135,6 +136,7 @@ public final class BadTripManager {
         String key = START_MESSAGES[player.getRandom().nextInt(START_MESSAGES.length)];
         player.displayClientMessage(Component.translatable(key), true);
         player.level().playSound(null, player.blockPosition(), ModSounds.HALLUCINATION_CUE.get(), SoundSource.PLAYERS, 0.75F, 0.75F);
+        PsycheMapMilestones.badTrip(player);
         sync(player, state);
     }
 

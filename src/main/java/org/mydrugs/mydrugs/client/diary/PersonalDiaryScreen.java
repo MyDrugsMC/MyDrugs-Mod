@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,6 +28,8 @@ import org.mydrugs.mydrugs.diary.DiaryPlayerStateDto;
 import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
+import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
+import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -210,6 +213,10 @@ public final class PersonalDiaryScreen extends Screen {
         if (editor != null && editor.visible && editor.isFocused()) {
             return super.keyPressed(event);
         }
+        if (!pages.isEmpty() && pages.get(pageIndex) instanceof MindMapPageHolder holder
+                && holder.page.keyPressed(event.key())) {
+            return true;
+        }
         int keyCode = event.key();
         if (keyCode == InputConstants.KEY_LEFT || keyCode == InputConstants.KEY_PAGEUP) {
             goToPage(pageIndex - 1);
@@ -239,9 +246,40 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (!pages.isEmpty() && pages.get(pageIndex) instanceof MindMapPageHolder holder
+                && holder.page.mouseClicked(event.x(), event.y(), event.button())) {
+            return true;
+        }
+        return super.mouseClicked(event, doubleClick);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (!pages.isEmpty() && pages.get(pageIndex) instanceof MindMapPageHolder holder
+                && holder.page.mouseReleased(event.button())) {
+            return true;
+        }
+        return super.mouseReleased(event);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (!pages.isEmpty() && pages.get(pageIndex) instanceof MindMapPageHolder holder
+                && holder.page.mouseDragged(event.x(), event.y(), event.button(), dragX, dragY)) {
+            return true;
+        }
+        return super.mouseDragged(event, dragX, dragY);
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDX, double scrollDY) {
         if (editor != null && editor.visible && editor.isFocused()) {
             return super.mouseScrolled(mouseX, mouseY, scrollDX, scrollDY);
+        }
+        if (!pages.isEmpty() && pages.get(pageIndex) instanceof MindMapPageHolder holder
+                && holder.page.mouseScrolled(mouseX, mouseY, scrollDY)) {
+            return true;
         }
         if (mouseX >= contentLeft && mouseX <= contentRight && mouseY >= contentTop && mouseY <= contentBottom) {
             scrollY = Math.max(0, scrollY - (int) (scrollDY * LINE_H * 2));
@@ -283,6 +321,10 @@ public final class PersonalDiaryScreen extends Screen {
             y += LINE_H;
         }
         g.disableScissor();
+        if (page instanceof MindMapPageHolder holder) {
+            holder.page.setBounds(contentLeft, contentTop, contentRight, contentBottom);
+            holder.page.render(g, this.font, mouseX, mouseY);
+        }
 
         // Scroll indicator (right edge) if content overflows
         if (maxScroll > 0) {
@@ -331,6 +373,7 @@ public final class PersonalDiaryScreen extends Screen {
     private void rebuildPages() {
         pages.clear();
         pages.add(buildPage1());
+        pages.add(buildMindMapPage());
         pages.add(buildPage2());
 
         // Group entries by day
@@ -442,6 +485,14 @@ public final class PersonalDiaryScreen extends Screen {
         }
 
         return new BasicPage(Component.translatable("screen.mydrugs.diary.what_i_did_in_my_life"), lines);
+    }
+
+    private MindMapPageHolder buildMindMapPage() {
+        MindMapPage page = new MindMapPage(
+                snapshot.psycheNodes(),
+                contentLeft, contentTop, contentRight, contentBottom
+        );
+        return new MindMapPageHolder(Component.translatable("screen.mydrugs.diary.mind_map"), page);
     }
 
     private DayPage buildDayPage(long day, List<DiaryEntryDto> entries, boolean isToday) {
@@ -752,6 +803,20 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     private record BasicPage(Component title, List<DiaryLine> lines) implements DiaryPage {
+    }
+
+    private static final class MindMapPageHolder implements DiaryPage {
+        private final Component title;
+        final MindMapPage page;
+        private final List<DiaryLine> lines = List.of();
+
+        MindMapPageHolder(Component title, MindMapPage page) {
+            this.title = title;
+            this.page = page;
+        }
+
+        @Override public Component title() { return title; }
+        @Override public List<DiaryLine> lines() { return lines; }
     }
 
     private static final class DayPage implements DiaryPage {

@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.energy;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.DistillerBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.FluidFiltererBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.FluidPumpBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.machine.MachineSync;
@@ -23,7 +24,8 @@ public final class MachineEnergyAttachments {
     public static boolean supportsAutomationUpgrade(BlockEntity blockEntity) {
         return blockEntity instanceof SieveBlockEntity
                 || blockEntity instanceof DistillerBlockEntity
-                || blockEntity instanceof FluidFiltererBlockEntity;
+                || blockEntity instanceof FluidFiltererBlockEntity
+                || blockEntity instanceof FluidPumpBlockEntity;
     }
 
     public static boolean hasEnergyStorage(BlockEntity blockEntity) {

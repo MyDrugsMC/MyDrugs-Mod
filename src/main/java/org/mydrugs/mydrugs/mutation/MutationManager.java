@@ -78,6 +78,7 @@ public final class MutationManager {
         attachment.infection().start(severity);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, 0.35F, INFECTION_ONSET_EFFECT_DURATION_TICKS);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.25F, INFECTION_ONSET_EFFECT_DURATION_TICKS);
+        org.mydrugs.mydrugs.psyche.PsycheMapMilestones.infection(player);
     }
 
     public static void cureInfection(ServerPlayer player, float strength) {
@@ -126,6 +127,9 @@ public final class MutationManager {
     }
 
     private static void announceCompletions(ServerPlayer player, List<String> statIds) {
+        if (statIds != null && !statIds.isEmpty()) {
+            org.mydrugs.mydrugs.psyche.PsycheMapMilestones.mutation(player);
+        }
         for (String statId : statIds) {
             MutationStat stat = MutationStat.bySerializedNameOrNull(statId);
             Component statName = stat == null

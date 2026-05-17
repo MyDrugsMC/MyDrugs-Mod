@@ -15,11 +15,25 @@ public final class PsychotropeEnergyMachines {
             return false;
         }
 
-        if (attachment.storage().extract(1, true) <= 0) {
+        return tryUseEnergyTick(blockEntity, attachment);
+    }
+
+    public static boolean tryUseAutomationEnergyTick(BlockEntity blockEntity) {
+        MachineEnergyAttachment attachment = MachineEnergyAttachments.get(blockEntity);
+        if (!attachment.hasAutomationUpgrade()) {
             return false;
         }
 
-        attachment.storage().extract(1, false);
+        return tryUseEnergyTick(blockEntity, attachment);
+    }
+
+    private static boolean tryUseEnergyTick(BlockEntity blockEntity, MachineEnergyAttachment attachment) {
+        int amount = PsychotropeEnergyConstants.DEFAULT_MACHINE_ENERGY_PER_TICK;
+        if (attachment.storage().extract(amount, true) < amount) {
+            return false;
+        }
+
+        attachment.storage().extract(amount, false);
         AdvancementEventHooks.psychotropePoweredMachine(blockEntity);
         sync(blockEntity);
         return true;

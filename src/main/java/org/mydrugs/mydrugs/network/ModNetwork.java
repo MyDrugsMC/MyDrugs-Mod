@@ -14,6 +14,7 @@ import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
 import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
@@ -108,6 +109,7 @@ public final class ModNetwork {
     private static void registerDiaryPayloads(PayloadRegistrar r) {
         r.playToClient(PersonalDiarySnapshotPayload.TYPE, PersonalDiarySnapshotPayload.STREAM_CODEC);
         r.playToServer(SubmitPersonalDiaryEntryPayload.TYPE, SubmitPersonalDiaryEntryPayload.STREAM_CODEC, SubmitPersonalDiaryEntryPayload::handleOnServer);
+        r.playToClient(StartMemoryCapturePayload.TYPE, StartMemoryCapturePayload.STREAM_CODEC);
     }
 
     private static void registerMutationPayloads(PayloadRegistrar r) {

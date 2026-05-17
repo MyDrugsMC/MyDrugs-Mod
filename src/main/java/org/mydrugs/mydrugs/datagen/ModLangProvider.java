@@ -144,6 +144,9 @@ public class ModLangProvider extends LanguageProvider {
         add("message.mydrugs.automation_upgrade.already_installed", "Automation Upgrade already installed.");
         add("message.mydrugs.automation_upgrade.has_energy", "This machine already has an Energy Upgrade.");
         add("message.mydrugs.automation_upgrade.unsupported", "This machine does not support this upgrade.");
+        add("tooltip.mydrugs.machine_upgrade.transfer", "Machine Transfer Upgrade installed");
+        add("tooltip.mydrugs.machine_upgrade.energy", "Energy Upgrade installed");
+        add("tooltip.mydrugs.machine_upgrade.automation", "Automation Upgrade installed");
         add("screen.mydrugs.machine_transfer.target", "Target: %s");
         add("screen.mydrugs.machine_transfer.ports", "Ports detected: %s");
         add("screen.mydrugs.machine_transfer.instructions", "Port and side rules will be synced here as machines migrate.");

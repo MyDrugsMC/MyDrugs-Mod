@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.diary.DiaryEntry;
 import org.mydrugs.mydrugs.diary.DiaryEntryType;
 import org.mydrugs.mydrugs.diary.PlayerDiaryAttachment;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.psyche.PsycheMapManager;
 
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,7 @@ public final class PsyKnowledgeManager {
         }
 
         AdvancementEventHooks.psyKnowledgeUnlocked(player, key);
+        PsycheMapManager.unlock(player, key.id(), "psy_knowledge");
         writeDiaryEntry(player, key);
         player.displayClientMessage(Component.translatable(messageKey(key)), true);
         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.75F, pitch(key));

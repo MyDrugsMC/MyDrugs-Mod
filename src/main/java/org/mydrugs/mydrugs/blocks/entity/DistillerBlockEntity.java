@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -191,9 +192,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
 
         int progressPerTick = be.getProgressPerTickFromCps();
-        if (MachineEnergyAttachments.get(be).hasAutomationUpgrade()
-                && MachineEnergyAttachments.get(be).storage().extract(1, true) == 1) {
-            MachineEnergyAttachments.get(be).storage().extract(1, false);
+        if (PsychotropeEnergyMachines.tryUseAutomationEnergyTick(be)) {
             progressPerTick += 1;
         }
         if (progressPerTick > 0) {

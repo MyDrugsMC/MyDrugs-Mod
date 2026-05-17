@@ -37,6 +37,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -144,9 +145,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
                 if (be.advanceFiltering(recipe, null, be.manualSpeedMultiplier)) {
                     changed = true;
                 }
-            } else if (MachineEnergyAttachments.get(be).hasAutomationUpgrade()
-                    && MachineEnergyAttachments.get(be).storage().extract(1, true) == 1) {
-                MachineEnergyAttachments.get(be).storage().extract(1, false);
+            } else if (PsychotropeEnergyMachines.tryUseAutomationEnergyTick(be)) {
                 if (be.advanceFiltering(recipe, null, 1.0F)) {
                     changed = true;
                 }

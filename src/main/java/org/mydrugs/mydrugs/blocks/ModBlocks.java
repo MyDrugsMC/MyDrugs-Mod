@@ -11,6 +11,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.registry.MachineSpec;
+import org.mydrugs.mydrugs.energy.MachineUpgradeBlockItem;
 import org.mydrugs.mydrugs.recovery.block.ModRecoveryBlocks;
 import org.mydrugs.mydrugs.recovery.block.RecoveryAnchorBlock;
 import org.mydrugs.mydrugs.recovery.block.TherapistDeskBlock;
@@ -77,7 +78,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> GRINDING_BOWL_ITEM =
-            ITEMS.registerSimpleBlockItem(GRINDING_BOWL);
+            registerMachineBlockItem("grinding_bowl", GRINDING_BOWL);
 
 
     public static final DeferredBlock<Block> STOMP_CRAFTER = BLOCKS.registerBlock(
@@ -90,7 +91,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> STOMP_CRAFTER_ITEM =
-            ITEMS.registerSimpleBlockItem("stomp_crafter", STOMP_CRAFTER);
+            registerMachineBlockItem("stomp_crafter", STOMP_CRAFTER);
 
     public static final DeferredBlock<Block> STOMP_PLATE_BLOCK =
             BLOCKS.registerBlock(
@@ -109,7 +110,7 @@ public class ModBlocks {
 
 
     public static final DeferredItem<BlockItem> ADVANCED_FURNACE_ITEM =
-            ITEMS.registerSimpleBlockItem(ADVANCED_FURNACE);
+            registerMachineBlockItem("advanced_furnace", ADVANCED_FURNACE);
 
 
     public static final DeferredBlock<Block> DISTILLER =
@@ -117,7 +118,7 @@ public class ModBlocks {
                     .register(BLOCKS);
 
     public static final DeferredItem<BlockItem> DISTILLER_ITEM =
-            ITEMS.registerSimpleBlockItem(DISTILLER);
+            registerMachineBlockItem("distiller", DISTILLER);
 
     public static final DeferredBlock<Block> MIXING_VAT = BLOCKS.registerBlock(
             "mixing_vat",
@@ -126,7 +127,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> MIXING_VAT_ITEM =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MIXING_VAT);
+            registerMachineBlockItem("mixing_vat", MIXING_VAT);
 
     public static final DeferredBlock<Block> FLUID_FILTERER = BLOCKS.registerBlock(
             "fluid_filterer",
@@ -134,7 +135,7 @@ public class ModBlocks {
             props -> props.strength(3.5f).noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> FLUID_FILTERER_ITEM = ITEMS.registerSimpleBlockItem(FLUID_FILTERER);
+    public static final DeferredItem<BlockItem> FLUID_FILTERER_ITEM = registerMachineBlockItem("fluid_filterer", FLUID_FILTERER);
 
     public static final DeferredBlock<SieveBlock> SIEVE = BLOCKS.registerBlock(
             "sieve",
@@ -145,7 +146,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> SIEVE_ITEM = ITEMS.registerSimpleBlockItem(SIEVE);
+    public static final DeferredItem<BlockItem> SIEVE_ITEM = registerMachineBlockItem("sieve", SIEVE);
 
     public static final DeferredBlock<EvaporationTrayBlock> EVAPORATION_TRAY = BLOCKS.registerBlock(
             "evaporation_tray",
@@ -156,7 +157,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> EVAPORATION_TRAY_ITEM = ITEMS.registerSimpleBlockItem(EVAPORATION_TRAY);
+    public static final DeferredItem<BlockItem> EVAPORATION_TRAY_ITEM = registerMachineBlockItem("evaporation_tray", EVAPORATION_TRAY);
 
     public static final DeferredBlock<CentrifugeBlock> CENTRIFUGE = BLOCKS.registerBlock(
             "centrifuge",
@@ -167,7 +168,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> CENTRIFUGE_ITEM = ITEMS.registerSimpleBlockItem(CENTRIFUGE);
+    public static final DeferredItem<BlockItem> CENTRIFUGE_ITEM = registerMachineBlockItem("centrifuge", CENTRIFUGE);
 
     public static final DeferredBlock<BTXFractionationTowerBlock> BTX_FRACTIONATION_TOWER = BLOCKS.registerBlock(
             "btx_fractionation_tower",
@@ -180,7 +181,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> BTX_FRACTIONATION_TOWER_ITEM =
-            ITEMS.registerSimpleBlockItem(BTX_FRACTIONATION_TOWER);
+            registerMachineBlockItem("btx_fractionation_tower", BTX_FRACTIONATION_TOWER);
 
     public static final DeferredBlock<AromaticExtractorBlock> AROMATIC_EXTRACTOR = BLOCKS.registerBlock(
             "aromatic_extractor",
@@ -191,7 +192,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> AROMATIC_EXTRACTOR_ITEM = ITEMS.registerSimpleBlockItem(AROMATIC_EXTRACTOR);
+    public static final DeferredItem<BlockItem> AROMATIC_EXTRACTOR_ITEM = registerMachineBlockItem("aromatic_extractor", AROMATIC_EXTRACTOR);
 
     public static final DeferredBlock<ElectrolyzerBlock> ELECTROLYZER = BLOCKS.registerBlock(
             "electrolyzer",
@@ -202,7 +203,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> ELECTROLYZER_ITEM = ITEMS.registerSimpleBlockItem(ELECTROLYZER);
+    public static final DeferredItem<BlockItem> ELECTROLYZER_ITEM = registerMachineBlockItem("electrolyzer", ELECTROLYZER);
 
     public static final DeferredBlock<GrowthChamberBlock> GROWTH_CHAMBER = BLOCKS.registerBlock(
             "growth_chamber",
@@ -212,7 +213,7 @@ public class ModBlocks {
                     .requiresCorrectToolForDrops()
     );
 
-    public static final DeferredItem<BlockItem> GROWTH_CHAMBER_ITEM = ITEMS.registerSimpleBlockItem(GROWTH_CHAMBER);
+    public static final DeferredItem<BlockItem> GROWTH_CHAMBER_ITEM = registerMachineBlockItem("growth_chamber", GROWTH_CHAMBER);
 
     public static final DeferredBlock<GeneExtractorBlock> GENE_EXTRACTOR = BLOCKS.registerBlock(
             "gene_extractor",
@@ -223,7 +224,7 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
     );
 
-    public static final DeferredItem<BlockItem> GENE_EXTRACTOR_ITEM = ITEMS.registerSimpleBlockItem(GENE_EXTRACTOR);
+    public static final DeferredItem<BlockItem> GENE_EXTRACTOR_ITEM = registerMachineBlockItem("gene_extractor", GENE_EXTRACTOR);
 
     public static final DeferredBlock<KrisprKas9CombinatorBlock> CRISPR_CAS9_COMBINATOR = BLOCKS.registerBlock(
             "crispr_cas9_combinator",
@@ -234,7 +235,7 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
     );
 
-    public static final DeferredItem<BlockItem> CRISPR_CAS9_COMBINATOR_ITEM = ITEMS.registerSimpleBlockItem(CRISPR_CAS9_COMBINATOR);
+    public static final DeferredItem<BlockItem> CRISPR_CAS9_COMBINATOR_ITEM = registerMachineBlockItem("crispr_cas9_combinator", CRISPR_CAS9_COMBINATOR);
 
     public static final DeferredBlock<BacterialIncubatorBlock> BACTERIAL_INCUBATOR = BLOCKS.registerBlock(
             "bacterial_incubator",
@@ -245,7 +246,7 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
     );
 
-    public static final DeferredItem<BlockItem> BACTERIAL_INCUBATOR_ITEM = ITEMS.registerSimpleBlockItem(BACTERIAL_INCUBATOR);
+    public static final DeferredItem<BlockItem> BACTERIAL_INCUBATOR_ITEM = registerMachineBlockItem("bacterial_incubator", BACTERIAL_INCUBATOR);
 
     public static final DeferredBlock<HemogenicInfuserBlock> HEMOGENIC_INFUSER = BLOCKS.registerBlock(
             "hemogenic_infuser",
@@ -256,7 +257,7 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
     );
 
-    public static final DeferredItem<BlockItem> HEMOGENIC_INFUSER_ITEM = ITEMS.registerSimpleBlockItem(HEMOGENIC_INFUSER);
+    public static final DeferredItem<BlockItem> HEMOGENIC_INFUSER_ITEM = registerMachineBlockItem("hemogenic_infuser", HEMOGENIC_INFUSER);
 
     public static final DeferredBlock<AutoclaveBlock> AUTOCLAVE = BLOCKS.registerBlock(
             "autoclave",
@@ -267,7 +268,7 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
     );
 
-    public static final DeferredItem<BlockItem> AUTOCLAVE_ITEM = ITEMS.registerSimpleBlockItem(AUTOCLAVE);
+    public static final DeferredItem<BlockItem> AUTOCLAVE_ITEM = registerMachineBlockItem("autoclave", AUTOCLAVE);
 
     public static final DeferredBlock<Block> BIOCHEMICAL_REACTOR = BLOCKS.register(
             "biochemical_reactor",
@@ -279,9 +280,7 @@ public class ModBlocks {
             )
     );
 
-    public static final DeferredItem<BlockItem> BIOCHEMICAL_REACTOR_ITEM = ITEMS.registerSimpleBlockItem(
-            BIOCHEMICAL_REACTOR
-    );
+    public static final DeferredItem<BlockItem> BIOCHEMICAL_REACTOR_ITEM = registerMachineBlockItem("biochemical_reactor", BIOCHEMICAL_REACTOR);
 
     public static final DeferredBlock<Block> SALT_BLOCK = BLOCKS.registerSimpleBlock(
             "salt_block",
@@ -319,7 +318,7 @@ public class ModBlocks {
             props -> props.strength(2.0F)
     );
 
-    public static final DeferredItem<BlockItem> GAS_PUMP_ITEM = ITEMS.registerSimpleBlockItem(GAS_PUMP);
+    public static final DeferredItem<BlockItem> GAS_PUMP_ITEM = registerMachineBlockItem("gas_pump", GAS_PUMP);
 
     public static final DeferredBlock<FluidPumpBlock> FLUID_PUMP = BLOCKS.registerBlock(
             "fluid_pump",
@@ -327,7 +326,7 @@ public class ModBlocks {
             props -> props.strength(2.5F).sound(SoundType.METAL).noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> FLUID_PUMP_ITEM = ITEMS.registerSimpleBlockItem(FLUID_PUMP);
+    public static final DeferredItem<BlockItem> FLUID_PUMP_ITEM = registerMachineBlockItem("fluid_pump", FLUID_PUMP);
 
     public static final DeferredBlock<GasifierBlock> GASIFIER = BLOCKS.registerBlock(
             "gasifier",
@@ -337,7 +336,7 @@ public class ModBlocks {
                     .requiresCorrectToolForDrops()
     );
 
-    public static final DeferredItem<BlockItem> GASIFIER_ITEM = ITEMS.registerSimpleBlockItem(GASIFIER);
+    public static final DeferredItem<BlockItem> GASIFIER_ITEM = registerMachineBlockItem("gasifier", GASIFIER);
 
     public static final DeferredBlock<Block> CHEMICAL_REACTOR =
             BLOCKS.registerBlock("chemical_reactor",
@@ -348,9 +347,7 @@ public class ModBlocks {
                             .sound(SoundType.METAL)
             );
 
-    public static final DeferredItem<BlockItem> CHEMICAL_REACTOR_ITEM = ITEMS.registerSimpleBlockItem(
-            CHEMICAL_REACTOR
-    );
+    public static final DeferredItem<BlockItem> CHEMICAL_REACTOR_ITEM = registerMachineBlockItem("chemical_reactor", CHEMICAL_REACTOR);
 
     public static final DeferredBlock<AdvancedMixingVatBlock> ADVANCED_MIXING_VAT =
             BLOCKS.registerBlock(
@@ -363,7 +360,7 @@ public class ModBlocks {
 
             );
 
-    public static final DeferredItem<BlockItem> ADVANCED_MIXING_VAT_ITEM = ITEMS.registerSimpleBlockItem(ADVANCED_MIXING_VAT);
+    public static final DeferredItem<BlockItem> ADVANCED_MIXING_VAT_ITEM = registerMachineBlockItem("advanced_mixing_vat", ADVANCED_MIXING_VAT);
 
     public static final DeferredBlock<TherapistDeskBlock> THERAPIST_DESK =
             ModRecoveryBlocks.THERAPIST_DESK;
@@ -385,7 +382,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> MANUAL_COFFEE_PULPER_ITEM =
-            ITEMS.registerSimpleBlockItem(MANUAL_COFFEE_PULPER);
+            registerMachineBlockItem("manual_coffee_pulper", MANUAL_COFFEE_PULPER);
 
     public static final DeferredBlock<CoffeeDryingMatBlock> COFFEE_DRYING_MAT = BLOCKS.registerBlock(
             "coffee_drying_mat",
@@ -394,7 +391,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> COFFEE_DRYING_MAT_ITEM =
-            ITEMS.registerSimpleBlockItem(COFFEE_DRYING_MAT);
+            registerMachineBlockItem("coffee_drying_mat", COFFEE_DRYING_MAT);
 
     public static final DeferredBlock<DryingRackBlock> DRYING_RACK = BLOCKS.registerBlock(
             "drying_rack",
@@ -406,7 +403,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> DRYING_RACK_ITEM =
-            ITEMS.registerSimpleBlockItem(DRYING_RACK);
+            registerMachineBlockItem("drying_rack", DRYING_RACK);
 
     public static final DeferredBlock<Block> CLAY_VAT = BLOCKS.registerBlock("clay_vat",
             properties -> new ClayVatBlock(
@@ -418,7 +415,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> CLAY_VAT_ITEM =
-            ITEMS.registerSimpleBlockItem(CLAY_VAT);
+            registerMachineBlockItem("clay_vat", CLAY_VAT);
 
     public static final DeferredBlock<PsyAnvilBlock> PSY_ANVIL = BLOCKS.registerBlock(
             "psy_anvil",
@@ -430,7 +427,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> PSY_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(PSY_ANVIL);
+    public static final DeferredItem<BlockItem> PSY_ANVIL_ITEM = registerMachineBlockItem("psy_anvil", PSY_ANVIL);
 
     public static final DeferredBlock<VomitSplashBlock> VOMIT_SPLASH = BLOCKS.registerBlock(
             "vomit_splash",
@@ -494,7 +491,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> CATALYTIC_REFORMER_ITEM = ITEMS.registerSimpleBlockItem(CATALYTIC_REFORMER);
+    public static final DeferredItem<BlockItem> CATALYTIC_REFORMER_ITEM = registerMachineBlockItem("catalytic_reformer", CATALYTIC_REFORMER);
 
     public static final DeferredBlock<SteamCrackerBlock> STEAM_CRACKER = BLOCKS.registerBlock(
             "steam_cracker",
@@ -505,7 +502,7 @@ public class ModBlocks {
                     .noOcclusion()
     );
 
-    public static final DeferredItem<BlockItem> STEAM_CRACKER_ITEM = ITEMS.registerSimpleBlockItem(STEAM_CRACKER);
+    public static final DeferredItem<BlockItem> STEAM_CRACKER_ITEM = registerMachineBlockItem("steam_cracker", STEAM_CRACKER);
 
     public static final DeferredBlock<PsychotropeComponentBlock> PSYCHOTROPE_COMPONENT = BLOCKS.registerBlock(
             "psychotrope_component",
@@ -518,7 +515,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> PSYCHOTROPE_COMPONENT_ITEM =
-            ITEMS.registerSimpleBlockItem(PSYCHOTROPE_COMPONENT);
+            registerMachineBlockItem("psychotrope_component", PSYCHOTROPE_COMPONENT);
 
     public static final DeferredBlock<PsychotropeCoreBlock> PSYCHOTROPE_CORE = BLOCKS.registerBlock(
             "psychotrope_core",
@@ -531,7 +528,7 @@ public class ModBlocks {
     );
 
     public static final DeferredItem<BlockItem> PSYCHOTROPE_CORE_ITEM =
-            ITEMS.registerSimpleBlockItem(PSYCHOTROPE_CORE);
+            registerMachineBlockItem("psychotrope_core", PSYCHOTROPE_CORE);
 
     public static final DeferredBlock<Block> RAW_PLATINUM_BLOCK = BLOCKS.registerSimpleBlock(
             "raw_platinum_block",
@@ -693,6 +690,10 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> THIRD_EYE_PETAL_ITEM =
             ITEMS.registerSimpleBlockItem(THIRD_EYE_PETAL);
+
+    private static DeferredItem<BlockItem> registerMachineBlockItem(String name, DeferredBlock<? extends Block> block) {
+        return ITEMS.registerItem(name, props -> new MachineUpgradeBlockItem(block.get(), props));
+    }
 
     private ModBlocks() {
     }

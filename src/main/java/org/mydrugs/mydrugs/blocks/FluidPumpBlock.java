@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -43,6 +45,15 @@ public class FluidPumpBlock extends Block implements EntityBlock {
                 .setValue(CRANK_FACE, Direction.NORTH));
     }
 
+    @SuppressWarnings("unchecked")
+    private static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
+            BlockEntityType<A> type,
+            BlockEntityType<E> checkedType,
+            BlockEntityTicker<? super E> ticker
+    ) {
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
+    }
+
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         FluidPumpLoggedFluid logged = FluidPumpLoggedFluid.fromFluid(context.getLevel().getFluidState(context.getClickedPos()).getType());
@@ -68,6 +79,13 @@ public class FluidPumpBlock extends Block implements EntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new FluidPumpBlockEntity(pos, state);
+    }
+
+    @Override
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return level.isClientSide()
+                ? null
+                : createTickerHelper(type, ModBlockEntities.FLUID_PUMP.get(), FluidPumpBlockEntity::serverTick);
     }
 
     @Override

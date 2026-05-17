@@ -282,6 +282,9 @@ public class InnerDemonEntity extends Vex {
 
         ServerPlayer owner = resolveOwner();
         ServerPlayer relevant = owner != null ? owner : (killer instanceof ServerPlayer sp ? sp : null);
+        if (relevant != null) {
+            org.mydrugs.mydrugs.psyche.PsycheMapMilestones.demonDefeated(relevant);
+        }
 
         // FRACTURED_IMPULSE: 25% drop when killed by stimulant-overdosed bad-trip player
         if (relevant != null && shouldDropFracturedImpulse(relevant) && level.random.nextFloat() < 0.25F) {

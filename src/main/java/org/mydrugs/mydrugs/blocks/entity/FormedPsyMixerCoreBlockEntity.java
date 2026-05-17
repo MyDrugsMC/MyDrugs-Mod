@@ -58,6 +58,7 @@ import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
+import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipeInput;
@@ -326,6 +327,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
 
         markDirtyAndSync();
+        PsycheMapMilestones.psyMixerRitual(player);
         return true;
     }
 
@@ -377,6 +379,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
                 if (completedOutput) {
                     sendRandomMessage(player, SUCCESS_MESSAGES);
                 }
+                PsycheMapMilestones.ritualSuccess(player);
             }
 
             level.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.6F, 1.4F);
@@ -415,6 +418,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
                 mastery.incrementFailed(activeRecipeId);
                 applyFailureSeverity(player, recipe.failureSeverity());
                 sendRandomMessage(player, FAIL_MESSAGES);
+                PsycheMapMilestones.ritualFailure(player);
             }
 
             level.playSound(null, worldPosition, SoundEvents.WITHER_HURT, SoundSource.BLOCKS, 0.5F, 0.6F);

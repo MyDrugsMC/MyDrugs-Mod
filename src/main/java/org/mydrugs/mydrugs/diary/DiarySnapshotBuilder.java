@@ -20,6 +20,8 @@ import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
+import org.mydrugs.mydrugs.psyche.PlayerPsycheMapAttachment;
+import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,8 +112,16 @@ public final class DiarySnapshotBuilder {
                 stats.sleepBlockedUntil > gameTime
         );
 
+        PlayerPsycheMapAttachment psycheMap = player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get());
+        List<PsycheMapNodeDto> psycheNodes = new ArrayList<>();
+        for (PlayerPsycheMapAttachment.Node n : psycheMap.getNodes()) {
+            psycheNodes.add(new PsycheMapNodeDto(
+                    n.nodeId, n.unlockedAtGameTime, n.unlockedDay, n.trigger, n.dominantDrugId
+            ));
+        }
+
         return new PersonalDiarySnapshotPayload(
-                entries, drugStats, masteryStats, state, currentDay, cooldown
+                entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes
         );
     }
 

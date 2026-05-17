@@ -101,6 +101,7 @@ public final class ServerDrugFormulaRegistry {
         }
         mixer.placeIntoOutput(MixedDrugStackFactory.createStack(data));
         player.displayClientMessage(Component.translatable("message.mydrugs.formula.patented", data.displayName()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        org.mydrugs.mydrugs.psyche.PsycheMapMilestones.namedFormula(player);
     }
 
     private record PendingFormula(BlockPos mixerPos, RitualDrugFormula formula) {

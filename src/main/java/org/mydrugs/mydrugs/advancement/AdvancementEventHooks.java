@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
+import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 
 import java.util.Optional;
 
@@ -26,10 +27,22 @@ public final class AdvancementEventHooks {
 
     public static void recoveryAction(ServerPlayer player, String action) {
         ModCriteriaTriggers.RECOVERY_ACTION.get().trigger(player, action, "");
+        mapRecoveryActionToPsyche(player, action);
     }
 
     public static void recoveryAction(ServerPlayer player, String action, String category) {
         ModCriteriaTriggers.RECOVERY_ACTION.get().trigger(player, action, category);
+        mapRecoveryActionToPsyche(player, action);
+    }
+
+    private static void mapRecoveryActionToPsyche(ServerPlayer player, String action) {
+        if (player == null || action == null) return;
+        switch (action) {
+            case "personal_diary" -> PsycheMapMilestones.diaryEntry(player);
+            case "safe_zone" -> PsycheMapMilestones.recoveryAnchor(player);
+            case "therapy" -> PsycheMapMilestones.therapistVisit(player);
+            default -> { /* other actions are not psyche milestones */ }
+        }
     }
 
     public static void machineRecipeCompleted(BlockEntity blockEntity) {
@@ -70,7 +83,13 @@ public final class AdvancementEventHooks {
 
     public static void psychotropeEvent(ServerLevel level, BlockPos pos, String event, String drug, int amount, int threshold) {
         PsychotropeEnergyTrigger.Event payload = new PsychotropeEnergyTrigger.Event(event, drug, amount, threshold);
-        forNearbyPlayers(level, pos, player -> ModCriteriaTriggers.PSYCHOTROPE_ENERGY.get().trigger(player, payload));
+        boolean psycheWorthy = "powered_machine".equals(event) || amount > 0;
+        forNearbyPlayers(level, pos, player -> {
+            ModCriteriaTriggers.PSYCHOTROPE_ENERGY.get().trigger(player, payload);
+            if (psycheWorthy) {
+                PsycheMapMilestones.psychotropeEnergy(player);
+            }
+        });
     }
 
     public static void psychotropePoweredMachine(BlockEntity blockEntity) {
