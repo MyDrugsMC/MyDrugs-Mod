@@ -16,7 +16,7 @@ import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 public final class AddictionHudRenderer {
     private static final int WITHDRAWAL_BAR_WIDTH = 81;
     private static final int WITHDRAWAL_BAR_HEIGHT = 5;
-    private static final int SYMPTOM_ICON_SIZE = 13;
+    private static final int SYMPTOM_ICON_SIZE = 16;
     private static final int SYMPTOM_ICON_GAP = 3;
 
     private static float displayedWithdrawal;

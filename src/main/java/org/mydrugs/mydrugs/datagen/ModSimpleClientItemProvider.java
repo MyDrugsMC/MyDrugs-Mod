@@ -40,6 +40,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "cannabis_powder",
                 "cannabis_resin",
                 "cannabis_seeds",
+                "caffeine_bar",
                 "catalyst_bed",
                 "cigaret",
                 "cigaret_filter",

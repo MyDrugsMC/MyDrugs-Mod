@@ -105,6 +105,7 @@ public class ModLangProvider extends LanguageProvider {
         add(ModItems.CONTROL_CIRCUIT.get(), "Control Circuit");
         add(ModItems.ADVANCED_CONTROL_CIRCUIT.get(), "Advanced Control Circuit");
         add(ModItems.ALOE_VERA.get(), "Aloe Vera");
+        add(ModItems.CAFFEINE_BAR.get(), "Caffeine Bar");
         add(ModCrops.ALOE_VERA_SEEDS.get(), "Aloe Vera Seeds");
         add(ModCrops.COCA_SEEDS.get(), "Coca Seeds");
         add(ModCrops.OPIUM_POPPY_SEEDS.get(), "Poppy Seeds");

@@ -240,6 +240,9 @@ public class ModItems {
     public static final DeferredItem<Item> COFFEE_POWDER =
             ITEMS.registerSimpleItem("coffee_powder");
 
+    public static final DeferredItem<CaffeineBarItem> CAFFEINE_BAR =
+            ITEMS.registerItem("caffeine_bar", CaffeineBarItem::new);
+
     public static final DeferredItem<Item> COFFEE_CUP =
             ITEMS.registerItem("coffee_cup", prop -> new org.mydrugs.mydrugs.items.drugs.CoffeeCupItem(prop, DrugId.COFFEE, new org.mydrugs.mydrugs.core.drug.strategy.DrinkingStrategy()));
 

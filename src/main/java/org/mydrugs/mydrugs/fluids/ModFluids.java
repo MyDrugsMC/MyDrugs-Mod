@@ -81,6 +81,7 @@ public final class ModFluids {
     public static final FluidEntry LIGHT_OIL;
     public static final FluidEntry COFFEE;
     public static final FluidEntry HERBAL_TEA;
+    public static final FluidEntry COFFEE_PASTE;
 
     public static final FluidEntry POTATO_MASH;
     public static final FluidEntry WHEAT_MASH;
@@ -153,6 +154,7 @@ public final class ModFluids {
 
         COFFEE = register(new FluidSpec("coffee", 0xFF3B2012, true, DrugId.COFFEE));
         HERBAL_TEA = register(new FluidSpec("herbal_tea", 0xFFCDA35F, false, null));
+        COFFEE_PASTE = register(new FluidSpec("coffee_paste", 0xFF2F1B10, false, null));
 
         // Hot, opaque grain/root mashes.
         POTATO_MASH = register(new FluidSpec("potato_mash", 0xFFE4D1A5, false, null));
