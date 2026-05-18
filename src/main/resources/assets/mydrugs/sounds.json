@@ -74,5 +74,45 @@
     "sounds": [
       "mydrugs:write"
     ]
+  },
+  "psy_mixer_voice_sneak": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/sneak"
+    ]
+  },
+  "psy_mixer_voice_jump": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/jump"
+    ]
+  },
+  "psy_mixer_voice_right_click_air": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/right_click_air"
+    ]
+  },
+  "psy_mixer_voice_walk_ring": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/walk_ring"
+    ]
+  },
+  "psy_mixer_voice_look_at_core": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/look_at_core"
+    ]
+  },
+  "psy_mixer_voice_timing_ring": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/timing_ring"
+    ]
+  },
+  "psy_mixer_voice_stand_still": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/stand_still"
+    ]
+  },
+  "psy_mixer_voice_reopen_gui": {
+    "sounds": [
+      "mydrugs:psy_mixer/voice/reopen_gui"
+    ]
   }
 }

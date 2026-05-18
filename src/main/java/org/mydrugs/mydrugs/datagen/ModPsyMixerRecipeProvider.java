@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class ModPsyMixerRecipeProvider implements DataProvider {
+    private static final String DEFAULT_CATALYST = "mydrugs:psychotropic_pigment";
+    private static final String DEFAULT_STABILIZER = "mydrugs:ritual_resin";
     private static final String DEFAULT_VESSEL = "mydrugs:painted_clay_bowl";
-    private static final String DEFAULT_FAILURE = "mydrugs:unstable_residue";
 
     private final PackOutput.PathProvider recipePathProvider;
 
@@ -35,7 +36,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
         recipe(futures, cachedOutput, "brightened_cannabis_powder", DrugId.WEED, "minecraft:glowstone_dust",
                 "mydrugs:brightened_cannabis_powder", 400, 0.25F, 8.0F,
                 "mydrugs:psychotropic_pigment", "mydrugs:ritual_resin", false, 0.0F, 0.0F,
-                effect(EffectType.GAMMA_BOOST, 30 * 20, 1.45F));
+                effect(EffectType.GAMMA_BOOST, 120 * 20, 1.45F));
         recipe(futures, cachedOutput, DrugId.WEED, "minecraft:moss_carpet",
                 effect(EffectType.STRESS_RELIEF, 90 * 20, 0.20F),
                 effect(EffectType.RITUAL_STABILITY, 90 * 20, 0.10F));
@@ -207,34 +208,36 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
         json.addProperty("type", "mydrugs:psy_mixer");
         json.addProperty("base", baseItem(baseDrug));
         json.addProperty("material", material);
-        if (catalyst != null) {
-            json.addProperty("catalyst", catalyst);
-        }
-        if (stabilizer != null) {
-            json.addProperty("stabilizer", stabilizer);
-        }
+        json.addProperty("catalyst", catalyst == null ? DEFAULT_CATALYST : catalyst);
+        json.addProperty("stabilizer", stabilizer == null ? DEFAULT_STABILIZER : stabilizer);
         json.addProperty("vessel", DEFAULT_VESSEL);
         json.add("effects", effects(effects));
         json.add("fallback_result", stack(fallbackResult));
         json.addProperty("ritual_time", ritualTime);
-        json.addProperty("base_instability", baseInstability);
+        json.add("ritual_actions", ritualActions());
         json.addProperty("required_knowledge", requiredKnowledge(baseDrug));
         json.addProperty("required_drug", baseDrug.serializedName());
         if (requiredLifetimeDose > 0.0F) {
             json.addProperty("required_lifetime_dose", requiredLifetimeDose);
         }
         json.addProperty("show_if_locked", true);
-        json.add("failure_result", stack(DrugId.TOBACCO == baseDrug ? "mydrugs:plant_waste" : DEFAULT_FAILURE));
-        if (failureSeverity != 0.0F) {
-            json.addProperty("failure_severity", failureSeverity);
-        }
-        if (ritualStabilityModifier != 0.0F) {
-            json.addProperty("ritual_stability_modifier", ritualStabilityModifier);
-        }
         json.addProperty("preserve_vessel_on_success", preserveVesselOnSuccess);
         json.addProperty("preserve_vessel_on_failure", true);
 
         saveRecipe(futures, cachedOutput, "psy_mixer/" + name, json);
+    }
+
+    private static JsonArray ritualActions() {
+        JsonArray array = new JsonArray();
+        array.add("sneak");
+        array.add("jump");
+        array.add("right_click_air");
+        array.add("walk_ring");
+        array.add("look_at_core");
+        array.add("timing_ring");
+        array.add("stand_still");
+        array.add("reopen_gui");
+        return array;
     }
 
     private static JsonArray effects(RitualDrugEffectData... effects) {

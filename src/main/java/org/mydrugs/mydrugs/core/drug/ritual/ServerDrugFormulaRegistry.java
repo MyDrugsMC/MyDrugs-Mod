@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
 
 import java.util.Map;
@@ -26,30 +27,38 @@ public final class ServerDrugFormulaRegistry {
     }
 
     public static boolean finishOrRequestName(ServerPlayer player, FormedPsyMixerCoreBlockEntity mixer, RitualDrugFormula formula) {
+        return finishOrRequestName(player, mixer, formula, PsyMixerRitualQuality.BASE);
+    }
+
+    public static boolean finishOrRequestName(ServerPlayer player, FormedPsyMixerCoreBlockEntity mixer, RitualDrugFormula formula, PsyMixerRitualQuality quality) {
         MinecraftServer server = player.level().getServer();
         if (server == null) {
-            mixer.placeIntoOutput(MixedDrugStackFactory.createPendingStack(formula));
+            mixer.placeIntoOutput(MixedDrugStackFactory.createPendingStack(formula, quality));
             return true;
         }
-        FormulaOutput output = resolveOutput(server, formula);
+        FormulaOutput output = resolveOutput(server, formula, quality);
         if (!output.requiresNaming()) {
             mixer.placeIntoOutput(output.stack());
             return true;
         }
 
-        PENDING.put(player.getUUID(), new PendingFormula(mixer.getBlockPos(), formula));
-        PacketDistributor.sendToPlayer(player, new OpenDrugFormulaNamingPayload(MixedDrugData.pending(formula)));
+        PENDING.put(player.getUUID(), new PendingFormula(mixer.getBlockPos(), formula, quality));
+        PacketDistributor.sendToPlayer(player, new OpenDrugFormulaNamingPayload(MixedDrugData.pending(formula, quality)));
         player.displayClientMessage(Component.translatable("message.mydrugs.formula.naming_required").withStyle(ChatFormatting.LIGHT_PURPLE), true);
         return false;
     }
 
     public static FormulaOutput resolveOutput(MinecraftServer server, RitualDrugFormula formula) {
+        return resolveOutput(server, formula, PsyMixerRitualQuality.BASE);
+    }
+
+    public static FormulaOutput resolveOutput(MinecraftServer server, RitualDrugFormula formula, PsyMixerRitualQuality quality) {
         DrugPatentSavedData patents = DrugPatentSavedData.get(server);
         MixedDrugData existing = patents.bySignature(formula.canonicalSignature()).orElse(null);
         if (existing != null) {
-            return new FormulaOutput(MixedDrugStackFactory.createStack(existing), false);
+            return new FormulaOutput(MixedDrugStackFactory.createStack(existing.withQuality(quality)), false);
         }
-        return new FormulaOutput(MixedDrugStackFactory.createPendingStack(formula), true);
+        return new FormulaOutput(MixedDrugStackFactory.createPendingStack(formula, quality), true);
     }
 
     public static void submitName(ServerPlayer player, String rawName) {
@@ -73,7 +82,7 @@ public final class ServerDrugFormulaRegistry {
         synchronized (patents) {
             MixedDrugData existing = patents.bySignature(pending.formula.canonicalSignature()).orElse(null);
             if (existing != null) {
-                finish(player, pending, existing);
+                finish(player, pending, existing.withQuality(pending.quality));
                 PENDING.remove(player.getUUID());
                 return;
             }
@@ -82,7 +91,7 @@ public final class ServerDrugFormulaRegistry {
                 return;
             }
             MixedDrugData patented = patents.patent(pending.formula, name, player.getUUID(), player.getName().getString());
-            finish(player, pending, patented);
+            finish(player, pending, patented.withQuality(pending.quality));
             PENDING.remove(player.getUUID());
         }
     }
@@ -100,11 +109,14 @@ public final class ServerDrugFormulaRegistry {
             return;
         }
         mixer.placeIntoOutput(MixedDrugStackFactory.createStack(data));
-        player.displayClientMessage(Component.translatable("message.mydrugs.formula.patented", data.displayName()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        String key = data.quality() == PsyMixerRitualQuality.MASTERWORK
+                ? "message.mydrugs.formula.patented_masterwork"
+                : "message.mydrugs.formula.patented";
+        player.displayClientMessage(Component.translatable(key, player.getName().getString(), data.displayName()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
         org.mydrugs.mydrugs.psyche.PsycheMapMilestones.namedFormula(player);
     }
 
-    private record PendingFormula(BlockPos mixerPos, RitualDrugFormula formula) {
+    private record PendingFormula(BlockPos mixerPos, RitualDrugFormula formula, PsyMixerRitualQuality quality) {
     }
 
     public record FormulaOutput(ItemStack stack, boolean requiresNaming) {

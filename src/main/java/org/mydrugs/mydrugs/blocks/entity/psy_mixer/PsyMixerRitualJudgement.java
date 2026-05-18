@@ -1,12 +1,12 @@
 package org.mydrugs.mydrugs.blocks.entity.psy_mixer;
 
 public enum PsyMixerRitualJudgement {
-    NONE(0, "screen.mydrugs.psy_mixer.judgement.none", "message.mydrugs.psy_mixer.timing.none", 0, 0.0F, 0.0F),
-    MISS(1, "screen.mydrugs.psy_mixer.judgement.miss", "message.mydrugs.psy_mixer.timing.miss", 0, 0.050F, -0.180F),
-    NEAR(2, "screen.mydrugs.psy_mixer.judgement.near", "message.mydrugs.psy_mixer.timing.near", 1, 0.012F, -0.050F),
-    GOOD(3, "screen.mydrugs.psy_mixer.judgement.good", "message.mydrugs.psy_mixer.timing.good", 5, -0.014F, 0.100F),
-    GREAT(4, "screen.mydrugs.psy_mixer.judgement.great", "message.mydrugs.psy_mixer.timing.great", 8, -0.024F, 0.160F),
-    PERFECT(5, "screen.mydrugs.psy_mixer.judgement.perfect", "message.mydrugs.psy_mixer.timing.perfect", 12, -0.040F, 0.240F);
+    NONE(0, "screen.mydrugs.psy_mixer.judgement.none", "message.mydrugs.psy_mixer.timing.none", 0, 0),
+    MISS(1, "screen.mydrugs.psy_mixer.judgement.miss", "message.mydrugs.psy_mixer.timing.miss", 0, 0),
+    NEAR(2, "screen.mydrugs.psy_mixer.judgement.near", "message.mydrugs.psy_mixer.timing.near", 1, 0),
+    GOOD(3, "screen.mydrugs.psy_mixer.judgement.good", "message.mydrugs.psy_mixer.timing.good", 5, 1),
+    GREAT(4, "screen.mydrugs.psy_mixer.judgement.great", "message.mydrugs.psy_mixer.timing.great", 8, 2),
+    PERFECT(5, "screen.mydrugs.psy_mixer.judgement.perfect", "message.mydrugs.psy_mixer.timing.perfect", 12, 3);
 
     private static final PsyMixerRitualJudgement[] BY_ID = values();
 
@@ -14,23 +14,20 @@ public enum PsyMixerRitualJudgement {
     private final String screenKey;
     private final String messageKey;
     private final int progressBonus;
-    private final float instabilityDelta;
-    private final float resonanceDelta;
+    private final int qualityPoints;
 
     PsyMixerRitualJudgement(
             int id,
             String screenKey,
             String messageKey,
             int progressBonus,
-            float instabilityDelta,
-            float resonanceDelta
+            int qualityPoints
     ) {
         this.id = id;
         this.screenKey = screenKey;
         this.messageKey = messageKey;
         this.progressBonus = progressBonus;
-        this.instabilityDelta = instabilityDelta;
-        this.resonanceDelta = resonanceDelta;
+        this.qualityPoints = qualityPoints;
     }
 
     public int id() {
@@ -49,15 +46,15 @@ public enum PsyMixerRitualJudgement {
         return progressBonus;
     }
 
-    public float instabilityDelta() {
-        return instabilityDelta;
-    }
-
-    public float resonanceDelta() {
-        return resonanceDelta;
+    public int qualityPoints() {
+        return qualityPoints;
     }
 
     public boolean isHit() {
+        return this == GOOD || this == GREAT || this == PERFECT;
+    }
+
+    public boolean isGoodEnough() {
         return this == GOOD || this == GREAT || this == PERFECT;
     }
 

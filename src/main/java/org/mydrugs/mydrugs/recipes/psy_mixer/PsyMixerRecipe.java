@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,6 +18,9 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualLevel;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -33,12 +37,20 @@ import java.util.List;
 import java.util.Optional;
 
 public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
+    public static final ResourceLocation DEFAULT_CATALYST_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "psychotropic_pigment");
+    public static final ResourceLocation DEFAULT_STABILIZER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "ritual_resin");
+    public static final ResourceLocation DEFAULT_VESSEL_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "painted_clay_bowl");
+
     private final Ingredient base;
     private final Ingredient material;
     private final Optional<Ingredient> catalyst;
     private final Optional<Ingredient> stabilizer;
     private final Optional<Ingredient> vessel;
     private final List<RitualDrugEffectData> effects;
+    private final Optional<ResourceLocation> formulaId;
+    private final PsyMixerRitualLevel ritualLevel;
+    private final List<PsyMixerRitualAction> ritualActions;
+    private final boolean requiresNaming;
     /**
      * Not the authoritative success output. Psy Mixer success creates dynamic mixed-drug stacks
      * from the recipe effects and the resolved base drug. This stack is only a legacy/fallback
@@ -76,6 +88,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             Optional<Ingredient> stabilizer,
             Optional<Ingredient> vessel,
             List<RitualDrugEffectData> effects,
+            Optional<ResourceLocation> formulaId,
+            PsyMixerRitualLevel ritualLevel,
+            List<PsyMixerRitualAction> ritualActions,
+            boolean requiresNaming,
             ItemStack fallbackResult,
             int ritualTime,
             float baseInstability,
@@ -105,6 +121,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         this.stabilizer = stabilizer;
         this.vessel = vessel;
         this.effects = List.copyOf(effects);
+        this.formulaId = formulaId;
+        this.ritualLevel = ritualLevel == null ? PsyMixerRitualLevel.NONE : ritualLevel;
+        this.ritualActions = List.copyOf(ritualActions);
+        this.requiresNaming = requiresNaming;
         this.fallbackResult = fallbackResult.copy();
         this.ritualTime = Math.max(20, ritualTime);
         this.baseInstability = baseInstability;
@@ -135,6 +155,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public Optional<Ingredient> stabilizer() { return stabilizer; }
     public Optional<Ingredient> vessel() { return vessel; }
     public List<RitualDrugEffectData> effects() { return effects; }
+    public Optional<ResourceLocation> formulaId() { return formulaId; }
+    public PsyMixerRitualLevel ritualLevel() { return ritualLevel; }
+    public List<PsyMixerRitualAction> ritualActions() { return ritualActions; }
+    public boolean requiresNaming() { return requiresNaming; }
     public ItemStack fallbackResult() { return fallbackResult.copy(); }
     public int ritualTime() { return ritualTime; }
     public float baseInstability() { return baseInstability; }
@@ -158,24 +182,37 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public float stabilizerInstabilityMultiplier() { return stabilizerInstabilityMultiplier; }
     public float missingStabilizerInstabilityMultiplier() { return missingStabilizerInstabilityMultiplier; }
 
-    public boolean supportsCatalyst() { return catalyst.isPresent(); }
-    public boolean hasValidCatalyst(ItemStack stack) { return catalyst.isPresent() && !stack.isEmpty() && catalyst.get().test(stack); }
-    public boolean hasMissingCatalyst(ItemStack stack) { return catalyst.isPresent() && stack.isEmpty(); }
+    public Ingredient effectiveCatalyst() { return catalyst.orElseGet(() -> defaultIngredient(DEFAULT_CATALYST_ID)); }
+    public Ingredient effectiveStabilizer() { return stabilizer.orElseGet(() -> defaultIngredient(DEFAULT_STABILIZER_ID)); }
+    public Ingredient effectiveVessel() { return vessel.orElseGet(() -> defaultIngredient(DEFAULT_VESSEL_ID)); }
 
-    public boolean supportsStabilizer() { return stabilizer.isPresent(); }
-    public boolean hasValidStabilizer(ItemStack stack) { return stabilizer.isPresent() && !stack.isEmpty() && stabilizer.get().test(stack); }
-    public boolean hasMissingStabilizer(ItemStack stack) { return stabilizer.isPresent() && stack.isEmpty(); }
+    public List<PsyMixerRitualAction> availableRitualActions() {
+        List<PsyMixerRitualAction> selectable = ritualActions.stream()
+                .filter(PsyMixerRitualAction::canBeRandomlySelected)
+                .toList();
+        return selectable.isEmpty() ? PsyMixerRitualAction.defaultRandomPool() : selectable;
+    }
+
+    public boolean supportsCatalyst() { return true; }
+    public boolean hasValidCatalyst(ItemStack stack) { return !stack.isEmpty() && effectiveCatalyst().test(stack); }
+    public boolean hasMissingCatalyst(ItemStack stack) { return stack.isEmpty(); }
+
+    public boolean supportsStabilizer() { return true; }
+    public boolean hasValidStabilizer(ItemStack stack) { return !stack.isEmpty() && effectiveStabilizer().test(stack); }
+    public boolean hasMissingStabilizer(ItemStack stack) { return stack.isEmpty(); }
+
+    public boolean supportsVessel() { return true; }
+    public boolean hasValidVessel(ItemStack stack) { return !stack.isEmpty() && effectiveVessel().test(stack); }
+    public boolean hasMissingVessel(ItemStack stack) { return stack.isEmpty(); }
 
     public float getEffectiveTimeMultiplier(ItemStack catalystStack) {
-        if (catalyst.isEmpty()) return 1.0F;
-        return (catalystStack.isEmpty() || !catalyst.get().test(catalystStack))
+        return (catalystStack.isEmpty() || !effectiveCatalyst().test(catalystStack))
                 ? missingCatalystTimeMultiplier
                 : catalystTimeMultiplier;
     }
 
     public float getEffectiveInstabilityMultiplier(ItemStack stabilizerStack) {
-        if (stabilizer.isEmpty()) return 1.0F;
-        return (stabilizerStack.isEmpty() || !stabilizer.get().test(stabilizerStack))
+        return (stabilizerStack.isEmpty() || !effectiveStabilizer().test(stabilizerStack))
                 ? missingStabilizerInstabilityMultiplier
                 : stabilizerInstabilityMultiplier;
     }
@@ -191,12 +228,12 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 return Optional.empty();
             }
         }
-        return buildFormula(baseDrug.get());
+        return buildFormula(baseDrug.get(), formulaIdentity(baseDrug.get(), input.material()));
     }
 
     public Optional<RitualDrugFormula> previewFormula() {
         Optional<DrugId> baseDrug = requiredDrug.flatMap(DrugId::bySerializedName);
-        return baseDrug.flatMap(this::buildFormula);
+        return baseDrug.flatMap(drug -> buildFormula(drug, previewFormulaIdentity(drug)));
     }
 
     public ItemStack dynamicPreviewResult() {
@@ -205,7 +242,7 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 .orElseGet(this::fallbackResult);
     }
 
-    private Optional<RitualDrugFormula> buildFormula(DrugId baseDrug) {
+    private Optional<RitualDrugFormula> buildFormula(DrugId baseDrug, String formulaIdentity) {
         DrugModel baseModel = DrugRegistry.getDrug(baseDrug);
         if (baseModel == null) {
             return Optional.empty();
@@ -214,7 +251,30 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         List<RitualDrugEffectData> baseEffects = baseModel.getDrugEffects().stream()
                 .map(RitualDrugEffectData::from)
                 .toList();
-        return Optional.of(RitualDrugFormula.of(baseDrug, baseEffects, DrugEffectCombiner.combine(effects)));
+        return Optional.of(RitualDrugFormula.of(formulaIdentity, baseDrug, baseEffects, DrugEffectCombiner.combine(effects)));
+    }
+
+    private String formulaIdentity(DrugId baseDrug, ItemStack materialStack) {
+        return formulaId.map(ResourceLocation::toString).orElseGet(() -> {
+            ResourceLocation materialId = materialStack.isEmpty()
+                    ? ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "empty")
+                    : BuiltInRegistries.ITEM.getKey(materialStack.getItem());
+            return ResourceLocation.fromNamespaceAndPath(
+                    MyDrugs.MODID,
+                    "psy_mixer/" + baseDrug.serializedName() + "/" + materialId.getNamespace() + "/" + materialId.getPath()
+            ).toString();
+        });
+    }
+
+    private String previewFormulaIdentity(DrugId baseDrug) {
+        return formulaId.map(ResourceLocation::toString).orElseGet(() -> ResourceLocation.fromNamespaceAndPath(
+                MyDrugs.MODID,
+                "psy_mixer/" + baseDrug.serializedName() + "/preview"
+        ).toString());
+    }
+
+    private static Ingredient defaultIngredient(ResourceLocation id) {
+        return Ingredient.of(BuiltInRegistries.ITEM.getValue(id));
     }
 
     @Override
@@ -224,20 +284,9 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         if (effects.isEmpty()) return false;
         if (buildFormula(input).isEmpty()) return false;
 
-        if (catalyst.isPresent()) {
-            if (!input.catalyst().isEmpty() && !catalyst.get().test(input.catalyst())) return false;
-        } else {
-            if (!input.catalyst().isEmpty()) return false;
-        }
-        if (stabilizer.isPresent()) {
-            if (!input.stabilizer().isEmpty() && !stabilizer.get().test(input.stabilizer())) return false;
-        } else {
-            if (!input.stabilizer().isEmpty()) return false;
-        }
-        if (vessel.isPresent()) {
-            if (input.vessel().isEmpty() || !vessel.get().test(input.vessel())) return false;
-        }
-        return true;
+        return (input.catalyst().isEmpty() || effectiveCatalyst().test(input.catalyst()))
+                && (input.stabilizer().isEmpty() || effectiveStabilizer().test(input.stabilizer()))
+                && (input.vessel().isEmpty() || effectiveVessel().test(input.vessel()));
     }
 
     @Override
@@ -302,6 +351,15 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         );
     }
 
+    private RitualCodecData ritualCodecData() {
+        return new RitualCodecData(
+                formulaId,
+                ritualLevel,
+                Optional.of(ritualActions),
+                requiresNaming
+        );
+    }
+
     private ExpansionCodecData expansionCodecData() {
         return new ExpansionCodecData(
                 requiredDrugCategory,
@@ -319,7 +377,7 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         );
     }
 
-    private static PsyMixerRecipe fromCodecData(CoreCodecData core, ExpansionCodecData expansion) {
+    private static PsyMixerRecipe fromCodecData(CoreCodecData core, ExpansionCodecData expansion, RitualCodecData ritual) {
         return new PsyMixerRecipe(
                 core.base,
                 core.material,
@@ -327,6 +385,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 core.stabilizer,
                 core.vessel,
                 core.effects,
+                ritual.formulaId,
+                ritual.ritualLevel,
+                ritual.ritualActions.orElseGet(ritual.ritualLevel::defaultActions),
+                ritual.requiresNaming,
                 core.fallbackResult,
                 core.ritualTime,
                 core.baseInstability,
@@ -390,6 +452,20 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         ).apply(instance, CoreCodecData::new));
     }
 
+    private record RitualCodecData(
+            Optional<ResourceLocation> formulaId,
+            PsyMixerRitualLevel ritualLevel,
+            Optional<List<PsyMixerRitualAction>> ritualActions,
+            boolean requiresNaming
+    ) {
+        private static final MapCodec<RitualCodecData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResourceLocation.CODEC.optionalFieldOf("formula_id").forGetter(RitualCodecData::formulaId),
+                PsyMixerRitualLevel.CODEC.optionalFieldOf("ritual_level", PsyMixerRitualLevel.NONE).forGetter(RitualCodecData::ritualLevel),
+                PsyMixerRitualAction.CODEC.listOf().optionalFieldOf("ritual_actions").forGetter(RitualCodecData::ritualActions),
+                Codec.BOOL.optionalFieldOf("requires_naming", true).forGetter(RitualCodecData::requiresNaming)
+        ).apply(instance, RitualCodecData::new));
+    }
+
     private record ExpansionCodecData(
             Optional<String> requiredDrugCategory,
             Optional<String> requiredActiveEffect,
@@ -423,7 +499,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public static final class Serializer implements RecipeSerializer<PsyMixerRecipe> {
         public static final MapCodec<PsyMixerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 CoreCodecData.CODEC.forGetter(PsyMixerRecipe::coreCodecData),
-                ExpansionCodecData.CODEC.forGetter(PsyMixerRecipe::expansionCodecData)
+                ExpansionCodecData.CODEC.forGetter(PsyMixerRecipe::expansionCodecData),
+                RitualCodecData.CODEC.forGetter(PsyMixerRecipe::ritualCodecData)
         ).apply(instance, PsyMixerRecipe::fromCodecData));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, PsyMixerRecipe> STREAM_CODEC = StreamCodec.of(
@@ -438,7 +515,11 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             ByteBufCodecs.optional(Ingredient.CONTENTS_STREAM_CODEC).encode(buf, recipe.stabilizer);
             ByteBufCodecs.optional(Ingredient.CONTENTS_STREAM_CODEC).encode(buf, recipe.vessel);
             RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, recipe.effects);
-            ItemStack.STREAM_CODEC.encode(buf, recipe.fallbackResult);
+            ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buf, recipe.formulaId);
+            buf.writeVarInt(recipe.ritualLevel.ordinal());
+            PsyMixerRitualAction.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, recipe.ritualActions);
+            buf.writeBoolean(recipe.requiresNaming);
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.fallbackResult);
             buf.writeVarInt(recipe.ritualTime);
             buf.writeFloat(recipe.baseInstability);
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buf, recipe.requiredKnowledge);
@@ -453,7 +534,7 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             buf.writeFloat(recipe.ritualStabilityModifier);
             buf.writeBoolean(recipe.hiddenBeforeDiscovery);
             buf.writeBoolean(recipe.showIfLocked);
-            ItemStack.STREAM_CODEC.encode(buf, recipe.failureResult);
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.failureResult);
             buf.writeBoolean(recipe.preserveVesselOnSuccess);
             buf.writeBoolean(recipe.preserveVesselOnFailure);
             buf.writeFloat(recipe.catalystTimeMultiplier);
@@ -469,7 +550,14 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             Optional<Ingredient> stabilizer = ByteBufCodecs.optional(Ingredient.CONTENTS_STREAM_CODEC).decode(buf);
             Optional<Ingredient> vessel = ByteBufCodecs.optional(Ingredient.CONTENTS_STREAM_CODEC).decode(buf);
             List<RitualDrugEffectData> effects = RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
-            ItemStack fallbackResult = ItemStack.STREAM_CODEC.decode(buf);
+            Optional<ResourceLocation> formulaId = ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf);
+            int ritualLevelId = buf.readVarInt();
+            PsyMixerRitualLevel ritualLevel = ritualLevelId >= 0 && ritualLevelId < PsyMixerRitualLevel.values().length
+                    ? PsyMixerRitualLevel.values()[ritualLevelId]
+                    : PsyMixerRitualLevel.NONE;
+            List<PsyMixerRitualAction> ritualActions = PsyMixerRitualAction.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
+            boolean requiresNaming = buf.readBoolean();
+            ItemStack fallbackResult = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
             int ritualTime = buf.readVarInt();
             float baseInstability = buf.readFloat();
             Optional<ResourceLocation> requiredKnowledge = ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf);
@@ -484,7 +572,7 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             float ritualStabilityModifier = buf.readFloat();
             boolean hiddenBeforeDiscovery = buf.readBoolean();
             boolean showIfLocked = buf.readBoolean();
-            ItemStack failureResult = ItemStack.STREAM_CODEC.decode(buf);
+            ItemStack failureResult = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
             boolean preserveVesselOnSuccess = buf.readBoolean();
             boolean preserveVesselOnFailure = buf.readBoolean();
             float catalystTimeMultiplier = buf.readFloat();
@@ -492,7 +580,7 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             float stabilizerInstabilityMultiplier = buf.readFloat();
             float missingStabilizerInstabilityMultiplier = buf.readFloat();
             return new PsyMixerRecipe(
-                    base, material, catalyst, stabilizer, vessel, effects, fallbackResult,
+                    base, material, catalyst, stabilizer, vessel, effects, formulaId, ritualLevel, ritualActions, requiresNaming, fallbackResult,
                     ritualTime, baseInstability, requiredKnowledge, requiredDrug, requiredLifetimeDose,
                     requiredDrugCategory, requiredActiveEffect, requiredBadTripState, requiredIngredientSource,
                     failureSeverity, machineSpeedModifier, ritualStabilityModifier,

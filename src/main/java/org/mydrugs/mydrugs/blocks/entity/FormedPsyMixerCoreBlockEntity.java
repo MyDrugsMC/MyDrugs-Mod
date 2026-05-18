@@ -15,6 +15,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -32,13 +33,18 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerInputValidator;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -62,6 +68,8 @@ import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipeInput;
+import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
+import org.mydrugs.mydrugs.sounds.ModSounds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +90,25 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     private @Nullable ResourceLocation activeRecipeId;
     private @Nullable UUID ritualPlayer;
     private int messageCooldown = 0;
+    private int currentActionIndex = 0;
+    private final List<PsyMixerRitualAction> activeRitualActions = new ArrayList<>();
+    private int actionTick = 0;
+    private int actionTimeout = 100;
+    private int qualityScore = 0;
+    private float finalScoreMultiplier = 1.0F;
+    private float actionTimeoutMultiplier = 1.0F;
+    private int mistakes = 0;
+    private int maxMistakes = 3;
+    private int mistakeForgivenessRemaining = 0;
+    private int abandonTicks = 0;
+    private int syncCooldown = 0;
+    private int currentQualityPreview = PsyMixerRitualQuality.BASE.id();
+    private int bestJudgement = PsyMixerRitualJudgement.NONE.id();
+    private String activeFormulaName = "";
+    private double lastPlayerX = Double.NaN;
+    private double lastPlayerZ = Double.NaN;
+    private float walkRingProgress = 0.0F;
+    private int standStillTicks = 0;
 
     // PASS 2: rhythm timing
     private float timingWindow = 0.12F;
@@ -118,6 +145,21 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     public int getLastJudgement() { return lastJudgement; }
     public int getFeedbackTicks() { return feedbackTicks; }
     public float getLastAccuracy() { return lastAccuracy; }
+    public int getCurrentActionIndex() { return currentActionIndex; }
+    public int getActionTick() { return actionTick; }
+    public int getActionTimeout() { return actionTimeout; }
+    public int getQualityScore() { return qualityScore; }
+    public int getMistakes() { return mistakes; }
+    public int getMaxMistakes() { return maxMistakes; }
+    public PsyMixerRitualQuality getCurrentQualityPreview() { return PsyMixerRitualQuality.byId(currentQualityPreview); }
+    public PsyMixerRitualJudgement getBestJudgement() { return PsyMixerRitualJudgement.byId(bestJudgement); }
+    public String getActiveFormulaName() { return activeFormulaName; }
+    public int getCurrentActionId() {
+        return currentAction().id();
+    }
+    public int getActionCount() {
+        return activeRitualActions.size();
+    }
 
     public void initFromActivation(Direction facing, List<SavedSlot> saved) {
         this.facing = facing;
@@ -176,17 +218,16 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
 
         be.progress++;
+        be.actionTick++;
         if (be.messageCooldown > 0) be.messageCooldown--;
         if (be.rhythmMessageCooldown > 0) be.rhythmMessageCooldown--;
         if (be.rhythmInputCooldown > 0) be.rhythmInputCooldown--;
         if (be.feedbackTicks > 0) be.feedbackTicks--;
-        if (be.progress % 40 == 0) {
-            be.resonance = Math.max(0.0F, be.resonance - 0.015F);
-        }
+        if (be.syncCooldown > 0) be.syncCooldown--;
 
         // Particles
         if (be.progress % 6 == 0) {
-            int particleCount = 1 + Math.round(be.resonance * 3.0F);
+            int particleCount = 1 + Math.max(0, be.qualityScore / 2);
             serverLevel.sendParticles(
                     ParticleTypes.SOUL_FIRE_FLAME,
                     pos.getX() + 0.5, pos.getY() + 0.6, pos.getZ() + 0.5,
@@ -194,8 +235,32 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             );
         }
 
-        if (be.progress >= be.ritualMaxTime) {
-            be.completeRitual(serverLevel);
+        Optional<RecipeHolder<PsyMixerRecipe>> activeRecipe = be.findActiveRecipe(serverLevel);
+        if (activeRecipe.isEmpty()) {
+            be.cancelRitual();
+            return;
+        }
+
+        ServerPlayer player = be.ritualPlayer == null ? null : serverLevel.getServer().getPlayerList().getPlayer(be.ritualPlayer);
+        if (player == null || player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > 144.0) {
+            be.abandonTicks++;
+            if (be.abandonTicks > 100) {
+                be.cancelRitual();
+            }
+            return;
+        }
+        be.abandonTicks = 0;
+
+        be.detectCurrentAction(serverLevel, player);
+
+        if (be.actionTick >= be.actionTimeout) {
+            be.recordActionMiss();
+            be.advanceAction(serverLevel, player, 0);
+        }
+
+        if (be.syncCooldown <= 0) {
+            be.syncRitualState(player);
+            be.syncCooldown = 5;
         }
 
         be.setChanged();
@@ -212,9 +277,16 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             return false;
         }
 
+        PsyMixerRecipeInput startInput = buildInput();
+        PsyMixerInputValidator.Result inputValidation = PsyMixerInputValidator.validateOneActiveVoice(startInput);
+        if (!inputValidation.valid()) {
+            sendMessage(player, inputValidation.messageKey());
+            return false;
+        }
+
         Optional<RecipeHolder<PsyMixerRecipe>> match = ((ServerLevel) this.level).recipeAccess().getRecipeFor(
                 ModRecipeTypes.PSY_MIXER.get(),
-                buildInput(),
+                startInput,
                 this.level
         );
         if (match.isEmpty()) {
@@ -262,16 +334,24 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             return false;
         }
 
-        Optional<RitualDrugFormula> formula = recipe.buildFormula(buildInput());
+        Optional<RitualDrugFormula> formula = recipe.buildFormula(startInput);
         if (formula.isEmpty()) {
             sendRandomMessage(player, NO_RECIPE);
             return false;
         }
 
+        ServerLevel serverLevel = (ServerLevel) this.level;
+        List<PsyMixerRitualAction> selectedActions = selectRitualActions(recipe, startInput, serverLevel.random);
+        boolean hasActionRitual = !selectedActions.isEmpty();
+
         ServerDrugFormulaRegistry.FormulaOutput expectedOutput =
-                ServerDrugFormulaRegistry.resolveOutput(player.level().getServer(), formula.get());
+                ServerDrugFormulaRegistry.resolveOutput(player.level().getServer(), formula.get(), PsyMixerRitualQuality.BASE);
         ItemStack out = items.get(PsyMixerMultiblock.SLOT_OUTPUT);
-        if (expectedOutput.requiresNaming()) {
+        if (hasActionRitual && !out.isEmpty()) {
+            sendMessage(player, "message.mydrugs.psy_mixer.output_blocked");
+            return false;
+        }
+        if (recipe.requiresNaming() && expectedOutput.requiresNaming()) {
             if (!out.isEmpty()) {
                 sendMessage(player, "message.mydrugs.psy_mixer.output_blocked");
                 return false;
@@ -289,22 +369,24 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         ResourceLocation recipeId = holder.id().location();
 
         float speedMul = mastery.getSpeedMultiplier(recipeId);
-        float instabReduction = mastery.getInstabilityReduction(recipeId);
         float manualDrugSpeed = ManualMachineSpeedHelper.getSpeedMultiplier(player, ManualMachineType.PSY_MIXER);
         float ritualZoneWidthBonus = ManualMachineSpeedHelper.getRitualZoneWidthBonus(player);
-        float ritualInstabilityReduction = ManualMachineSpeedHelper.getRitualInstabilityReduction(player);
         float ritualZoneMotionScale = ManualMachineSpeedHelper.getRitualZoneMotionScale(player);
-
-        float effInstab = recipe.baseInstability() + recipe.ritualStabilityModifier() - instabReduction - ritualInstabilityReduction;
-        float stabMul = recipe.getEffectiveInstabilityMultiplier(items.get(PsyMixerMultiblock.SLOT_STABILIZER));
-        effInstab = Math.max(0.03F, Math.min(0.95F, effInstab * stabMul));
 
         this.activeRecipeId = recipeId;
         float recipeSpeed = Math.max(0.25F, 1.0F + recipe.machineSpeedModifier());
-        float catalystMul = recipe.getEffectiveTimeMultiplier(items.get(PsyMixerMultiblock.SLOT_CATALYST));
-        this.ritualMaxTime = Math.max(20, Math.round(recipe.ritualTime() * speedMul / (manualDrugSpeed * recipeSpeed) * catalystMul));
+        this.ritualMaxTime = Math.max(20, Math.round(recipe.ritualTime() * speedMul / (manualDrugSpeed * recipeSpeed)));
+
+        if (!hasActionRitual) {
+            this.activeFormulaName = formulaDisplayName(player, formula.get());
+            finishRitualOutput(serverLevel, player, recipe, formula.get(), PsyMixerRitualQuality.BASE);
+            return true;
+        }
+
+        this.activeRitualActions.clear();
+        this.activeRitualActions.addAll(selectedActions);
         this.progress = 0;
-        this.instability = effInstab;
+        this.instability = 0.0F;
         this.running = true;
         this.ritualPlayer = player.getUUID();
         this.timingWindow = ManualMachineSpeedHelper.hasPsychedelicRitualInsight(player)
@@ -318,15 +400,36 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         this.resonance = PsyMixerRitualEngine.START_RESONANCE;
         this.streak = 0;
         this.lastJudgement = PsyMixerRitualJudgement.NONE.id();
+        this.bestJudgement = PsyMixerRitualJudgement.NONE.id();
         this.feedbackTicks = 0;
         this.lastAccuracy = 0.0F;
+        this.currentActionIndex = 0;
+        this.actionTick = 0;
+        this.qualityScore = 0;
+        this.mistakes = 0;
+        this.finalScoreMultiplier = optionalScoreMultiplier(recipe, startInput);
+        this.actionTimeoutMultiplier = recipe.hasValidStabilizer(startInput.stabilizer()) ? 1.5F : 1.0F;
+        this.maxMistakes = Math.max(2, activeRitualActions.size() / 2 + 1);
+        this.mistakeForgivenessRemaining = computeMistakeForgiveness(player, mastery)
+                + (recipe.hasValidVessel(startInput.vessel()) ? 2 : 0);
+        this.actionTimeout = actionTimeoutFor(player, currentAction(), recipeId);
+        this.currentQualityPreview = previewQuality().id();
+        this.activeFormulaName = formulaDisplayName(player, formula.get());
+        this.abandonTicks = 0;
+        this.walkRingProgress = 0.0F;
+        this.standStillTicks = 0;
+        this.lastPlayerX = player.getX();
+        this.lastPlayerZ = player.getZ();
         sendRandomMessage(player, START_MESSAGES);
 
         if (this.level instanceof ServerLevel sl) {
             sl.playSound(null, this.worldPosition, SoundEvents.SOUL_ESCAPE.value(), SoundSource.BLOCKS, 0.8F, 0.6F);
+            playCurrentActionVoice(sl);
         }
 
         markDirtyAndSync();
+        syncRitualState(player);
+        player.closeContainer();
         PsycheMapMilestones.psyMixerRitual(player);
         return true;
     }
@@ -341,6 +444,44 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         );
     }
 
+    private List<PsyMixerRitualAction> selectRitualActions(PsyMixerRecipe recipe, PsyMixerRecipeInput input, RandomSource random) {
+        int actionCount = 0;
+        if (recipe.hasValidVessel(input.vessel())) {
+            actionCount += 2;
+        }
+        if (recipe.hasValidStabilizer(input.stabilizer())) {
+            actionCount += 2;
+        }
+        if (actionCount <= 0) {
+            return List.of();
+        }
+
+        List<PsyMixerRitualAction> pool = recipe.availableRitualActions();
+        List<PsyMixerRitualAction> selected = new ArrayList<>(actionCount);
+        for (int i = 0; i < actionCount; i++) {
+            PsyMixerRitualAction action = pool.get(random.nextInt(pool.size()));
+            if (selected.size() > 0 && pool.size() > 1 && selected.get(selected.size() - 1) == action) {
+                action = pool.get((pool.indexOf(action) + 1 + random.nextInt(pool.size() - 1)) % pool.size());
+            }
+            selected.add(action);
+        }
+        return selected;
+    }
+
+    private float optionalScoreMultiplier(PsyMixerRecipe recipe, PsyMixerRecipeInput input) {
+        float bonus = 0.0F;
+        if (recipe.hasValidCatalyst(input.catalyst())) {
+            bonus += 0.20F;
+        }
+        if (recipe.hasValidStabilizer(input.stabilizer())) {
+            bonus += 0.10F;
+        }
+        if (recipe.hasValidVessel(input.vessel())) {
+            bonus += 0.10F;
+        }
+        return 1.0F + bonus;
+    }
+
     private void completeRitual(ServerLevel level) {
         if (activeRecipeId == null) {
             cancelRitual();
@@ -348,11 +489,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
 
         PsyMixerRecipeInput input = buildInput();
-        Optional<RecipeHolder<PsyMixerRecipe>> match = level.recipeAccess().recipeMap()
-                .byType(ModRecipeTypes.PSY_MIXER.get())
-                .stream()
-                .filter(holder -> holder.id().location().equals(activeRecipeId))
-                .findFirst();
+        Optional<RecipeHolder<PsyMixerRecipe>> match = findActiveRecipe(level);
         if (match.isEmpty()) {
             cancelRitual();
             return;
@@ -360,88 +497,81 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         PsyMixerRecipe recipe = match.get().value();
 
         ServerPlayer player = ritualPlayer == null ? null : level.getServer().getPlayerList().getPlayer(ritualPlayer);
-
-        float finalInstability = PsyMixerRitualEngine.finalInstability(instability, resonance);
-        boolean success = level.random.nextFloat() >= finalInstability;
-
-        if (success) {
-            Optional<RitualDrugFormula> formula = recipe.buildFormula(input);
-            if (formula.isEmpty()) {
-                cancelRitual();
-                return;
-            }
-            consumeInputs(recipe, true);
-            boolean completedOutput = player == null || ServerDrugFormulaRegistry.finishOrRequestName(player, this, formula.get());
-
-            if (player != null) {
-                PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
-                mastery.incrementCompleted(activeRecipeId);
-                if (completedOutput) {
-                    sendRandomMessage(player, SUCCESS_MESSAGES);
-                }
-                PsycheMapMilestones.ritualSuccess(player);
-            }
-
-            level.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.6F, 1.4F);
-            for (int i = 0; i < 30; i++) {
-                level.sendParticles(
-                        ParticleTypes.END_ROD,
-                        worldPosition.getX() + 0.5, worldPosition.getY() + 0.8, worldPosition.getZ() + 0.5,
-                        1, 0.4, 0.6, 0.4, 0.05
-                );
-            }
-        } else {
-            consumeInputs(recipe, false);
-            ItemStack failureResult = recipe.failureResult();
-            if (failureResult.isEmpty()) {
-                failureResult = new ItemStack(ModItems_UNSTABLE_RESIDUE());
-            }
-            placeIntoOutput(failureResult);
-
-            // BROKEN_COURAGE: 20% drop on severe ritual failures (failureSeverity >= 1.0F)
-            if (recipe.failureSeverity() >= 1.0F && level.random.nextFloat() < 0.20F) {
-                ItemStack brokenCourage = new ItemStack(org.mydrugs.mydrugs.items.ModItems.BROKEN_COURAGE.get());
-                ItemStack outSlot = items.get(org.mydrugs.mydrugs.blocks.PsyMixerMultiblock.SLOT_OUTPUT);
-                if (outSlot.isEmpty() || (ItemStack.isSameItemSameComponents(outSlot, brokenCourage)
-                        && outSlot.getCount() + 1 <= outSlot.getMaxStackSize())) {
-                    placeIntoOutput(brokenCourage);
-                } else {
-                    net.minecraft.world.Containers.dropItemStack(
-                            level,
-                            worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
-                            brokenCourage);
-                }
-            }
-
-            if (player != null) {
-                PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
-                mastery.incrementFailed(activeRecipeId);
-                applyFailureSeverity(player, recipe.failureSeverity());
-                sendRandomMessage(player, FAIL_MESSAGES);
-                PsycheMapMilestones.ritualFailure(player);
-            }
-
-            level.playSound(null, worldPosition, SoundEvents.WITHER_HURT, SoundSource.BLOCKS, 0.5F, 0.6F);
-            for (int i = 0; i < 30; i++) {
-                level.sendParticles(
-                        new DustParticleOptions(0x331144, 1.5F),
-                        worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5,
-                        1, 0.4, 0.4, 0.4, 0.0
-                );
-            }
+        Optional<RitualDrugFormula> formula = recipe.buildFormula(input);
+        if (formula.isEmpty()) {
+            cancelRitual();
+            return;
         }
 
+        PsyMixerRitualQuality quality = finalQuality();
+        finishRitualOutput(level, player, recipe, formula.get(), quality);
+    }
+
+    private void finishRitualOutput(
+            ServerLevel level,
+            @Nullable ServerPlayer player,
+            PsyMixerRecipe recipe,
+            RitualDrugFormula formula,
+            PsyMixerRitualQuality quality
+    ) {
+        ResourceLocation completedRecipeId = activeRecipeId;
+        consumeInputs(recipe, true);
+
+        boolean completedOutput;
+        if (player != null && recipe.requiresNaming()) {
+            completedOutput = ServerDrugFormulaRegistry.finishOrRequestName(player, this, formula, quality);
+        } else {
+            placeIntoOutput(org.mydrugs.mydrugs.core.drug.ritual.MixedDrugStackFactory.createPendingStack(formula, quality));
+            completedOutput = true;
+        }
+
+        if (player != null && completedRecipeId != null) {
+            PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
+            mastery.incrementCompleted(completedRecipeId);
+            if (completedOutput) {
+                sendRandomMessage(player, SUCCESS_MESSAGES);
+            }
+            PsycheMapMilestones.psyMixerRitual(player);
+            PsycheMapMilestones.ritualSuccess(player);
+        }
+
+        level.playSound(null, worldPosition, quality == PsyMixerRitualQuality.MASTERWORK ? SoundEvents.BEACON_POWER_SELECT : SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.6F, quality == PsyMixerRitualQuality.MASTERWORK ? 1.8F : 1.4F);
+        int particleCount = quality == PsyMixerRitualQuality.MASTERWORK ? 54 : 30;
+        for (int i = 0; i < particleCount; i++) {
+            level.sendParticles(
+                    quality == PsyMixerRitualQuality.CRUDE ? new DustParticleOptions(0x884455, 1.2F) : ParticleTypes.END_ROD,
+                    worldPosition.getX() + 0.5, worldPosition.getY() + 0.8, worldPosition.getZ() + 0.5,
+                    1, 0.4, 0.6, 0.4, 0.05
+            );
+        }
+
+        finishRitualState();
+    }
+
+    private void finishRitualState() {
+        syncRitualStopToOwner();
         running = false;
         progress = 0;
         activeRecipeId = null;
         ritualPlayer = null;
+        currentActionIndex = 0;
+        activeRitualActions.clear();
+        actionTick = 0;
+        qualityScore = 0;
+        finalScoreMultiplier = 1.0F;
+        actionTimeoutMultiplier = 1.0F;
+        mistakes = 0;
+        maxMistakes = 3;
+        mistakeForgivenessRemaining = 0;
+        abandonTicks = 0;
+        syncCooldown = 0;
+        currentQualityPreview = PsyMixerRitualQuality.BASE.id();
+        activeFormulaName = "";
         streak = 0;
         feedbackTicks = 0;
+        walkRingProgress = 0.0F;
+        standStillTicks = 0;
         markDirtyAndSync();
-    }
-
-    private static net.minecraft.world.item.Item ModItems_UNSTABLE_RESIDUE() {
-        return org.mydrugs.mydrugs.items.ModItems.UNSTABLE_RESIDUE.get();
     }
 
     private static void tryAmbientThirdEyePetalSpawn(ServerLevel level, BlockPos origin) {
@@ -515,7 +645,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         shrink(PsyMixerMultiblock.SLOT_MATERIAL);
         if (recipe.hasValidCatalyst(items.get(PsyMixerMultiblock.SLOT_CATALYST))) shrink(PsyMixerMultiblock.SLOT_CATALYST);
         if (recipe.hasValidStabilizer(items.get(PsyMixerMultiblock.SLOT_STABILIZER))) shrink(PsyMixerMultiblock.SLOT_STABILIZER);
-        if (recipe.vessel().isPresent()) {
+        if (recipe.hasValidVessel(items.get(PsyMixerMultiblock.SLOT_VESSEL))) {
             boolean preserve = success ? recipe.preserveVesselOnSuccess() : recipe.preserveVesselOnFailure();
             if (!preserve) shrink(PsyMixerMultiblock.SLOT_VESSEL);
         }
@@ -540,11 +670,360 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
     }
 
+    public void handleRitualAction(ServerPlayer player, PsyMixerRitualAction action) {
+        if (!running || activeRecipeId == null || this.level == null || this.level.isClientSide()) return;
+        if (ritualPlayer == null || !ritualPlayer.equals(player.getUUID())) return;
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
+        if (!stillValid(player)) return;
+
+        Optional<RecipeHolder<PsyMixerRecipe>> activeRecipe = findActiveRecipe(serverLevel);
+        if (activeRecipe.isEmpty()) {
+            cancelRitual();
+            return;
+        }
+        PsyMixerRecipe recipe = activeRecipe.get().value();
+        PsyMixerRitualAction current = currentAction();
+        if (current == PsyMixerRitualAction.NONE) {
+            return;
+        }
+
+        if (current == PsyMixerRitualAction.TIMING_RING && action == PsyMixerRitualAction.TIMING_RING) {
+            handleTimingRingAction(serverLevel, player);
+            return;
+        }
+
+        if (action == current && acceptsPayloadAction(current)) {
+            advanceAction(serverLevel, player, current.maxQualityPoints());
+            return;
+        }
+
+        if (action != PsyMixerRitualAction.NONE && action != current) {
+            recordActionMiss();
+            syncRitualState(player);
+        }
+    }
+
+    private void handleTimingRingAction(ServerLevel level, ServerPlayer player) {
+        if (rhythmInputCooldown > 0) {
+            return;
+        }
+        rhythmInputCooldown = PsyMixerRitualEngine.INPUT_COOLDOWN_TICKS;
+
+        PsyMixerRitualFocus focus = PsyMixerRitualFocus.byId(focusIndex);
+        PsyMixerRitualEngine.JudgementResult result = PsyMixerRitualEngine.judge(
+                getServerPhase(),
+                PsyMixerRitualEngine.targetPhase(focus, progress, ritualMaxTime, zoneMotionScale),
+                PsyMixerRitualEngine.timingWindow(timingWindow, progress, ritualMaxTime, zoneSizeScale),
+                streak
+        );
+        PsyMixerRitualJudgement judgement = result.judgement();
+        lastJudgement = judgement.id();
+        if (judgement.qualityPoints() > PsyMixerRitualJudgement.byId(bestJudgement).qualityPoints()) {
+            bestJudgement = judgement.id();
+        }
+        feedbackTicks = PsyMixerRitualEngine.FEEDBACK_TICKS;
+        lastAccuracy = result.accuracy();
+
+        if (judgement == PsyMixerRitualJudgement.MISS) {
+            recordMistake();
+            streak = 0;
+        } else if (judgement.isHit()) {
+            goodHits++;
+            streak++;
+        } else {
+            streak = 0;
+        }
+
+        sendRhythmMessage(player, judgement);
+        if (judgement.isHit()) {
+            level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.35F, 1.0F + Math.min(0.8F, streak * 0.06F));
+            level.sendParticles(ParticleTypes.END_ROD,
+                    worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
+                    4 + Math.min(8, streak), 0.2, 0.2, 0.2, 0.02);
+        } else {
+            level.playSound(null, worldPosition, judgement == PsyMixerRitualJudgement.NEAR ? SoundEvents.NOTE_BLOCK_CHIME.value() : SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.BLOCKS, 0.30F, judgement == PsyMixerRitualJudgement.NEAR ? 0.75F : 0.65F);
+        }
+
+        advanceAction(level, player, judgement.qualityPoints());
+    }
+
+    private static boolean acceptsPayloadAction(PsyMixerRitualAction action) {
+        return switch (action) {
+            case SNEAK, JUMP, RIGHT_CLICK_AIR, REOPEN_GUI -> true;
+            default -> false;
+        };
+    }
+
+    private void detectCurrentAction(ServerLevel level, ServerPlayer player) {
+        PsyMixerRitualAction action = currentAction();
+        switch (action) {
+            case SNEAK -> {
+                if (player.isShiftKeyDown()) {
+                    advanceAction(level, player, action.maxQualityPoints());
+                }
+            }
+            case JUMP -> {
+                if (!player.onGround() && player.getDeltaMovement().y > 0.05D) {
+                    advanceAction(level, player, action.maxQualityPoints());
+                }
+            }
+            case WALK_RING -> detectWalkRing(level, player, action);
+            case LOOK_AT_CORE -> {
+                Vec3 eye = player.getEyePosition();
+                Vec3 toCore = Vec3.atCenterOf(worldPosition).subtract(eye).normalize();
+                if (player.getLookAngle().normalize().dot(toCore) > 0.94D) {
+                    advanceAction(level, player, action.maxQualityPoints());
+                }
+            }
+            case STAND_STILL -> {
+                double dx = player.getX() - lastPlayerX;
+                double dz = player.getZ() - lastPlayerZ;
+                if (Double.isNaN(lastPlayerX) || dx * dx + dz * dz <= 0.0009D) {
+                    standStillTicks++;
+                } else {
+                    recordActionMiss();
+                    advanceAction(level, player, 0);
+                    return;
+                }
+                lastPlayerX = player.getX();
+                lastPlayerZ = player.getZ();
+                if (standStillTicks >= 35) {
+                    advanceAction(level, player, action.maxQualityPoints());
+                }
+            }
+            case REOPEN_GUI -> {
+                if (player.containerMenu instanceof PsyMixerMenu menu && this.worldPosition.equals(menu.getCorePos())) {
+                    advanceAction(level, player, action.maxQualityPoints());
+                }
+            }
+            case HOLD_ITEM -> {
+                if (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty()) {
+                    advanceAction(level, player, action.maxQualityPoints());
+                }
+            }
+            default -> {
+            }
+        }
+    }
+
+    private void detectWalkRing(ServerLevel level, ServerPlayer player, PsyMixerRitualAction action) {
+        double centerX = worldPosition.getX() + 0.5D;
+        double centerZ = worldPosition.getZ() + 0.5D;
+        double dx = player.getX() - centerX;
+        double dz = player.getZ() - centerZ;
+        double radiusSqr = dx * dx + dz * dz;
+        if (radiusSqr < 3.0D || radiusSqr > 30.0D) {
+            return;
+        }
+        if (!Double.isNaN(lastPlayerX)) {
+            double moveX = player.getX() - lastPlayerX;
+            double moveZ = player.getZ() - lastPlayerZ;
+            walkRingProgress += (float) Math.sqrt(moveX * moveX + moveZ * moveZ);
+        }
+        lastPlayerX = player.getX();
+        lastPlayerZ = player.getZ();
+        if (walkRingProgress >= 3.2F) {
+            advanceAction(level, player, action.maxQualityPoints());
+        }
+    }
+
+    private void advanceAction(ServerLevel level, @Nullable ServerPlayer player, int points) {
+        qualityScore += Math.max(0, points);
+        currentActionIndex++;
+        actionTick = 0;
+        walkRingProgress = 0.0F;
+        standStillTicks = 0;
+        lastPlayerX = player == null ? Double.NaN : player.getX();
+        lastPlayerZ = player == null ? Double.NaN : player.getZ();
+        currentQualityPreview = previewQuality().id();
+        focusIndex = findNextAvailableFocus(focusIndex);
+
+        if (player != null) {
+            level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.28F, 1.15F);
+            level.sendParticles(ParticleTypes.END_ROD,
+                    worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
+                    6, 0.25, 0.25, 0.25, 0.02);
+        }
+
+        if (currentActionIndex >= activeRitualActions.size()) {
+            completeRitual(level);
+            return;
+        }
+
+        ResourceLocation recipeId = activeRecipeId == null ? ResourceLocation.fromNamespaceAndPath(org.mydrugs.mydrugs.MyDrugs.MODID, "unknown") : activeRecipeId;
+        actionTimeout = actionTimeoutFor(player, currentAction(), recipeId);
+        playCurrentActionVoice(level);
+        if (player != null) {
+            syncRitualState(player);
+        }
+        markDirtyAndSync();
+    }
+
+    private void recordActionMiss() {
+        recordMistake();
+        lastJudgement = PsyMixerRitualJudgement.MISS.id();
+        feedbackTicks = PsyMixerRitualEngine.FEEDBACK_TICKS;
+    }
+
+    private void recordMistake() {
+        if (mistakeForgivenessRemaining > 0) {
+            mistakeForgivenessRemaining--;
+            return;
+        }
+        mistakes++;
+        badHits++;
+        streak = 0;
+    }
+
+    private PsyMixerRitualAction currentAction() {
+        if (currentActionIndex < 0 || currentActionIndex >= activeRitualActions.size()) {
+            return PsyMixerRitualAction.NONE;
+        }
+        return activeRitualActions.get(currentActionIndex);
+    }
+
+    private void playCurrentActionVoice(ServerLevel level) {
+        SoundEvent voice = ModSounds.psyMixerVoice(currentAction());
+        if (voice != null) {
+            level.playSound(null, worldPosition, voice, SoundSource.BLOCKS, 0.75F, 1.0F);
+        }
+    }
+
+    private Optional<RecipeHolder<PsyMixerRecipe>> findActiveRecipe(ServerLevel level) {
+        if (activeRecipeId == null) {
+            return Optional.empty();
+        }
+        return level.recipeAccess().recipeMap()
+                .byType(ModRecipeTypes.PSY_MIXER.get())
+                .stream()
+                .filter(holder -> holder.id().location().equals(activeRecipeId))
+                .findFirst();
+    }
+
+    private int actionTimeoutFor(@Nullable ServerPlayer player, PsyMixerRitualAction action, ResourceLocation recipeId) {
+        float timeoutScale = 1.0F;
+        if (player != null) {
+            float patience = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_STABILITY);
+            PsyMixerMasteryAttachment mastery = player.getData(ModAttachments.PSY_MIXER_MASTERY.get());
+            timeoutScale += Math.min(0.40F, patience * 0.20F);
+            timeoutScale += Math.min(0.25F, mastery.getCompleted(recipeId) * 0.01F);
+        }
+        return Math.max(30, Math.round(action.defaultTimeoutTicks() * timeoutScale * actionTimeoutMultiplier));
+    }
+
+    private int computeMistakeForgiveness(ServerPlayer player, PsyMixerMasteryAttachment mastery) {
+        float grace = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.RITUAL_STABILITY);
+        int forgiveness = grace >= 0.40F ? 1 : 0;
+        if (mastery.getTotalCompleted() >= 12) {
+            forgiveness++;
+        }
+        return Math.min(2, forgiveness);
+    }
+
+    private PsyMixerRitualQuality previewQuality() {
+        int possibleScore = qualityScore + remainingScore();
+        if (mistakes == 0) {
+            possibleScore += 2;
+        }
+        return qualityForScore(possibleScore * finalScoreMultiplier, mistakes);
+    }
+
+    private PsyMixerRitualQuality finalQuality() {
+        if (activeRitualActions.isEmpty()) {
+            return PsyMixerRitualQuality.BASE;
+        }
+        int finalScore = qualityScore + (mistakes == 0 ? 2 : 0);
+        return qualityForScore(finalScore * finalScoreMultiplier, mistakes);
+    }
+
+    private PsyMixerRitualQuality qualityForScore(float score, int mistakeCount) {
+        int maxScore = maxScore();
+        if (maxScore <= 0) {
+            return PsyMixerRitualQuality.BASE;
+        }
+        if (mistakeCount >= maxMistakes) {
+            return PsyMixerRitualQuality.CRUDE;
+        }
+        float ratio = score / (float) maxScore;
+        if (ratio >= 0.95F && mistakeCount == 0) {
+            return PsyMixerRitualQuality.MASTERWORK;
+        }
+        if (ratio >= 0.75F && mistakeCount <= Math.max(0, maxMistakes / 2)) {
+            return PsyMixerRitualQuality.PERFECT;
+        }
+        if (ratio >= 0.35F) {
+            return PsyMixerRitualQuality.BASE;
+        }
+        return PsyMixerRitualQuality.CRUDE;
+    }
+
+    private int maxScore() {
+        int actionScore = activeRitualActions.stream().mapToInt(PsyMixerRitualAction::maxQualityPoints).sum();
+        return actionScore + 2;
+    }
+
+    private int remainingScore() {
+        int remaining = 0;
+        for (int i = Math.max(0, currentActionIndex); i < activeRitualActions.size(); i++) {
+            remaining += activeRitualActions.get(i).maxQualityPoints();
+        }
+        return remaining;
+    }
+
+    private String formulaDisplayName(ServerPlayer player, RitualDrugFormula formula) {
+        var server = player.level().getServer();
+        if (server == null) {
+            return formula.formulaId();
+        }
+        return org.mydrugs.mydrugs.core.drug.ritual.DrugPatentSavedData.get(server)
+                .bySignature(formula.canonicalSignature())
+                .map(org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData::displayName)
+                .filter(name -> !name.isBlank())
+                .orElse(formula.formulaId());
+    }
+
+    private void syncRitualState(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(player, new PsyMixerRitualSyncPayload(
+                worldPosition,
+                running,
+                activeFormulaName,
+                currentActionIndex,
+                activeRitualActions.size(),
+                currentAction(),
+                getCurrentQualityPreview(),
+                mistakes,
+                maxMistakes,
+                PsyMixerRitualJudgement.byId(lastJudgement),
+                feedbackTicks,
+                progress,
+                ritualMaxTime,
+                actionTick,
+                actionTimeout,
+                getCurrentTargetPhase(),
+                getCurrentTimingWindow()
+        ));
+    }
+
     public void cancelRitual() {
+        syncRitualStopToOwner();
         running = false;
         progress = 0;
         activeRecipeId = null;
         ritualPlayer = null;
+        currentActionIndex = 0;
+        activeRitualActions.clear();
+        actionTick = 0;
+        qualityScore = 0;
+        finalScoreMultiplier = 1.0F;
+        actionTimeoutMultiplier = 1.0F;
+        mistakes = 0;
+        maxMistakes = 3;
+        mistakeForgivenessRemaining = 0;
+        abandonTicks = 0;
+        syncCooldown = 0;
+        currentQualityPreview = PsyMixerRitualQuality.BASE.id();
+        bestJudgement = PsyMixerRitualJudgement.NONE.id();
+        activeFormulaName = "";
         goodHits = 0;
         badHits = 0;
         resonance = PsyMixerRitualEngine.START_RESONANCE;
@@ -555,6 +1034,35 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         feedbackTicks = 0;
         lastAccuracy = 0.0F;
         markDirtyAndSync();
+    }
+
+    private void syncRitualStopToOwner() {
+        if (!(this.level instanceof ServerLevel serverLevel) || ritualPlayer == null) {
+            return;
+        }
+        ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(ritualPlayer);
+        if (player == null) {
+            return;
+        }
+        PacketDistributor.sendToPlayer(player, new PsyMixerRitualSyncPayload(
+                worldPosition,
+                false,
+                "",
+                0,
+                0,
+                PsyMixerRitualAction.NONE,
+                PsyMixerRitualQuality.BASE,
+                0,
+                0,
+                PsyMixerRitualJudgement.NONE,
+                0,
+                0,
+                1,
+                0,
+                1,
+                0.0F,
+                0.0F
+        ));
     }
 
     public float getTimingWindow() {
@@ -589,65 +1097,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     }
 
     public void handleRhythmInput(ServerPlayer player) {
-        if (!running) return;
-        if (rhythmInputCooldown > 0) {
-            rhythmInputCooldown--;
-            return;
-        }
-        rhythmInputCooldown = PsyMixerRitualEngine.INPUT_COOLDOWN_TICKS;
-
-        PsyMixerRitualFocus focus = PsyMixerRitualFocus.byId(focusIndex);
-        PsyMixerRitualEngine.JudgementResult result = PsyMixerRitualEngine.judge(
-                getServerPhase(),
-                PsyMixerRitualEngine.targetPhase(focus, progress, ritualMaxTime, zoneMotionScale),
-                PsyMixerRitualEngine.timingWindow(timingWindow, progress, ritualMaxTime, zoneSizeScale),
-                streak
-        );
-        PsyMixerRitualJudgement judgement = result.judgement();
-        lastJudgement = judgement.id();
-        feedbackTicks = PsyMixerRitualEngine.FEEDBACK_TICKS;
-        lastAccuracy = result.accuracy();
-
-        if (judgement.isHit()) {
-            goodHits++;
-            streak++;
-            progress = Math.min(ritualMaxTime, progress + result.progressBonus());
-            instability = PsyMixerRitualEngine.applyInstability(instability, judgement, streak);
-            resonance = PsyMixerRitualEngine.applyResonance(resonance, judgement, streak);
-            focusIndex = findNextAvailableFocus(focusIndex);
-            sendRhythmMessage(player, judgement);
-            if (this.level instanceof ServerLevel sl) {
-                sl.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.35F, 1.0F + Math.min(0.8F, streak * 0.06F));
-                sl.sendParticles(ParticleTypes.END_ROD,
-                        worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
-                        4 + Math.min(8, streak), 0.2, 0.2, 0.2, 0.02);
-            }
-        } else if (judgement == PsyMixerRitualJudgement.NEAR) {
-            streak = 0;
-            progress = Math.min(ritualMaxTime, progress + result.progressBonus());
-            instability = PsyMixerRitualEngine.applyInstability(instability, judgement, streak);
-            resonance = PsyMixerRitualEngine.applyResonance(resonance, judgement, streak);
-            sendRhythmMessage(player, judgement);
-            if (this.level instanceof ServerLevel sl) {
-                sl.playSound(null, worldPosition, SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.BLOCKS, 0.25F, 0.75F);
-                sl.sendParticles(new DustParticleOptions(0xCCAA44, 1.2F),
-                        worldPosition.getX() + 0.5, worldPosition.getY() + 0.85, worldPosition.getZ() + 0.5,
-                        4, 0.25, 0.18, 0.25, 0.0);
-            }
-        } else {
-            badHits++;
-            streak = 0;
-            instability = PsyMixerRitualEngine.applyInstability(instability, judgement, streak);
-            resonance = PsyMixerRitualEngine.applyResonance(resonance, judgement, streak);
-            sendRhythmMessage(player, judgement);
-            if (this.level instanceof ServerLevel sl) {
-                sl.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.BLOCKS, 0.35F, 0.65F);
-                sl.sendParticles(new DustParticleOptions(0x882244, 1.5F),
-                        worldPosition.getX() + 0.5, worldPosition.getY() + 0.7, worldPosition.getZ() + 0.5,
-                        4, 0.3, 0.3, 0.3, 0.0);
-            }
-        }
-        markDirtyAndSync();
+        handleRitualAction(player, PsyMixerRitualAction.TIMING_RING);
     }
 
     private void sendRhythmMessage(ServerPlayer player, PsyMixerRitualJudgement judgement) {
@@ -723,6 +1173,18 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             progress = 0;
             activeRecipeId = null;
             ritualPlayer = null;
+            currentActionIndex = 0;
+            activeRitualActions.clear();
+            actionTick = 0;
+            qualityScore = 0;
+            finalScoreMultiplier = 1.0F;
+            actionTimeoutMultiplier = 1.0F;
+            mistakes = 0;
+            maxMistakes = 3;
+            mistakeForgivenessRemaining = 0;
+            currentQualityPreview = PsyMixerRitualQuality.BASE.id();
+            bestJudgement = PsyMixerRitualJudgement.NONE.id();
+            activeFormulaName = "";
             goodHits = 0;
             badHits = 0;
             rhythmInputCooldown = 0;
@@ -750,6 +1212,10 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
     private void sendMessage(@Nullable ServerPlayer player, String key) {
         if (player == null) return;
+        if (PsyMixerInputValidator.ONE_VOICE_MESSAGE.equals(key)) {
+            player.displayClientMessage(Component.translatable(key).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+            return;
+        }
         player.displayClientMessage(ritualComponent(key), true);
     }
 
@@ -856,6 +1322,18 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         output.putInt("progress", progress);
         output.putInt("ritual_max_time", ritualMaxTime);
         output.putFloat("instability", instability);
+        output.putInt("current_action_index", currentActionIndex);
+        output.putInt("action_tick", actionTick);
+        output.putInt("action_timeout", actionTimeout);
+        output.putInt("quality_score", qualityScore);
+        output.putFloat("final_score_multiplier", finalScoreMultiplier);
+        output.putFloat("action_timeout_multiplier", actionTimeoutMultiplier);
+        output.putInt("mistakes", mistakes);
+        output.putInt("max_mistakes", maxMistakes);
+        output.putInt("mistake_forgiveness", mistakeForgivenessRemaining);
+        output.putInt("current_quality_preview", currentQualityPreview);
+        output.putInt("best_judgement", bestJudgement);
+        output.putString("active_formula_name", activeFormulaName);
         output.putFloat("timing_window", timingWindow);
         output.putInt("rhythm_input_cooldown", rhythmInputCooldown);
         output.putInt("good_hits", goodHits);
@@ -873,6 +1351,14 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             output.putLong("ritual_player_msb", ritualPlayer.getMostSignificantBits());
             output.putLong("ritual_player_lsb", ritualPlayer.getLeastSignificantBits());
         }
+
+        ValueOutput.ValueOutputList actionList = output.childrenList("active_ritual_actions");
+        for (int i = 0; i < activeRitualActions.size(); i++) {
+            ValueOutput child = actionList.addChild();
+            child.putInt("index", i);
+            child.putInt("action", activeRitualActions.get(i).id());
+        }
+        if (actionList.isEmpty()) output.discard("active_ritual_actions");
 
         ValueOutput.ValueOutputList itemList = output.childrenList("items");
         for (int i = 0; i < SLOT_COUNT; i++) {
@@ -907,6 +1393,18 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         progress = input.getIntOr("progress", 0);
         ritualMaxTime = input.getIntOr("ritual_max_time", 400);
         instability = input.getFloatOr("instability", 0.25F);
+        currentActionIndex = input.getIntOr("current_action_index", 0);
+        actionTick = input.getIntOr("action_tick", 0);
+        actionTimeout = input.getIntOr("action_timeout", 100);
+        qualityScore = input.getIntOr("quality_score", 0);
+        finalScoreMultiplier = input.getFloatOr("final_score_multiplier", 1.0F);
+        actionTimeoutMultiplier = input.getFloatOr("action_timeout_multiplier", 1.0F);
+        mistakes = input.getIntOr("mistakes", 0);
+        maxMistakes = input.getIntOr("max_mistakes", 3);
+        mistakeForgivenessRemaining = input.getIntOr("mistake_forgiveness", 0);
+        currentQualityPreview = input.getIntOr("current_quality_preview", PsyMixerRitualQuality.BASE.id());
+        bestJudgement = input.getIntOr("best_judgement", PsyMixerRitualJudgement.NONE.id());
+        activeFormulaName = input.getStringOr("active_formula_name", "");
         timingWindow = input.getFloatOr("timing_window", 0.12F);
         rhythmInputCooldown = input.getIntOr("rhythm_input_cooldown", 0);
         goodHits = input.getIntOr("good_hits", 0);
@@ -924,6 +1422,14 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         long msb = input.getLongOr("ritual_player_msb", 0L);
         long lsb = input.getLongOr("ritual_player_lsb", 0L);
         ritualPlayer = (msb == 0L && lsb == 0L) ? null : new UUID(msb, lsb);
+
+        activeRitualActions.clear();
+        for (ValueInput child : input.childrenListOrEmpty("active_ritual_actions")) {
+            PsyMixerRitualAction action = PsyMixerRitualAction.byId(child.getIntOr("action", PsyMixerRitualAction.NONE.id()));
+            if (action.canBeRandomlySelected()) {
+                activeRitualActions.add(action);
+            }
+        }
 
         for (int i = 0; i < SLOT_COUNT; i++) items.set(i, ItemStack.EMPTY);
         for (ValueInput child : input.childrenListOrEmpty("items")) {

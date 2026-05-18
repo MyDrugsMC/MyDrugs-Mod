@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.core.drug.ritual;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
@@ -18,6 +19,10 @@ public final class MixedDrugStackFactory {
 
     public static ItemStack createPendingStack(RitualDrugFormula formula) {
         return createStack(MixedDrugData.pending(formula));
+    }
+
+    public static ItemStack createPendingStack(RitualDrugFormula formula, PsyMixerRitualQuality quality) {
+        return createStack(MixedDrugData.pending(formula, quality));
     }
 
     private static Item itemFor(DrugId baseDrug) {

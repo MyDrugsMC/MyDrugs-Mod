@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.client.ber;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 
 public final class PsyMixerRenderState extends BlockEntityRenderState {
     public final ItemStack[] stacks = new ItemStack[PsyMixerMultiblock.SLOT_COUNT];
@@ -11,6 +12,9 @@ public final class PsyMixerRenderState extends BlockEntityRenderState {
     public float progressFraction;
     public int focusSlot;
     public float resonance;
+    public PsyMixerRitualQuality quality = PsyMixerRitualQuality.BASE;
+    public int mistakes;
+    public int maxMistakes;
 
     public PsyMixerRenderState() {
         for (int i = 0; i < stacks.length; i++) {

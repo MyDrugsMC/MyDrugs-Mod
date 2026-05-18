@@ -7,8 +7,6 @@ public final class PsyMixerRitualEngine {
     public static final int FEEDBACK_TICKS = 28;
     public static final int GOLDEN_ZONE_COUNT = 3;
     public static final float START_RESONANCE = 0.25F;
-    public static final float MIN_INSTABILITY = 0.02F;
-    public static final float MAX_INSTABILITY = 0.95F;
     private static final float TWO_PI = (float) (Math.PI * 2.0);
     private static final float ZONE_DRIFT_AMPLITUDE = 0.115F;
     private static final float ZONE_SIZE_AMPLITUDE = 0.045F;
@@ -89,20 +87,6 @@ public final class PsyMixerRitualEngine {
     public static float wrappedDistance(float a, float b) {
         float diff = Math.abs(a - b);
         return Math.min(diff, 1.0F - diff);
-    }
-
-    public static float applyInstability(float current, PsyMixerRitualJudgement judgement, int streak) {
-        float streakRelief = judgement.isHit() ? Math.min(0.015F, Math.max(0, streak) * 0.0025F) : 0.0F;
-        return Mth.clamp(current + judgement.instabilityDelta() - streakRelief, MIN_INSTABILITY, MAX_INSTABILITY);
-    }
-
-    public static float applyResonance(float current, PsyMixerRitualJudgement judgement, int streak) {
-        float streakBonus = judgement.isHit() ? Math.min(0.08F, Math.max(0, streak) * 0.01F) : 0.0F;
-        return Mth.clamp(current + judgement.resonanceDelta() + streakBonus, 0.0F, 1.0F);
-    }
-
-    public static float finalInstability(float currentInstability, float resonance) {
-        return Mth.clamp(currentInstability - resonance * 0.28F, MIN_INSTABILITY, MAX_INSTABILITY);
     }
 
     public record JudgementResult(

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -62,7 +63,8 @@ public final class DrugPatentSavedData extends SavedData {
                 formula.baseDrug(),
                 formula.baseEffectsSnapshot(),
                 formula.addedEffects(),
-                formula.canonicalSignature()
+                formula.canonicalSignature(),
+                PsyMixerRitualQuality.BASE
         );
         this.bySignature.put(formula.canonicalSignature(), data);
         this.signatureByName.put(normalizeName(displayName), formula.canonicalSignature());

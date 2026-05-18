@@ -4,6 +4,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public record RitualDrugFormula(
@@ -26,12 +27,26 @@ public record RitualDrugFormula(
         List<RitualDrugEffectData> canonicalEffects = addedEffects.stream()
                 .sorted(RitualDrugEffectData.CANONICAL_ORDER)
                 .toList();
-        String signature = canonicalSignature(baseDrug, canonicalEffects);
+        String signature = canonicalEffectsSignature(baseDrug, canonicalEffects);
         String formulaId = UUID.nameUUIDFromBytes(signature.getBytes(StandardCharsets.UTF_8)).toString();
         return new RitualDrugFormula(formulaId, baseDrug, baseEffectsSnapshot, canonicalEffects, signature);
     }
 
-    private static String canonicalSignature(DrugId baseDrug, List<RitualDrugEffectData> addedEffects) {
+    public static RitualDrugFormula of(
+            String formulaId,
+            DrugId baseDrug,
+            List<RitualDrugEffectData> baseEffectsSnapshot,
+            List<RitualDrugEffectData> addedEffects
+    ) {
+        List<RitualDrugEffectData> canonicalEffects = addedEffects.stream()
+                .sorted(RitualDrugEffectData.CANONICAL_ORDER)
+                .toList();
+        String normalizedFormulaId = normalizeFormulaId(formulaId);
+        String signature = identitySignature(baseDrug, normalizedFormulaId);
+        return new RitualDrugFormula(normalizedFormulaId, baseDrug, baseEffectsSnapshot, canonicalEffects, signature);
+    }
+
+    private static String canonicalEffectsSignature(DrugId baseDrug, List<RitualDrugEffectData> addedEffects) {
         StringBuilder builder = new StringBuilder("base_drug=")
                 .append(baseDrug.serializedName())
                 .append(";effects=[");
@@ -42,5 +57,17 @@ public record RitualDrugFormula(
             builder.append(addedEffects.get(i).canonicalPart());
         }
         return builder.append(']').toString();
+    }
+
+    private static String identitySignature(DrugId baseDrug, String formulaId) {
+        return "base_drug=" + baseDrug.serializedName() + ";formula_id=" + formulaId;
+    }
+
+    private static String normalizeFormulaId(String formulaId) {
+        String normalized = formulaId == null ? "" : formulaId.trim().toLowerCase(Locale.ROOT);
+        if (normalized.isEmpty()) {
+            return UUID.nameUUIDFromBytes("empty_formula".getBytes(StandardCharsets.UTF_8)).toString();
+        }
+        return normalized;
     }
 }

@@ -21,12 +21,14 @@ import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.client.diary.MemoryCaptureClient;
+import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
 import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
 import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
+import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
 
 /**
@@ -51,6 +53,7 @@ public final class ClientPayloadHandlers {
         event.register(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayloadHandler::handle);
         event.register(BiomeFinderOpenScreenPayload.TYPE, BiomeFinderClientPayloadHandler::handleOpenScreen);
         event.register(OpenDrugFormulaNamingPayload.TYPE, DrugFormulaNamingPayloadHandler::handle);
+        event.register(PsyMixerRitualSyncPayload.TYPE, PsyMixerRitualClientState::handle);
 
         // Addiction snapshots, dose/effect sync, headphones, vomit, bad-trip.
         event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);

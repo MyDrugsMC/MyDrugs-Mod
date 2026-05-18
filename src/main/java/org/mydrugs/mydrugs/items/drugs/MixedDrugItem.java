@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -24,7 +25,13 @@ public final class MixedDrugItem extends DrugItem implements RollingIngredient {
     public Component getName(ItemStack stack) {
         MixedDrugData data = stack.get(ModDataComponents.MIXED_DRUG_DATA.get());
         if (data != null && !data.displayName().isBlank()) {
-            return Component.literal(data.displayName());
+            Component formulaName = Component.literal(data.displayName());
+            return switch (data.quality()) {
+                case CRUDE -> Component.translatable("item.mydrugs.mixed_drug.name.crude", formulaName);
+                case PERFECT -> Component.translatable("item.mydrugs.mixed_drug.name.perfect", formulaName);
+                case MASTERWORK -> Component.translatable("item.mydrugs.mixed_drug.name.masterwork", formulaName);
+                case BASE -> formulaName;
+            };
         }
         return super.getName(stack);
     }
@@ -37,6 +44,7 @@ public final class MixedDrugItem extends DrugItem implements RollingIngredient {
         }
         DrugModel base = DrugRegistry.getDrug(data.baseDrug());
         return List.of(base.withAdditionalEffects(data.addedEffects().stream()
+                .map(data.quality()::applyTo)
                 .map(org.mydrugs.mydrugs.core.drug.ritual.RitualDrugEffectData::toDrugEffect)
                 .toList()));
     }
@@ -57,7 +65,12 @@ public final class MixedDrugItem extends DrugItem implements RollingIngredient {
     ) {
         MixedDrugData data = stack.get(ModDataComponents.MIXED_DRUG_DATA.get());
         if (data != null) {
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mixed_drug.author", data.authorName()));
+            PsyMixerRitualQuality quality = data.quality();
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mixed_drug.quality", Component.translatable(quality.translationKey())));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mixed_drug.quality_effects", quality.positivePercent(), quality.negativePercent()));
+            if (!data.authorName().isBlank()) {
+                tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mixed_drug.author", data.authorName()));
+            }
         }
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
     }

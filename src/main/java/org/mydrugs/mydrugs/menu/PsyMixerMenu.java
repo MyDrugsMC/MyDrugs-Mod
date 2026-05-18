@@ -13,9 +13,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
 public final class PsyMixerMenu extends AbstractContainerMenu {
@@ -40,20 +42,24 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     private static final int DATA_RUNNING = 0;
     private static final int DATA_PROGRESS = 1;
     private static final int DATA_MAX_PROGRESS = 2;
-    private static final int DATA_INSTABILITY = 3;
-    private static final int DATA_TIMING_WINDOW = 4;
-    private static final int DATA_INPUT_COOLDOWN = 5;
-    private static final int DATA_GOOD_HITS = 6;
-    private static final int DATA_BAD_HITS = 7;
-    private static final int DATA_FOCUS_INDEX = 8;
-    private static final int DATA_RESONANCE = 9;
-    private static final int DATA_STREAK = 10;
-    private static final int DATA_LAST_JUDGEMENT = 11;
-    private static final int DATA_FEEDBACK_TICKS = 12;
-    private static final int DATA_LAST_ACCURACY = 13;
-    private static final int DATA_TARGET_PHASE = 14;
-    private static final int DATA_CURRENT_TIMING_WINDOW = 15;
-    private static final int DATA_COUNT = 16;
+    private static final int DATA_CURRENT_ACTION = 3;
+    private static final int DATA_ACTION_INDEX = 4;
+    private static final int DATA_ACTION_COUNT = 5;
+    private static final int DATA_INPUT_COOLDOWN = 6;
+    private static final int DATA_GOOD_HITS = 7;
+    private static final int DATA_MISTAKES = 8;
+    private static final int DATA_FOCUS_INDEX = 9;
+    private static final int DATA_QUALITY_PREVIEW = 10;
+    private static final int DATA_STREAK = 11;
+    private static final int DATA_LAST_JUDGEMENT = 12;
+    private static final int DATA_FEEDBACK_TICKS = 13;
+    private static final int DATA_LAST_ACCURACY = 14;
+    private static final int DATA_TARGET_PHASE = 15;
+    private static final int DATA_CURRENT_TIMING_WINDOW = 16;
+    private static final int DATA_ACTION_TICK = 17;
+    private static final int DATA_ACTION_TIMEOUT = 18;
+    private static final int DATA_MAX_MISTAKES = 19;
+    private static final int DATA_COUNT = 20;
     private static final int FLOAT_SCALE = 10_000;
 
     // Convenience constructor for client deserialization
@@ -119,8 +125,28 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
         return Math.max(1, ritualData.get(DATA_MAX_PROGRESS));
     }
 
-    public float getInstability() {
-        return ritualData.get(DATA_INSTABILITY) / (float) FLOAT_SCALE;
+    public PsyMixerRitualAction getCurrentAction() {
+        return PsyMixerRitualAction.byId(ritualData.get(DATA_CURRENT_ACTION));
+    }
+
+    public int getActionIndex() {
+        return ritualData.get(DATA_ACTION_INDEX);
+    }
+
+    public int getActionCount() {
+        return ritualData.get(DATA_ACTION_COUNT);
+    }
+
+    public PsyMixerRitualQuality getQualityPreview() {
+        return PsyMixerRitualQuality.byId(ritualData.get(DATA_QUALITY_PREVIEW));
+    }
+
+    public int getActionTick() {
+        return ritualData.get(DATA_ACTION_TICK);
+    }
+
+    public int getActionTimeout() {
+        return Math.max(1, ritualData.get(DATA_ACTION_TIMEOUT));
     }
 
     public float getServerPhase() {
@@ -140,7 +166,15 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     }
 
     public int getBadHits() {
-        return ritualData.get(DATA_BAD_HITS);
+        return getMistakes();
+    }
+
+    public int getMistakes() {
+        return ritualData.get(DATA_MISTAKES);
+    }
+
+    public int getMaxMistakes() {
+        return ritualData.get(DATA_MAX_MISTAKES);
     }
 
     public PsyMixerRitualFocus getFocus() {
@@ -156,7 +190,7 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     }
 
     public float getResonance() {
-        return ritualData.get(DATA_RESONANCE) / (float) FLOAT_SCALE;
+        return getActionCount() <= 0 ? 0.0F : (float) getActionIndex() / getActionCount();
     }
 
     public int getStreak() {
@@ -254,19 +288,23 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
                 case DATA_RUNNING -> core.isRunning() ? 1 : 0;
                 case DATA_PROGRESS -> core.getProgress();
                 case DATA_MAX_PROGRESS -> core.getRitualMaxTime();
-                case DATA_INSTABILITY -> Math.round(core.getInstability() * FLOAT_SCALE);
-                case DATA_TIMING_WINDOW -> Math.round(core.getTimingWindow() * FLOAT_SCALE);
+                case DATA_CURRENT_ACTION -> core.getCurrentActionId();
+                case DATA_ACTION_INDEX -> core.getCurrentActionIndex();
+                case DATA_ACTION_COUNT -> core.getActionCount();
                 case DATA_INPUT_COOLDOWN -> core.getRhythmInputCooldown();
                 case DATA_GOOD_HITS -> core.getGoodHits();
-                case DATA_BAD_HITS -> core.getBadHits();
+                case DATA_MISTAKES -> core.getMistakes();
                 case DATA_FOCUS_INDEX -> core.getFocusIndex();
-                case DATA_RESONANCE -> Math.round(core.getResonance() * FLOAT_SCALE);
+                case DATA_QUALITY_PREVIEW -> core.getCurrentQualityPreview().id();
                 case DATA_STREAK -> core.getStreak();
                 case DATA_LAST_JUDGEMENT -> core.getLastJudgement();
                 case DATA_FEEDBACK_TICKS -> core.getFeedbackTicks();
                 case DATA_LAST_ACCURACY -> Math.round(core.getLastAccuracy() * FLOAT_SCALE);
                 case DATA_TARGET_PHASE -> Math.round(core.getCurrentTargetPhase() * FLOAT_SCALE);
                 case DATA_CURRENT_TIMING_WINDOW -> Math.round(core.getCurrentTimingWindow() * FLOAT_SCALE);
+                case DATA_ACTION_TICK -> core.getActionTick();
+                case DATA_ACTION_TIMEOUT -> core.getActionTimeout();
+                case DATA_MAX_MISTAKES -> core.getMaxMistakes();
                 default -> 0;
             };
         }

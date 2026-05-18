@@ -15,6 +15,8 @@ import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
 import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
 import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
 import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
+import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
+import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualOverlay;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
@@ -55,6 +57,7 @@ public final class ClientEventHandler {
             FakeEntityRenderController.clear();
             VomitOverlayClientState.clear();
             BadTripScreamerOverlay.clear();
+            PsyMixerRitualClientState.clear();
         }
 
         @SubscribeEvent
@@ -70,6 +73,7 @@ public final class ClientEventHandler {
             PsyBlueprintPreviewClientState.tick();
             VomitOverlayClientState.tick();
             BadTripScreamerOverlay.tick();
+            PsyMixerRitualClientState.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
             ClientInputInterceptor.tick(mc);
@@ -101,6 +105,7 @@ public final class ClientEventHandler {
             BadTripScreamerOverlay.render(event.getGuiGraphics());
             AddictionHudRenderer.render(event.getGuiGraphics());
             BiomeFinderCompassOverlay.render(event.getGuiGraphics());
+            PsyMixerRitualOverlay.render(event.getGuiGraphics());
         }
 
         @SubscribeEvent

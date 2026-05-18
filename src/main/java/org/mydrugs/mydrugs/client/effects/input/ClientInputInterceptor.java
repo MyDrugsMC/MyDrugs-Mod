@@ -9,9 +9,11 @@ import net.minecraft.client.player.ClientInput;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.phys.Vec2;
 import org.mydrugs.mydrugs.Config;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
+import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
 
 public final class ClientInputInterceptor {
     private static final Random RANDOM = new Random();
@@ -19,6 +21,9 @@ public final class ClientInputInterceptor {
 
     private static int failCooldownTicks;
     private static int failTicks;
+    private static boolean ritualJumpHeld;
+    private static boolean ritualSneakHeld;
+    private static boolean ritualUseHeld;
 
     private ClientInputInterceptor() {
     }
@@ -29,6 +34,17 @@ public final class ClientInputInterceptor {
         }
         if (failTicks > 0) {
             failTicks--;
+        }
+
+        if (PsyMixerRitualClientState.isActive()
+                && PsyMixerRitualClientState.action() == PsyMixerRitualAction.RIGHT_CLICK_AIR) {
+            boolean useDown = mc.options.keyUse.isDown();
+            if (useDown && !ritualUseHeld) {
+                PsyMixerRitualClientState.sendAction(PsyMixerRitualAction.RIGHT_CLICK_AIR);
+            }
+            ritualUseHeld = useDown;
+        } else {
+            ritualUseHeld = false;
         }
 
         float inputFail = AddictionClientState.getEffectIntensity(EffectType.INPUT_FAIL);
@@ -45,6 +61,8 @@ public final class ClientInputInterceptor {
         if (input == null) {
             return;
         }
+
+        applyPsyMixerRitualInput(input);
 
         Vec2 moveVector = input.getMoveVector();
         if (moveVector == null) {
@@ -72,6 +90,52 @@ public final class ClientInputInterceptor {
         }
 
         setMoveVector(input, moveVector);
+    }
+
+    private static void applyPsyMixerRitualInput(ClientInput input) {
+        if (!PsyMixerRitualClientState.isActive()) {
+            ritualJumpHeld = false;
+            ritualSneakHeld = false;
+            ritualUseHeld = false;
+            return;
+        }
+
+        Input keyPresses = input.keyPresses == null ? Input.EMPTY : input.keyPresses;
+        PsyMixerRitualAction action = PsyMixerRitualClientState.action();
+
+        if (keyPresses.jump()) {
+            if (!ritualJumpHeld) {
+                if (action == PsyMixerRitualAction.TIMING_RING) {
+                    PsyMixerRitualClientState.sendAction(PsyMixerRitualAction.TIMING_RING);
+                } else if (action == PsyMixerRitualAction.JUMP) {
+                    PsyMixerRitualClientState.sendAction(PsyMixerRitualAction.JUMP);
+                }
+            }
+            ritualJumpHeld = true;
+        } else {
+            ritualJumpHeld = false;
+        }
+
+        if (keyPresses.shift()) {
+            if (!ritualSneakHeld && action == PsyMixerRitualAction.SNEAK) {
+                PsyMixerRitualClientState.sendAction(PsyMixerRitualAction.SNEAK);
+            }
+            ritualSneakHeld = true;
+        } else {
+            ritualSneakHeld = false;
+        }
+
+        if (action == PsyMixerRitualAction.TIMING_RING && keyPresses.jump()) {
+            input.keyPresses = new Input(
+                    keyPresses.forward(),
+                    keyPresses.backward(),
+                    keyPresses.left(),
+                    keyPresses.right(),
+                    false,
+                    keyPresses.shift(),
+                    keyPresses.sprint()
+            );
+        }
     }
 
     public static boolean shouldFailInput() {

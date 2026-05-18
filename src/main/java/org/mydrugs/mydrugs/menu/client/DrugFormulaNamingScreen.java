@@ -61,6 +61,7 @@ public final class DrugFormulaNamingScreen extends Screen {
         graphics.renderItem(iconFor(this.formula.baseDrug()), panelX + 18, panelY + 12);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, panelY + 10, 0xFFE8D7FF);
         graphics.drawString(this.font, Component.translatable("screen.mydrugs.formula.base", this.formula.baseDrug().serializedName()), panelX + 18, panelY + 32, 0xFFD6D6D6, false);
+        graphics.drawString(this.font, Component.translatable("screen.mydrugs.formula.quality", Component.translatable(this.formula.quality().translationKey())), panelX + 128, panelY + 32, 0xFFD6D6D6, false);
         drawEffects(graphics, Component.translatable("screen.mydrugs.formula.base_effects"), this.formula.baseEffectsSnapshot(), panelX + 18, panelY + 48);
         drawEffects(graphics, Component.translatable("screen.mydrugs.formula.added_effects"), this.formula.addedEffects(), panelX + 128, panelY + 48);
         graphics.drawString(this.font, Component.translatable("screen.mydrugs.formula.name"), panelX + 18, panelY + 106, 0xFFD6D6D6, false);

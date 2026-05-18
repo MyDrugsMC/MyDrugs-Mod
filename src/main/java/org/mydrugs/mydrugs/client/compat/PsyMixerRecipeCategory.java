@@ -45,9 +45,9 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
     public void setRecipe(IRecipeLayoutBuilder builder, PsyMixerRecipe recipe, IFocusGroup focuses) {
         addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y, recipe.base());
         addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X - RADIUS, CENTER_Y, recipe.material());
-        recipe.catalyst().ifPresent(ingredient -> addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y - RADIUS, ingredient));
-        recipe.stabilizer().ifPresent(ingredient -> addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X + RADIUS, CENTER_Y, ingredient));
-        recipe.vessel().ifPresent(ingredient -> addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y + RADIUS, ingredient));
+        addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y - RADIUS, recipe.effectiveCatalyst());
+        addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X + RADIUS, CENTER_Y, recipe.effectiveStabilizer());
+        addItemIngredient(builder, RecipeIngredientRole.INPUT, CENTER_X, CENTER_Y + RADIUS, recipe.effectiveVessel());
         addItemStack(builder, RecipeIngredientRole.OUTPUT, OUTPUT_X, CENTER_Y, recipe.dynamicPreviewResult());
     }
 
@@ -62,9 +62,9 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
         drawRitualRing(g, CENTER_X + 8, CENTER_Y + 8);
         drawSlotFrame(g, CENTER_X, CENTER_Y, true, false);
         drawSlotFrame(g, CENTER_X - RADIUS, CENTER_Y, true, false);
-        drawSlotFrame(g, CENTER_X, CENTER_Y - RADIUS, recipe.catalyst().isPresent(), true);
-        drawSlotFrame(g, CENTER_X + RADIUS, CENTER_Y, recipe.stabilizer().isPresent(), true);
-        drawSlotFrame(g, CENTER_X, CENTER_Y + RADIUS, recipe.vessel().isPresent(), false);
+        drawSlotFrame(g, CENTER_X, CENTER_Y - RADIUS, true, true);
+        drawSlotFrame(g, CENTER_X + RADIUS, CENTER_Y, true, true);
+        drawSlotFrame(g, CENTER_X, CENTER_Y + RADIUS, true, true);
         drawSlotFrame(g, OUTPUT_X, CENTER_Y, true, false);
 
         var font = Minecraft.getInstance().font;
@@ -99,10 +99,25 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
             g.drawString(font, Component.translatable("screen.mydrugs.jei.required_bad_trip"), 8, infoY, WARN, false);
             infoY += 10;
         }
-        if (recipe.machineSpeedModifier() > 0.001F && infoY < height - 8) {
-            g.drawString(font, Component.translatable("screen.mydrugs.jei.machine_speed_modifier", Math.round(recipe.machineSpeedModifier() * 100.0F)), 8, infoY, MUTED, false);
-        } else if (recipe.ritualStabilityModifier() != 0.0F && infoY < height - 8) {
-            g.drawString(font, Component.translatable("screen.mydrugs.jei.ritual_stability_modifier", Math.round(recipe.ritualStabilityModifier() * 100.0F)), 8, infoY, MUTED, false);
+        if (infoY < height - 8) {
+            Component actions = Component.translatable("screen.mydrugs.jei.ritual_actions", recipe.availableRitualActions().stream()
+                    .map(action -> Component.translatable(action.promptKey()).getString())
+                    .limit(3)
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse(""));
+            g.drawString(font, fit(actions, 158), 8, infoY, TEXT, false);
+            infoY += 10;
+        }
+        if (infoY < height - 8) {
+            g.drawString(font, fit(Component.translatable("screen.mydrugs.jei.optional_psy_mixer_items"), 158), 8, infoY, MUTED, false);
+            infoY += 10;
+        }
+        if (infoY < height - 8) {
+            g.drawString(font, fit(Component.translatable("screen.mydrugs.jei.quality_tiers"), 158), 8, infoY, MUTED, false);
+            infoY += 10;
+        }
+        if (infoY < height - 8) {
+            g.drawString(font, fit(Component.translatable("screen.mydrugs.jei.psy_mixer_deterministic"), 158), 8, infoY, MUTED, false);
         }
     }
 

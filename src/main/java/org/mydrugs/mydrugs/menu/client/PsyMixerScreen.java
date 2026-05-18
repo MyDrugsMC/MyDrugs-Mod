@@ -11,13 +11,18 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.client.compat.ClientRecipesCache;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
 import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
-import org.mydrugs.mydrugs.network.PsyMixerRitualInputPayload;
+import org.mydrugs.mydrugs.network.PsyMixerRitualActionPayload;
 import org.mydrugs.mydrugs.network.PsyMixerStartRitualPayload;
+import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
+
+import java.util.Optional;
 
 public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> {
     private static final int OUTER = 0xFF12070A;
@@ -48,7 +53,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     protected void init() {
         super.init();
         beginButton = Button.builder(
-                Component.translatable("screen.mydrugs.psy_mixer.begin"),
+                Component.translatable("screen.mydrugs.psy_mixer.begin_ritual"),
                 btn -> {
                     if (!menu.isRunning()) {
                         ClientPacketDistributor.sendToServer(new PsyMixerStartRitualPayload(menu.getMenuId(), menu.getCorePos()));
@@ -60,8 +65,8 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         tapButton = Button.builder(
                 Component.translatable("screen.mydrugs.psy_mixer.tap"),
                 btn -> {
-                    if (menu.isRunning()) {
-                        ClientPacketDistributor.sendToServer(new PsyMixerRitualInputPayload(menu.getMenuId(), menu.getServerPhase()));
+                    if (menu.isRunning() && menu.getCurrentAction() == PsyMixerRitualAction.TIMING_RING) {
+                        ClientPacketDistributor.sendToServer(new PsyMixerRitualActionPayload(menu.getCorePos(), PsyMixerRitualAction.TIMING_RING, menu.getServerPhase()));
                     }
                 }
         ).bounds(this.leftPos + layout.actionX, this.topPos + layout.actionY, layout.actionWidth, 20).build();
@@ -102,7 +107,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
             graphics.fill(cx + dx - 1, cy + dy - 1, cx + dx + 1, cy + dy + 1, 0xFF6A3A4A);
         }
 
-        if (!menu.isRunning()) {
+        if (!menu.isRunning() || menu.getCurrentAction() != PsyMixerRitualAction.TIMING_RING) {
             return;
         }
 
@@ -128,7 +133,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     }
 
     private void drawSlotWell(GuiGraphics graphics, int cx, int cy, int slot) {
-        boolean focused = menu.isRunning() && slot == menu.getFocusSlot();
+        boolean focused = menu.isRunning() && menu.getCurrentAction() == PsyMixerRitualAction.TIMING_RING && slot == menu.getFocusSlot();
         int border = focused ? WARN : 0xFF100407;
         graphics.fill(cx - 3, cy - 3, cx + 19, cy + 19, focused ? 0xFF1C1207 : 0xFF100407);
         graphics.fill(cx - 2, cy - 2, cx + 18, cy + 18, border);
@@ -148,9 +153,11 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 
     private void drawSideInstructions(GuiGraphics graphics) {
         Component status = menu.isRunning()
-                ? Component.translatable("screen.mydrugs.psy_mixer.help.running_focus", Component.translatable(menu.getFocus().labelKey()))
+                ? Component.translatable(menu.getCurrentAction().hintKey())
                 : Component.translatable(hasStarterItems()
-                ? "screen.mydrugs.psy_mixer.help.ready"
+                ? currentRecipe().map(recipe -> !hasActionOptionalItems(recipe)
+                        ? "screen.mydrugs.psy_mixer.no_ritual_required"
+                        : "screen.mydrugs.psy_mixer.ritual_required").orElse("screen.mydrugs.psy_mixer.help.ready")
                 : "screen.mydrugs.psy_mixer.help.setup");
 
         int y = layout.sideY;
@@ -160,6 +167,29 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
             graphics.drawString(font, line, layout.sideX, y, TEXT, false);
             y += 10;
         }
+        if (!menu.isRunning()) {
+            int summaryY = y + 2;
+            currentRecipe().ifPresent(recipe -> drawRecipeSummary(graphics, summaryY, recipe));
+        }
+    }
+
+    private void drawRecipeSummary(GuiGraphics graphics, int y, PsyMixerRecipe recipe) {
+        Component formula = recipe.formulaId()
+                .map(id -> Component.literal(id.toString()))
+                .orElseGet(() -> Component.translatable("screen.mydrugs.psy_mixer.formula_derived"));
+        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.formula", formula), layout.sideX, y, TEXT, false);
+        y += 10;
+//        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality", qualityRange()), layout.sideX, y, TEXT, false);
+//        y += 10;
+        Component actions = !hasActionOptionalItems(recipe)
+                ? Component.translatable("screen.mydrugs.psy_mixer.no_ritual_required")
+                : Component.literal(recipe.availableRitualActions().stream().map(PsyMixerRitualAction::serializedName).limit(4).reduce((a, b) -> a + ", " + b).orElse(""));
+        graphics.drawString(font, actions, layout.sideX, y, MUTED, false);
+    }
+
+    private boolean hasActionOptionalItems(PsyMixerRecipe recipe) {
+        return recipe.hasValidVessel(menu.getSlot(PsyMixerMultiblock.SLOT_VESSEL).getItem())
+                || recipe.hasValidStabilizer(menu.getSlot(PsyMixerMultiblock.SLOT_STABILIZER).getItem());
     }
 
     private void drawChecklist(GuiGraphics graphics) {
@@ -168,7 +198,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         y += 12;
         drawChecklistLine(graphics, y, "screen.mydrugs.psy_mixer.offering", hasSlot(PsyMixerMultiblock.SLOT_BASE), true);
         drawChecklistLine(graphics, y + 10, "screen.mydrugs.psy_mixer.material", hasSlot(PsyMixerMultiblock.SLOT_MATERIAL), true);
-        drawChecklistLine(graphics, y + 20, "screen.mydrugs.psy_mixer.vessel", hasSlot(PsyMixerMultiblock.SLOT_VESSEL), isSlotRequired(PsyMixerMultiblock.SLOT_VESSEL));
+        drawBonusSlotLine(graphics, y + 20, "screen.mydrugs.psy_mixer.vessel", PsyMixerMultiblock.SLOT_VESSEL);
         drawBonusSlotLine(graphics, y + 30, "screen.mydrugs.psy_mixer.catalyst", PsyMixerMultiblock.SLOT_CATALYST);
         drawBonusSlotLine(graphics, y + 40, "screen.mydrugs.psy_mixer.stabilizer", PsyMixerMultiblock.SLOT_STABILIZER);
     }
@@ -180,8 +210,9 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         ItemStack itemInSlot = menu.getSlot(slot).getItem();
 
         boolean anySupports = recipes.stream().anyMatch(recipe -> switch (slot) {
-            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.catalyst().isPresent();
-            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.stabilizer().isPresent();
+            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.supportsCatalyst();
+            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.supportsStabilizer();
+            case PsyMixerMultiblock.SLOT_VESSEL -> recipe.supportsVessel();
             default -> false;
         });
 
@@ -191,8 +222,9 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         if (itemInSlot.isEmpty()) return BonusSlotState.MISSING;
 
         boolean isValid = recipes.stream().anyMatch(recipe -> switch (slot) {
-            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.catalyst().map(ing -> ing.test(itemInSlot)).orElse(false);
-            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.stabilizer().map(ing -> ing.test(itemInSlot)).orElse(false);
+            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.effectiveCatalyst().test(itemInSlot);
+            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.effectiveStabilizer().test(itemInSlot);
+            case PsyMixerMultiblock.SLOT_VESSEL -> recipe.effectiveVessel().test(itemInSlot);
             default -> false;
         });
         return isValid ? BonusSlotState.ACTIVE : BonusSlotState.INVALID;
@@ -223,19 +255,16 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 
     private void drawMeters(GuiGraphics graphics) {
         int y = layout.meterY;
-        int resonanceWidth = Mth.clamp((int) (menu.getResonance() * layout.meterWidth), 0, layout.meterWidth);
-        drawMeter(graphics, y, "screen.mydrugs.psy_mixer.resonance", resonanceWidth, 0xFF66D9FF);
-        y += 13;
+        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality_preview", Component.translatable(menu.getQualityPreview().translationKey())), layout.sideX, y, qualityColor(menu.getQualityPreview()), false);
+        y += 12;
+        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.mistakes", menu.getMistakes(), menu.getMaxMistakes()), layout.sideX, y, menu.getMistakes() > 0 ? WARN : GOOD, false);
+        y += 12;
         if (menu.isRunning()) {
-            int progressWidth = menu.getMaxProgress() > 0
-                    ? Mth.clamp((int) (((float) menu.getProgress() / menu.getMaxProgress()) * layout.meterWidth), 0, layout.meterWidth)
+            int progressWidth = menu.getActionTimeout() > 0
+                    ? Mth.clamp((int) (((float) menu.getActionTick() / menu.getActionTimeout()) * layout.meterWidth), 0, layout.meterWidth)
                     : 0;
             drawMeter(graphics, y, "screen.mydrugs.psy_mixer.progress", progressWidth, 0xFFAA66CC);
-            y += 13;
         }
-
-        int instabilityWidth = Mth.clamp((int) (Math.min(1.0F, menu.getInstability()) * layout.meterWidth), 0, layout.meterWidth);
-        drawMeter(graphics, y, "screen.mydrugs.psy_mixer.instability", instabilityWidth, 0xFFCC2244);
     }
 
     private void drawActiveDrugBonuses(GuiGraphics graphics) {
@@ -258,17 +287,14 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         boolean showJudgement = menu.getFeedbackTicks() > 0 && judgement != PsyMixerRitualJudgement.NONE;
         Component cue = showJudgement
                 ? Component.translatable(judgement.screenKey())
-                : Component.translatable(isInTimingWindow()
-                ? "screen.mydrugs.psy_mixer.tap_now"
-                : "screen.mydrugs.psy_mixer.wait");
+                : Component.translatable(menu.getCurrentAction().promptKey());
         int color = showJudgement ? judgementColor(judgement) : isInTimingWindow() ? GOOD : WARN;
         drawCentered(graphics, cue, layout.ritualCenterX, layout.ritualCueY, color);
 
         Component hits = Component.translatable(
-                "screen.mydrugs.psy_mixer.hit_count_streak",
-                menu.getGoodHits(),
-                menu.getBadHits(),
-                menu.getStreak()
+                "screen.mydrugs.psy_mixer.current_action",
+                menu.getActionIndex() + 1,
+                Math.max(1, menu.getActionCount())
         );
         drawCentered(graphics, hits, layout.ritualCenterX, layout.ritualCueY + 12, TEXT);
     }
@@ -286,8 +312,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 
     private boolean hasStarterItems() {
         return hasSlot(PsyMixerMultiblock.SLOT_BASE)
-                && hasSlot(PsyMixerMultiblock.SLOT_MATERIAL)
-                && hasSlot(PsyMixerMultiblock.SLOT_VESSEL);
+                && hasSlot(PsyMixerMultiblock.SLOT_MATERIAL);
     }
 
     private boolean hasSlot(int slot) {
@@ -298,22 +323,20 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         var recipes = ClientRecipesCache.getPsyMixerRecipes();
         if (recipes.isEmpty()) {
             return slot == PsyMixerMultiblock.SLOT_BASE
-                    || slot == PsyMixerMultiblock.SLOT_MATERIAL
-                    || slot == PsyMixerMultiblock.SLOT_VESSEL
-                    || slot == PsyMixerMultiblock.SLOT_CATALYST
-                    || slot == PsyMixerMultiblock.SLOT_STABILIZER;
+                    || slot == PsyMixerMultiblock.SLOT_MATERIAL;
         }
 
         return recipes.stream().allMatch(recipe -> switch (slot) {
             case PsyMixerMultiblock.SLOT_BASE, PsyMixerMultiblock.SLOT_MATERIAL -> true;
-            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.catalyst().isPresent();
-            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.stabilizer().isPresent();
-            case PsyMixerMultiblock.SLOT_VESSEL -> recipe.vessel().isPresent();
+            case PsyMixerMultiblock.SLOT_CATALYST, PsyMixerMultiblock.SLOT_STABILIZER, PsyMixerMultiblock.SLOT_VESSEL -> false;
             default -> false;
         });
     }
 
     private boolean isInTimingWindow() {
+        if (!menu.isRunning() || menu.getCurrentAction() != PsyMixerRitualAction.TIMING_RING) {
+            return false;
+        }
         float phase = menu.getServerPhase();
         float dist = PsyMixerRitualEngine.nearestGoldenZoneDistance(phase, menu.getTargetPhase());
         return dist <= menu.getTimingWindow() / 2.0F;
@@ -336,8 +359,9 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         int keyCode = event.key();
         if (menu.isRunning()
                 && menu.getRhythmInputCooldown() <= 0
+                && menu.getCurrentAction() == PsyMixerRitualAction.TIMING_RING
                 && (keyCode == GLFW.GLFW_KEY_SPACE || keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
-            ClientPacketDistributor.sendToServer(new PsyMixerRitualInputPayload(menu.getMenuId(), menu.getServerPhase()));
+            ClientPacketDistributor.sendToServer(new PsyMixerRitualActionPayload(menu.getCorePos(), PsyMixerRitualAction.TIMING_RING, menu.getServerPhase()));
             return true;
         }
         return super.keyPressed(event);
@@ -349,13 +373,41 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
             beginButton.active = !menu.isRunning();
         }
         if (tapButton != null) {
-            boolean running = menu.isRunning();
+            boolean running = menu.isRunning() && menu.getCurrentAction() == PsyMixerRitualAction.TIMING_RING;
             tapButton.visible = running;
             tapButton.active = running && menu.getRhythmInputCooldown() <= 0;
             tapButton.setMessage(Component.translatable(isInTimingWindow()
                     ? "screen.mydrugs.psy_mixer.tap_now"
                     : "screen.mydrugs.psy_mixer.hit_focus"));
         }
+    }
+
+    private Optional<PsyMixerRecipe> currentRecipe() {
+        ItemStack base = menu.getSlot(PsyMixerMultiblock.SLOT_BASE).getItem();
+        ItemStack material = menu.getSlot(PsyMixerMultiblock.SLOT_MATERIAL).getItem();
+        ItemStack catalyst = menu.getSlot(PsyMixerMultiblock.SLOT_CATALYST).getItem();
+        ItemStack stabilizer = menu.getSlot(PsyMixerMultiblock.SLOT_STABILIZER).getItem();
+        ItemStack vessel = menu.getSlot(PsyMixerMultiblock.SLOT_VESSEL).getItem();
+        return ClientRecipesCache.getPsyMixerRecipes().stream()
+                .filter(recipe -> !base.isEmpty() && recipe.base().test(base))
+                .filter(recipe -> !material.isEmpty() && recipe.material().test(material))
+                .filter(recipe -> catalyst.isEmpty() || recipe.effectiveCatalyst().test(catalyst))
+                .filter(recipe -> stabilizer.isEmpty() || recipe.effectiveStabilizer().test(stabilizer))
+                .filter(recipe -> vessel.isEmpty() || recipe.effectiveVessel().test(vessel))
+                .findFirst();
+    }
+
+    private Component qualityRange() {
+        return Component.literal("Crude / Base / Perfect / Masterwork");
+    }
+
+    private int qualityColor(PsyMixerRitualQuality quality) {
+        return switch (quality) {
+            case MASTERWORK -> 0xFF9BFFFF;
+            case PERFECT -> GOOD;
+            case BASE -> TEXT;
+            case CRUDE -> WARN;
+        };
     }
 
     private static final class RitualLayout {

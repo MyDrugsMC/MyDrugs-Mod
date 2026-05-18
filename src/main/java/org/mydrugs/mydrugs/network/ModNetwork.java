@@ -72,6 +72,8 @@ public final class ModNetwork {
     private static void registerRitualPayloads(PayloadRegistrar r) {
         r.playToServer(PsyMixerStartRitualPayload.TYPE, PsyMixerStartRitualPayload.STREAM_CODEC, PsyMixerStartRitualPayload::handleOnServer);
         r.playToServer(PsyMixerRitualInputPayload.TYPE, PsyMixerRitualInputPayload.STREAM_CODEC, PsyMixerRitualInputPayload::handleOnServer);
+        r.playToServer(PsyMixerRitualActionPayload.TYPE, PsyMixerRitualActionPayload.STREAM_CODEC, PsyMixerRitualActionPayload::handleOnServer);
+        r.playToClient(PsyMixerRitualSyncPayload.TYPE, PsyMixerRitualSyncPayload.STREAM_CODEC);
     }
 
     private static void registerBiomeFinderPayloads(PayloadRegistrar r) {

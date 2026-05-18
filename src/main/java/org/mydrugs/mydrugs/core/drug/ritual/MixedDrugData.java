@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 import java.util.List;
@@ -19,7 +20,8 @@ public record MixedDrugData(
         DrugId baseDrug,
         List<RitualDrugEffectData> baseEffectsSnapshot,
         List<RitualDrugEffectData> addedEffects,
-        String canonicalSignature
+        String canonicalSignature,
+        PsyMixerRitualQuality quality
 ) {
     public static final Codec<DrugId> DRUG_ID_CODEC = Codec.STRING.comapFlatMap(
             name -> DrugId.bySerializedName(name)
@@ -42,7 +44,8 @@ public record MixedDrugData(
             DRUG_ID_CODEC.fieldOf("base_drug").forGetter(MixedDrugData::baseDrug),
             RitualDrugEffectData.CODEC.listOf().fieldOf("base_effects_snapshot").forGetter(MixedDrugData::baseEffectsSnapshot),
             RitualDrugEffectData.CODEC.listOf().fieldOf("added_effects").forGetter(MixedDrugData::addedEffects),
-            Codec.STRING.fieldOf("canonical_signature").forGetter(MixedDrugData::canonicalSignature)
+            Codec.STRING.fieldOf("canonical_signature").forGetter(MixedDrugData::canonicalSignature),
+            PsyMixerRitualQuality.CODEC.optionalFieldOf("quality", PsyMixerRitualQuality.BASE).forGetter(MixedDrugData::quality)
     ).apply(instance, MixedDrugData::new));
 
     public static final StreamCodec<ByteBuf, MixedDrugData> STREAM_CODEC = StreamCodec.of(
@@ -53,9 +56,16 @@ public record MixedDrugData(
     public MixedDrugData {
         baseEffectsSnapshot = List.copyOf(baseEffectsSnapshot);
         addedEffects = List.copyOf(addedEffects);
+        if (quality == null) {
+            quality = PsyMixerRitualQuality.BASE;
+        }
     }
 
     public static MixedDrugData pending(RitualDrugFormula formula) {
+        return pending(formula, PsyMixerRitualQuality.BASE);
+    }
+
+    public static MixedDrugData pending(RitualDrugFormula formula, PsyMixerRitualQuality quality) {
         return new MixedDrugData(
                 formula.formulaId(),
                 "",
@@ -64,7 +74,22 @@ public record MixedDrugData(
                 formula.baseDrug(),
                 formula.baseEffectsSnapshot(),
                 formula.addedEffects(),
-                formula.canonicalSignature()
+                formula.canonicalSignature(),
+                quality
+        );
+    }
+
+    public MixedDrugData withQuality(PsyMixerRitualQuality quality) {
+        return new MixedDrugData(
+                formulaId,
+                displayName,
+                authorUuid,
+                authorName,
+                baseDrug,
+                baseEffectsSnapshot,
+                addedEffects,
+                canonicalSignature,
+                quality
         );
     }
 
@@ -77,6 +102,7 @@ public record MixedDrugData(
         RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, data.baseEffectsSnapshot);
         RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, data.addedEffects);
         ByteBufCodecs.STRING_UTF8.encode(buf, data.canonicalSignature);
+        PsyMixerRitualQuality.STREAM_CODEC.encode(buf, data.quality);
     }
 
     private static MixedDrugData decode(ByteBuf buf) {
@@ -88,7 +114,8 @@ public record MixedDrugData(
                 DRUG_ID_STREAM_CODEC.decode(buf),
                 RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
                 RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
-                ByteBufCodecs.STRING_UTF8.decode(buf)
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                PsyMixerRitualQuality.STREAM_CODEC.decode(buf)
         );
     }
 }
