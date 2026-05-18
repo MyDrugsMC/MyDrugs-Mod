@@ -12,6 +12,8 @@ import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.TemporaryRecoveryEffects;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
+import org.mydrugs.mydrugs.core.drug.ritual.DrugPatentSavedData;
+import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
@@ -74,14 +76,19 @@ public final class DiarySnapshotBuilder {
         List<DiaryMasteryStatDto> masteryStats = new ArrayList<>();
         Map<ResourceLocation, Integer> completedMap = mastery.getCompletedEntriesView();
         Map<ResourceLocation, Integer> failedMap = mastery.getFailedEntriesView();
+        DrugPatentSavedData patents = DrugPatentSavedData.get(player.level().getServer());
         // union of keys
         java.util.Set<ResourceLocation> all = new java.util.LinkedHashSet<>(completedMap.keySet());
         all.addAll(failedMap.keySet());
         for (ResourceLocation rl : all) {
+            if (!isFormulaMasteryKey(rl)) {
+                continue;
+            }
             int comp = completedMap.getOrDefault(rl, 0);
             int fail = failedMap.getOrDefault(rl, 0);
             masteryStats.add(new DiaryMasteryStatDto(
                     rl.toString(),
+                    formulaMasteryName(rl, patents),
                     comp, fail,
                     mastery.getSpeedMultiplier(rl),
                     mastery.getInstabilityReduction(rl)
@@ -123,6 +130,51 @@ public final class DiarySnapshotBuilder {
         return new PersonalDiarySnapshotPayload(
                 entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes
         );
+    }
+
+    private static boolean isFormulaMasteryKey(ResourceLocation id) {
+        return id.getPath().startsWith("psy_mixer/");
+    }
+
+    private static String formulaMasteryName(ResourceLocation id, DrugPatentSavedData patents) {
+        return patents.byFormulaId(id.toString())
+                .map(MixedDrugData::displayName)
+                .filter(name -> !name.isBlank())
+                .orElseGet(() -> fallbackFormulaName(id));
+    }
+
+    private static String fallbackFormulaName(ResourceLocation id) {
+        String path = id.getPath();
+        String prefix = "psy_mixer/";
+        if (!path.startsWith(prefix)) {
+            return prettyToken(path);
+        }
+        String[] parts = path.substring(prefix.length()).split("/");
+        if (parts.length >= 3) {
+            return prettyToken(parts[0]) + " + " + prettyToken(parts[parts.length - 1]);
+        }
+        if (parts.length >= 1) {
+            return prettyToken(parts[0]);
+        }
+        return id.toString();
+    }
+
+    private static String prettyToken(String raw) {
+        String[] parts = raw.replace('-', '_').split("_");
+        StringBuilder builder = new StringBuilder();
+        for (String part : parts) {
+            if (part.isBlank()) {
+                continue;
+            }
+            if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+            builder.append(Character.toUpperCase(part.charAt(0)));
+            if (part.length() > 1) {
+                builder.append(part.substring(1));
+            }
+        }
+        return builder.isEmpty() ? raw : builder.toString();
     }
 
     @Nullable

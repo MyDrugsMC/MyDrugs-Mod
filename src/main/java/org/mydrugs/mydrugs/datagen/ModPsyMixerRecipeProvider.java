@@ -33,9 +33,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cachedOutput) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
 
-        recipe(futures, cachedOutput, "brightened_cannabis_powder", DrugId.WEED, "minecraft:glowstone_dust",
-                "mydrugs:brightened_cannabis_powder", 400, 0.25F, 8.0F,
-                "mydrugs:psychotropic_pigment", "mydrugs:ritual_resin", false, 0.0F, 0.0F,
+        recipe(futures, cachedOutput, DrugId.WEED, "minecraft:glowstone_dust",
                 effect(EffectType.GAMMA_BOOST, 120 * 20, 1.45F));
         recipe(futures, cachedOutput, DrugId.WEED, "minecraft:moss_carpet",
                 effect(EffectType.STRESS_RELIEF, 90 * 20, 0.20F),
@@ -44,9 +42,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
                 effect(EffectType.FALL_CONTROL, 75 * 20, 0.35F),
                 effect(EffectType.CAMERA_SWAY, 75 * 20, 0.08F));
 
-        recipe(futures, cachedOutput, "soothing_tobacco_blend", DrugId.TOBACCO, "mydrugs:aloe_vera",
-                "mydrugs:soothing_tobacco_blend", 340, 0.18F, 2.0F,
-                null, null, true, 0.0F, 0.05F,
+        recipe(futures, cachedOutput, DrugId.TOBACCO, "mydrugs:aloe_vera",
                 effect(EffectType.PRECISION, 120 * 20, 1.30F),
                 effect(EffectType.TREMOR_REDUCTION, 120 * 20, 0.40F));
         recipe(futures, cachedOutput, DrugId.TOBACCO, "minecraft:quartz",
@@ -101,9 +97,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
                 effect(EffectType.HEARTBEAT, 120 * 20, 0.25F),
                 effect(EffectType.TREMOR, 90 * 20, 0.10F));
 
-        recipe(futures, cachedOutput, "defiant_spirit_bottle", DrugId.ALCOHOL, "mydrugs:inner_demon_remains",
-                "mydrugs:defiant_spirit_bottle", 600, 0.35F, 0.0F,
-                "mydrugs:psychotropic_pigment", "mydrugs:ritual_resin", false, 0.45F, -0.04F,
+        recipe(futures, cachedOutput, DrugId.ALCOHOL, "mydrugs:inner_demon_remains",
                 effect(EffectType.DAMAGE_RESISTANCE, 120 * 20, 0.20F),
                 effect(EffectType.RITUAL_STABILITY, 90 * 20, 0.15F));
         recipe(futures, cachedOutput, DrugId.ALCOHOL, "minecraft:iron_ingot",

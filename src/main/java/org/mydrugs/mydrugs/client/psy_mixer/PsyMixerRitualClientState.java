@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.client.psy_mixer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.Config;
@@ -34,6 +35,11 @@ public final class PsyMixerRitualClientState {
     private static float targetPhase;
     private static float timingWindow;
     private static int badQualityHeartbeatCooldown;
+    private static boolean completionAnimation;
+    private static int completionTick;
+    private static int completionDuration = 60;
+    private static int completionReunionTick = 40;
+    private static ItemStack completionPreviewStack = ItemStack.EMPTY;
 
     private PsyMixerRitualClientState() {
     }
@@ -60,6 +66,11 @@ public final class PsyMixerRitualClientState {
         actionTimeout = Math.max(1, payload.actionTimeout());
         targetPhase = payload.targetPhase();
         timingWindow = payload.timingWindow();
+        completionAnimation = payload.completionAnimation();
+        completionTick = Math.max(0, payload.completionTick());
+        completionDuration = Math.max(1, payload.completionDuration());
+        completionReunionTick = Math.max(0, payload.completionReunionTick());
+        completionPreviewStack = payload.completionPreviewStack().copy();
     }
 
     public static void tick() {
@@ -68,6 +79,9 @@ public final class PsyMixerRitualClientState {
         }
         ritualTick++;
         actionTick++;
+        if (completionAnimation) {
+            completionTick = Math.min(completionDuration, completionTick + 1);
+        }
         if (feedbackTicks > 0) {
             feedbackTicks--;
         }
@@ -103,6 +117,11 @@ public final class PsyMixerRitualClientState {
         targetPhase = 0.0F;
         timingWindow = 0.0F;
         badQualityHeartbeatCooldown = 0;
+        completionAnimation = false;
+        completionTick = 0;
+        completionDuration = 60;
+        completionReunionTick = 40;
+        completionPreviewStack = ItemStack.EMPTY;
     }
 
     public static boolean isActive() {
@@ -163,6 +182,26 @@ public final class PsyMixerRitualClientState {
 
     public static float timingWindow() {
         return timingWindow;
+    }
+
+    public static boolean isCompletionAnimation() {
+        return completionAnimation;
+    }
+
+    public static int completionTick() {
+        return completionTick;
+    }
+
+    public static int completionDuration() {
+        return completionDuration;
+    }
+
+    public static int completionReunionTick() {
+        return completionReunionTick;
+    }
+
+    public static ItemStack completionPreviewStack() {
+        return completionPreviewStack.copy();
     }
 
     public static void sendAction(PsyMixerRitualAction action) {

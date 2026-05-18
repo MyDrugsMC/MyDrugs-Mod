@@ -452,11 +452,12 @@ public final class PersonalDiaryScreen extends Screen {
                     totalFailed, totalCompleted)));
         }
         if (bestRitual != null && bestRitual.completed() > 0) {
-            String name = prettyRecipeId(bestRitual.recipeId());
-            int reductionPct = Math.round((1.0F - bestRitual.speedMultiplier()) * 100.0F);
+            String name = bestRitual.displayName().isBlank() ? prettyRecipeId(bestRitual.recipeId()) : bestRitual.displayName();
+            int removedActions = Math.max(0, bestRitual.completed() / 10);
+            String actionWord = removedActions == 1 ? "action" : "actions";
             lines.addAll(wrapToLines(String.format(Locale.ROOT,
-                    "The %s ritual feels familiar now: %d successes, %d failures. My hands move about %d%% faster there.",
-                    name, bestRitual.completed(), bestRitual.failed(), reductionPct)));
+                    "The %s ritual feels familiar now: %d successes, %d failures. My ritual mastery removes %d required %s from future rituals.",
+                    name, bestRitual.completed(), bestRitual.failed(), removedActions, actionWord)));
         }
 
         // Lifetime drug use

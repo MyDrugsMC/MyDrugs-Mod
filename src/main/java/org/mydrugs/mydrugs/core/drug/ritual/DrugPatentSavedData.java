@@ -44,6 +44,16 @@ public final class DrugPatentSavedData extends SavedData {
         return Optional.ofNullable(this.bySignature.get(signature));
     }
 
+    public synchronized Optional<MixedDrugData> byFormulaId(String formulaId) {
+        String normalized = formulaId == null ? "" : formulaId.trim().toLowerCase(java.util.Locale.ROOT);
+        if (normalized.isEmpty()) {
+            return Optional.empty();
+        }
+        return this.bySignature.values().stream()
+                .filter(data -> data.formulaId().equalsIgnoreCase(normalized))
+                .findFirst();
+    }
+
     public synchronized boolean isNameTakenByOtherFormula(String displayName, String signature) {
         String existingSignature = this.signatureByName.get(normalizeName(displayName));
         return existingSignature != null && !existingSignature.equals(signature);

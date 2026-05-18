@@ -15,6 +15,12 @@ public final class PsyMixerRenderState extends BlockEntityRenderState {
     public PsyMixerRitualQuality quality = PsyMixerRitualQuality.BASE;
     public int mistakes;
     public int maxMistakes;
+    public boolean completionAnimation;
+    public int completionAnimationTick;
+    public int completionAnimationDuration = 60;
+    public int completionReunionTick = 40;
+    public ItemStack completionPreviewStack = ItemStack.EMPTY;
+    public float completionAnimationStartAge = Float.NaN;
 
     public PsyMixerRenderState() {
         for (int i = 0; i < stacks.length; i++) {

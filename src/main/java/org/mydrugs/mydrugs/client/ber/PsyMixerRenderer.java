@@ -22,6 +22,7 @@ import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
+import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
 
 public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixerCoreBlockEntity, PsyMixerRenderState> {
     private static final float ITEM_SCALE = 0.30F;
@@ -63,6 +64,33 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         state.quality = be.getCurrentQualityPreview();
         state.mistakes = be.getMistakes();
         state.maxMistakes = be.getMaxMistakes();
+        boolean completionRunning = be.isCompletionAnimationRunning();
+        state.completionAnimationDuration = be.getCompletionAnimationDuration();
+        state.completionReunionTick = be.getCompletionReunionTick();
+        state.completionPreviewStack = be.getCompletionPreviewStack();
+        if (completionRunning) {
+            int serverTick = be.getCompletionAnimationTick();
+            if (!state.completionAnimation || Float.isNaN(state.completionAnimationStartAge)) {
+                state.completionAnimationStartAge = state.ageInTicks - serverTick;
+            }
+            int localTick = Math.round(state.ageInTicks - state.completionAnimationStartAge);
+            state.completionAnimationTick = Mth.clamp(Math.max(serverTick, localTick), 0, state.completionAnimationDuration);
+        } else {
+            state.completionAnimationStartAge = Float.NaN;
+            state.completionAnimationTick = 0;
+        }
+        state.completionAnimation = completionRunning;
+
+        if (PsyMixerRitualClientState.isActive() && PsyMixerRitualClientState.corePos().equals(be.getBlockPos())) {
+            state.running = true;
+            if (PsyMixerRitualClientState.isCompletionAnimation()) {
+                state.completionAnimation = true;
+                state.completionAnimationTick = PsyMixerRitualClientState.completionTick();
+                state.completionAnimationDuration = PsyMixerRitualClientState.completionDuration();
+                state.completionReunionTick = PsyMixerRitualClientState.completionReunionTick();
+                state.completionPreviewStack = PsyMixerRitualClientState.completionPreviewStack();
+            }
+        }
     }
 
     @Override
@@ -80,7 +108,11 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         renderItem(state, poseStack, collector, PsyMixerMultiblock.SLOT_CATALYST, 0.0F, 0.20F, -OFFSET);
         renderItem(state, poseStack, collector, PsyMixerMultiblock.SLOT_STABILIZER, OFFSET, 0.0F, 0.0F);
         renderItem(state, poseStack, collector, PsyMixerMultiblock.SLOT_VESSEL, 0.0F, -0.05F, OFFSET);
-        renderItem(state, poseStack, collector, PsyMixerMultiblock.SLOT_OUTPUT, 0.0F, 0.45F, 0.0F);
+        if (state.completionAnimation) {
+            renderCompletionPreview(state, poseStack, collector);
+        } else {
+            renderItem(state, poseStack, collector, PsyMixerMultiblock.SLOT_OUTPUT, 0.0F, 0.45F, 0.0F);
+        }
     }
 
     private void renderItem(
@@ -90,6 +122,11 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
             int slot,
             float dx, float dy, float dz
     ) {
+        if (state.completionAnimation) {
+            if (slot == PsyMixerMultiblock.SLOT_OUTPUT || state.completionAnimationTick >= state.completionReunionTick) {
+                return;
+            }
+        }
         ItemStack stack = state.stacks[slot];
         if (stack.isEmpty()) return;
 
@@ -98,7 +135,10 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         float bobAmplitude = state.running ? focused ? 0.10F : 0.06F : 0.025F;
         float bobSpeed = state.running ? 0.16F : 0.08F;
 
+        float completionLift = completionLift(state);
+        float completionConverge = completionConverge(state);
         float pull = state.running ? Math.min(0.45F, state.progressFraction * 0.45F) : 0.0F;
+        pull = Math.max(pull, completionConverge);
         float ex = dx * (1.0F - pull);
         float ez = dz * (1.0F - pull);
 
@@ -106,9 +146,10 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         float spin = state.ageInTicks * spinSpeed + slot * 60.0F;
 
         poseStack.pushPose();
-        poseStack.translate(CENTER_X + ex, CENTER_Y + dy + bob, CENTER_Z + ez);
+        poseStack.translate(CENTER_X + ex, CENTER_Y + dy + completionLift + bob * (1.0F - completionConverge), CENTER_Z + ez);
         poseStack.mulPose(Axis.YP.rotationDegrees(spin));
         float focusScale = focused ? 1.15F + state.resonance * 0.25F : 1.0F;
+        focusScale *= 1.0F - completionConverge * 0.25F;
         poseStack.scale(ITEM_SCALE * focusScale, ITEM_SCALE * focusScale, ITEM_SCALE * focusScale);
 
         ItemStackRenderState itemRenderState = new ItemStackRenderState();
@@ -130,11 +171,49 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
         poseStack.popPose();
     }
 
+    private void renderCompletionPreview(
+            PsyMixerRenderState state,
+            PoseStack poseStack,
+            SubmitNodeCollector collector
+    ) {
+        if (!state.completionAnimation || state.completionAnimationTick < state.completionReunionTick || state.completionPreviewStack.isEmpty()) {
+            return;
+        }
+        float drop = completionDrop(state);
+        float spin = state.ageInTicks * 8.0F;
+        poseStack.pushPose();
+        poseStack.translate(CENTER_X, CENTER_Y + 1.0F - drop, CENTER_Z);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spin));
+        float scale = ITEM_SCALE * (1.25F - drop * 0.20F);
+        poseStack.scale(scale, scale, scale);
+
+        ItemStackRenderState itemRenderState = new ItemStackRenderState();
+        this.itemModelResolver.updateForTopItem(
+                itemRenderState,
+                state.completionPreviewStack,
+                ItemDisplayContext.GROUND,
+                Minecraft.getInstance().level,
+                null,
+                0
+        );
+        itemRenderState.submit(
+                poseStack,
+                collector,
+                state.lightCoords,
+                OverlayTexture.NO_OVERLAY,
+                0
+        );
+        poseStack.popPose();
+    }
+
     private static void submitRitualRings(
             PsyMixerRenderState state,
             PoseStack poseStack,
             SubmitNodeCollector collector
     ) {
+        if (state.completionAnimation && state.completionAnimationTick >= state.completionReunionTick) {
+            return;
+        }
         collector.order(-3).submitCustomGeometry(
                 poseStack,
                 RenderType.lightning(),
@@ -153,12 +232,14 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
             int ring
     ) {
         boolean bad = isBadQuality(state);
+        float lift = completionLift(state);
+        float converge = completionConverge(state);
         float pulse = bad
                 ? 0.65F + 0.35F * Mth.sin(state.ageInTicks * 0.55F)
                 : 0.82F + 0.18F * Mth.sin(state.ageInTicks * 0.12F + ring);
-        float radius = 0.70F + ring * 0.18F + pulse * (bad ? 0.045F : 0.018F);
+        float radius = (0.70F + ring * 0.18F + pulse * (bad ? 0.045F : 0.018F)) * (1.0F - converge * 0.88F);
         float thickness = 0.012F + ring * 0.004F;
-        float y = 0.64F + ring * 0.18F + Mth.sin(state.ageInTicks * 0.055F + ring * 1.9F) * 0.025F;
+        float y = 0.64F + ring * 0.18F + lift + Mth.sin(state.ageInTicks * 0.055F + ring * 1.9F) * 0.025F;
         float spin = state.ageInTicks * (0.018F + ring * 0.009F) * (ring % 2 == 0 ? 1.0F : -1.0F);
         int color = ringColor(state, ring, pulse);
         int offset = (int) (state.ageInTicks * (0.35F + ring * 0.16F));
@@ -213,11 +294,34 @@ public final class PsyMixerRenderer implements BlockEntityRenderer<FormedPsyMixe
             green = 190 + ring * 16;
             blue = 230;
         }
-        int alpha = Mth.clamp(Math.round((bad ? 110.0F : 82.0F) + pulse * 72.0F), 48, 205);
+        float alphaScale = state.completionAnimation ? 1.0F - completionConverge(state) * 0.85F : 1.0F;
+        int alpha = Mth.clamp(Math.round(((bad ? 110.0F : 82.0F) + pulse * 72.0F) * alphaScale), 24, 205);
         return (alpha << 24)
                 | (Mth.clamp(red, 0, 255) << 16)
                 | (Mth.clamp(green, 0, 255) << 8)
                 | Mth.clamp(blue, 0, 255);
+    }
+
+    private static float completionLift(PsyMixerRenderState state) {
+        if (!state.completionAnimation) {
+            return 0.0F;
+        }
+        return Mth.clamp(state.completionAnimationTick / 20.0F, 0.0F, 1.0F);
+    }
+
+    private static float completionConverge(PsyMixerRenderState state) {
+        if (!state.completionAnimation) {
+            return 0.0F;
+        }
+        return Mth.clamp((state.completionAnimationTick - 20.0F) / 20.0F, 0.0F, 1.0F);
+    }
+
+    private static float completionDrop(PsyMixerRenderState state) {
+        if (!state.completionAnimation) {
+            return 0.0F;
+        }
+        int duration = Math.max(state.completionReunionTick + 1, state.completionAnimationDuration);
+        return Mth.clamp((state.completionAnimationTick - state.completionReunionTick) / (float) Math.max(1, duration - state.completionReunionTick), 0.0F, 1.0F);
     }
 
     private static boolean isBadQuality(PsyMixerRenderState state) {

@@ -16,6 +16,8 @@ import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.client.compat.ClientRecipesCache;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.ritual.RitualBaseDrugResolver;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
 import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
 import org.mydrugs.mydrugs.network.PsyMixerRitualActionPayload;
@@ -155,7 +157,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         Component status = menu.isRunning()
                 ? Component.translatable(menu.getCurrentAction().hintKey())
                 : Component.translatable(hasStarterItems()
-                ? currentRecipe().map(recipe -> !hasActionOptionalItems(recipe)
+                ? currentRecipe().map(recipe -> !hasPotentialActionRitual(recipe)
                         ? "screen.mydrugs.psy_mixer.no_ritual_required"
                         : "screen.mydrugs.psy_mixer.ritual_required").orElse("screen.mydrugs.psy_mixer.help.ready")
                 : "screen.mydrugs.psy_mixer.help.setup");
@@ -181,10 +183,30 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         y += 10;
 //        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality", qualityRange()), layout.sideX, y, TEXT, false);
 //        y += 10;
-        Component actions = !hasActionOptionalItems(recipe)
+        Component actions = !hasPotentialActionRitual(recipe)
                 ? Component.translatable("screen.mydrugs.psy_mixer.no_ritual_required")
                 : Component.literal(recipe.availableRitualActions().stream().map(PsyMixerRitualAction::serializedName).limit(4).reduce((a, b) -> a + ", " + b).orElse(""));
         graphics.drawString(font, actions, layout.sideX, y, MUTED, false);
+    }
+
+    private boolean hasPotentialActionRitual(PsyMixerRecipe recipe) {
+        return baseDrugActionCount() > 0 || hasActionOptionalItems(recipe);
+    }
+
+    private int baseDrugActionCount() {
+        return RitualBaseDrugResolver.resolve(menu.getSlot(PsyMixerMultiblock.SLOT_BASE).getItem())
+                .map(PsyMixerScreen::baseDrugActionCount)
+                .orElse(0);
+    }
+
+    private static int baseDrugActionCount(DrugId drugId) {
+        return switch (drugId) {
+            case TOBACCO, WEED, HASH -> 1;
+            case ALCOHOL, COCAINE, CRACK -> 2;
+            case LSD, METH -> 3;
+            case MUSHROOMS -> 4;
+            default -> 0;
+        };
     }
 
     private boolean hasActionOptionalItems(PsyMixerRecipe recipe) {

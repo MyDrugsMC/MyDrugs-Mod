@@ -57,6 +57,7 @@ public record PersonalDiarySnapshotPayload(
                         ByteBufCodecs.VAR_INT.encode(buf, payload.masteryStats().size());
                         for (DiaryMasteryStatDto m : payload.masteryStats()) {
                             ByteBufCodecs.STRING_UTF8.encode(buf, m.recipeId());
+                            ByteBufCodecs.STRING_UTF8.encode(buf, m.displayName());
                             ByteBufCodecs.VAR_INT.encode(buf, m.completed());
                             ByteBufCodecs.VAR_INT.encode(buf, m.failed());
                             ByteBufCodecs.FLOAT.encode(buf, m.speedMultiplier());
@@ -117,6 +118,7 @@ public record PersonalDiarySnapshotPayload(
                         List<DiaryMasteryStatDto> masteryStats = new ArrayList<>(masteryCount);
                         for (int i = 0; i < masteryCount; i++) {
                             masteryStats.add(new DiaryMasteryStatDto(
+                                    ByteBufCodecs.STRING_UTF8.decode(buf),
                                     ByteBufCodecs.STRING_UTF8.decode(buf),
                                     ByteBufCodecs.VAR_INT.decode(buf),
                                     ByteBufCodecs.VAR_INT.decode(buf),

@@ -6,6 +6,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
@@ -28,7 +29,12 @@ public record PsyMixerRitualSyncPayload(
         int actionTick,
         int actionTimeout,
         float targetPhase,
-        float timingWindow
+        float timingWindow,
+        boolean completionAnimation,
+        int completionTick,
+        int completionDuration,
+        int completionReunionTick,
+        ItemStack completionPreviewStack
 ) implements CustomPacketPayload {
     public static final Type<PsyMixerRitualSyncPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "psy_mixer_ritual_sync")
@@ -57,6 +63,11 @@ public record PsyMixerRitualSyncPayload(
         ByteBufCodecs.VAR_INT.encode(buf, payload.actionTimeout);
         ByteBufCodecs.FLOAT.encode(buf, payload.targetPhase);
         ByteBufCodecs.FLOAT.encode(buf, payload.timingWindow);
+        ByteBufCodecs.BOOL.encode(buf, payload.completionAnimation);
+        ByteBufCodecs.VAR_INT.encode(buf, payload.completionTick);
+        ByteBufCodecs.VAR_INT.encode(buf, payload.completionDuration);
+        ByteBufCodecs.VAR_INT.encode(buf, payload.completionReunionTick);
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, payload.completionPreviewStack);
     }
 
     private static PsyMixerRitualSyncPayload decode(RegistryFriendlyByteBuf buf) {
@@ -77,8 +88,17 @@ public record PsyMixerRitualSyncPayload(
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
-                ByteBufCodecs.FLOAT.decode(buf)
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ItemStack.OPTIONAL_STREAM_CODEC.decode(buf)
         );
+    }
+
+    public PsyMixerRitualSyncPayload {
+        completionPreviewStack = completionPreviewStack.copy();
     }
 
     @Override

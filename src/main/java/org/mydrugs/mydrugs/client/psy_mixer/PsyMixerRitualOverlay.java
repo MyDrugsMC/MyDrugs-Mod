@@ -31,22 +31,25 @@ public final class PsyMixerRitualOverlay {
         int width = mc.getWindow().getGuiScaledWidth();
         int x = width / 2 - 96;
         int y = 18;
-        graphics.fill(x, y, x + 192, y + 72, PANEL);
+        graphics.fill(x, y, x + 192, y + 61, PANEL);
         graphics.fill(x, y, x + 192, y + 1, LINE);
-        graphics.fill(x, y + 71, x + 192, y + 72, LINE);
+        graphics.fill(x, y + 60, x + 192, y + 61, LINE);
 
         String formula = PsyMixerRitualClientState.formulaName();
         if (font.width(formula) > 176) {
             formula = font.plainSubstrByWidth(formula, 173) + "...";
         }
         graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.formula", formula), x + 8, y + 7, TEXT, false);
-        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.current_action", PsyMixerRitualClientState.actionIndex() + 1, Math.max(1, PsyMixerRitualClientState.actionCount())), x + 8, y + 18, MUTED, false);
-        graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.action().promptKey()), x + 8, y + 30, TEXT, false);
-        graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.action().hintKey()), x + 8, y + 41, MUTED, false);
+        if (PsyMixerRitualClientState.action() != PsyMixerRitualAction.NONE && PsyMixerRitualClientState.actionCount() > 0) {
+            int step = Math.min(PsyMixerRitualClientState.actionIndex() + 1, PsyMixerRitualClientState.actionCount());
+            graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.current_action", step, PsyMixerRitualClientState.actionCount()), x + 8, y + 18, MUTED, false);
+            graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.action().promptKey()), x + 8, y + 30, TEXT, false);
+        }
 
         PsyMixerRitualQuality quality = PsyMixerRitualClientState.quality();
-        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality_preview", Component.translatable(quality.translationKey())), x + 8, y + 54, qualityColor(quality), false);
-        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.mistakes", PsyMixerRitualClientState.mistakes(), PsyMixerRitualClientState.maxMistakes()), x + 112, y + 54, PsyMixerRitualClientState.mistakes() > 0 ? WARN : GOOD, false);
+        int statusY = PsyMixerRitualClientState.action() == PsyMixerRitualAction.NONE ? y + 24 : y + 43;
+        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality_preview", Component.translatable(quality.translationKey())), x + 8, statusY, qualityColor(quality), false);
+        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.mistakes", PsyMixerRitualClientState.mistakes(), PsyMixerRitualClientState.maxMistakes()), x + 112, statusY, PsyMixerRitualClientState.mistakes() > 0 ? WARN : GOOD, false);
 
         if (PsyMixerRitualClientState.feedbackTicks() > 0 && PsyMixerRitualClientState.lastJudgement() != PsyMixerRitualJudgement.NONE) {
             graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.lastJudgement().screenKey()), x + 138, y + 18, judgementColor(PsyMixerRitualClientState.lastJudgement()), false);
@@ -56,7 +59,7 @@ public final class PsyMixerRitualOverlay {
             drawTimingRing(graphics, x + 168, y + 37);
         } else {
             int barX = x + 112;
-            int barY = y + 43;
+            int barY = y + 34;
             int fill = Math.round(PsyMixerRitualClientState.actionProgress() * 64.0F);
             graphics.fill(barX, barY, barX + 64, barY + 4, 0xAA21131A);
             graphics.fill(barX, barY, barX + fill, barY + 4, WARN);

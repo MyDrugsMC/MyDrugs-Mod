@@ -10,11 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class PsyMixerMasteryAttachment implements ValueIOSerializable {
-    private static final float TIME_REDUCTION_PER_COMPLETION = 0.04F;
-    private static final float MIN_TIME_MULTIPLIER = 0.35F;
-    private static final float INSTABILITY_REDUCTION_PER_COMPLETION = 0.015F;
-    private static final float MAX_INSTABILITY_REDUCTION = 0.25F;
-
     private final Map<ResourceLocation, Integer> completed = new LinkedHashMap<>();
     private final Map<ResourceLocation, Integer> failed = new LinkedHashMap<>();
 
@@ -35,18 +30,19 @@ public final class PsyMixerMasteryAttachment implements ValueIOSerializable {
     }
 
     public float getSpeedMultiplier(ResourceLocation recipeId) {
-        int c = getCompleted(recipeId);
-        return Math.max(MIN_TIME_MULTIPLIER, 1.0F - c * TIME_REDUCTION_PER_COMPLETION);
+        return 1.0F;
     }
 
     public float getInstabilityReduction(ResourceLocation recipeId) {
-        int c = getCompleted(recipeId);
-        return Math.min(MAX_INSTABILITY_REDUCTION, c * INSTABILITY_REDUCTION_PER_COMPLETION);
+        return 0.0F;
     }
 
     public float getTimingWindowBonus(ResourceLocation recipeId) {
-        int c = getCompleted(recipeId);
-        return Math.min(0.20F, c * 0.01F);
+        return 0.0F;
+    }
+
+    public int getRemovedActionCount(ResourceLocation formulaId) {
+        return Math.max(0, getCompleted(formulaId) / 10);
     }
 
     /** Read-only view of all completed-count entries, in insertion order. */
