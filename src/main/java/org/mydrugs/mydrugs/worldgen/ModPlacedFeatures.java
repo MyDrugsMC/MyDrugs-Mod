@@ -104,6 +104,32 @@ public final class ModPlacedFeatures {
                 )
         );
 
+        context.register(
+                ModWorldGenKeys.LAVENDER_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.LAVENDER_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(24),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.VALERIAN_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.VALERIAN_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(34),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
         // Bitter Nut Bush patches in jungle/forest (uncommon)
         context.register(
                 ModWorldGenKeys.BITTER_NUT_BUSH_PATCH_PLACED,

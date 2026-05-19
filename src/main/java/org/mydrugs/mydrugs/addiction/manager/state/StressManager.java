@@ -14,6 +14,8 @@ import org.mydrugs.mydrugs.core.drug.dose.DosePath;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
 public final class StressManager {
     private StressManager() {}
@@ -57,11 +59,19 @@ public final class StressManager {
     }
 
     public static void tick(ServerPlayer player, PlayerAddictionStats stats, float globalSeverity, boolean inCombat, int companions, boolean inSafeZone) {
-        tickStress(player, stats, globalSeverity, inCombat, companions, inSafeZone);
+        tickStress(player, stats, globalSeverity, inCombat, companions, inSafeZone, null);
+    }
+
+    public static void tick(ServerPlayer player, PlayerAddictionStats stats, float globalSeverity, boolean inCombat, int companions, boolean inSafeZone, RecoveryRoomReport recoveryRoom) {
+        tickStress(player, stats, globalSeverity, inCombat, companions, inSafeZone, recoveryRoom);
     }
 
     public static void tickStress(ServerPlayer player, PlayerAddictionStats stats, float globalSeverity, boolean inCombat, int companions, boolean inSafeZone) {
-        float target = getStressTarget(player, stats, globalSeverity, inCombat, companions, inSafeZone);
+        tickStress(player, stats, globalSeverity, inCombat, companions, inSafeZone, null);
+    }
+
+    public static void tickStress(ServerPlayer player, PlayerAddictionStats stats, float globalSeverity, boolean inCombat, int companions, boolean inSafeZone, RecoveryRoomReport recoveryRoom) {
+        float target = getStressTarget(player, stats, globalSeverity, inCombat, companions, inSafeZone, recoveryRoom);
         float current = getStress(stats);
         float delta = target - current;
         if (Math.abs(delta) <= 0.0001F) {
@@ -74,6 +84,10 @@ public final class StressManager {
     }
 
     public static float getStressTarget(ServerPlayer player, PlayerAddictionStats stats, float globalSeverity, boolean inCombat, int companions, boolean inSafeZone) {
+        return getStressTarget(player, stats, globalSeverity, inCombat, companions, inSafeZone, null);
+    }
+
+    public static float getStressTarget(ServerPlayer player, PlayerAddictionStats stats, float globalSeverity, boolean inCombat, int companions, boolean inSafeZone, RecoveryRoomReport recoveryRoom) {
         float target = AddictionConstants.STRESS_BASELINE + globalSeverity * AddictionConstants.STRESS_SEVERITY_SCALE;
         long gameTime = player.level().getGameTime();
 
@@ -81,7 +95,11 @@ public final class StressManager {
         if (time >= 13000L && time < 23000L) target += AddictionConstants.STRESS_NIGHT_BONUS;
         if (inCombat) target += AddictionConstants.STRESS_COMBAT_BONUS;
         if (companions == 0) target += AddictionConstants.STRESS_ALONE_BONUS;
-        if (inSafeZone) target -= AddictionConstants.STRESS_SAFE_ZONE_REDUCTION;
+        if (recoveryRoom != null && RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            target -= RecoveryRoomManager.stressTargetReduction(recoveryRoom);
+        } else if (inSafeZone) {
+            target -= AddictionConstants.STRESS_SAFE_ZONE_REDUCTION;
+        }
         if (stats.temporaryEffects.hasCalmRelief(gameTime)) target -= AddictionConstants.STRESS_DIARY_REDUCTION;
         if (stats.temporaryEffects.hasHeadphones(gameTime)) target -= AddictionConstants.STRESS_HEADPHONES_REDUCTION;
         if (hasActiveCannabis(stats)) target -= AddictionConstants.STRESS_CANNABIS_REDUCTION;

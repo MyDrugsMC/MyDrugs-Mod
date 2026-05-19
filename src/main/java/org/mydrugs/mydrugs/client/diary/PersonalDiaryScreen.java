@@ -17,6 +17,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.effect.EffectPolarity;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.client.effects.hud.HudSymptomIcons;
@@ -590,31 +591,7 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     private void appendGoodDrugEffectReasons(List<DiaryLine> good) {
-        addGoodEffect(good, EffectType.MINING_SPEED, "Mining speed", "blocks break faster");
-        addGoodEffect(good, EffectType.MOVEMENT_SPEED, "Movement speed", "I move faster");
-        addGoodEffect(good, EffectType.DAMAGE_RESISTANCE, "Damage resistance", "incoming damage hurts less");
-        addGoodEffect(good, EffectType.ATTACK_DAMAGE, "Attack damage", "hits land harder");
-        addGoodEffect(good, EffectType.ATTACK_SPEED, "Attack speed", "I swing faster");
-        addGoodEffect(good, EffectType.MANUAL_WORK_SPEED, "Manual work speed", "tasks feel quicker");
-        addGoodEffect(good, EffectType.PRECISION, "Precision", "my hands feel steadier and mining improves");
-        addGoodEffect(good, EffectType.TREMOR_REDUCTION, "Tremor reduction", "my hands shake less");
-        addGoodEffect(good, EffectType.RITUAL_FOCUS, "Ritual focus", "rituals are easier to follow");
-        addGoodEffect(good, EffectType.RITUAL_STABILITY, "Ritual stability", "rituals feel less unstable");
-        addGoodEffect(good, EffectType.MOB_DETECTION_REDUCTION, "Mob detection reduction", "danger notices me less");
-        addGoodEffect(good, EffectType.ADRENALINE_SURGE, "Adrenaline surge", "I get a burst of energy");
-        addGoodEffect(good, EffectType.FOCUS, "Focus", "my mind locks onto the task");
-        addGoodEffect(good, EffectType.GAMMA_BOOST, "Better vision", "dark places are easier to read");
-        addGoodEffect(good, EffectType.LOW_LIGHT_VISION, "Low-light vision", "dark places are easier to read");
-        addGoodEffect(good, EffectType.BRIGHTNESS_BOOST, "Brightness boost", "the world looks clearer");
-        addGoodEffect(good, EffectType.STRESS_RELIEF, "Stress relief", "the pressure is draining away");
-        addGoodEffect(good, EffectType.STRESS_RESISTANCE, "Stress resistance", "stress has less grip on me");
-        addGoodEffect(good, EffectType.BAD_TRIP_RESISTANCE, "Bad trip resistance", "panic has less room to grow");
-        addGoodEffect(good, EffectType.FALL_CONTROL, "Fall control", "falling feels less dangerous");
-        addGoodEffect(good, EffectType.DASH_POWER, "Dash power", "I can push forward harder");
-        addGoodEffect(good, EffectType.BURST_WINDOW, "Burst window", "quick reactions are stronger");
-        addGoodEffect(good, EffectType.ORE_AURA, "Ore aura", "valuable blocks stand out");
-        addGoodEffect(good, EffectType.ORE_FORTUNE, "Ore fortune", "ores seem to fracture along richer seams");
-        addGoodEffect(good, EffectType.MULTIBLOCK_VISION, "Multiblock vision", "structures are easier to understand");
+        appendDrugEffectReasons(good, EffectPolarity.BENEFICIAL);
     }
 
     private void appendBadStateReasons(List<DiaryLine> bad, DiaryPlayerStateDto s) {
@@ -636,32 +613,7 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     private void appendBadDrugEffectReasons(List<DiaryLine> bad) {
-        // Most short-term bad body/camera/input effects are already surfaced by HudSymptomIcons.
-        // Keep this section for negative EffectType values that the HUD list does not explain directly.
-        addBadEffect(bad, EffectType.MOVEMENT_SLOWDOWN, "Movement slowdown", "my body feels heavy");
-        addBadEffect(bad, EffectType.FOG, "Fog", "the world feels covered and distant");
-        addBadEffect(bad, EffectType.DRUNK_VISION, "Drunk vision", "my sight is unstable");
-        addBadEffect(bad, EffectType.ACID_WARP, "Acid warp", "space bends around me");
-        addBadEffect(bad, EffectType.CHROMATIC_DREAM, "Chromatic dream", "colors refuse to stay normal");
-        addBadEffect(bad, EffectType.IRIDESCENT_HAZE, "Iridescent haze", "everything is too bright and strange");
-        addBadEffect(bad, EffectType.LUCID_DREAM, "Lucid dream", "reality feels thin");
-        addBadEffect(bad, EffectType.MELT_REALITY, "Melt reality", "the world feels like it is melting");
-        addBadEffect(bad, EffectType.VELVET_ECHO, "Velvet echo", "sensations keep echoing");
-        addBadEffect(bad, EffectType.EVENT_HORIZON, "Event horizon", "space feels like it is pulling me in");
-        addBadEffect(bad, EffectType.NEON_CELLS, "Neon cells", "vision breaks into patterns");
-        addBadEffect(bad, EffectType.OPAL_WAVE, "Opal wave", "waves move through my sight");
-        addBadEffect(bad, EffectType.QUANTUM_FLOWER, "Quantum flower", "patterns bloom everywhere");
-        addBadEffect(bad, EffectType.COSMIC_TUNNEL, "Cosmic tunnel", "the world tunnels inward");
-        addBadEffect(bad, EffectType.FRACTAL_WARP, "Fractal warp", "reality repeats itself");
-        addBadEffect(bad, EffectType.LIQUID_CHROMA, "Liquid chroma", "colors flow too much");
-        addBadEffect(bad, EffectType.MELTING_REALITY, "Melting reality", "solid things stop feeling solid");
-        addBadEffect(bad, EffectType.AURORA_RIBBONS, "Aurora ribbons", "light keeps dragging across my eyes");
-        addBadEffect(bad, EffectType.SPECTRAL_POSTER, "Spectral poster", "the world looks unreal");
-
-        float hpDecrease = effectIntensity(EffectType.HP_DECREASE);
-        if (isVisibleEffect(hpDecrease)) {
-            addWrappedReason(bad, "Body fragility: max health is lower by " + formatOneDecimal(hpDecrease) + " hearts.");
-        }
+        appendDrugEffectReasons(bad, EffectPolarity.HARMFUL);
     }
 
     private void appendHudSymptomReasons(List<DiaryLine> bad) {
@@ -672,16 +624,24 @@ public final class PersonalDiaryScreen extends Screen {
         }
     }
 
-    private void addGoodEffect(List<DiaryLine> target, EffectType type, String label, String explanation) {
-        float intensity = effectIntensity(type);
-        if (!isVisibleEffect(intensity)) return;
-        addWrappedReason(target, label + ": " + formatSignedPercent(intensity) + " - " + explanation + ".");
-    }
-
-    private void addBadEffect(List<DiaryLine> target, EffectType type, String label, String explanation) {
-        float intensity = effectIntensity(type);
-        if (!isVisibleEffect(intensity)) return;
-        addWrappedReason(target, label + ": " + formatPercent(Math.min(1.0F, intensity)) + " - " + explanation + ".");
+    private void appendDrugEffectReasons(List<DiaryLine> target, EffectPolarity polarity) {
+        for (EffectType type : EffectType.values()) {
+            if (type.polarity() != polarity || !type.hasDiaryReason()) {
+                continue;
+            }
+            float intensity = effectIntensity(type);
+            if (!isVisibleEffect(intensity)) {
+                continue;
+            }
+            if (type == EffectType.HP_DECREASE) {
+                addWrappedReason(target, type.diaryLabel() + ": max health is lower by " + formatOneDecimal(intensity) + " hearts.");
+                continue;
+            }
+            String formatted = polarity == EffectPolarity.BENEFICIAL
+                    ? formatSignedPercent(intensity)
+                    : formatPercent(Math.min(1.0F, intensity));
+            addWrappedReason(target, type.diaryLabel() + ": " + formatted + " - " + type.diaryExplanation() + ".");
+        }
     }
 
     private float effectIntensity(EffectType type) {

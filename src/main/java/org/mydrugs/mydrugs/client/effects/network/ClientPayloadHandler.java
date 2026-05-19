@@ -37,7 +37,7 @@ public final class ClientPayloadHandler {
     }
 
     public static void handleHeadphonesState(HeadphonesStatePayload payload, IPayloadContext context) {
-        HeadphonesMusicController.apply(payload.enabled(), payload.trackNonce());
+        HeadphonesMusicController.apply(payload);
     }
 
     public static void handleDoseSync(DoseSyncPayload payload, IPayloadContext context) {

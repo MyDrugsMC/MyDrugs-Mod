@@ -12,6 +12,7 @@ public final class PsycheMapMilestones {
     public static final ResourceLocation FIRST_DIARY_ENTRY      = id("first_diary_entry");
     public static final ResourceLocation FIRST_BAD_TRIP         = id("first_bad_trip");
     public static final ResourceLocation FIRST_RECOVERY_ANCHOR  = id("first_recovery_anchor");
+    public static final ResourceLocation FIRST_SANCTUARY        = id("first_sanctuary");
     public static final ResourceLocation FIRST_THERAPIST_VISIT  = id("first_therapist_visit");
     public static final ResourceLocation FIRST_PSY_MIXER_RITUAL = id("first_psy_mixer_ritual");
     public static final ResourceLocation FIRST_RITUAL_SUCCESS   = id("first_ritual_success");
@@ -33,6 +34,7 @@ public final class PsycheMapMilestones {
     public static void diaryEntry(ServerPlayer player)        { unlock(player, FIRST_DIARY_ENTRY,      "diary_entry"); }
     public static void badTrip(ServerPlayer player)           { unlock(player, FIRST_BAD_TRIP,         "bad_trip"); }
     public static void recoveryAnchor(ServerPlayer player)    { unlock(player, FIRST_RECOVERY_ANCHOR,  "recovery_anchor"); }
+    public static boolean sanctuary(ServerPlayer player)       { return unlockWithResult(player, FIRST_SANCTUARY, "recovery_room"); }
     public static void therapistVisit(ServerPlayer player)    { unlock(player, FIRST_THERAPIST_VISIT,  "therapy"); }
     public static void psyMixerRitual(ServerPlayer player)    { unlock(player, FIRST_PSY_MIXER_RITUAL, "ritual_start"); }
     public static void ritualSuccess(ServerPlayer player)     { unlock(player, FIRST_RITUAL_SUCCESS,   "ritual_success"); }
@@ -45,11 +47,16 @@ public final class PsycheMapMilestones {
     public static void psychotropeEnergy(ServerPlayer player) { unlock(player, FIRST_PSYCHOTROPE_ENERGY, "psychotrope_energy"); }
 
     private static void unlock(ServerPlayer player, ResourceLocation node, String trigger) {
-        if (player == null) return;
+        unlockWithResult(player, node, trigger);
+    }
+
+    private static boolean unlockWithResult(ServerPlayer player, ResourceLocation node, String trigger) {
+        if (player == null) return false;
         try {
-            PsycheMapManager.unlock(player, node, trigger);
+            return PsycheMapManager.unlock(player, node, trigger);
         } catch (Throwable ignored) {
             // unlock failures must not break gameplay
+            return false;
         }
     }
 }

@@ -24,6 +24,8 @@ public class ModCrops {
     private static final CropSpec<CocaCropBlock> COCA = new CropSpec<>("coca_crop", "coca_seeds", CocaCropBlock::new);
     private static final CropSpec<CoffeeCropBlock> COFFEE = new CropSpec<>("coffee_crop", "coffee_seeds", CoffeeCropBlock::new);
     private static final CropSpec<OpiumPoppyCropBlock> OPIUM_POPPY = new CropSpec<>("opium_poppy_crop", "opium_poppy_seeds", OpiumPoppyCropBlock::new);
+    private static final CropSpec<LavenderCropBlock> LAVENDER = new CropSpec<>("lavender_crop", "lavender_seeds", LavenderCropBlock::new);
+    private static final CropSpec<ValerianCropBlock> VALERIAN = new CropSpec<>("valerian_crop", "valerian_seeds", ValerianCropBlock::new);
 
     public static final DeferredBlock<RyeCropBlock> RYE_CROP =
             registerCropBlock(RYE);
@@ -73,6 +75,18 @@ public class ModCrops {
 
     public static final DeferredItem<BlockItem> OPIUM_POPPY_SEEDS =
             registerSeeds(OPIUM_POPPY, OPIUM_POPPY_CROP);
+
+    public static final DeferredBlock<LavenderCropBlock> LAVENDER_CROP =
+            registerCropBlock(LAVENDER);
+
+    public static final DeferredItem<BlockItem> LAVENDER_SEEDS =
+            registerSeeds(LAVENDER, LAVENDER_CROP);
+
+    public static final DeferredBlock<ValerianCropBlock> VALERIAN_CROP =
+            registerCropBlock(VALERIAN);
+
+    public static final DeferredItem<BlockItem> VALERIAN_SEEDS =
+            registerSeeds(VALERIAN, VALERIAN_CROP);
 
     private ModCrops() {}
 

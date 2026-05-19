@@ -76,6 +76,34 @@ public final class ModBiomeModifiers {
                 )
         );
 
+        context.register(
+                ModWorldGenKeys.ADD_LAVENDER_TO_MEADOWS,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.MEADOW),
+                                biomes.getOrThrow(Biomes.PLAINS),
+                                biomes.getOrThrow(Biomes.SUNFLOWER_PLAINS),
+                                biomes.getOrThrow(Biomes.FLOWER_FOREST)
+                        ),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.LAVENDER_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.ADD_VALERIAN_TO_FORESTS,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.FOREST),
+                                biomes.getOrThrow(Biomes.BIRCH_FOREST),
+                                biomes.getOrThrow(Biomes.OLD_GROWTH_BIRCH_FOREST),
+                                biomes.getOrThrow(Biomes.RIVER)
+                        ),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.VALERIAN_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION
+                )
+        );
+
         // Bitter Nut Bush in jungle + forest biomes
         context.register(
                 ModWorldGenKeys.ADD_BITTER_NUT_BUSH,

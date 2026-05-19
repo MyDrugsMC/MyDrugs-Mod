@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.diary;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +27,7 @@ public final class PersonalDiaryItem extends AbstractRecoveryItem {
         if (player.isShiftKeyDown()) {
             if (!level.isClientSide() && player instanceof ServerPlayer sp) {
                 PacketDistributor.sendToPlayer(sp, DiarySnapshotBuilder.build(sp));
+                playWriteSound(sp, 0.70F);
             }
             return InteractionResult.SUCCESS;
         }
@@ -49,7 +51,20 @@ public final class PersonalDiaryItem extends AbstractRecoveryItem {
 
     @Override
     protected void afterUse(ServerPlayer player) {
-        player.playSound(ModSounds.WRITE.get());
+        playWriteSound(player, 0.80F);
         // No more random end-message; the diary entry itself is the feedback.
+    }
+
+    private static void playWriteSound(ServerPlayer player, float volume) {
+        player.level().playSound(
+                null,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                ModSounds.WRITE.get(),
+                SoundSource.PLAYERS,
+                volume,
+                0.95F + player.getRandom().nextFloat() * 0.10F
+        );
     }
 }

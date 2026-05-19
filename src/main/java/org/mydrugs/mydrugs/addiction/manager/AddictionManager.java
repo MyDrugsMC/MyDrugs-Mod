@@ -21,6 +21,8 @@ import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
 import org.mydrugs.mydrugs.addiction.progression.RelapseManager;
 import org.mydrugs.mydrugs.addiction.withdrawal.WithdrawalManager;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.recovery.SocialReliefManager;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
@@ -123,7 +125,11 @@ public final class AddictionManager {
 
         boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < AddictionConstants.COMBAT_DETECTION_TICKS;
         int companions = SocialReliefManager.countCompanions(player, AddictionConstants.COMPANION_DETECTION_RADIUS);
-        boolean inSafeZone = SafeZoneManager.isInSafeZone(player);
+        RecoveryRoomReport recoveryRoom = RecoveryRoomManager.getBestRoom(player).orElse(null);
+        boolean inSafeZone = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom);
+        if (!inSafeZone) {
+            inSafeZone = SafeZoneManager.isInSafeZone(player);
+        }
         if (inSafeZone && !stats.wasInSafeZoneLastTick) {
             AdvancementEventHooks.recoveryAction(player, "safe_zone");
         }
@@ -142,15 +148,15 @@ public final class AddictionManager {
 
             DrugCategory category = DrugRegistry.getCategory(drugId);
 
-            WithdrawalManager.tickDrug(player, stats, drugId, inCombat, companions, inSafeZone);
+            WithdrawalManager.tickDrug(player, stats, drugId, inCombat, companions, inSafeZone, recoveryRoom);
 
             // This loop runs every server tick; category recovery values are configured per second.
             float addictionRecovery = AddictionMath.computeAddictionRecoveryPerSecond(
                     AddictionConfigs.get(category),
                     stats.resilience,
                     false,
-                    inSafeZone
-            ) / 20.0F;
+                    recoveryRoom == null && inSafeZone
+            ) * RecoveryRoomManager.addictionRecoveryMultiplier(recoveryRoom) / 20.0F;
 
             drugStats.addictionValue = Math.max(0.0F, drugStats.addictionValue - addictionRecovery);
             RelapseManager.decay(drugStats);
@@ -180,8 +186,8 @@ public final class AddictionManager {
             return;
         }
 
-        StressManager.tick(player, stats, globalSeverity, inCombat, companions, inSafeZone);
-        BadTripManager.tick(player, stats);
+        StressManager.tick(player, stats, globalSeverity, inCombat, companions, inSafeZone, recoveryRoom);
+        BadTripManager.tick(player, stats, recoveryRoom);
         StressDamageManager.tick(player, stats);
         SymptomManager.applyServerSymptoms(player, globalSeverity);
         DoseManager.tickOverdoseTimer(player, stats);

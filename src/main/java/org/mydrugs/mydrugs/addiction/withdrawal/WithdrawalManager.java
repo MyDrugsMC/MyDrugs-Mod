@@ -10,6 +10,8 @@ import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.tolerance.ToleranceManager;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
 public final class WithdrawalManager {
     private WithdrawalManager() {
@@ -21,6 +23,16 @@ public final class WithdrawalManager {
                                 boolean inCombat,
                                 int companions,
                                 boolean inSafeZone) {
+        tickDrug(player, playerStats, drugId, inCombat, companions, inSafeZone, null);
+    }
+
+    public static void tickDrug(ServerPlayer player,
+                                PlayerAddictionStats playerStats,
+                                DrugId drugId,
+                                boolean inCombat,
+                                int companions,
+                                boolean inSafeZone,
+                                RecoveryRoomReport recoveryRoom) {
         DrugAddictionStats stats = playerStats.getDrugStats(drugId);
         if (stats == null) {
             return;
@@ -57,15 +69,16 @@ public final class WithdrawalManager {
         float recovery = AddictionMath.computeWithdrawalRecoveryRate(
                 playerStats.resilience,
                 player.isSleeping(),
-                inSafeZone,
+                recoveryRoom == null && inSafeZone,
                 companions > 0,
                 playerStats.temporaryEffects.hasCalmRelief(now)
         );
+        recovery *= RecoveryRoomManager.withdrawalRecoveryMultiplier(recoveryRoom);
 
         stats.baseWithdrawalMeter += (target - stats.baseWithdrawalMeter) * response;
         stats.baseWithdrawalMeter -= recovery;
         stats.baseWithdrawalMeter = AddictionMath.clamp(stats.baseWithdrawalMeter, 0.0F, 100.0F);
 
-        ToleranceManager.decay(player, playerStats, drugId, abstinence);
+        ToleranceManager.decay(player, playerStats, drugId, abstinence, recoveryRoom);
     }
 }

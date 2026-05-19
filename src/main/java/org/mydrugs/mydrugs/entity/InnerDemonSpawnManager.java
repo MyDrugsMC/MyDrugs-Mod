@@ -12,6 +12,8 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
 import java.util.List;
 
@@ -24,6 +26,10 @@ public final class InnerDemonSpawnManager {
     }
 
     public static void tickBadTrip(ServerPlayer player, PlayerAddictionStats stats) {
+        tickBadTrip(player, stats, null);
+    }
+
+    public static void tickBadTrip(ServerPlayer player, PlayerAddictionStats stats, RecoveryRoomReport recoveryRoom) {
         if (!(player.level() instanceof ServerLevel level)) {
             return;
         }
@@ -37,6 +43,12 @@ public final class InnerDemonSpawnManager {
         boolean violent = state.severity >= AddictionConstants.BAD_TRIP_VIOLENT_THRESHOLD;
         boolean strong = state.severity >= AddictionConstants.BAD_TRIP_STRONG_THRESHOLD;
         if (!strong) {
+            return;
+        }
+
+        if (RecoveryRoomManager.suppressesHostileHallucinations(recoveryRoom)) {
+            state.firstDemonSpawnDelay = Math.max(state.firstDemonSpawnDelay, 20 * 5);
+            state.nextDemonSpawnAttempt = Math.max(state.nextDemonSpawnAttempt, 20 * 8);
             return;
         }
 

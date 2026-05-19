@@ -127,6 +127,7 @@ public final class PsycheMapNodeCatalog {
         String diaryId      = MyDrugs.MODID + ":first_diary_entry";
         String badTripId    = MyDrugs.MODID + ":first_bad_trip";
         String anchorId     = MyDrugs.MODID + ":first_recovery_anchor";
+        String sanctuaryId  = MyDrugs.MODID + ":first_sanctuary";
         String therapyId    = MyDrugs.MODID + ":first_therapist_visit";
         String ritualId     = MyDrugs.MODID + ":first_psy_mixer_ritual";
         String ritualOkId   = MyDrugs.MODID + ":first_ritual_success";
@@ -144,6 +145,8 @@ public final class PsycheMapNodeCatalog {
                 MyDrugs.MODID + ":broken_courage",      380, -150, p(k_sti),             true);
         add(anchorId, titleKeyFor("first_recovery_anchor"), captionKeyFor("first_recovery_anchor"),
                 MyDrugs.MODID + ":recovery_anchor",     190, 145,  p(k_can),             false);
+        add(sanctuaryId, titleKeyFor("first_sanctuary"), captionKeyFor("first_sanctuary"),
+                MyDrugs.MODID + ":recovery_anchor",     95, 230,   p(anchorId),          true);
         add(therapyId, titleKeyFor("first_therapist_visit"), captionKeyFor("first_therapist_visit"),
                 MyDrugs.MODID + ":therapist_desk",      190, 230,  p(anchorId),          false);
         add(ritualId, titleKeyFor("first_psy_mixer_ritual"), captionKeyFor("first_psy_mixer_ritual"),

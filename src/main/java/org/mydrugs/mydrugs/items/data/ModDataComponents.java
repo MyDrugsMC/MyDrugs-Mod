@@ -121,6 +121,14 @@ public class ModDataComponents {
                             .networkSynchronized(MixedDrugData.STREAM_CODEC)
             );
 
+    public static final Supplier<DataComponentType<PersonalMusicDiscData>> PERSONAL_MUSIC_DISC =
+            DATA_COMPONENTS.registerComponentType(
+                    "personal_music_disc",
+                    builder -> builder
+                            .persistent(PersonalMusicDiscData.CODEC)
+                            .networkSynchronized(PersonalMusicDiscData.STREAM_CODEC)
+            );
+
     private ModDataComponents() {
     }
 }

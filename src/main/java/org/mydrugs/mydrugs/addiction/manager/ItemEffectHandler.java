@@ -9,6 +9,8 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
@@ -79,6 +81,26 @@ public final class ItemEffectHandler {
         return true;
     }
 
+    public static boolean setHeadphonesPlaying(ServerPlayer player, boolean playing) {
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+
+        if (!hasItem(player.getInventory(), ModItems.HEADPHONES.get())) {
+            stats.temporaryEffects.headphonesEnabled = false;
+            stats.temporaryEffects.headphonesUntil = 0L;
+            syncHeadphones(player);
+            syncClientHud(player);
+            return false;
+        }
+
+        stats.temporaryEffects.headphonesEnabled = playing;
+        stats.temporaryEffects.headphonesUntil = playing
+                ? player.level().getGameTime() + HEADPHONES_REFRESH_TICKS
+                : 0L;
+        syncHeadphones(player);
+        syncClientHud(player);
+        return playing;
+    }
+
     public static void tickHeadphones(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
@@ -102,7 +124,11 @@ public final class ItemEffectHandler {
                 player,
                 new HeadphonesStatePayload(
                         stats.temporaryEffects.headphonesEnabled,
-                        stats.temporaryEffects.headphonesTrackNonce
+                        "",
+                        stats.temporaryEffects.headphonesTrackNonce,
+                        -1.0F,
+                        false,
+                        false
                 )
         );
     }
@@ -118,26 +144,30 @@ public final class ItemEffectHandler {
 
     public static void applyHerbalTea(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        StressManager.reduce(stats, AddictionConstants.RELIEF_HERBAL_TEA);
+        RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+        float itemMultiplier = recoveryItemMultiplier(room);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_HERBAL_TEA * itemMultiplier);
 
         for (DrugCategory category : DrugCategory.values()) {
-            stats.reduceWithdrawalInCategory(category, 6.0F);
+            stats.reduceWithdrawalInCategory(category, 6.0F * itemMultiplier);
         }
 
-        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + 20L * 120L;
+        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 120L * itemMultiplier);
         syncClientHud(player);
     }
 
     public static void applyCalmingMixture(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        StressManager.reduce(stats, AddictionConstants.RELIEF_CALMING_MIXTURE);
+        RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+        float itemMultiplier = recoveryItemMultiplier(room);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_CALMING_MIXTURE * itemMultiplier);
 
         for (DrugCategory category : DrugCategory.values()) {
-            stats.reduceWithdrawalInCategory(category, 10.0F);
+            stats.reduceWithdrawalInCategory(category, 10.0F * itemMultiplier);
         }
 
-        stats.temporaryEffects.calmingMixtureUntil = player.level().getGameTime() + 20L * 60L;
-        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + 20L * 180L;
+        stats.temporaryEffects.calmingMixtureUntil = player.level().getGameTime() + Math.round(20L * 60L * itemMultiplier);
+        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 180L * itemMultiplier);
         syncClientHud(player);
     }
 
@@ -154,5 +184,17 @@ public final class ItemEffectHandler {
 
     private static void syncClientHud(ServerPlayer player) {
         SymptomManager.sync(player, AddictionManager.getGlobalSeverity(player), SafeZoneManager.isInSafeZone(player));
+    }
+
+    private static float recoveryItemMultiplier(RecoveryRoomReport room) {
+        if (!RecoveryRoomManager.isValidRecoveryRoom(room)) {
+            return 1.0F;
+        }
+        return switch (room.tier()) {
+            case NONE, FRAGILE_ROOM -> 1.03F;
+            case RESTING_ROOM -> 1.06F;
+            case SAFE_ROOM -> 1.10F;
+            case SANCTUARY -> 1.15F;
+        };
     }
 }

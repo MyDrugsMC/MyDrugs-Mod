@@ -47,11 +47,6 @@ public class ModSounds {
                     () -> SoundEvent.createVariableRangeEvent(
                             ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "hallucination_cue")));
 
-    public static final Supplier<SoundEvent> GOODVIBES_MUSIC =
-            SOUND_EVENTS.register("goodvibes_music",
-                    () -> SoundEvent.createVariableRangeEvent(
-                            ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "goodvibes_music")));
-
     public static final Supplier<SoundEvent> WRITE =
             SOUND_EVENTS.register("write",
                     () -> SoundEvent.createVariableRangeEvent(

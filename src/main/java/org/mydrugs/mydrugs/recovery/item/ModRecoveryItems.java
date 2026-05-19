@@ -15,6 +15,10 @@ public final class ModRecoveryItems {
             new ItemSpec<>("sleeping_aid", SleepingAidItem::new).register(ModItems.ITEMS);
     public static final DeferredItem<OverdoseAntidoteItem> OVERDOSE_ANTIDOTE =
             new ItemSpec<>("overdose_antidote", OverdoseAntidoteItem::new).register(ModItems.ITEMS);
+    public static final DeferredItem<net.minecraft.world.item.Item> BLANK_MUSIC_DISC =
+            new ItemSpec<>("blank_music_disc", props -> new net.minecraft.world.item.Item(props.stacksTo(16))).register(ModItems.ITEMS);
+    public static final DeferredItem<PersonalMusicDiscItem> PERSONAL_MUSIC_DISC =
+            new ItemSpec<>("personal_music_disc", PersonalMusicDiscItem::new).register(ModItems.ITEMS);
 
     private ModRecoveryItems() {
     }

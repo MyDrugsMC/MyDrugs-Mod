@@ -10,6 +10,8 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
 
 public final class ToleranceManager {
@@ -26,6 +28,10 @@ public final class ToleranceManager {
     }
 
     public static void decay(ServerPlayer player, PlayerAddictionStats playerStats, DrugId drugId, long abstinence) {
+        decay(player, playerStats, drugId, abstinence, null);
+    }
+
+    public static void decay(ServerPlayer player, PlayerAddictionStats playerStats, DrugId drugId, long abstinence, RecoveryRoomReport recoveryRoom) {
         if (abstinence <= 200) {
             return;
         }
@@ -38,10 +44,13 @@ public final class ToleranceManager {
         AddictionCategoryConfig cfg = AddictionConfigs.get(DrugRegistry.getCategory(drugId));
 
         boolean sleeping = player.isSleeping();
-        boolean inSafeZone = SafeZoneManager.isInSafeZone(player);
+        boolean inSafeZone = recoveryRoom != null
+                ? RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)
+                : SafeZoneManager.isInSafeZone(player);
 
         // This method is called every server tick; config/category decay values are per second.
-        float decay = AddictionMath.computeToleranceDecayPerSecond(cfg, playerStats.resilience, sleeping, inSafeZone)
+        float decay = AddictionMath.computeToleranceDecayPerSecond(cfg, playerStats.resilience, sleeping, recoveryRoom == null && inSafeZone)
+                * RecoveryRoomManager.toleranceDecayMultiplier(recoveryRoom)
                 * Config.SERVER.toleranceDecayMultiplier.get().floatValue()
                 / 20.0F;
         stats.tolerance = AddictionMath.clamp(stats.tolerance - decay, 0.0F, 1.0F);

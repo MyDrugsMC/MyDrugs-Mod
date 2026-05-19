@@ -86,6 +86,8 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.GRINDING_BOWL.get());
             dropSelf(ModBlocks.MECHANICAL_FRAME.get());
             dropSelf(ModBlocks.RECOVERY_ANCHOR.get());
+            dropSelf(ModBlocks.DISC_SCRIBER.get());
+            dropSelf(ModBlocks.RECOVERY_JUKEBOX.get());
             dropSelf(ModBlocks.SIEVE.get());
             dropSelf(ModBlocks.STEAM_CRACKER.get());
             dropSelf(ModBlocks.STOMP_CRAFTER.get());
@@ -104,6 +106,8 @@ public class ModLootTableProvider extends LootTableProvider {
             crop(ModCrops.TOBACCO_CROP.get(), ModItems.TOBACCO_LEAF.get(), ModCrops.TOBACCO_SEEDS.get());
             crop(ModCrops.COCA_CROP.get(), ModItems.COCA_LEAF.get(), ModCrops.COCA_SEEDS.get());
             crop(ModCrops.OPIUM_POPPY_CROP.get(), ModCrops.OPIUM_POPPY_SEEDS.get(), ModCrops.OPIUM_POPPY_SEEDS.get());
+            crop(ModCrops.LAVENDER_CROP.get(), ModItems.LAVENDER.get(), ModCrops.LAVENDER_SEEDS.get());
+            crop(ModCrops.VALERIAN_CROP.get(), ModItems.VALERIAN_ROOT.get(), ModCrops.VALERIAN_SEEDS.get());
             tallCrop(ModCrops.CANNABIS_CROP.get(), ModItems.CANNABIS_LEAF.get(), ModCrops.CANNABIS_SEEDS.get(), CannabisCropBlock.HALF);
             tallCrop(ModCrops.COFFEE_CROP.get(), ModItems.COFFEE_CHERRIES.get(), ModCrops.COFFEE_SEEDS.get(), CoffeeCropBlock.HALF);
             tallCrop(ModCrops.MALT_CROP.get(), ModItems.MALT.get(), ModCrops.MALT_SEEDS.get(), MaltCropBlock.HALF);
@@ -248,6 +252,8 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.GRINDING_BOWL.get(),
                     ModBlocks.MECHANICAL_FRAME.get(),
                     ModBlocks.RECOVERY_ANCHOR.get(),
+                    ModBlocks.DISC_SCRIBER.get(),
+                    ModBlocks.RECOVERY_JUKEBOX.get(),
                     ModBlocks.SIEVE.get(),
                     ModBlocks.STEAM_CRACKER.get(),
                     ModBlocks.STOMP_CRAFTER.get(),
@@ -266,6 +272,8 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModCrops.TOBACCO_CROP.get(),
                     ModCrops.COCA_CROP.get(),
                     ModCrops.OPIUM_POPPY_CROP.get(),
+                    ModCrops.LAVENDER_CROP.get(),
+                    ModCrops.VALERIAN_CROP.get(),
                     ModCrops.CANNABIS_CROP.get(),
                     ModCrops.COFFEE_CROP.get(),
                     ModCrops.MALT_CROP.get(),

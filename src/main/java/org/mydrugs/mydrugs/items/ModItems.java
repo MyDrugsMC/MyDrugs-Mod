@@ -164,6 +164,15 @@ public class ModItems {
     public static final DeferredItem<Item> ALOE_VERA =
             ITEMS.registerSimpleItem("aloe_vera");
 
+    public static final DeferredItem<Item> LAVENDER =
+            ITEMS.registerSimpleItem("lavender");
+
+    public static final DeferredItem<Item> DRIED_LAVENDER =
+            ITEMS.registerSimpleItem("dried_lavender");
+
+    public static final DeferredItem<Item> VALERIAN_ROOT =
+            ITEMS.registerSimpleItem("valerian_root");
+
     public static final DeferredItem<Item> SOOTHING_TOBACCO_BLEND =
             ITEMS.registerItem("soothing_tobacco_blend", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
 
@@ -293,6 +302,10 @@ public class ModItems {
     public static final DeferredItem<SleepingAidItem> SLEEPING_AID = ModRecoveryItems.SLEEPING_AID;
 
     public static final DeferredItem<OverdoseAntidoteItem> OVERDOSE_ANTIDOTE = ModRecoveryItems.OVERDOSE_ANTIDOTE;
+
+    public static final DeferredItem<Item> BLANK_MUSIC_DISC = ModRecoveryItems.BLANK_MUSIC_DISC;
+
+    public static final DeferredItem<PersonalMusicDiscItem> PERSONAL_MUSIC_DISC = ModRecoveryItems.PERSONAL_MUSIC_DISC;
 
     public static final DeferredItem<Item> RESIN =
             ITEMS.registerSimpleItem("resin");

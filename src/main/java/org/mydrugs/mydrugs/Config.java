@@ -66,6 +66,12 @@ public class Config {
         public final ModConfigSpec.DoubleValue withdrawalSeverityMultiplier;
         public final ModConfigSpec.DoubleValue overdoseThresholdMultiplier;
         public final ModConfigSpec.DoubleValue safeZoneRecoveryMultiplier;
+        public final ModConfigSpec.IntValue recoveryRoomScanRadius;
+        public final ModConfigSpec.IntValue recoveryRoomMaxVolume;
+        public final ModConfigSpec.IntValue recoveryRoomFragileThreshold;
+        public final ModConfigSpec.IntValue recoveryRoomRestingThreshold;
+        public final ModConfigSpec.IntValue recoveryRoomSafeThreshold;
+        public final ModConfigSpec.IntValue recoveryRoomSanctuaryThreshold;
         public final ModConfigSpec.DoubleValue therapyCooldownMultiplier;
         public final ModConfigSpec.BooleanValue allowDebugActionPayloads;
 
@@ -80,6 +86,12 @@ public class Config {
             withdrawalSeverityMultiplier = builder.defineInRange("withdrawalSeverityMultiplier", 1.0D, 0.0D, 100.0D);
             overdoseThresholdMultiplier = builder.defineInRange("overdoseThresholdMultiplier", 1.0D, 0.1D, 100.0D);
             safeZoneRecoveryMultiplier = builder.defineInRange("safeZoneRecoveryMultiplier", 1.0D, 0.0D, 100.0D);
+            recoveryRoomScanRadius = builder.defineInRange("recoveryRoomScanRadius", 12, 4, 24);
+            recoveryRoomMaxVolume = builder.defineInRange("recoveryRoomMaxVolume", 220, 48, 512);
+            recoveryRoomFragileThreshold = builder.defineInRange("recoveryRoomFragileThreshold", 25, 1, 100);
+            recoveryRoomRestingThreshold = builder.defineInRange("recoveryRoomRestingThreshold", 45, 1, 100);
+            recoveryRoomSafeThreshold = builder.defineInRange("recoveryRoomSafeThreshold", 65, 1, 100);
+            recoveryRoomSanctuaryThreshold = builder.defineInRange("recoveryRoomSanctuaryThreshold", 85, 1, 100);
             therapyCooldownMultiplier = builder.defineInRange("therapyCooldownMultiplier", 1.0D, 0.0D, 100.0D);
             builder.pop();
 

@@ -168,6 +168,13 @@ public class ModSimpleClientItemProvider implements DataProvider {
         }
         futures.add(saveFlatItem(cachedOutput, "aloe_vera", "minecraft:item/cactus"));
         futures.add(saveFlatItem(cachedOutput, "aloe_vera_seeds", "minecraft:item/wheat_seeds"));
+        futures.add(saveFlatItem(cachedOutput, "lavender", "minecraft:item/lilac"));
+        futures.add(saveFlatItem(cachedOutput, "dried_lavender", "minecraft:item/purple_dye"));
+        futures.add(saveFlatItem(cachedOutput, "lavender_seeds", "minecraft:item/wheat_seeds"));
+        futures.add(saveFlatItem(cachedOutput, "valerian_root", "minecraft:item/beetroot"));
+        futures.add(saveFlatItem(cachedOutput, "valerian_seeds", "minecraft:item/wheat_seeds"));
+        futures.add(saveFlatItem(cachedOutput, "blank_music_disc", "minecraft:item/music_disc_11"));
+        futures.add(saveFlatItem(cachedOutput, "personal_music_disc", "minecraft:item/music_disc_ward"));
         futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
         futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "minecraft:item/ghast_tear"));
         futures.add(saveFlatItem(cachedOutput, "progression_guide", "minecraft:item/written_book"));

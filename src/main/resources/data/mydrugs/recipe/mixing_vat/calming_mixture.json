@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:dried_lavender",
+  "item_2": "mydrugs:valerian_root",
+  "item_3": "minecraft:honey_bottle",
+  "item_4": "mydrugs:aloe_vera",
+  "fluid_input_1": {
+    "fluid": "mydrugs:herbal_tea",
+    "amount": 250
+  },
+  "result_item": {
+    "id": "mydrugs:calming_mixture",
+    "count": 1
+  },
+  "required_stirs": 5,
+  "requires_heat": true
+}

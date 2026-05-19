@@ -8,17 +8,34 @@ import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
 
 public record HeadphonesStatePayload(
-        boolean enabled,
-        int trackNonce
+        boolean playing,
+        String trackId,
+        int libraryVersion,
+        float volume,
+        boolean shuffle,
+        boolean repeat
 ) implements CustomPacketPayload {
     public static final Type<HeadphonesStatePayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "headphones_state"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, HeadphonesStatePayload> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.BOOL, HeadphonesStatePayload::enabled,
-                    ByteBufCodecs.VAR_INT, HeadphonesStatePayload::trackNonce,
-                    HeadphonesStatePayload::new
+            StreamCodec.of(
+                    (buf, payload) -> {
+                        ByteBufCodecs.BOOL.encode(buf, payload.playing());
+                        ByteBufCodecs.STRING_UTF8.encode(buf, payload.trackId());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.libraryVersion());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.volume());
+                        ByteBufCodecs.BOOL.encode(buf, payload.shuffle());
+                        ByteBufCodecs.BOOL.encode(buf, payload.repeat());
+                    },
+                    buf -> new HeadphonesStatePayload(
+                            ByteBufCodecs.BOOL.decode(buf),
+                            ByteBufCodecs.STRING_UTF8.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.FLOAT.decode(buf),
+                            ByteBufCodecs.BOOL.decode(buf),
+                            ByteBufCodecs.BOOL.decode(buf)
+                    )
             );
 
     @Override

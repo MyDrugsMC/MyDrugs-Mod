@@ -23,6 +23,8 @@ import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 
 public final class BadTripManager {
@@ -37,8 +39,13 @@ public final class BadTripManager {
     }
 
     public static void tick(ServerPlayer player, PlayerAddictionStats stats) {
+        tick(player, stats, null);
+    }
+
+    public static void tick(ServerPlayer player, PlayerAddictionStats stats, @Nullable RecoveryRoomReport recoveryRoom) {
         BadTripState state = stats.badTrip;
-        @Nullable Candidate candidate = findBestCandidate(stats, StressManager.getStress(stats));
+        float effectiveStress = Math.max(0.0F, StressManager.getStress(stats) - RecoveryRoomManager.badTripPressureReduction(recoveryRoom));
+        @Nullable Candidate candidate = findBestCandidate(stats, effectiveStress);
 
         if (candidate == null) {
             if (state.active) {
@@ -59,7 +66,7 @@ public final class BadTripManager {
             }
 
             start(player, state, candidate);
-            applySymptoms(player, state);
+            applySymptoms(player, state, recoveryRoom);
             return;
         }
 
@@ -87,8 +94,18 @@ public final class BadTripManager {
             state.nextSymptomReroll--;
         }
 
-        applySymptoms(player, state);
-        InnerDemonSpawnManager.tickBadTrip(player, stats);
+        applySymptoms(player, state, recoveryRoom);
+        InnerDemonSpawnManager.tickBadTrip(player, stats, recoveryRoom);
+        if (recoveryRoom != null
+                && RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)
+                && recoveryRoom.tier().ordinal() >= org.mydrugs.mydrugs.recovery.RecoveryRoomTier.SAFE_ROOM.ordinal()
+                && player.tickCount % 400 == 0) {
+            player.displayClientMessage(Component.translatable(
+                    recoveryRoom.tier() == org.mydrugs.mydrugs.recovery.RecoveryRoomTier.SANCTUARY
+                            ? "message.mydrugs.bad_trip.shelter.strong"
+                            : "message.mydrugs.bad_trip.shelter"
+            ), true);
+        }
         syncIfNeeded(player, state, rerolled);
     }
 
@@ -154,14 +171,15 @@ public final class BadTripManager {
         sync(player, state);
     }
 
-    private static void applySymptoms(ServerPlayer player, BadTripState state) {
+    private static void applySymptoms(ServerPlayer player, BadTripState state, @Nullable RecoveryRoomReport recoveryRoom) {
         if (!state.active || player.tickCount % AddictionConstants.BAD_TRIP_EFFECT_REFRESH_TICKS != 0) {
             return;
         }
 
         float rawIntensity = AddictionMath.clamp(state.symptomIntensity * (0.70F + state.severity * 0.30F), 0.0F, 1.0F);
         float resistance = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.BAD_TRIP_RESISTANCE);
-        float intensity = rawIntensity * Math.max(0.0F, 1.0F - resistance);
+        float roomReduction = RecoveryRoomManager.badTripIntensityReduction(recoveryRoom);
+        float intensity = rawIntensity * Math.max(0.0F, 1.0F - resistance) * Math.max(0.0F, 1.0F - roomReduction);
         int duration = AddictionConstants.BAD_TRIP_EFFECT_DURATION_TICKS;
 
         DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.45F + intensity * 0.35F, duration);

@@ -128,6 +128,38 @@ public final class ModConfiguredFeatures {
                 )
         );
 
+        context.register(
+                ModWorldGenKeys.LAVENDER_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                10,
+                                5,
+                                2,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(ModCrops.LAVENDER_CROP.get().defaultBlockState()))
+                                )
+                        )
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.VALERIAN_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                7,
+                                4,
+                                2,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(ModCrops.VALERIAN_CROP.get().defaultBlockState()))
+                                )
+                        )
+                )
+        );
+
         // Bitter Nut Bush: jungle/forest small patches (a few bushes per patch).
         context.register(
                 ModWorldGenKeys.BITTER_NUT_BUSH_PATCH,

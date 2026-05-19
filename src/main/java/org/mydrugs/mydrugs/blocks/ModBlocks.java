@@ -13,7 +13,9 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.registry.MachineSpec;
 import org.mydrugs.mydrugs.energy.MachineUpgradeBlockItem;
 import org.mydrugs.mydrugs.recovery.block.ModRecoveryBlocks;
+import org.mydrugs.mydrugs.recovery.block.DiscScriberBlock;
 import org.mydrugs.mydrugs.recovery.block.RecoveryAnchorBlock;
+import org.mydrugs.mydrugs.recovery.block.RecoveryJukeboxBlock;
 import org.mydrugs.mydrugs.recovery.block.TherapistDeskBlock;
 import org.mydrugs.mydrugs.pipe.block.PipeBlock;
 import org.mydrugs.mydrugs.pipe.block.ModPipeBlocks;
@@ -373,6 +375,18 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> RECOVERY_ANCHOR_ITEM =
             ModRecoveryBlocks.RECOVERY_ANCHOR_ITEM;
+
+    public static final DeferredBlock<DiscScriberBlock> DISC_SCRIBER =
+            ModRecoveryBlocks.DISC_SCRIBER;
+
+    public static final DeferredItem<BlockItem> DISC_SCRIBER_ITEM =
+            ModRecoveryBlocks.DISC_SCRIBER_ITEM;
+
+    public static final DeferredBlock<RecoveryJukeboxBlock> RECOVERY_JUKEBOX =
+            ModRecoveryBlocks.RECOVERY_JUKEBOX;
+
+    public static final DeferredItem<BlockItem> RECOVERY_JUKEBOX_ITEM =
+            ModRecoveryBlocks.RECOVERY_JUKEBOX_ITEM;
 
 
     public static final DeferredBlock<ManualCoffeePulperBlock> MANUAL_COFFEE_PULPER = BLOCKS.registerBlock(

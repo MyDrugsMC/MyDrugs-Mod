@@ -37,6 +37,10 @@ public final class ModWorldGenKeys {
             configured("petroleum_lake");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ALOE_VERA_PATCH =
             configured("aloe_vera_patch");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> LAVENDER_PATCH =
+            configured("lavender_patch");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> VALERIAN_PATCH =
+            configured("valerian_patch");
 
     public static final ResourceKey<PlacedFeature> PLATINUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, id("platinum_ore_placed"));
@@ -47,6 +51,10 @@ public final class ModWorldGenKeys {
             ResourceKey.create(Registries.PLACED_FEATURE, id("petroleum_lake_surface_placed"));
     public static final ResourceKey<PlacedFeature> ALOE_VERA_PATCH_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, id("aloe_vera_patch_placed"));
+    public static final ResourceKey<PlacedFeature> LAVENDER_PATCH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("lavender_patch_placed"));
+    public static final ResourceKey<PlacedFeature> VALERIAN_PATCH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("valerian_patch_placed"));
 
     public static final ResourceKey<BiomeModifier> ADD_PLATINUM_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_platinum_ore"));
@@ -57,6 +65,10 @@ public final class ModWorldGenKeys {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_petroleum_lakes_to_deserts"));
     public static final ResourceKey<BiomeModifier> ADD_ALOE_VERA_TO_OVERWORLD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_aloe_vera_to_overworld"));
+    public static final ResourceKey<BiomeModifier> ADD_LAVENDER_TO_MEADOWS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_lavender_to_meadows"));
+    public static final ResourceKey<BiomeModifier> ADD_VALERIAN_TO_FORESTS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_valerian_to_forests"));
 
     // PR 3 worldgen
     public static final ResourceKey<ConfiguredFeature<?, ?>> BITTER_NUT_BUSH_PATCH =

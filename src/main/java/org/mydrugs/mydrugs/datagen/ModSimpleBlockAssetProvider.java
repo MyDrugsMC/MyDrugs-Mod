@@ -49,6 +49,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlockWithTexture(futures, cachedOutput, "mechanical_frame", "minecraft:block/iron_block");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_anchor", "minecraft:block/crying_obsidian");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "therapist_desk", "minecraft:block/lectern_front");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "disc_scriber", "minecraft:block/chiseled_bookshelf_side");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_jukebox", "minecraft:block/jukebox_side");
 
         saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "advanced_mixing_vat");
@@ -141,6 +143,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_mycelium");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psy_anvil");
         saveBlockItemViaBlockModel(futures, cachedOutput, "recovery_anchor");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "disc_scriber");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "recovery_jukebox");
         saveBlockItemViaBlockModel(futures, cachedOutput, "salt_block");
         saveBlockItemViaBlockModel(futures, cachedOutput, "sieve");
         saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_crafter");
@@ -153,6 +157,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveTallCrop(futures, cachedOutput, "cannabis_crop", "cannabis_stage", 4);
         saveCrossCrop(futures, cachedOutput, "aloe_vera_crop", "aloe_vera_stage", "minecraft:block/small_dripleaf_top");
         saveCrossCrop(futures, cachedOutput, "coca_crop", "coca_stage");
+        saveCrossCrop(futures, cachedOutput, "lavender_crop", "lavender_stage", "minecraft:block/lilac_top");
+        saveCrossCrop(futures, cachedOutput, "valerian_crop", "valerian_stage", "minecraft:block/lily_of_the_valley");
         saveTallCrop(futures, cachedOutput, "malt_crop", "malt_stage", 4);
         saveCrossCrop(futures, cachedOutput, "opium_poppy_crop", "opium_poppy_stage", "minecraft:block/poppy");
         saveTallCrop(futures, cachedOutput, "rye_crop", "rye_stage", 4);

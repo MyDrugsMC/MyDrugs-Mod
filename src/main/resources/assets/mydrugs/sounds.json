@@ -46,31 +46,8 @@
       "mydrugs:whisper8"
     ]
   },
-  "goodvibes_music": {
-    "sounds": [
-      {
-        "name": "mydrugs:babydoll",
-        "stream": true
-      },
-      {
-        "name": "mydrugs:lessik",
-        "stream": true
-      },
-      {
-        "name": "mydrugs:babysaid",
-        "stream": true
-      },
-      {
-        "name": "mydrugs:instantcrush",
-        "stream": true
-      },
-      {
-        "name": "mydrugs:letdown",
-        "stream": true
-      }
-    ]
-  },
   "write": {
+    "subtitle": "subtitles.mydrugs.write",
     "sounds": [
       "mydrugs:write"
     ]

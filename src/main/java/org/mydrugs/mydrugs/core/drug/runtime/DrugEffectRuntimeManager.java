@@ -185,37 +185,7 @@ public final class DrugEffectRuntimeManager {
     }
 
     public static boolean isPositiveEffect(EffectType type) {
-        if (type == null) {
-            return false;
-        }
-        return switch (type) {
-            case MINING_SPEED,
-                 MOVEMENT_SPEED,
-                 GAMMA_BOOST,
-                 LOW_LIGHT_VISION,
-                 BRIGHTNESS_BOOST,
-                 FOCUS,
-                 RITUAL_FOCUS,
-                 RITUAL_STABILITY,
-                 MANUAL_WORK_SPEED,
-                 STRESS_RELIEF,
-                 STRESS_RESISTANCE,
-                 BAD_TRIP_RESISTANCE,
-                 PRECISION,
-                 TREMOR_REDUCTION,
-                 DASH_POWER,
-                 ORE_AURA,
-                 ORE_FORTUNE,
-                 MULTIBLOCK_VISION,
-                 ADRENALINE_SURGE,
-                 DAMAGE_RESISTANCE,
-                 ATTACK_DAMAGE,
-                 ATTACK_SPEED,
-                 FALL_CONTROL,
-                 BURST_WINDOW,
-                 MOB_DETECTION_REDUCTION -> true;
-            default -> false;
-        };
+        return type != null && type.isBeneficial();
     }
 
     private static EffectType normalize(EffectType type) {

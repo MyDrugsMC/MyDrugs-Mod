@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugEffectData;
 
 import java.util.Locale;
@@ -68,7 +67,11 @@ public enum PsyMixerRitualQuality {
     }
 
     public RitualDrugEffectData applyTo(RitualDrugEffectData effect) {
-        float multiplier = isNegative(effect.type()) ? negativeMultiplier : positiveMultiplier;
+        float multiplier = switch (effect.type().polarity()) {
+            case BENEFICIAL -> positiveMultiplier;
+            case HARMFUL -> negativeMultiplier;
+            case NEUTRAL -> 1.0F;
+        };
         float intensity = clamp(effect.intensity() * multiplier, 0.0F, 1.0F);
         return new RitualDrugEffectData(effect.type(), effect.duration(), intensity);
     }
@@ -88,24 +91,6 @@ public enum PsyMixerRitualQuality {
             }
         }
         return BASE;
-    }
-
-    private static boolean isNegative(EffectType type) {
-        return switch (type) {
-            case CUSTOM_NAUSEA,
-                    MOVEMENT_SLOWDOWN,
-                    HP_DECREASE,
-                    CAMERA_SWAY,
-                    TREMOR,
-                    STUMBLE,
-                    INPUT_FAIL,
-                    VOMIT,
-                    CONFUSION,
-                    NAUSEA,
-                    SLOWNESS,
-                    HEARTBEAT -> true;
-            default -> false;
-        };
     }
 
     private static void encode(ByteBuf buf, PsyMixerRitualQuality quality) {

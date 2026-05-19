@@ -48,6 +48,7 @@ public final class ModNetwork {
         registerStimulantPayloads(r);
         registerDrugFormulaPayloads(r);
         registerVisualPayloads(r);
+        registerRecoveryPayloads(r);
         registerAddictionPayloads(r);
         registerDiaryPayloads(r);
         registerMutationPayloads(r);
@@ -93,6 +94,12 @@ public final class ModNetwork {
     private static void registerVisualPayloads(PayloadRegistrar r) {
         r.playToClient(DrugVisualPayload.TYPE, DrugVisualPayload.STREAM_CODEC);
         r.playToClient(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayload.STREAM_CODEC);
+        r.playToClient(RecoveryRoomParticlesPayload.TYPE, RecoveryRoomParticlesPayload.STREAM_CODEC);
+    }
+
+    private static void registerRecoveryPayloads(PayloadRegistrar r) {
+        r.playToClient(OpenHeadphonesMusicScreenPayload.TYPE, OpenHeadphonesMusicScreenPayload.STREAM_CODEC);
+        r.playToServer(HeadphonesControlPayload.TYPE, HeadphonesControlPayload.STREAM_CODEC, HeadphonesControlPayload::handleOnServer);
     }
 
     // --- addiction state snapshots and admin actions ---

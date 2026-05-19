@@ -1,0 +1,9 @@
+{
+  "type": "mydrugs:drying",
+  "ingredient": "mydrugs:lavender",
+  "result": {
+    "id": "mydrugs:dried_lavender",
+    "count": 1
+  },
+  "dry_time": 1600
+}
