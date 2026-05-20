@@ -19,7 +19,8 @@ public record RecoveryRoomParticlesPayload(
         int score,
         int tierId,
         long seed,
-        boolean highlight
+        boolean highlight,
+        boolean ambient
 ) implements CustomPacketPayload {
     public static final Type<RecoveryRoomParticlesPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "recovery_room_particles"));
@@ -38,6 +39,7 @@ public record RecoveryRoomParticlesPayload(
                 ByteBufCodecs.VAR_INT.encode(buf, payload.tierId());
                 ByteBufCodecs.VAR_LONG.encode(buf, payload.seed());
                 ByteBufCodecs.BOOL.encode(buf, payload.highlight());
+                ByteBufCodecs.BOOL.encode(buf, payload.ambient());
             },
             buf -> {
                 BlockPos anchorPos = BlockPos.STREAM_CODEC.decode(buf);
@@ -52,7 +54,8 @@ public record RecoveryRoomParticlesPayload(
                 int tierId = ByteBufCodecs.VAR_INT.decode(buf);
                 long seed = ByteBufCodecs.VAR_LONG.decode(buf);
                 boolean highlight = ByteBufCodecs.BOOL.decode(buf);
-                return new RecoveryRoomParticlesPayload(anchorPos, min, max, samples, score, tierId, seed, highlight);
+                boolean ambient = ByteBufCodecs.BOOL.decode(buf);
+                return new RecoveryRoomParticlesPayload(anchorPos, min, max, samples, score, tierId, seed, highlight, ambient);
             }
     );
 

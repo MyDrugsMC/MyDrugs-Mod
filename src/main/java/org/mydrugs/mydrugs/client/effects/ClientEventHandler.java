@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
 import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
 import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualOverlay;
 import org.mydrugs.mydrugs.client.recovery.RecoveryRoomOverlay;
+import org.mydrugs.mydrugs.client.recovery.RecoveryRoomParticleClient;
 import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
@@ -60,6 +61,7 @@ public final class ClientEventHandler {
             BadTripScreamerOverlay.clear();
             PsyMixerRitualClientState.clear();
             RecoveryRoomOverlay.clear();
+            RecoveryRoomParticleClient.clear();
         }
 
         @SubscribeEvent
@@ -77,6 +79,7 @@ public final class ClientEventHandler {
             BadTripScreamerOverlay.tick();
             PsyMixerRitualClientState.tick();
             RecoveryRoomOverlay.tick();
+            RecoveryRoomParticleClient.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
             ClientInputInterceptor.tick(mc);

@@ -13,6 +13,8 @@ import org.mydrugs.mydrugs.recovery.RecoveryRoomTier;
 import java.util.List;
 
 public final class RecoveryRoomParticleClient {
+    private static ActiveRoom activeRoom;
+
     private RecoveryRoomParticleClient() {
     }
 
@@ -28,6 +30,11 @@ public final class RecoveryRoomParticleClient {
         }
 
         RecoveryRoomTier tier = RecoveryRoomTier.byNetworkId(payload.tierId());
+        activeRoom = new ActiveRoom(payload, tier, 80);
+        if (payload.ambient()) {
+            return;
+        }
+
         RecoveryRoomOverlay.show(tier, payload.score(), payload.highlight());
 
         RandomSource random = RandomSource.create(payload.seed());
@@ -76,6 +83,69 @@ public final class RecoveryRoomParticleClient {
         }
     }
 
+    public static void tick() {
+        Minecraft mc = Minecraft.getInstance();
+        Level level = mc.level;
+        if (level == null || activeRoom == null) {
+            activeRoom = null;
+            return;
+        }
+        activeRoom.ticksRemaining--;
+        if (activeRoom.ticksRemaining <= 0) {
+            activeRoom = null;
+            return;
+        }
+        RecoveryRoomParticlesPayload payload = activeRoom.payload;
+        List<BlockPos> samples = payload.samples();
+        if (samples.isEmpty()) {
+            return;
+        }
+
+        int interval = switch (activeRoom.tier) {
+            case NONE -> 20;
+            case FRAGILE_ROOM -> 16;
+            case RESTING_ROOM -> 11;
+            case SAFE_ROOM -> 7;
+            case SANCTUARY -> 4;
+        };
+        if (mc.player != null && mc.player.tickCount % interval != 0) {
+            return;
+        }
+
+        RandomSource random = level.random;
+        int motes = switch (activeRoom.tier) {
+            case NONE -> 0;
+            case FRAGILE_ROOM -> 1;
+            case RESTING_ROOM -> 1;
+            case SAFE_ROOM -> 2;
+            case SANCTUARY -> 3;
+        };
+        ParticleOptions particle = switch (activeRoom.tier) {
+            case NONE, FRAGILE_ROOM -> ParticleTypes.COMPOSTER;
+            case RESTING_ROOM -> ParticleTypes.HAPPY_VILLAGER;
+            case SAFE_ROOM, SANCTUARY -> ParticleTypes.END_ROD;
+        };
+        for (int i = 0; i < motes; i++) {
+            BlockPos base = samples.get(random.nextInt(samples.size()));
+            double x = base.getX() + 0.15D + random.nextDouble() * 0.70D;
+            double y = base.getY() + 0.20D + random.nextDouble() * 1.35D;
+            double z = base.getZ() + 0.15D + random.nextDouble() * 0.70D;
+            double drift = activeRoom.tier == RecoveryRoomTier.SANCTUARY ? 0.018D : 0.010D;
+            level.addParticle(particle, x, y, z,
+                    (random.nextDouble() - 0.5D) * drift,
+                    0.006D + random.nextDouble() * drift,
+                    (random.nextDouble() - 0.5D) * drift);
+        }
+
+        if (activeRoom.tier == RecoveryRoomTier.SANCTUARY && mc.player != null && mc.player.tickCount % 28 == 0) {
+            spawnAnchorSpiral(level, payload.anchorPos(), random);
+        }
+    }
+
+    public static void clear() {
+        activeRoom = null;
+    }
+
     private static void spawnAnchorSpiral(Level level, BlockPos anchor, RandomSource random) {
         for (int i = 0; i < 36; i++) {
             double angle = i / 36.0D * Math.PI * 2.0D;
@@ -99,6 +169,18 @@ public final class RecoveryRoomParticleClient {
                 z = random.nextBoolean() ? min.getZ() : max.getZ() + 1.0D;
             }
             level.addParticle(ParticleTypes.WAX_ON, x, y, z, 0.0D, 0.015D, 0.0D);
+        }
+    }
+
+    private static final class ActiveRoom {
+        private final RecoveryRoomParticlesPayload payload;
+        private final RecoveryRoomTier tier;
+        private int ticksRemaining;
+
+        private ActiveRoom(RecoveryRoomParticlesPayload payload, RecoveryRoomTier tier, int ticksRemaining) {
+            this.payload = payload;
+            this.tier = tier;
+            this.ticksRemaining = ticksRemaining;
         }
     }
 }

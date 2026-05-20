@@ -368,6 +368,8 @@ public class ModLangProvider extends LanguageProvider {
         add("recovery.mydrugs.room.safe", "Safe Room");
         add("recovery.mydrugs.room.sanctuary", "Sanctuary");
         add("recovery.mydrugs.room.score", "Recovery Room: %s - Comfort %s%%");
+        add("recovery.mydrugs.room.overlay", "%s - Comfort %s%%");
+        add("recovery.mydrugs.room.overlay_highlight", "%s - Comfort %s%% (room highlighted)");
         add("recovery.mydrugs.room.good", "Good: %s");
         add("recovery.mydrugs.room.improve", "Improve: %s");
         add("recovery.mydrugs.room.invalid", "The anchor cannot find a room yet.");
@@ -384,6 +386,14 @@ public class ModLangProvider extends LanguageProvider {
         add("recovery.mydrugs.room.needs_carpets", "Add carpets.");
         add("recovery.mydrugs.room.needs_flowers", "Add flowers.");
         add("recovery.mydrugs.room.too_dangerous", "Remove dangerous blocks or threats.");
+        add("recovery.mydrugs.room.polish_size", "Tune the room size toward a small bedroom: not cramped, not open.");
+        add("recovery.mydrugs.room.polish_enclosure", "Use calmer walls or glass, and close off any exposed edges.");
+        add("recovery.mydrugs.room.polish_lighting", "Balance the light with lanterns, candles, or glow blocks instead of torch spam.");
+        add("recovery.mydrugs.room.polish_carpets", "Use a moderate amount of carpet or wool floor comfort.");
+        add("recovery.mydrugs.room.polish_plants", "Add a few more plants or flower pots.");
+        add("recovery.mydrugs.room.polish_books", "Add one to six bookshelves or a lectern, but keep it uncluttered.");
+        add("recovery.mydrugs.room.polish_music", "Keep an active jukebox or recovery music in the room.");
+        add("recovery.mydrugs.room.polish_complete", "This room is already a strong sanctuary; keep it calm and uncluttered.");
         add("recovery.mydrugs.component.size", "right size");
         add("recovery.mydrugs.component.enclosure", "enclosure");
         add("recovery.mydrugs.component.door", "door");

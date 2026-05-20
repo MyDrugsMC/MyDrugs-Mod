@@ -56,6 +56,7 @@ public final class RecoveryRoomManager {
     private static final int SOFT_MAX_VOLUME = 180;
     private static final int CACHE_TICKS = 60;
     private static final int MAX_PARTICLE_SAMPLES = 96;
+    private static final int AMBIENT_PARTICLE_SYNC_TICKS = 40;
 
     private static final Map<Level, Map<BlockPos, CachedReport>> CACHE = new WeakHashMap<>();
 
@@ -164,6 +165,17 @@ public final class RecoveryRoomManager {
         sendParticles(player, report, false);
     }
 
+    public static void tickPlayerParticles(ServerPlayer player) {
+        if (player.tickCount % AMBIENT_PARTICLE_SYNC_TICKS != 0) {
+            return;
+        }
+        RecoveryRoomReport report = getBestRoom(player).orElse(null);
+        if (!isValidRecoveryRoom(report)) {
+            return;
+        }
+        sendAmbientParticles(player, report);
+    }
+
     public static void invalidate(Level level, BlockPos anchorPos) {
         Map<BlockPos, CachedReport> levelCache = CACHE.get(level);
         if (levelCache != null) {
@@ -225,6 +237,9 @@ public final class RecoveryRoomManager {
             total = Math.min(total, RecoveryRoomTier.FRAGILE_ROOM.minScore() - 1);
         }
         total = Math.max(0, Math.min(100, total));
+        if (valid && (total >= RecoveryRoomTier.SAFE_ROOM.minScore() || improve.isEmpty())) {
+            collectPolishHints(score, total, improve);
+        }
 
         return new RecoveryRoomReport(
                 anchorPos,
@@ -557,6 +572,31 @@ public final class RecoveryRoomManager {
         }
     }
 
+    private static void collectPolishHints(RecoveryRoomScore score, int total, List<String> improve) {
+        int initialSize = improve.size();
+        addHint(improve, score.size() < 18, "recovery.mydrugs.room.polish_size");
+        addHint(improve, score.enclosure() < 14, "recovery.mydrugs.room.polish_enclosure");
+        addHint(improve, score.lighting() < 12, "recovery.mydrugs.room.polish_lighting");
+        addHint(improve, score.floorComfort() < 10, "recovery.mydrugs.room.polish_carpets");
+        addHint(improve, score.plants() < 8, "recovery.mydrugs.room.polish_plants");
+        addHint(improve, score.books() < 8, "recovery.mydrugs.room.polish_books");
+        addHint(improve, score.music() < 15, "recovery.mydrugs.room.polish_music");
+        addHint(improve, score.dangerPenalty() > 0, "recovery.mydrugs.room.too_dangerous");
+
+        while (improve.size() - initialSize > 3) {
+            improve.remove(improve.size() - 1);
+        }
+        if (improve.size() == initialSize && total >= RecoveryRoomTier.SANCTUARY.minScore()) {
+            improve.add("recovery.mydrugs.room.polish_complete");
+        }
+    }
+
+    private static void addHint(List<String> improve, boolean condition, String key) {
+        if (condition && !improve.contains(key)) {
+            improve.add(key);
+        }
+    }
+
     private static void sendReportMessages(ServerPlayer player, RecoveryRoomReport report, boolean detailed) {
         if (!report.valid()) {
             player.displayClientMessage(Component.translatable("recovery.mydrugs.room.invalid").withStyle(ChatFormatting.YELLOW), true);
@@ -590,6 +630,14 @@ public final class RecoveryRoomManager {
     }
 
     private static void sendParticles(ServerPlayer player, RecoveryRoomReport report, boolean highlight) {
+        sendParticlesPayload(player, report, highlight, false);
+    }
+
+    private static void sendAmbientParticles(ServerPlayer player, RecoveryRoomReport report) {
+        sendParticlesPayload(player, report, false, true);
+    }
+
+    private static void sendParticlesPayload(ServerPlayer player, RecoveryRoomReport report, boolean highlight, boolean ambient) {
         List<BlockPos> samples = report.valid()
                 ? report.particleSamples(MAX_PARTICLE_SAMPLES)
                 : List.of(report.anchorPos().above());
@@ -601,7 +649,8 @@ public final class RecoveryRoomManager {
                 report.score(),
                 report.tier().networkId(),
                 player.level().getRandom().nextLong(),
-                highlight
+                highlight,
+                ambient
         ));
     }
 
