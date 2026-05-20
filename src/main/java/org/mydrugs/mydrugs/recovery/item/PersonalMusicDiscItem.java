@@ -16,6 +16,19 @@ public final class PersonalMusicDiscItem extends Item {
         super(properties.stacksTo(1));
     }
 
+    public static boolean isPersonalDisc(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() instanceof PersonalMusicDiscItem && hasValidTrack(stack);
+    }
+
+    public static PersonalMusicDiscData getDiscData(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.PERSONAL_MUSIC_DISC.get(), PersonalMusicDiscData.EMPTY);
+    }
+
+    public static boolean hasValidTrack(ItemStack stack) {
+        PersonalMusicDiscData data = getDiscData(stack);
+        return data.trackId() != null && !data.trackId().isBlank();
+    }
+
     @Override
     public void appendHoverText(
             ItemStack stack,
@@ -25,13 +38,32 @@ public final class PersonalMusicDiscItem extends Item {
             TooltipFlag flag
     ) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
-        PersonalMusicDiscData data = stack.getOrDefault(ModDataComponents.PERSONAL_MUSIC_DISC.get(), PersonalMusicDiscData.EMPTY);
-        if (!data.title().isBlank()) {
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.title", data.title()).withStyle(ChatFormatting.GRAY));
+        PersonalMusicDiscData data = getDiscData(stack);
+        String title = clean(data.title(), "Personal Track");
+        String artist = clean(data.artist(), Component.translatable("tooltip.mydrugs.personal_disc.unknown_artist").getString());
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.title", title).withStyle(ChatFormatting.GRAY));
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.artist", artist).withStyle(ChatFormatting.GRAY));
+        if (data.durationMs() > 0) {
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.duration", formatTime(data.durationMs())).withStyle(ChatFormatting.DARK_GRAY));
         }
-        if (!data.artist().isBlank()) {
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.artist", data.artist()).withStyle(ChatFormatting.GRAY));
+        if (flag.isAdvanced() && data.trackId() != null && !data.trackId().isBlank()) {
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.track_id", shorten(data.trackId())).withStyle(ChatFormatting.DARK_GRAY));
         }
         tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.requires_local_track").withStyle(ChatFormatting.YELLOW));
+    }
+
+    private static String clean(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private static String shorten(String value) {
+        return value.length() <= 12 ? value : value.substring(0, 12) + "...";
+    }
+
+    private static String formatTime(int ms) {
+        int total = Math.max(0, ms / 1000);
+        int mins = total / 60;
+        int secs = total % 60;
+        return String.format(java.util.Locale.ROOT, "%d:%02d", mins, secs);
     }
 }

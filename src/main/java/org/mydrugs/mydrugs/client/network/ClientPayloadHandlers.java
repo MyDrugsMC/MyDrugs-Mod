@@ -23,13 +23,17 @@ import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.client.diary.MemoryCaptureClient;
 import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
 import org.mydrugs.mydrugs.client.recovery.RecoveryRoomParticleClient;
+import org.mydrugs.mydrugs.client.recovery.music.CustomDiscPlaybackController;
+import org.mydrugs.mydrugs.client.recovery.music.DiscScriberScreen;
 import org.mydrugs.mydrugs.client.recovery.music.HeadphonesMusicScreen;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
 import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
+import org.mydrugs.mydrugs.network.OpenDiscScriberScreenPayload;
 import org.mydrugs.mydrugs.network.OpenHeadphonesMusicScreenPayload;
+import org.mydrugs.mydrugs.network.PersonalDiscPlaybackPayload;
 import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
 import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
@@ -60,6 +64,8 @@ public final class ClientPayloadHandlers {
         event.register(OpenDrugFormulaNamingPayload.TYPE, DrugFormulaNamingPayloadHandler::handle);
         event.register(PsyMixerRitualSyncPayload.TYPE, PsyMixerRitualClientState::handle);
         event.register(OpenHeadphonesMusicScreenPayload.TYPE, (payload, context) -> net.minecraft.client.Minecraft.getInstance().setScreen(new HeadphonesMusicScreen()));
+        event.register(OpenDiscScriberScreenPayload.TYPE, (payload, context) -> net.minecraft.client.Minecraft.getInstance().setScreen(new DiscScriberScreen(payload.scriberPos())));
+        event.register(PersonalDiscPlaybackPayload.TYPE, CustomDiscPlaybackController::handle);
 
         // Addiction snapshots, dose/effect sync, headphones, vomit, bad-trip.
         event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);

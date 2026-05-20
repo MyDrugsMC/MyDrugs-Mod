@@ -380,7 +380,7 @@ public final class CustomMusicPlayer {
         }
     }
 
-    private static ChannelAccess resolveChannelAccess() throws ReflectiveOperationException {
+    static ChannelAccess resolveChannelAccess() throws ReflectiveOperationException {
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         Field soundEngineField = SoundManager.class.getDeclaredField("soundEngine");
         soundEngineField.setAccessible(true);

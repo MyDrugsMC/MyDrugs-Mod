@@ -99,7 +99,10 @@ public final class ModNetwork {
 
     private static void registerRecoveryPayloads(PayloadRegistrar r) {
         r.playToClient(OpenHeadphonesMusicScreenPayload.TYPE, OpenHeadphonesMusicScreenPayload.STREAM_CODEC);
+        r.playToClient(OpenDiscScriberScreenPayload.TYPE, OpenDiscScriberScreenPayload.STREAM_CODEC);
+        r.playToClient(PersonalDiscPlaybackPayload.TYPE, PersonalDiscPlaybackPayload.STREAM_CODEC);
         r.playToServer(HeadphonesControlPayload.TYPE, HeadphonesControlPayload.STREAM_CODEC, HeadphonesControlPayload::handleOnServer);
+        r.playToServer(ScribePersonalDiscPayload.TYPE, ScribePersonalDiscPayload.STREAM_CODEC, ScribePersonalDiscPayload::handleOnServer);
     }
 
     // --- addiction state snapshots and admin actions ---

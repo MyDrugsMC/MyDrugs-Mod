@@ -44,7 +44,9 @@ public final class PayloadRateLimiter {
         // second even when mashing.
         STIMULANT_DASH(200L),
         // Psy mixer rhythm input — sacred altar, not a drum kit.
-        PSY_MIXER_RITUAL_INPUT(150L);
+        PSY_MIXER_RITUAL_INPUT(150L),
+        // Disc scriber writes items; keep it comfortably below click-spam rates.
+        SCRIBE_PERSONAL_DISC(500L);
 
         final long minIntervalMs;
 

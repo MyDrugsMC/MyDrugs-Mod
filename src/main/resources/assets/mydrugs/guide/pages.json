@@ -3,89 +3,101 @@
   {
     "title": "MyDrugs Field Guide",
     "elements": [
-      { "type": "title", "text": "MyDrugs Field Guide" },
-      { "type": "text", "text": "This is a quick progression manual. It tells you what to do next, what to save, and where to look when a recipe does not run." },
-      { "type": "text", "text": "JEI gives exact ingredients. Advancements show direction. Machine GUIs explain blocked recipes. This guide gives the route." },
-      { "type": "goal", "text": "Follow MAIN QUEST pages first. Read RECOVERY QUEST pages early, not after things go wrong." },
-      { "type": "link", "text": "Open quick index", "target": "Quick Index" }
+      { "type": "title", "text": "Field Guide" },
+      { "type": "text", "text": "Someone left this manual behind. It is stained, dog-eared, and honest." },
+      { "type": "text", "text": "It will not hold your hand. It tells you the next move, what to never throw away, and what to do when a recipe sits there doing nothing." },
+      { "type": "text", "text": "JEI has the exact ingredients. Advancements point the way. Machine screens explain their own refusals. This book gives you the route between all of that." },
+      { "type": "goal", "text": "Follow the MAIN QUEST pages in order. Read the recovery pages BEFORE you need them." },
+      { "type": "link", "text": "Open the index", "target": "Quick Index" }
     ]
   },
   {
     "title": "Quick Index",
     "elements": [
       { "type": "title", "text": "Quick Index" },
-      { "type": "link", "text": "How to read pages", "target": "Quest Labels" },
-      { "type": "link", "text": "Full route in one page", "target": "Main Route" },
-      { "type": "link", "text": "Unlock order", "target": "Knowledge Order" },
-      { "type": "link", "text": "Seeds and wild finds", "target": "Early Crops" },
-      { "type": "link", "text": "Chapter 1", "target": "Coffee" },
-      { "type": "link", "text": "Chapter 2", "target": "Tobacco and Recovery" },
-      { "type": "link", "text": "Chapter 3", "target": "Psy Anvil and Sieve" },
-      { "type": "link", "text": "Chapter 4", "target": "Cannabis" },
-      { "type": "link", "text": "Chapter 5", "target": "Fermentation" },
-      { "type": "link", "text": "Chapter 6", "target": "Hash and Steel" },
-      { "type": "link", "text": "Chapter 7", "target": "Machine Era" },
-      { "type": "link", "text": "Chapter 8", "target": "Coca Route" },
-      { "type": "link", "text": "Chapter 9", "target": "Lab Chemistry" },
-      { "type": "link", "text": "Chapter 10", "target": "LSD Route" },
-      { "type": "link", "text": "Chapter 11", "target": "Meth Route" },
-      { "type": "link", "text": "Chapter 12", "target": "Mushrooms" },
-      { "type": "link", "text": "Ritual mixes", "target": "Psy Mixer" },
+      { "type": "link", "text": "Page labels", "target": "How To Read This" },
+      { "type": "link", "text": "Everything in one page", "target": "The Route" },
+      { "type": "link", "text": "The nine unlocks", "target": "Knowledge Spine" },
+      { "type": "link", "text": "Seeds and wild finds", "target": "First Crops" },
+      { "type": "link", "text": "Ch.1 — Caffeine", "target": "Coffee" },
+      { "type": "link", "text": "Ch.2 — Nicotinic", "target": "Tobacco" },
+      { "type": "link", "text": "Ch.3 — Tools", "target": "Anvil and Sieve" },
+      { "type": "link", "text": "Ch.4 — Cannabinoid", "target": "Cannabis" },
+      { "type": "link", "text": "Ch.5 — Fermented", "target": "Fermentation" },
+      { "type": "link", "text": "Ch.6 — Steel Plating", "target": "Hash and Steel" },
+      { "type": "link", "text": "Ch.7 — Machines", "target": "Machine Era" },
+      { "type": "link", "text": "Ch.8 — Stimulant", "target": "Coca" },
+      { "type": "link", "text": "Ch.9 — Gases", "target": "Lab Chemistry" },
+      { "type": "link", "text": "Ch.10 — Lysergic", "target": "LSD" },
+      { "type": "link", "text": "Ch.11 — Overclocked", "target": "Meth" },
+      { "type": "link", "text": "Ch.12 — Mycelial", "target": "Mushrooms" },
+      { "type": "link", "text": "Rituals", "target": "Psy Mixer" },
       { "type": "link", "text": "Late power", "target": "Psychotrope Energy" },
-      { "type": "link", "text": "Endgame body progression", "target": "Mutations" },
-      { "type": "link", "text": "Survival tools", "target": "Recovery Tools" },
-      { "type": "link", "text": "Fix problems fast", "target": "Stuck Checklist" }
+      { "type": "link", "text": "Endgame body", "target": "Mutations" },
+      { "type": "separator", "text": "" },
+      { "type": "link", "text": "Read yourself", "target": "The Diary" },
+      { "type": "link", "text": "See your progress", "target": "The Psyche Map" },
+      { "type": "link", "text": "Stay functional", "target": "Recovery Basics" },
+      { "type": "link", "text": "Build a safe room", "target": "Recovery Sanctuary" },
+      { "type": "link", "text": "When it turns on you", "target": "Bad Trips and Demons" },
+      { "type": "link", "text": "Inspect anything", "target": "Drug Analyzer" },
+      { "type": "link", "text": "Fix it fast", "target": "When You Are Stuck" }
     ]
   },
   {
-    "title": "Quest Labels",
+    "title": "How To Read This",
     "elements": [
-      { "type": "text", "text": "MAIN QUEST advances the knowledge spine. SUPPORT QUEST makes tools, materials, machines, fluids, or gases. RECOVERY QUEST keeps addiction, withdrawal, stress, overdose, infection, and bad trips manageable. RITUAL QUEST means Psy Mixer work. ENDGAME QUEST means psychotrope energy or mutations." },
-      { "type": "tip", "text": "If you are lost, check your latest knowledge, then follow the next MAIN QUEST." }
+      { "type": "text", "text": "Pages carry a label so you always know what a page is for." },
+      { "type": "text", "text": "MAIN QUEST advances your knowledge — the real spine of the mod. SUPPORT means tools, materials, machines, fluids, gases. RECOVERY keeps addiction, stress, overdose, infection and bad trips from running your life. RITUAL is Psy Mixer work. ENDGAME is psychotrope energy and mutations." },
+      { "type": "tip", "text": "Lost? Check the last knowledge you unlocked, then open that chapter. The route never branches far." }
     ]
   },
   {
-    "title": "Main Route",
+    "title": "The Route",
     "elements": [
-      { "type": "text", "text": "Quest label: OVERVIEW" },
-      { "type": "text", "text": "Seeds -\u003e coffee -\u003e Caffeine Knowledge -\u003e Psy Receptacle -\u003e tobacco -\u003e Nicotinic Knowledge -\u003e Psy Anvil -\u003e iron mesh -\u003e sieve -\u003e cannabis -\u003e Cannabinoid Knowledge -\u003e fermentation -\u003e Fermented Knowledge -\u003e heavy iron -\u003e stomp crafter -\u003e hash -\u003e Steel Plating Knowledge -\u003e machines -\u003e coca -\u003e Stimulant Knowledge -\u003e circuits -\u003e LSD -\u003e Lysergic Knowledge -\u003e advanced circuits -\u003e meth -\u003e Overclocked Knowledge -\u003e mushrooms -\u003e Mycelial Knowledge -\u003e psychotrope energy -\u003e mutations." },
-      { "type": "warning", "text": "Hash comes after Fermented Knowledge because the stomp crafter needs heavy iron." },
-      { "type": "link", "text": "Next: knowledge order", "target": "Knowledge Order" }
+      { "type": "text", "text": "OVERVIEW" },
+      { "type": "text", "text": "This is the whole game on one page. Each arrow is roughly one chapter." },
+      { "type": "text", "text": "Seeds → coffee → tobacco → Psy Anvil → sieve → cannabis → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → psychotrope energy → mutations." },
+      { "type": "text", "text": "Recovery runs alongside ALL of it, not after." },
+      { "type": "warning", "text": "Hash sits after Fermented Knowledge — the stomp crafter that presses it needs heavy iron first." },
+      { "type": "link", "text": "The nine unlocks", "target": "Knowledge Spine" }
     ]
   },
   {
-    "title": "Knowledge Order",
+    "title": "Knowledge Spine",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST" },
-      { "type": "text", "text": "1. Coffee -\u003e Caffeine Knowledge. 2. Processed tobacco -\u003e Nicotinic Knowledge. 3. Processed cannabis -\u003e Cannabinoid Knowledge. 4. Fermented mash -\u003e Fermented Knowledge. 5. Hash -\u003e Steel Plating Knowledge. 6. Cocaine powder -\u003e Stimulant Knowledge. 7. LSD Drop -\u003e Lysergic Knowledge. 8. Meth powder by smoking route -\u003e Overclocked Knowledge. 9. Magic mushroom -\u003e Mycelial Knowledge." },
-      { "type": "warning", "text": "Using something too early may give effects or addiction, but no knowledge." },
-      { "type": "goal", "text": "Do not rush. Unlock the prerequisite knowledge first." }
+      { "type": "text", "text": "MAIN QUEST" },
+      { "type": "text", "text": "Knowledge is permanent. You earn each one by consuming a drug in its finished form — and each gate needs the one before it." },
+      { "type": "text", "text": "1. Coffee → Caffeine 2. Processed tobacco → Nicotinic 3. Processed cannabis → Cannabinoid 4. Fermented mash → Fermented 5. Hash → Steel Plating 6. Cocaine powder → Stimulant 7. LSD Drop → Lysergic 8. Meth powder (smoked) → Overclocked 9. Magic mushroom → Mycelial" },
+      { "type": "warning", "text": "Consume something too early and you still get the effects and the addiction — but no knowledge. The dose is wasted." },
+      { "type": "goal", "text": "Never rush a gate. Unlock the one before it first." }
     ]
   },
   {
-    "title": "Early Crops",
+    "title": "First Crops",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST + EXPLORATION" },
-      { "type": "text", "text": "Break grass, tall grass, ferns, and large ferns without shears." },
+      { "type": "text", "text": "MAIN QUEST + EXPLORATION" },
+      { "type": "text", "text": "Everything starts in the grass. Break grass, tall grass, ferns and large ferns by hand — no shears — and seeds will drop." },
       { "type": "item", "text": "mydrugs:coffee_seeds" },
       { "type": "item", "text": "mydrugs:tobacco_seeds" },
       { "type": "item", "text": "mydrugs:cannabis_seeds" },
       { "type": "item", "text": "mydrugs:coca_seeds" },
       { "type": "item", "text": "mydrugs:rye_seeds" },
       { "type": "item", "text": "mydrugs:malt_seeds" },
-      { "type": "text", "text": "Grow all six crops. Keep separate rows." },
-      { "type": "text", "text": "Also collect useful wild finds when exploring." },
+      { "type": "text", "text": "Plant all six. Keep the rows separate so you never confuse a harvest." },
+      { "type": "text", "text": "While you explore, pocket the wild finds too — they matter later." },
       { "type": "item", "text": "mydrugs:aloe_vera" },
       { "type": "item", "text": "mydrugs:bitter_nut" },
       { "type": "item", "text": "mydrugs:third_eye_petal" },
       { "type": "item", "text": "mydrugs:magic_mushroom" },
-      { "type": "goal", "text": "Start a farm before deep processing." }
+      { "type": "goal", "text": "Get a farm running before you touch any processing." }
     ]
   },
   {
     "title": "Coffee",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 1" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 1" },
+      { "type": "text", "text": "Your first drug, and the gentlest. It teaches you the whole pattern: harvest, process, refine, consume." },
       { "type": "item", "text": "mydrugs:coffee_cherries" },
       { "type": "item", "text": "mydrugs:manual_coffee_pulper" },
       { "type": "item", "text": "mydrugs:wet_coffee_bean" },
@@ -94,111 +106,97 @@
       { "type": "item", "text": "mydrugs:clay_vat" },
       { "type": "item", "text": "mydrugs:cup" },
       { "type": "item", "text": "mydrugs:coffee_cup" },
-      { "type": "item", "text": "mydrugs:psy_receptacle" },
-      { "type": "text", "text": "Pulp cherries -\u003e dry wet beans -\u003e grind beans -\u003e brew powder in heated clay vat with water -\u003e fill cup -\u003e drink." },
-      { "type": "text", "text": "First coffee gives Caffeine Knowledge and the Psy Receptacle." },
-      { "type": "tip", "text": "A first-use diary entry should point you toward tobacco next." },
-      { "type": "goal", "text": "Drink coffee and keep the Psy Receptacle." },
-      { "type": "link", "text": "Next: tools", "target": "Resin and Tools" }
+      { "type": "text", "text": "Pulp the cherries, dry the wet beans, grind them to powder, brew it in a heated clay vat with water, fill a cup, drink." },
+      { "type": "text", "text": "That first sip grants Caffeine Knowledge — and hands you the Psy Receptacle, the heart of every tool ahead." },
+      { "type": "goal", "text": "Drink a coffee. Guard the Psy Receptacle with your life." },
+      { "type": "link", "text": "Build your kit", "target": "Tools and Resin" }
     ]
   },
   {
-    "title": "Resin and Tools",
+    "title": "Tools and Resin",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
+      { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Before tobacco, you need a workshop." },
       { "type": "item", "text": "mydrugs:resin" },
       { "type": "item", "text": "mydrugs:treated_planks" },
       { "type": "item", "text": "mydrugs:drying_rack" },
       { "type": "item", "text": "mydrugs:grinding_bowl" },
       { "type": "item", "text": "mydrugs:grinding_tool" },
       { "type": "item", "text": "mydrugs:portable_grinder" },
-      { "type": "text", "text": "Use an axe repeatedly on strip-able logs to get ordinary resin. Combine resin with planks to make treated planks." },
-      { "type": "text", "text": "Build drying rack, grinding bowl, and grinding tool. These process most early crops." },
-      { "type": "warning", "text": "Ordinary resin is not cannabis resin." },
-      { "type": "goal", "text": "Build drying and grinding before tobacco." }
+      { "type": "text", "text": "Strike strippable logs with an axe, over and over, until ordinary resin falls. Resin plus planks gives treated planks." },
+      { "type": "text", "text": "Build the drying rack, grinding bowl and grinding tool. These three process nearly every early crop." },
+      { "type": "warning", "text": "Ordinary resin is NOT cannabis resin. Different thing, different page." },
+      { "type": "goal", "text": "Drying and grinding ready before you cut tobacco." }
     ]
   },
   {
-    "title": "Tobacco and Recovery",
+    "title": "Tobacco",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST + RECOVERY QUEST, Chapter 2" },
+      { "type": "text", "text": "MAIN QUEST + RECOVERY — Chapter 2" },
+      { "type": "text", "text": "Tobacco is the second gate — and the first thing that bites back." },
       { "type": "item", "text": "mydrugs:tobacco_leaf" },
       { "type": "item", "text": "mydrugs:dried_tobacco_leaf" },
       { "type": "item", "text": "mydrugs:tobacco_handful" },
       { "type": "item", "text": "mydrugs:bang" },
       { "type": "item", "text": "mydrugs:roller" },
       { "type": "item", "text": "mydrugs:cigaret" },
-      { "type": "text", "text": "Dry tobacco leaves -\u003e grind into tobacco handfuls -\u003e smoke directly or roll a cigarette." },
-      { "type": "text", "text": "Processed tobacco gives Nicotinic Knowledge." },
-      { "type": "warning", "text": "Addiction rates are high. Start recovery habits now, not in late game." },
-      { "type": "goal", "text": "Unlock Nicotinic Knowledge, then prepare recovery tools." },
-      { "type": "link", "text": "Recovery now", "target": "Early Recovery" }
+      { "type": "text", "text": "Dry the leaves, grind them into handfuls, then smoke them raw or roll a proper cigarette." },
+      { "type": "text", "text": "Processed tobacco grants Nicotinic Knowledge." },
+      { "type": "warning", "text": "Addiction climbs fast here. The habits you skip now become the crisis you fix later." },
+      { "type": "goal", "text": "Get Nicotinic Knowledge — then read the recovery pages before your next smoke." },
+      { "type": "link", "text": "Get ahead of it", "target": "Recovery Basics" }
     ]
   },
   {
-    "title": "Early Recovery",
+    "title": "Anvil and Sieve",
     "elements": [
-      { "type": "text", "text": "Quest label: RECOVERY QUEST" },
-      { "type": "item", "text": "mydrugs:personal_diary" },
-      { "type": "item", "text": "mydrugs:headphones" },
-      { "type": "item", "text": "mydrugs:herbal_tea" },
-      { "type": "item", "text": "mydrugs:calming_mixture" },
-      { "type": "text", "text": "Use the diary to read your state. Headphones, herbal tea, and calming mixture help manage stress and withdrawal pressure." },
-      { "type": "text", "text": "Recovery is not only late-game. Repeated coffee, tobacco, and cannabis use can already matter." },
-      { "type": "tip", "text": "The diary should explain first-time consumption and suggest the next safe step." },
-      { "type": "goal", "text": "Keep at least one recovery option before repeated use." }
-    ]
-  },
-  {
-    "title": "Psy Anvil and Sieve",
-    "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST + SUPPORT QUEST, Chapter 3" },
+      { "type": "text", "text": "MAIN QUEST + SUPPORT — Chapter 3" },
+      { "type": "text", "text": "Two knowledges in your head means the Psy Anvil will finally listen to you." },
       { "type": "item", "text": "mydrugs:psy_receptacle" },
       { "type": "item", "text": "mydrugs:psy_anvil" },
       { "type": "item", "text": "mydrugs:stone_hammer" },
       { "type": "item", "text": "mydrugs:iron_mesh" },
       { "type": "item", "text": "mydrugs:sieve" },
-      { "type": "text", "text": "After Caffeine and Nicotinic Knowledge, craft the Psy Anvil." },
-      { "type": "text", "text": "Use the Psy Anvil to make iron mesh, then craft the sieve." },
-      { "type": "text", "text": "If the anvil refuses, read its message. It tells you if knowledge is missing." },
-      { "type": "goal", "text": "Craft iron mesh and build the sieve." }
+      { "type": "text", "text": "Craft the Psy Anvil. Use it to forge iron mesh, then build the sieve from that mesh." },
+      { "type": "text", "text": "The anvil unlocks new recipes with every knowledge you gain. If it refuses you, read its message — it tells you exactly which knowledge is missing." },
+      { "type": "goal", "text": "Forge iron mesh and build the sieve." }
     ]
   },
   {
     "title": "Cannabis",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 4" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 4" },
       { "type": "item", "text": "mydrugs:cannabis_leaf" },
       { "type": "item", "text": "mydrugs:cured_cannabis_leaf" },
       { "type": "item", "text": "mydrugs:dried_cannabis_leaf" },
       { "type": "item", "text": "mydrugs:cannabis_resin" },
       { "type": "item", "text": "mydrugs:cannabis_powder" },
-      { "type": "text", "text": "Dry cannabis leaves into cured leaves. Sieve cured leaves. Save all cannabis resin. Grind dried cannabis leaf into cannabis powder." },
-      { "type": "text", "text": "Smoke cannabis powder or roll it to gain Cannabinoid Knowledge after Nicotinic Knowledge." },
-      { "type": "warning", "text": "Sieve before grinding. Resin is needed later for hash." },
-      { "type": "goal", "text": "Unlock Cannabinoid Knowledge and store every resin piece." }
+      { "type": "text", "text": "Dry cannabis leaves into cured leaves. Run cured leaves through the sieve. Grind dried leaf into powder." },
+      { "type": "text", "text": "Smoke or roll the powder for Cannabinoid Knowledge." },
+      { "type": "warning", "text": "Sieve BEFORE you grind — sieving is where cannabis resin comes from, and every scrap of resin becomes hash later. Throw none away." },
+      { "type": "goal", "text": "Unlock Cannabinoid Knowledge. Hoard the resin." }
     ]
   },
   {
     "title": "Copper Workshop",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
+      { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens the fluid era." },
       { "type": "item", "text": "mydrugs:copper_plate" },
       { "type": "item", "text": "mydrugs:copper_strapping" },
       { "type": "item", "text": "mydrugs:copper_tube" },
       { "type": "item", "text": "mydrugs:wooden_frame" },
       { "type": "item", "text": "mydrugs:mixing_vat" },
       { "type": "item", "text": "mydrugs:mixing_spatula" },
-      { "type": "text", "text": "Cannabinoid Knowledge unlocks copper shaping on the Psy Anvil." },
-      { "type": "text", "text": "Use copper parts to build the mixing vat. This starts the fluid era." },
-      { "type": "tip", "text": "Copper is a bottleneck. Do not spend it carelessly." },
+      { "type": "text", "text": "Shape copper parts and assemble the mixing vat. From here, recipes start dealing in fluids, not just items." },
+      { "type": "tip", "text": "Copper is your first real bottleneck. Spend it on the vat first." },
       { "type": "goal", "text": "Build a mixing vat." }
     ]
   },
   {
     "title": "Fermentation",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 5" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 5" },
       { "type": "item", "text": "mydrugs:rye" },
       { "type": "item", "text": "mydrugs:malt" },
       { "type": "item", "text": "mydrugs:malt_powder" },
@@ -206,109 +204,112 @@
       { "type": "item", "text": "mydrugs:sweet_mash_bucket" },
       { "type": "item", "text": "mydrugs:fermented_mash_bucket" },
       { "type": "item", "text": "mydrugs:glass_bottle" },
-      { "type": "text", "text": "Use the mixing vat to make mash, sweet mash, then fermented mash. JEI gives exact fluid recipes." },
-      { "type": "text", "text": "Drink fermented mash from a MyDrugs glass bottle after Cannabinoid Knowledge." },
+      { "type": "text", "text": "In the mixing vat: mash, then sweet mash, then fermented mash. JEI has the exact fluid amounts." },
+      { "type": "text", "text": "Bottle the fermented mash in a MyDrugs glass bottle and drink it for Fermented Knowledge." },
       { "type": "goal", "text": "Unlock Fermented Knowledge." }
     ]
   },
   {
     "title": "Heavy Iron",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
+      { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Fermented Knowledge unlocks heavy iron on the Psy Anvil — the metal that builds machines." },
       { "type": "item", "text": "mydrugs:heavy_iron" },
       { "type": "item", "text": "mydrugs:heavy_iron_plate" },
       { "type": "item", "text": "mydrugs:mechanical_frame" },
       { "type": "item", "text": "mydrugs:reinforced_casing" },
       { "type": "item", "text": "mydrugs:iron_hammer" },
-      { "type": "text", "text": "Fermented Knowledge unlocks heavy iron on the Psy Anvil." },
-      { "type": "text", "text": "Heavy iron leads to stronger frames, casings, the stomp crafter, and early machines." },
-      { "type": "goal", "text": "Craft enough heavy iron for the stomp crafter and machine parts." }
+      { "type": "text", "text": "Heavy iron becomes frames, casings, the stomp crafter, and the first real machines." },
+      { "type": "goal", "text": "Forge enough heavy iron for the stomp crafter and a stock of machine parts." }
     ]
   },
   {
     "title": "Hash and Steel",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 6" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 6" },
+      { "type": "text", "text": "This is where your hoarded resin pays off." },
       { "type": "item", "text": "mydrugs:stomp_crafter" },
-      { "type": "item", "text": "mydrugs:stomp_plate" },
       { "type": "item", "text": "mydrugs:cannabis_resin" },
       { "type": "item", "text": "mydrugs:hash_brick" },
       { "type": "item", "text": "mydrugs:hash_piece" },
       { "type": "item", "text": "mydrugs:steel_blend" },
       { "type": "item", "text": "mydrugs:steel_ingot" },
       { "type": "item", "text": "mydrugs:steel_plate" },
-      { "type": "text", "text": "Use the stomp crafter to press saved cannabis resin into hash. Split hash bricks into hash pieces. Smoke hash to unlock Steel Plating Knowledge." },
-      { "type": "text", "text": "Then make steel and craft steel plates on the Psy Anvil." },
-      { "type": "goal", "text": "Unlock Steel Plating Knowledge and enter the machine era." }
+      { "type": "text", "text": "Press saved resin in the stomp crafter into hash bricks, split bricks into pieces, and smoke a piece." },
+      { "type": "text", "text": "Hash grants Steel Plating Knowledge — then forge steel and steel plates on the Psy Anvil." },
+      { "type": "goal", "text": "Unlock Steel Plating Knowledge and step into the machine era." }
     ]
   },
   {
     "title": "Machine Era",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST, Chapter 7" },
+      { "type": "text", "text": "SUPPORT — Chapter 7" },
+      { "type": "text", "text": "Steel means machines. From here you stop doing things by hand." },
       { "type": "item", "text": "mydrugs:advanced_furnace" },
       { "type": "item", "text": "mydrugs:distiller" },
       { "type": "item", "text": "mydrugs:centrifuge" },
       { "type": "item", "text": "mydrugs:fluid_filterer" },
       { "type": "item", "text": "mydrugs:evaporation_tray" },
       { "type": "item", "text": "mydrugs:advanced_mixing_vat" },
-      { "type": "text", "text": "Build machines as JEI and advancements require them. Machine GUIs show why a recipe is blocked." },
-      { "type": "text", "text": "Common blocked reasons: missing input, wrong fluid, wrong gas, no heat, no energy, output full, side config, missing knowledge." },
-      { "type": "tip", "text": "Read machine status before assuming a recipe is broken." },
-      { "type": "goal", "text": "Build advanced furnace, distiller, centrifuge, filterer, tray, and advanced vat." }
+      { "type": "text", "text": "Build machines as JEI and the advancements call for them. Every machine GUI tells you why a recipe is stuck." },
+      { "type": "text", "text": "Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, output full, bad side config, missing knowledge." },
+      { "type": "tip", "text": "A machine that \"does nothing\" is almost always telling you why. Read its screen first." },
+      { "type": "goal", "text": "Furnace, distiller, centrifuge, filterer, tray and advanced vat — all built." }
     ]
   },
   {
-    "title": "Common Materials",
+    "title": "Support Materials",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
+      { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "The boring stockpile that stops you mid-recipe later. Build a chest for it." },
       { "type": "item", "text": "mydrugs:plant_biomass" },
       { "type": "item", "text": "mydrugs:coal_dust" },
       { "type": "item", "text": "mydrugs:activated_coal" },
-      { "type": "item", "text": "mydrugs:raw_rubber" },
       { "type": "item", "text": "mydrugs:rubber" },
       { "type": "item", "text": "mydrugs:thick_glass" },
       { "type": "item", "text": "mydrugs:glass_tube" },
       { "type": "item", "text": "mydrugs:tight_seal" },
       { "type": "item", "text": "mydrugs:fluid_filter" },
       { "type": "item", "text": "mydrugs:refractory_brick" },
-      { "type": "text", "text": "Keep extra biomass, coal dust, rubber, glass tubes, seals, filters, refractory materials, copper tubes, and steel plates." },
-      { "type": "goal", "text": "Stock support materials before coca and lab chemistry." }
+      { "type": "text", "text": "Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, copper tube and steel plate spare." },
+      { "type": "goal", "text": "Stock up before coca and lab chemistry, not during." }
     ]
   },
   {
     "title": "World Materials",
     "elements": [
-      { "type": "text", "text": "Quest label: EXPLORATION QUEST" },
+      { "type": "text", "text": "EXPLORATION" },
+      { "type": "text", "text": "Late chemistry runs on things you have to go and dig for." },
       { "type": "item", "text": "mydrugs:aluminium_ore" },
       { "type": "item", "text": "mydrugs:platinum_ore" },
       { "type": "item", "text": "mydrugs:sulfur_ore" },
       { "type": "item", "text": "mydrugs:sulfur_powder" },
       { "type": "item", "text": "mydrugs:salt_powder" },
       { "type": "item", "text": "mydrugs:petroleum_bucket" },
-      { "type": "text", "text": "Mine sulfur, aluminium, and platinum. Find salt in ocean terrain. Mark desert petroleum." },
-      { "type": "text", "text": "Platinum, aluminium, sulfur, salt, and petroleum support late chemistry." },
-      { "type": "goal", "text": "Gather world materials before deep lab routes." }
+      { "type": "text", "text": "Mine sulfur, aluminium and platinum. Find salt in ocean terrain. Mark every desert petroleum pocket on your map." },
+      { "type": "goal", "text": "Gather these before the deep lab routes — they gate everything past coca." }
     ]
   },
   {
-    "title": "Alcohol Distillation",
+    "title": "Pipes and Transfer",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
-      { "type": "item", "text": "mydrugs:fermented_mash_bucket" },
-      { "type": "item", "text": "mydrugs:low_wines_bucket" },
-      { "type": "item", "text": "mydrugs:raw_alcohol_bucket" },
-      { "type": "item", "text": "mydrugs:ethanol_bucket" },
-      { "type": "item", "text": "mydrugs:absolute_ethanol_bucket" },
-      { "type": "text", "text": "Distill fermented mash -\u003e low wines -\u003e raw alcohol -\u003e ethanol. Mix ethanol with salt powder to make absolute ethanol." },
-      { "type": "text", "text": "Absolute ethanol is needed for coca and lab chemistry." },
-      { "type": "goal", "text": "Produce absolute ethanol." }
+      { "type": "text", "text": "UTILITY" },
+      { "type": "text", "text": "When carrying buckets gets old, automate." },
+      { "type": "item", "text": "mydrugs:basic_item_pipe" },
+      { "type": "item", "text": "mydrugs:basic_fluid_pipe" },
+      { "type": "item", "text": "mydrugs:basic_gas_pipe" },
+      { "type": "item", "text": "mydrugs:pipe_wrench" },
+      { "type": "item", "text": "mydrugs:pipe_filter_upgrade" },
+      { "type": "item", "text": "mydrugs:machine_transfer_upgrade" },
+      { "type": "text", "text": "Match the pipe to the cargo — items, fluids and gases each need their own. Use the wrench to set machine sides, and filters when only one resource should move down a line." },
+      { "type": "tip", "text": "Line stopped? Check, in order: output space, tank type, pipe direction, side config, filter, energy." }
     ]
   },
   {
-    "title": "Coca Route",
+    "title": "Coca",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 8" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 8" },
+      { "type": "text", "text": "The first hard drug. It needs a machine line and it does not forgive sloppy recovery." },
       { "type": "item", "text": "mydrugs:coca_leaf" },
       { "type": "item", "text": "mydrugs:dried_coca_leaf" },
       { "type": "item", "text": "mydrugs:coca_paste" },
@@ -316,108 +317,105 @@
       { "type": "item", "text": "mydrugs:filtered_extract_bucket" },
       { "type": "item", "text": "mydrugs:cocaine_plate" },
       { "type": "item", "text": "mydrugs:cocaine_powder" },
-      { "type": "text", "text": "Dry coca -\u003e grind paste -\u003e mix with absolute ethanol -\u003e centrifuge -\u003e evaporate -\u003e grind plate into powder." },
-      { "type": "text", "text": "Consume cocaine powder after Fermented Knowledge to unlock Stimulant Knowledge." },
-      { "type": "warning", "text": "Cocaine and crack raise addiction, bad trip, and overdose pressure quickly." },
-      { "type": "goal", "text": "Unlock Stimulant Knowledge." }
+      { "type": "text", "text": "Dry coca, grind to paste, mix with absolute ethanol, centrifuge, evaporate, then grind the plate into powder." },
+      { "type": "text", "text": "Cocaine powder grants Stimulant Knowledge." },
+      { "type": "warning", "text": "Cocaine and crack spike addiction, bad-trip pressure and overdose risk hard. Have recovery built first." },
+      { "type": "goal", "text": "Unlock Stimulant Knowledge." },
+      { "type": "link", "text": "You need ethanol first", "target": "Alcohol Distillation" }
+    ]
+  },
+  {
+    "title": "Alcohol Distillation",
+    "elements": [
+      { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Coca and lab chemistry both run on absolute ethanol. Make it before chapter 8." },
+      { "type": "item", "text": "mydrugs:low_wines_bucket" },
+      { "type": "item", "text": "mydrugs:raw_alcohol_bucket" },
+      { "type": "item", "text": "mydrugs:ethanol_bucket" },
+      { "type": "item", "text": "mydrugs:absolute_ethanol_bucket" },
+      { "type": "text", "text": "Distill fermented mash up the chain: low wines → raw alcohol → ethanol. Mix ethanol with salt powder for absolute ethanol." },
+      { "type": "goal", "text": "Keep a steady supply of absolute ethanol." }
     ]
   },
   {
     "title": "Cocaine and Crack",
     "elements": [
-      { "type": "text", "text": "Quest label: SIDE QUEST + RISK ROUTE" },
+      { "type": "text", "text": "SIDE — RISK ROUTE" },
       { "type": "item", "text": "mydrugs:cocaine_powder" },
       { "type": "item", "text": "mydrugs:cupboard_piece" },
       { "type": "item", "text": "mydrugs:crack_plate" },
       { "type": "item", "text": "mydrugs:crack_shard" },
-      { "type": "text", "text": "Cocaine can be powder, rail, or rolling ingredient. To make a rail, place powder pile, shape with cardboard, then use the rail." },
-      { "type": "text", "text": "Crack is a stronger smoking branch. Follow JEI for advanced vat and tray steps." },
-      { "type": "warning", "text": "Prepare recovery before repeated use." }
+      { "type": "text", "text": "Cocaine isn\u0027t just powder — snort it as a rail (place a pile, shape it with cardboard, then use it) or roll it." },
+      { "type": "text", "text": "Crack is the harder smoking branch. Follow JEI for the advanced vat and tray steps." },
+      { "type": "warning", "text": "Crack is the most punishing thing in the early-to-mid game. Recovery room ready, or don\u0027t." }
     ]
   },
   {
     "title": "Stimulant Tech",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
+      { "type": "text", "text": "SUPPORT" },
       { "type": "item", "text": "mydrugs:insulated_wire" },
       { "type": "item", "text": "mydrugs:control_circuit" },
       { "type": "item", "text": "mydrugs:electric_motor" },
       { "type": "item", "text": "mydrugs:heating_coil" },
       { "type": "item", "text": "mydrugs:condenser_coil" },
       { "type": "item", "text": "mydrugs:electrode_pair" },
-      { "type": "text", "text": "Stimulant Knowledge unlocks repeatable insulated wire. Use it for control circuits and powered machine parts." },
-      { "type": "goal", "text": "Craft control circuits and expand automation." }
-    ]
-  },
-  {
-    "title": "Pipes and Transfers",
-    "elements": [
-      { "type": "text", "text": "Quest label: UTILITY QUEST" },
-      { "type": "item", "text": "mydrugs:basic_item_pipe" },
-      { "type": "item", "text": "mydrugs:basic_fluid_pipe" },
-      { "type": "item", "text": "mydrugs:basic_gas_pipe" },
-      { "type": "item", "text": "mydrugs:pipe_wrench" },
-      { "type": "item", "text": "mydrugs:pipe_filter_upgrade" },
-      { "type": "item", "text": "mydrugs:machine_transfer_upgrade" },
-      { "type": "text", "text": "Use the correct pipe type. Configure machine sides with upgrades. Use filters when only one resource should move." },
-      { "type": "tip", "text": "If a line stops, check output space, tank type, gas tank, pipe direction, side config, filters, and energy." }
+      { "type": "text", "text": "Stimulant Knowledge unlocks repeatable insulated wire — and wire becomes control circuits and powered machine parts." },
+      { "type": "goal", "text": "Build control circuits and start automating in earnest." }
     ]
   },
   {
     "title": "Lab Chemistry",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST, Chapter 9" },
+      { "type": "text", "text": "SUPPORT — Chapter 9" },
+      { "type": "text", "text": "The late game splits every recipe into three streams: items, fluids and gases. Each is a separate input." },
       { "type": "item", "text": "mydrugs:gas_tank" },
       { "type": "item", "text": "mydrugs:gas_pump" },
       { "type": "item", "text": "mydrugs:fluid_pump" },
       { "type": "item", "text": "mydrugs:chemical_reactor" },
       { "type": "item", "text": "mydrugs:gasifier" },
       { "type": "item", "text": "mydrugs:electrolyzer" },
-      { "type": "item", "text": "mydrugs:advanced_mixing_vat" },
-      { "type": "text", "text": "Late recipes use fluids and gases. Items, fluids, and gases are separate inputs." },
-      { "type": "text", "text": "Build gas storage, pumps, chemical reactor, gasifier, electrolyzer, and advanced mixing vat." },
-      { "type": "goal", "text": "Prepare gas and chemical handling before LSD and meth." }
+      { "type": "text", "text": "Build gas storage, both pumps, the chemical reactor, the gasifier and the electrolyzer." },
+      { "type": "goal", "text": "Gas and chemical handling online before LSD and meth." }
     ]
   },
   {
     "title": "Acids and Reagents",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
-      { "type": "item", "text": "mydrugs:brine_bucket" },
+      { "type": "text", "text": "SUPPORT" },
       { "type": "item", "text": "mydrugs:hydrochloric_acid_bucket" },
       { "type": "item", "text": "mydrugs:sulfuric_acid_bucket" },
       { "type": "item", "text": "mydrugs:acylating_agent_bucket" },
       { "type": "item", "text": "mydrugs:amino_acid_bucket" },
       { "type": "item", "text": "mydrugs:tryptophan" },
       { "type": "item", "text": "mydrugs:diethylamine_bucket" },
-      { "type": "text", "text": "Use JEI to produce acids and reagents from brine, gases, plant biomass, malt, water, ethanol, and ammoniac." },
-      { "type": "tip", "text": "If an LSD recipe is blocked, the missing input is often a gas or acid." },
-      { "type": "goal", "text": "Stock hydrochloric acid, sulfuric acid, acylating agent, tryptophan, and diethylamine." }
+      { "type": "text", "text": "JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammoniac." },
+      { "type": "tip", "text": "When an LSD recipe is blocked, the missing piece is almost always a gas or an acid." },
+      { "type": "goal", "text": "Stock hydrochloric and sulfuric acid, acylating agent, tryptophan and diethylamine." }
     ]
   },
   {
-    "title": "LSD Route",
+    "title": "LSD",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 10" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 10" },
       { "type": "item", "text": "mydrugs:growth_chamber" },
       { "type": "item", "text": "mydrugs:biochemical_reactor" },
       { "type": "item", "text": "mydrugs:fungal_culture" },
       { "type": "item", "text": "mydrugs:infected_rye" },
       { "type": "item", "text": "mydrugs:ergot" },
-      { "type": "item", "text": "mydrugs:ergotamine" },
       { "type": "item", "text": "mydrugs:lysergic_acid_bucket" },
       { "type": "item", "text": "mydrugs:lsd_bucket" },
       { "type": "item", "text": "mydrugs:lsd_drop" },
-      { "type": "text", "text": "Grow fungal culture, infect rye, harvest ergot, process through biochemical and chemical routes, then make LSD fluid." },
-      { "type": "text", "text": "Drop cardboard pieces and use a bottle containing LSD to make LSD Drops." },
-      { "type": "text", "text": "Consume an LSD Drop after Stimulant Knowledge to unlock Lysergic Knowledge." },
+      { "type": "text", "text": "Grow fungal culture, infect rye, harvest ergot, run it through the biochemical and chemical routes into LSD fluid." },
+      { "type": "text", "text": "Drop cardboard pieces, use a bottle of LSD fluid on them, and you get LSD Drops." },
+      { "type": "text", "text": "An LSD Drop grants Lysergic Knowledge." },
       { "type": "goal", "text": "Unlock Lysergic Knowledge." }
     ]
   },
   {
     "title": "Advanced Circuits",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
+      { "type": "text", "text": "SUPPORT" },
       { "type": "item", "text": "mydrugs:advanced_control_circuit" },
       { "type": "item", "text": "mydrugs:reaction_core" },
       { "type": "item", "text": "mydrugs:catalyst_bed" },
@@ -425,207 +423,245 @@
       { "type": "item", "text": "mydrugs:valve" },
       { "type": "item", "text": "mydrugs:membrane" },
       { "type": "item", "text": "mydrugs:injector_nozzle" },
-      { "type": "text", "text": "Lysergic Knowledge unlocks advanced control circuits and high-tier machine parts." },
-      { "type": "goal", "text": "Build advanced circuits before petroleum and meth routes." }
+      { "type": "text", "text": "Lysergic Knowledge unlocks advanced circuits and the high-tier machine parts the meth route demands." },
+      { "type": "goal", "text": "Advanced circuits done before petroleum and meth." }
     ]
   },
   {
-    "title": "Petroleum Route",
+    "title": "Petroleum",
     "elements": [
-      { "type": "text", "text": "Quest label: SUPPORT QUEST" },
-      { "type": "item", "text": "mydrugs:petroleum_bucket" },
+      { "type": "text", "text": "SUPPORT" },
       { "type": "item", "text": "mydrugs:naphtha_bucket" },
-      { "type": "item", "text": "mydrugs:coal_tar_bucket" },
       { "type": "item", "text": "mydrugs:reformate_bucket" },
       { "type": "item", "text": "mydrugs:btx_mix_bucket" },
       { "type": "item", "text": "mydrugs:benzene_bucket" },
-      { "type": "item", "text": "mydrugs:toluene_bucket" },
-      { "type": "item", "text": "mydrugs:xylene_bucket" },
       { "type": "item", "text": "mydrugs:steam_cracker" },
       { "type": "item", "text": "mydrugs:catalytic_reformer" },
       { "type": "item", "text": "mydrugs:aromatic_extractor" },
       { "type": "item", "text": "mydrugs:btx_fractionation_tower" },
-      { "type": "text", "text": "Build the cracker, reformer, extractor, and BTX tower before batch-producing meth precursors." },
-      { "type": "goal", "text": "Produce benzene and propylene for late meth chemistry." }
+      { "type": "text", "text": "Build the cracker, reformer, extractor and BTX tower, then refine petroleum into benzene and propylene." },
+      { "type": "goal", "text": "Produce the aromatics that feed late meth chemistry." }
     ]
   },
   {
-    "title": "Meth Route",
+    "title": "Meth",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST, Chapter 11" },
-      { "type": "item", "text": "mydrugs:methanol_bucket" },
+      { "type": "text", "text": "MAIN QUEST — Chapter 11" },
+      { "type": "text", "text": "The longest chain in the mod. There is no shortcut — this is the payoff for everything you built." },
       { "type": "item", "text": "mydrugs:methylamine_bucket" },
       { "type": "item", "text": "mydrugs:acetone_bucket" },
-      { "type": "item", "text": "mydrugs:chloroacetone_bucket" },
       { "type": "item", "text": "mydrugs:phenylacetone_bucket" },
       { "type": "item", "text": "mydrugs:methamphetamine_bucket" },
       { "type": "item", "text": "mydrugs:meth_shard" },
       { "type": "item", "text": "mydrugs:meth_powder" },
-      { "type": "text", "text": "Use high-tier machines, gases, reactors, aromatics, and evaporation. Grind meth shards into meth powder." },
-      { "type": "text", "text": "Smoke meth powder after Lysergic Knowledge to unlock Overclocked Knowledge." },
-      { "type": "warning", "text": "This is a late route, not a shortcut." },
+      { "type": "text", "text": "High-tier machines, gases, reactors, aromatics and evaporation all feed in. Grind meth shards into meth powder." },
+      { "type": "text", "text": "Smoke meth powder for Overclocked Knowledge." },
+      { "type": "warning", "text": "Meth shards do nothing on their own — they MUST become powder, and powder must be smoked." },
       { "type": "goal", "text": "Unlock Overclocked Knowledge." }
     ]
   },
   {
     "title": "Mushrooms",
     "elements": [
-      { "type": "text", "text": "Quest label: MAIN QUEST + EXPLORATION, Chapter 12" },
+      { "type": "text", "text": "MAIN QUEST + EXPLORATION — Chapter 12" },
       { "type": "item", "text": "mydrugs:magic_mushroom" },
       { "type": "item", "text": "mydrugs:magic_mushroom_powder" },
       { "type": "item", "text": "mydrugs:mycelial_resonator" },
       { "type": "item", "text": "mydrugs:vanilla_biome_finder" },
       { "type": "item", "text": "mydrugs:shroom_harvester" },
-      { "type": "text", "text": "Magic mushrooms can be found earlier, but Mycelial Knowledge only unlocks after Overclocked Knowledge." },
-      { "type": "text", "text": "After Overclocked Knowledge, consume a magic mushroom to unlock Mycelial Knowledge. Use mushroom powder for late recipes." },
-      { "type": "goal", "text": "Find psychedelic terrain and unlock Mycelial Knowledge." }
+      { "type": "text", "text": "You can find magic mushrooms early — but Mycelial Knowledge only opens after Overclocked." },
+      { "type": "text", "text": "Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes." },
+      { "type": "goal", "text": "Hunt down psychedelic terrain and close the knowledge spine." }
     ]
   },
   {
     "title": "Psy Mixer",
     "elements": [
-      { "type": "text", "text": "Quest label: RITUAL QUEST" },
+      { "type": "text", "text": "RITUAL" },
+      { "type": "text", "text": "The Psy Mixer is the mod\u0027s sandbox. It blends a base drug with a material, a vessel and your knowledge into something new." },
       { "type": "item", "text": "mydrugs:painted_clay_bowl" },
       { "type": "item", "text": "mydrugs:psychotropic_pigment" },
       { "type": "item", "text": "mydrugs:ritual_resin" },
       { "type": "item", "text": "mydrugs:ritual_threads" },
       { "type": "item", "text": "mydrugs:unstable_residue" },
-      { "type": "text", "text": "Psy Mixer recipes use a base drug, material, vessel, knowledge, and sometimes drug history. Failure may create unstable residue." },
-      { "type": "text", "text": "Use JEI for exact recipe requirements." },
-      { "type": "tip", "text": "Psy Mixer mixes are not required for the main spine, but they make work, rituals, exploration, and risk management stronger." }
+      { "type": "text", "text": "Get the formula wrong and the ritual fails — leaving unstable residue behind. JEI has the exact requirements." },
+      { "type": "tip", "text": "Rituals aren\u0027t on the main spine. But they make your work, exploration and risk management dramatically stronger." },
+      { "type": "link", "text": "Safe rituals to try first", "target": "Starter Mixes" }
     ]
   },
   {
-    "title": "Better Mixes",
+    "title": "Starter Mixes",
     "elements": [
-      { "type": "text", "text": "Quest label: RITUAL QUEST, safer support" },
+      { "type": "text", "text": "RITUAL — gentle" },
+      { "type": "text", "text": "Begin with the calm drugs. These themes are reliable:" },
+      { "type": "text", "text": "Coffee + sugar / redstone / cocoa / bitter nut → work speed, mining speed. Tobacco + aloe / quartz / copper → precision, less tremor. Weed or hash + moss / calming spores / ghast tear → stress relief, stability. Alcohol + ghast tear / broken courage → stress and damage resistance." },
       { "type": "item", "text": "mydrugs:brightened_cannabis_powder" },
       { "type": "item", "text": "mydrugs:soothing_tobacco_blend" },
       { "type": "item", "text": "mydrugs:defiant_spirit_bottle" },
-      { "type": "text", "text": "Useful early ritual themes: Coffee + sugar/redstone/cocoa/bitter nut -\u003e work speed or mining speed. Tobacco + aloe/quartz/copper -\u003e precision and tremor reduction. Weed/hash + moss/calming spores/ghast tear -\u003e stress relief and ritual stability. Alcohol + ghast tear/broken courage -\u003e stress or damage resistance." },
-      { "type": "goal", "text": "Try tobacco, coffee, weed, and hash mixes before harder stimulant rituals." }
+      { "type": "goal", "text": "Master tobacco, coffee, weed and hash mixes before touching the hard ones." }
     ]
   },
   {
-    "title": "Speed Burst Vision",
+    "title": "Strong Mixes",
     "elements": [
-      { "type": "text", "text": "Quest label: RITUAL QUEST, stronger effects" },
-      { "type": "text", "text": "Cocaine + redstone/blaze powder/rabbit foot/charged sinew -\u003e movement, manual speed, adrenaline, dash. Crack + gunpowder/echo shard/fractured impulse -\u003e burst windows and dash power. Meth + diamond/netherite scrap/charged core -\u003e mining speed, work speed, adrenaline, but more tremor/input risk. LSD + lapis/diamond/ender pearl/third eye petal -\u003e ore aura, fortune, multiblock vision, ritual focus. Mushrooms + amethyst/glow berries/dreamcap spores -\u003e ore aura, gamma, ritual focus, bad-trip resistance." },
-      { "type": "warning", "text": "Strong mixes are not safe mixes. Watch stress, symptoms, addiction, and overdose pressure." }
+      { "type": "text", "text": "RITUAL — high power, high cost" },
+      { "type": "text", "text": "The stimulant and psychedelic mixes are where the real power is — and the real danger." },
+      { "type": "text", "text": "Cocaine + redstone / blaze powder / rabbit foot → speed, adrenaline, dash. Crack + gunpowder / echo shard / fractured impulse → burst windows, dash power. Meth + diamond / netherite scrap → mining and work speed, but worse tremors. LSD + lapis / diamond / ender pearl → ore aura, fortune, multiblock vision. Mushrooms + amethyst / glow berries → ore aura, gamma, bad-trip resistance." },
+      { "type": "warning", "text": "A strong mix is not a safe mix. Watch stress, symptoms, addiction and overdose the whole time." }
     ]
   },
   {
     "title": "Psychotrope Energy",
     "elements": [
-      { "type": "text", "text": "Quest label: ENDGAME QUEST" },
+      { "type": "text", "text": "ENDGAME" },
       { "type": "item", "text": "mydrugs:psychotrope_lens" },
       { "type": "item", "text": "mydrugs:psychotrope_component" },
       { "type": "item", "text": "mydrugs:psychotrope_core" },
       { "type": "item", "text": "mydrugs:energy_upgrade" },
       { "type": "item", "text": "mydrugs:automation_upgrade" },
-      { "type": "text", "text": "Craft lens -\u003e components -\u003e core. The core converts drug value into psychotrope energy." },
-      { "type": "text", "text": "Use energy for late machines and mutation work." },
-      { "type": "warning", "text": "Feeding strong drugs into energy is a resource trade. Do it only when production can replace them." },
-      { "type": "goal", "text": "Build stable psychotrope energy before mutations." }
+      { "type": "text", "text": "Build lens → components → core. The core burns the value of a drug and turns it into psychotrope energy — the power source for the last machines and all mutation work." },
+      { "type": "warning", "text": "Feeding drugs into the core is a trade. Only do it once your production can replace what you burn." },
+      { "type": "goal", "text": "A stable energy supply before you start mutating." }
     ]
   },
   {
     "title": "Bottles and Syringes",
     "elements": [
-      { "type": "text", "text": "Quest label: UTILITY QUEST + MUTATION PREP" },
+      { "type": "text", "text": "UTILITY + MUTATION PREP" },
       { "type": "item", "text": "mydrugs:glass_bottle" },
       { "type": "item", "text": "mydrugs:syringe" },
       { "type": "item", "text": "mydrugs:blood_bucket" },
       { "type": "item", "text": "mydrugs:autoclave" },
       { "type": "item", "text": "mydrugs:mutagenic_blood_vial" },
-      { "type": "text", "text": "Bottles drink valid mod fluids and create LSD Drops." },
-      { "type": "text", "text": "Syringes draw blood and inject mutation payloads. Dirty syringes can cause infection. Autoclave empty dirty syringes before blood or mutation work." },
-      { "type": "warning", "text": "Dirty mutation injection rejects the payload and starts infection." }
+      { "type": "text", "text": "Bottles hold valid mod fluids and turn LSD fluid into Drops." },
+      { "type": "text", "text": "Syringes draw blood and inject mutation payloads — but a dirty syringe causes infection. Run empty dirty syringes through the autoclave before any blood or mutation work." },
+      { "type": "warning", "text": "A dirty injection is rejected AND starts an infection. Sterilise first, every time." }
     ]
   },
   {
     "title": "Mutations",
     "elements": [
-      { "type": "text", "text": "Quest label: ENDGAME QUEST" },
+      { "type": "text", "text": "ENDGAME" },
       { "type": "item", "text": "mydrugs:adn_scraper" },
       { "type": "item", "text": "mydrugs:adn_scrap" },
       { "type": "item", "text": "mydrugs:adn_gene" },
       { "type": "item", "text": "mydrugs:mutation_vector" },
       { "type": "item", "text": "mydrugs:mutagenic_blood_vial" },
       { "type": "item", "text": "mydrugs:syringe" },
-      { "type": "text", "text": "Route: scrape ADN -\u003e extract genes -\u003e combine genes -\u003e incubate vector -\u003e infuse with blood -\u003e load sterile syringe -\u003e inject -\u003e assimilate over time." },
-      { "type": "text", "text": "Mutations improve drug-system risks and strengths, but dirty injections, infection, rejection, and instability can punish bad preparation." },
-      { "type": "goal", "text": "Use mutations to solve the problems your playstyle creates." }
+      { "type": "text", "text": "The route: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time." },
+      { "type": "text", "text": "Mutations rewrite how your body handles the drug system. Bad preparation — dirty syringes, infection, rejection, instability — punishes you for it." },
+      { "type": "goal", "text": "Use mutations to fix the weaknesses your own playstyle created." }
     ]
   },
   {
     "title": "Mutation Machines",
     "elements": [
-      { "type": "text", "text": "Quest label: ENDGAME QUEST" },
+      { "type": "text", "text": "ENDGAME" },
       { "type": "item", "text": "mydrugs:gene_extractor" },
       { "type": "item", "text": "mydrugs:crispr_cas9_combinator" },
       { "type": "item", "text": "mydrugs:bacterial_incubator" },
       { "type": "item", "text": "mydrugs:hemogenic_infuser" },
       { "type": "item", "text": "mydrugs:autoclave" },
-      { "type": "text", "text": "Gene Extractor: ADN Scrap -\u003e single-stat genes. CRISPR-CAS9: combine compatible genes from different sources. Bacterial Incubator: gene -\u003e mutation vector. Hemogenic Infuser: vector + blood -\u003e mutagenic blood vial. Autoclave: sterilize dirty empty syringes." },
-      { "type": "warning", "text": "Complex genes are stronger but riskier." }
+      { "type": "text", "text": "Gene Extractor — ADN Scrap into single-stat genes. CRISPR-CAS9 — combines compatible genes from different sources. Bacterial Incubator — gene into a mutation vector. Hemogenic Infuser — vector plus blood into a mutagenic blood vial. Autoclave — sterilises dirty empty syringes." },
+      { "type": "warning", "text": "Complex genes are stronger, but every step adds a way to fail." }
     ]
   },
   {
     "title": "Mutation Builds",
     "elements": [
-      { "type": "text", "text": "Quest label: ENDGAME REFERENCE" },
-      { "type": "text", "text": "Clear Mind: Mental Strength, Visual Accuracy, Withdrawal Resilience. Durable Body: Health Stability, Metabolic Control, Infection Resistance. Ritualist: Ritual Neural Sync, Genetic Stability, Visual Accuracy. Safe Chemist: Infection Resistance, Health Stability, Genetic Stability. Overclocker: Metabolic Control, Pleasure Sensitivity, Addiction Resistance." },
-      { "type": "tip", "text": "Balanced builds are safer than one huge stat." }
+      { "type": "text", "text": "ENDGAME — reference" },
+      { "type": "text", "text": "A few builds that hold together well:" },
+      { "type": "text", "text": "Clear Mind — Mental Strength, Visual Accuracy, Withdrawal Resilience. Durable Body — Health Stability, Metabolic Control, Infection Resistance. Ritualist — Ritual Neural Sync, Genetic Stability, Visual Accuracy. Safe Chemist — Infection Resistance, Health Stability, Genetic Stability. Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance." },
+      { "type": "tip", "text": "A balanced spread survives longer than one enormous stat." }
     ]
   },
   {
-    "title": "Recovery Tools",
+    "title": "The Diary",
     "elements": [
-      { "type": "text", "text": "Quest label: RECOVERY QUEST" },
+      { "type": "text", "text": "RECOVERY" },
       { "type": "item", "text": "mydrugs:personal_diary" },
+      { "type": "text", "text": "The Personal Diary is the single most useful thing you own. It is your character sheet." },
+      { "type": "text", "text": "Open it to read your addiction, stress, withdrawal, symptoms and tolerance — and the diary writes its own entries as you play, flagging first-time use and what to do next." },
+      { "type": "tip", "text": "When you don\u0027t know what is wrong with you, the diary already does. Check it before you guess." },
+      { "type": "link", "text": "Your progress, mapped", "target": "The Psyche Map" }
+    ]
+  },
+  {
+    "title": "The Psyche Map",
+    "elements": [
+      { "type": "text", "text": "ORIENTATION" },
+      { "type": "text", "text": "Inside the Personal Diary is the Psyche Map — a zoomable map of everything you have done." },
+      { "type": "text", "text": "It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first mutation, first bad trip, first recovery room, first inner demon defeated, and more. Locked nodes stay hidden until you reach them." },
+      { "type": "tip", "text": "If you ever feel lost in the mid game, open the map. The unlit nodes ARE your to-do list." }
+    ]
+  },
+  {
+    "title": "Recovery Basics",
+    "elements": [
+      { "type": "text", "text": "RECOVERY" },
+      { "type": "text", "text": "Recovery is not an endgame chore. Coffee, tobacco and cannabis already build pressure — start managing it now." },
       { "type": "item", "text": "mydrugs:headphones" },
       { "type": "item", "text": "mydrugs:herbal_tea" },
       { "type": "item", "text": "mydrugs:calming_mixture" },
       { "type": "item", "text": "mydrugs:sleeping_aid" },
       { "type": "item", "text": "mydrugs:overdose_antidote" },
-      { "type": "item", "text": "mydrugs:therapist_desk" },
+      { "type": "text", "text": "Headphones steady you while carried. Tea and calming mixture cut stress and withdrawal. Sleeping aid restores blocked sleep. The antidote pulls you back from an overdose." },
+      { "type": "goal", "text": "Carry at least one recovery option before any repeated use." },
+      { "type": "link", "text": "The room that does the work", "target": "Recovery Sanctuary" }
+    ]
+  },
+  {
+    "title": "Recovery Sanctuary",
+    "elements": [
+      { "type": "text", "text": "RECOVERY" },
+      { "type": "text", "text": "A recovery room is the strongest healing tool in the mod — passive, permanent, and built from blocks." },
       { "type": "item", "text": "mydrugs:recovery_anchor" },
-      { "type": "text", "text": "Diary reads your condition. Headphones support you while carried. Tea and calming mixture reduce stress or withdrawal. Sleeping aid helps blocked sleep. Antidote reduces overdose danger. Therapist desk and recovery anchor create stronger support." },
-      { "type": "goal", "text": "Build a recovery corner near your lab before stimulant, crack, meth, infection, or mutation work." }
+      { "type": "item", "text": "mydrugs:therapist_desk" },
+      { "type": "text", "text": "Place a Recovery Anchor inside an enclosed room with a door. The anchor scans the space and scores it on light, beds, decoration, seating and music. The score sets a tier:" },
+      { "type": "text", "text": "Fragile → Resting → Safe → Sanctuary." },
+      { "type": "text", "text": "Higher tiers speed up withdrawal, tolerance and addiction recovery, lower your baseline stress, and blunt bad trips. A full Sanctuary even stops inner demons from spawning." },
+      { "type": "tip", "text": "The anchor tells you exactly what to add. Follow its hints up to Sanctuary." },
+      { "type": "goal", "text": "Build a real Sanctuary before crack, meth, infection or mutation work." }
     ]
   },
   {
-    "title": "Side Content",
+    "title": "Bad Trips and Demons",
     "elements": [
-      { "type": "text", "text": "Quest label: SIDE QUEST" },
-      { "type": "item", "text": "mydrugs:space_apple" },
-      { "type": "item", "text": "mydrugs:space_bread" },
-      { "type": "item", "text": "mydrugs:thunder_bottle" },
-      { "type": "item", "text": "mydrugs:lightning_bottle" },
-      { "type": "item", "text": "mydrugs:fractured_impulse" },
-      { "type": "item", "text": "mydrugs:broken_courage" },
-      { "type": "item", "text": "mydrugs:charged_core" },
-      { "type": "item", "text": "mydrugs:charged_sinew" },
-      { "type": "text", "text": "Space food and special ritual materials are useful side content. Keep samples and check JEI before mass crafting." },
-      { "type": "tip", "text": "If it does not clearly advance your last knowledge gate, treat it as side content." }
+      { "type": "text", "text": "RECOVERY — danger" },
+      { "type": "text", "text": "Push a psychedelic or stimulant too hard and you trigger a bad trip. A mild one is just stress and bad symptoms. A strong one spawns Inner Demons." },
+      { "type": "item", "text": "mydrugs:inner_demon_remains" },
+      { "type": "text", "text": "Inner Demons are fast, flying, hostile things only you can see. They hunt you until the bad trip ends or you kill them. Killing one drops Inner Demon Remains — a real crafting material." },
+      { "type": "tip", "text": "A Sanctuary-tier recovery room suppresses demon spawns entirely. Bad trips from alcohol never spawn them." },
+      { "type": "warning", "text": "Cut the bad trip at the source: lower stress, get to your recovery room, wait it out. Don\u0027t keep dosing." }
     ]
   },
   {
-    "title": "Stuck Checklist",
+    "title": "Drug Analyzer",
     "elements": [
-      { "type": "text", "text": "Quest label: HELP" },
-      { "type": "text", "text": "1. Check your latest knowledge. 2. Check the advancement parent. 3. Check JEI category. 4. Read the machine or Psy Anvil status text. 5. Check item slots, fluids, gases, heat, energy, output space, side config, pipes, and filters. 6. Check correct consumption form." },
-      { "type": "text", "text": "Common forms: fresh leaves usually do not unlock knowledge. Meth shards must become meth powder. LSD fluid must become LSD Drops. Coca can be powder or rail." },
-      { "type": "goal", "text": "When stuck, follow the last knowledge you unlocked." }
+      { "type": "text", "text": "UTILITY" },
+      { "type": "item", "text": "mydrugs:drug_analyzer" },
+      { "type": "text", "text": "Not sure what something does? Put it in the Drug Analyzer." },
+      { "type": "text", "text": "Drop any drug — base, processed or a Psy Mixer creation — into its slot and it reports the effects and composition that drug will apply to you." },
+      { "type": "tip", "text": "Use it on every ritual result before you consume one. A mix that looked clever can carry effects you did not intend." }
     ]
   },
   {
-    "title": "Progression Summary",
+    "title": "When You Are Stuck",
     "elements": [
-      { "type": "text", "text": "Quick route: Grass -\u003e crops -\u003e coffee -\u003e Psy Receptacle -\u003e tobacco -\u003e Psy Anvil -\u003e iron mesh -\u003e sieve -\u003e cannabis -\u003e copper -\u003e mixing vat -\u003e fermented mash -\u003e heavy iron -\u003e stomp crafter -\u003e hash -\u003e steel -\u003e machines -\u003e absolute ethanol -\u003e coca -\u003e circuits -\u003e gases/acids -\u003e LSD -\u003e advanced circuits -\u003e petroleum -\u003e meth -\u003e mushrooms -\u003e psychotrope energy -\u003e mutations." },
-      { "type": "text", "text": "Parallel priorities: Recovery early. JEI for ingredients. Machine status for problems. Psy Mixer for stronger mixes. Pipes for automation. Diary for your condition." },
-      { "type": "goal", "text": "Finish the knowledge spine, then use psychotrope energy, rituals, and mutations as the endgame sandbox." }
+      { "type": "text", "text": "HELP" },
+      { "type": "text", "text": "Work down this list. One of these is always the answer." },
+      { "type": "text", "text": "1. Check your latest knowledge — is the gate even open? 2. Check the advancement\u0027s parent. 3. Check the JEI category for the exact recipe. 4. Read the machine or Psy Anvil status text. It explains itself. 5. Check slots, fluids, gases, heat, energy, output space, side config, pipes, filters. 6. Check the consumption FORM." },
+      { "type": "text", "text": "Common form traps: fresh leaves rarely unlock knowledge. Meth shards must become powder. LSD fluid must become Drops. Coca works as powder or rail." },
+      { "type": "goal", "text": "When truly lost, return to the last knowledge you unlocked and follow its chapter." }
+    ]
+  },
+  {
+    "title": "The Whole Route",
+    "elements": [
+      { "type": "title", "text": "One Last Look" },
+      { "type": "text", "text": "Grass → crops → coffee → tobacco → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → psychotrope energy → mutations." },
+      { "type": "text", "text": "Running underneath it all: recovery early, JEI for ingredients, machine screens for problems, the diary for yourself, the Psy Mixer for power." },
+      { "type": "goal", "text": "Close the knowledge spine. Then the mod opens up — energy, rituals and mutations are the real sandbox waiting on the other side." }
     ]
   }
   ]

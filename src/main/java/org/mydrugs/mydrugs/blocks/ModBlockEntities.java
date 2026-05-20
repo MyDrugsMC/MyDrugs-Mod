@@ -7,6 +7,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.entity.*;
 import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
+import org.mydrugs.mydrugs.recovery.block.ModRecoveryBlocks;
+import org.mydrugs.mydrugs.recovery.block.RecoveryJukeboxBlockEntity;
 
 import java.util.function.Supplier;
 
@@ -309,5 +311,13 @@ public final class ModBlockEntities {
                             ModBlocks.FAST_FLUID_PIPE.get(),
                             ModBlocks.BASIC_GAS_PIPE.get(),
                             ModBlocks.FAST_GAS_PIPE.get()
+                    ));
+
+    public static final Supplier<BlockEntityType<RecoveryJukeboxBlockEntity>> RECOVERY_JUKEBOX =
+            BLOCK_ENTITY_TYPES.register("recovery_jukebox",
+                    () -> new BlockEntityType<>(
+                            RecoveryJukeboxBlockEntity::new,
+                            false,
+                            ModRecoveryBlocks.RECOVERY_JUKEBOX.get()
                     ));
 }
