@@ -469,17 +469,14 @@ public final class HeadphonesMusicScreen extends Screen {
     }
 
     private void drawFooter(GuiGraphics graphics) {
-        int volY = top + PANEL_H - 22;
+        int volY = top + PANEL_H - 6;
         int volPct = Math.round(CustomMusicPlayer.get().volume() * 100.0F);
         graphics.drawString(font, Component.translatable("screen.mydrugs.music.volume", volPct),
-                left + PANEL_W - 110, volY - 14, C_MUTED, false);
+                left + PANEL_W - 69, volY - 14, C_MUTED, false);
 
         // ffmpeg status indicator
         boolean ff = AudioConverter.isFfmpegAvailable();
-        String ffText = ff
-                ? Component.translatable("screen.mydrugs.music.ffmpeg_ok").getString()
-                : Component.translatable("screen.mydrugs.music.ffmpeg_missing").getString();
-        graphics.drawString(font, "●", left + PANEL_W - 124, volY - 14, ff ? C_GOOD : C_WARN, false);
+        graphics.drawString(font, "●", left + PANEL_W - 5, top + PANEL_H - 7, ff ? C_GOOD : C_WARN, false);
     }
 
     private Component playPauseLabel() {
