@@ -439,6 +439,15 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> MANUAL_COFFEE_PULPER_ITEM =
             registerMachineBlockItem("manual_coffee_pulper", MANUAL_COFFEE_PULPER);
 
+    public static final DeferredBlock<ReductionStillBlock> REDUCTION_STILL = BLOCKS.registerBlock(
+            "reduction_still",
+            ReductionStillBlock::new,
+            props -> props.strength(2.0F).sound(SoundType.METAL).noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> REDUCTION_STILL_ITEM =
+            registerMachineBlockItem("reduction_still", REDUCTION_STILL);
+
     public static final DeferredBlock<CoffeeDryingMatBlock> COFFEE_DRYING_MAT = BLOCKS.registerBlock(
             "coffee_drying_mat",
             CoffeeDryingMatBlock::new,

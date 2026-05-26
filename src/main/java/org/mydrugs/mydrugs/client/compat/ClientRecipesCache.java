@@ -47,6 +47,7 @@ public final class ClientRecipesCache {
     private static final List<PsychotropeDistilleryRecipe> PSYCHOTROPE_DISTILLERY_RECIPES = new ArrayList<>();
     private static final List<DryingRecipe> DRYING_RECIPES = new ArrayList<>();
     private static final List<CoffeePulpingRecipe> COFFEE_PULPING_RECIPES = new ArrayList<>();
+    private static final List<org.mydrugs.mydrugs.recipes.reduction_still.ReductionStillRecipe> REDUCTION_STILL_RECIPES = new ArrayList<>();
     private static final List<EvaporationTrayRecipe> EVAPORATION_TRAY_RECIPES = new ArrayList<>();
     private static final List<FluidFiltererRecipe> FLUID_FILTERER_RECIPES = new ArrayList<>();
     private static final List<GasifierRecipe> GASIFIER_RECIPES = new ArrayList<>();
@@ -100,6 +101,10 @@ public final class ClientRecipesCache {
 
     public static List<CoffeePulpingRecipe> getCoffeePulpingRecipes() {
         return List.copyOf(COFFEE_PULPING_RECIPES);
+    }
+
+    public static List<org.mydrugs.mydrugs.recipes.reduction_still.ReductionStillRecipe> getReductionStillRecipes() {
+        return List.copyOf(REDUCTION_STILL_RECIPES);
     }
 
     public static List<EvaporationTrayRecipe> getEvaporationTrayRecipes() {
@@ -166,6 +171,7 @@ public final class ClientRecipesCache {
         PSYCHOTROPE_DISTILLERY_RECIPES.clear();
         DRYING_RECIPES.clear();
         COFFEE_PULPING_RECIPES.clear();
+        REDUCTION_STILL_RECIPES.clear();
         EVAPORATION_TRAY_RECIPES.clear();
         FLUID_FILTERER_RECIPES.clear();
         GASIFIER_RECIPES.clear();
@@ -239,6 +245,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(COFFEE_PULPING_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.REDUCTION_STILL.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(REDUCTION_STILL_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.EVAPORATION_TRAY.get())
@@ -333,6 +345,7 @@ public final class ClientRecipesCache {
         PSYCHOTROPE_DISTILLERY_RECIPES.clear();
         DRYING_RECIPES.clear();
         COFFEE_PULPING_RECIPES.clear();
+        REDUCTION_STILL_RECIPES.clear();
         EVAPORATION_TRAY_RECIPES.clear();
         FLUID_FILTERER_RECIPES.clear();
         GASIFIER_RECIPES.clear();

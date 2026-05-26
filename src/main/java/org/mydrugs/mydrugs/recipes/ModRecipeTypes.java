@@ -41,6 +41,9 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<CoffeePulpingRecipe>> COFFEE_PULPING =
             RECIPE_TYPES.register("coffee_pulping", RecipeType::simple);
 
+    public static final DeferredHolder<RecipeType<?>, RecipeType<org.mydrugs.mydrugs.recipes.reduction_still.ReductionStillRecipe>> REDUCTION_STILL =
+            RECIPE_TYPES.register("reduction_still", RecipeType::simple);
+
     public static final DeferredHolder<RecipeType<?>, RecipeType<StompCraftingRecipe>> STOMP_CRAFTING =
             RECIPE_TYPES.register("stomp_crafting", () -> RecipeType.simple(
                     ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "stomp_crafting")

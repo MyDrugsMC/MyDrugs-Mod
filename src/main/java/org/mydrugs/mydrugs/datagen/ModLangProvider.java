@@ -75,6 +75,14 @@ public class ModLangProvider extends LanguageProvider {
         add(ModCrops.OPIUM_POPPY_CROP.get(), "Poppy Crop");
         add(ModCrops.EPHEDRA_CROP.get(), "Ephedra Shrub");
         add(ModCrops.EPHEDRA_CUTTINGS.get(), "Ephedra Cuttings");
+        add(ModBlocks.REDUCTION_STILL.get(), "Reduction Still");
+        add("container.mydrugs.reduction_still", "Reduction Still");
+        add("menu.mydrugs.reduction_still", "Reduction Still");
+        add("screen.mydrugs.reduction_still.status.working", "Working: %s / %s ticks");
+        add("screen.mydrugs.reduction_still.status.missing_cuttings", "Missing: ephedra cuttings");
+        add("screen.mydrugs.reduction_still.status.missing_solvent", "Missing: water bucket (solvent)");
+        add("screen.mydrugs.reduction_still.status.need_more_cuttings", "Need more cuttings for next batch");
+        add("screen.mydrugs.reduction_still.status.output_blocked", "Output blocked: clear extract or spent pulp");
         add(ModBlocks.PHOSPHATE_ORE.get(), "Phosphate Ore");
         add(ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get(), "Deepslate Phosphate Ore");
         add(ModItems.RAW_PHOSPHORUS.get(), "Raw Phosphorus");

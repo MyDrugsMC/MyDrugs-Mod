@@ -88,6 +88,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.CRISPR_CAS9_COMBINATOR.get());
             dropSelf(ModBlocks.MIXING_VAT.get());
             dropSelf(ModBlocks.GRINDING_BOWL.get());
+            dropSelf(ModBlocks.REDUCTION_STILL.get());
             dropSelf(ModBlocks.MECHANICAL_FRAME.get());
             dropSelf(ModBlocks.RECOVERY_ANCHOR.get());
             dropSelf(ModBlocks.DISC_SCRIBER.get());
@@ -282,6 +283,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.CRISPR_CAS9_COMBINATOR.get(),
                     ModBlocks.MIXING_VAT.get(),
                     ModBlocks.GRINDING_BOWL.get(),
+                    ModBlocks.REDUCTION_STILL.get(),
                     ModBlocks.MECHANICAL_FRAME.get(),
                     ModBlocks.RECOVERY_ANCHOR.get(),
                     ModBlocks.DISC_SCRIBER.get(),

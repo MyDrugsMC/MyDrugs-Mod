@@ -42,6 +42,9 @@ public class ModMenus {
     public static final Supplier<MenuType<ManualCoffeePulperMenu>> MANUAL_COFFEE_PULPER =
             MENUS.register("manual_coffee_pulper", () -> new MenuType<>(ManualCoffeePulperMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<ReductionStillMenu>> REDUCTION_STILL =
+            MENUS.register("reduction_still", () -> new MenuType<>(ReductionStillMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
 
     public static final Supplier<MenuType<FluidFiltererMenu>> FLUID_FILTERER = MENUS.register(
             "fluid_filterer",
