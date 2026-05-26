@@ -116,7 +116,7 @@ public class ModBlocks {
 
 
     public static final DeferredBlock<Block> DISTILLER =
-            new MachineSpec<Block>("distiller", DistillerBlock::new, props -> props.strength(3.5f))
+            new MachineSpec<Block>("distiller", DistillerBlock::new, props -> props.strength(3.5f).noOcclusion())
                     .register(BLOCKS);
 
     public static final DeferredItem<BlockItem> DISTILLER_ITEM =

@@ -52,7 +52,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlockWithTexture(futures, cachedOutput, "disc_scriber", MyDrugs.MODID + ":block/disc_scriber");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_jukebox", MyDrugs.MODID + ":block/recovery_jukebox");
 
-        saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "advanced_mixing_vat");
         saveHorizontalBlockState(futures, cachedOutput, "aromatic_extractor");
         saveHorizontalBlockState(futures, cachedOutput, "autoclave");
@@ -60,13 +59,11 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "btx_fractionation_tower");
         saveHorizontalBlockState(futures, cachedOutput, "catalytic_reformer");
         saveHorizontalBlockState(futures, cachedOutput, "centrifuge");
-        saveHorizontalBlockState(futures, cachedOutput, "distiller");
         saveHorizontalBlockState(futures, cachedOutput, "psychotrope_distillery");
         saveHorizontalBlockState(futures, cachedOutput, "distillate_engine");
         saveHorizontalBlockState(futures, cachedOutput, "psychotrope_resonator");
         saveHorizontalBlockState(futures, cachedOutput, "drying_rack");
         saveHorizontalBlockState(futures, cachedOutput, "electrolyzer");
-        saveHorizontalBlockState(futures, cachedOutput, "fluid_filterer");
         saveHorizontalBlockState(futures, cachedOutput, "gasifier");
         saveHorizontalBlockState(futures, cachedOutput, "gas_tank");
         saveHorizontalBlockState(futures, cachedOutput, "gas_pump");
