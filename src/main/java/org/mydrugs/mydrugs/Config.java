@@ -248,6 +248,8 @@ public class Config {
 
     public static final class Server {
         public final ModConfigSpec.BooleanValue addictionEnabled;
+        public final ModConfigSpec.BooleanValue enableCookHazards;
+        public final ModConfigSpec.DoubleValue cookHazardIntensity;
         public final ModConfigSpec.BooleanValue overdoseEnabled;
         public final ModConfigSpec.BooleanValue withdrawalEnabled;
         public final ModConfigSpec.DoubleValue addictionGainMultiplier;
@@ -276,6 +278,12 @@ public class Config {
         private Server(ModConfigSpec.Builder builder) {
             builder.push("gameplay");
             addictionEnabled = builder.define("addictionEnabled", true);
+            enableCookHazards = builder
+                    .comment("Toxic fume hazard during street-meth one-pot cooks. Disable for accessibility.")
+                    .define("enableCookHazards", true);
+            cookHazardIntensity = builder
+                    .comment("Scales fume frequency, poison/nausea level, and fire chance. 0 disables, 1 default.")
+                    .defineInRange("cookHazardIntensity", 1.0D, 0.0D, 4.0D);
             overdoseEnabled = builder.define("overdoseEnabled", true);
             withdrawalEnabled = builder.define("withdrawalEnabled", true);
             addictionGainMultiplier = builder.defineInRange("addictionGainMultiplier", 1.0D, 0.0D, 100.0D);
