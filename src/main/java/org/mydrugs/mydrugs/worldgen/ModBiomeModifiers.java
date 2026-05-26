@@ -128,6 +128,25 @@ public final class ModBiomeModifiers {
                 )
         );
 
+        // Ephedra: arid biomes (desert / savanna / badlands)
+        context.register(
+                ModWorldGenKeys.ADD_EPHEDRA,
+                new ConfigurableAddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.DESERT),
+                                biomes.getOrThrow(Biomes.SAVANNA),
+                                biomes.getOrThrow(Biomes.SAVANNA_PLATEAU),
+                                biomes.getOrThrow(Biomes.WINDSWEPT_SAVANNA),
+                                biomes.getOrThrow(Biomes.BADLANDS),
+                                biomes.getOrThrow(Biomes.ERODED_BADLANDS),
+                                biomes.getOrThrow(Biomes.WOODED_BADLANDS)
+                        ),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.EPHEDRA_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION,
+                        WorldgenConfig.EPHEDRA
+                )
+        );
+
         // Third Eye Petal: mountain biomes only (HeightRangePlacement gates Y >= 130 inside the placed feature)
         context.register(
                 ModWorldGenKeys.ADD_THIRD_EYE_PETAL,

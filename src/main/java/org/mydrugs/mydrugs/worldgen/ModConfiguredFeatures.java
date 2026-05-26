@@ -180,6 +180,25 @@ public final class ModConfiguredFeatures {
                 )
         );
 
+        // Ephedra: sparse shrub patches in arid biomes.
+        context.register(
+                ModWorldGenKeys.EPHEDRA_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                5,
+                                4,
+                                2,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(
+                                                ModCrops.EPHEDRA_CROP.get().defaultBlockState()
+                                        ))
+                                )
+                        )
+                )
+        );
+
         // Third Eye Petal: rare flower patches.
         context.register(
                 ModWorldGenKeys.THIRD_EYE_PETAL_PATCH,

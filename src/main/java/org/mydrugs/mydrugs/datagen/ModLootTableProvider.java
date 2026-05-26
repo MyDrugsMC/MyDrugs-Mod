@@ -113,6 +113,7 @@ public class ModLootTableProvider extends LootTableProvider {
             crop(ModCrops.OPIUM_POPPY_CROP.get(), ModCrops.OPIUM_POPPY_SEEDS.get(), ModCrops.OPIUM_POPPY_SEEDS.get());
             crop(ModCrops.LAVENDER_CROP.get(), ModItems.LAVENDER.get(), ModCrops.LAVENDER_SEEDS.get());
             crop(ModCrops.VALERIAN_CROP.get(), ModItems.VALERIAN_ROOT.get(), ModCrops.VALERIAN_SEEDS.get());
+            crop(ModCrops.EPHEDRA_CROP.get(), ModCrops.EPHEDRA_CUTTINGS.get(), ModCrops.EPHEDRA_CUTTINGS.get());
             tallCrop(ModCrops.CANNABIS_CROP.get(), ModItems.CANNABIS_LEAF.get(), ModCrops.CANNABIS_SEEDS.get(), CannabisCropBlock.HALF);
             tallCrop(ModCrops.COFFEE_CROP.get(), ModItems.COFFEE_CHERRIES.get(), ModCrops.COFFEE_SEEDS.get(), CoffeeCropBlock.HALF);
             tallCrop(ModCrops.MALT_CROP.get(), ModItems.MALT.get(), ModCrops.MALT_SEEDS.get(), MaltCropBlock.HALF);
@@ -300,6 +301,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModCrops.COFFEE_CROP.get(),
                     ModCrops.MALT_CROP.get(),
                     ModCrops.RYE_CROP.get(),
+                    ModCrops.EPHEDRA_CROP.get(),
 
                     ModBlocks.SALT_BLOCK.get(),
 

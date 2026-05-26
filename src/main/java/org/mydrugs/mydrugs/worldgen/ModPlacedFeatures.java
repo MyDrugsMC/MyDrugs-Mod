@@ -145,6 +145,20 @@ public final class ModPlacedFeatures {
                 )
         );
 
+        // Ephedra patches: arid biomes, sparse.
+        context.register(
+                ModWorldGenKeys.EPHEDRA_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.EPHEDRA_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(Config.WORLDGEN.ephedraSpawnRate.get()),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
         // Third Eye Petal: very rare, restricted to Y >= 130
         context.register(
                 ModWorldGenKeys.THIRD_EYE_PETAL_PATCH_PLACED,

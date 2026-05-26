@@ -73,6 +73,8 @@ public class ModLangProvider extends LanguageProvider {
         add(ModCrops.LAVENDER_CROP.get(), "Lavender Crop");
         add(ModCrops.VALERIAN_CROP.get(), "Valerian Crop");
         add(ModCrops.OPIUM_POPPY_CROP.get(), "Poppy Crop");
+        add(ModCrops.EPHEDRA_CROP.get(), "Ephedra Shrub");
+        add(ModCrops.EPHEDRA_CUTTINGS.get(), "Ephedra Cuttings");
         add("container.mydrugs.autoclave", "Autoclave");
         add("menu.mydrugs.autoclave", "Autoclave");
         add("screen.mydrugs.autoclave.progress", "Sterilization Progress");

@@ -86,6 +86,13 @@ public final class ModWorldGenKeys {
     public static final ResourceKey<BiomeModifier> ADD_THIRD_EYE_PETAL =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_third_eye_petal"));
 
+    public static final ResourceKey<ConfiguredFeature<?, ?>> EPHEDRA_PATCH =
+            configured("ephedra_patch");
+    public static final ResourceKey<PlacedFeature> EPHEDRA_PATCH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("ephedra_patch_placed"));
+    public static final ResourceKey<BiomeModifier> ADD_EPHEDRA =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_ephedra"));
+
     private ModWorldGenKeys() {
     }
 

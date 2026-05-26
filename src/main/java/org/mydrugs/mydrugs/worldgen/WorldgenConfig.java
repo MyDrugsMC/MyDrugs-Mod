@@ -15,6 +15,7 @@ public final class WorldgenConfig {
     public static final String VALERIAN = "valerian";
     public static final String BITTER_NUT_BUSH = "bitter_nut_bush";
     public static final String THIRD_EYE_PETAL = "third_eye_petal";
+    public static final String EPHEDRA = "ephedra";
     public static final String PSYCHEDELIC_MUSHROOMS = "psychedelic_mushrooms";
 
     private WorldgenConfig() {
@@ -62,6 +63,7 @@ public final class WorldgenConfig {
             case VALERIAN -> Config.WORLDGEN.enableValerian.get();
             case BITTER_NUT_BUSH -> Config.WORLDGEN.enableBitterNutBush.get();
             case THIRD_EYE_PETAL -> Config.WORLDGEN.enableThirdEyePetal.get();
+            case EPHEDRA -> Config.WORLDGEN.enableEphedra.get();
             case PSYCHEDELIC_MUSHROOMS -> Config.WORLDGEN.enableOverworldBiomes.get()
                     && Config.WORLDGEN.enablePsychedelicMushrooms.get();
             default -> true;

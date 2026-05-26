@@ -385,6 +385,8 @@ public class Config {
         public final ModConfigSpec.IntValue bitterNutBushSpawnRate;
         public final ModConfigSpec.BooleanValue enableThirdEyePetal;
         public final ModConfigSpec.IntValue thirdEyePetalSpawnRate;
+        public final ModConfigSpec.BooleanValue enableEphedra;
+        public final ModConfigSpec.IntValue ephedraSpawnRate;
         public final ModConfigSpec.BooleanValue requireLsdWakeUpEntry;
         public final ModConfigSpec.BooleanValue allowAdminPortalBlock;
         public final ModConfigSpec.IntValue skyIslandDensity;
@@ -479,6 +481,8 @@ public class Config {
             bitterNutBushSpawnRate = builder.defineInRange("bitterNutBushSpawnRate", 28, 1, 10000);
             enableThirdEyePetal = builder.define("enableThirdEyePetal", true);
             thirdEyePetalSpawnRate = builder.defineInRange("thirdEyePetalSpawnRate", 160, 1, 10000);
+            enableEphedra = builder.define("enableEphedra", true);
+            ephedraSpawnRate = builder.defineInRange("ephedraSpawnRate", 80, 1, 10000);
             builder.pop();
 
             builder.push("sky_island_dimension_future");
