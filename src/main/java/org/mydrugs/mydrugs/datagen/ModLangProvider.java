@@ -256,6 +256,10 @@ public class ModLangProvider extends LanguageProvider {
         add("pipe.mydrugs.filter_mode.allow_list", "Allow List");
         add("pipe.mydrugs.filter_mode.deny_list", "Deny List");
         add("tooltip.mydrugs.psy_receptacle", "A vessel for the first imprint. Used to forge the Psy Anvil.");
+        add("tooltip.mydrugs.meth_purity", "Quality: %s");
+        add("tooltip.mydrugs.meth_purity.street", "Street-grade");
+        add("tooltip.mydrugs.meth_purity.cut", "Cut");
+        add("tooltip.mydrugs.meth_purity.pure", "Pure");
         add("tooltip.mydrugs.progression_guide", "A field guide for the full MyDrugs progression path.");
         add("tooltip.mydrugs.adn_scraper", "Scrapes fictional genetic traces from living bodies. Right-click air to sample yourself.");
         add("tooltip.mydrugs.adn_scrap.empty", "No ADN profile detected.");

@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.items.drugs.Purity;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipes;
 
@@ -82,7 +83,9 @@ public class GrindingBowlBlockEntity extends BlockEntity {
         this.progress += Math.max(1, Math.round(amount));
 
         if (this.progress >= recipe.work()) {
-            this.storedStack = recipe.result().copy();
+            ItemStack result = recipe.result().copy();
+            Purity.copyIfPresent(this.storedStack, result);
+            this.storedStack = result;
             this.progress = 0;
             org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
         }
