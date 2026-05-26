@@ -93,6 +93,7 @@ public final class ModFluids {
     public static final FluidEntry ETHANOL;
     public static final FluidEntry FUSEL_OIL;
     public static final FluidEntry ABSOLUTE_ETHANOL;
+    public static final FluidEntry CRUDE_METH_SLURRY;
 
     static {
         METHYLAMINE = register(new FluidSpec("methylamine", 0xFFFFFFFF, false, null));
@@ -184,6 +185,9 @@ public final class ModFluids {
 
         // Heavy oily distillation residue; definitely not drinkable.
         FUSEL_OIL = register(new FluidSpec("fusel_oil", 0xCCB77C34, false, null));
+
+        // Improvised street-route meth slurry; the ugly cousin of phenylacetone-route meth.
+        CRUDE_METH_SLURRY = register(new FluidSpec("crude_meth_slurry", 0xFFA08850, false, null));
     }
 
     private ModFluids() {

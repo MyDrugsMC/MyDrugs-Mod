@@ -22,8 +22,18 @@ public record EvaporationTrayRecipe(
         ResourceLocation inputFluid,
         int inputAmount,
         ItemStack result,
-        int processingTime
+        int processingTime,
+        float purityMin,
+        float purityMax
 ) implements Recipe<EvaporationTrayRecipeInput> {
+
+    public EvaporationTrayRecipe(ResourceLocation inputFluid, int inputAmount, ItemStack result, int processingTime) {
+        this(inputFluid, inputAmount, result, processingTime, 1.0F, 1.0F);
+    }
+
+    public boolean hasPurityRoll() {
+        return purityMin < 1.0F || purityMax < 1.0F;
+    }
 
     @Override
     public boolean matches(EvaporationTrayRecipeInput input, Level level) {
@@ -77,7 +87,9 @@ public record EvaporationTrayRecipe(
                 ResourceLocation.CODEC.fieldOf("input_fluid").forGetter(EvaporationTrayRecipe::inputFluid),
                 Codec.INT.fieldOf("input_amount").forGetter(EvaporationTrayRecipe::inputAmount),
                 ItemStack.CODEC.fieldOf("result").forGetter(EvaporationTrayRecipe::result),
-                Codec.INT.optionalFieldOf("processing_time", 200).forGetter(EvaporationTrayRecipe::processingTime)
+                Codec.INT.optionalFieldOf("processing_time", 200).forGetter(EvaporationTrayRecipe::processingTime),
+                Codec.floatRange(0.0F, 1.0F).optionalFieldOf("purity_min", 1.0F).forGetter(EvaporationTrayRecipe::purityMin),
+                Codec.floatRange(0.0F, 1.0F).optionalFieldOf("purity_max", 1.0F).forGetter(EvaporationTrayRecipe::purityMax)
         ).apply(instance, EvaporationTrayRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, EvaporationTrayRecipe> STREAM_CODEC =
@@ -86,6 +98,8 @@ public record EvaporationTrayRecipe(
                         ByteBufCodecs.INT, EvaporationTrayRecipe::inputAmount,
                         ItemStack.STREAM_CODEC, EvaporationTrayRecipe::result,
                         ByteBufCodecs.INT, EvaporationTrayRecipe::processingTime,
+                        ByteBufCodecs.FLOAT, EvaporationTrayRecipe::purityMin,
+                        ByteBufCodecs.FLOAT, EvaporationTrayRecipe::purityMax,
                         EvaporationTrayRecipe::new
                 );
 

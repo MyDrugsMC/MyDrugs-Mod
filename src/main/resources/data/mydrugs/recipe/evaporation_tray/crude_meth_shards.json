@@ -1,0 +1,12 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:crude_meth_slurry",
+  "input_amount": 200,
+  "result": {
+    "id": "mydrugs:meth_shard",
+    "count": 2
+  },
+  "processing_time": 300,
+  "purity_min": 0.15,
+  "purity_max": 0.38
+}

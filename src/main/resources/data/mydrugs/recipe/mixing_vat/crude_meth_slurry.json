@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:ephedra_extract",
+  "item_2": "mydrugs:reactive_phosphorus",
+  "item_3": "mydrugs:crude_reactant_cake",
+  "fluid_input_1": {
+    "fluid": "mydrugs:hydrochloric_acid",
+    "amount": 250
+  },
+  "result_fluid": {
+    "fluid": "mydrugs:crude_meth_slurry",
+    "amount": 200
+  },
+  "required_stirs": 6,
+  "requires_heat": true
+}
