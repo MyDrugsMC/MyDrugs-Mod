@@ -24,6 +24,15 @@ public class ModMenus {
     public static final Supplier<MenuType<DistillerMenu>> DISTILLER =
             MENUS.register("distiller", () -> new MenuType<>(DistillerMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<PsychotropeDistilleryMenu>> PSYCHOTROPE_DISTILLERY =
+            MENUS.register("psychotrope_distillery", () -> new MenuType<>(PsychotropeDistilleryMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<DistillateEngineMenu>> DISTILLATE_ENGINE =
+            MENUS.register("distillate_engine", () -> new MenuType<>(DistillateEngineMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final Supplier<MenuType<PsychotropeResonatorMenu>> PSYCHOTROPE_RESONATOR =
+            MENUS.register("psychotrope_resonator", () -> new MenuType<>(PsychotropeResonatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
     public static final Supplier<MenuType<SieveMenu>> SIEVE =
             MENUS.register("sieve", () -> new MenuType<>(SieveMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
@@ -106,10 +115,6 @@ public class ModMenus {
     public static final Supplier<MenuType<SteamCrackerMenu>> STEAM_CRACKER =
             MENUS.register("steam_cracker",
                     () -> new MenuType<>(SteamCrackerMenu::new, FeatureFlags.DEFAULT_FLAGS));
-
-    public static final Supplier<MenuType<PsychotropeGeneratorMenu>> PSYCHOTROPE_GENERATOR =
-            MENUS.register("psychotrope_generator",
-                    () -> IMenuTypeExtension.create(PsychotropeGeneratorMenu::new));
 
     public static final Supplier<MenuType<PsyMixerMenu>> PSY_MIXER =
             MENUS.register("psy_mixer",

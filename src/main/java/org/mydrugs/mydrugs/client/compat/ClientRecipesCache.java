@@ -7,7 +7,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
@@ -28,6 +27,7 @@ import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.psy_anvil.PsyAnvilRecipe;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
+import org.mydrugs.mydrugs.recipes.psychotrope_distillery.PsychotropeDistilleryRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
@@ -44,6 +44,7 @@ public final class ClientRecipesCache {
     private static final List<ElectrolyzerRecipe> ELECTROLYZER_RECIPES = new ArrayList<>();
     private static final List<ChemicalReactorRecipe> CHEMICAL_REACTOR_RECIPES = new ArrayList<>();
     private static final List<DistillerRecipe> DISTILLER_RECIPES = new ArrayList<>();
+    private static final List<PsychotropeDistilleryRecipe> PSYCHOTROPE_DISTILLERY_RECIPES = new ArrayList<>();
     private static final List<DryingRecipe> DRYING_RECIPES = new ArrayList<>();
     private static final List<CoffeePulpingRecipe> COFFEE_PULPING_RECIPES = new ArrayList<>();
     private static final List<EvaporationTrayRecipe> EVAPORATION_TRAY_RECIPES = new ArrayList<>();
@@ -87,6 +88,10 @@ public final class ClientRecipesCache {
 
     public static List<DistillerRecipe> getDistillerRecipes() {
         return List.copyOf(DISTILLER_RECIPES);
+    }
+
+    public static List<PsychotropeDistilleryRecipe> getPsychotropeDistilleryRecipes() {
+        return List.copyOf(PSYCHOTROPE_DISTILLERY_RECIPES);
     }
 
     public static List<DryingRecipe> getDryingRecipes() {
@@ -158,6 +163,7 @@ public final class ClientRecipesCache {
         ELECTROLYZER_RECIPES.clear();
         CHEMICAL_REACTOR_RECIPES.clear();
         DISTILLER_RECIPES.clear();
+        PSYCHOTROPE_DISTILLERY_RECIPES.clear();
         DRYING_RECIPES.clear();
         COFFEE_PULPING_RECIPES.clear();
         EVAPORATION_TRAY_RECIPES.clear();
@@ -215,6 +221,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(DISTILLER_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.PSYCHOTROPE_DISTILLERY.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(PSYCHOTROPE_DISTILLERY_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.DRYING.get())
@@ -318,6 +330,7 @@ public final class ClientRecipesCache {
         ELECTROLYZER_RECIPES.clear();
         CHEMICAL_REACTOR_RECIPES.clear();
         DISTILLER_RECIPES.clear();
+        PSYCHOTROPE_DISTILLERY_RECIPES.clear();
         DRYING_RECIPES.clear();
         COFFEE_PULPING_RECIPES.clear();
         EVAPORATION_TRAY_RECIPES.clear();

@@ -16,8 +16,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
@@ -73,6 +76,9 @@ public final class ModCommands {
                                     return 1;
                                 })
                         )
+                        .then(ProgressionAdminCommands.knowledge())
+                        .then(ProgressionAdminCommands.recover())
+                        .then(ProgressionAdminCommands.progression())
                         .then(debugCommand())
         );
         event.getDispatcher().register(
@@ -113,7 +119,40 @@ public final class ModCommands {
                                         BoolArgumentType.getBool(context, "droppable")
                                 ))
                         )
+                )
+                .then(Commands.literal("integrate")
+                        .then(Commands.argument("drug", StringArgumentType.word())
+                                .suggests((context, builder) -> suggestIntegratableDrugs(builder))
+                                .executes(context -> integrateDrug(
+                                        context.getSource(),
+                                        StringArgumentType.getString(context, "drug")
+                                ))
+                        )
                 );
+    }
+
+    private static int integrateDrug(CommandSourceStack source, String drugName) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        DrugId drugId = DrugId.bySerializedNameOrNull(drugName);
+        if (drugId == null || !IntegrationService.integrate(player, drugId)) {
+            source.sendFailure(Component.literal("No integratable drug named '" + drugName + "'."));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("Integrated " + drugId.serializedName() + "."), false);
+        return 1;
+    }
+
+    private static CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestIntegratableDrugs(
+            SuggestionsBuilder builder
+    ) {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        for (IntegratedTrait trait : IntegratedTrait.values()) {
+            String name = trait.source().serializedName();
+            if (name.startsWith(remaining)) {
+                builder.suggest(name);
+            }
+        }
+        return builder.buildFuture();
     }
 
     private static int spawnInnerDemon(CommandSourceStack source, boolean droppable) throws CommandSyntaxException {

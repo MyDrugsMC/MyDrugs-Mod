@@ -17,7 +17,15 @@ public enum MachineStatus {
     BLOCKED_BY_TRANSFER,
     INVALID_MULTIBLOCK,
     PAUSED,
-    UNKNOWN_ERROR;
+    UNKNOWN_ERROR,
+    INSUFFICIENT_INPUT_FLUID,
+    INVALID_RECIPE_OUTPUT,
+    OUTPUT_TANK_A_FULL,
+    OUTPUT_TANK_B_FULL,
+    BLOCKED,
+    MISSING_DIARY_CONTEXT,
+    MISSING_RECOVERY_CONTEXT,
+    DIMENSION_UNAVAILABLE;
 
     public String translationKey() {
         return "machine_status.mydrugs." + name().toLowerCase();
@@ -42,6 +50,14 @@ public enum MachineStatus {
             case INVALID_MULTIBLOCK -> 14;
             case PAUSED -> 15;
             case UNKNOWN_ERROR -> 16;
+            case INSUFFICIENT_INPUT_FLUID -> 17;
+            case INVALID_RECIPE_OUTPUT -> 18;
+            case OUTPUT_TANK_A_FULL -> 19;
+            case OUTPUT_TANK_B_FULL -> 20;
+            case BLOCKED -> 21;
+            case MISSING_DIARY_CONTEXT -> 22;
+            case MISSING_RECOVERY_CONTEXT -> 23;
+            case DIMENSION_UNAVAILABLE -> 24;
         };
     }
 

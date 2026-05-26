@@ -46,6 +46,7 @@ public final class PipeNetworkManager {
             rebuildDirty(kind);
         }
         PipeTransferTicker.tick(this.level, this);
+        PipeNetworkDiagnostics.reportIfDue(this.level);
     }
 
     public Map<PipeNetworkKey, PipeNetwork> networks(PipeResourceKind kind) {
@@ -76,6 +77,7 @@ public final class PipeNetworkManager {
                 covered.addAll(network.nodes().keySet());
                 removeOverlappingNetworks(kindNetworks, network.nodes().keySet());
                 kindNetworks.put(key, network);
+                PipeNetworkDiagnostics.rebuild();
             } else {
                 removeNetworksContaining(kindNetworks, seed);
             }

@@ -141,7 +141,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
      */
     public void updateDoses(DoseSyncPayload payload) {
         ensureCategoryMap();
-        if (!Config.CLIENT.enableDrugShaders.get()) {
+        if (!Config.CLIENT.psychedelicShadersEnabled()) {
             doseStrengths.clear();
             rebuildActiveShaders();
             return;
@@ -286,7 +286,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
             return;
         }
 
-        float configScale = Config.CLIENT.shaderIntensity.get().floatValue();
+        float configScale = Config.CLIENT.shaderScale();
         for (EffectType type : activeTypes) {
             AnimatedShader shader = getRegisteredShader(type);
             if (shader == null) {

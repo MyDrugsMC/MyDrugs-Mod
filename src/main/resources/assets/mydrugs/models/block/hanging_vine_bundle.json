@@ -2,8 +2,8 @@
   "render_type": "minecraft:cutout",
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "minecraft:block/vine",
-    "vine": "minecraft:block/vine"
+    "particle": "mydrugs:block/hanging_vine_bundle",
+    "vine": "mydrugs:block/hanging_vine_bundle"
   },
   "elements": [
     {

@@ -28,6 +28,7 @@ import org.mydrugs.mydrugs.client.recovery.music.DiscScriberScreen;
 import org.mydrugs.mydrugs.client.recovery.music.HeadphonesMusicScreen;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
+import org.mydrugs.mydrugs.core.drug.integration.network.IntegrationSyncPayload;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
 import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
@@ -37,6 +38,8 @@ import org.mydrugs.mydrugs.network.PersonalDiscPlaybackPayload;
 import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
 import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
+import org.mydrugs.mydrugs.network.DistillateEnginePreviewPayload;
+import org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
 
 /**
@@ -60,6 +63,8 @@ public final class ClientPayloadHandlers {
         event.register(DrugVisualPayload.TYPE, DrugVisualPayloadHandler::handle);
         event.register(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayloadHandler::handle);
         event.register(RecoveryRoomParticlesPayload.TYPE, RecoveryRoomParticleClient::handle);
+        event.register(DistillateEnginePreviewPayload.TYPE, (payload, context) ->
+                DistillateEngineAreaPreviewClientState.start(payload.enginePos(), payload.radius(), payload.durationTicks()));
         event.register(BiomeFinderOpenScreenPayload.TYPE, BiomeFinderClientPayloadHandler::handleOpenScreen);
         event.register(OpenDrugFormulaNamingPayload.TYPE, DrugFormulaNamingPayloadHandler::handle);
         event.register(PsyMixerRitualSyncPayload.TYPE, PsyMixerRitualClientState::handle);
@@ -81,5 +86,8 @@ public final class ClientPayloadHandlers {
 
         // Mutation stat sync from server.
         event.register(MutationSyncPayload.TYPE, ClientPayloadHandler::handleMutationSync);
+
+        // Integrated trait sync from server.
+        event.register(IntegrationSyncPayload.TYPE, ClientPayloadHandler::handleIntegrationSync);
     }
 }

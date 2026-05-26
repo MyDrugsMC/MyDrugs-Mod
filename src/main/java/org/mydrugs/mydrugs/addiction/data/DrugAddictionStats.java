@@ -19,6 +19,11 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     public float peakHistoricalAddiction;
     public float lifetimeDoseConsumed;
 
+    // Integration arc (Phase A). 0 = none, 1 = eligible (reckoning), 2 = integrated.
+    public int integrationStage;
+    public float recoveryProgress;
+    public long integratedAtGameTime = -1L;
+
     public final List<DoseContribution> doseContributions = new ArrayList<>();
     public DoseState lastDoseState = DoseState.NORMAL;
 
@@ -28,6 +33,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
             total += c.currentValue();
         }
         return total;
+    }
+
+    public boolean isIntegrated() {
+        return integrationStage == 2;
     }
 
     public boolean isEmpty() {
@@ -49,6 +58,9 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         output.putFloat("relapse_memory", relapseMemory);
         output.putFloat("peak_historical_addiction", peakHistoricalAddiction);
         output.putFloat("lifetime_dose_consumed", lifetimeDoseConsumed);
+        output.putInt("integration_stage", integrationStage);
+        output.putFloat("recovery_progress", recoveryProgress);
+        output.putLong("integrated_at_game_time", integratedAtGameTime);
         output.putString("last_dose_state", lastDoseState.name());
 
         ValueOutput contribs = output.child("dose_contributions");
@@ -71,6 +83,9 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         relapseMemory = input.getFloatOr("relapse_memory", 0.0F);
         peakHistoricalAddiction = input.getFloatOr("peak_historical_addiction", 0.0F);
         lifetimeDoseConsumed = input.getFloatOr("lifetime_dose_consumed", 0.0F);
+        integrationStage = input.getIntOr("integration_stage", 0);
+        recoveryProgress = input.getFloatOr("recovery_progress", 0.0F);
+        integratedAtGameTime = input.getLongOr("integrated_at_game_time", -1L);
 
         String stateName = input.getStringOr("last_dose_state", "NORMAL");
         try {
@@ -102,6 +117,9 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         copy.relapseMemory = relapseMemory;
         copy.peakHistoricalAddiction = peakHistoricalAddiction;
         copy.lifetimeDoseConsumed = lifetimeDoseConsumed;
+        copy.integrationStage = integrationStage;
+        copy.recoveryProgress = recoveryProgress;
+        copy.integratedAtGameTime = integratedAtGameTime;
         copy.lastDoseState = lastDoseState;
         for (DoseContribution c : doseContributions) {
             copy.doseContributions.add(new DoseContribution(c.amount, c.ticksRemaining, c.totalDuration));

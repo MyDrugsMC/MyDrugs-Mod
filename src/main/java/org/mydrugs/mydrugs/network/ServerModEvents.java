@@ -63,6 +63,18 @@ public final class ServerModEvents {
 
         event.registerBlockEntity(
                 Capabilities.Item.BLOCK,
+                ModBlockEntities.PSYCHOTROPE_DISTILLERY.get(),
+                (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                ModBlockEntities.DISTILLATE_ENGINE.get(),
+                (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
                 ModBlockEntities.SIEVE.get(),
                 (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)
         );
@@ -208,20 +220,9 @@ public final class ServerModEvents {
 
         event.registerBlockEntity(
                 Capabilities.Item.BLOCK,
-                ModBlockEntities.PSYCHOTROPE_COMPONENT.get(),
-                (blockEntity, side) -> blockEntity.getItemHandler(side)
-        );
-
-        event.registerBlockEntity(
-                Capabilities.Item.BLOCK,
                 ModBlockEntities.EVAPORATION_TRAY.get(),
                 (blockEntity, side) -> blockEntity.getItemHandler(side)
         );
 
-        event.registerBlockEntity(
-                Capabilities.Fluid.BLOCK,
-                ModBlockEntities.PSYCHOTROPE_COMPONENT.get(),
-                (blockEntity, side) -> blockEntity.getFluidHandler(side)
-        );
     }
 }

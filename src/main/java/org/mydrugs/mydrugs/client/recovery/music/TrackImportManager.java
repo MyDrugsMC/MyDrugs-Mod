@@ -31,8 +31,15 @@ public final class TrackImportManager {
     public static TrackImportJob importYoutubeAudio(String url) {
         TrackImportJob job = new TrackImportJob();
         EXECUTOR.submit(() -> {
+            if (!YtDownloader.isAvailable()) {
+                job.complete(Component.translatable("message.mydrugs.external_tool.not_found"));
+                return;
+            }
             Path path = YtDownloader.download(url);
-            if (path == null) job.complete(Component.translatable("screen.mydrugs.music.failed_yt_download"));
+            if (path == null) {
+                job.complete(Component.translatable("screen.mydrugs.music.failed_yt_download"));
+                return;
+            }
             job.complete(MusicLibrary.get().importFile(path).message());
         });
         return job;

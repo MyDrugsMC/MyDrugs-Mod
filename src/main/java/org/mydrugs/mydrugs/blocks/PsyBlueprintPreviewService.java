@@ -37,9 +37,7 @@ public final class PsyBlueprintPreviewService {
 
         BlockState clickedState = level.getBlockState(clicked);
         List<PsyBlueprintPreviewPayload.Entry> entries;
-        if (clickedState.is(ModBlocks.PSYCHOTROPE_CORE.get())) {
-            entries = psychotropeEntries(level, clicked);
-        } else if (clickedState.is(ModBlocks.PAINTED_CLAY_BOWL.get())) {
+        if (clickedState.is(ModBlocks.PAINTED_CLAY_BOWL.get())) {
             entries = psyMixerEntries(level, clicked, facing);
         } else {
             return false;
@@ -67,19 +65,6 @@ public final class PsyBlueprintPreviewService {
             return true;
         }
         return Math.max(focus, warp) >= 1.25F;
-    }
-
-    private static List<PsyBlueprintPreviewPayload.Entry> psychotropeEntries(Level level, BlockPos corePos) {
-        List<PsyBlueprintPreviewPayload.Entry> entries = new ArrayList<>();
-        Block expected = ModBlocks.PSYCHOTROPE_COMPONENT.get();
-        for (BlockPos offset : PsychotropeMultiblock.componentOffsets()) {
-            BlockPos pos = corePos.offset(offset);
-            BlockState current = level.getBlockState(pos);
-            if (!current.is(expected)) {
-                entries.add(entry(pos, expected, isWrongBlock(current)));
-            }
-        }
-        return entries;
     }
 
     private static List<PsyBlueprintPreviewPayload.Entry> psyMixerEntries(Level level, BlockPos bowlPos, Direction facing) {

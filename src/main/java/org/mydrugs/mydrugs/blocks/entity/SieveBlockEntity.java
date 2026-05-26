@@ -30,7 +30,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.SieveMenu;
@@ -128,7 +128,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         int manualProgress = (int) be.shakeProgressBuffer;
         int automaticProgress = 0;
-        if (PsychotropeEnergyMachines.tryUseAutomationEnergyTick(be)) {
+        if (PsyCurrentMachines.tryUseAutomationCurrentTick(be)) {
             automaticProgress = 1;
         }
         int gained = manualProgress + automaticProgress;

@@ -20,7 +20,10 @@ public final class VomitOverlayClientState {
     }
 
     public static void trigger(float newIntensity) {
-        intensity = Math.max(intensity, Mth.clamp(newIntensity, 0.15F, 1.0F));
+        intensity = Math.max(intensity, Mth.clamp(newIntensity * Config.CLIENT.visualScale(), 0.0F, 1.0F));
+        if (intensity <= 0.02F) {
+            return;
+        }
         totalTicks = Config.CLIENT.reducedMotionMode.get() ? 36 : 56;
         ticksRemaining = Math.max(ticksRemaining, totalTicks);
     }
@@ -46,8 +49,8 @@ public final class VomitOverlayClientState {
         int width = mc.getWindow().getGuiScaledWidth();
         int height = mc.getWindow().getGuiScaledHeight();
         float progress = 1.0F - ticksRemaining / (float) Math.max(1, totalTicks);
-        float alpha = Mth.clamp((ticksRemaining / (float) Math.max(1, totalTicks)) * intensity, 0.0F, 0.85F);
-        int slide = Config.CLIENT.reducedMotionMode.get()
+        float alpha = Mth.clamp((ticksRemaining / (float) Math.max(1, totalTicks)) * intensity, 0.0F, 0.85F * Config.CLIENT.flashCap());
+        int slide = Config.CLIENT.reducedMotionMode.get() || Config.CLIENT.disableForcedCameraMovement.get()
                 ? Math.round(progress * 8.0F)
                 : Math.round(progress * height * 0.20F);
 

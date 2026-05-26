@@ -9,9 +9,11 @@ import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.AutoclaveBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.BacterialIncubatorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.DistillateEngineBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.GeneExtractorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.HemogenicInfuserBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.KrisprKas9CombinatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.PsychotropeDistilleryBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
 import org.mydrugs.mydrugs.menu.AromaticExtractorMenu;
 import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
@@ -71,6 +73,22 @@ public final class MachineTransferSpecs {
                     fluidIn("fluid_input", 3, 0, INPUT_DEFAULT),
                     fluidOut("fluid_output_a", 4, 1, OUTPUT_DEFAULT),
                     fluidOut("fluid_output_b", 5, 2, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.PSYCHOTROPE_DISTILLERY.get()) {
+            return spec(
+                    itemIn("drug_input", 0, PsychotropeDistilleryBlockEntity.SLOT_DRUG_INPUT, INPUT_DEFAULT),
+                    itemIn("reagent_input", 1, PsychotropeDistilleryBlockEntity.SLOT_REAGENT, SECONDARY_INPUT_DEFAULT),
+                    itemIn("fuel", 2, PsychotropeDistilleryBlockEntity.SLOT_FUEL, TOP_INPUT_DEFAULT),
+                    itemOut("extract_output", 3, PsychotropeDistilleryBlockEntity.SLOT_EXTRACT_OUTPUT, OUTPUT_DEFAULT),
+                    itemOut("residue_output", 4, PsychotropeDistilleryBlockEntity.SLOT_RESIDUE_OUTPUT, BOTTOM_OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.DISTILLATE_ENGINE.get()) {
+            return spec(
+                    itemIn("distillate_fuel", 0, DistillateEngineBlockEntity.SLOT_FUEL, INPUT_DEFAULT),
+                    itemIn("current_regulator", 1, DistillateEngineBlockEntity.SLOT_REGULATOR, TOP_INPUT_DEFAULT),
+                    itemOut("engine_waste", 2, DistillateEngineBlockEntity.SLOT_WASTE_OUTPUT, OUTPUT_DEFAULT)
             );
         }
         if (type == ModBlockEntities.SIEVE.get()) {

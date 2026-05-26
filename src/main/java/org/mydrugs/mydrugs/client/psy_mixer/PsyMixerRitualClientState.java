@@ -92,7 +92,10 @@ public final class PsyMixerRitualClientState {
             HeartbeatPulse.triggerBeat();
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null && Config.CLIENT.enableHeartbeatSounds.get()) {
-                mc.player.playNotifySound(ModSounds.SINGLE_HEARTBEAT.get(), SoundSource.PLAYERS, 0.45F, quality == PsyMixerRitualQuality.CRUDE ? 0.82F : 0.95F);
+                float volume = Config.CLIENT.suddenSoundCap(0.45F * Config.CLIENT.heartbeatVolume.get().floatValue());
+                if (volume > 0.0F) {
+                    mc.player.playNotifySound(ModSounds.SINGLE_HEARTBEAT.get(), SoundSource.PLAYERS, volume, quality == PsyMixerRitualQuality.CRUDE ? 0.82F : 0.95F);
+                }
             }
             badQualityHeartbeatCooldown = quality == PsyMixerRitualQuality.CRUDE ? 24 : 36;
         }

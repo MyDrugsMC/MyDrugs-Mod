@@ -17,8 +17,8 @@ public final class ModCriteriaTriggers {
             TRIGGERS.register("machine_recipe_completed", MachineRecipeCompletedTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, RecoveryActionTrigger> RECOVERY_ACTION =
             TRIGGERS.register("recovery_action", RecoveryActionTrigger::new);
-    public static final DeferredHolder<CriterionTrigger<?>, PsychotropeEnergyTrigger> PSYCHOTROPE_ENERGY =
-            TRIGGERS.register("psychotrope_energy", PsychotropeEnergyTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, PsyCurrentTrigger> PSY_CURRENT_MACHINE_POWERED =
+            TRIGGERS.register("psy_current_machine_powered", PsyCurrentTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, PsyKnowledgeUnlockedTrigger> PSY_KNOWLEDGE_UNLOCKED =
             TRIGGERS.register("psy_knowledge_unlocked", PsyKnowledgeUnlockedTrigger::new);
 

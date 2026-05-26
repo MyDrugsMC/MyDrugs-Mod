@@ -138,8 +138,8 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
                     mouseX,
                     mouseY,
                     Component.translatable("screen.mydrugs.ui.input_tank"),
-                    Component.literal(getFluidName(this.menu.getInputFluid())),
-                    Component.literal(this.menu.getInputTankAmount() + " / " + DistillerMenu.TANK_CAPACITY + " mB")
+                    this.menu.getInputFluidIdText(),
+                    Component.translatable("screen.mydrugs.ui.amount_unit", this.menu.getInputTankAmount(), DistillerMenu.TANK_CAPACITY, "mB")
             );
         } else if (isHoveringBox(DistillerLayout.OUTPUT_A_TANK_X, DistillerLayout.OUTPUT_A_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
@@ -147,8 +147,8 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
                     mouseX,
                     mouseY,
                     Component.translatable("screen.mydrugs.ui.output_tank_a"),
-                    Component.literal(getFluidName(this.menu.getOutputAFluid())),
-                    Component.literal(this.menu.getOutputATankAmount() + " / " + DistillerMenu.TANK_CAPACITY + " mB")
+                    this.menu.getOutputAFluidIdText(),
+                    Component.translatable("screen.mydrugs.ui.amount_unit", this.menu.getOutputATankAmount(), DistillerMenu.TANK_CAPACITY, "mB")
             );
         } else if (isHoveringBox(DistillerLayout.OUTPUT_B_TANK_X, DistillerLayout.OUTPUT_B_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, mouseX, mouseY)) {
             renderTooltipLines(
@@ -156,8 +156,8 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
                     mouseX,
                     mouseY,
                     Component.translatable("screen.mydrugs.ui.output_tank_b"),
-                    Component.literal(getFluidName(this.menu.getOutputBFluid())),
-                    Component.literal(this.menu.getOutputBTankAmount() + " / " + DistillerMenu.TANK_CAPACITY + " mB")
+                    this.menu.getOutputBFluidIdText(),
+                    Component.translatable("screen.mydrugs.ui.amount_unit", this.menu.getOutputBTankAmount(), DistillerMenu.TANK_CAPACITY, "mB")
             );
         } else if (isHoveringBox(DistillerLayout.PROGRESS_X, DistillerLayout.PROGRESS_Y, DistillerLayout.PROGRESS_W, DistillerLayout.PROGRESS_H, mouseX, mouseY)) {
             renderTooltipLines(
@@ -165,7 +165,7 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
                     mouseX,
                     mouseY,
                     Component.translatable("screen.mydrugs.ui.distillation_progress"),
-                    Component.literal(this.menu.getProgress() + " / " + this.menu.getMaxProgress())
+                    Component.translatable("screen.mydrugs.ui.amount", this.menu.getProgress(), this.menu.getMaxProgress())
             );
         } else if (isHoveringBox(DistillerLayout.RUN_BUTTON_X, DistillerLayout.RUN_BUTTON_Y, DistillerLayout.RUN_BUTTON_SIZE, DistillerLayout.RUN_BUTTON_SIZE, mouseX, mouseY)) {
             renderTooltipLines(

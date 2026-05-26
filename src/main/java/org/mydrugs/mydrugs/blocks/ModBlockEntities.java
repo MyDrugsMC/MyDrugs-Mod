@@ -55,6 +55,36 @@ public final class ModBlockEntities {
                     )
             );
 
+    public static final Supplier<BlockEntityType<PsychotropeDistilleryBlockEntity>> PSYCHOTROPE_DISTILLERY =
+            BLOCK_ENTITY_TYPES.register(
+                    "psychotrope_distillery",
+                    () -> new BlockEntityType<>(
+                            PsychotropeDistilleryBlockEntity::new,
+                            false,
+                            ModBlocks.PSYCHOTROPE_DISTILLERY.get()
+                    )
+            );
+
+    public static final Supplier<BlockEntityType<DistillateEngineBlockEntity>> DISTILLATE_ENGINE =
+            BLOCK_ENTITY_TYPES.register(
+                    "distillate_engine",
+                    () -> new BlockEntityType<>(
+                            DistillateEngineBlockEntity::new,
+                            false,
+                            ModBlocks.DISTILLATE_ENGINE.get()
+                    )
+            );
+
+    public static final Supplier<BlockEntityType<PsychotropeResonatorBlockEntity>> PSYCHOTROPE_RESONATOR =
+            BLOCK_ENTITY_TYPES.register(
+                    "psychotrope_resonator",
+                    () -> new BlockEntityType<>(
+                            PsychotropeResonatorBlockEntity::new,
+                            false,
+                            ModBlocks.PSYCHOTROPE_RESONATOR.get()
+                    )
+            );
+
     public static final Supplier<BlockEntityType<MixingVatBlockEntity>> MIXING_VAT =
             BLOCK_ENTITY_TYPES.register(
                     "mixing_vat",
@@ -268,22 +298,6 @@ public final class ModBlockEntities {
                     () -> new BlockEntityType<>(
                             SteamCrackerBlockEntity::new,
                             ModBlocks.STEAM_CRACKER.get()
-                    ));
-
-    public static final Supplier<BlockEntityType<PsychotropeComponentBlockEntity>> PSYCHOTROPE_COMPONENT =
-            BLOCK_ENTITY_TYPES.register("psychotrope_component",
-                    () -> new BlockEntityType<>(
-                            PsychotropeComponentBlockEntity::new,
-                            false,
-                            ModBlocks.PSYCHOTROPE_COMPONENT.get()
-                    ));
-
-    public static final Supplier<BlockEntityType<PsychotropeCoreBlockEntity>> PSYCHOTROPE_CORE =
-            BLOCK_ENTITY_TYPES.register("psychotrope_core",
-                    () -> new BlockEntityType<>(
-                            PsychotropeCoreBlockEntity::new,
-                            false,
-                            ModBlocks.PSYCHOTROPE_CORE.get()
                     ));
 
     public static final Supplier<BlockEntityType<FormedPsyMixerCoreBlockEntity>> FORMED_PSY_MIXER_CORE =

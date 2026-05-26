@@ -122,6 +122,47 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> DISTILLER_ITEM =
             registerMachineBlockItem("distiller", DISTILLER);
 
+    public static final DeferredBlock<PsychotropeDistilleryBlock> PSYCHOTROPE_DISTILLERY = BLOCKS.registerBlock(
+            "psychotrope_distillery",
+            PsychotropeDistilleryBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> PSYCHOTROPE_DISTILLERY_ITEM =
+            registerMachineBlockItem("psychotrope_distillery", PSYCHOTROPE_DISTILLERY);
+
+    public static final DeferredBlock<DistillateEngineBlock> DISTILLATE_ENGINE = BLOCKS.registerBlock(
+            "distillate_engine",
+            DistillateEngineBlock::new,
+            props -> props
+                    .strength(4.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .lightLevel(state -> 5)
+    );
+
+    public static final DeferredItem<BlockItem> DISTILLATE_ENGINE_ITEM =
+            registerMachineBlockItem("distillate_engine", DISTILLATE_ENGINE);
+
+    public static final DeferredBlock<PsychotropeResonatorBlock> PSYCHOTROPE_RESONATOR = BLOCKS.registerBlock(
+            "psychotrope_resonator",
+            PsychotropeResonatorBlock::new,
+            props -> props
+                    .strength(4.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.AMETHYST)
+                    .noOcclusion()
+                    .lightLevel(state -> 4)
+    );
+
+    public static final DeferredItem<BlockItem> PSYCHOTROPE_RESONATOR_ITEM =
+            registerMachineBlockItem("psychotrope_resonator", PSYCHOTROPE_RESONATOR);
+
     public static final DeferredBlock<Block> MIXING_VAT = BLOCKS.registerBlock(
             "mixing_vat",
             MixingVatBlock::new,
@@ -518,32 +559,6 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> STEAM_CRACKER_ITEM = registerMachineBlockItem("steam_cracker", STEAM_CRACKER);
 
-    public static final DeferredBlock<PsychotropeComponentBlock> PSYCHOTROPE_COMPONENT = BLOCKS.registerBlock(
-            "psychotrope_component",
-            PsychotropeComponentBlock::new,
-            props -> props
-                    .strength(3.5F)
-                    .sound(SoundType.AMETHYST)
-                    .requiresCorrectToolForDrops()
-                    .lightLevel(state -> 4)
-    );
-
-    public static final DeferredItem<BlockItem> PSYCHOTROPE_COMPONENT_ITEM =
-            registerMachineBlockItem("psychotrope_component", PSYCHOTROPE_COMPONENT);
-
-    public static final DeferredBlock<PsychotropeCoreBlock> PSYCHOTROPE_CORE = BLOCKS.registerBlock(
-            "psychotrope_core",
-            PsychotropeCoreBlock::new,
-            props -> props
-                    .strength(5.0F)
-                    .sound(SoundType.AMETHYST)
-                    .requiresCorrectToolForDrops()
-                    .lightLevel(state -> 8)
-    );
-
-    public static final DeferredItem<BlockItem> PSYCHOTROPE_CORE_ITEM =
-            registerMachineBlockItem("psychotrope_core", PSYCHOTROPE_CORE);
-
     public static final DeferredBlock<Block> RAW_PLATINUM_BLOCK = BLOCKS.registerSimpleBlock(
             "raw_platinum_block",
             props -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).requiresCorrectToolForDrops()
@@ -690,6 +705,18 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> BITTER_NUT_BUSH_ITEM =
             ITEMS.registerSimpleBlockItem(BITTER_NUT_BUSH);
+
+    // Wild aloe: worldgen bush that yields leaves and seeds. Seeds plant the farmland crop.
+    public static final DeferredBlock<AloeVeraBushBlock> ALOE_VERA_BUSH = BLOCKS.registerBlock(
+            "aloe_vera_bush",
+            AloeVeraBushBlock::new,
+            props -> props
+                    .strength(0.0F)
+                    .randomTicks()
+                    .noCollision()
+                    .sound(SoundType.GRASS)
+                    .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)
+    );
 
     // Third Eye Petal: rare flower from worldgen, also obtainable as item.
     public static final DeferredBlock<ThirdEyePetalBlock> THIRD_EYE_PETAL = BLOCKS.registerBlock(

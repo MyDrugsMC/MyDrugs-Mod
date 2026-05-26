@@ -19,6 +19,10 @@ public final class PsyKnowledgeAttachment implements ValueIOSerializable {
         return this.known.add(key.id());
     }
 
+    public boolean revoke(PsyKnowledgeKey key) {
+        return this.known.remove(key.id());
+    }
+
     public Set<PsyKnowledgeKey> getKnown() {
         Set<PsyKnowledgeKey> result = new LinkedHashSet<>();
         for (ResourceLocation id : this.known) {

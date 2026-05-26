@@ -21,6 +21,8 @@ import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.mutation.MutationClientState;
 import org.mydrugs.mydrugs.mutation.MutationStat;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationClientState;
+import org.mydrugs.mydrugs.core.drug.integration.network.IntegrationSyncPayload;
 import net.minecraft.client.Minecraft;
 import java.util.EnumMap;
 import java.util.Map;
@@ -59,7 +61,7 @@ public final class ClientPayloadHandler {
             }
 
             EffectCategory category = entry.type().getCategory();
-            if (category == EffectCategory.SHADER && Config.CLIENT.enableDrugShaders.get()) {
+            if (category == EffectCategory.SHADER && Config.CLIENT.psychedelicShadersEnabled()) {
                 int fadeTicks = entry.fadeTicksRemaining();
                 int fadeDuration = entry.fadeDurationTicks();
                 int duration = Config.CLIENT.reducedMotionMode.get()
@@ -102,6 +104,10 @@ public final class ClientPayloadHandler {
             }
         }
         MutationClientState.apply(values);
+    }
+
+    public static void handleIntegrationSync(IntegrationSyncPayload payload, IPayloadContext context) {
+        IntegrationClientState.apply(payload.traitIds());
     }
 
     public static void handlePersonalDiarySnapshot(PersonalDiarySnapshotPayload payload, IPayloadContext context) {

@@ -24,6 +24,7 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.psy_anvil.PsyAnvilRecipe;
+import org.mydrugs.mydrugs.recipes.psychotrope_distillery.PsychotropeDistilleryRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
@@ -49,6 +50,9 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DistillerRecipe>> DISTILLER =
             RECIPE_SERIALIZERS.register("distiller", DistillerRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PsychotropeDistilleryRecipe>> PSYCHOTROPE_DISTILLERY =
+            RECIPE_SERIALIZERS.register("psychotrope_distillery", PsychotropeDistilleryRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DryingRecipe>> DRYING =
             RECIPE_SERIALIZERS.register("drying", DryingRecipe.Serializer::new);

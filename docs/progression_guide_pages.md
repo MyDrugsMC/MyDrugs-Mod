@@ -18,23 +18,22 @@
 # Run tools/sync_progression_guide.ps1 to regenerate pages.json.
 
 ---
-
 # MyDrugs Field Guide
 
 @title Field Guide
 
 Someone left this manual behind. It is stained, dog-eared, and honest.
 
-It will not hold your hand. It tells you the next move, what to never throw away, and what to do when a recipe sits there doing nothing.
+It will not hold your hand. It explains systems, materials, and routes once you know what you are trying to understand.
 
-JEI has the exact ingredients. Advancements point the way. Machine screens explain their own refusals. This book gives you the route between all of that.
+When you are lost, open the diary first. The guide explains systems, but the diary knows your state.
 
-> [GOAL] Follow the MAIN QUEST pages in order. Read the recovery pages BEFORE you need them.
+JEI has exact recipes. Machine screens explain immediate refusals. Advancements mark milestones. This book is the reference shelf beside all of that.
+
+> [GOAL] Use the diary for what matters now. Use the guide for explanations, JEI for exact recipes, and machine screens for immediate failure reasons.
 
 @link Quick Index|Open the index
-
 ---
-
 # Quick Index
 
 @title Quick Index
@@ -56,19 +55,19 @@ JEI has the exact ingredients. Advancements point the way. Machine screens expla
 @link Meth|Ch.11 — Overclocked
 @link Mushrooms|Ch.12 — Mycelial
 @link Psy Mixer|Rituals
-@link Psychotrope Energy|Late power
-@link Mutations|Endgame body
+@link Psy Current|Extraction power
+@link Psychotrope Resonator|Dream and integration
+@link Somatic Adaptation|Endgame body
 ***
 @link The Diary|Read yourself
 @link The Psyche Map|See your progress
 @link Recovery Basics|Stay functional
 @link Recovery Sanctuary|Build a safe room
-@link Bad Trips and Demons|When it turns on you
+@link Bad Trips and Integration|When it becomes too much
 @link Drug Analyzer|Inspect anything
+@link Recovering Lost Progression Items|Rebuild a lost key item
 @link When You Are Stuck|Fix it fast
-
 ---
-
 # How To Read This
 
 Pages carry a label so you always know what a page is for.
@@ -76,26 +75,28 @@ Pages carry a label so you always know what a page is for.
 MAIN QUEST advances your knowledge — the real spine of the mod.
 SUPPORT means tools, materials, machines, fluids, gases.
 RECOVERY keeps addiction, stress, overdose, infection and bad trips from running your life.
-RITUAL is Psy Mixer work. ENDGAME is psychotrope energy and mutations.
+RITUAL is Psy Mixer work.
+ENDGAME is Resonator, Inner Dimension, somatic adaptation, boss, and freedom.
 
-> [TIP] Lost? Check the last knowledge you unlocked, then open that chapter. The route never branches far.
-
+> [TIP] Lost? Open the diary first. If it points at a system you do not understand, come back here for the reference page.
 ---
-
 # The Route
 
 OVERVIEW
 
 This is the whole game on one page. Each arrow is roughly one chapter.
 
-Seeds → coffee → tobacco → Psy Anvil → sieve → cannabis → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → psychotrope energy → mutations.
+Seeds → coffee → tobacco → Psy Anvil → sieve → cannabis → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
 
 Recovery runs alongside ALL of it, not after.
 
+The machine route teaches control. The stimulant route tempts overclocking. LSD and mushrooms open a different route: insight, recovery, and integration.
+
 > [WARN] Hash sits after Fermented Knowledge — the stomp crafter that presses it needs heavy iron first.
 
-@link Knowledge Spine|The nine unlocks
+> [GOAL] Use the guide for the route. Use the diary to understand whether the route is helping you or trapping you.
 
+@link Knowledge Spine|The nine unlocks
 ---
 
 # Knowledge Spine
@@ -270,7 +271,6 @@ Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens
 @item mydrugs:copper_tube
 @item mydrugs:wooden_frame
 @item mydrugs:mixing_vat
-@item mydrugs:mixing_spatula
 
 Shape copper parts and assemble the mixing vat. From here, recipes start dealing in fluids, not just items.
 
@@ -537,7 +537,6 @@ JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water
 > [GOAL] Stock hydrochloric and sulfuric acid, acylating agent, tryptophan and diethylamine.
 
 ---
-
 # LSD
 
 MAIN QUEST — Chapter 10
@@ -557,8 +556,11 @@ Drop cardboard pieces, use a bottle of LSD fluid on them, and you get LSD Drops.
 
 An LSD Drop grants Lysergic Knowledge.
 
-> [GOAL] Unlock Lysergic Knowledge.
+LSD is not just a stronger buff. It is the first door into insight systems: dream state, deeper diary entries, Psychotrope Resonator work, and later the Inner Dimension.
 
+> [TIP] The trip is not the healing. What you do before and after it matters.
+
+> [GOAL] Unlock Lysergic Knowledge, then check the diary.
 ---
 
 # Advanced Circuits
@@ -597,12 +599,11 @@ Build the cracker, reformer, extractor and BTX tower, then refine petroleum into
 > [GOAL] Produce the aromatics that feed late meth chemistry.
 
 ---
-
 # Meth
 
 MAIN QUEST — Chapter 11
 
-The longest chain in the mod. There is no shortcut — this is the payoff for everything you built.
+The longest chain in the mod. There is no shortcut — this is the payoff for the machine route, but not the end of the story.
 
 @item mydrugs:methylamine_bucket
 @item mydrugs:acetone_bucket
@@ -615,12 +616,16 @@ High-tier machines, gases, reactors, aromatics and evaporation all feed in. Grin
 
 Smoke meth powder for Overclocked Knowledge.
 
+Meth is the strongest version of the overclock question:
+
+> How far can I force myself to keep going?
+
+It gives power, but the diary may start asking whether movement is the same as progress.
+
 > [WARN] Meth shards do nothing on their own — they MUST become powder, and powder must be smoked.
 
-> [GOAL] Unlock Overclocked Knowledge.
-
+> [GOAL] Unlock Overclocked Knowledge, then return to recovery and psychedelic integration instead of only pushing harder.
 ---
-
 # Mushrooms
 
 MAIN QUEST + EXPLORATION — Chapter 12
@@ -635,8 +640,9 @@ You can find magic mushrooms early — but Mycelial Knowledge only opens after O
 
 Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes.
 
-> [GOAL] Hunt down psychedelic terrain and close the knowledge spine.
+Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the future Inner Dimension.
 
+> [GOAL] Hunt down psychedelic terrain, unlock Mycelial Knowledge, and prepare for Resonator work.
 ---
 
 # Psy Mixer
@@ -693,23 +699,49 @@ Mushrooms + amethyst / glow berries → ore aura, gamma, bad-trip resistance.
 > [WARN] A strong mix is not a safe mix. Watch stress, symptoms, addiction and overdose the whole time.
 
 ---
+# Psychotrope Resonator
 
-# Psychotrope Energy
-
-ENDGAME
+ENDGAME — DREAM AND INTEGRATION
 
 @item mydrugs:psychotrope_lens
-@item mydrugs:psychotrope_component
-@item mydrugs:psychotrope_core
+@item mydrugs:psychotrope_resonator
+@item mydrugs:dream_residue
+@item mydrugs:integration_core
 @item mydrugs:energy_upgrade
 @item mydrugs:automation_upgrade
 
-Build lens → components → core. The core burns the value of a drug and turns it into psychotrope energy — the power source for the last machines and all mutation work.
+Build lens → dream residue → resonator. This route has been reframed from Psychotrope Generator into Psychotrope Resonator.
 
-> [WARN] Feeding drugs into the core is a trade. Only do it once your production can replace what you burn.
+The Resonator should not be a hungry machine. It should help stabilize dream states, convert insight into integration, open the Inner Dimension, and craft endgame recovery tools.
 
-> [GOAL] A stable energy supply before you start mutating.
+Future states should be deterministic:
 
+Dormant → Stable → Lucid → Dream → Integration → Overstrained.
+
+> [WARN] If the Resonator becomes a constant chore, it is failing its purpose. It should help you integrate, not demand attention forever.
+
+> [GOAL] Build the Resonator after LSD and use it to turn experiences into something lasting.
+---
+
+# Psy Current
+
+SUPPORT - EXTRACTION POWER
+
+@item mydrugs:psychotrope_distillery
+@item mydrugs:distillate_engine
+@item mydrugs:lucid_extract
+@item mydrugs:calming_resin
+@item mydrugs:redline_fuel
+@item mydrugs:overdrive_fuel
+@item mydrugs:unstable_essence
+
+The Psychotrope Distillery turns substance products into industrial extracts. The Distillate Engine burns those extracts into Psy Current for machine automation.
+
+Dream Residue and Mycelial Insight are different. They belong to the Resonator, not the engine.
+
+> [WARN] Redline and Overdrive produce stronger current but add engine strain. Overload cools down; it is not an explosion.
+
+> [GOAL] Use extraction for factory power. Use integration for freedom.
 ---
 
 # Bottles and Syringes
@@ -729,10 +761,9 @@ Syringes draw blood and inject mutation payloads — but a dirty syringe causes 
 > [WARN] A dirty injection is rejected AND starts an infection. Sterilise first, every time.
 
 ---
+# Somatic Adaptation
 
-# Mutations
-
-ENDGAME
+ENDGAME BODY
 
 @item mydrugs:adn_scraper
 @item mydrugs:adn_scrap
@@ -741,17 +772,17 @@ ENDGAME
 @item mydrugs:mutagenic_blood_vial
 @item mydrugs:syringe
 
-The route: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
+The current route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
 
-Mutations rewrite how your body handles the drug system. Bad preparation — dirty syringes, infection, rejection, instability — punishes you for it.
+The future direction is Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover.
 
-> [GOAL] Use mutations to fix the weaknesses your own playstyle created.
+Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience.
 
+> [GOAL] Use body adaptation to support recovery and safe exploration, not to avoid healing forever.
 ---
+# Somatic Machines
 
-# Mutation Machines
-
-ENDGAME
+ENDGAME BODY
 
 @item mydrugs:gene_extractor
 @item mydrugs:crispr_cas9_combinator
@@ -759,65 +790,69 @@ ENDGAME
 @item mydrugs:hemogenic_infuser
 @item mydrugs:autoclave
 
-Gene Extractor — ADN Scrap into single-stat genes.
-CRISPR-CAS9 — combines compatible genes from different sources.
-Bacterial Incubator — gene into a mutation vector.
-Hemogenic Infuser — vector plus blood into a mutagenic blood vial.
+These machines are still implemented as ADN tools, but their player-facing direction should move toward body regulation and somatic adaptation.
+
+Gene Extractor — ADN Scrap into single-stat imprints.
+CRISPR-CAS9 — combines compatible body imprints.
+Bacterial Incubator — imprint into an adaptation vector.
+Hemogenic Infuser — vector plus blood into an adaptation vial.
 Autoclave — sterilises dirty empty syringes.
 
-> [WARN] Complex genes are stronger, but every step adds a way to fail.
-
+> [WARN] Strong adaptation is not the same as recovery. If you only optimize the body, the diary may still ask what you are avoiding.
 ---
-
-# Mutation Builds
+# Adaptation Patterns
 
 ENDGAME — reference
 
-A few builds that hold together well:
+A few patterns that hold together well:
 
 Clear Mind — Mental Strength, Visual Accuracy, Withdrawal Resilience.
 Durable Body — Health Stability, Metabolic Control, Infection Resistance.
-Ritualist — Ritual Neural Sync, Genetic Stability, Visual Accuracy.
-Safe Chemist — Infection Resistance, Health Stability, Genetic Stability.
+Ritualist — Ritual Neural Sync, Stability, Visual Accuracy.
+Safe Chemist — Infection Resistance, Health Stability, Stability.
 Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance.
 
-> [TIP] A balanced spread survives longer than one enormous stat.
+Future review should rename and rebalance these around resilience, grounding, safe trips, withdrawal recovery, and dimension traversal.
 
+> [TIP] A balanced pattern supports freedom better than one enormous stat.
 ---
-
 # The Diary
 
-RECOVERY
+RECOVERY — CENTRAL SYSTEM
 
 @item mydrugs:personal_diary
 
-The Personal Diary is the single most useful thing you own. It is your character sheet.
+The Personal Diary is the single most useful thing you own. It is not a wiki checklist. It is your inner compass.
 
-Open it to read your addiction, stress, withdrawal, symptoms and tolerance — and the diary writes its own entries as you play, flagging first-time use and what to do next.
+Open it to read your addiction, stress, withdrawal, symptoms and tolerance — and the diary writes its own entries as you play, flagging first-time use, recovery needs, and what to do next.
 
-> [TIP] When you don't know what is wrong with you, the diary already does. Check it before you guess.
+The diary remembers firsts, failures, recovery pressure, and progression hints. The guide tells you how systems work. JEI tells you exact recipes. Machine screens tell you why this machine stopped right now.
+
+> [TIP] When you don't know what is wrong with you, the diary already has clues. Check it before you guess.
+
+> [GOAL] Use the diary after major moments: first addiction pressure, first LSD, first bad trip, first recovery milestone, first dream entry.
 
 @link The Psyche Map|Your progress, mapped
-
 ---
-
 # The Psyche Map
 
 ORIENTATION
 
 Inside the Personal Diary is the Psyche Map — a zoomable map of everything you have done.
 
-It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first mutation, first bad trip, first recovery room, first inner demon defeated, and more. Locked nodes stay hidden until you reach them.
+It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first adaptation, first bad trip, first recovery room, first integrated fragment, first Resonator use, and more. Locked nodes stay hidden until you reach them.
 
-> [TIP] If you ever feel lost in the mid game, open the map. The unlit nodes ARE your to-do list.
+The future map should follow the real story:
 
+Discovery → control → temptation → recovery → psychedelic opening → integration → Inner Dimension → boss → freedom.
+
+> [TIP] If you ever feel lost in the mid game, open the diary first, then read the map as a constellation of what you have already lived through.
 ---
-
 # Recovery Basics
 
 RECOVERY
 
-Recovery is not an endgame chore. Coffee, tobacco and cannabis already build pressure — start managing it now.
+Recovery is not an endgame chore. Coffee, tobacco, cannabis, alcohol and stimulants can all build pressure — start managing it now.
 
 @item mydrugs:headphones
 @item mydrugs:herbal_tea
@@ -827,12 +862,13 @@ Recovery is not an endgame chore. Coffee, tobacco and cannabis already build pre
 
 Headphones steady you while carried. Tea and calming mixture cut stress and withdrawal. Sleeping aid restores blocked sleep. The antidote pulls you back from an overdose.
 
+Future recovery should grow into several paths: diary work, safe rooms, sleep, diet, exercise, therapy-like actions, psychedelics with integration, and endgame ketamine-like integration.
+
 > [GOAL] Carry at least one recovery option before any repeated use.
 
 @link Recovery Sanctuary|The room that does the work
-
+@link Recovering Lost Progression Items|Rebuild a lost key item
 ---
-
 # Recovery Sanctuary
 
 RECOVERY
@@ -846,28 +882,29 @@ Place a Recovery Anchor inside an enclosed room with a door. The anchor scans th
 
 Fragile → Resting → Safe → Sanctuary.
 
-Higher tiers speed up withdrawal, tolerance and addiction recovery, lower your baseline stress, and blunt bad trips. A full Sanctuary even stops inner demons from spawning.
+Higher tiers speed up withdrawal, tolerance and addiction recovery, lower your baseline stress, and blunt bad trips.
+
+Future Sanctuary progression should support therapy-like actions, diary integration, diet, exercise, music, psychedelic preparation, and post-trip integration.
 
 > [TIP] The anchor tells you exactly what to add. Follow its hints up to Sanctuary.
 
-> [GOAL] Build a real Sanctuary before crack, meth, infection or mutation work.
-
+> [GOAL] Build a real Sanctuary before crack, meth, infection, adaptation work, or serious psychedelic exploration.
 ---
+# Bad Trips and Integration
 
-# Bad Trips and Demons
+RECOVERY — INTENSITY
 
-RECOVERY — danger
-
-Push a psychedelic or stimulant too hard and you trigger a bad trip. A mild one is just stress and bad symptoms. A strong one spawns Inner Demons.
+Push a psychedelic or stimulant too hard and you can trigger a bad trip. A mild one is stress and bad symptoms. A strong one may externalize psychological fragments.
 
 @item mydrugs:inner_demon_remains
 
-Inner Demons are fast, flying, hostile things only you can see. They hunt you until the bad trip ends or you kill them. Killing one drops Inner Demon Remains — a real crafting material.
+Inner Demons are being reframed as symbolic inner fragments: panic, craving, shame, avoidance, or the loop. They should be dangerous, but not proof that the mod is evil or anti-healing.
 
-> [TIP] A Sanctuary-tier recovery room suppresses demon spawns entirely. Bad trips from alcohol never spawn them.
+A bad trip should be recoverable and meaningful. Safe setting, recovery room, diary work, and integration should all help.
 
-> [WARN] Cut the bad trip at the source: lower stress, get to your recovery room, wait it out. Don't keep dosing.
+> [TIP] A Sanctuary-tier recovery room should strongly reduce dangerous bad-trip outcomes.
 
+> [WARN] Cut the bad trip at the source: lower stress, get to your recovery room, wait it out, and write/integrate afterward. Don't keep dosing.
 ---
 
 # Drug Analyzer
@@ -884,31 +921,65 @@ Drop any drug — base, processed or a Psy Mixer creation — into its slot and 
 
 ---
 
+# Recovering Lost Progression Items
+
+RECOVERY
+
+Lost your Psy Receptacle to lava, a death, or a storage mistake? It is not gone for good. The Psy Mixer can rebind a new one — and the same ritual can re-make Centrifuge Wires if your industrial chain ever stalls.
+
+@item mydrugs:psy_receptacle
+@item mydrugs:insulated_wire
+@item mydrugs:painted_clay_bowl
+
+Build a Psy Mixer as normal, then load its five bowls with a recovery offering instead of a recipe.
+
+To rebind a Psy Receptacle: one drug and four vines — one item per bowl.
+
+To re-make Centrifuge Wires: one drug and four copper ingots — one item per bowl.
+
+Activate it. This ritual takes everything: it drains your experience — up to 30 levels — and consumes every offering, win or lose.
+
+Your success chance is your experience plus the drug you offered. Experience alone reaches half the odds at 30 levels; the drug supplies the rest. Coffee barely helps, meth nearly guarantees it. A 30-level offering carried by meth never fails.
+
+> [WARN] Failure keeps nothing. Your levels and items are gone, the glass shatters, and the gods stay silent. Bring real experience and a strong drug, or do not bring the offering at all.
+
+> [GOAL] Rebind what you lost — then never store it loose again.
+
+> [TIP] On a server, an operator can also run /mydrugs recover and /mydrugs progression diagnose. The ritual is the survival route; the commands exist for bugs and admins.
+
+---
+
 # When You Are Stuck
 
 HELP
 
-Work down this list. One of these is always the answer.
+Start with the diary, then work down this list. One of these is always the answer.
 
-1. Check your latest knowledge — is the gate even open?
-2. Check the advancement's parent.
-3. Check the JEI category for the exact recipe.
-4. Read the machine or Psy Anvil status text. It explains itself.
-5. Check slots, fluids, gases, heat, energy, output space, side config, pipes, filters.
-6. Check the consumption FORM.
+1. Open the diary. It knows your current body state, recent blockers, and next thread.
+2. Check your latest knowledge - is the gate even open?
+3. Check the advancement's parent.
+4. Check the JEI category for the exact recipe.
+5. Read the machine or Psy Anvil status text. It explains itself.
+6. Check slots, fluids, gases, heat, energy, output space, side config, pipes, filters.
+7. Check the consumption FORM.
 
 Common form traps: fresh leaves rarely unlock knowledge. Meth shards must become powder. LSD fluid must become Drops. Coca works as powder or rail.
 
-> [GOAL] When truly lost, return to the last knowledge you unlocked and follow its chapter.
+Lost a progression-critical item entirely? It can be rebuilt — do not start a new world.
+
+> [GOAL] When truly lost, open the diary first. Then return to the last knowledge you unlocked and follow its chapter.
+
+@link Recovering Lost Progression Items|Rebuild a lost key item
 
 ---
-
 # The Whole Route
 
 @title One Last Look
 
-Grass → crops → coffee → tobacco → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → psychotrope energy → mutations.
+Grass → crops → coffee → tobacco → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
 
-Running underneath it all: recovery early, JEI for ingredients, machine screens for problems, the diary for yourself, the Psy Mixer for power.
+Running underneath it all: recovery early, JEI for ingredients, machine screens for problems, the diary for yourself, the Psy Mixer for power, and the Resonator for integration.
 
-> [GOAL] Close the knowledge spine. Then the mod opens up — energy, rituals and mutations are the real sandbox waiting on the other side.
+The final path is not “stronger drugs forever.” It is learning the difference between escape and integration.
+
+> [GOAL] Close the knowledge spine. Then use recovery, psychedelics, the Resonator, and the Inner Dimension to become freer instead of only stronger.

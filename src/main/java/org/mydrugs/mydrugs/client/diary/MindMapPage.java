@@ -42,6 +42,12 @@ public final class MindMapPage {
     private static final int THREAD_FAINT = 0x66402815;
     private static final int PAPER_TINT = 0xFFE7D4A6;
     private static final int PAPER_DARK = 0xFFB89764;
+    private static final String[] LOCKED_HINT_KEYS = {
+            "screen.mydrugs.diary.mind_map.locked_hint",
+            "screen.mydrugs.diary.mind_map.locked_recovery",
+            "screen.mydrugs.diary.mind_map.locked_door",
+            "screen.mydrugs.diary.mind_map.locked_fear"
+    };
 
     private static final float MIN_ZOOM = 0.6F;
     private static final float MAX_ZOOM = 1.8F;
@@ -349,7 +355,7 @@ public final class MindMapPage {
             caption = Component.translatable(hovered.entry.captionKey).getString();
         } else {
             title = "? ? ?";
-            caption = Component.translatable("screen.mydrugs.diary.mind_map.locked_hint").getString();
+            caption = Component.translatable(lockedHintKey(hovered)).getString();
         }
 
         // Compute tooltip box
@@ -429,6 +435,14 @@ public final class MindMapPage {
             g.drawString(font, line, x, cy, color, false);
             cy += 10;
         }
+    }
+
+    private static String lockedHintKey(Node node) {
+        if (node.hidden) {
+            return "screen.mydrugs.diary.mind_map.locked_hidden";
+        }
+        int index = Math.floorMod(node.entry.nodeId.hashCode(), LOCKED_HINT_KEYS.length);
+        return LOCKED_HINT_KEYS[index];
     }
 
     private static ItemStack lookupIcon(String itemId) {

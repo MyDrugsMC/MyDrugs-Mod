@@ -19,6 +19,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.Tags;
 import org.joml.Vector3f;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
@@ -80,7 +81,7 @@ public final class PsychedelicOreAuraClient {
             return;
         }
 
-        if (insightIntensity() <= MIN_INSIGHT_TO_SHOW) {
+        if (Config.CLIENT.oreAuraIntensity.get() <= 0.0D || insightIntensity() <= MIN_INSIGHT_TO_SHOW) {
             AURAS.clear();
             scanCooldown = SCAN_INTERVAL_TICKS;
             return;
@@ -94,7 +95,7 @@ public final class PsychedelicOreAuraClient {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRenderLevel(RenderLevelStageEvent.AfterParticles event) {
-        if (AURAS.isEmpty() || insightIntensity() <= MIN_INSIGHT_TO_SHOW) {
+        if (AURAS.isEmpty() || Config.CLIENT.oreAuraIntensity.get() <= 0.0D || insightIntensity() <= MIN_INSIGHT_TO_SHOW) {
             return;
         }
 
@@ -129,7 +130,7 @@ public final class PsychedelicOreAuraClient {
                 1.0F
         );
 
-        float visualStrength = 0.35F + 0.65F * normalizedInsight;
+        float visualStrength = (0.35F + 0.65F * normalizedInsight) * Config.CLIENT.oreAuraIntensity.get().floatValue();
         float time = animationTime();
 
         int rendered = 0;

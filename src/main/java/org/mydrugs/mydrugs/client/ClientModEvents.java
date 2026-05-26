@@ -1,12 +1,17 @@
 package org.mydrugs.mydrugs.client;
 
+import java.util.function.Supplier;
+
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.client.accessibility.AccessibilityScreen;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.client.ber.*;
 import org.mydrugs.mydrugs.client.entity.InnerDemonRenderer;
@@ -31,6 +36,10 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         ShaderManager.INSTANCE.registerShaders();
+        Supplier<IConfigScreenFactory> configScreenFactory =
+                () -> (modContainer, parent) -> new AccessibilityScreen(parent);
+        ModList.get().getModContainerById(MyDrugs.MODID).ifPresent(container ->
+                container.registerExtensionPoint(IConfigScreenFactory.class, configScreenFactory));
     }
 
     @SubscribeEvent
@@ -43,6 +52,9 @@ public class ClientModEvents {
         event.register(ModMenus.BANG_CONTAINER.get(), SingleSlotMenuScreen::new);
         event.register(ModMenus.ADVANCED_FURNACE.get(), AdvancedFurnaceScreen::new);
         event.register(ModMenus.DISTILLER.get(), DistillerScreen::new);
+        event.register(ModMenus.PSYCHOTROPE_DISTILLERY.get(), PsychotropeDistilleryScreen::new);
+        event.register(ModMenus.DISTILLATE_ENGINE.get(), DistillateEngineScreen::new);
+        event.register(ModMenus.PSYCHOTROPE_RESONATOR.get(), PsychotropeResonatorScreen::new);
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);
         event.register(ModMenus.MANUAL_COFFEE_PULPER.get(), ManualCoffeePulperScreen::new);
@@ -62,7 +74,6 @@ public class ClientModEvents {
         event.register(ModMenus.ADVANCED_MIXING_VAT.get(), AdvancedMixingVatScreen::new);
         event.register(ModMenus.CATALYTIC_REFORMER.get(), CatalyticReformerScreen::new);
         event.register(ModMenus.STEAM_CRACKER.get(), SteamCrackerScreen::new);
-        event.register(ModMenus.PSYCHOTROPE_GENERATOR.get(), PsychotropeGeneratorScreen::new);
         event.register(ModMenus.PSY_MIXER.get(), PsyMixerScreen::new);
         event.register(ModMenus.AROMATIC_EXTRACTOR.get(), AromaticExtractorScreen::new);
         event.register(ModMenus.PIPE_FILTER.get(), PipeFilterScreen::new);

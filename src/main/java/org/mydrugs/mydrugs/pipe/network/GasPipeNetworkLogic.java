@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.pipe.network;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import org.mydrugs.mydrugs.gas.GasStack;
 import org.mydrugs.mydrugs.gas.IGasHandler;
@@ -9,7 +10,11 @@ import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
 import org.mydrugs.mydrugs.pipe.filter.GasPipeFilter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public final class GasPipeNetworkLogic {
     private GasPipeNetworkLogic() {
@@ -22,11 +27,21 @@ public final class GasPipeNetworkLogic {
     }
 
     private static void tickNetwork(ServerLevel level, PipeNetwork network) {
+        PipeNetworkDiagnostics.networkTicked(PipeResourceKind.GAS, network.inputs().size() + network.outputs().size());
         if (network.outputs().isEmpty()) {
             return;
         }
 
+        Set<BlockPos> usedSourceStorages = new HashSet<>();
         for (PipeEndpoint source : network.inputs()) {
+            if (!usedSourceStorages.add(source.targetPos())) {
+                continue;
+            }
+            if (!network.isEndpointLoaded(level, source)) {
+                PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.GAS, PipeNetworkDirtyReason.CHUNK_UNLOAD);
+                continue;
+            }
+
             IGasHandler sourceHandler = network.gasHandler(level, source);
             if (sourceHandler == null) {
                 continue;
@@ -81,46 +96,69 @@ public final class GasPipeNetworkLogic {
         }
 
         List<Allocation> allocations = allocateFairly(candidates, resource.amount());
-        long total = allocations.stream().mapToLong(Allocation::amount).sum();
-        if (total <= 0) {
-            return false;
-        }
+        PipeNetworkDiagnostics.transferAttempted();
 
-        GasStack drained = sourceHandler.drain(sourceTank, total, false);
-        if (drained.isEmpty() || drained.amount() != total || !resource.sameGas(drained)) {
-            return false;
-        }
-
+        long moved = 0L;
         for (Allocation allocation : allocations) {
-            long inserted = allocation.candidate().handler().fill(resource.withAmount(allocation.amount()), false);
-            if (inserted != allocation.amount()) {
-                // Gas handlers are not transactional; capacity was simulated first, but if a target changed
-                // mid-tick we leave the network dirty so the next pass rechecks capabilities and filters.
+            GasStack moving = resource.withAmount(allocation.amount());
+            long currentCapacity = allocation.candidate().handler().fill(moving, true);
+            if (currentCapacity < allocation.amount()) {
                 PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.GAS, PipeNetworkDirtyReason.CAPABILITY_INVALIDATED);
-                return true;
+                continue;
             }
+
+            GasStack drained = sourceHandler.drain(sourceTank, allocation.amount(), false);
+            if (drained.isEmpty() || drained.amount() != allocation.amount() || !resource.sameGas(drained)) {
+                if (!drained.isEmpty() && resource.sameGas(drained)) {
+                    refundToSource(sourceHandler, sourceTank, drained);
+                }
+                PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.GAS, PipeNetworkDirtyReason.CAPABILITY_INVALIDATED);
+                break;
+            }
+
+            long inserted = allocation.candidate().handler().fill(drained, false);
+            if (inserted != allocation.amount()) {
+                long missing = allocation.amount() - inserted;
+                boolean refunded = refundToSource(sourceHandler, sourceTank, resource.withAmount(missing));
+                PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.GAS, PipeNetworkDirtyReason.CAPABILITY_INVALIDATED);
+                if (inserted > 0) {
+                    moved += inserted;
+                }
+                return refunded && moved > 0;
+            }
+
+            moved += inserted;
         }
 
-        return true;
+        if (moved > 0) {
+            PipeNetworkDiagnostics.transferSucceeded();
+            return true;
+        }
+        return false;
     }
 
     private static List<Candidate> collectCandidates(ServerLevel level, PipeNetwork network, PipeEndpoint source, GasStack resource) {
         ArrayList<Candidate> candidates = new ArrayList<>();
+        Set<BlockPos> seenTargets = new HashSet<>();
+        Set<IGasHandler> seenHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         List<PipeEndpoint> outputs = network.outputCandidates(source);
         int rotation = outputs.isEmpty() ? 0 : Math.floorMod(network.gasOutputRotation(source), outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
             PipeEndpoint target = outputs.get((rotation + i) % outputs.size());
-            if (!allows(target, resource)) {
+            PipeNetworkDiagnostics.candidateConsidered();
+            if (!network.isEndpointLoaded(level, target) || !allows(target, resource)) {
                 continue;
             }
 
             IGasHandler targetHandler = network.gasHandler(level, target);
-            if (targetHandler == null) {
+            if (targetHandler == null || seenTargets.contains(target.targetPos()) || seenHandlers.contains(targetHandler)) {
                 continue;
             }
 
             long capacity = targetHandler.fill(resource, true);
             if (capacity > 0) {
+                seenTargets.add(target.targetPos());
+                seenHandlers.add(targetHandler);
                 candidates.add(new Candidate(targetHandler, capacity));
             }
         }
@@ -168,6 +206,21 @@ public final class GasPipeNetworkLogic {
         }
 
         return allocations;
+    }
+
+    private static boolean refundToSource(IGasHandler sourceHandler, int sourceTank, GasStack stack) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+
+        long refunded = sourceHandler.fill(sourceTank, stack, false);
+        if (refunded == stack.amount()) {
+            return true;
+        }
+
+        GasStack remaining = stack.withAmount(stack.amount() - refunded);
+        long fallbackRefunded = sourceHandler.fill(remaining, false);
+        return fallbackRefunded == remaining.amount();
     }
 
     private static boolean allows(PipeEndpoint endpoint, GasStack stack) {

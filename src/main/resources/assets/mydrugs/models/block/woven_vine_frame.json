@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "minecraft:block/jungle_planks",
-    "particle": "minecraft:block/jungle_planks"
+    "all": "mydrugs:block/woven_vine_frame",
+    "particle": "mydrugs:block/woven_vine_frame"
   }
 }

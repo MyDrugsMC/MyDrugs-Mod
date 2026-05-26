@@ -82,10 +82,10 @@ public final class AdvancementEventHooks {
     }
 
     public static void psychotropeEvent(ServerLevel level, BlockPos pos, String event, String drug, int amount, int threshold) {
-        PsychotropeEnergyTrigger.Event payload = new PsychotropeEnergyTrigger.Event(event, drug, amount, threshold);
+        PsyCurrentTrigger.Event payload = new PsyCurrentTrigger.Event(event, drug, amount, threshold);
         boolean psycheWorthy = "powered_machine".equals(event) || amount > 0;
         forNearbyPlayers(level, pos, player -> {
-            ModCriteriaTriggers.PSYCHOTROPE_ENERGY.get().trigger(player, payload);
+            ModCriteriaTriggers.PSY_CURRENT_MACHINE_POWERED.get().trigger(player, payload);
             if (psycheWorthy) {
                 PsycheMapMilestones.psychotropeEnergy(player);
             }

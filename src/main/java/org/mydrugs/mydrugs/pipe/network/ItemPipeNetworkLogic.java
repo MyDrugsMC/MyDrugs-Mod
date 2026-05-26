@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.pipe.network;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -10,7 +11,11 @@ import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
 import org.mydrugs.mydrugs.pipe.filter.ItemPipeFilter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public final class ItemPipeNetworkLogic {
     private ItemPipeNetworkLogic() {
@@ -24,18 +29,33 @@ public final class ItemPipeNetworkLogic {
 
     private static void tickNetwork(ServerLevel level, PipeNetwork network) {
         long gameTime = level.getGameTime();
+        PipeNetworkDiagnostics.networkTicked(PipeResourceKind.ITEM, network.inputs().size() + network.outputs().size());
+        Set<BlockPos> usedSourceStorages = new HashSet<>();
 
         for (PipeEndpoint source : network.inputs()) {
+            if (!usedSourceStorages.add(source.targetPos())) {
+                continue;
+            }
+            if (!network.isEndpointLoaded(level, source)) {
+                PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.ITEM, PipeNetworkDirtyReason.CHUNK_UNLOAD);
+                continue;
+            }
+
             PipeTier tier = resolveTier(level, source);
             if (network.hasItemTransferTick(source)
                     && gameTime - network.lastItemTransferTick(source) < tier.itemIntervalTicks()) {
                 continue;
             }
 
-            List<PipeRoute> routes = network.routeCache().itemRoutesFrom(source)
-                    .stream()
-                    .filter(route -> route.isLoadedPath(network))
-                    .toList();
+            List<PipeRoute> cachedRoutes = network.routeCache().itemRoutesFrom(source);
+            ArrayList<PipeRoute> routes = new ArrayList<>(cachedRoutes.size());
+            for (PipeRoute route : cachedRoutes) {
+                if (route.isLoadedPath(level, network)) {
+                    routes.add(route);
+                } else {
+                    PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.ITEM, PipeNetworkDirtyReason.CHUNK_UNLOAD);
+                }
+            }
             if (routes.isEmpty()) {
                 continue;
             }
@@ -91,11 +111,15 @@ public final class ItemPipeNetworkLogic {
         }
 
         List<Allocation> allocations = allocateFairly(candidates, amount);
-        int total = allocations.stream().mapToInt(Allocation::amount).sum();
+        int total = 0;
+        for (Allocation allocation : allocations) {
+            total += allocation.amount();
+        }
         if (total <= 0) {
             return false;
         }
 
+        PipeNetworkDiagnostics.transferAttempted();
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = sourceHandler.extract(sourceSlot, resource, total, transaction);
             if (extracted != total) {
@@ -112,6 +136,7 @@ public final class ItemPipeNetworkLogic {
             transaction.commit();
         }
 
+        PipeNetworkDiagnostics.transferSucceeded();
         int nextRotation = (network.itemRouteRotation(source) + 1) % Math.max(1, routes.size());
         network.setItemRouteRotation(source, nextRotation);
         return true;
@@ -126,22 +151,29 @@ public final class ItemPipeNetworkLogic {
             List<PipeRoute> routes
     ) {
         ArrayList<Candidate> candidates = new ArrayList<>();
+        Set<BlockPos> seenTargets = new HashSet<>();
+        Set<ResourceHandler<ItemResource>> seenHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         int rotation = routes.isEmpty() ? 0 : Math.floorMod(network.itemRouteRotation(source), routes.size());
 
         for (int i = 0; i < routes.size(); i++) {
             PipeRoute route = routes.get((rotation + i) % routes.size());
             PipeEndpoint target = route.target();
-            if (target.targetPos().equals(source.targetPos()) || !allows(target, resource)) {
+            PipeNetworkDiagnostics.candidateConsidered();
+            if (target.targetPos().equals(source.targetPos())
+                    || !network.isEndpointLoaded(level, target)
+                    || !allows(target, resource)) {
                 continue;
             }
 
             ResourceHandler<ItemResource> targetHandler = network.itemHandler(level, target);
-            if (targetHandler == null) {
+            if (targetHandler == null || seenTargets.contains(target.targetPos()) || seenHandlers.contains(targetHandler)) {
                 continue;
             }
 
             int capacity = simulateInsert(targetHandler, resource, amount);
             if (capacity > 0) {
+                seenTargets.add(target.targetPos());
+                seenHandlers.add(targetHandler);
                 candidates.add(new Candidate(route, targetHandler, capacity));
             }
         }

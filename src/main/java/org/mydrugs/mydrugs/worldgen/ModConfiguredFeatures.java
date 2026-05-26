@@ -18,6 +18,7 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockS
 import net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.minecraft.world.level.material.Fluids;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.crops.ModCrops;
 import org.mydrugs.mydrugs.fluids.ModFluids;
@@ -59,7 +60,7 @@ public final class ModConfiguredFeatures {
 
         context.register(
                 ModWorldGenKeys.SULFUR_ORE,
-                new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(sulfurTargets, 7))
+                new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(sulfurTargets, Config.WORLDGEN.sulfurVeinSize.get()))
         );
 
         // Platinum ore: diamond-like, normal + deepslate variants.
@@ -89,7 +90,7 @@ public final class ModConfiguredFeatures {
                 ModWorldGenKeys.PLATINUM_ORE,
                 new ConfiguredFeature<>(
                         Feature.ORE,
-                        new OreConfiguration(platinumTargets, 4, 0.5F)
+                        new OreConfiguration(platinumTargets, Config.WORLDGEN.platinumVeinSize.get(), 0.5F)
                 )
         );
 
@@ -97,7 +98,7 @@ public final class ModConfiguredFeatures {
                 ModWorldGenKeys.ALUMINIUM_ORE,
                 new ConfiguredFeature<>(
                         Feature.ORE,
-                        new OreConfiguration(aluminiumTargets, 4, 0.5F)
+                        new OreConfiguration(aluminiumTargets, Config.WORLDGEN.aluminiumVeinSize.get(), 0.5F)
                 )
         );
 
@@ -122,7 +123,7 @@ public final class ModConfiguredFeatures {
                                 2,
                                 PlacementUtils.onlyWhenEmpty(
                                         Feature.SIMPLE_BLOCK,
-                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(ModCrops.ALOE_VERA_CROP.get().defaultBlockState()))
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(ModBlocks.ALOE_VERA_BUSH.get().defaultBlockState()))
                                 )
                         )
                 )

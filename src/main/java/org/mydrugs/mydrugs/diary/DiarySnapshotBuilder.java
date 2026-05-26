@@ -127,8 +127,10 @@ public final class DiarySnapshotBuilder {
             ));
         }
 
+        DiaryClaritySnapshot clarity = DiaryClarityService.build(player, diary, state, psycheNodes);
+
         return new PersonalDiarySnapshotPayload(
-                entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes
+                entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity
         );
     }
 

@@ -35,14 +35,12 @@ public final class PsyBlueprintItem extends Item {
         BlockPos clicked = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clicked);
 
-        if (!clickedState.is(ModBlocks.PSYCHOTROPE_CORE.get()) && !clickedState.is(ModBlocks.PAINTED_CLAY_BOWL.get())) {
+        if (!clickedState.is(ModBlocks.PAINTED_CLAY_BOWL.get())) {
             serverPlayer.displayClientMessage(Component.translatable("message.mydrugs.psy_blueprint.unsupported"), true);
             return InteractionResult.SUCCESS;
         }
 
-        Direction facing = clickedState.is(ModBlocks.PAINTED_CLAY_BOWL.get())
-                ? player.getDirection().getOpposite()
-                : Direction.NORTH;
+        Direction facing = player.getDirection().getOpposite();
         PsyBlueprintPreviewService.sendForBlueprint(serverPlayer, level, clicked, facing);
         return InteractionResult.SUCCESS;
     }

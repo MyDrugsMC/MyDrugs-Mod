@@ -33,6 +33,8 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.entity.ModEntityAttributes;
 import org.mydrugs.mydrugs.entity.ModEntities;
 import org.mydrugs.mydrugs.sounds.ModSounds;
+import org.mydrugs.mydrugs.worldgen.ModBiomeModifierSerializers;
+import org.mydrugs.mydrugs.worldgen.WorldgenConfig;
 import org.mydrugs.mydrugs.worldgen.biomes.ModRegions;
 import org.mydrugs.mydrugs.worldgen.biomes.ModSurfaceRules;
 import org.slf4j.Logger;
@@ -88,6 +90,7 @@ public class MyDrugs {
         ModFluids.FLUID_BLOCKS.register(modEventBus);
         ModFluids.FLUID_ITEMS.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
+        ModBiomeModifierSerializers.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         ModCriteriaTriggers.register(modEventBus);
         ModAttachments.register(modEventBus);
@@ -97,16 +100,24 @@ public class MyDrugs {
 
         modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+        modContainer.registerConfig(ModConfig.Type.STARTUP, Config.WORLDGEN_SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            Regions.register(new ModRegions(ResourceLocation.fromNamespaceAndPath(MODID, "overworld"), 2));
-            SurfaceRuleManager.addSurfaceRules(
-                    SurfaceRuleManager.RuleCategory.OVERWORLD,
-                    MODID,
-                    ModSurfaceRules.makeRules()
-            );
+            if (WorldgenConfig.terraBlenderOverworldEnabled()) {
+                Regions.register(new ModRegions(
+                        ResourceLocation.fromNamespaceAndPath(MODID, "overworld"),
+                        WorldgenConfig.psychedelicBiomeWeight()
+                ));
+            }
+            if (WorldgenConfig.surfaceRulesEnabled()) {
+                SurfaceRuleManager.addSurfaceRules(
+                        SurfaceRuleManager.RuleCategory.OVERWORLD,
+                        MODID,
+                        ModSurfaceRules.makeRules()
+                );
+            }
         });
     }
 

@@ -33,7 +33,7 @@ import org.mydrugs.mydrugs.items.ModItems;
 public class CoffeeCropBlock extends CropBlock {
     public static final MapCodec<CoffeeCropBlock> CODEC = simpleCodec(CoffeeCropBlock::new);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
-    public static final int REGROWTH_AGE = 5;
+    public static final int REGROWTH_AGE = 6;
     private static final int TWO_BLOCK_AGE = 6;
     private static final VoxelShape[] LOWER_SHAPES = new VoxelShape[]{
             Block.box(4, 0, 4, 12, 4, 12),
@@ -128,7 +128,8 @@ public class CoffeeCropBlock extends CropBlock {
             ensureUpper(level, pos, state);
             return;
         }
-        if (random.nextInt(4) == 0) {
+        int growthChance = age == REGROWTH_AGE ? 16 : 4;
+        if (random.nextInt(growthChance) == 0) {
             growToAge(level, pos, state, age + 1);
         }
     }
@@ -188,9 +189,6 @@ public class CoffeeCropBlock extends CropBlock {
         }
 
         popResource(level, lowerPos, new ItemStack(ModItems.COFFEE_CHERRIES.get(), 2 + level.random.nextInt(3)));
-        if (level.random.nextFloat() < 0.55F) {
-            popResource(level, lowerPos, new ItemStack(ModCrops.COFFEE_SEEDS.get(), 1));
-        }
         level.playSound(null, lowerPos, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + level.random.nextFloat() * 0.4F);
         growToAge(level, lowerPos, lower, REGROWTH_AGE);
         return InteractionResult.SUCCESS_SERVER;

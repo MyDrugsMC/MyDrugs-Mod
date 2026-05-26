@@ -5,7 +5,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 public final class MachineEnergyAttachment implements ValueIOSerializable {
-    private final PsychotropeEnergyStorage storage = new PsychotropeEnergyStorage();
+    private final PsyCurrentStorage storage = new PsyCurrentStorage();
     private boolean energyUpgradeInstalled;
     private boolean automationUpgradeInstalled;
 
@@ -17,7 +17,7 @@ public final class MachineEnergyAttachment implements ValueIOSerializable {
         return this.automationUpgradeInstalled;
     }
 
-    public PsychotropeEnergyStorage storage() {
+    public PsyCurrentStorage storage() {
         return this.storage;
     }
 
@@ -45,13 +45,13 @@ public final class MachineEnergyAttachment implements ValueIOSerializable {
     public void serialize(ValueOutput output) {
         output.putBoolean("energy_upgrade", this.energyUpgradeInstalled);
         output.putBoolean("automation_upgrade", this.automationUpgradeInstalled);
-        this.storage.serialize(output.child("psychotrope_energy"));
+        this.storage.serialize(output.child("psy_current"));
     }
 
     @Override
     public void deserialize(ValueInput input) {
         this.energyUpgradeInstalled = input.getBooleanOr("energy_upgrade", false);
         this.automationUpgradeInstalled = input.getBooleanOr("automation_upgrade", false);
-        this.storage.deserialize(input.childOrEmpty("psychotrope_energy"));
+        this.storage.deserialize(input.childOrEmpty("psy_current"));
     }
 }

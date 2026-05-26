@@ -2,8 +2,8 @@
   "render_type": "minecraft:cutout",
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "minecraft:block/snow",
-    "powder": "minecraft:block/snow"
+    "particle": "mydrugs:block/cocaine_powder_pile",
+    "powder": "mydrugs:block/cocaine_powder_pile"
   },
   "elements": [
     {

@@ -3,22 +3,36 @@
 ## Core loop
 
 ```text
-Grow or find a substance
-→ process it through primitive or industrial tools
-→ consume it, ritualize it, or feed it into psychotrope systems
-→ gain useful effects with visible consequences
-→ unlock knowledge, recipes, machines, or risky opportunities
-→ stabilize or upgrade the result through mastery
+Find or grow a substance
+→ process it with primitive or industrial tools
+→ use it for work, ritual, recovery, or insight
+→ gain visible benefits and visible costs
+→ unlock knowledge, machines, mixes, and inner-world access
+→ stabilize through recovery and integration
+→ return stronger and freer
 ```
+
+## Substance role families
+
+Substances should be designed by **role**, not only by effect.
+
+| Family | Main role | Main risk | Narrative meaning |
+|---|---|---|---|
+| Functional substances | work, focus, calm, productivity | tolerance, dependency, crash if overused | useful tools |
+| Escalation substances | power, overclock, escape, intensity | addiction, strain, withdrawal, risky mixes | false mastery |
+| Psychedelics | insight, perception, ritual clarity, inner-world access | bad set/setting, overwhelm, poor integration | healing opening |
+| Recovery tools | grounding, repair, stability, return | slow, requires effort | real freedom |
+| Somatic adaptation | embodied resilience | over-optimization, instability if abused | body learns to regulate |
 
 ## Drug identity targets
 
 Every substance should have:
 
 - one clear advantage;
-- one clear danger;
+- one clear danger or limitation;
 - one reason to use it in a specific situation;
-- visible feedback in HUD, GUI, sound, particles, overlay, or guide text.
+- visible feedback in HUD, GUI, sound, particles, overlay, guide text, or diary text;
+- a role in either escape, control, recovery, or integration.
 
 ### Coffee / caffeine
 
@@ -28,10 +42,10 @@ Should affect:
 
 - manual machine speed;
 - mild mining speed or movement speed;
-- small aggressive camera sway/jitter at higher intensity;
+- small camera sway/jitter at higher intensity;
 - no huge combat power.
 
-Coffee should be useful often, but not overpowered.
+Coffee should be useful often, but not overpowered. It teaches that substances can help without immediately becoming mystical.
 
 ### Tobacco / nicotine
 
@@ -41,14 +55,14 @@ Should affect:
 
 - reduced tremor when tremor exists;
 - larger Psy Mixer golden zones while active;
-- strong custom mining speed through “precision”, not vanilla Haste;
+- strong custom mining speed through precision, not vanilla Haste;
 - an aloe vera mixture that reaches roughly a Haste II-like mining feel through the custom mining-speed system.
 
 Presence of tobacco matters more than dose for ritual golden zones. Dose may affect mining speed slightly.
 
 ### Cannabis / cannabinoids
 
-Role: calm, stability, lowered threat perception.
+Role: calm, stability, symptom relief, safer recovery support.
 
 Should affect:
 
@@ -58,11 +72,11 @@ Should affect:
 - less movement of golden zones and less golden-zone size variation while active;
 - optionally lower aggressive mob detection distance if technically feasible and performant.
 
-Cannabis should make rituals calmer, not just visually different.
+Cannabis should make rituals calmer and recovery easier, not just visually different.
 
 ### Cocaine / stimulants
 
-Role: overclock, speed, adrenaline.
+Role: overclock, speed, adrenaline, false mastery.
 
 Should affect:
 
@@ -74,6 +88,8 @@ Should affect:
 
 Cocaine already has high addiction risk. Add more punishment only if playtesting shows it is too strong despite addiction, crash, heartbeat, tremor, and dose risk.
 
+The diary should eventually frame stimulant overclocking as a shortcut that may help the player function while still avoiding recovery.
+
 ### Crack
 
 Role: explosive, short-lived, risky stimulant meta option.
@@ -81,16 +97,16 @@ Role: explosive, short-lived, risky stimulant meta option.
 Possible identity:
 
 - shorter but much stronger adrenaline window;
-- instant “burst” effect after use;
+- instant burst effect after use;
 - strong dash/attack/mining spike;
 - harsh crash and dose instability;
-- useful when the player wants immediate power, worse for sustained work.
+- useful for emergency escape or burst combat, worse for sustained work.
 
-Crack should not just be “cocaine but worse”. It should be tempting for burst combat or emergency escape.
+Crack should not just be “cocaine but worse.” It should be tempting and clearly costly.
 
 ### Meth
 
-Role: endgame overclock drug.
+Role: endgame overclock and false-solution branch.
 
 Possible identity:
 
@@ -101,20 +117,49 @@ Possible identity:
 - high dose/addiction danger;
 - endgame recipes should be unusually rewarding.
 
-Meth should feel like a late-game cocaine upgrade, not a simple duplicate.
+Meth can exist after LSD only if its story role is clear: it is not the spiritual endgame. It is the strongest version of “I can force myself to keep going.”
+
+The diary should later guide the player back toward LSD/mushrooms, recovery, and integration.
 
 ### Psychedelics: LSD and mushrooms
 
-Role: altered perception and ritual certainty.
+Role: insight, altered perception, recovery support, and inner-world access.
 
 Should affect:
 
 - ore aura through blocks, optimized client-side;
-- Psy Mixer golden zone becomes full or nearly full, making rituals much easier;
-- Psy Blueprint becomes unnecessary for multiblock previews while active;
-- future rift/dream island mechanics.
+- Psy Mixer clarity or golden-zone assistance;
+- Psy Blueprint replacement through psychedelic vision;
+- dream-state access;
+- Psychotrope Resonator unlock;
+- Inner Dimension entry;
+- recovery/integration systems after the trip.
 
-The ore aura must be optimized. Avoid scanning large volumes every frame.
+Psychedelics should not be treated like ordinary addictive power drugs. They should be risky mainly through:
+
+- bad set and setting;
+- high stress;
+- poor preparation;
+- lack of recovery room;
+- lack of integration afterward;
+- overwhelming perception.
+
+They should not be framed as magic cures. Their best effects should require integration.
+
+### Ketamine-like endgame treatment
+
+Role: controlled dissociative-assisted integration, not casual recreation.
+
+Design rules:
+
+- endgame only;
+- tied to recovery room, diary, or therapy-like structure;
+- long cooldown;
+- no ordinary “fun buff” identity;
+- helps interrupt severe addiction loops or open an integration window;
+- should not bypass all recovery work.
+
+Use fictionalized language where needed. Avoid medical instructions, dosing, or real-world procedural details.
 
 ### Alcohol
 
@@ -131,17 +176,105 @@ Alcohol should be useful but messy.
 
 ### Opioids
 
-Deferred for now. Do not expand opioid systems until the existing core content is more stable.
+Deferred for now. Do not expand opioid systems until the existing core content is more stable and recovery systems are stronger.
+
+## Addiction and recovery rules
+
+- Addiction should be avoidable with careful play.
+- Addiction should be recoverable with effort.
+- Strong substances may tempt the player through power, not through forced narrative.
+- Withdrawal should be readable and mechanically clear.
+- Recovery should be multi-path, not only “talk to NPC.”
+
+Recovery pillars:
+
+- diary work;
+- therapy-like sessions;
+- Recovery Sanctuary;
+- sleep;
+- diet;
+- exercise;
+- music;
+- time sober;
+- cannabis or calming routes where appropriate;
+- psychedelics with preparation and integration;
+- ketamine-like endgame integration where appropriate.
+
+## Bad trips
+
+Bad trips should be difficult but meaningful.
+
+They should not be random jumpscare punishment. A bad trip should say:
+
+> You entered too intensely, too unprepared, or too unsupported.
+
+Design rules:
+
+- caused by readable conditions;
+- reduced by safe setting and recovery preparation;
+- accessible visual/sound intensity toggles;
+- can still produce insight or useful fragments if survived/integrated;
+- should not delete rare items or destroy the base.
 
 ## Ritual design rules
 
-- The Psy Mixer is a sacred primitive altar, not a machine.
-- Rituals should use religious/mystical messaging.
+- The Psy Mixer is a sacred primitive altar, not a normal machine.
+- Rituals should use mystical but not purely hostile messaging.
 - Instability must be readable.
 - Mastery should make rituals faster or safer.
 - Tobacco improves precision.
 - Cannabis improves stability.
-- Psychedelics can make success much easier, but may create other risks later.
+- Psychedelics improve clarity/perception, especially when the player is prepared.
+- Recovery/integration should eventually make rituals calmer.
+
+## Psychotrope Resonator design rules
+
+The old “Psychotrope Generator” direction should become **Psychotrope Resonator**.
+
+It should not be a needy entity and should not create constant chores.
+
+Role:
+
+- unlocked after LSD;
+- converts psychedelic experiences, Dream Residue, or Insight into Resonance/Integration Energy;
+- opens or stabilizes the Inner Dimension during dream state;
+- crafts healing and endgame freedom tools;
+- supports recovery rather than demanding endless fuel.
+
+Deterministic states are preferred:
+
+```text
+Dormant
+Stable
+Lucid
+Dream
+Integration
+Overstrained
+```
+
+No hunger, cravings, favorite drugs, random sabotage, or passive punishment in the first implementation.
+
+## Somatic adaptation design rules
+
+The old ADN system should be reframed.
+
+Avoid presenting body progression as clean sci-fi gene optimization. The better arc is:
+
+```text
+body control → body strain → somatic regulation → embodied resilience
+```
+
+Suggested terminology:
+
+| Old direction | Preferred direction |
+|---|---|
+| ADN mutation | Somatic Adaptation |
+| gene stat | body imprint / adaptation trait |
+| CRISPR upgrade | Body Loom / Somatic Sequencer |
+| mutation build | resilience pattern |
+| genetic instability | adaptation strain |
+
+Body upgrades should help the player regulate intensity, survive withdrawal, enter the dimension safely, or use endgame mobility. They should not simply be “bigger stats.”
 
 ## Manual machine speed abstraction
 
@@ -159,12 +292,19 @@ Affected systems:
 
 GUI screens should clearly show when a coffee/cocaine/meth/manual-speed bonus is active.
 
-## Future content hooks
+## Endgame freedom
 
-Ideas that need more design before implementation:
+The endgame should reduce mandatory maintenance.
 
-- `inner_demon_remains` from bad-trip creatures.
-- Alcohol ritual mix that greatly improves resistance.
-- Sneak three times quickly to open a temporary rift.
-- Dream island in the void with mobs and ores for endgame Psy Mixer recipes.
-- Crack meta identity and meth endgame variants.
+Possible rewards:
+
+- flight armor made from psychedelics + recovery/integration;
+- safer trips;
+- reduced addiction burden;
+- better recovery tools;
+- stable Resonator workflows;
+- ore aura / fortune-like perception;
+- access to the Inner Dimension;
+- optional high-risk challenges.
+
+The player should not finish the mod only to be stuck babysitting machines, addiction meters, or hostile systems.

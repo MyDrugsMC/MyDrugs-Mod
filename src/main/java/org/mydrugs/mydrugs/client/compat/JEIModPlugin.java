@@ -26,6 +26,7 @@ public class JEIModPlugin implements IModPlugin {
 
         registration.addRecipeCategories(
                 new AdvancedFurnaceRecipeCategory(guiHelper),
+                new PsychotropeDistilleryRecipeCategory(guiHelper),
                 new CentrifugeRecipeCategory(guiHelper),
                 new ElectrolyzerRecipeCategory(guiHelper),
                 new DistillerRecipeCategory(guiHelper),
@@ -54,6 +55,7 @@ public class JEIModPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(AdvancedFurnaceRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getAdvancedFurnaceRecipes"));
+        registration.addRecipes(PsychotropeDistilleryRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getPsychotropeDistilleryRecipes"));
         registration.addRecipes(CentrifugeRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCentrifugeRecipes"));
         registration.addRecipes(ElectrolyzerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getElectrolyzerRecipes"));
         registration.addRecipes(DistillerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getDistillerRecipes"));
@@ -82,6 +84,7 @@ public class JEIModPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         JeiCompatUtil.registerFieldCatalyst(registration, AdvancedFurnaceRecipeCategory.TYPE, ModBlocks.class, "ADVANCED_FURNACE_ITEM", "ADVANCED_FURNACE");
+        JeiCompatUtil.registerFieldCatalyst(registration, PsychotropeDistilleryRecipeCategory.TYPE, ModBlocks.class, "PSYCHOTROPE_DISTILLERY_ITEM", "PSYCHOTROPE_DISTILLERY");
         JeiCompatUtil.registerFieldCatalyst(registration, CentrifugeRecipeCategory.TYPE, ModBlocks.class, "CENTRIFUGE");
         JeiCompatUtil.registerFieldCatalyst(registration, ElectrolyzerRecipeCategory.TYPE, ModBlocks.class, "ELECTROLYZER");
         JeiCompatUtil.registerFieldCatalyst(registration, DistillerRecipeCategory.TYPE, ModBlocks.class, "DISTILLER");

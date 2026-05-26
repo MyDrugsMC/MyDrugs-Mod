@@ -2,9 +2,9 @@
   "render_type": "minecraft:cutout",
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "minecraft:block/red_terracotta",
-    "side": "minecraft:block/red_terracotta",
-    "inside": "minecraft:block/black_concrete"
+    "particle": "mydrugs:block/formed_psy_mixer_core_side",
+    "side": "mydrugs:block/formed_psy_mixer_core_side",
+    "inside": "mydrugs:block/formed_psy_mixer_core_inside"
   },
   "elements": [
     {

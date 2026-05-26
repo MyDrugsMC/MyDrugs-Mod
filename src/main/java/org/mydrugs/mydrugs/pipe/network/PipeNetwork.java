@@ -110,6 +110,12 @@ public final class PipeNetwork {
         return this.nodes.containsKey(pos);
     }
 
+    public boolean isEndpointLoaded(ServerLevel level, PipeEndpoint endpoint) {
+        return this.nodes.containsKey(endpoint.pipePos())
+                && level.isLoaded(endpoint.pipePos())
+                && level.isLoaded(endpoint.targetPos());
+    }
+
     public ResourceHandler<ItemResource> itemHandler(ServerLevel level, PipeEndpoint endpoint) {
         BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> cache = this.itemCapabilityCaches.computeIfAbsent(
                 endpoint,

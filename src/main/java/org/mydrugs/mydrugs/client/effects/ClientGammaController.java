@@ -18,7 +18,7 @@ public final class ClientGammaController {
         }
 
         float target = 0.0F;
-        if (Config.CLIENT.enableDrugShaders.get()) {
+        if (Config.CLIENT.psychedelicShadersEnabled()) {
             target = Mth.clamp(AddictionClientState.getEffectIntensity(EffectType.GAMMA_BOOST), 0.0F, 1.0F);
         }
 

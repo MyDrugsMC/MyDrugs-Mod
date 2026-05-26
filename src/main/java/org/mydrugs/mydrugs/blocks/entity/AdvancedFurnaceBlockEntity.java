@@ -28,7 +28,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.fuel.FuelResolver;
@@ -175,7 +175,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
             return changed;
         }
 
-        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        boolean poweredByEnergy = PsyCurrentMachines.tryUseCurrentTick(be);
         if (be.burnTime <= 0 && !poweredByEnergy && be.consumeFuel()) {
             changed = true;
         }

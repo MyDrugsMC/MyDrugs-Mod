@@ -620,7 +620,13 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
 
     protected void renderExternalEnergyTooltip(GuiGraphics graphics, int mouseX, int mouseY, int stored, int capacity) {
         if (isHoveringBox(-18, 24, 10, 50, mouseX, mouseY)) {
-            renderSimpleAmountTooltip(graphics, mouseX, mouseY, "Psychotrope Energy", stored, capacity, "PE");
+            renderTooltipLines(
+                    graphics,
+                    mouseX,
+                    mouseY,
+                    Component.translatable("screen.mydrugs.ui.psy_current"),
+                    Component.translatable("screen.mydrugs.ui.amount_unit", stored, capacity, "PC")
+            );
         }
     }
 

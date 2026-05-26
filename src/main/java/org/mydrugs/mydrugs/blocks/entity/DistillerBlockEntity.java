@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
@@ -47,8 +47,8 @@ import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.DistillerMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
+import org.mydrugs.mydrugs.recipes.distiller.DistillerFluidStack;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
-import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipeInput;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
@@ -157,9 +157,9 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             changed = true;
         }
 
-        Optional<RecipeHolder<DistillerRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
-        if (recipeHolder.isEmpty()) {
-            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
+        CraftCheckResult craftCheck = be.checkCraft(serverLevel);
+        if (craftCheck.recipe() == null) {
+            changed |= be.setMachineStatus(craftCheck.status());
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -171,15 +171,15 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             return;
         }
 
-        DistillerRecipe recipe = recipeHolder.get().value();
+        DistillerRecipe recipe = craftCheck.recipe();
         be.maxProgress = recipe.baseTicks();
 
         if (be.maxProgress != oldMaxProgress) {
             changed = true;
         }
 
-        if (!be.canCraft(recipe)) {
-            changed |= be.setMachineStatus(be.inputTank.isEmpty() ? MachineStatus.MISSING_INPUT_FLUID : MachineStatus.OUTPUT_TANK_FULL);
+        if (!craftCheck.craftable()) {
+            changed |= be.setMachineStatus(craftCheck.status());
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -192,7 +192,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         }
 
         int progressPerTick = be.getProgressPerTickFromCps();
-        if (PsychotropeEnergyMachines.tryUseAutomationEnergyTick(be)) {
+        if (PsyCurrentMachines.tryUseAutomationCurrentTick(be)) {
             progressPerTick += 1;
         }
         if (progressPerTick > 0) {
@@ -305,6 +305,20 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         this.machineStatus = status;
         return true;
+    }
+
+    private record CraftCheckResult(@Nullable DistillerRecipe recipe, MachineStatus status) {
+        static CraftCheckResult craftable(DistillerRecipe recipe) {
+            return new CraftCheckResult(recipe, MachineStatus.RUNNING);
+        }
+
+        static CraftCheckResult blocked(@Nullable DistillerRecipe recipe, MachineStatus status) {
+            return new CraftCheckResult(recipe, status);
+        }
+
+        boolean craftable() {
+            return this.recipe != null && this.status == MachineStatus.RUNNING;
+        }
     }
 
     @Override
@@ -472,42 +486,64 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return true;
     }
 
-    private Optional<RecipeHolder<DistillerRecipe>> getCurrentRecipe(ServerLevel level) {
+    private CraftCheckResult checkCraft(ServerLevel level) {
         ResourceLocation inputFluidId = getFluidId(this.inputTank);
         if (inputFluidId == null || this.inputTank.isEmpty()) {
-            return Optional.empty();
+            return CraftCheckResult.blocked(null, MachineStatus.MISSING_INPUT_FLUID);
         }
 
-        return level.recipeAccess().getRecipeFor(
-                ModRecipeTypes.DISTILLER.get(),
-                new DistillerRecipeInput(inputFluidId, this.inputTank.getAmount()),
-                level
-        );
+        Optional<RecipeHolder<DistillerRecipe>> recipeHolder = this.findRecipeByFluid(level, inputFluidId);
+        if (recipeHolder.isEmpty()) {
+            return CraftCheckResult.blocked(null, MachineStatus.NO_MATCHING_RECIPE);
+        }
+
+        DistillerRecipe recipe = recipeHolder.get().value();
+        if (this.inputTank.getAmount() < recipe.input().amount()) {
+            return CraftCheckResult.blocked(recipe, MachineStatus.INSUFFICIENT_INPUT_FLUID);
+        }
+
+        return this.checkOutputs(recipe);
     }
 
-    private boolean canCraft(DistillerRecipe recipe) {
+    private Optional<RecipeHolder<DistillerRecipe>> findRecipeByFluid(ServerLevel level, ResourceLocation inputFluidId) {
+        for (RecipeHolder<DistillerRecipe> holder : level.recipeAccess().recipeMap().byType(ModRecipeTypes.DISTILLER.get())) {
+            if (holder.value().input().fluid().equals(inputFluidId)) {
+                return Optional.of(holder);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private CraftCheckResult checkOutputs(DistillerRecipe recipe) {
         ResourceLocation inputFluidId = getFluidId(this.inputTank);
         if (inputFluidId == null) {
-            return false;
+            return CraftCheckResult.blocked(recipe, MachineStatus.MISSING_INPUT_FLUID);
         }
 
         if (!recipe.input().fluid().equals(inputFluidId)) {
-            return false;
-        }
-
-        if (this.inputTank.getAmount() < recipe.input().amount()) {
-            return false;
+            return CraftCheckResult.blocked(null, MachineStatus.NO_MATCHING_RECIPE);
         }
 
         FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
         if (outputA.isEmpty() || this.outputATank.getAddableAmount(outputA) < outputA.getAmount()) {
-            return false;
+            return outputA.isEmpty()
+                    ? CraftCheckResult.blocked(recipe, MachineStatus.INVALID_RECIPE_OUTPUT)
+                    : CraftCheckResult.blocked(recipe, MachineStatus.OUTPUT_TANK_A_FULL);
         }
 
-        return recipe.output2().map(output -> {
+        if (recipe.output2().isPresent()) {
+            DistillerFluidStack output = recipe.output2().get();
             FluidStack outputB = toFluidStack(output.fluid(), output.amount());
-            return !outputB.isEmpty() && this.outputBTank.getAddableAmount(outputB) >= outputB.getAmount();
-        }).orElse(true);
+            if (outputB.isEmpty()) {
+                return CraftCheckResult.blocked(recipe, MachineStatus.INVALID_RECIPE_OUTPUT);
+            }
+            if (this.outputBTank.getAddableAmount(outputB) < outputB.getAmount()) {
+                return CraftCheckResult.blocked(recipe, MachineStatus.OUTPUT_TANK_B_FULL);
+            }
+        }
+
+        return CraftCheckResult.craftable(recipe);
     }
 
     private void craft(DistillerRecipe recipe) {

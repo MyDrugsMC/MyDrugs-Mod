@@ -84,7 +84,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
 
     public boolean removeDrugStatsIfEmpty(DrugId drugId) {
         DrugAddictionStats stats = perDrug.get(drugId);
-        if (stats == null || !stats.isEmpty()) {
+        if (stats == null || stats.isIntegrated() || !stats.isEmpty()) {
             return false;
         }
 
@@ -367,7 +367,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
                 DrugAddictionStats stats = new DrugAddictionStats();
                 stats.deserialize(child);
 
-                if (!stats.isEmpty() || stats.lastUseTime > 0L) {
+                if (!stats.isEmpty() || stats.lastUseTime > 0L || stats.isIntegrated()) {
                     perDrug.put(drugId, stats);
                 }
             }

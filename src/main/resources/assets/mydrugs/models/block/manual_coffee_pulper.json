@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "top": "minecraft:block/oak_planks",
-    "front": "minecraft:block/stripped_oak_log",
-    "side": "minecraft:block/oak_planks"
+    "top": "mydrugs:block/manual_coffee_pulper_top",
+    "front": "mydrugs:block/manual_coffee_pulper_front",
+    "side": "mydrugs:block/manual_coffee_pulper_side"
   }
 }

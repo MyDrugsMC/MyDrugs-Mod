@@ -39,7 +39,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ChemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.MachineStorage;
@@ -256,7 +256,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         changed |= be.processOutputTransferSlot();
 
         boolean recipeCanRun = recipe != null && be.canOutput(recipe);
-        boolean poweredByEnergy = recipeCanRun && PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        boolean poweredByEnergy = recipeCanRun && PsyCurrentMachines.tryUseCurrentTick(be);
         changed |= be.handleFuel(recipeCanRun && !poweredByEnergy);
         changed |= be.updateHeat();
 

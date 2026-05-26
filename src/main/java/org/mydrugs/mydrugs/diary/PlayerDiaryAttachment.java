@@ -7,6 +7,7 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Server-saved per-player diary state. Holds every entry the player has written
@@ -15,6 +16,8 @@ import java.util.List;
 public final class PlayerDiaryAttachment implements ValueIOSerializable {
     /** Hard cap on stored entries to prevent unbounded NBT growth. Oldest are pruned first. */
     public static final int MAX_ENTRIES = 2048;
+    /** Hard cap on remembered blockers. These are small, deduplicated hints, not a quest log. */
+    public static final int MAX_RECENT_BLOCKERS = 16;
     /** Custom entry char cap (server-side). Anything longer is rejected. */
     public static final int CUSTOM_MAX_LENGTH = 1200;
     /** Soft floor for custom entries; anything shorter after trim/sanitize is rejected. */
@@ -23,12 +26,26 @@ public final class PlayerDiaryAttachment implements ValueIOSerializable {
     public static final int WRITE_COOLDOWN_TICKS = 1200;
 
     private final List<DiaryEntry> entries = new ArrayList<>();
+    private final List<RecentBlocker> recentBlockers = new ArrayList<>();
     /** Last game time at which this player wrote a diary entry (auto OR custom). */
     private long lastWriteGameTime = -100000L;
+
+    public record RecentBlocker(String type, long firstSeenGameTime, long lastSeenGameTime, int count) {
+        public RecentBlocker {
+            type = sanitizeType(type);
+            firstSeenGameTime = Math.max(0L, firstSeenGameTime);
+            lastSeenGameTime = Math.max(firstSeenGameTime, lastSeenGameTime);
+            count = Math.max(1, count);
+        }
+    }
 
     /** Returns an unmodifiable view of all entries in insertion (chronological) order. */
     public List<DiaryEntry> getEntries() {
         return Collections.unmodifiableList(entries);
+    }
+
+    public List<RecentBlocker> getRecentBlockers() {
+        return Collections.unmodifiableList(recentBlockers);
     }
 
     /** Append an entry; prune oldest if we exceed {@link #MAX_ENTRIES}. */
@@ -37,6 +54,37 @@ public final class PlayerDiaryAttachment implements ValueIOSerializable {
         entries.add(entry);
         while (entries.size() > MAX_ENTRIES) {
             entries.removeFirst();
+        }
+    }
+
+    public void recordBlocker(String type, long gameTime) {
+        String cleanType = sanitizeType(type);
+        if (cleanType.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < recentBlockers.size(); i++) {
+            RecentBlocker existing = recentBlockers.get(i);
+            if (existing.type().equals(cleanType)) {
+                recentBlockers.remove(i);
+                recentBlockers.addFirst(new RecentBlocker(
+                        cleanType,
+                        existing.firstSeenGameTime(),
+                        gameTime,
+                        existing.count() + 1
+                ));
+                trimRecentBlockers();
+                return;
+            }
+        }
+
+        recentBlockers.addFirst(new RecentBlocker(cleanType, gameTime, gameTime, 1));
+        trimRecentBlockers();
+    }
+
+    private void trimRecentBlockers() {
+        while (recentBlockers.size() > MAX_RECENT_BLOCKERS) {
+            recentBlockers.removeLast();
         }
     }
 
@@ -85,6 +133,17 @@ public final class PlayerDiaryAttachment implements ValueIOSerializable {
         if (list.isEmpty()) {
             output.discard("entries");
         }
+        ValueOutput.ValueOutputList blockers = output.childrenList("recent_blockers");
+        for (RecentBlocker blocker : recentBlockers) {
+            ValueOutput child = blockers.addChild();
+            child.putString("type", blocker.type());
+            child.putLong("first_seen", blocker.firstSeenGameTime());
+            child.putLong("last_seen", blocker.lastSeenGameTime());
+            child.putInt("count", blocker.count());
+        }
+        if (blockers.isEmpty()) {
+            output.discard("recent_blockers");
+        }
     }
 
     @Override
@@ -99,6 +158,22 @@ public final class PlayerDiaryAttachment implements ValueIOSerializable {
             String source = child.getStringOr("source", "");
             String drug = child.getStringOr("drug", "");
             entries.add(new DiaryEntry(day, created, type, content, source, drug));
+        }
+        recentBlockers.clear();
+        for (ValueInput child : input.childrenListOrEmpty("recent_blockers")) {
+            String type = sanitizeType(child.getStringOr("type", ""));
+            if (type.isEmpty()) {
+                continue;
+            }
+            recentBlockers.add(new RecentBlocker(
+                    type,
+                    child.getLongOr("first_seen", 0L),
+                    child.getLongOr("last_seen", 0L),
+                    child.getIntOr("count", 1)
+            ));
+            if (recentBlockers.size() >= MAX_RECENT_BLOCKERS) {
+                break;
+            }
         }
     }
 
@@ -118,6 +193,21 @@ public final class PlayerDiaryAttachment implements ValueIOSerializable {
         String cleaned = sb.toString().trim();
         if (cleaned.length() < CUSTOM_MIN_LENGTH) return null;
         return cleaned;
+    }
+
+    private static String sanitizeType(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String normalized = raw.trim().toLowerCase(Locale.ROOT);
+        StringBuilder builder = new StringBuilder(Math.min(normalized.length(), 48));
+        for (int i = 0; i < normalized.length() && builder.length() < 48; i++) {
+            char c = normalized.charAt(i);
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-') {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
     }
 
     /** Helper: current Minecraft day from a {@code level.getGameTime()}. */

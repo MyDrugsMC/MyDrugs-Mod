@@ -71,6 +71,29 @@ Addiction/dose tracking
 
 Small speed/mining buffs in `DoseEffectManager` are intended to be float-based custom effects. Tune values through playtesting, but do not replace them with vanilla Speed/Haste.
 
+## Recovery, diary, and integration
+
+Recovery is now a central progression system.
+
+The diary should be the player-facing state/orientation layer and should read from existing authoritative state rather than duplicating gameplay logic.
+
+Suggested boundaries:
+
+```text
+Addiction/Dose managers
+  -> authoritative body state
+
+RecoveryManager / IntegrationManager
+  -> recovery progress, resilience, integration milestones
+
+DiaryManager / PsycheMap
+  -> player-facing interpretation, objectives, entries, and map nodes
+```
+
+The diary may recommend actions, but gameplay authority should remain in domain managers.
+
+Recovery systems should be server-authoritative and deterministic. They may include time sober, sanctuary score, diet, exercise, sleep, therapy-like actions, psychedelic integration, and ketamine-like endgame integration.
+
 ## reducedMotionMode
 
 `Config.CLIENT.reducedMotionMode` is an accessibility setting. It should reduce aggressive movement-heavy visuals without disabling gameplay.
@@ -141,16 +164,39 @@ Affected candidates:
 
 GUIs should show when a speed bonus is active.
 
-## Psychotrope Generator
+## Psychotrope Resonator
 
-Psychotrope systems should not only generate energy. Long-term, psychotrope energy should power strange machines that create gameplay unavailable in vanilla Minecraft.
+The old Psychotrope Generator direction is now the **Psychotrope Resonator** direction.
 
-Current/future directions:
+The Resonator should not be a needy living machine or passive punishment system. It is a ritual-technical bridge from LSD/mushroom insight to recovery, dimension entry, integration resources, and positive endgame tools.
 
-- generator multiblock;
-- persistent area preview state;
-- Psy Blueprint / ghost block building helper;
-- future Dream Extractor, Reality Anchor, Psy Beacon, or Hallucination Trap.
+Stage 1 design constraints:
+
+- unlock after Lysergic progression;
+- deterministic states only: Dormant, Stable, Lucid, Dream, Integration, Overstrained;
+- no hunger, cravings, random sabotage, favorite drug, or passive withdrawal system;
+- unused Resonator goes dormant safely;
+- Dream state opens or stabilizes Inner Dimension access;
+- Integration state converts post-trip/dimension/diary materials into recovery progress or endgame components;
+- all status text must be localized;
+- intense visuals must respect accessibility config.
+
+Suggested architecture:
+
+```text
+PsychotropeResonatorBlockEntity
+  -> stores resonance, dream charge, integration charge, strain, active recipe
+PsychotropeResonatorStateMachine
+  -> owns deterministic state transitions
+PsychotropeResonatorRecipe
+  -> data-driven recipes when possible
+PsychotropeResonatorIntegrationService
+  -> talks to diary/recovery systems
+PsychotropeResonatorDimensionService
+  -> handles dream-state dimension entry checks
+```
+
+Keep the block entity small. Do not put all state, recipe, GUI, particle, and dimension logic in one class.
 
 ## Pipes
 
@@ -175,6 +221,21 @@ Important rules:
 `docs/progression_guide_pages.md` is source content for the in-game guide. The generated output should not be edited by hand.
 
 Use `GUIDE_AUTHORING.md` and the sync script when updating progression text.
+
+The Field Guide is practical and objective-driven. The Personal Diary is reflective and emotional. Do not merge these voices.
+
+Guide text should answer:
+
+- what to build;
+- what item is missing;
+- what unlocks next;
+- how to avoid soft-locks.
+
+Diary text should answer:
+
+- what the player's current state means;
+- whether the player is using a tool or avoiding recovery;
+- what integration step should come next.
 
 ## Datagen
 

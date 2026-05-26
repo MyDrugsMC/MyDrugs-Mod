@@ -42,16 +42,13 @@ public final class AudioConverter {
     }
 
     public static boolean isFfmpegAvailable() {
-        return AudioLibraries.isReady();
+        return AudioLibraries.isFfmpegAvailable();
     }
 
     public static String ffmpegLocation() {
-        try {
-            return AudioLibraries.ffmpegPath().toAbsolutePath().toString();
-        } catch (Exception e) {
-            LOGGER.warn("Managed ffmpeg unavailable: {}", e.getMessage());
-            return "";
-        }
+        return AudioLibraries.ffmpegPath()
+                .map(p -> p.toAbsolutePath().toString())
+                .orElse("");
     }
 
     /**
@@ -59,15 +56,7 @@ public final class AudioConverter {
      * Blocks the calling thread, so call from your import/background thread.
      */
     public static void convertToOgg(Path source, Path target, int quality) throws IOException {
-        Path ffmpeg;
-
-        try {
-            AudioLibraries.ensureReady();
-            ffmpeg = AudioLibraries.ffmpegPath();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Interrupted while preparing audio libraries", e);
-        }
+        Path ffmpeg = AudioLibraries.requireFfmpeg();
 
         Path parent = target.getParent();
         if (parent != null) {

@@ -154,7 +154,7 @@ public final class FakeEntityRenderController {
             FakeHallucination h,
             long gameTime
     ) {
-        float alpha = h.alpha(gameTime);
+        float alpha = h.alpha(gameTime) * Config.CLIENT.hallucinationIntensity.get().floatValue();
         if (alpha <= 0.01F) {
             return;
         }

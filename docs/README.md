@@ -4,12 +4,16 @@ This folder contains the project documents that should guide development. Keep i
 
 ## Start here
 
-1. `VISION.md` — what the mod is trying to become.
-2. `ROADMAP.md` — milestones and the recommended order of work.
-3. `GAMEPLAY_DESIGN.md` — gameplay pillars, drug identities, and risk/reward rules.
-4. `FEATURE_TEMPLATE.md` — format for new features before they become GitHub issues or AI prompts.
-5. `AI_WORKFLOW.md` — how to use Codex/Claude without losing control of the project.
-6. `TESTING.md` — minimum checks before calling something done.
+1. `VISION.md` — the current healing/integration vision for the mod.
+2. `STORYLINE.md` — the narrative spine: discovery → control → temptation → recovery → integration → freedom.
+3. `ROADMAP.md` — milestones and the recommended order of work.
+4. `GAMEPLAY_DESIGN.md` — gameplay pillars, substance identities, recovery rules, and endgame direction.
+5. `RECOVERY_AND_INTEGRATION_DESIGN.md` — recovery, diary, therapy-like actions, diet, exercise, psychedelics, and ketamine-like endgame integration.
+6. `PSYCHOTROPE_RESONATOR_DESIGN.md` — replacement direction for the old Psychotrope Generator.
+7. `DIMENSION_AND_BOSS_DESIGN.md` — Inner Dimension, mobs, biomes, Mystical Ores, boss, and positive ending.
+8. `FEATURE_TEMPLATE.md` — format for new features before they become GitHub issues or AI prompts.
+9. `AI_WORKFLOW.md` — how to use Codex/Claude without losing control of the project.
+10. `TESTING.md` — minimum checks before calling something done.
 
 ## Technical references
 
@@ -17,6 +21,7 @@ This folder contains the project documents that should guide development. Keep i
 - `SETUP.md` — development setup and common commands.
 - `GUIDE_AUTHORING.md` — how to edit and regenerate the in-game field guide.
 - `progression_guide_pages.md` — source content for the in-game guide. Do not delete unless the sync script is changed.
+- `WORLDGEN_CONFIG.md` — worldgen and dimension configuration notes.
 
 ## Project management
 
@@ -30,3 +35,4 @@ This folder contains the project documents that should guide development. Keep i
 - Keep implementation details in `ARCHITECTURE.md` only if they help future work.
 - If a file becomes a one-off note after a feature is finished, merge the useful parts and remove the file.
 - Avoid real-world drug synthesis details. Keep descriptions fictional, gameplay-oriented, and Minecraft-like.
+- Recovery and psychedelic systems should be evidence-inspired but must not make medical claims or give real-world instructions.

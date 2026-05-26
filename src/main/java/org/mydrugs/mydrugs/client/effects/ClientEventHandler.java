@@ -12,7 +12,6 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
-import org.mydrugs.mydrugs.client.PsychotropeAreaPreviewClientState;
 import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
 import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
 import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
@@ -26,6 +25,7 @@ import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.client.effects.hud.AddictionHudRenderer;
 import org.mydrugs.mydrugs.client.effects.render.FlexibleDrugVisualOverlay;
 import org.mydrugs.mydrugs.client.effects.render.BadTripScreamerOverlay;
+import org.mydrugs.mydrugs.client.effects.render.BadTripSkyTint;
 import org.mydrugs.mydrugs.client.effects.render.VomitOverlayClientState;
 import org.mydrugs.mydrugs.client.effects.hallucination.FakeEntityRenderController;
 import org.mydrugs.mydrugs.client.effects.sound.ClientSoundController;
@@ -60,6 +60,7 @@ public final class ClientEventHandler {
             FakeEntityRenderController.clear();
             VomitOverlayClientState.clear();
             BadTripScreamerOverlay.clear();
+            BadTripSkyTint.clear();
             PsyMixerRitualClientState.clear();
             RecoveryRoomOverlay.clear();
             RecoveryRoomParticleClient.clear();
@@ -75,10 +76,11 @@ public final class ClientEventHandler {
             HeadphonesMusicController.tick();
             FakeEntityRenderController.tick();
             HeartbeatPulse.tick();
-            PsychotropeAreaPreviewClientState.tick();
+            org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.tick();
             PsyBlueprintPreviewClientState.tick();
             VomitOverlayClientState.tick();
             BadTripScreamerOverlay.tick();
+            BadTripSkyTint.tick();
             PsyMixerRitualClientState.tick();
             RecoveryRoomOverlay.tick();
             RecoveryRoomParticleClient.tick();
@@ -120,24 +122,33 @@ public final class ClientEventHandler {
 
         @SubscribeEvent
         public static void onComputeFov(ViewportEvent.ComputeFov event) {
-            if (Config.CLIENT.reducedMotionMode.get() || !Config.CLIENT.enableCameraShake.get()) {
+            if (Config.CLIENT.disableForcedCameraMovement.get()
+                    || Config.CLIENT.reducedMotionMode.get()
+                    || !Config.CLIENT.enableCameraShake.get()
+                    || Config.CLIENT.fovPulseIntensity.get() <= 0.0D) {
                 return;
             }
             float original = event.getFOV();
             float withdrawal = WithdrawalTunnelShader.INSTANCE.getStrength();
 
             float intensity = Config.CLIENT.cameraShakeIntensity.get().floatValue();
+            float fovScale = Config.CLIENT.fovPulseIntensity.get().floatValue();
             float baseTunnel = withdrawal * 4.0F * intensity;
             float beatKick = HeartbeatPulse.getFovOffset(withdrawal) * intensity;
             float customPulse = AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.CUSTOM_NAUSEA) * 2.5F;
             customPulse += AddictionClientState.getEffectIntensity(org.mydrugs.mydrugs.core.drug.effect.EffectType.BLUR) * 1.5F;
 
-            event.setFOV(original - baseTunnel - beatKick - customPulse);
+            event.setFOV(original - (baseTunnel + beatKick + customPulse) * fovScale);
+        }
+
+        @SubscribeEvent
+        public static void onComputeFogColor(ViewportEvent.ComputeFogColor event) {
+            BadTripSkyTint.applyFogColor(event);
         }
 
         @SubscribeEvent
         public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
-            if (!Config.CLIENT.enableCameraShake.get()) {
+            if (!Config.CLIENT.enableCameraShake.get() || Config.CLIENT.disableForcedCameraMovement.get()) {
                 return;
             }
 
@@ -156,7 +167,8 @@ public final class ClientEventHandler {
 
             float motionScale = Config.CLIENT.reducedMotionMode.get() ? 0.28F : 1.0F;
             float configScale = Config.CLIENT.cameraShakeIntensity.get().floatValue();
-            float amplitude = Math.min(1.0F, sway) * 2.4F * motionScale * configScale;
+            float swayScale = Config.CLIENT.cameraSwayIntensity.get().floatValue();
+            float amplitude = Math.min(1.0F, sway) * 2.4F * motionScale * configScale * swayScale;
             float tremorAmplitude = Math.min(1.0F, tremor) * 0.85F * motionScale * configScale;
             float time = mc.player.tickCount + (float) event.getPartialTick();
 
@@ -169,6 +181,9 @@ public final class ClientEventHandler {
             yaw += net.minecraft.util.Mth.sin(time * 0.91F + 0.7F) * tremorAmplitude;
             pitch += net.minecraft.util.Mth.cos(time * 1.13F + 2.2F) * tremorAmplitude;
             roll += net.minecraft.util.Mth.sin(time * 1.37F + 4.1F) * tremorAmplitude * 0.45F;
+            if (Config.CLIENT.disableScreenRoll.get()) {
+                roll = 0.0F;
+            }
 
             event.setYaw(event.getYaw() + yaw);
             event.setPitch(event.getPitch() + pitch);

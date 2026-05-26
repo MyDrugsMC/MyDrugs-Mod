@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.client.effects.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -20,15 +21,21 @@ public final class BadTripScreamerOverlay {
 
     public static void trigger(int durationTicks, float rawIntensity) {
         if (!Config.CLIENT.enableBadTripScreamers.get()) {
+            showTextAlternative();
             return;
         }
         float configScale = Config.CLIENT.screamerIntensity.get().floatValue();
         float motionScale = Config.CLIENT.reducedMotionMode.get() ? 0.55F : 1.0F;
+        float overlayScale = Config.CLIENT.visualScale();
         int duration = Config.CLIENT.reducedMotionMode.get()
                 ? Math.min(12, Math.max(6, durationTicks / 2))
                 : Mth.clamp(durationTicks, 10, 20);
 
-        intensity = Math.max(intensity, Mth.clamp(rawIntensity * configScale * motionScale, 0.15F, 1.0F));
+        intensity = Math.max(intensity, Mth.clamp(rawIntensity * configScale * motionScale * overlayScale, 0.0F, 1.0F));
+        if (intensity <= 0.02F) {
+            showTextAlternative();
+            return;
+        }
         totalTicks = duration;
         ticksRemaining = Math.max(ticksRemaining, duration);
     }
@@ -55,11 +62,12 @@ public final class BadTripScreamerOverlay {
         int height = mc.getWindow().getGuiScaledHeight();
         float age = 1.0F - ticksRemaining / (float) Math.max(1, totalTicks);
         float fade = ticksRemaining / (float) Math.max(1, totalTicks);
-        float flash = age < 0.18F ? 1.0F : fade;
-        float alpha = Mth.clamp(flash * intensity, 0.0F, Config.CLIENT.reducedMotionMode.get() ? 0.55F : 0.85F);
+        float flash = Config.CLIENT.disableFullScreenFlashing.get() ? fade : (age < 0.18F ? 1.0F : fade);
+        float alphaCap = Math.min(Config.CLIENT.flashCap(), Config.CLIENT.reducedMotionMode.get() ? 0.55F : 0.85F);
+        float alpha = Mth.clamp(flash * intensity, 0.0F, alphaCap);
 
         int shake = 0;
-        if (!Config.CLIENT.reducedMotionMode.get()) {
+        if (!Config.CLIENT.reducedMotionMode.get() && !Config.CLIENT.disableForcedCameraMovement.get()) {
             shake = Math.round((Mth.sin((Minecraft.getInstance().player == null ? 0 : Minecraft.getInstance().player.tickCount) * 2.4F) * 4.0F) * alpha);
         }
 
@@ -78,5 +86,15 @@ public final class BadTripScreamerOverlay {
 
         int fillAlpha = Math.round((Config.CLIENT.reducedMotionMode.get() ? 60.0F : 95.0F) * alpha);
         graphics.fill(0, 0, width, height, (fillAlpha << 24) | 0x220006);
+    }
+
+    private static void showTextAlternative() {
+        if (!Config.CLIENT.showActiveEffectExplanations.get()) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.player.displayClientMessage(Component.translatable("message.mydrugs.bad_trip.screamer_suppressed"), true);
+        }
     }
 }

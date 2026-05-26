@@ -6,7 +6,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.sounds.ModSounds;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,6 +43,10 @@ public final class ClientSoundsHandler {
         if (soundEvent == null || durationTick <= 0) {
             return;
         }
+        float volume = volumeFor(soundEvent);
+        if (volume <= 0.0F) {
+            return;
+        }
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) {
@@ -49,11 +55,11 @@ public final class ClientSoundsHandler {
 
         SoundInstance existing = ACTIVE.get(soundEvent);
         if (existing != null && !existing.isStoppedFlag()) {
-            existing.refreshDuration(durationTick, fadeTicksRemaining, fadeDurationTicks);
+            existing.refreshDuration(durationTick, fadeTicksRemaining, fadeDurationTicks, volume);
             return;
         }
 
-        TO_START.put(soundEvent, new PendingSound(durationTick, fadeTicksRemaining, fadeDurationTicks));
+        TO_START.put(soundEvent, new PendingSound(durationTick, fadeTicksRemaining, fadeDurationTicks, volume));
     }
 
     public static void clear() {
@@ -71,7 +77,7 @@ public final class ClientSoundsHandler {
 
             SoundInstance existing = ACTIVE.get(soundEvent);
             if (existing != null && !existing.isStoppedFlag()) {
-                existing.refreshDuration(pending.durationTicks(), pending.fadeTicksRemaining(), pending.fadeDurationTicks());
+                existing.refreshDuration(pending.durationTicks(), pending.fadeTicksRemaining(), pending.fadeDurationTicks(), pending.volume());
                 continue;
             }
 
@@ -80,7 +86,8 @@ public final class ClientSoundsHandler {
                     mc.player,
                     pending.durationTicks(),
                     pending.fadeTicksRemaining(),
-                    pending.fadeDurationTicks()
+                    pending.fadeDurationTicks(),
+                    pending.volume()
             );
             ACTIVE.put(soundEvent, instance);
             mc.getSoundManager().play(instance);
@@ -112,6 +119,14 @@ public final class ClientSoundsHandler {
         TO_START.clear();
     }
 
-    private record PendingSound(int durationTicks, int fadeTicksRemaining, int fadeDurationTicks) {
+    private static float volumeFor(SoundEvent soundEvent) {
+        float volume = 1.0F;
+        if (soundEvent == ModSounds.HEARTBEAT.get() || soundEvent == ModSounds.SINGLE_HEARTBEAT.get()) {
+            volume *= Config.CLIENT.heartbeatVolume.get().floatValue();
+        }
+        return Config.CLIENT.suddenSoundCap(volume);
+    }
+
+    private record PendingSound(int durationTicks, int fadeTicksRemaining, int fadeDurationTicks, float volume) {
     }
 }

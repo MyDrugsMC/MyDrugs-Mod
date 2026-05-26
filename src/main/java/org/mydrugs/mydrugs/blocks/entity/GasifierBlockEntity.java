@@ -28,7 +28,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.machine.MachineStatus;
@@ -149,7 +149,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                 dirty = true;
             }
 
-            boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(this);
+            boolean poweredByEnergy = PsyCurrentMachines.tryUseCurrentTick(this);
 
             if (!this.isLit() && !poweredByEnergy && this.consumeFuel()) {
                 dirty = true;

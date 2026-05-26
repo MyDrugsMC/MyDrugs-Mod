@@ -6,6 +6,7 @@ import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.ClientInput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.phys.Vec2;
 import org.mydrugs.mydrugs.Config;
@@ -24,6 +25,7 @@ public final class ClientInputInterceptor {
     private static boolean ritualJumpHeld;
     private static boolean ritualSneakHeld;
     private static boolean ritualUseHeld;
+    private static int hudWarningCooldownTicks;
 
     private ClientInputInterceptor() {
     }
@@ -34,6 +36,9 @@ public final class ClientInputInterceptor {
         }
         if (failTicks > 0) {
             failTicks--;
+        }
+        if (hudWarningCooldownTicks > 0) {
+            hudWarningCooldownTicks--;
         }
 
         if (PsyMixerRitualClientState.isActive()
@@ -69,7 +74,9 @@ public final class ClientInputInterceptor {
             moveVector = Vec2.ZERO;
         }
 
-        if (failTicks > 0) {
+        if (failTicks > 0 && hudOnlyInputFailAllowed()) {
+            showInputWarning();
+        } else if (failTicks > 0) {
             moveVector = new Vec2(moveVector.x * 0.20F, moveVector.y * 0.20F);
             suppressJumpAndSprint(input);
         }
@@ -80,7 +87,7 @@ public final class ClientInputInterceptor {
         }
 
         float stumble = AddictionClientState.getEffectIntensity(EffectType.STUMBLE);
-        if (stumble > 0.0F && !Config.CLIENT.reducedMotionMode.get()) {
+        if (stumble > 0.0F && !Config.CLIENT.reducedMotionMode.get() && !Config.CLIENT.disableForcedCameraMovement.get()) {
             double t = tickCount * 0.17D;
             float sideways = (float) Math.sin(t) * Math.min(0.55F, stumble * 0.35F);
             moveVector = new Vec2(
@@ -175,6 +182,22 @@ public final class ClientInputInterceptor {
                 keyPresses.shift(),
                 false
         );
+    }
+
+    private static boolean hudOnlyInputFailAllowed() {
+        return Config.CLIENT.replaceInputFailWithHudWarningOnly.get()
+                && Config.SERVER.allowClientInputFailHudOnly.get();
+    }
+
+    private static void showInputWarning() {
+        if (hudWarningCooldownTicks > 0 || !Config.CLIENT.showActiveEffectExplanations.get()) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.player.displayClientMessage(Component.translatable("message.mydrugs.input_fail.warning"), true);
+            hudWarningCooldownTicks = 30;
+        }
     }
 
     private static void setMoveVector(ClientInput input, Vec2 moveVector) {

@@ -1,6 +1,6 @@
 # AI Workflow
 
-Use AI as an implementation assistant, not as the project manager. The project direction comes from `VISION.md`, `ROADMAP.md`, and feature issues.
+Use AI as an implementation assistant, not as the project manager. The project direction comes from `VISION.md`, `STORYLINE.md`, `GAMEPLAY_DESIGN.md`, `ROADMAP.md`, and feature issues.
 
 ## Basic rules
 
@@ -18,7 +18,9 @@ Use AI as an implementation assistant, not as the project manager. The project d
    - resources;
    - networking;
    - performance;
-   - dedicated-server safety.
+   - dedicated-server safety;
+   - alignment with the healing/integration vision;
+   - diary/guide text if player-facing progression changed.
 
 ## Branch naming
 
@@ -93,4 +95,6 @@ Stop and inspect manually if:
 - it touches generated files without updating datagen;
 - it references client classes from common/server code;
 - it adds real-world synthesis details;
+- it makes medical/dosing/cure claims;
+- it pushes the mod toward pure horror or forced addiction without an explicit design decision;
 - it claims a system works without a compile/test result.

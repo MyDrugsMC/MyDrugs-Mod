@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.advancement.DrugKnowledgeAttachment;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.core.drug.runtime.PlayerDrugEffectsAttachment;
 import org.mydrugs.mydrugs.diary.PlayerDiaryAttachment;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachment;
 import org.mydrugs.mydrugs.mutation.PlayerMutationsAttachment;
@@ -69,6 +70,19 @@ public final class ModAttachments {
             ATTACHMENTS.register("player_mutations", () ->
                     AttachmentType.serializable(PlayerMutationsAttachment::new)
                             .copyOnDeath()
+                            .build()
+            );
+    public static final Supplier<AttachmentType<PlayerIntegrationAttachment>> PLAYER_INTEGRATION =
+            ATTACHMENTS.register("player_integration", () ->
+                    AttachmentType.serializable(PlayerIntegrationAttachment::new)
+                            .copyOnDeath()
+                            .build()
+            );
+
+    // Not copyOnDeath: acute drug effects are intentionally dropped on death (lifecycle policy).
+    public static final Supplier<AttachmentType<PlayerDrugEffectsAttachment>> PLAYER_DRUG_EFFECTS =
+            ATTACHMENTS.register("player_drug_effects", () ->
+                    AttachmentType.serializable(PlayerDrugEffectsAttachment::new)
                             .build()
             );
 

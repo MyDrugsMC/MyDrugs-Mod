@@ -173,9 +173,6 @@ public class ModItems {
     public static final DeferredItem<Item> VALERIAN_ROOT =
             ITEMS.registerSimpleItem("valerian_root");
 
-    public static final DeferredItem<Item> SOOTHING_TOBACCO_BLEND =
-            ITEMS.registerItem("soothing_tobacco_blend", prop -> new TobaccoHandfulItem(prop, DrugId.TOBACCO, new SmokingStrategy(true, true)));
-
     public static final DeferredItem<Item> MIXED_DRUG =
             ITEMS.registerItem("mixed_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
 
@@ -230,9 +227,6 @@ public class ModItems {
 
     public static final DeferredItem<Item> INFECTED_RYE =
             ITEMS.registerSimpleItem("infected_rye");
-
-    public static final DeferredItem<Item> MIXING_SPATULA =
-            ITEMS.registerSimpleItem("mixing_spatula");
 
     public static final DeferredItem<Item> PLANT_BIOMASS =
             ITEMS.registerSimpleItem("plant_biomass");
@@ -548,12 +542,6 @@ public class ModItems {
             ITEMS.registerItem("inner_demon_remains",
                     props -> new PsyTooltipItem(props, "tooltip.mydrugs.inner_demon_remains"));
 
-    public static final DeferredItem<Item> BRIGHTENED_CANNABIS_POWDER =
-            ITEMS.registerItem("brightened_cannabis_powder",
-                    prop -> new CannabisPowderItem(
-                            prop, DrugId.WEED,
-                            new SmokingStrategy(true, true)));
-
     public static final DeferredItem<VanillaBiomeFinderItem> VANILLA_BIOME_FINDER =
             ITEMS.registerItem("vanilla_biome_finder",
                     props -> new VanillaBiomeFinderItem(props.stacksTo(1)
@@ -590,8 +578,6 @@ public class ModItems {
                     props -> new PsyTooltipItem(props, "tooltip.mydrugs.dreamcap_spores"));
 
     // ===== PR 3: Support items =====
-    public static final DeferredItem<Item> COPPER_NUGGET =
-            ITEMS.registerSimpleItem("copper_nugget");
 
     public static final DeferredItem<Item> THUNDER_BOTTLE =
             ITEMS.registerItem("thunder_bottle",
@@ -604,6 +590,44 @@ public class ModItems {
     public static final DeferredItem<Item> SHROOM_HARVESTER =
             ITEMS.registerItem("shroom_harvester",
                     props -> new ShroomHarvesterItem(props.stacksTo(1).durability(59)));
+
+    // ===== Phase D: Psychotrope Distillery extracts =====
+    public static final DeferredItem<Item> LUCID_EXTRACT =
+            ITEMS.registerSimpleItem("lucid_extract");
+    public static final DeferredItem<Item> CALMING_RESIN =
+            ITEMS.registerSimpleItem("calming_resin");
+    public static final DeferredItem<Item> REDLINE_FUEL =
+            ITEMS.registerSimpleItem("redline_fuel");
+    public static final DeferredItem<Item> OVERDRIVE_FUEL =
+            ITEMS.registerSimpleItem("overdrive_fuel");
+    public static final DeferredItem<Item> UNSTABLE_ESSENCE =
+            ITEMS.registerSimpleItem("unstable_essence");
+
+    // Psychedelic / integration materials — never engine fuel.
+    public static final DeferredItem<Item> DREAM_RESIDUE =
+            ITEMS.registerSimpleItem("dream_residue");
+    public static final DeferredItem<Item> MYCELIAL_INSIGHT =
+            ITEMS.registerSimpleItem("mycelial_insight");
+
+    // Deterministic distillery byproducts.
+    public static final DeferredItem<Item> BITTER_RESIDUE =
+            ITEMS.registerSimpleItem("bitter_residue");
+    public static final DeferredItem<Item> BURNT_NERVE_RESIDUE =
+            ITEMS.registerSimpleItem("burnt_nerve_residue");
+    public static final DeferredItem<Item> SPENT_FILTER =
+            ITEMS.registerSimpleItem("spent_filter");
+
+    // Machine components.
+    public static final DeferredItem<Item> DISTILLATION_COIL =
+            ITEMS.registerSimpleItem("distillation_coil");
+    public static final DeferredItem<Item> CURRENT_REGULATOR =
+            ITEMS.registerSimpleItem("current_regulator");
+    public static final DeferredItem<Item> STRAIN_VENT =
+            ITEMS.registerSimpleItem("strain_vent");
+    public static final DeferredItem<Item> RESONANCE_LENS =
+            ITEMS.registerSimpleItem("resonance_lens");
+    public static final DeferredItem<Item> INTEGRATION_CORE =
+            ITEMS.registerSimpleItem("integration_core");
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

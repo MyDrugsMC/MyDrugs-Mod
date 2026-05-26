@@ -2,7 +2,7 @@
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
     "top": "mydrugs:block/psychedelic_mycelium_top",
-    "bottom": "minecraft:block/dirt",
+    "bottom": "mydrugs:block/psychedelic_mycelium_bottom",
     "side": "mydrugs:block/psychedelic_mycelium_side"
   }
 }

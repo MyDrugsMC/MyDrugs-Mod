@@ -24,6 +24,7 @@ import org.mydrugs.mydrugs.recipes.grinder.GrindingRecipe;
 import org.mydrugs.mydrugs.recipes.growth_chamber.GrowthChamberRecipe;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.psy_anvil.PsyAnvilRecipe;
+import org.mydrugs.mydrugs.recipes.psychotrope_distillery.PsychotropeDistilleryRecipe;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
@@ -53,6 +54,9 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<DistillerRecipe>> DISTILLER =
             RECIPE_TYPES.register("distiller", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<PsychotropeDistilleryRecipe>> PSYCHOTROPE_DISTILLERY =
+            RECIPE_TYPES.register("psychotrope_distillery", RecipeType::simple);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<DryingRecipe>> DRYING =
             RECIPE_TYPES.register("drying", RecipeType::simple);

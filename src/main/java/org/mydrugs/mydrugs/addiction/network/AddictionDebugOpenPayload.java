@@ -13,6 +13,8 @@ import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
 import org.mydrugs.mydrugs.recovery.SocialReliefManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
@@ -63,6 +65,13 @@ public record AddictionDebugOpenPayload(
                             ByteBufCodecs.VAR_LONG.encode(buf, row.lastUseTime());
                             ByteBufCodecs.STRING_UTF8.encode(buf, row.lastDoseState());
                             ByteBufCodecs.VAR_INT.encode(buf, row.activeDoseContributions());
+                            ByteBufCodecs.FLOAT.encode(buf, row.lifetimeDoseConsumed());
+                            ByteBufCodecs.VAR_INT.encode(buf, row.integrationStage());
+                            ByteBufCodecs.FLOAT.encode(buf, row.recoveryProgress());
+                            ByteBufCodecs.VAR_LONG.encode(buf, row.integratedAtGameTime());
+                            ByteBufCodecs.STRING_UTF8.encode(buf, row.integratedTraitId());
+                            ByteBufCodecs.BOOL.encode(buf, row.integratedTraitUnlocked());
+                            ByteBufCodecs.BOOL.encode(buf, row.integrationEligible());
                         }
                     },
                     buf -> {
@@ -90,7 +99,14 @@ public record AddictionDebugOpenPayload(
                                     ByteBufCodecs.FLOAT.decode(buf),
                                     ByteBufCodecs.VAR_LONG.decode(buf),
                                     ByteBufCodecs.STRING_UTF8.decode(buf),
-                                    ByteBufCodecs.VAR_INT.decode(buf)
+                                    ByteBufCodecs.VAR_INT.decode(buf),
+                                    ByteBufCodecs.FLOAT.decode(buf),
+                                    ByteBufCodecs.VAR_INT.decode(buf),
+                                    ByteBufCodecs.FLOAT.decode(buf),
+                                    ByteBufCodecs.VAR_LONG.decode(buf),
+                                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                                    ByteBufCodecs.BOOL.decode(buf),
+                                    ByteBufCodecs.BOOL.decode(buf)
                             ));
                         }
                         return new AddictionDebugOpenPayload(
@@ -112,9 +128,11 @@ public record AddictionDebugOpenPayload(
 
     public static AddictionDebugOpenPayload from(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        var integration = player.getData(ModAttachments.PLAYER_INTEGRATION.get());
         List<DrugStatsRow> rows = new ArrayList<>();
         for (DrugId drugId : DrugId.values()) {
             DrugAddictionStats drugStats = stats.getDrugStats(drugId);
+            IntegratedTrait trait = IntegratedTrait.bySource(drugId);
             rows.add(new DrugStatsRow(
                     drugId.name(),
                     drugStats == null ? 0.0F : drugStats.addictionValue,
@@ -125,7 +143,14 @@ public record AddictionDebugOpenPayload(
                     drugStats == null ? 0.0F : drugStats.peakHistoricalAddiction,
                     drugStats == null ? 0L : drugStats.lastUseTime,
                     drugStats == null ? "NORMAL" : drugStats.lastDoseState.name(),
-                    drugStats == null ? 0 : drugStats.doseContributions.size()
+                    drugStats == null ? 0 : drugStats.doseContributions.size(),
+                    drugStats == null ? 0.0F : drugStats.lifetimeDoseConsumed,
+                    drugStats == null ? 0 : drugStats.integrationStage,
+                    drugStats == null ? 0.0F : drugStats.recoveryProgress,
+                    drugStats == null ? -1L : drugStats.integratedAtGameTime,
+                    trait == null ? "" : trait.serializedName(),
+                    trait != null && integration.has(trait),
+                    IntegrationService.evaluate(stats, drugId).eligible()
             ));
         }
         return new AddictionDebugOpenPayload(
@@ -167,7 +192,14 @@ public record AddictionDebugOpenPayload(
             float peakAddiction,
             long lastUseTime,
             String lastDoseState,
-            int activeDoseContributions
+            int activeDoseContributions,
+            float lifetimeDoseConsumed,
+            int integrationStage,
+            float recoveryProgress,
+            long integratedAtGameTime,
+            String integratedTraitId,
+            boolean integratedTraitUnlocked,
+            boolean integrationEligible
     ) {
     }
 }

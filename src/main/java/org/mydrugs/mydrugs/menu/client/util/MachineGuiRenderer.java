@@ -375,7 +375,7 @@ public final class MachineGuiRenderer {
         );
 
         if (drawPlayerInventory) {
-            drawAdvancedFurnaceInventoryPanels(draw, graphics);
+            MachineGuiPanels.drawAdvancedFurnaceInventoryPanels(draw, graphics);
         }
 
         draw.drawSlotFrame(graphics, AdvancedFurnaceLayout.INPUT_A_X, AdvancedFurnaceLayout.INPUT_A_Y);
@@ -419,7 +419,7 @@ public final class MachineGuiRenderer {
                 StandardTankLayout.INNER_H
         );
 
-        drawAdvancedFurnaceTank(draw, graphics, state.outputTank());
+        MachineTankRenderer.drawAdvancedFurnaceTank(draw, graphics, state.outputTank());
     }
 
     public static void drawAdvancedFurnaceLabels(
@@ -463,7 +463,7 @@ public final class MachineGuiRenderer {
     ) {
         Font font = Minecraft.getInstance().font;
         drawAdvancedFurnaceLabels(draw, graphics, font, title, null, 0);
-        drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(advancedFurnaceHeight(false) - 12), AdvancedFurnaceLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+        MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(advancedFurnaceHeight(false) - 12), AdvancedFurnaceLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
     }
 
 
@@ -484,7 +484,7 @@ public final class MachineGuiRenderer {
         );
 
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, AromaticExtractorLayout.PLAYER_INV_X, AromaticExtractorLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, AromaticExtractorLayout.PLAYER_INV_X, AromaticExtractorLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         draw.drawPanel(
@@ -541,7 +541,7 @@ public final class MachineGuiRenderer {
                 AromaticExtractorLayout.TANK_INNER_H
         );
 
-        drawTankFill(
+        MachineTankRenderer.drawTankFill(
                 draw,
                 graphics,
                 state.inputTank,
@@ -553,7 +553,7 @@ public final class MachineGuiRenderer {
                 AromaticExtractorLayout.TANK_INNER_H
         );
 
-        drawTankFill(
+        MachineTankRenderer.drawTankFill(
                 draw,
                 graphics,
                 state.catalystTank,
@@ -565,7 +565,7 @@ public final class MachineGuiRenderer {
                 AromaticExtractorLayout.TANK_INNER_H
         );
 
-        drawTankFill(
+        MachineTankRenderer.drawTankFill(
                 draw,
                 graphics,
                 state.output1Tank,
@@ -577,7 +577,7 @@ public final class MachineGuiRenderer {
                 AromaticExtractorLayout.TANK_INNER_H
         );
 
-        drawTankFill(
+        MachineTankRenderer.drawTankFill(
                 draw,
                 graphics,
                 state.output2Tank,
@@ -676,7 +676,7 @@ public final class MachineGuiRenderer {
         );
 
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, BiochemicalReactorLayout.PLAYER_INV_X, BiochemicalReactorLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, BiochemicalReactorLayout.PLAYER_INV_X, BiochemicalReactorLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         draw.drawSlotFrame(graphics, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y);
@@ -737,7 +737,7 @@ public final class MachineGuiRenderer {
                 BiochemicalReactorLayout.TANK_INNER_H
         );
 
-        drawTankFill(
+        MachineTankRenderer.drawTankFill(
                 draw,
                 graphics,
                 state.outputTank(),
@@ -758,8 +758,8 @@ public final class MachineGuiRenderer {
                 state.manualButtonHovered()
         );
 
-        drawSlotCount(draw, graphics, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y, state.ergotCount());
-        drawSlotCount(draw, graphics, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y, state.tryptophanCount());
+        MachineGuiWidgets.drawSlotCount(draw, graphics, BiochemicalReactorLayout.ERGOT_SLOT_X, BiochemicalReactorLayout.ERGOT_SLOT_Y, state.ergotCount());
+        MachineGuiWidgets.drawSlotCount(draw, graphics, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y, state.tryptophanCount());
     }
 
     public static void drawBiochemicalReactorLabels(
@@ -794,7 +794,7 @@ public final class MachineGuiRenderer {
     ) {
         Font font = Minecraft.getInstance().font;
         drawBiochemicalReactorLabels(draw, graphics, font, title, status);
-        drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(biochemicalReactorHeight(false) - 12), BiochemicalReactorLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+        MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(biochemicalReactorHeight(false) - 12), BiochemicalReactorLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
     }
 
     public static void drawAdvancedMixingVat(
@@ -814,18 +814,18 @@ public final class MachineGuiRenderer {
         );
 
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, AdvancedMixingVatLayout.PLAYER_INV_X, AdvancedMixingVatLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, AdvancedMixingVatLayout.PLAYER_INV_X, AdvancedMixingVatLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
-        int[] itemX = advancedMixingVatItemX();
-        int[] itemY = advancedMixingVatItemY();
+        int[] itemX = MachineGuiWidgets.advancedMixingVatItemX();
+        int[] itemY = MachineGuiWidgets.advancedMixingVatItemY();
         for (int i = 0; i < itemX.length; i++) {
             draw.drawSlotFrame(graphics, itemX[i], itemY[i]);
         }
 
         TankFill[] tanks = {state.tankA(), state.tankB(), state.tankC(), state.gasTank(), state.outputTank()};
-        int[] tankX = advancedMixingVatTankX();
-        int[] tankSlotX = advancedMixingVatTankSlotX();
+        int[] tankX = MachineGuiWidgets.advancedMixingVatTankX();
+        int[] tankSlotX = MachineGuiWidgets.advancedMixingVatTankSlotX();
         for (int i = 0; i < tankX.length; i++) {
             draw.drawSlotFrame(graphics, tankSlotX[i], AdvancedMixingVatLayout.TANK_SLOT_Y);
             draw.drawTankFrame(
@@ -839,7 +839,7 @@ public final class MachineGuiRenderer {
                     AdvancedMixingVatLayout.TANK_INNER_W,
                     AdvancedMixingVatLayout.TANK_INNER_H
             );
-            drawTankFill(
+            MachineTankRenderer.drawTankFill(
                     draw,
                     graphics,
                     tanks[i],
@@ -865,7 +865,7 @@ public final class MachineGuiRenderer {
 
         int[] itemCounts = state.itemCounts();
         for (int i = 0; i < Math.min(itemCounts.length, itemX.length); i++) {
-            drawSlotCount(draw, graphics, itemX[i], itemY[i], itemCounts[i]);
+            MachineGuiWidgets.drawSlotCount(draw, graphics, itemX[i], itemY[i], itemCounts[i]);
         }
     }
 
@@ -893,7 +893,7 @@ public final class MachineGuiRenderer {
         );
 
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(advancedMixingVatHeight(false) - 12), AdvancedMixingVatLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(advancedMixingVatHeight(false) - 12), AdvancedMixingVatLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -907,7 +907,7 @@ public final class MachineGuiRenderer {
         draw.drawPanel(graphics, CentrifugeLayout.MACHINE_PANEL_X, CentrifugeLayout.MACHINE_PANEL_Y, CentrifugeLayout.MACHINE_PANEL_W, CentrifugeLayout.MACHINE_PANEL_H, 0xFF323232);
 
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, CentrifugeLayout.PLAYER_INV_X, CentrifugeLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, CentrifugeLayout.PLAYER_INV_X, CentrifugeLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         draw.drawPanel(graphics, CentrifugeLayout.CENTER_PANEL_X, CentrifugeLayout.CENTER_PANEL_Y, CentrifugeLayout.CENTER_PANEL_W, CentrifugeLayout.CENTER_PANEL_H, 0xFF262B32);
@@ -917,7 +917,7 @@ public final class MachineGuiRenderer {
         TankFill[] tanks = {state.inputTank(), state.outputATank(), state.outputBTank()};
         for (int i = 0; i < tankX.length; i++) {
             draw.drawTankFrame(graphics, tankX[i], tankY[i], CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
-            drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
+            MachineTankRenderer.drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], CentrifugeLayout.TANK_INNER_X_OFFSET, CentrifugeLayout.TANK_INNER_Y_OFFSET, CentrifugeLayout.TANK_INNER_W, CentrifugeLayout.TANK_INNER_H);
         }
 
         draw.drawSlotFrame(graphics, CentrifugeLayout.INPUT_SLOT_X, CentrifugeLayout.INPUT_SLOT_Y);
@@ -947,7 +947,7 @@ public final class MachineGuiRenderer {
         draw.drawPanel(graphics, ChemicalReactorLayout.MACHINE_PANEL_X, ChemicalReactorLayout.MACHINE_PANEL_Y, ChemicalReactorLayout.MACHINE_PANEL_W, ChemicalReactorLayout.MACHINE_PANEL_H, 0xFF323232);
 
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, ChemicalReactorLayout.PLAYER_INV_X, ChemicalReactorLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, ChemicalReactorLayout.PLAYER_INV_X, ChemicalReactorLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         int[] tankX = {ChemicalReactorLayout.PRIMARY_GAS_TANK_X, ChemicalReactorLayout.SECONDARY_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_X};
@@ -955,7 +955,7 @@ public final class MachineGuiRenderer {
         TankFill[] tanks = {state.primaryTank(), state.secondaryTank(), state.outputTank()};
         for (int i = 0; i < tankX.length; i++) {
             draw.drawTankFrame(graphics, tankX[i], tankY[i], ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H, ChemicalReactorLayout.TANK_INNER_X_OFFSET, ChemicalReactorLayout.TANK_INNER_Y_OFFSET, ChemicalReactorLayout.TANK_INNER_W, ChemicalReactorLayout.TANK_INNER_H);
-            drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], ChemicalReactorLayout.TANK_INNER_X_OFFSET, ChemicalReactorLayout.TANK_INNER_Y_OFFSET, ChemicalReactorLayout.TANK_INNER_W, ChemicalReactorLayout.TANK_INNER_H);
+            MachineTankRenderer.drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], ChemicalReactorLayout.TANK_INNER_X_OFFSET, ChemicalReactorLayout.TANK_INNER_Y_OFFSET, ChemicalReactorLayout.TANK_INNER_W, ChemicalReactorLayout.TANK_INNER_H);
         }
 
         draw.drawSlotFrame(graphics, ChemicalReactorLayout.FUEL_SLOT_X, ChemicalReactorLayout.FUEL_SLOT_Y);
@@ -971,9 +971,9 @@ public final class MachineGuiRenderer {
 
     public static void drawChemicalReactorLabels(AbstractMachineDrawMethods draw, GuiGraphics graphics, Font font, Component title, String footer) {
         graphics.drawString(font, title, draw.labelX(ChemicalReactorLayout.GUI_WIDTH / 2 - font.width(title) / 2), draw.labelY(5), 0xFFE0E0E0, false);
-        drawCentered(graphics, font, "Process", draw.labelX(ChemicalReactorLayout.PROGRESS_X), draw.labelY(ChemicalReactorLayout.LABEL_Y + 6), ChemicalReactorLayout.PROGRESS_W, 0xFFB8B8B8);
+        MachineGuiText.drawCentered(graphics, font, "Process", draw.labelX(ChemicalReactorLayout.PROGRESS_X), draw.labelY(ChemicalReactorLayout.LABEL_Y + 6), ChemicalReactorLayout.PROGRESS_W, 0xFFB8B8B8);
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(chemicalReactorHeight(false) - 12), ChemicalReactorLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(chemicalReactorHeight(false) - 12), ChemicalReactorLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -987,7 +987,7 @@ public final class MachineGuiRenderer {
         draw.drawPanel(graphics, DistillerLayout.MACHINE_PANEL_X, DistillerLayout.MACHINE_PANEL_Y, DistillerLayout.MACHINE_PANEL_W, DistillerLayout.MACHINE_PANEL_H, 0xFF323232);
 
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, DistillerLayout.PLAYER_INV_X, DistillerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, DistillerLayout.PLAYER_INV_X, DistillerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         int[] tankX = {DistillerLayout.INPUT_TANK_X, DistillerLayout.OUTPUT_A_TANK_X, DistillerLayout.OUTPUT_B_TANK_X};
@@ -995,7 +995,7 @@ public final class MachineGuiRenderer {
         TankFill[] tanks = {state.inputTank(), state.outputATank(), state.outputBTank()};
         for (int i = 0; i < tankX.length; i++) {
             draw.drawTankFrame(graphics, tankX[i], tankY[i], DistillerLayout.TANK_W, DistillerLayout.TANK_H, DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
-            drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
+            MachineTankRenderer.drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], DistillerLayout.TANK_INNER_X_OFFSET, DistillerLayout.TANK_INNER_Y_OFFSET, DistillerLayout.TANK_INNER_W, DistillerLayout.TANK_INNER_H);
         }
 
         draw.drawSlotFrame(graphics, DistillerLayout.INPUT_SLOT_X, DistillerLayout.INPUT_SLOT_Y);
@@ -1006,7 +1006,7 @@ public final class MachineGuiRenderer {
         draw.drawDumpButton(graphics, DistillerLayout.DUMP_INPUT_X, DistillerLayout.DUMP_BUTTON_Y, DistillerLayout.DUMP_BUTTON_SIZE, state.inputDumpHovered(), state.inputDumpEnabled());
         draw.drawDumpButton(graphics, DistillerLayout.DUMP_OUTPUT_A_X, DistillerLayout.DUMP_BUTTON_Y, DistillerLayout.DUMP_BUTTON_SIZE, state.outputADumpHovered(), state.outputADumpEnabled());
         draw.drawDumpButton(graphics, DistillerLayout.DUMP_OUTPUT_B_X, DistillerLayout.DUMP_BUTTON_Y, DistillerLayout.DUMP_BUTTON_SIZE, state.outputBDumpHovered(), state.outputBDumpEnabled());
-        drawDistillerReactor(draw, graphics, state.runHovered(), state.working(), state.boosted());
+        MachineGuiWidgets.drawDistillerReactor(draw, graphics, state.runHovered(), state.working(), state.boosted());
 
         Font font = Minecraft.getInstance().font;
         if (state.cpsText() != null) {
@@ -1025,7 +1025,7 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, ElectrolyzerLayout.GUI_WIDTH, electrolyzerHeight(drawPlayerInventory));
         draw.drawPanel(graphics, ElectrolyzerLayout.MACHINE_PANEL_X, ElectrolyzerLayout.MACHINE_PANEL_Y, ElectrolyzerLayout.MACHINE_PANEL_W, ElectrolyzerLayout.MACHINE_PANEL_H, 0xFF323232);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, ElectrolyzerLayout.PLAYER_INV_X, ElectrolyzerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, ElectrolyzerLayout.PLAYER_INV_X, ElectrolyzerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
         draw.drawPanel(graphics, ElectrolyzerLayout.CENTER_PANEL_X, ElectrolyzerLayout.CENTER_PANEL_Y, ElectrolyzerLayout.CENTER_PANEL_W, ElectrolyzerLayout.CENTER_PANEL_H, 0xFF262B32);
 
@@ -1034,7 +1034,7 @@ public final class MachineGuiRenderer {
         TankFill[] tanks = {state.inputTank(), state.output1Tank(), state.output2Tank(), state.output3Tank()};
         for (int i = 0; i < tankX.length; i++) {
             draw.drawTankFrame(graphics, tankX[i], tankY[i], ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H, ElectrolyzerLayout.TANK_INNER_X_OFFSET, ElectrolyzerLayout.TANK_INNER_Y_OFFSET, ElectrolyzerLayout.TANK_INNER_W, ElectrolyzerLayout.TANK_INNER_H);
-            drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], ElectrolyzerLayout.TANK_INNER_X_OFFSET, ElectrolyzerLayout.TANK_INNER_Y_OFFSET, ElectrolyzerLayout.TANK_INNER_W, ElectrolyzerLayout.TANK_INNER_H);
+            MachineTankRenderer.drawTankFill(draw, graphics, tanks[i], tankX[i], tankY[i], ElectrolyzerLayout.TANK_INNER_X_OFFSET, ElectrolyzerLayout.TANK_INNER_Y_OFFSET, ElectrolyzerLayout.TANK_INNER_W, ElectrolyzerLayout.TANK_INNER_H);
         }
 
         draw.drawSlotFrame(graphics, ElectrolyzerLayout.INPUT_SLOT_X, ElectrolyzerLayout.INPUT_SLOT_Y);
@@ -1060,13 +1060,13 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, FluidFiltererLayout.GUI_WIDTH, fluidFiltererHeight(drawPlayerInventory));
         draw.drawPanel(graphics, FluidFiltererLayout.MACHINE_PANEL_X, FluidFiltererLayout.MACHINE_PANEL_Y, FluidFiltererLayout.MACHINE_PANEL_W, FluidFiltererLayout.MACHINE_PANEL_H, 0xFF323232);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, FluidFiltererLayout.PLAYER_INV_X, FluidFiltererLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, FluidFiltererLayout.PLAYER_INV_X, FluidFiltererLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         draw.drawTankFrame(graphics, FluidFiltererLayout.INPUT_TANK_X, FluidFiltererLayout.INPUT_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H, FluidFiltererLayout.TANK_INNER_X_OFFSET, FluidFiltererLayout.TANK_INNER_Y_OFFSET, FluidFiltererLayout.TANK_INNER_W, FluidFiltererLayout.TANK_INNER_H);
         draw.drawTankFrame(graphics, FluidFiltererLayout.OUTPUT_A_TANK_X, FluidFiltererLayout.OUTPUT_A_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H, FluidFiltererLayout.TANK_INNER_X_OFFSET, FluidFiltererLayout.TANK_INNER_Y_OFFSET, FluidFiltererLayout.TANK_INNER_W, FluidFiltererLayout.TANK_INNER_H);
-        drawTankFill(draw, graphics, state.inputTank(), FluidFiltererLayout.INPUT_TANK_X, FluidFiltererLayout.INPUT_TANK_Y, FluidFiltererLayout.TANK_INNER_X_OFFSET, FluidFiltererLayout.TANK_INNER_Y_OFFSET, FluidFiltererLayout.TANK_INNER_W, FluidFiltererLayout.TANK_INNER_H);
-        drawTankFill(draw, graphics, state.outputTank(), FluidFiltererLayout.OUTPUT_A_TANK_X, FluidFiltererLayout.OUTPUT_A_TANK_Y, FluidFiltererLayout.TANK_INNER_X_OFFSET, FluidFiltererLayout.TANK_INNER_Y_OFFSET, FluidFiltererLayout.TANK_INNER_W, FluidFiltererLayout.TANK_INNER_H);
+        MachineTankRenderer.drawTankFill(draw, graphics, state.inputTank(), FluidFiltererLayout.INPUT_TANK_X, FluidFiltererLayout.INPUT_TANK_Y, FluidFiltererLayout.TANK_INNER_X_OFFSET, FluidFiltererLayout.TANK_INNER_Y_OFFSET, FluidFiltererLayout.TANK_INNER_W, FluidFiltererLayout.TANK_INNER_H);
+        MachineTankRenderer.drawTankFill(draw, graphics, state.outputTank(), FluidFiltererLayout.OUTPUT_A_TANK_X, FluidFiltererLayout.OUTPUT_A_TANK_Y, FluidFiltererLayout.TANK_INNER_X_OFFSET, FluidFiltererLayout.TANK_INNER_Y_OFFSET, FluidFiltererLayout.TANK_INNER_W, FluidFiltererLayout.TANK_INNER_H);
 
         draw.drawSlotFrame(graphics, FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y);
         draw.drawSlotFrame(graphics, FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y);
@@ -1086,7 +1086,7 @@ public final class MachineGuiRenderer {
     public static void drawFluidFiltererLabels(AbstractMachineDrawMethods draw, GuiGraphics graphics, Font font, Component title, String footer) {
         graphics.drawCenteredString(font, title, draw.labelX(FluidFiltererLayout.GUI_WIDTH / 2), draw.labelY(5), 0xFFFFFFFF);
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(fluidFiltererHeight(false) - 12), FluidFiltererLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(fluidFiltererHeight(false) - 12), FluidFiltererLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -1094,15 +1094,15 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, CatalyticReformerLayout.GUI_WIDTH, catalyticReformerHeight(drawPlayerInventory));
         draw.drawPanel(graphics, CatalyticReformerLayout.MACHINE_PANEL_X, CatalyticReformerLayout.MACHINE_PANEL_Y, CatalyticReformerLayout.MACHINE_PANEL_W, CatalyticReformerLayout.MACHINE_PANEL_H, 0xFF323232);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, CatalyticReformerLayout.PLAYER_INV_X, CatalyticReformerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, CatalyticReformerLayout.PLAYER_INV_X, CatalyticReformerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
         draw.drawPanel(graphics, CatalyticReformerLayout.CENTER_PANEL_X, CatalyticReformerLayout.CENTER_PANEL_Y, CatalyticReformerLayout.CENTER_PANEL_W, CatalyticReformerLayout.CENTER_PANEL_H, 0xFF262B32);
 
-        drawCatalyticTank(draw, graphics, CatalyticReformerLayout.INPUT_1_TANK_X, state.input1Tank());
-        drawCatalyticTank(draw, graphics, CatalyticReformerLayout.INPUT_2_TANK_X, state.input2Tank());
-        drawCatalyticTank(draw, graphics, CatalyticReformerLayout.OUTPUT_1_TANK_X, state.output1Tank());
-        drawCatalyticTank(draw, graphics, CatalyticReformerLayout.OUTPUT_2_TANK_X, state.output2Tank());
-        drawCatalyticTank(draw, graphics, CatalyticReformerLayout.OUTPUT_3_TANK_X, state.output3Tank());
+        MachineTankRenderer.drawCatalyticTank(draw, graphics, CatalyticReformerLayout.INPUT_1_TANK_X, state.input1Tank());
+        MachineTankRenderer.drawCatalyticTank(draw, graphics, CatalyticReformerLayout.INPUT_2_TANK_X, state.input2Tank());
+        MachineTankRenderer.drawCatalyticTank(draw, graphics, CatalyticReformerLayout.OUTPUT_1_TANK_X, state.output1Tank());
+        MachineTankRenderer.drawCatalyticTank(draw, graphics, CatalyticReformerLayout.OUTPUT_2_TANK_X, state.output2Tank());
+        MachineTankRenderer.drawCatalyticTank(draw, graphics, CatalyticReformerLayout.OUTPUT_3_TANK_X, state.output3Tank());
 
         draw.drawSlotFrame(graphics, CatalyticReformerLayout.INPUT_1_SLOT_X, CatalyticReformerLayout.SLOT_Y);
         draw.drawSlotFrame(graphics, CatalyticReformerLayout.INPUT_2_SLOT_X, CatalyticReformerLayout.SLOT_Y);
@@ -1123,7 +1123,7 @@ public final class MachineGuiRenderer {
     public static void drawCatalyticReformerLabels(AbstractMachineDrawMethods draw, GuiGraphics graphics, Font font, Component title, String footer) {
         graphics.drawCenteredString(font, title, draw.labelX(CatalyticReformerLayout.GUI_WIDTH / 2), draw.labelY(5), 0xFFFFFFFF);
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(catalyticReformerHeight(false) - 12), CatalyticReformerLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(catalyticReformerHeight(false) - 12), CatalyticReformerLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -1131,15 +1131,15 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, SteamCrackerLayout.GUI_WIDTH, steamCrackerHeight(drawPlayerInventory));
         draw.drawPanel(graphics, SteamCrackerLayout.MACHINE_PANEL_X, SteamCrackerLayout.MACHINE_PANEL_Y, SteamCrackerLayout.MACHINE_PANEL_W, SteamCrackerLayout.MACHINE_PANEL_H, 0xFF20242C);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, SteamCrackerLayout.PLAYER_INV_X, SteamCrackerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, SteamCrackerLayout.PLAYER_INV_X, SteamCrackerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
         draw.drawPanel(graphics, SteamCrackerLayout.CENTER_PANEL_X, SteamCrackerLayout.CENTER_PANEL_Y, SteamCrackerLayout.CENTER_PANEL_W, SteamCrackerLayout.CENTER_PANEL_H, 0xFF15181E);
 
-        drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.INPUT_TANK_X, state.inputTank());
-        drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_1_TANK_X, state.output1Tank());
-        drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_2_TANK_X, state.output2Tank());
-        drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_3_TANK_X, state.output3Tank());
-        drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_4_TANK_X, state.output4Tank());
+        MachineTankRenderer.drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.INPUT_TANK_X, state.inputTank());
+        MachineTankRenderer.drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_1_TANK_X, state.output1Tank());
+        MachineTankRenderer.drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_2_TANK_X, state.output2Tank());
+        MachineTankRenderer.drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_3_TANK_X, state.output3Tank());
+        MachineTankRenderer.drawSteamCrackerTank(draw, graphics, SteamCrackerLayout.OUTPUT_4_TANK_X, state.output4Tank());
 
         draw.drawSlotFrame(graphics, SteamCrackerLayout.INPUT_SLOT_X, SteamCrackerLayout.SLOT_Y);
         draw.drawSlotFrame(graphics, SteamCrackerLayout.OUTPUT_1_SLOT_X, SteamCrackerLayout.SLOT_Y);
@@ -1165,7 +1165,7 @@ public final class MachineGuiRenderer {
             graphics.drawString(font, playerInventoryTitle, draw.labelX(SteamCrackerLayout.PLAYER_INV_X), draw.labelY(inventoryLabelY), 0xFFD0D0D0, false);
         }
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(steamCrackerHeight(false) - 12), SteamCrackerLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(steamCrackerHeight(false) - 12), SteamCrackerLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -1173,14 +1173,14 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, BTXFractionationTowerLayout.GUI_WIDTH, btxFractionationTowerHeight(drawPlayerInventory));
         draw.drawPanel(graphics, BTXFractionationTowerLayout.MACHINE_PANEL_X, BTXFractionationTowerLayout.MACHINE_PANEL_Y, BTXFractionationTowerLayout.MACHINE_PANEL_W, BTXFractionationTowerLayout.MACHINE_PANEL_H, 0xFF323232);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, BTXFractionationTowerLayout.PLAYER_INV_X, BTXFractionationTowerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, BTXFractionationTowerLayout.PLAYER_INV_X, BTXFractionationTowerLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
         draw.drawPanel(graphics, BTXFractionationTowerLayout.CENTER_PANEL_X, BTXFractionationTowerLayout.CENTER_PANEL_Y, BTXFractionationTowerLayout.CENTER_PANEL_W, BTXFractionationTowerLayout.CENTER_PANEL_H, 0xFF262B32);
 
-        drawBtxTank(draw, graphics, BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y, state.inputTank());
-        drawBtxTank(draw, graphics, BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y, state.benzeneTank());
-        drawBtxTank(draw, graphics, BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y, state.tolueneTank());
-        drawBtxTank(draw, graphics, BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y, state.xyleneTank());
+        MachineTankRenderer.drawBtxTank(draw, graphics, BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y, state.inputTank());
+        MachineTankRenderer.drawBtxTank(draw, graphics, BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y, state.benzeneTank());
+        MachineTankRenderer.drawBtxTank(draw, graphics, BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y, state.tolueneTank());
+        MachineTankRenderer.drawBtxTank(draw, graphics, BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y, state.xyleneTank());
 
         draw.drawSlotFrame(graphics, BTXFractionationTowerLayout.INPUT_SLOT_X, BTXFractionationTowerLayout.INPUT_SLOT_Y);
         draw.drawSlotFrame(graphics, BTXFractionationTowerLayout.BENZENE_SLOT_X, BTXFractionationTowerLayout.BENZENE_SLOT_Y);
@@ -1200,7 +1200,7 @@ public final class MachineGuiRenderer {
     public static void drawBTXFractionationTowerLabels(AbstractMachineDrawMethods draw, GuiGraphics graphics, Font font, Component title, String footer) {
         graphics.drawCenteredString(font, title, draw.labelX(BTXFractionationTowerLayout.GUI_WIDTH / 2), draw.labelY(5), 0xFFFFFFFF);
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(btxFractionationTowerHeight(false) - 12), BTXFractionationTowerLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(btxFractionationTowerHeight(false) - 12), BTXFractionationTowerLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -1208,7 +1208,7 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, GrowthChamberLayout.GUI_WIDTH, growthChamberHeight(drawPlayerInventory));
         draw.drawPanel(graphics, GrowthChamberLayout.MACHINE_PANEL_X, GrowthChamberLayout.MACHINE_PANEL_Y, GrowthChamberLayout.MACHINE_PANEL_W, GrowthChamberLayout.MACHINE_PANEL_H, 0xFF323232);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, GrowthChamberLayout.PLAYER_INV_X, GrowthChamberLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, GrowthChamberLayout.PLAYER_INV_X, GrowthChamberLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
 
         draw.drawTankFrame(graphics, GrowthChamberLayout.WATER_TANK_X, GrowthChamberLayout.WATER_TANK_Y, GrowthChamberLayout.TANK_W, GrowthChamberLayout.TANK_H, GrowthChamberLayout.TANK_INNER_X_OFFSET, GrowthChamberLayout.TANK_INNER_Y_OFFSET, GrowthChamberLayout.TANK_INNER_W, GrowthChamberLayout.TANK_INNER_H);
@@ -1230,7 +1230,7 @@ public final class MachineGuiRenderer {
         graphics.drawString(font, Component.translatable("screen.mydrugs.ui.growing"), draw.labelX(GrowthChamberLayout.GROWTH_PROGRESS_X), draw.labelY(GrowthChamberLayout.GROWTH_PROGRESS_Y - 10), 0xFFA9D8AC, false);
         graphics.drawString(font, Component.translatable("screen.mydrugs.ui.maturing"), draw.labelX(GrowthChamberLayout.MATURE_PROGRESS_X), draw.labelY(GrowthChamberLayout.MATURE_PROGRESS_Y - 10), 0xFFD7B78E, false);
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(growthChamberHeight(false) - 12), GrowthChamberLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(growthChamberHeight(false) - 12), GrowthChamberLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -1238,7 +1238,7 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, GasifierLayout.GUI_WIDTH, gasifierHeight(drawPlayerInventory), 0xFF181818, 0xFF262626);
         draw.drawPanel(graphics, GasifierLayout.MACHINE_PANEL_X, GasifierLayout.MACHINE_PANEL_Y, GasifierLayout.MACHINE_PANEL_W, GasifierLayout.MACHINE_PANEL_H, 0xFF323232, 0xFF595959, 0xFF101010);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, GasifierLayout.PLAYER_INV_X, GasifierLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, GasifierLayout.PLAYER_INV_X, GasifierLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
         draw.drawSlotFrame(graphics, GasifierLayout.INPUT_SLOT_X, GasifierLayout.INPUT_SLOT_Y, 0xFF8A8A8A, 0xFF111111);
         draw.drawSlotFrame(graphics, GasifierLayout.FUEL_SLOT_X, GasifierLayout.FUEL_SLOT_Y, 0xFF8A8A8A, 0xFF111111);
@@ -1246,7 +1246,7 @@ public final class MachineGuiRenderer {
         draw.drawVerticalBar(graphics, GasifierLayout.FUEL_BAR_X, GasifierLayout.FUEL_BAR_Y, GasifierLayout.FUEL_BAR_W, GasifierLayout.FUEL_BAR_H, GasifierLayout.FUEL_BAR_INNER_X_OFFSET, GasifierLayout.FUEL_BAR_INNER_Y_OFFSET, GasifierLayout.FUEL_BAR_INNER_W, GasifierLayout.FUEL_BAR_INNER_H, state.fuelPixels(), 0xFFE3A44B, 0xFFFFD28E);
         draw.drawHorizontalBar(graphics, GasifierLayout.PROGRESS_X, GasifierLayout.PROGRESS_Y, GasifierLayout.PROGRESS_W, GasifierLayout.PROGRESS_H, state.progressPixels(), 0xFF88B85D, 0xFFD8EEA9);
         draw.drawTankFrame(graphics, GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_W, GasifierLayout.TANK_H, GasifierLayout.TANK_INNER_X_OFFSET, GasifierLayout.TANK_INNER_Y_OFFSET, GasifierLayout.TANK_INNER_W, GasifierLayout.TANK_INNER_H);
-        drawTankFill(draw, graphics, state.outputTank(), GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_INNER_X_OFFSET, GasifierLayout.TANK_INNER_Y_OFFSET, GasifierLayout.TANK_INNER_W, GasifierLayout.TANK_INNER_H);
+        MachineTankRenderer.drawTankFill(draw, graphics, state.outputTank(), GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_INNER_X_OFFSET, GasifierLayout.TANK_INNER_Y_OFFSET, GasifierLayout.TANK_INNER_W, GasifierLayout.TANK_INNER_H);
     }
 
     public static void drawGasifierLabels(AbstractMachineDrawMethods draw, GuiGraphics graphics, Font font, Component title, Component playerInventoryTitle, int inventoryLabelY, String footer) {
@@ -1256,7 +1256,7 @@ public final class MachineGuiRenderer {
             graphics.drawString(font, playerInventoryTitle, draw.labelX(GasifierLayout.PLAYER_INV_X), draw.labelY(inventoryLabelY), 0xFFD0D0D0, false);
         }
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(gasifierHeight(false) - 12), GasifierLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(gasifierHeight(false) - 12), GasifierLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
@@ -1264,12 +1264,12 @@ public final class MachineGuiRenderer {
         draw.drawWindow(graphics, SieveLayout.GUI_WIDTH, sieveHeight(drawPlayerInventory), 0xFF181818, 0xFF262626);
         draw.drawPanel(graphics, SieveLayout.MACHINE_PANEL_X, SieveLayout.MACHINE_PANEL_Y, SieveLayout.MACHINE_PANEL_W, SieveLayout.MACHINE_PANEL_H, 0xFF323232, 0xFF595959, 0xFF101010);
         if (drawPlayerInventory) {
-            drawStandardInventoryPanels(draw, graphics, SieveLayout.PLAYER_INV_X, SieveLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
+            MachineGuiPanels.drawStandardInventoryPanels(draw, graphics, SieveLayout.PLAYER_INV_X, SieveLayout.PLAYER_INV_Y, 0xFF2C2C2C, 0xFF595959, 0xFF101010);
         }
         draw.drawSlotFrame(graphics, SieveLayout.INPUT_X, SieveLayout.INPUT_Y, 0xFF8A8A8A, 0xFF111111);
         draw.drawSlotFrame(graphics, SieveLayout.RESULT_X, SieveLayout.RESULT_Y, 0xFF8A8A8A, 0xFF111111);
         draw.drawSlotFrame(graphics, SieveLayout.BONUS_X, SieveLayout.BONUS_Y, 0xFF8A8A8A, 0xFF111111);
-        drawSieveWidget(draw, graphics, state.knobCenterY());
+        MachineGuiWidgets.drawSieveWidget(draw, graphics, state.knobCenterY());
     }
 
     public static void drawSieve(AbstractMachineDrawMethods draw, GuiGraphics graphics, int knobCenterY, boolean drawPlayerInventory) {
@@ -1283,409 +1283,172 @@ public final class MachineGuiRenderer {
             graphics.drawString(font, playerInventoryTitle, draw.labelX(SieveLayout.PLAYER_INV_X), draw.labelY(inventoryLabelY), 0xFFD0D0D0, false);
         }
         if (footer != null) {
-            drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(sieveHeight(false) - 12), SieveLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
+            MachineGuiText.drawCentered(graphics, font, footer, draw.labelX(5), draw.labelY(sieveHeight(false) - 12), SieveLayout.GUI_WIDTH - 10, 0xFFE5E7EB);
         }
     }
 
     public static int advancedFurnaceHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? AdvancedFurnaceLayout.GUI_HEIGHT
-                : AdvancedFurnaceLayout.MACHINE_PANEL_Y + AdvancedFurnaceLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.advancedFurnaceHeight(includePlayerInventory);
     }
 
     public static int aromaticExtractorHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? AromaticExtractorLayout.GUI_HEIGHT
-                : AromaticExtractorLayout.MACHINE_PANEL_Y + AromaticExtractorLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.aromaticExtractorHeight(includePlayerInventory);
     }
 
     public static int biochemicalReactorHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? BiochemicalReactorLayout.GUI_HEIGHT
-                : BiochemicalReactorLayout.MACHINE_PANEL_Y + BiochemicalReactorLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.biochemicalReactorHeight(includePlayerInventory);
     }
 
     public static int advancedMixingVatHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? AdvancedMixingVatLayout.GUI_HEIGHT
-                : AdvancedMixingVatLayout.MACHINE_PANEL_Y + AdvancedMixingVatLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.advancedMixingVatHeight(includePlayerInventory);
     }
 
     public static int centrifugeHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? CentrifugeLayout.GUI_HEIGHT
-                : CentrifugeLayout.MACHINE_PANEL_Y + CentrifugeLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.centrifugeHeight(includePlayerInventory);
     }
 
     public static int chemicalReactorHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? ChemicalReactorLayout.GUI_HEIGHT
-                : ChemicalReactorLayout.MACHINE_PANEL_Y + ChemicalReactorLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.chemicalReactorHeight(includePlayerInventory);
     }
 
     public static int distillerHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? DistillerLayout.GUI_HEIGHT
-                : DistillerLayout.MACHINE_PANEL_Y + DistillerLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.distillerHeight(includePlayerInventory);
     }
 
     public static int electrolyzerHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? ElectrolyzerLayout.GUI_HEIGHT
-                : ElectrolyzerLayout.MACHINE_PANEL_Y + ElectrolyzerLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.electrolyzerHeight(includePlayerInventory);
     }
 
     public static int fluidFiltererHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? FluidFiltererLayout.GUI_HEIGHT
-                : FluidFiltererLayout.MACHINE_PANEL_Y + FluidFiltererLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.fluidFiltererHeight(includePlayerInventory);
     }
 
     public static int catalyticReformerHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? CatalyticReformerLayout.GUI_HEIGHT
-                : CatalyticReformerLayout.MACHINE_PANEL_Y + CatalyticReformerLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.catalyticReformerHeight(includePlayerInventory);
     }
 
     public static int steamCrackerHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? SteamCrackerLayout.GUI_HEIGHT
-                : SteamCrackerLayout.MACHINE_PANEL_Y + SteamCrackerLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.steamCrackerHeight(includePlayerInventory);
     }
 
     public static int btxFractionationTowerHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? BTXFractionationTowerLayout.GUI_HEIGHT
-                : BTXFractionationTowerLayout.MACHINE_PANEL_Y + BTXFractionationTowerLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.btxFractionationTowerHeight(includePlayerInventory);
     }
 
     public static int growthChamberHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? GrowthChamberLayout.GUI_HEIGHT
-                : GrowthChamberLayout.MACHINE_PANEL_Y + GrowthChamberLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.growthChamberHeight(includePlayerInventory);
     }
 
     public static int gasifierHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? GasifierLayout.GUI_HEIGHT
-                : GasifierLayout.MACHINE_PANEL_Y + GasifierLayout.MACHINE_PANEL_H + 14;
+        return MachineGuiHeights.gasifierHeight(includePlayerInventory);
+    }
+
+    public static int psychotropeDistilleryHeight(boolean includePlayerInventory) {
+        return MachineGuiHeights.psychotropeDistilleryHeight(includePlayerInventory);
+    }
+
+    /** Per-frame state for the Psychotrope Distillery. */
+    public record PsychotropeDistilleryState(int progressPixels, int burnPixels) {
+        public static PsychotropeDistilleryState recipe() {
+            return new PsychotropeDistilleryState(
+                    PsychotropeDistilleryLayout.PROGRESS_W,
+                    PsychotropeDistilleryLayout.BURN_W
+            );
+        }
+    }
+
+    /**
+     * Renders the Psychotrope Distillery GUI (used by both the in-world screen and the JEI category).
+     * The slot frames and bars come from {@link PsychotropeDistilleryLayout}, so the JEI preview
+     * shares the screen's exact geometry.
+     */
+    public static void drawPsychotropeDistillery(
+            AbstractMachineDrawMethods draw,
+            GuiGraphics graphics,
+            PsychotropeDistilleryState state,
+            boolean drawPlayerInventory
+    ) {
+        draw.drawWindow(
+                graphics,
+                PsychotropeDistilleryLayout.GUI_WIDTH,
+                psychotropeDistilleryHeight(drawPlayerInventory),
+                0xFF15171B,
+                0xFF23262B
+        );
+        draw.drawPanel(
+                graphics,
+                PsychotropeDistilleryLayout.MACHINE_PANEL_X,
+                PsychotropeDistilleryLayout.MACHINE_PANEL_Y,
+                PsychotropeDistilleryLayout.MACHINE_PANEL_W,
+                PsychotropeDistilleryLayout.MACHINE_PANEL_H,
+                0xFF20242B,
+                0xFF646B77,
+                0xFF0E1116
+        );
+
+        if (drawPlayerInventory) {
+            MachineGuiPanels.drawStandardInventoryPanels(
+                    draw,
+                    graphics,
+                    PsychotropeDistilleryLayout.PLAYER_INV_X,
+                    PsychotropeDistilleryLayout.PLAYER_INV_Y,
+                    0xFF2C2C2C,
+                    0xFF595959,
+                    0xFF101010
+            );
+        }
+
+        draw.drawSlotFrame(graphics, PsychotropeDistilleryLayout.DRUG_SLOT_X, PsychotropeDistilleryLayout.DRUG_SLOT_Y);
+        draw.drawSlotFrame(graphics, PsychotropeDistilleryLayout.REAGENT_SLOT_X, PsychotropeDistilleryLayout.REAGENT_SLOT_Y);
+        draw.drawSlotFrame(graphics, PsychotropeDistilleryLayout.FUEL_SLOT_X, PsychotropeDistilleryLayout.FUEL_SLOT_Y);
+        draw.drawSlotFrame(graphics, PsychotropeDistilleryLayout.EXTRACT_SLOT_X, PsychotropeDistilleryLayout.EXTRACT_SLOT_Y);
+        draw.drawSlotFrame(graphics, PsychotropeDistilleryLayout.RESIDUE_SLOT_X, PsychotropeDistilleryLayout.RESIDUE_SLOT_Y);
+
+        draw.drawHorizontalBar(
+                graphics,
+                PsychotropeDistilleryLayout.PROGRESS_X,
+                PsychotropeDistilleryLayout.PROGRESS_Y,
+                PsychotropeDistilleryLayout.PROGRESS_W,
+                PsychotropeDistilleryLayout.PROGRESS_H,
+                state.progressPixels(),
+                0xFF8ED1C6,
+                0xFFCCFFF7
+        );
+        draw.drawHorizontalBar(
+                graphics,
+                PsychotropeDistilleryLayout.BURN_X,
+                PsychotropeDistilleryLayout.BURN_Y,
+                PsychotropeDistilleryLayout.BURN_W,
+                PsychotropeDistilleryLayout.BURN_H,
+                state.burnPixels(),
+                0xFFFF8A30,
+                0xFFFFD38A
+        );
+    }
+
+    public static void drawPsychotropeDistilleryLabels(
+            AbstractMachineDrawMethods draw,
+            GuiGraphics graphics,
+            Font font,
+            Component title,
+            String footer
+    ) {
+        graphics.drawString(font, title, draw.labelX(8), draw.labelY(6), 0xFFE8ECEF, false);
+        if (footer != null && !footer.isBlank()) {
+            MachineGuiText.drawCentered(
+                    graphics,
+                    font,
+                    footer,
+                    draw.labelX(5),
+                    draw.labelY(psychotropeDistilleryHeight(false) - 12),
+                    PsychotropeDistilleryLayout.GUI_WIDTH - 10,
+                    0xFFE5E7EB
+            );
+        }
     }
 
     public static int sieveHeight(boolean includePlayerInventory) {
-        return includePlayerInventory
-                ? SieveLayout.GUI_HEIGHT
-                : SieveLayout.MACHINE_PANEL_Y + SieveLayout.MACHINE_PANEL_H + 14;
-    }
-
-    private static void drawAdvancedFurnaceInventoryPanels(AbstractMachineDrawMethods draw, GuiGraphics graphics) {
-        draw.drawPanel(
-                graphics,
-                AdvancedFurnaceLayout.PLAYER_INV_X,
-                AdvancedFurnaceLayout.PLAYER_INV_Y,
-                StandardInventoryLayout.PLAYER_INV_PANEL_W,
-                StandardInventoryLayout.PLAYER_INV_PANEL_H,
-                0xFF2A2D33,
-                0xFF5C616B,
-                0xFF0E1014
-        );
-
-        draw.drawPanel(
-                graphics,
-                AdvancedFurnaceLayout.PLAYER_INV_X,
-                StandardInventoryLayout.hotbarPanelY(AdvancedFurnaceLayout.PLAYER_INV_Y),
-                StandardInventoryLayout.HOTBAR_PANEL_W,
-                StandardInventoryLayout.HOTBAR_PANEL_H,
-                0xFF2A2D33,
-                0xFF5C616B,
-                0xFF0E1014
-        );
-    }
-
-    private static void drawAdvancedFurnaceTank(AbstractMachineDrawMethods draw, GuiGraphics graphics, TankFill fill) {
-        drawTankFill(
-                draw,
-                graphics,
-                fill,
-                AdvancedFurnaceLayout.TANK_X,
-                AdvancedFurnaceLayout.TANK_Y,
-                StandardTankLayout.INNER_X,
-                StandardTankLayout.INNER_Y,
-                StandardTankLayout.INNER_W,
-                StandardTankLayout.INNER_H
-        );
-    }
-
-    private static void drawStandardInventoryPanels(
-            AbstractMachineDrawMethods draw,
-            GuiGraphics graphics,
-            int x,
-            int y,
-            int fillColor,
-            int lightBorderColor,
-            int darkBorderColor
-    ) {
-        draw.drawPanel(
-                graphics,
-                x,
-                y,
-                StandardInventoryLayout.PLAYER_INV_PANEL_W,
-                StandardInventoryLayout.PLAYER_INV_PANEL_H,
-                fillColor,
-                lightBorderColor,
-                darkBorderColor
-        );
-
-        draw.drawPanel(
-                graphics,
-                x,
-                StandardInventoryLayout.hotbarPanelY(y),
-                StandardInventoryLayout.HOTBAR_PANEL_W,
-                StandardInventoryLayout.HOTBAR_PANEL_H,
-                fillColor,
-                lightBorderColor,
-                darkBorderColor
-        );
-    }
-
-    private static void drawTankFill(
-            AbstractMachineDrawMethods draw,
-            GuiGraphics graphics,
-            TankFill fill,
-            int tankX,
-            int tankY,
-            int innerOffsetX,
-            int innerOffsetY,
-            int innerW,
-            int innerH
-    ) {
-        if (fill == null || fill.isEmpty()) {
-            return;
-        }
-
-        if (fill.filledPixels() >= 0) {
-            int color = fill.color() != 0 ? fill.color() : draw.getFluidColor(fill.fluid());
-            if (fill.topLit()) {
-                draw.drawTankFillTopLit(
-                        graphics,
-                        tankX,
-                        tankY,
-                        innerOffsetX,
-                        innerOffsetY,
-                        innerW,
-                        innerH,
-                        fill.filledPixels(),
-                        color,
-                        draw.lighten(color, 1.20f)
-                );
-            } else {
-                draw.drawTankFillShaded(
-                        graphics,
-                        tankX,
-                        tankY,
-                        innerOffsetX,
-                        innerOffsetY,
-                        innerW,
-                        innerH,
-                        fill.filledPixels(),
-                        color
-                );
-            }
-            return;
-        }
-
-        if (fill.gasId() != null) {
-            draw.drawGasTankPreview(
-                    graphics,
-                    fill.gasId(),
-                    fill.amount(),
-                    fill.capacity(),
-                    tankX,
-                    tankY,
-                    innerOffsetX,
-                    innerOffsetY,
-                    innerW,
-                    innerH
-            );
-            return;
-        }
-
-        draw.drawFluidTankPreview(
-                graphics,
-                fill.fluid(),
-                (int) fill.amount(),
-                (int) fill.capacity(),
-                tankX,
-                tankY,
-                innerOffsetX,
-                innerOffsetY,
-                innerW,
-                innerH
-        );
-    }
-
-    private static void drawSlotCount(AbstractMachineDrawMethods draw, GuiGraphics graphics, int slotX, int slotY, int count) {
-        if (count <= 1) {
-            return;
-        }
-        graphics.drawString(Minecraft.getInstance().font, "x" + count, draw.guiX(slotX + 9), draw.guiY(slotY + 10), 0xFFF0D57A, false);
-    }
-
-    private static int[] advancedMixingVatItemX() {
-        return new int[]{
-                AdvancedMixingVatLayout.ITEM_0_X,
-                AdvancedMixingVatLayout.ITEM_1_X,
-                AdvancedMixingVatLayout.ITEM_2_X,
-                AdvancedMixingVatLayout.ITEM_3_X
-        };
-    }
-
-    private static int[] advancedMixingVatItemY() {
-        return new int[]{
-                AdvancedMixingVatLayout.ITEM_0_Y,
-                AdvancedMixingVatLayout.ITEM_1_Y,
-                AdvancedMixingVatLayout.ITEM_2_Y,
-                AdvancedMixingVatLayout.ITEM_3_Y
-        };
-    }
-
-    private static int[] advancedMixingVatTankX() {
-        return new int[]{
-                AdvancedMixingVatLayout.TANK_A_X,
-                AdvancedMixingVatLayout.TANK_B_X,
-                AdvancedMixingVatLayout.TANK_C_X,
-                AdvancedMixingVatLayout.GAS_X,
-                AdvancedMixingVatLayout.OUTPUT_X
-        };
-    }
-
-    private static int[] advancedMixingVatTankSlotX() {
-        return new int[]{
-                AdvancedMixingVatLayout.TANK_A_SLOT_X,
-                AdvancedMixingVatLayout.TANK_B_SLOT_X,
-                AdvancedMixingVatLayout.TANK_C_SLOT_X,
-                AdvancedMixingVatLayout.GAS_SLOT_X,
-                AdvancedMixingVatLayout.OUTPUT_SLOT_X
-        };
-    }
-
-    private static void drawDistillerReactor(AbstractMachineDrawMethods draw, GuiGraphics graphics, boolean hovered, boolean working, boolean boosted) {
-        int x = DistillerLayout.RUN_BUTTON_X;
-        int y = DistillerLayout.RUN_BUTTON_Y;
-        int cx = x + DistillerLayout.RUN_BUTTON_SIZE / 2;
-        int cy = y + DistillerLayout.RUN_BUTTON_SIZE / 2;
-
-        if (hovered) {
-            graphics.fill(draw.guiX(x + 2), draw.guiY(y + 2), draw.guiX(x + DistillerLayout.RUN_BUTTON_SIZE - 2), draw.guiY(y + DistillerLayout.RUN_BUTTON_SIZE - 2), 0x16FFFFFF);
-        }
-
-        draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_OUTER_RADIUS + 2, 0xFF818793);
-        draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_OUTER_RADIUS, 0xFF20242B);
-        draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_OUTER_RADIUS - 3, 0xFF9FA7B4);
-        draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_OUTER_RADIUS - 5, 0xFF3E4652);
-
-        int coreColor = boosted ? 0xFF6FD6FF : working ? 0xFFE8E8E8 : 0xFF90959E;
-        draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_INNER_RADIUS, 0xFF2D333B);
-        draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_CORE_RADIUS, coreColor);
-
-        if (boosted) {
-            draw.drawCircle(graphics, cx, cy, DistillerLayout.REACTOR_CORE_RADIUS + 3, 0x336FD6FF);
-        }
-    }
-
-    private static void drawCatalyticTank(AbstractMachineDrawMethods draw, GuiGraphics graphics, int tankX, TankFill fill) {
-        draw.drawTankFrame(
-                graphics,
-                tankX,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_W,
-                CatalyticReformerLayout.TANK_H,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-        drawTankFill(
-                draw,
-                graphics,
-                fill,
-                tankX,
-                CatalyticReformerLayout.TANK_Y,
-                CatalyticReformerLayout.TANK_INNER_X_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_Y_OFFSET,
-                CatalyticReformerLayout.TANK_INNER_W,
-                CatalyticReformerLayout.TANK_INNER_H
-        );
-    }
-
-    private static void drawSteamCrackerTank(AbstractMachineDrawMethods draw, GuiGraphics graphics, int tankX, TankFill fill) {
-        draw.drawTankFrame(
-                graphics,
-                tankX,
-                SteamCrackerLayout.TANK_Y,
-                SteamCrackerLayout.TANK_W,
-                SteamCrackerLayout.TANK_H,
-                StandardTankLayout.INNER_X,
-                StandardTankLayout.INNER_Y,
-                StandardTankLayout.INNER_W,
-                SteamCrackerLayout.TANK_INNER_H
-        );
-        drawTankFill(
-                draw,
-                graphics,
-                fill,
-                tankX,
-                SteamCrackerLayout.TANK_Y,
-                StandardTankLayout.INNER_X,
-                StandardTankLayout.INNER_Y,
-                StandardTankLayout.INNER_W,
-                SteamCrackerLayout.TANK_INNER_H
-        );
-    }
-
-    private static void drawBtxTank(AbstractMachineDrawMethods draw, GuiGraphics graphics, int tankX, int tankY, TankFill fill) {
-        draw.drawTankFrame(
-                graphics,
-                tankX,
-                tankY,
-                BTXFractionationTowerLayout.TANK_W,
-                BTXFractionationTowerLayout.TANK_H,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-        drawTankFill(
-                draw,
-                graphics,
-                fill,
-                tankX,
-                tankY,
-                BTXFractionationTowerLayout.TANK_INNER_X_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_Y_OFFSET,
-                BTXFractionationTowerLayout.TANK_INNER_W,
-                BTXFractionationTowerLayout.TANK_INNER_H
-        );
-    }
-
-    private static void drawSieveWidget(AbstractMachineDrawMethods draw, GuiGraphics graphics, int knobCenterY) {
-        int trackLeft = draw.guiX(SieveLayout.WIDGET_X);
-        int trackTop = draw.guiY(SieveLayout.WIDGET_Y);
-
-        graphics.fill(trackLeft - 2, trackTop - 2, trackLeft + SieveLayout.WIDGET_W + 2, trackTop + SieveLayout.WIDGET_H + 2, 0xFF5A5A5A);
-        graphics.fill(trackLeft - 1, trackTop - 1, trackLeft + SieveLayout.WIDGET_W + 1, trackTop + SieveLayout.WIDGET_H + 1, 0xFF161616);
-        graphics.fill(trackLeft + 7, trackTop + 2, trackLeft + 11, trackTop + SieveLayout.WIDGET_H - 2, 0xFF090909);
-        graphics.fill(trackLeft + 5, trackTop + 1, trackLeft + 13, trackTop + 3, 0xFF727272);
-        graphics.fill(trackLeft + 5, trackTop + SieveLayout.WIDGET_H - 3, trackLeft + 13, trackTop + SieveLayout.WIDGET_H - 1, 0xFF0E0E0E);
-
-        int centerX = SieveLayout.WIDGET_X + SieveLayout.WIDGET_W / 2;
-        draw.drawCircle(graphics, centerX, knobCenterY, 6, 0xFFBABABA);
-        draw.drawCircle(graphics, centerX, knobCenterY, 5, 0xFF3B3B3B);
-        draw.drawCircle(graphics, centerX - 1, knobCenterY - 1, 1, 0xFFE8E8E8);
-    }
-
-    private static void drawCentered(GuiGraphics graphics, Font font, String text, int x, int y, int width, int color) {
-        String clipped = font.plainSubstrByWidth(text, width);
-        graphics.drawString(font, clipped, x + Math.max(0, (width - font.width(clipped)) / 2), y, color, false);
+        return MachineGuiHeights.sieveHeight(includePlayerInventory);
     }
 
 }

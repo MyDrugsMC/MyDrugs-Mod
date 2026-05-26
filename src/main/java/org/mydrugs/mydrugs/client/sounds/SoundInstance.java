@@ -12,24 +12,30 @@ public class SoundInstance extends AbstractTickableSoundInstance {
     private int ticksLeft;
     private int fadeTicksLeft;
     private int fadeDurationTicks;
+    private float baseVolume;
 
     public SoundInstance(SoundEvent event, Player player, int durationTicks) {
-        this(event, player, durationTicks, 0, 0);
+        this(event, player, durationTicks, 0, 0, 1.0F);
     }
 
     public SoundInstance(SoundEvent event, Player player, int durationTicks, int fadeTicksLeft, int fadeDurationTicks) {
+        this(event, player, durationTicks, fadeTicksLeft, fadeDurationTicks, 1.0F);
+    }
+
+    public SoundInstance(SoundEvent event, Player player, int durationTicks, int fadeTicksLeft, int fadeDurationTicks, float baseVolume) {
         super(event, SoundSource.PLAYERS, RandomSource.create());
 
         this.player = player;
         this.ticksLeft = durationTicks;
         this.fadeTicksLeft = Math.max(0, Math.min(fadeTicksLeft, durationTicks));
         this.fadeDurationTicks = Math.max(0, fadeDurationTicks);
+        this.baseVolume = Math.max(0.0F, Math.min(1.0F, baseVolume));
 
         this.looping = true;
         this.delay = 0;
-        this.volume = fadeTicksLeft > 0 && fadeDurationTicks > 0
+        this.volume = this.baseVolume * (fadeTicksLeft > 0 && fadeDurationTicks > 0
                 ? Math.max(0.0F, Math.min(1.0F, fadeTicksLeft / (float) fadeDurationTicks))
-                : 1.0F;
+                : 1.0F);
         this.pitch = 1.0F;
 
         // Keep the sound local to the player instead of relying on world attenuation.
@@ -62,7 +68,7 @@ public class SoundInstance extends AbstractTickableSoundInstance {
         if (fadeTicksLeft > 0) {
             fadeTicksLeft--;
             int duration = Math.max(1, fadeDurationTicks);
-            this.volume = Math.max(0.0F, Math.min(1.0F, fadeTicksLeft / (float) duration));
+            this.volume = baseVolume * Math.max(0.0F, Math.min(1.0F, fadeTicksLeft / (float) duration));
         }
 
         if (ticksLeft <= 0 && fadeTicksLeft <= 0) {
@@ -75,12 +81,17 @@ public class SoundInstance extends AbstractTickableSoundInstance {
     }
 
     public void refreshDuration(int durationTicks, int fadeTicksLeft, int fadeDurationTicks) {
+        refreshDuration(durationTicks, fadeTicksLeft, fadeDurationTicks, this.baseVolume);
+    }
+
+    public void refreshDuration(int durationTicks, int fadeTicksLeft, int fadeDurationTicks, float baseVolume) {
         this.ticksLeft = Math.max(this.ticksLeft, durationTicks);
+        this.baseVolume = Math.max(0.0F, Math.min(1.0F, baseVolume));
         if (fadeTicksLeft > 0 && fadeDurationTicks > 0) {
             this.fadeTicksLeft = Math.min(fadeTicksLeft, this.ticksLeft);
             this.fadeDurationTicks = fadeDurationTicks;
         } else if (this.fadeTicksLeft <= 0) {
-            this.volume = 1.0F;
+            this.volume = this.baseVolume;
         }
     }
 

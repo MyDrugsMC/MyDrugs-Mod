@@ -2,10 +2,10 @@
   "render_type": "minecraft:cutout",
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "minecraft:block/terracotta",
-    "side": "minecraft:block/red_terracotta",
-    "bottom": "minecraft:block/terracotta",
-    "inside": "minecraft:block/black_concrete"
+    "particle": "mydrugs:block/painted_clay_bowl_side",
+    "side": "mydrugs:block/painted_clay_bowl_side",
+    "bottom": "mydrugs:block/painted_clay_bowl_bottom",
+    "inside": "mydrugs:block/painted_clay_bowl_inside"
   },
   "elements": [
     {

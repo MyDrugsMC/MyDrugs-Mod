@@ -8,6 +8,8 @@ import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.diary.DiaryEntry;
+import org.mydrugs.mydrugs.diary.DiaryEntryType;
 import org.mydrugs.mydrugs.diary.PlayerDiaryAttachment;
 
 public final class PsycheMapManager {
@@ -38,7 +40,43 @@ public final class PsycheMapManager {
                 dominant
         );
         PacketDistributor.sendToPlayer(player, payload);
+
+        appendMemoryDiaryEntry(player, nodeId, day, gameTime, dominant);
         return true;
+    }
+
+    /**
+     * Appends a narrative entry to the player's diary referencing the freshly unlocked memory.
+     * The {@code sourceKey} carries the node id with the {@code memory:} prefix so the diary
+     * screen can render the entry as a link back to the mind map.
+     */
+    private static void appendMemoryDiaryEntry(
+            ServerPlayer player,
+            ResourceLocation nodeId,
+            long day,
+            long gameTime,
+            String dominant
+    ) {
+        PlayerDiaryAttachment diary = player.getData(ModAttachments.PLAYER_DIARY);
+        if (diary == null) {
+            return;
+        }
+        String memoryName = nodeId.getPath().replace('_', ' ');
+        String content = PlayerDiaryAttachment.sanitizeCustomContent(
+                "Something settled in me today: " + memoryName + ". "
+                        + "It is part of my mind map now — a place I can come back to."
+        );
+        if (content == null || content.isEmpty()) {
+            return;
+        }
+        diary.append(new DiaryEntry(
+                day,
+                gameTime,
+                DiaryEntryType.AUTO,
+                content,
+                "memory:" + nodeId,
+                dominant
+        ));
     }
 
     private static String dominantDrugId(ServerPlayer player) {

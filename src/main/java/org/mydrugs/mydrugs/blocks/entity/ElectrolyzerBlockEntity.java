@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
@@ -195,7 +195,7 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
             return;
         }
 
-        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        boolean poweredByEnergy = PsyCurrentMachines.tryUseCurrentTick(be);
         if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }

@@ -16,7 +16,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.mydrugs.mydrugs.blocks.FluidPumpBlock;
 import org.mydrugs.mydrugs.blocks.FluidPumpLoggedFluid;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 
 public class FluidPumpBlockEntity extends BlockEntity {
     private static final int MAX_MANUAL_CREDIT = 5000;
@@ -44,7 +44,7 @@ public class FluidPumpBlockEntity extends BlockEntity {
             return;
         }
 
-        if (PsychotropeEnergyMachines.tryUseAutomationEnergyTick(be)) {
+        if (PsyCurrentMachines.tryUseAutomationCurrentTick(be)) {
             be.pumpAutomatically(serverLevel, Direction.UP, 50);
         }
     }

@@ -166,24 +166,41 @@ public class ModSimpleClientItemProvider implements DataProvider {
         )) {
             futures.add(saveFlatItem(cachedOutput, itemName, "mydrugs:item/" + itemName));
         }
-        futures.add(saveFlatItem(cachedOutput, "aloe_vera", "minecraft:item/cactus"));
-        futures.add(saveFlatItem(cachedOutput, "aloe_vera_seeds", "minecraft:item/wheat_seeds"));
-        futures.add(saveFlatItem(cachedOutput, "lavender", "minecraft:item/lilac"));
-        futures.add(saveFlatItem(cachedOutput, "dried_lavender", "minecraft:item/purple_dye"));
-        futures.add(saveFlatItem(cachedOutput, "lavender_seeds", "minecraft:item/wheat_seeds"));
-        futures.add(saveFlatItem(cachedOutput, "valerian_root", "minecraft:item/beetroot"));
-        futures.add(saveFlatItem(cachedOutput, "valerian_seeds", "minecraft:item/wheat_seeds"));
-        futures.add(saveFlatItem(cachedOutput, "blank_music_disc", "minecraft:item/music_disc_11"));
-        futures.add(saveFlatItem(cachedOutput, "personal_music_disc", "minecraft:item/music_disc_ward"));
+        futures.add(saveFlatItem(cachedOutput, "aloe_vera", "mydrugs:item/aloe_vera"));
+        futures.add(saveFlatItem(cachedOutput, "aloe_vera_seeds", "mydrugs:item/aloe_vera_seeds"));
+        futures.add(saveFlatItem(cachedOutput, "lavender", "mydrugs:item/lavender"));
+        futures.add(saveFlatItem(cachedOutput, "dried_lavender", "mydrugs:item/dried_lavender"));
+        futures.add(saveFlatItem(cachedOutput, "lavender_seeds", "mydrugs:item/lavender_seeds"));
+        futures.add(saveFlatItem(cachedOutput, "valerian_root", "mydrugs:item/valerian_root"));
+        futures.add(saveFlatItem(cachedOutput, "valerian_seeds", "mydrugs:item/valerian_seeds"));
+        futures.add(saveFlatItem(cachedOutput, "blank_music_disc", "mydrugs:item/blank_music_disc"));
+        futures.add(saveFlatItem(cachedOutput, "personal_music_disc", "mydrugs:item/personal_music_disc"));
         futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
-        futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "minecraft:item/ghast_tear"));
-        futures.add(saveFlatItem(cachedOutput, "progression_guide", "minecraft:item/written_book"));
-        futures.add(saveFlatItem(cachedOutput, "adn_scraper", "minecraft:item/shears"));
-        futures.add(saveFlatItem(cachedOutput, "adn_scrap", "minecraft:item/paper"));
-        futures.add(saveFlatItem(cachedOutput, "adn_gene", "minecraft:item/amethyst_shard"));
-        futures.add(saveFlatItem(cachedOutput, "mutation_vector", "minecraft:item/glass_bottle"));
-        futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "minecraft:item/honey_bottle"));
-        futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "minecraft:item/slime_ball"));
+        futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "mydrugs:item/inner_demon_remains"));
+        futures.add(saveFlatItem(cachedOutput, "progression_guide", "mydrugs:item/progression_guide"));
+        futures.add(saveFlatItem(cachedOutput, "adn_scraper", "mydrugs:item/adn_scraper"));
+        futures.add(saveFlatItem(cachedOutput, "adn_scrap", "mydrugs:item/adn_scrap"));
+        futures.add(saveFlatItem(cachedOutput, "adn_gene", "mydrugs:item/adn_gene"));
+        futures.add(saveFlatItem(cachedOutput, "mutation_vector", "mydrugs:item/mutation_vector"));
+        futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "mydrugs:item/mutagenic_blood_vial"));
+        futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "mydrugs:item/nutrient_gel"));
+
+        // Phase D extracts / materials / components — placeholder textures until art lands.
+        futures.add(saveFlatItem(cachedOutput, "lucid_extract", "mydrugs:item/lucid_extract"));
+        futures.add(saveFlatItem(cachedOutput, "calming_resin", "mydrugs:item/calming_resin"));
+        futures.add(saveFlatItem(cachedOutput, "redline_fuel", "mydrugs:item/redline_fuel"));
+        futures.add(saveFlatItem(cachedOutput, "overdrive_fuel", "mydrugs:item/overdrive_fuel"));
+        futures.add(saveFlatItem(cachedOutput, "unstable_essence", "mydrugs:item/unstable_essence"));
+        futures.add(saveFlatItem(cachedOutput, "dream_residue", "mydrugs:item/dream_residue"));
+        futures.add(saveFlatItem(cachedOutput, "mycelial_insight", "mydrugs:item/mycelial_insight"));
+        futures.add(saveFlatItem(cachedOutput, "bitter_residue", "mydrugs:item/bitter_residue"));
+        futures.add(saveFlatItem(cachedOutput, "burnt_nerve_residue", "mydrugs:item/burnt_nerve_residue"));
+        futures.add(saveFlatItem(cachedOutput, "spent_filter", "mydrugs:item/spent_filter"));
+        futures.add(saveFlatItem(cachedOutput, "distillation_coil", "mydrugs:item/distillation_coil"));
+        futures.add(saveFlatItem(cachedOutput, "current_regulator", "mydrugs:item/current_regulator"));
+        futures.add(saveFlatItem(cachedOutput, "strain_vent", "mydrugs:item/strain_vent"));
+        futures.add(saveFlatItem(cachedOutput, "resonance_lens", "mydrugs:item/resonance_lens"));
+        futures.add(saveFlatItem(cachedOutput, "integration_core", "mydrugs:item/integration_core"));
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

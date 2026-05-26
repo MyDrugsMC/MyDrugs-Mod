@@ -35,6 +35,11 @@ public final class ActiveDrugEffect {
         return remainingTicks + fadeTicksRemaining;
     }
 
+    /** Raw active-phase ticks remaining, excluding the fade tail. Used for persistence. */
+    public int activeTicks() {
+        return remainingTicks;
+    }
+
     public int fadeTicksRemaining() {
         return fadeTicksRemaining;
     }
@@ -97,6 +102,23 @@ public final class ActiveDrugEffect {
         copy.fadeTicksRemaining = this.fadeTicksRemaining;
         copy.fadeDurationTicks = this.fadeDurationTicks;
         return copy;
+    }
+
+    /**
+     * Rebuilds an effect from persisted state. All inputs are clamped/validated so corrupt or
+     * out-of-range save data cannot produce a poisoned runtime entry.
+     */
+    public static ActiveDrugEffect restore(EffectType type, float baseIntensity, int activeTicks,
+                                            int fadeTicksRemaining, int fadeDurationTicks) {
+        ActiveDrugEffect effect = new ActiveDrugEffect(type, baseIntensity, Math.max(0, activeTicks));
+        effect.fadeDurationTicks = Math.max(0, fadeDurationTicks);
+        effect.fadeTicksRemaining = Math.clamp(fadeTicksRemaining, 0, effect.fadeDurationTicks);
+        return effect;
+    }
+
+    /** True when the effect has no active ticks and no fade tail left, i.e. it should not be restored. */
+    public boolean isExpired() {
+        return remainingTicks <= 0 && fadeTicksRemaining <= 0;
     }
 
     private static int fadeDurationFor(int duration) {

@@ -1,21 +1,15 @@
 package org.mydrugs.mydrugs.datagen;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import org.mydrugs.mydrugs.MyDrugs;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import static org.mydrugs.mydrugs.datagen.VanillaRecipeSnapshotWriter.alt;
+import static org.mydrugs.mydrugs.datagen.VanillaRecipeSnapshotWriter.key;
 
 public class ModVanillaRecipeSnapshotProvider implements DataProvider {
     private final PackOutput.PathProvider recipePathProvider;
@@ -27,6 +21,8 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
     @Override
     public CompletableFuture<?> run(CachedOutput cachedOutput) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
+        VanillaRecipeSnapshotWriter writer =
+                new VanillaRecipeSnapshotWriter(recipePathProvider, futures, cachedOutput);
 
         /*
          * Progression design:
@@ -55,7 +51,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Storage / raw material compression
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "salt_block",
+        writer.shaped("salt_block",
                 new String[]{
                         "AAA",
                         "AAA",
@@ -68,7 +64,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "salt_from_salt_block",
+        writer.shapeless("salt_from_salt_block",
                 new Object[]{
                         "mydrugs:salt_block"
                 },
@@ -76,7 +72,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 9
         );
 
-        shaped(futures, cachedOutput, "raw_platinum_block",
+        writer.shaped("raw_platinum_block",
                 new String[]{
                         "AAA",
                         "AAA",
@@ -89,7 +85,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "raw_platinum_from_raw_platinum_block",
+        writer.shapeless("raw_platinum_from_raw_platinum_block",
                 new Object[]{
                         "mydrugs:raw_platinum_block"
                 },
@@ -97,56 +93,56 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 9
         );
 
-        smelting(futures, cachedOutput, "platinum_ingot_from_raw_platinum",
+        writer.smelting("platinum_ingot_from_raw_platinum",
                 "mydrugs:raw_platinum",
                 "mydrugs:platinum_ingot",
                 0.7F,
                 200
         );
 
-        blasting(futures, cachedOutput, "platinum_ingot_from_blasting_raw_platinum",
+        writer.blasting("platinum_ingot_from_blasting_raw_platinum",
                 "mydrugs:raw_platinum",
                 "mydrugs:platinum_ingot",
                 0.7F,
                 100
         );
 
-        smelting(futures, cachedOutput, "sulfur_from_sulfur_ore",
+        writer.smelting("sulfur_from_sulfur_ore",
                 "mydrugs:sulfur_ore",
                 "mydrugs:sulfur_powder",
                 0.5F,
                 200
         );
 
-        blasting(futures, cachedOutput, "sulfur_from_blasting_sulfur_ore",
+        writer.blasting("sulfur_from_blasting_sulfur_ore",
                 "mydrugs:sulfur_ore",
                 "mydrugs:sulfur_powder",
                 0.5F,
                 100
         );
 
-        smelting(futures, cachedOutput, "sulfur_from_deepslate_sulfur_ore",
+        writer.smelting("sulfur_from_deepslate_sulfur_ore",
                 "mydrugs:deepslate_sulfur_ore",
                 "mydrugs:sulfur_powder",
                 0.7F,
                 200
         );
 
-        blasting(futures, cachedOutput, "sulfur_from_blasting_deepslate_sulfur_ore",
+        writer.blasting("sulfur_from_blasting_deepslate_sulfur_ore",
                 "mydrugs:deepslate_sulfur_ore",
                 "mydrugs:sulfur_powder",
                 0.7F,
                 100
         );
 
-        smelting(futures, cachedOutput, "refractory_brick",
+        writer.smelting("refractory_brick",
                 "mydrugs:refractory_mix",
                 "mydrugs:refractory_brick",
                 0.7F,
                 200
         );
 
-        blasting(futures, cachedOutput, "refractory_brick_blasting",
+        writer.blasting("refractory_brick_blasting",
                 "mydrugs:refractory_mix",
                 "mydrugs:refractory_brick",
                 0.7F,
@@ -157,7 +153,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Basic wood, clay, glass, and hand components
         // ---------------------------------------------------------------------
 
-        shapeless(futures, cachedOutput, "treated_planks",
+        writer.shapeless("treated_planks",
                 new Object[]{
                         "#minecraft:planks",
                         "mydrugs:resin"
@@ -166,7 +162,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 4
         );
 
-        shaped(futures, cachedOutput, "wooden_frame",
+        writer.shaped("wooden_frame",
                 new String[]{
                         "A A",
                         " B ",
@@ -180,7 +176,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "cupboard_piece",
+        writer.shaped("cupboard_piece",
                 new String[]{
                         "AA",
                         "AA"
@@ -192,7 +188,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 4
         );
 
-        shaped(futures, cachedOutput, "clay_vat",
+        writer.shaped("clay_vat",
                 new String[]{
                         "A A",
                         "A A",
@@ -205,7 +201,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "cup",
+        writer.shapeless("cup",
                 new Object[]{
                         "minecraft:brick"
                 },
@@ -213,7 +209,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "porous_clay",
+        writer.shapeless("porous_clay",
                 new Object[]{
                         "minecraft:clay_ball",
                         "minecraft:sand",
@@ -223,14 +219,14 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 2
         );
 
-        smelting(futures, cachedOutput, "porous_ceramic_from_porous_clay",
+        writer.smelting("porous_ceramic_from_porous_clay",
                 "mydrugs:porous_clay",
                 "mydrugs:porous_ceramic",
                 0.1F,
                 200
         );
 
-        shapeless(futures, cachedOutput, "raw_thick_glass",
+        writer.shapeless("raw_thick_glass",
                 new Object[]{
                         "minecraft:glass",
                         "minecraft:quartz",
@@ -240,14 +236,14 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 2
         );
 
-        smelting(futures, cachedOutput, "thick_glass_from_raw_thick_glass",
+        writer.smelting("thick_glass_from_raw_thick_glass",
                 "mydrugs:raw_thick_glass",
                 "mydrugs:thick_glass",
                 0.1F,
                 200
         );
 
-        shaped(futures, cachedOutput, "glass_tube",
+        writer.shaped("glass_tube",
                 new String[]{
                         "A A",
                         " B ",
@@ -261,7 +257,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 2
         );
 
-        shaped(futures, cachedOutput, "copper_tube",
+        writer.shaped("copper_tube",
                 new String[]{
                         "AAA",
                         "AAA"
@@ -273,7 +269,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 2
         );
 
-        shapeless(futures, cachedOutput, "glass_bottle",
+        writer.shapeless("glass_bottle",
                 new Object[]{
                         "minecraft:glass_bottle"
                 },
@@ -281,7 +277,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "progression_guide",
+        writer.shapeless("progression_guide",
                 new Object[]{
                         "minecraft:book",
                         "#mydrugs:progression_guide_seed_sources"
@@ -290,7 +286,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "grinding_bowl",
+        writer.shaped("grinding_bowl",
                 new String[]{
                         "A A",
                         "AAA"
@@ -302,7 +298,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "grinding_tool",
+        writer.shaped("grinding_tool",
                 new String[]{
                         " A",
                         "B "
@@ -315,7 +311,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "stone_hammer",
+        writer.shaped("stone_hammer",
                 new String[]{
                         "AAA",
                         "ASA",
@@ -329,7 +325,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "syringe",
+        writer.shaped("syringe",
                 new String[]{
                         " A ",
                         " B ",
@@ -344,7 +340,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "iron_hammer",
+        writer.shaped("iron_hammer",
                 new String[]{
                         "AAA",
                         "ASA",
@@ -358,7 +354,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "steel_hammer",
+        writer.shaped("steel_hammer",
                 new String[]{
                         "AAA",
                         "ASA",
@@ -372,7 +368,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "psy_anvil",
+        writer.shaped("psy_anvil",
                 new String[]{
                         "IRI",
                         "CAC",
@@ -393,7 +389,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Mechanical parts
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "copper_strapping",
+        writer.shaped("copper_strapping",
                 new String[]{
                         "AAA",
                         "A A",
@@ -406,7 +402,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 8
         );
 
-        shaped(futures, cachedOutput, "iron_axle",
+        writer.shaped("iron_axle",
                 new String[]{
                         " A ",
                         " B ",
@@ -420,7 +416,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "hand_crank",
+        writer.shaped("hand_crank",
                 new String[]{
                         " A ",
                         "ASA",
@@ -434,7 +430,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "agitator",
+        writer.shaped("agitator",
                 new String[]{
                         " A ",
                         "BCB",
@@ -450,7 +446,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "stomp_plate",
+        writer.shaped("stomp_plate",
                 new String[]{
                         "AAA"
                 },
@@ -461,7 +457,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "stomp_plate_block",
+        writer.shaped("stomp_plate_block",
                 new String[]{
                         "AAA",
                         "ABA",
@@ -475,7 +471,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "mechanical_frame",
+        writer.shaped("mechanical_frame",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -491,7 +487,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "reinforced_casing",
+        writer.shaped("reinforced_casing",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -507,7 +503,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "stomp_crafter",
+        writer.shaped("stomp_crafter",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -529,7 +525,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Seals, filters, pressure parts
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "soft_seal",
+        writer.shaped("soft_seal",
                 new String[]{
                         "AA",
                         "AA"
@@ -541,7 +537,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 8
         );
 
-        shaped(futures, cachedOutput, "tight_seal",
+        writer.shaped("tight_seal",
                 new String[]{
                         "AA",
                         "AA"
@@ -553,7 +549,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 8
         );
 
-        shaped(futures, cachedOutput, "pressure_seal",
+        writer.shaped("pressure_seal",
                 new String[]{
                         " A ",
                         " B ",
@@ -567,7 +563,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "membrane",
+        writer.shaped("membrane",
                 new String[]{
                         " A ",
                         "BCB",
@@ -582,7 +578,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "cigaret_filter",
+        writer.shapeless("cigaret_filter",
                 new Object[]{
                         "mydrugs:cupboard_piece"
                 },
@@ -590,7 +586,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 4
         );
 
-        shapeless(futures, cachedOutput, "opium_poppy_seeds",
+        writer.shapeless("opium_poppy_seeds",
                 new Object[]{
                         "minecraft:poppy"
                 },
@@ -598,7 +594,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "fluid_filter",
+        writer.shaped("fluid_filter",
                 new String[]{
                         " A ",
                         "BCB",
@@ -614,7 +610,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "filter_box",
+        writer.shaped("filter_box",
                 new String[]{
                         "AAA",
                         "BCB",
@@ -629,7 +625,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "valve",
+        writer.shaped("valve",
                 new String[]{
                         " A ",
                         "BCB",
@@ -645,7 +641,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "pump_head",
+        writer.shaped("pump_head",
                 new String[]{
                         " A ",
                         "BCB",
@@ -661,7 +657,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "injector_nozzle",
+        writer.shaped("injector_nozzle",
                 new String[]{
                         " A ",
                         " B ",
@@ -676,7 +672,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "tank_wall",
+        writer.shaped("tank_wall",
                 new String[]{
                         "AAA",
                         " B ",
@@ -690,7 +686,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "pressure_casing",
+        writer.shaped("pressure_casing",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -706,7 +702,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "reaction_core",
+        writer.shaped("reaction_core",
                 new String[]{
                         " A ",
                         "BCB",
@@ -727,7 +723,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // ---------------------------------------------------------------------
 
 
-        shaped(futures, cachedOutput, "control_circuit",
+        writer.shaped("control_circuit",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -743,7 +739,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "electric_motor",
+        writer.shaped("electric_motor",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -759,7 +755,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "heating_coil",
+        writer.shaped("heating_coil",
                 new String[]{
                         "ABA",
                         "BCB",
@@ -774,7 +770,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "condenser_coil",
+        writer.shaped("condenser_coil",
                 new String[]{
                         "ABA",
                         "C C",
@@ -789,7 +785,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "electrode_pair",
+        writer.shaped("electrode_pair",
                 new String[]{
                         " A ",
                         "BCB",
@@ -804,7 +800,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "catalyst_bed",
+        writer.shaped("catalyst_bed",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -820,7 +816,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "packed_column",
+        writer.shaped("packed_column",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -836,7 +832,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "pipe_joint",
+        writer.shaped("pipe_joint",
                 new String[]{
                         " A ",
                         "ABA",
@@ -850,7 +846,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 4
         );
 
-        shaped(futures, cachedOutput, "pipe_wrench",
+        writer.shaped("pipe_wrench",
                 new String[]{
                         " A ",
                         " BA",
@@ -864,7 +860,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "pipe_filter_upgrade",
+        writer.shaped("pipe_filter_upgrade",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -880,7 +876,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "machine_transfer_upgrade",
+        writer.shaped("machine_transfer_upgrade",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -896,7 +892,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "psychotrope_lens",
+        writer.shaped("psychotrope_lens",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -916,7 +912,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Primitive and early machines
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "mixing_vat",
+        writer.shaped("mixing_vat",
                 new String[]{
                         " A ",
                         "BCB",
@@ -932,7 +928,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "sieve",
+        writer.shaped("sieve",
                 new String[]{
                         "A A",
                         "BCB",
@@ -948,7 +944,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "evaporation_tray",
+        writer.shaped("evaporation_tray",
                 new String[]{
                         "A A",
                         "BBB"
@@ -961,7 +957,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "drying_rack",
+        writer.shaped("drying_rack",
                 new String[]{
                         "AAA",
                         "BCB",
@@ -976,7 +972,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "fluid_filterer",
+        writer.shaped("fluid_filterer",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -997,7 +993,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Furnaces, vats, reactors, and processing machines
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "heat_lining",
+        writer.shaped("heat_lining",
                 new String[]{
                         "AAA",
                         "A A",
@@ -1010,7 +1006,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "advanced_furnace",
+        writer.shaped("advanced_furnace",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1028,7 +1024,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "advanced_mixing_vat",
+        writer.shaped("advanced_mixing_vat",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1046,7 +1042,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "gasifier",
+        writer.shaped("gasifier",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1064,7 +1060,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "distiller",
+        writer.shaped("distiller",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1082,7 +1078,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "centrifuge",
+        writer.shaped("centrifuge",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1101,7 +1097,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "growth_chamber",
+        writer.shaped("growth_chamber",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1120,7 +1116,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "chemical_reactor",
+        writer.shaped("chemical_reactor",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1138,7 +1134,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "biochemical_reactor",
+        writer.shaped("biochemical_reactor",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1160,7 +1156,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Fluid, gas, pipes
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "gas_tank",
+        writer.shaped("gas_tank",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1177,7 +1173,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "gas_pump",
+        writer.shaped("gas_pump",
                 new String[]{
                         " A ",
                         "BCB",
@@ -1194,7 +1190,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "fluid_pump",
+        writer.shaped("fluid_pump",
                 new String[]{
                         " A ",
                         "BCB",
@@ -1211,7 +1207,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "basic_item_pipe",
+        writer.shaped("basic_item_pipe",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1227,7 +1223,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 8
         );
 
-        shaped(futures, cachedOutput, "fast_item_pipe",
+        writer.shaped("fast_item_pipe",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1243,7 +1239,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 4
         );
 
-        shaped(futures, cachedOutput, "basic_fluid_pipe",
+        writer.shaped("basic_fluid_pipe",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1259,7 +1255,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 8
         );
 
-        shaped(futures, cachedOutput, "fast_fluid_pipe",
+        writer.shaped("fast_fluid_pipe",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1275,7 +1271,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 4
         );
 
-        shaped(futures, cachedOutput, "basic_gas_pipe",
+        writer.shaped("basic_gas_pipe",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1291,7 +1287,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 8
         );
 
-        shaped(futures, cachedOutput, "fast_gas_pipe",
+        writer.shaped("fast_gas_pipe",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1311,7 +1307,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Late industrial machines
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "electrolyzer",
+        writer.shaped("electrolyzer",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1330,7 +1326,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "btx_fractionation_tower",
+        writer.shaped("btx_fractionation_tower",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1348,7 +1344,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "aromatic_extractor",
+        writer.shaped("aromatic_extractor",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1367,7 +1363,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "catalytic_reformer",
+        writer.shaped("catalytic_reformer",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1386,7 +1382,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "steam_cracker",
+        writer.shaped("steam_cracker",
                 new String[]{
                         "ABA",
                         "CDE",
@@ -1409,7 +1405,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         // Utility / narrative / special blocks and items
         // ---------------------------------------------------------------------
 
-        shaped(futures, cachedOutput, "watering_connection",
+        writer.shaped("watering_connection",
                 new String[]{
                         " A ",
                         " B ",
@@ -1424,7 +1420,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "therapist_desk",
+        writer.shaped("therapist_desk",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1442,7 +1438,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "recovery_anchor",
+        writer.shaped("recovery_anchor",
                 new String[]{
                         "ABA",
                         "CDC",
@@ -1459,41 +1455,61 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "psychotrope_component",
+        writer.shaped("psychotrope_distillery",
                 new String[]{
                         "ABA",
                         "CDC",
-                        "AEA"
+                        "EFE"
+                },
+                key(
+                        "A", "mydrugs:copper_tube",
+                        "B", "minecraft:glass",
+                        "C", "mydrugs:distillation_coil",
+                        "D", "mydrugs:reinforced_casing",
+                        "E", "minecraft:iron_ingot",
+                        "F", "minecraft:furnace"
+                ),
+                "mydrugs:psychotrope_distillery",
+                1
+        );
+
+        writer.shaped("distillate_engine",
+                new String[]{
+                        "ABA",
+                        "CDC",
+                        "EFE"
+                },
+                key(
+                        "A", "mydrugs:copper_tube",
+                        "B", "mydrugs:strain_vent",
+                        "C", "mydrugs:current_regulator",
+                        "D", "mydrugs:reinforced_casing",
+                        "E", "minecraft:redstone",
+                        "F", "mydrugs:reaction_core"
+                ),
+                "mydrugs:distillate_engine",
+                1
+        );
+
+        writer.shaped("psychotrope_resonator",
+                new String[]{
+                        "ABA",
+                        "CDC",
+                        "EFE"
                 },
                 key(
                         "A", "minecraft:amethyst_shard",
-                        "B", "mydrugs:psychotrope_lens",
-                        "C", "mydrugs:advanced_control_circuit",
-                        "D", "mydrugs:reaction_core",
-                        "E", "minecraft:ender_pearl"
+                        "B", "mydrugs:dream_residue",
+                        "C", "mydrugs:resonance_lens",
+                        "D", "mydrugs:psy_receptacle",
+                        "E", "mydrugs:recovery_anchor",
+                        "F", "mydrugs:personal_diary"
                 ),
-                "mydrugs:psychotrope_component",
+                "mydrugs:psychotrope_resonator",
                 1
         );
 
-        shaped(futures, cachedOutput, "psychotrope_core",
-                new String[]{
-                        "ABA",
-                        "CDC",
-                        "AEA"
-                },
-                key(
-                        "A", "mydrugs:psychotrope_component",
-                        "B", "minecraft:nether_star",
-                        "C", "minecraft:amethyst_block",
-                        "D", "mydrugs:recovery_anchor",
-                        "E", "mydrugs:advanced_control_circuit"
-                ),
-                "mydrugs:psychotrope_core",
-                1
-        );
-
-        shaped(futures, cachedOutput, "personal_diary",
+        writer.shaped("personal_diary",
                 new String[]{
                         " A ",
                         "BCB",
@@ -1508,7 +1524,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "headphones",
+        writer.shaped("headphones",
                 new String[]{
                         "B B",
                         "ACA",
@@ -1524,7 +1540,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "roller",
+        writer.shaped("roller",
                 new String[]{
                         " A ",
                         " B ",
@@ -1539,7 +1555,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shaped(futures, cachedOutput, "bang",
+        writer.shaped("bang",
                 new String[]{
                         "  A",
                         " B ",
@@ -1553,7 +1569,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        shapeless(futures, cachedOutput, "hash_piece",
+        writer.shapeless("hash_piece",
                 new Object[]{
                         "mydrugs:hash_brick"
                 },
@@ -1562,163 +1578,6 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         );
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
-    }
-
-    private void shaped(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            String[] pattern,
-            Map<String, Object> key,
-            String result,
-            int count
-    ) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "minecraft:crafting_shaped");
-        json.addProperty("category", "misc");
-
-        JsonArray patternArray = new JsonArray();
-        for (String row : pattern) {
-            patternArray.add(new JsonPrimitive(row));
-        }
-        json.add("pattern", patternArray);
-
-        JsonObject keyObject = new JsonObject();
-        for (Map.Entry<String, Object> entry : key.entrySet()) {
-            keyObject.add(entry.getKey(), ingredient(entry.getValue()));
-        }
-        json.add("key", keyObject);
-
-        JsonObject resultObject = new JsonObject();
-        resultObject.addProperty("id", result);
-        resultObject.addProperty("count", count);
-        json.add("result", resultObject);
-
-        saveRecipe(futures, cachedOutput, name, json);
-    }
-
-    private void shapeless(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            Object[] ingredients,
-            String result,
-            int count
-    ) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", "minecraft:crafting_shapeless");
-        json.addProperty("category", "misc");
-
-        JsonArray ingredientsArray = new JsonArray();
-        for (Object value : ingredients) {
-            ingredientsArray.add(ingredient(value));
-        }
-        json.add("ingredients", ingredientsArray);
-
-        JsonObject resultObject = new JsonObject();
-        resultObject.addProperty("id", result);
-        resultObject.addProperty("count", count);
-        json.add("result", resultObject);
-
-        saveRecipe(futures, cachedOutput, name, json);
-    }
-
-    private void smelting(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            String ingredient,
-            String result,
-            float experience,
-            int cookingTime
-    ) {
-        cooking(futures, cachedOutput, name, "minecraft:smelting", ingredient, result, experience, cookingTime);
-    }
-
-    private void blasting(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            String ingredient,
-            String result,
-            float experience,
-            int cookingTime
-    ) {
-        cooking(futures, cachedOutput, name, "minecraft:blasting", ingredient, result, experience, cookingTime);
-    }
-
-    private void cooking(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            String type,
-            String ingredient,
-            String result,
-            float experience,
-            int cookingTime
-    ) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", type);
-        json.addProperty("category", "misc");
-        json.add("ingredient", ingredient(ingredient));
-
-        JsonObject resultObject = new JsonObject();
-        resultObject.addProperty("id", result);
-        json.add("result", resultObject);
-
-        json.addProperty("experience", experience);
-        json.addProperty("cookingtime", cookingTime);
-
-        saveRecipe(futures, cachedOutput, name, json);
-    }
-
-    private void saveRecipe(
-            List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput,
-            String name,
-            JsonObject json
-    ) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
-        Path path = this.recipePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, json, path));
-    }
-
-    private static JsonElement ingredient(Object value) {
-        if (value instanceof String string) {
-            return new JsonPrimitive(string);
-        }
-
-        if (value instanceof String[] alternatives) {
-            JsonArray array = new JsonArray();
-            for (String alternative : alternatives) {
-                array.add(new JsonPrimitive(alternative));
-            }
-            return array;
-        }
-
-        throw new IllegalArgumentException("Unsupported recipe ingredient value: " + value);
-    }
-
-    private static Map<String, Object> key(Object... values) {
-        if (values.length % 2 != 0) {
-            throw new IllegalArgumentException("Recipe key entries must be provided as key/value pairs.");
-        }
-
-        Map<String, Object> map = new LinkedHashMap<>();
-
-        for (int i = 0; i < values.length; i += 2) {
-            if (!(values[i] instanceof String key)) {
-                throw new IllegalArgumentException("Recipe key must be a String. Got: " + values[i]);
-            }
-
-            map.put(key, values[i + 1]);
-        }
-
-        return map;
-    }
-
-    private static String[] alt(String... alternatives) {
-        return alternatives;
     }
 
     @Override

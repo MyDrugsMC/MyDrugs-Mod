@@ -15,10 +15,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class SpaceFoodOverlayTextureProvider implements DataProvider {
     private static final String SOURCE_OVERLAY_PATH =
@@ -43,23 +48,86 @@ public class SpaceFoodOverlayTextureProvider implements DataProvider {
     }
 
     private static BufferedImage readVanillaItemTexture(ResourceLocation itemId) throws IOException {
-        String path = "/assets/" + itemId.getNamespace() + "/textures/item/" + itemId.getPath() + ".png";
-        return readClasspathPng(path);
+        String absoluteResource = "/assets/" + itemId.getNamespace() + "/textures/item/" + itemId.getPath() + ".png";
+        String zipEntryPath = absoluteResource.substring(1); // strip leading slash for zip lookup
+
+        // 1) Classpath (works if Minecraft client resources are on the data-run classpath).
+        BufferedImage fromClasspath = readClasspathPngNullable(absoluteResource);
+        if (fromClasspath != null) {
+            return fromClasspath;
+        }
+
+        // 2) NeoForge moddev's extracted client-resources jar (the canonical vanilla source).
+        //    Read the texture from inside that jar without copying it into the mod's own assets.
+        BufferedImage fromModdevJar = readPngFromModdevClientExtra(zipEntryPath);
+        if (fromModdevJar != null) {
+            return fromModdevJar;
+        }
+
+        System.err.println("[SpaceFoodOverlayTextureProvider] Vanilla texture not found: " + absoluteResource);
+        return null;
     }
 
     private static BufferedImage readClasspathPng(String path) throws IOException {
+        BufferedImage image = readClasspathPngNullable(path);
+        if (image == null) {
+            throw new IOException("Missing classpath resource: " + path);
+        }
+        return image;
+    }
+
+    private static BufferedImage readClasspathPngNullable(String path) throws IOException {
         try (InputStream in = SpaceFoodOverlayTextureProvider.class.getResourceAsStream(path)) {
             if (in == null) {
-                System.err.println("Could not find " + path);
                 return null;
-                // throw new IOException("Missing classpath resource: " + path);
             }
-
             BufferedImage image = ImageIO.read(in);
             if (image == null) {
                 throw new IOException("Could not decode PNG: " + path);
             }
             return image;
+        }
+    }
+
+    /**
+     * Reads a PNG entry from the NeoForge moddev-produced vanilla-resources jar
+     * (e.g. {@code build/moddev/artifacts/neoforge-<ver>-client-extra-aka-minecraft-resources.jar}).
+     * This lets the provider find real vanilla textures at datagen time without copying them into
+     * {@code src/main/resources/assets/minecraft/}, which would override vanilla textures in-game.
+     */
+    private static BufferedImage readPngFromModdevClientExtra(String entryPath) throws IOException {
+        Path jar = findClientExtraJar();
+        if (jar == null) {
+            return null;
+        }
+        try (ZipFile zip = new ZipFile(jar.toFile())) {
+            ZipEntry entry = zip.getEntry(entryPath);
+            if (entry == null) {
+                return null;
+            }
+            try (InputStream in = zip.getInputStream(entry)) {
+                BufferedImage image = ImageIO.read(in);
+                if (image == null) {
+                    throw new IOException("Could not decode PNG entry: " + entryPath + " in " + jar);
+                }
+                return image;
+            }
+        }
+    }
+
+    private static Path findClientExtraJar() throws IOException {
+        Path artifactsDir = Paths.get("..", "build", "moddev", "artifacts");
+        if (!Files.isDirectory(artifactsDir)) {
+            return null;
+        }
+        try (Stream<Path> stream = Files.list(artifactsDir)) {
+            return stream
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        return name.endsWith(".jar") && name.contains("client-extra");
+                    })
+                    .findFirst()
+                    .orElse(null);
         }
     }
 

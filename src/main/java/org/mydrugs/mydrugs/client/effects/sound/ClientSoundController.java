@@ -27,14 +27,18 @@ public final class ClientSoundController {
             // Accessibility: visual pulse still fires (it follows enableCameraShake),
             // only the audible heartbeat is gated by enableHeartbeatSounds.
             if (Config.CLIENT.enableHeartbeatSounds.get()) {
-                mc.player.playNotifySound(ModSounds.SINGLE_HEARTBEAT.get(), SoundSource.PLAYERS, 0.5F, 1.0F);
+                float volume = Config.CLIENT.suddenSoundCap(0.5F * Config.CLIENT.heartbeatVolume.get().floatValue());
+                if (volume > 0.0F) {
+                    mc.player.playNotifySound(ModSounds.SINGLE_HEARTBEAT.get(), SoundSource.PLAYERS, volume, 1.0F);
+                }
             }
             nextHeartbeatAt = gameTime + Math.max(8L, 40L - (long) (AddictionClientState.stressLevel * 25L));
         }
 
         if (AddictionClientState.has(SymptomFlags.INTRUSIVE_THOUGHTS) && gameTime >= nextThoughtAt) {
-            if (RANDOM.nextFloat() < 0.50F) {
-                mc.player.playNotifySound(ModSounds.INTRUSIVE_WHISPER.get(), SoundSource.PLAYERS, 0.35F, 1.0F);
+            float voiceVolume = Config.CLIENT.suddenSoundCap(0.35F * Config.CLIENT.badTripVoiceVolume.get().floatValue());
+            if (voiceVolume > 0.0F && RANDOM.nextFloat() < 0.50F) {
+                mc.player.playNotifySound(ModSounds.INTRUSIVE_WHISPER.get(), SoundSource.PLAYERS, voiceVolume, 1.0F);
             }
             nextThoughtAt = gameTime + 20L * (20L + RANDOM.nextInt(40));
         }
@@ -42,7 +46,10 @@ public final class ClientSoundController {
         if (AddictionClientState.has(SymptomFlags.HALLUCINATION)
                 && Config.CLIENT.enableHallucinations.get()
                 && RANDOM.nextFloat() < 0.008F * Config.CLIENT.hallucinationIntensity.get().floatValue()) {
-            mc.player.playNotifySound(ModSounds.HALLUCINATION_CUE.get(), SoundSource.PLAYERS, 0.30F, 1.0F);
+            float volume = Config.CLIENT.suddenSoundCap(0.30F * Config.CLIENT.hallucinationSoundVolume.get().floatValue());
+            if (volume > 0.0F) {
+                mc.player.playNotifySound(ModSounds.HALLUCINATION_CUE.get(), SoundSource.PLAYERS, volume, 1.0F);
+            }
         }
     }
 }

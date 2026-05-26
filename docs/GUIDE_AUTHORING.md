@@ -93,3 +93,8 @@ plain text                 Body paragraph
 - Use the guide to explain order, purpose, and concepts.
 - Do not write real-world drug synthesis instructions.
 - Use fictional, gameplay, ritual, or Minecraft-style wording.
+- Do not make medical claims, dosage claims, or real-world treatment promises.
+- Frame psychedelics as insight/integration gameplay, not magic cures.
+- Frame recovery as active work: diary, safe setting, sleep, diet, exercise, therapy-like actions, and integration.
+- Keep the Field Guide practical. Use the Diary for emotional interpretation.
+- Avoid pure horror framing unless the page is explicitly about a dangerous state.

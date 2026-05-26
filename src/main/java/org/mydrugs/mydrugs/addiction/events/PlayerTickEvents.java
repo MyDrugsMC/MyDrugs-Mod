@@ -7,7 +7,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.core.drug.integration.IntegratedTraitManager;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
+import org.mydrugs.mydrugs.dimension.InnerDimensionService;
+import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import org.mydrugs.mydrugs.items.bottle.LightningBottleManager;
 import org.mydrugs.mydrugs.mutation.MutationManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
@@ -35,6 +38,13 @@ public final class PlayerTickEvents {
             RecoveryRoomManager.tickPlayerParticles(player);
             Profiler.get().popPush("mutation");
             MutationManager.tickPlayer(player);
+            Profiler.get().popPush("integration");
+            IntegratedTraitManager.tickPlayer(player);
+            Profiler.get().popPush("inner_dimension_fall_out");
+            if (InnerDimensionService.isInInnerDimension(player)
+                    && player.getY() < InnerDimensions.FALL_OUT_Y) {
+                InnerDimensionService.returnToOverworld(player);
+            }
         } finally {
             Profiler.get().pop();
             Profiler.get().pop();

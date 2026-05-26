@@ -20,7 +20,7 @@ public final class DrugVisualPayloadHandler {
         }
 
         if (type.getCategory() == EffectCategory.SHADER) {
-            if (!Config.CLIENT.enableDrugShaders.get()) {
+            if (!Config.CLIENT.psychedelicShadersEnabled()) {
                 return;
             }
             int duration = Config.CLIENT.reducedMotionMode.get()

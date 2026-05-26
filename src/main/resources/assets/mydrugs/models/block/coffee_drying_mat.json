@@ -1,7 +1,7 @@
 {
   "textures": {
-    "mat": "minecraft:block/brown_wool",
-    "edge": "minecraft:block/oak_planks"
+    "mat": "mydrugs:block/coffee_drying_mat",
+    "edge": "mydrugs:block/coffee_drying_mat_edge"
   },
   "elements": [
     {

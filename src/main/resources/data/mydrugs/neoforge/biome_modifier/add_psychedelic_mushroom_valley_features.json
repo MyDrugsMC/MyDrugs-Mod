@@ -1,5 +1,6 @@
 {
-  "type": "neoforge:add_features",
+  "type": "mydrugs:configurable_add_features",
+  "config_key": "psychedelic_mushrooms",
   "biomes": "mydrugs:psychedelic_mushroom_valley",
   "features": [
     "mydrugs:patch_magic_mushroom",

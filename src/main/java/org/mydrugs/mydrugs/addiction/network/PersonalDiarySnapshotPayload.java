@@ -6,10 +6,17 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.diary.DiaryBlocker;
+import org.mydrugs.mydrugs.diary.DiaryBreadcrumb;
+import org.mydrugs.mydrugs.diary.DiaryClaritySnapshot;
 import org.mydrugs.mydrugs.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.diary.DiaryEntryDto;
 import org.mydrugs.mydrugs.diary.DiaryMasteryStatDto;
+import org.mydrugs.mydrugs.diary.DiaryMemory;
 import org.mydrugs.mydrugs.diary.DiaryPlayerStateDto;
+import org.mydrugs.mydrugs.diary.DiarySpoilerLevel;
+import org.mydrugs.mydrugs.diary.DiaryThought;
+import org.mydrugs.mydrugs.diary.DiaryWarning;
 import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
 import java.util.ArrayList;
@@ -26,8 +33,19 @@ public record PersonalDiarySnapshotPayload(
         DiaryPlayerStateDto playerState,
         long currentDay,
         int cooldownTicksRemaining,
-        List<PsycheMapNodeDto> psycheNodes
+        List<PsycheMapNodeDto> psycheNodes,
+        DiaryClaritySnapshot clarity
 ) implements CustomPacketPayload {
+
+    public PersonalDiarySnapshotPayload {
+        entries = List.copyOf(entries);
+        drugStats = List.copyOf(drugStats);
+        masteryStats = List.copyOf(masteryStats);
+        psycheNodes = List.copyOf(psycheNodes);
+        if (clarity == null) {
+            clarity = DiaryClaritySnapshot.EMPTY;
+        }
+    }
 
     public static final Type<PersonalDiarySnapshotPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "personal_diary_snapshot"));
@@ -87,6 +105,8 @@ public record PersonalDiarySnapshotPayload(
                             ByteBufCodecs.STRING_UTF8.encode(buf, n.trigger());
                             ByteBufCodecs.STRING_UTF8.encode(buf, n.dominantDrugId());
                         }
+
+                        encodeClarity(buf, payload.clarity());
                     },
                     buf -> {
                         int entryCount = ByteBufCodecs.VAR_INT.decode(buf);
@@ -153,9 +173,114 @@ public record PersonalDiarySnapshotPayload(
                                     ByteBufCodecs.STRING_UTF8.decode(buf)
                             ));
                         }
-                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes);
+                        DiaryClaritySnapshot clarity = decodeClarity(buf);
+                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity);
                     }
             );
+
+    private static void encodeClarity(RegistryFriendlyByteBuf buf, DiaryClaritySnapshot clarity) {
+        DiaryClaritySnapshot safe = clarity == null ? DiaryClaritySnapshot.EMPTY : clarity;
+        ByteBufCodecs.STRING_UTF8.encode(buf, safe.thought().textKey());
+
+        ByteBufCodecs.VAR_INT.encode(buf, safe.breadcrumbs().size());
+        for (DiaryBreadcrumb breadcrumb : safe.breadcrumbs()) {
+            ByteBufCodecs.STRING_UTF8.encode(buf, breadcrumb.textKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, breadcrumb.clearHintKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, breadcrumb.explicitHintKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, breadcrumb.guideTarget());
+            ByteBufCodecs.STRING_UTF8.encode(buf, breadcrumb.iconItemId());
+            ByteBufCodecs.STRING_UTF8.encode(buf, breadcrumb.spoilerLevel().serializedName());
+        }
+
+        ByteBufCodecs.VAR_INT.encode(buf, safe.blockers().size());
+        for (DiaryBlocker blocker : safe.blockers()) {
+            ByteBufCodecs.STRING_UTF8.encode(buf, blocker.type());
+            ByteBufCodecs.STRING_UTF8.encode(buf, blocker.textKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, blocker.clearHintKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, blocker.explicitHintKey());
+            ByteBufCodecs.VAR_INT.encode(buf, blocker.count());
+            ByteBufCodecs.VAR_LONG.encode(buf, blocker.lastSeenGameTime());
+            ByteBufCodecs.STRING_UTF8.encode(buf, blocker.spoilerLevel().serializedName());
+        }
+
+        ByteBufCodecs.VAR_INT.encode(buf, safe.memories().size());
+        for (DiaryMemory memory : safe.memories()) {
+            ByteBufCodecs.VAR_LONG.encode(buf, memory.day());
+            ByteBufCodecs.STRING_UTF8.encode(buf, memory.textKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, memory.titleKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, memory.targetNodeId());
+            ByteBufCodecs.STRING_UTF8.encode(buf, memory.guideTarget());
+            ByteBufCodecs.STRING_UTF8.encode(buf, memory.iconItemId());
+        }
+
+        ByteBufCodecs.VAR_INT.encode(buf, safe.warnings().size());
+        for (DiaryWarning warning : safe.warnings()) {
+            ByteBufCodecs.STRING_UTF8.encode(buf, warning.textKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, warning.clearHintKey());
+            ByteBufCodecs.STRING_UTF8.encode(buf, warning.iconItemId());
+            ByteBufCodecs.VAR_INT.encode(buf, warning.severity());
+        }
+
+        ByteBufCodecs.BOOL.encode(buf, safe.diagnosticMode());
+    }
+
+    private static DiaryClaritySnapshot decodeClarity(RegistryFriendlyByteBuf buf) {
+        DiaryThought thought = new DiaryThought(ByteBufCodecs.STRING_UTF8.decode(buf));
+
+        int breadcrumbCount = ByteBufCodecs.VAR_INT.decode(buf);
+        List<DiaryBreadcrumb> breadcrumbs = new ArrayList<>(breadcrumbCount);
+        for (int i = 0; i < breadcrumbCount; i++) {
+            breadcrumbs.add(new DiaryBreadcrumb(
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    DiarySpoilerLevel.bySerializedName(ByteBufCodecs.STRING_UTF8.decode(buf))
+            ));
+        }
+
+        int blockerCount = ByteBufCodecs.VAR_INT.decode(buf);
+        List<DiaryBlocker> blockers = new ArrayList<>(blockerCount);
+        for (int i = 0; i < blockerCount; i++) {
+            blockers.add(new DiaryBlocker(
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.VAR_INT.decode(buf),
+                    ByteBufCodecs.VAR_LONG.decode(buf),
+                    DiarySpoilerLevel.bySerializedName(ByteBufCodecs.STRING_UTF8.decode(buf))
+            ));
+        }
+
+        int memoryCount = ByteBufCodecs.VAR_INT.decode(buf);
+        List<DiaryMemory> memories = new ArrayList<>(memoryCount);
+        for (int i = 0; i < memoryCount; i++) {
+            memories.add(new DiaryMemory(
+                    ByteBufCodecs.VAR_LONG.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf)
+            ));
+        }
+
+        int warningCount = ByteBufCodecs.VAR_INT.decode(buf);
+        List<DiaryWarning> warnings = new ArrayList<>(warningCount);
+        for (int i = 0; i < warningCount; i++) {
+            warnings.add(new DiaryWarning(
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                    ByteBufCodecs.VAR_INT.decode(buf)
+            ));
+        }
+
+        boolean diagnosticMode = ByteBufCodecs.BOOL.decode(buf);
+        return new DiaryClaritySnapshot(thought, breadcrumbs, blockers, memories, warnings, diagnosticMode);
+    }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

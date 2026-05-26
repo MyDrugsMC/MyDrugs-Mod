@@ -1,17 +1,22 @@
 package org.mydrugs.mydrugs.pipe.network;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class PipeRouteCache {
     private final List<PipeRoute> itemRoutes = new ArrayList<>();
+    private final Map<PipeEndpoint, List<PipeRoute>> itemRoutesBySource = new HashMap<>();
 
     public void clear() {
         this.itemRoutes.clear();
+        this.itemRoutesBySource.clear();
     }
 
     public void addItemRoute(PipeRoute route) {
         this.itemRoutes.add(route);
+        this.itemRoutesBySource.computeIfAbsent(route.source(), ignored -> new ArrayList<>()).add(route);
     }
 
     public List<PipeRoute> itemRoutes() {
@@ -19,8 +24,7 @@ public final class PipeRouteCache {
     }
 
     public List<PipeRoute> itemRoutesFrom(PipeEndpoint source) {
-        return this.itemRoutes.stream()
-                .filter(route -> route.source().equals(source))
-                .toList();
+        List<PipeRoute> routes = this.itemRoutesBySource.get(source);
+        return routes == null ? List.of() : routes;
     }
 }

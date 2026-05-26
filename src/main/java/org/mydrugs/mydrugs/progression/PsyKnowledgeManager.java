@@ -100,6 +100,14 @@ public final class PsyKnowledgeManager {
         };
     }
 
+    /**
+     * Removes a knowledge key. Admin/rescue use only — this does not roll back advancements,
+     * diary entries, or psyche-map unlocks that the original grant produced.
+     */
+    public static boolean revoke(ServerPlayer player, PsyKnowledgeKey key) {
+        return player.getData(ModAttachments.PLAYER_PSY_KNOWLEDGE.get()).revoke(key);
+    }
+
     public static Set<PsyKnowledgeKey> getKnown(ServerPlayer player) {
         return player.getData(ModAttachments.PLAYER_PSY_KNOWLEDGE.get()).getKnown();
     }

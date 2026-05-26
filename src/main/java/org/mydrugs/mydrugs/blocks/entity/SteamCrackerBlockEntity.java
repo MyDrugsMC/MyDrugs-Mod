@@ -41,7 +41,7 @@ import org.mydrugs.mydrugs.gas.GasType;
 import org.mydrugs.mydrugs.gas.IGasHandler;
 import org.mydrugs.mydrugs.gas.ModGasCapabilities;
 import org.mydrugs.mydrugs.gas.ModGases;
-import org.mydrugs.mydrugs.energy.PsychotropeEnergyMachines;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
@@ -192,7 +192,7 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
         }
 
         be.maxProgress = recipe.baseTicks();
-        boolean poweredByEnergy = PsychotropeEnergyMachines.tryUseEnergyTick(be);
+        boolean poweredByEnergy = PsyCurrentMachines.tryUseCurrentTick(be);
         if (be.burnTimeRemaining <= 0 && !poweredByEnergy && be.tryConsumeFuel()) {
             changed = true;
         }

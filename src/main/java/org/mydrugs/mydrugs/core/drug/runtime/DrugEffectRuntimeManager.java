@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.core.drug.runtime;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
@@ -38,15 +40,256 @@ public final class DrugEffectRuntimeManager {
     private static final Map<UUID, Integer> VOMIT_COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Float> LAST_MOVEMENT_MULTIPLIER = new HashMap<>();
     private static final Map<UUID, Float> LAST_MINING_MULTIPLIER = new HashMap<>();
+    private static final Map<UUID, Float> LAST_ATTACK_SPEED_MULTIPLIER = new HashMap<>();
     private static final Map<UUID, Float> LAST_HP_DECREASE_HEARTS = new HashMap<>();
     private static final Map<UUID, Integer> LAST_SYNC_SIGNATURE = new HashMap<>();
     private static final Map<UUID, Long> LAST_ADRENALINE_TRIGGER = new HashMap<>();
     private static final Set<UUID> DIRTY_PLAYERS = new java.util.HashSet<>();
     private static final ResourceLocation MOVEMENT_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_movement_speed");
     private static final ResourceLocation MINING_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_mining_speed");
+    private static final ResourceLocation ATTACK_SPEED_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_attack_speed");
     private static final ResourceLocation HP_DECREASE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_hp_decrease");
 
+    /** Defensive upper bound applied to intensities loaded from persistent state. */
+    private static final float MAX_LOADED_INTENSITY = 8.0F;
+    /** Hard cap on the movement-speed multiplier so stacked effects cannot produce runaway speed. */
+    private static final float MAX_MOVEMENT_MULTIPLIER = 3.0F;
+    /** Hard cap on HP_DECREASE so max health can never drop below a safe floor (8 HP from vanilla base). */
+    private static final float MAX_HP_DECREASE_HEARTS = 6.0F;
+
     private DrugEffectRuntimeManager() {
+    }
+
+    /**
+     * Why a player's active effects are being cleared. Drives whether the client is resynced
+     * immediately and whether persistent state is touched.
+     */
+    public enum ClearReason {
+        /** Player died: acute effects are dropped, client resynced after respawn. */
+        DEATH,
+        /** Player logged out: cache is dropped after persistent state was already saved. */
+        LOGOUT_CACHE_ONLY,
+        /** Admin/debug command cleared effects: client resynced immediately. */
+        ADMIN_COMMAND,
+        /** A recovery/antidote item cleared effects: client resynced immediately. */
+        RECOVERY_ITEM,
+        /** Server is stopping: cache dropped after persistent state was saved. */
+        SERVER_STOP;
+
+        boolean resyncsClient() {
+            return this == ADMIN_COMMAND || this == RECOVERY_ITEM;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Lifecycle
+    //
+    // The static maps above are an online-player cache only. Persistent per-player state lives in
+    // ModAttachments.PLAYER_DRUG_EFFECTS and is the source of truth across logout / server restart.
+    // ------------------------------------------------------------------
+
+    /** Login / world join: load persisted effects, reapply attributes, sync the client. */
+    public static void onPlayerLogin(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        loadFromPersistentState(player);
+        reapplyAttributes(player, true);
+        forceSyncNow(player);
+    }
+
+    /** Logout: persist effects, strip transient modifiers, drop all volatile cache entries. */
+    public static void onPlayerLogout(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        saveToPersistentState(player);
+        clearEffects(player, ClearReason.LOGOUT_CACHE_ONLY);
+    }
+
+    /**
+     * Clone (respawn after death, or return from the End). Old and new share a UUID, so the cache
+     * entry survives; on death it is dropped, otherwise it is reapplied to the new entity instance.
+     */
+    public static void onPlayerClone(ServerPlayer original, ServerPlayer clone, boolean died) {
+        if (clone == null) {
+            return;
+        }
+        if (died) {
+            clearEffects(clone, ClearReason.DEATH);
+        } else {
+            reapplyAttributes(clone, true);
+        }
+        // Defer the sync one tick so the respawned client connection is fully ready.
+        DIRTY_PLAYERS.add(clone.getUUID());
+    }
+
+    /** Dimension change: effects are preserved; reapply attributes to the (possibly reset) entity. */
+    public static void onDimensionChange(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        reapplyAttributes(player, true);
+        DIRTY_PLAYERS.add(player.getUUID());
+    }
+
+    /** Server stop / world unload: persist every online player, then drop all static state. */
+    public static void onServerStop(MinecraftServer server) {
+        if (server != null) {
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                saveToPersistentState(player);
+            }
+        }
+        clearAll();
+    }
+
+    /** Drops every static cache entry. Persistent attachments remain the source of truth. */
+    public static void clearAll() {
+        ACTIVE.clear();
+        VOMIT_COOLDOWNS.clear();
+        LAST_MOVEMENT_MULTIPLIER.clear();
+        LAST_MINING_MULTIPLIER.clear();
+        LAST_ATTACK_SPEED_MULTIPLIER.clear();
+        LAST_HP_DECREASE_HEARTS.clear();
+        LAST_SYNC_SIGNATURE.clear();
+        LAST_ADRENALINE_TRIGGER.clear();
+        DIRTY_PLAYERS.clear();
+    }
+
+    /**
+     * Removes all active effects for a player: strips attribute modifiers, drops cache entries, and
+     * (for admin/recovery clears) resyncs the now-empty client state.
+     */
+    public static void clearEffects(ServerPlayer player, ClearReason reason) {
+        if (player == null) {
+            return;
+        }
+        removeMovementAttribute(player);
+        removeMiningAttribute(player);
+        removeAttackSpeedAttribute(player);
+        removeHpDecreaseAttribute(player);
+        BurstWindowManager.cleanup(player);
+        forgetPlayer(player.getUUID());
+        if (reason.resyncsClient()) {
+            forceSyncNow(player);
+        }
+    }
+
+    /** Writes the player's live effects into persistent state. */
+    public static void saveToPersistentState(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        PlayerDrugEffectsAttachment attachment = player.getData(ModAttachments.PLAYER_DRUG_EFFECTS.get());
+        List<PlayerDrugEffectsAttachment.StoredEffect> stored = new ArrayList<>();
+        EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(player.getUUID());
+        if (effects != null) {
+            for (ActiveDrugEffect effect : effects.values()) {
+                if (effect.isExpired() || effect.baseIntensity() <= 0.0F) {
+                    continue;
+                }
+                stored.add(new PlayerDrugEffectsAttachment.StoredEffect(
+                        effect.type().serializedName(),
+                        effect.baseIntensity(),
+                        effect.activeTicks(),
+                        effect.fadeTicksRemaining(),
+                        effect.fadeDurationTicks()
+                ));
+            }
+        }
+        attachment.replaceAll(stored);
+        player.setData(ModAttachments.PLAYER_DRUG_EFFECTS.get(), attachment);
+    }
+
+    /** Rebuilds the player's live effects from persistent state, ignoring unknown ids safely. */
+    public static void loadFromPersistentState(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+        UUID id = player.getUUID();
+        ACTIVE.remove(id);
+        PlayerDrugEffectsAttachment attachment = player.getData(ModAttachments.PLAYER_DRUG_EFFECTS.get());
+        if (attachment.isEmpty()) {
+            return;
+        }
+
+        EnumMap<EffectType, ActiveDrugEffect> effects = new EnumMap<>(EffectType.class);
+        for (PlayerDrugEffectsAttachment.StoredEffect stored : attachment.effects()) {
+            EffectType raw = EffectType.bySerializedNameOrNull(stored.serializedName());
+            if (raw == null) {
+                continue; // unknown id from another version / corrupt save: skip safely
+            }
+            EffectType type = normalize(raw);
+            float intensity = Math.clamp(stored.baseIntensity(), 0.0F, MAX_LOADED_INTENSITY);
+            int active = Math.max(0, stored.activeTicks());
+            int fade = Math.max(0, stored.fadeTicksRemaining());
+            if (intensity <= 0.0F || (active <= 0 && fade <= 0)) {
+                continue;
+            }
+            ActiveDrugEffect effect = ActiveDrugEffect.restore(
+                    type, intensity, active, fade, Math.max(0, stored.fadeDurationTicks()));
+            if (effect.isExpired()) {
+                continue;
+            }
+            ActiveDrugEffect existing = effects.get(type);
+            if (existing == null) {
+                effects.put(type, effect);
+            } else {
+                existing.merge(effect.baseIntensity(), effect.remainingTicks());
+            }
+        }
+        if (!effects.isEmpty()) {
+            ACTIVE.put(id, effects);
+        }
+    }
+
+    /** Drops every volatile per-player cache entry. No stale UUID survives an offline player. */
+    private static void forgetPlayer(UUID id) {
+        ACTIVE.remove(id);
+        VOMIT_COOLDOWNS.remove(id);
+        LAST_MOVEMENT_MULTIPLIER.remove(id);
+        LAST_MINING_MULTIPLIER.remove(id);
+        LAST_ATTACK_SPEED_MULTIPLIER.remove(id);
+        LAST_HP_DECREASE_HEARTS.remove(id);
+        LAST_SYNC_SIGNATURE.remove(id);
+        LAST_ADRENALINE_TRIGGER.remove(id);
+        DIRTY_PLAYERS.remove(id);
+    }
+
+    /**
+     * Reapplies the three drug attribute modifiers from the current cache. When {@code force} is set
+     * the per-player "last value" caches are dropped first, so a fresh entity instance (login,
+     * respawn, dimension change) cannot keep stale modifiers or skip a needed reapply.
+     */
+    private static void reapplyAttributes(ServerPlayer player, boolean force) {
+        UUID id = player.getUUID();
+        if (force) {
+            removeMovementAttribute(player);
+            removeMiningAttribute(player);
+            removeAttackSpeedAttribute(player);
+            removeHpDecreaseAttribute(player);
+        }
+        EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(id);
+        if (effects == null || effects.isEmpty()) {
+            return;
+        }
+        applyMovementAttribute(player, effects);
+        applyMiningAttribute(player, effects);
+        applyAttackSpeedAttribute(player, effects);
+        applyHpDecreaseAttribute(player, effects);
+    }
+
+    /** Immediately syncs current effects to the client and records the sync signature. */
+    private static void forceSyncNow(ServerPlayer player) {
+        EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(player.getUUID());
+        sync(player, effects);
+        int signature = syncSignature(effects);
+        if (signature == 0) {
+            LAST_SYNC_SIGNATURE.remove(player.getUUID());
+        } else {
+            LAST_SYNC_SIGNATURE.put(player.getUUID(), signature);
+        }
+        DIRTY_PLAYERS.remove(player.getUUID());
     }
 
     public static void addEffect(ServerPlayer player, EffectType rawType, float intensity, int duration) {
@@ -68,6 +311,7 @@ public final class DrugEffectRuntimeManager {
         DIRTY_PLAYERS.add(player.getUUID());
         applyMovementAttribute(player, effects);
         applyMiningAttribute(player, effects);
+        applyAttackSpeedAttribute(player, effects);
         applyHpDecreaseAttribute(player, effects);
     }
 
@@ -112,6 +356,7 @@ public final class DrugEffectRuntimeManager {
 
             applyMovementAttribute(player, effects);
             applyMiningAttribute(player, effects);
+            applyAttackSpeedAttribute(player, effects);
             applyHpDecreaseAttribute(player, effects);
             maybeVomit(player, effects);
             applyStressRelief(player, effects);
@@ -124,6 +369,7 @@ public final class DrugEffectRuntimeManager {
         } else {
             removeMovementAttribute(player);
             removeMiningAttribute(player);
+            removeAttackSpeedAttribute(player);
             removeHpDecreaseAttribute(player);
             BurstWindowManager.cleanup(player);
         }
@@ -201,7 +447,7 @@ public final class DrugEffectRuntimeManager {
         float boost = intensity(effects, EffectType.MOVEMENT_SPEED);
         float slow = intensity(effects, EffectType.MOVEMENT_SLOWDOWN);
         float adrenaline = intensity(effects, EffectType.ADRENALINE_SURGE);
-        float multiplier = Math.max(0.05F, 1.0F + boost + adrenaline * 0.12F - slow);
+        float multiplier = Math.clamp(1.0F + boost + adrenaline * 0.12F - slow, 0.05F, MAX_MOVEMENT_MULTIPLIER);
         float previous = LAST_MOVEMENT_MULTIPLIER.getOrDefault(player.getUUID(), 1.0F);
 
         if (Math.abs(multiplier - previous) < 0.005F) {
@@ -264,8 +510,40 @@ public final class DrugEffectRuntimeManager {
         LAST_MINING_MULTIPLIER.remove(player.getUUID());
     }
 
+    private static void applyAttackSpeedAttribute(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {
+        float attackSpeed = intensity(effects, EffectType.ATTACK_SPEED);
+        float adrenaline = intensity(effects, EffectType.ADRENALINE_SURGE);
+        float multiplier = Math.clamp(1.0F + attackSpeed + adrenaline * 0.20F, 1.0F, 2.5F);
+        float previous = LAST_ATTACK_SPEED_MULTIPLIER.getOrDefault(player.getUUID(), 1.0F);
+
+        if (Math.abs(multiplier - previous) < 0.005F) {
+            return;
+        }
+
+        removeAttackSpeedAttribute(player);
+        if (Math.abs(multiplier - 1.0F) > 0.005F) {
+            var instance = player.getAttribute(Attributes.ATTACK_SPEED);
+            if (instance != null) {
+                instance.addOrUpdateTransientModifier(new AttributeModifier(
+                        ATTACK_SPEED_MODIFIER_ID,
+                        multiplier - 1.0F,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                ));
+            }
+        }
+        LAST_ATTACK_SPEED_MULTIPLIER.put(player.getUUID(), multiplier);
+    }
+
+    private static void removeAttackSpeedAttribute(ServerPlayer player) {
+        var instance = player.getAttribute(Attributes.ATTACK_SPEED);
+        if (instance != null) {
+            instance.removeModifier(ATTACK_SPEED_MODIFIER_ID);
+        }
+        LAST_ATTACK_SPEED_MULTIPLIER.remove(player.getUUID());
+    }
+
     private static void applyHpDecreaseAttribute(ServerPlayer player, EnumMap<EffectType, ActiveDrugEffect> effects) {
-        float hearts = Math.max(0.0F, intensity(effects, EffectType.HP_DECREASE));
+        float hearts = Math.clamp(intensity(effects, EffectType.HP_DECREASE), 0.0F, MAX_HP_DECREASE_HEARTS);
         float previous = LAST_HP_DECREASE_HEARTS.getOrDefault(player.getUUID(), 0.0F);
 
         if (Math.abs(hearts - previous) < 0.005F) {

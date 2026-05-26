@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.pipe.network;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -10,7 +11,11 @@ import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
 import org.mydrugs.mydrugs.pipe.filter.FluidPipeFilter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public final class FluidPipeNetworkLogic {
     private FluidPipeNetworkLogic() {
@@ -23,11 +28,21 @@ public final class FluidPipeNetworkLogic {
     }
 
     private static void tickNetwork(ServerLevel level, PipeNetwork network) {
+        PipeNetworkDiagnostics.networkTicked(PipeResourceKind.FLUID, network.inputs().size() + network.outputs().size());
         if (network.outputs().isEmpty()) {
             return;
         }
 
+        Set<BlockPos> usedSourceStorages = new HashSet<>();
         for (PipeEndpoint source : network.inputs()) {
+            if (!usedSourceStorages.add(source.targetPos())) {
+                continue;
+            }
+            if (!network.isEndpointLoaded(level, source)) {
+                PipeNetworkManager.get(level).markDirty(source.pipePos(), PipeResourceKind.FLUID, PipeNetworkDirtyReason.CHUNK_UNLOAD);
+                continue;
+            }
+
             ResourceHandler<FluidResource> sourceHandler = network.fluidHandler(level, source);
             if (sourceHandler == null) {
                 continue;
@@ -83,11 +98,15 @@ public final class FluidPipeNetworkLogic {
         }
 
         List<Allocation> allocations = allocateFairly(candidates, amount);
-        int total = allocations.stream().mapToInt(Allocation::amount).sum();
+        int total = 0;
+        for (Allocation allocation : allocations) {
+            total += allocation.amount();
+        }
         if (total <= 0) {
             return false;
         }
 
+        PipeNetworkDiagnostics.transferAttempted();
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = sourceHandler.extract(sourceSlot, resource, total, transaction);
             if (extracted != total) {
@@ -104,6 +123,7 @@ public final class FluidPipeNetworkLogic {
             transaction.commit();
         }
 
+        PipeNetworkDiagnostics.transferSucceeded();
         return true;
     }
 
@@ -115,21 +135,26 @@ public final class FluidPipeNetworkLogic {
             int amount
     ) {
         ArrayList<Candidate> candidates = new ArrayList<>();
+        Set<BlockPos> seenTargets = new HashSet<>();
+        Set<ResourceHandler<FluidResource>> seenHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         List<PipeEndpoint> outputs = network.outputCandidates(source);
         int rotation = outputs.isEmpty() ? 0 : Math.floorMod(network.fluidOutputRotation(source), outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
             PipeEndpoint target = outputs.get((rotation + i) % outputs.size());
-            if (!allows(target, resource)) {
+            PipeNetworkDiagnostics.candidateConsidered();
+            if (!network.isEndpointLoaded(level, target) || !allows(target, resource)) {
                 continue;
             }
 
             ResourceHandler<FluidResource> targetHandler = network.fluidHandler(level, target);
-            if (targetHandler == null) {
+            if (targetHandler == null || seenTargets.contains(target.targetPos()) || seenHandlers.contains(targetHandler)) {
                 continue;
             }
 
             int capacity = simulateInsert(targetHandler, resource, amount);
             if (capacity > 0) {
+                seenTargets.add(target.targetPos());
+                seenHandlers.add(targetHandler);
                 candidates.add(new Candidate(targetHandler, capacity));
             }
         }

@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.client.diary;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -12,9 +13,10 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.effect.EffectPolarity;
@@ -25,12 +27,14 @@ import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.diary.DiaryEntryDto;
 import org.mydrugs.mydrugs.diary.DiaryMasteryStatDto;
+import org.mydrugs.mydrugs.diary.DiaryBlocker;
+import org.mydrugs.mydrugs.diary.DiaryBreadcrumb;
+import org.mydrugs.mydrugs.diary.DiaryMemory;
 import org.mydrugs.mydrugs.diary.DiaryPlayerStateDto;
+import org.mydrugs.mydrugs.diary.DiaryWarning;
 import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
-import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
-import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -60,6 +64,8 @@ public final class PersonalDiaryScreen extends Screen {
     private static final int INK = 0xFF402815;            // primary text
     private static final int INK_SOFT = 0xFF7B5736;       // muted text
     private static final int INK_HIGHLIGHT = 0xFF7A4B1A;  // accent
+    private static final int INK_WARNING = 0xFF8E2F25;    // warning text
+    private static final int INK_HINT = 0xFF5F4C2A;       // mechanical hint text
     private static final int DIVIDER = 0x66402815;        // semi-transparent ink
 
     private PersonalDiarySnapshotPayload snapshot;
@@ -252,7 +258,48 @@ public final class PersonalDiaryScreen extends Screen {
                 && holder.page.mouseClicked(event.x(), event.y(), event.button())) {
             return true;
         }
+        // Diary-day pages may carry memory-link lines that jump to the mind map page.
+        if (event.button() == 0
+                && !pages.isEmpty()
+                && pages.get(pageIndex) instanceof DayPage dayPage
+                && tryFollowLink(dayPage, event.x(), event.y())) {
+            return true;
+        }
         return super.mouseClicked(event, doubleClick);
+    }
+
+    private boolean tryFollowLink(DayPage page, double mouseX, double mouseY) {
+        if (mouseX < contentLeft || mouseX > contentRight || mouseY < contentTop || mouseY > contentBottom) {
+            return false;
+        }
+        boolean showDetails = isShiftDownForDiary();
+        boolean showDebug = snapshot.clarity().diagnosticMode();
+        int y = contentTop - scrollY;
+        for (DiaryLine line : page.lines()) {
+            if (!line.visible(showDetails, showDebug)) {
+                continue;
+            }
+            if (line.kind == DiaryLine.Kind.LINK && mouseY >= y && mouseY < y + LINE_H) {
+                int mindMapIndex = findMindMapPageIndex();
+                if (mindMapIndex >= 0) {
+                    pageIndex = mindMapIndex;
+                    scrollY = 0;
+                    return true;
+                }
+                return false;
+            }
+            y += LINE_H;
+        }
+        return false;
+    }
+
+    private int findMindMapPageIndex() {
+        for (int i = 0; i < pages.size(); i++) {
+            if (pages.get(i) instanceof MindMapPageHolder) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -309,13 +356,18 @@ public final class PersonalDiaryScreen extends Screen {
 
         // Content area: clip and render scrollable lines
         g.enableScissor(contentLeft, contentTop, contentRight, contentBottom);
-        int totalContentHeight = page.lines().size() * LINE_H;
+        boolean showDetails = isShiftDownForDiary();
+        boolean showDebug = snapshot.clarity().diagnosticMode();
+        int totalContentHeight = visibleLineCount(page, showDetails, showDebug) * LINE_H;
         int visibleHeight = contentBottom - contentTop;
         int maxScroll = Math.max(0, totalContentHeight - visibleHeight);
         if (scrollY > maxScroll) scrollY = maxScroll;
 
         int y = contentTop - scrollY;
         for (DiaryLine line : page.lines()) {
+            if (!line.visible(showDetails, showDebug)) {
+                continue;
+            }
             if (y + LINE_H >= contentTop && y <= contentBottom) {
                 line.render(g, this.font, contentLeft, contentRight - 4, y);
             }
@@ -345,6 +397,25 @@ public final class PersonalDiaryScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
     }
 
+    private int visibleLineCount(DiaryPage page, boolean showDetails, boolean showDebug) {
+        int count = 0;
+        for (DiaryLine line : page.lines()) {
+            if (line.visible(showDetails, showDebug)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean isShiftDownForDiary() {
+        if (this.minecraft == null) {
+            return false;
+        }
+        var window = this.minecraft.getWindow();
+        return InputConstants.isKeyDown(window, InputConstants.KEY_LSHIFT)
+                || InputConstants.isKeyDown(window, InputConstants.KEY_RSHIFT);
+    }
+
     private void renderFooterText(GuiGraphics g, DiaryPage page) {
         int textY = pageTop + PAGE_H - FOOTER_H + 8;
         boolean onTodayPage = page instanceof DayPage dp && dp.isToday;
@@ -356,6 +427,10 @@ public final class PersonalDiaryScreen extends Screen {
                 int w = this.font.width(msg);
                 g.drawString(this.font, msg, (pageLeft + PAGE_W / 2) - w / 2, textY, INK_SOFT, false);
             }
+        } else if (pageIndex == 0 && !snapshot.clarity().diagnosticMode()) {
+            Component msg = Component.translatable("screen.mydrugs.diary.shift_for_hints");
+            int w = this.font.width(msg);
+            g.drawString(this.font, msg, (pageLeft + PAGE_W / 2) - w / 2, textY, INK_SOFT, false);
         }
 
         if (statusMessage != null) {
@@ -396,8 +471,49 @@ public final class PersonalDiaryScreen extends Screen {
         List<DiaryLine> lines = new ArrayList<>();
         DiaryPlayerStateDto s = snapshot.playerState();
 
-        // Section: vitals
-        lines.add(DiaryLine.heading("Right now"));
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.current_thought")));
+        lines.addAll(wrapToLines(tr(snapshot.clarity().thought().textKey()), DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS));
+
+        if (!snapshot.clarity().warnings().isEmpty()) {
+            lines.add(DiaryLine.spacer());
+            lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.warnings")));
+            for (DiaryWarning warning : snapshot.clarity().warnings()) {
+                addWarning(lines, warning);
+            }
+        }
+
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.next_thread")));
+        if (snapshot.clarity().breadcrumbs().isEmpty()) {
+            lines.addAll(wrapToLines(tr("screen.mydrugs.diary.no_breadcrumbs")));
+        } else {
+            for (DiaryBreadcrumb breadcrumb : snapshot.clarity().breadcrumbs()) {
+                addBreadcrumb(lines, breadcrumb);
+            }
+        }
+
+        if (!snapshot.clarity().blockers().isEmpty()) {
+            lines.add(DiaryLine.spacer());
+            lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.unresolved")));
+            for (DiaryBlocker blocker : snapshot.clarity().blockers()) {
+                addBlocker(lines, blocker);
+            }
+        }
+
+        if (!snapshot.clarity().memories().isEmpty()) {
+            lines.add(DiaryLine.spacer());
+            lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.memories")));
+            int shown = 0;
+            for (DiaryMemory memory : snapshot.clarity().memories()) {
+                addMemory(lines, memory);
+                if (++shown >= 3) {
+                    break;
+                }
+            }
+        }
+
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.body_state")));
         lines.add(DiaryLine.text(stressLine(s.stress())));
         lines.add(DiaryLine.text(withdrawalLine(s.globalSeverity())));
         lines.add(DiaryLine.spacer());
@@ -427,14 +543,24 @@ public final class PersonalDiaryScreen extends Screen {
 
         appendFeelingReasonSections(lines, s);
 
-        return new BasicPage(Component.translatable("screen.mydrugs.diary.how_i_feel_today"), lines);
+        return new BasicPage(Component.translatable("screen.mydrugs.diary.inner_compass"), lines);
     }
 
     private DiaryPage buildPage2() {
         List<DiaryLine> lines = new ArrayList<>();
 
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.memories")));
+        if (snapshot.clarity().memories().isEmpty()) {
+            lines.addAll(wrapToLines(tr("screen.mydrugs.diary.no_memories")));
+        } else {
+            for (DiaryMemory memory : snapshot.clarity().memories()) {
+                addMemory(lines, memory);
+            }
+        }
+        lines.add(DiaryLine.spacer());
+
         // Rituals
-        lines.add(DiaryLine.heading("Rituals"));
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.rituals")));
         int totalCompleted = 0;
         int totalFailed = 0;
         DiaryMasteryStatDto bestRitual = null;
@@ -497,6 +623,51 @@ public final class PersonalDiaryScreen extends Screen {
         return new MindMapPageHolder(Component.translatable("screen.mydrugs.diary.mind_map"), page);
     }
 
+    private void addWarning(List<DiaryLine> lines, DiaryWarning warning) {
+        addWrappedWithIcon(lines, tr(warning.textKey()), stackForItemId(warning.iconItemId()),
+                DiaryLine.Kind.WARNING, DiaryLine.Visibility.ALWAYS);
+        if (!warning.clearHintKey().isBlank()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.hint_line", tr(warning.clearHintKey())),
+                    DiaryLine.Kind.HINT, DiaryLine.Visibility.SHIFT);
+        }
+    }
+
+    private void addBreadcrumb(List<DiaryLine> lines, DiaryBreadcrumb breadcrumb) {
+        addWrappedWithIcon(lines, tr(breadcrumb.textKey()), stackForItemId(breadcrumb.iconItemId()),
+                DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS);
+        if (!breadcrumb.clearHintKey().isBlank()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.hint_line", tr(breadcrumb.clearHintKey())),
+                    DiaryLine.Kind.HINT, DiaryLine.Visibility.SHIFT);
+        }
+        if (!breadcrumb.guideTarget().isBlank()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.guide_target", breadcrumb.guideTarget()),
+                    DiaryLine.Kind.HINT, DiaryLine.Visibility.SHIFT);
+        }
+        if (!breadcrumb.explicitHintKey().isBlank()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.diagnostic_line", tr(breadcrumb.explicitHintKey())),
+                    DiaryLine.Kind.HINT, DiaryLine.Visibility.DEBUG);
+        }
+    }
+
+    private void addBlocker(List<DiaryLine> lines, DiaryBlocker blocker) {
+        addWrapped(lines, tr(blocker.textKey()), DiaryLine.Kind.WARNING, DiaryLine.Visibility.ALWAYS);
+        if (!blocker.clearHintKey().isBlank()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.hint_line", tr(blocker.clearHintKey())),
+                    DiaryLine.Kind.HINT, DiaryLine.Visibility.SHIFT);
+        }
+        if (!blocker.explicitHintKey().isBlank()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.diagnostic_line", tr(blocker.explicitHintKey())),
+                    DiaryLine.Kind.HINT, blocker.count() >= 3 ? DiaryLine.Visibility.SHIFT : DiaryLine.Visibility.DEBUG);
+        }
+    }
+
+    private void addMemory(List<DiaryLine> lines, DiaryMemory memory) {
+        String title = memory.titleKey().isBlank() ? "" : tr(memory.titleKey());
+        String body = memory.textKey().isBlank() ? title : tr(memory.textKey());
+        String text = tr("screen.mydrugs.diary.memory_line", memory.day(), body);
+        addWrappedWithIcon(lines, text, stackForItemId(memory.iconItemId()), DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS);
+    }
+
     private DayPage buildDayPage(long day, List<DiaryEntryDto> entries, boolean isToday) {
         List<DiaryLine> lines = new ArrayList<>();
         if (entries.isEmpty() && isToday) {
@@ -511,6 +682,10 @@ public final class PersonalDiaryScreen extends Screen {
                 for (DiaryLine wl : wrapToLines(e.content())) {
                     lines.add(wl);
                 }
+                String sk = e.sourceKey();
+                if (sk != null && sk.startsWith("memory:")) {
+                    lines.add(DiaryLine.link("See in mind map", sk.substring("memory:".length())));
+                }
                 lines.add(DiaryLine.spacer());
                 idx++;
             }
@@ -519,9 +694,13 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     private List<DiaryLine> wrapToLines(String text) {
+        return wrapToLines(text, DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS);
+    }
+
+    private List<DiaryLine> wrapToLines(String text, DiaryLine.Kind kind, DiaryLine.Visibility visibility) {
         List<DiaryLine> out = new ArrayList<>();
         if (text == null || text.isEmpty()) {
-            out.add(DiaryLine.text(""));
+            out.add(DiaryLine.of("", ItemStack.EMPTY, null, kind, visibility));
             return out;
         }
         int maxWidth = contentRight - contentLeft - 6;
@@ -531,7 +710,7 @@ public final class PersonalDiaryScreen extends Screen {
             for (String word : paragraph.split(" ")) {
                 String trial = current.length() == 0 ? word : current + " " + word;
                 if (f.width(trial) > maxWidth && current.length() > 0) {
-                    out.add(DiaryLine.text(current.toString()));
+                    out.add(DiaryLine.of(current.toString(), ItemStack.EMPTY, null, kind, visibility));
                     current.setLength(0);
                     current.append(word);
                 } else {
@@ -539,9 +718,45 @@ public final class PersonalDiaryScreen extends Screen {
                     current.append(word);
                 }
             }
-            if (current.length() > 0) out.add(DiaryLine.text(current.toString()));
+            if (current.length() > 0) {
+                out.add(DiaryLine.of(current.toString(), ItemStack.EMPTY, null, kind, visibility));
+            }
         }
         return out;
+    }
+
+    private void addWrapped(List<DiaryLine> target, String text, DiaryLine.Kind kind, DiaryLine.Visibility visibility) {
+        target.addAll(wrapToLines(text, kind, visibility));
+    }
+
+    private void addWrappedWithIcon(List<DiaryLine> target, String text, ItemStack icon,
+                                    DiaryLine.Kind kind, DiaryLine.Visibility visibility) {
+        List<DiaryLine> wrapped = wrapToLines(text, kind, visibility);
+        for (int i = 0; i < wrapped.size(); i++) {
+            DiaryLine line = wrapped.get(i);
+            target.add(i == 0
+                    ? DiaryLine.of(line.text, icon, null, kind, visibility)
+                    : DiaryLine.of(line.text, ItemStack.EMPTY, null, DiaryLine.Kind.INDENTED, visibility));
+        }
+    }
+
+    private String tr(String key, Object... args) {
+        return Component.translatable(key, args).getString();
+    }
+
+    private ItemStack stackForItemId(String itemId) {
+        if (itemId == null || itemId.isBlank()) {
+            return ItemStack.EMPTY;
+        }
+        ResourceLocation id = ResourceLocation.tryParse(itemId);
+        if (id == null) {
+            return ItemStack.EMPTY;
+        }
+        Item item = BuiltInRegistries.ITEM.getValue(id);
+        if (item == null || item == Items.AIR) {
+            return ItemStack.EMPTY;
+        }
+        return new ItemStack(item);
     }
 
     // ----------------------- Helpers (formatting) -----------------------
@@ -797,35 +1012,57 @@ public final class PersonalDiaryScreen extends Screen {
 
     /** A single rendered line; optional icon (item-stack), optional texture icon, optional heading style. */
     private static final class DiaryLine {
-        enum Kind { TEXT, HEADING, SPACER, INDENTED, SYMPTOM_METER }
+        enum Kind { TEXT, HEADING, SPACER, INDENTED, WARNING, HINT, SYMPTOM_METER, LINK }
+        enum Visibility { ALWAYS, SHIFT, DEBUG }
         final String text;
         final ItemStack icon;
         final ResourceLocation iconTexture;
         final Kind kind;
+        final Visibility visibility;
         final float intensity;     // 0..1 for SYMPTOM_METER
         final String tail;         // right-aligned suffix text (e.g. "73%")
+        /** Memory-map node id for LINK lines, empty otherwise. */
+        final String linkTarget;
 
-        private DiaryLine(String text, ItemStack icon, ResourceLocation tex, Kind kind, float intensity, String tail) {
+        private DiaryLine(String text, ItemStack icon, ResourceLocation tex, Kind kind, Visibility visibility,
+                          float intensity, String tail, String linkTarget) {
             this.text = text == null ? "" : text;
             this.icon = icon == null ? ItemStack.EMPTY : icon;
             this.iconTexture = tex;
-            this.kind = kind;
+            this.kind = kind == null ? Kind.TEXT : kind;
+            this.visibility = visibility == null ? Visibility.ALWAYS : visibility;
             this.intensity = intensity;
             this.tail = tail == null ? "" : tail;
+            this.linkTarget = linkTarget == null ? "" : linkTarget;
         }
 
-        static DiaryLine text(String s)        { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.TEXT, 0F, ""); }
-        static DiaryLine indented(String s)    { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.INDENTED, 0F, ""); }
-        static DiaryLine heading(String s)     { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.HEADING, 0F, ""); }
-        static DiaryLine spacer()              { return new DiaryLine("", ItemStack.EMPTY, null, Kind.SPACER, 0F, ""); }
+        static DiaryLine of(String s, ItemStack stack, ResourceLocation tex, Kind kind, Visibility visibility) {
+            return new DiaryLine(s, stack, tex, kind, visibility, 0F, "", "");
+        }
+        static DiaryLine text(String s)        { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.TEXT, Visibility.ALWAYS, 0F, "", ""); }
+        static DiaryLine indented(String s)    { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.INDENTED, Visibility.ALWAYS, 0F, "", ""); }
+        static DiaryLine heading(String s)     { return new DiaryLine(s, ItemStack.EMPTY, null, Kind.HEADING, Visibility.ALWAYS, 0F, "", ""); }
+        static DiaryLine spacer()              { return new DiaryLine("", ItemStack.EMPTY, null, Kind.SPACER, Visibility.ALWAYS, 0F, "", ""); }
         static DiaryLine withIcon(ItemStack stack, String s) {
-            return new DiaryLine(s, stack, null, Kind.TEXT, 0F, "");
+            return new DiaryLine(s, stack, null, Kind.TEXT, Visibility.ALWAYS, 0F, "", "");
         }
         static DiaryLine withTexture(ResourceLocation tex, String s) {
-            return new DiaryLine(s, ItemStack.EMPTY, tex, Kind.TEXT, 0F, "");
+            return new DiaryLine(s, ItemStack.EMPTY, tex, Kind.TEXT, Visibility.ALWAYS, 0F, "", "");
         }
         static DiaryLine withSymptomMeter(ResourceLocation tex, String label, float intensity, String tail) {
-            return new DiaryLine(label, ItemStack.EMPTY, tex, Kind.SYMPTOM_METER, intensity, tail);
+            return new DiaryLine(label, ItemStack.EMPTY, tex, Kind.SYMPTOM_METER, Visibility.ALWAYS, intensity, tail, "");
+        }
+        /** A clickable link line that, when clicked, jumps the diary to the mind-map page. */
+        static DiaryLine link(String label, String targetNodeId) {
+            return new DiaryLine(label, ItemStack.EMPTY, null, Kind.LINK, Visibility.ALWAYS, 0F, "", targetNodeId);
+        }
+
+        boolean visible(boolean showDetails, boolean showDebug) {
+            return switch (visibility) {
+                case ALWAYS -> true;
+                case SHIFT -> showDetails || showDebug;
+                case DEBUG -> showDebug;
+            };
         }
 
         void render(GuiGraphics g, Font font, int x, int xRight, int y) {
@@ -836,7 +1073,7 @@ public final class PersonalDiaryScreen extends Screen {
                     g.fill(x, y + 9, x + Math.min(60, font.width(text)), y + 10, DIVIDER);
                 }
                 case INDENTED -> g.drawString(font, text, x + ICON_SIZE + ICON_GAP, y, INK, false);
-                case TEXT -> {
+                case WARNING, HINT, TEXT -> {
                     int textX = x;
                     if (!icon.isEmpty()) {
                         g.renderFakeItem(icon, x, y - 3);
@@ -848,7 +1085,15 @@ public final class PersonalDiaryScreen extends Screen {
                                 x, y, 0, 0, ICON_SIZE, ICON_SIZE, 16, 16, 16, 16);
                         textX += ICON_SIZE + ICON_GAP;
                     }
-                    g.drawString(font, text, textX, y, INK, false);
+                    int color = kind == Kind.WARNING ? INK_WARNING : kind == Kind.HINT ? INK_HINT : INK;
+                    g.drawString(font, text, textX, y, color, false);
+                }
+                case LINK -> {
+                    int linkColor = 0xFF5BB8FF; // soft sky-blue, vanilla-link feel
+                    int textX = x + 4;
+                    g.drawString(font, "↗ " + text, textX, y, linkColor, false);
+                    int w = font.width("↗ " + text);
+                    g.fill(textX, y + 9, textX + w, y + 10, linkColor);
                 }
                 case SYMPTOM_METER -> {
                     // 1) HUD-style icon tile with dark backing

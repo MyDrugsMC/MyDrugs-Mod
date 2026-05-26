@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "minecraft:block/coal_block",
-    "particle": "minecraft:block/coal_block"
+    "all": "mydrugs:block/charcoal_glyph_block",
+    "particle": "mydrugs:block/charcoal_glyph_block"
   }
 }

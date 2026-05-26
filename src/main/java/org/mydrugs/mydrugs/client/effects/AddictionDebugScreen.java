@@ -13,9 +13,9 @@ import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
 import java.util.List;
 
 public final class AddictionDebugScreen extends Screen {
-    private static final int WIDTH = 360;
-    private static final int HEIGHT = 220;
-    private static final int ROW_H = 28;
+    private static final int WIDTH = 430;
+    private static final int HEIGHT = 250;
+    private static final int ROW_H = 39;
 
     private AddictionDebugOpenPayload payload;
     private int left;
@@ -128,7 +128,7 @@ public final class AddictionDebugScreen extends Screen {
         graphics.drawString(this.font, "Tol", x + 145, y, 0xFFB8B0C5, false);
         graphics.drawString(this.font, "Dose", x + 180, y, 0xFFB8B0C5, false);
         graphics.drawString(this.font, "Peak", x + 225, y, 0xFFB8B0C5, false);
-        graphics.drawString(this.font, "State / extra", x + 270, y, 0xFFB8B0C5, false);
+        graphics.drawString(this.font, "State / Integration", x + 270, y, 0xFFB8B0C5, false);
     }
 
     private void drawRow(GuiGraphics graphics, AddictionDebugOpenPayload.DrugStatsRow row, int x, int y, boolean even) {
@@ -146,6 +146,14 @@ public final class AddictionDebugScreen extends Screen {
                 x + 72,
                 y + 11,
                 0xFFB8B0C5,
+                false
+        );
+        graphics.drawString(
+                this.font,
+                trim(integrationLine(row), WIDTH - 112),
+                x + 72,
+                y + 22,
+                integrationColor(row),
                 false
         );
     }
@@ -186,7 +194,7 @@ public final class AddictionDebugScreen extends Screen {
     }
 
     private int visibleRows() {
-        return 5;
+        return Math.max(1, (HEIGHT - 89) / ROW_H);
     }
 
     private int maxScroll() {
@@ -231,6 +239,34 @@ public final class AddictionDebugScreen extends Screen {
                 + "  sev " + fmt(this.payload.badTripSeverity())
                 + "  int " + fmt(this.payload.badTripSymptomIntensity())
                 + "  src " + trim(source, 80);
+    }
+
+    private String integrationLine(AddictionDebugOpenPayload.DrugStatsRow row) {
+        String trait = row.integratedTraitId().isBlank() ? "none" : row.integratedTraitId();
+        String state = switch (row.integrationStage()) {
+            case 1 -> "eligible";
+            case 2 -> "integrated";
+            default -> row.integrationEligible() ? "ready" : "none";
+        };
+        String unlocked = row.integratedTraitUnlocked() ? " unlocked" : "";
+        String integratedAt = row.integratedAtGameTime() >= 0L ? " at " + row.integratedAtGameTime() : "";
+        return "Life " + fmt(row.lifetimeDoseConsumed())
+                + "  rec " + fmt(row.recoveryProgress())
+                + "  stage " + row.integrationStage() + "/" + state
+                + "  trait " + trait + unlocked + integratedAt;
+    }
+
+    private int integrationColor(AddictionDebugOpenPayload.DrugStatsRow row) {
+        if (row.integratedTraitUnlocked() || row.integrationStage() == 2) {
+            return 0xFF8FE6D1;
+        }
+        if (row.integrationEligible() || row.integrationStage() == 1) {
+            return 0xFFFFD37A;
+        }
+        if (row.recoveryProgress() > 0.0F || row.lifetimeDoseConsumed() > 0.0F) {
+            return 0xFFC9B8FF;
+        }
+        return 0xFF8F879C;
     }
 
     private String trim(String text, int width) {

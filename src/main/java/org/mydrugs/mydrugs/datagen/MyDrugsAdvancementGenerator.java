@@ -99,7 +99,6 @@ public final class MyDrugsAdvancementGenerator {
         drug("knowledge/first_nicotinic", "consumption/first_drug", item("tobacco_handful"), "first_nicotinic", null, "nicotinic", null, null, false);
         drug("knowledge/first_hash", "knowledge/cannabinoid", item("hash_piece"), "first_hash", null, null, null, null, false, "hash");
         drug("knowledge/first_alcohol", "knowledge/first_depressant", item("glass_bottle"), "first_alcohol", null, null, null, null, true, "alcohol");
-        drug("knowledge/first_high_value_psychotrope", "psychotrope/psychotrope_core", item("meth_shard"), "first_high_value_psychotrope", null, null, null, null, true, "meth");
         psyKnowledge("knowledge/nicotinic", "knowledge/first_nicotinic", item("psy_receptacle"), "mydrugs:nicotinic", false);
         psyKnowledge("knowledge/cannabinoid", "knowledge/nicotinic", item("cannabis_powder"), "mydrugs:cannabinoid", false);
         psyKnowledge("knowledge/steel_plating", "knowledge/first_hash", item("steel_plate"), "mydrugs:steel_plating", false);
@@ -196,14 +195,6 @@ public final class MyDrugsAdvancementGenerator {
         psyAnvilCraft("psy_anvil/shape_advanced_control_circuit", "knowledge/lysergic", item("advanced_control_circuit"), "mydrugs:advanced_control_circuit");
         psyAnvilCraft("psy_anvil/build_resonator", "knowledge/overclocked", item("mycelial_resonator"), "mydrugs:mycelial_resonator");
         inventoryAny("psychotrope/psychotrope_lens", "materials/advanced_control_circuit", item("psychotrope_lens"), recipes("psychotrope_lens"), item("psychotrope_lens"));
-        placedAny("psychotrope/psychotrope_component", "psychotrope/psychotrope_lens", item("psychotrope_component"), recipes("psychotrope_component"), block("psychotrope_component"));
-        placedAny("psychotrope/psychotrope_core", "psychotrope/psychotrope_component", item("psychotrope_core"), recipes("psychotrope_core"), block("psychotrope_core"));
-        psychotrope("psychotrope/multiblock_formed", "psychotrope/psychotrope_core", item("psychotrope_core"), "multiblock_formed", false, 0);
-        psychotrope("psychotrope/first_energy", "psychotrope/multiblock_formed", item("psychotrope_lens"), "energy_generated", false, 1);
-        psychotrope("psychotrope/energy_threshold_1", "psychotrope/first_energy", item("energy_upgrade"), "energy_generated", true, 1000);
-        psychotrope("psychotrope/energy_threshold_2", "psychotrope/energy_threshold_1", item("automation_upgrade"), "energy_generated", true, 10000);
-        psychotrope("psychotrope/power_machine", "psychotrope/first_energy", item("energy_upgrade"), "powered_machine", false, 0);
-        drug("psychotrope/high_value_input", "psychotrope/first_energy", item("meth_shard"), "high_value_input", null, null, null, "psychotrope", true);
     }
 
     private void challenges() {
@@ -216,11 +207,10 @@ public final class MyDrugsAdvancementGenerator {
         inventoryAll("challenges/complete_machine_branch", "machines/all_advanced_machines", item("catalytic_reformer"), "challenge",
                 item("advanced_furnace"), item("mixing_vat"), item("distiller"), item("fluid_filterer"), item("centrifuge"), item("chemical_reactor"), item("advanced_mixing_vat"), item("electrolyzer"), item("gasifier"), item("steam_cracker"), item("aromatic_extractor"), item("btx_fractionation_tower"), item("catalytic_reformer"), item("growth_chamber"), item("biochemical_reactor"));
         drugAllCategories("challenges/consume_all_categories", "knowledge/first_nicotinic", item("joint"));
-        psychotrope("challenges/complete_psychotrope_branch", "psychotrope/energy_threshold_2", item("psychotrope_core"), "powered_machine", true, 0);
         inventoryAll("challenges/deep_production", "machines/catalytic_reformer", item("meth_shard"), "challenge",
                 item("hash_piece"), item("cocaine_powder"), item("meth_shard"), item("magic_mushroom_powder"));
-        inventoryAll("challenges/full_mod_progression", "challenges/complete_machine_branch", item("psychotrope_core"), "challenge",
-                item("recovery_anchor"), item("psychotrope_core"), item("catalytic_reformer"), item("automation_upgrade"), item("joint"));
+        inventoryAll("challenges/full_mod_progression", "challenges/complete_machine_branch", item("psychotrope_resonator"), "challenge",
+                item("recovery_anchor"), item("psychotrope_resonator"), item("catalytic_reformer"), item("automation_upgrade"), item("joint"));
     }
 
     private void root(String path, String icon) {
@@ -390,15 +380,6 @@ public final class MyDrugsAdvancementGenerator {
         conditions.addProperty("machine", block("psy_anvil"));
         conditions.addProperty("result_item", resultItem);
         custom(path, parent, icon, "mydrugs:machine_recipe_completed", conditions, false, "task");
-    }
-
-    private void psychotrope(String path, String parent, String icon, String event, boolean hidden, int threshold) {
-        JsonObject conditions = new JsonObject();
-        conditions.addProperty("event", event);
-        if (threshold > 0) {
-            conditions.addProperty("threshold", threshold);
-        }
-        custom(path, parent, icon, "mydrugs:psychotrope_energy", conditions, hidden, hidden ? "goal" : "task");
     }
 
     private void custom(String path, String parent, String icon, String trigger, JsonObject conditions, boolean hidden, String frame) {

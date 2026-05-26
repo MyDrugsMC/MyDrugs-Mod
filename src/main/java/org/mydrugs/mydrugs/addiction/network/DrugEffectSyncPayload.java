@@ -15,6 +15,9 @@ public record DrugEffectSyncPayload(List<Entry> effects) implements CustomPacket
     public static final Type<DrugEffectSyncPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "drug_effect_sync"));
 
+    /** Upper bound on payload entries: one per distinct {@link EffectType}. */
+    public static final int MAX_ENTRIES = EffectType.values().length;
+
     public record Entry(@Nullable EffectType type, float intensity, int remainingTicks, int fadeTicksRemaining, int fadeDurationTicks) {
         public float effectiveIntensity() {
             if (fadeTicksRemaining <= 0 || fadeDurationTicks <= 0) {
@@ -44,8 +47,14 @@ public record DrugEffectSyncPayload(List<Entry> effects) implements CustomPacket
                 }
             },
             buf -> {
+                // Entry count is bounded by the number of distinct EffectType values: a payload can
+                // never legitimately carry more, so reject anything larger as corrupt/hostile.
                 int count = ByteBufCodecs.VAR_INT.decode(buf);
-                java.util.ArrayList<Entry> entries = new java.util.ArrayList<>(Math.min(count, 32));
+                if (count < 0 || count > MAX_ENTRIES) {
+                    throw new io.netty.handler.codec.DecoderException(
+                            "DrugEffectSyncPayload entry count out of bounds: " + count);
+                }
+                java.util.ArrayList<Entry> entries = new java.util.ArrayList<>(count);
                 for (int i = 0; i < count; i++) {
                     entries.add(ENTRY_CODEC.decode(buf));
                 }

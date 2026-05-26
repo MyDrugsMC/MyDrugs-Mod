@@ -9,28 +9,33 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Set;
 
 public final class DrugProgressionGate {
     private DrugProgressionGate() {
     }
 
     public static Decision evaluate(ServerPlayer player, DrugModel model) {
+        return evaluateKnownKnowledge(model, PsyKnowledgeManager.getKnown(player));
+    }
+
+    public static Decision evaluateKnownKnowledge(DrugModel model, Set<PsyKnowledgeKey> knownKnowledge) {
         Rule rule = ruleFor(model);
         if (rule == null) {
-            return Decision.allowed(Optional.empty(), false);
+            return Decision.allowed(List.of(), false);
         }
 
-        if (rule.requiredKnowledge() != null && !PsyKnowledgeManager.has(player, rule.requiredKnowledge())) {
+        if (rule.requiredKnowledge() != null && !knownKnowledge.contains(rule.requiredKnowledge())) {
             if (rule.blockConsumption()) {
                 return Decision.blocked(rule.mushroomMessage()
                         ? "message.mydrugs.knowledge.blocked.mushroom"
                         : "message.mydrugs.knowledge.blocked.generic");
             }
-            return Decision.allowed(Optional.empty(), true);
+            return Decision.allowed(List.of(), true);
         }
 
-        return Decision.allowed(Optional.ofNullable(rule.grantedKnowledge()), false);
+        return Decision.allowed(rule.grantedKnowledge(), false);
     }
 
     public static void notifyBlocked(ServerPlayer player, String messageKey) {
@@ -43,20 +48,21 @@ public final class DrugProgressionGate {
         DrugCategory category = model.getDrugCategory();
 
         return switch (id) {
-            case COFFEE -> new Rule(null, PsyKnowledgeKey.CAFFEINE, true, false);
-            case TOBACCO -> new Rule(null, PsyKnowledgeKey.NICOTINIC, true, false);
-            case WEED, HASH -> new Rule(PsyKnowledgeKey.NICOTINIC, PsyKnowledgeKey.CANNABINOID, true, false);
-            case ALCOHOL -> new Rule(PsyKnowledgeKey.CANNABINOID, PsyKnowledgeKey.FERMENTED, true, false);
-            case COCAINE, CRACK -> new Rule(PsyKnowledgeKey.FERMENTED, PsyKnowledgeKey.STIMULANT, true, false);
-            case LSD -> new Rule(PsyKnowledgeKey.STIMULANT, PsyKnowledgeKey.LYSERGIC, true, false);
-            case METH -> new Rule(PsyKnowledgeKey.LYSERGIC, PsyKnowledgeKey.OVERCLOCKED, true, false);
-            case MUSHROOMS -> new Rule(PsyKnowledgeKey.OVERCLOCKED, PsyKnowledgeKey.MYCELIAL, false, true);
+            case COFFEE -> new Rule(null, List.of(PsyKnowledgeKey.CAFFEINE), true, false);
+            case TOBACCO -> new Rule(null, List.of(PsyKnowledgeKey.NICOTINIC), true, false);
+            case WEED -> new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID), true, false);
+            case HASH -> new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID, PsyKnowledgeKey.STEEL_PLATING), true, false);
+            case ALCOHOL -> new Rule(PsyKnowledgeKey.CANNABINOID, List.of(PsyKnowledgeKey.FERMENTED), true, false);
+            case COCAINE, CRACK -> new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.STIMULANT), true, false);
+            case LSD -> new Rule(PsyKnowledgeKey.STIMULANT, List.of(PsyKnowledgeKey.LYSERGIC), true, false);
+            case METH -> new Rule(PsyKnowledgeKey.LYSERGIC, List.of(PsyKnowledgeKey.OVERCLOCKED), true, false);
+            case MUSHROOMS -> new Rule(PsyKnowledgeKey.OVERCLOCKED, List.of(PsyKnowledgeKey.MYCELIAL), false, true);
             default -> {
                 if (category == DrugCategory.CANNABINOID) {
-                    yield new Rule(PsyKnowledgeKey.NICOTINIC, PsyKnowledgeKey.CANNABINOID, true, false);
+                    yield new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID), true, false);
                 }
                 if (category == DrugCategory.STIMULANT) {
-                    yield new Rule(PsyKnowledgeKey.FERMENTED, PsyKnowledgeKey.STIMULANT, true, false);
+                    yield new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.STIMULANT), true, false);
                 }
                 yield null;
             }
@@ -78,19 +84,26 @@ public final class DrugProgressionGate {
 
     private record Rule(
             @Nullable PsyKnowledgeKey requiredKnowledge,
-            @Nullable PsyKnowledgeKey grantedKnowledge,
+            List<PsyKnowledgeKey> grantedKnowledge,
             boolean blockConsumption,
             boolean mushroomMessage
     ) {
+        private Rule {
+            grantedKnowledge = List.copyOf(grantedKnowledge);
+        }
     }
 
-    public record Decision(boolean allowed, Optional<PsyKnowledgeKey> grantedKnowledge, @Nullable String blockedMessageKey, boolean knowledgeDeferred) {
-        static Decision allowed(Optional<PsyKnowledgeKey> grantedKnowledge, boolean knowledgeDeferred) {
+    public record Decision(boolean allowed, List<PsyKnowledgeKey> grantedKnowledge, @Nullable String blockedMessageKey, boolean knowledgeDeferred) {
+        public Decision {
+            grantedKnowledge = List.copyOf(grantedKnowledge);
+        }
+
+        static Decision allowed(List<PsyKnowledgeKey> grantedKnowledge, boolean knowledgeDeferred) {
             return new Decision(true, grantedKnowledge, null, knowledgeDeferred);
         }
 
         static Decision blocked(String messageKey) {
-            return new Decision(false, Optional.empty(), messageKey, false);
+            return new Decision(false, List.of(), messageKey, false);
         }
     }
 }

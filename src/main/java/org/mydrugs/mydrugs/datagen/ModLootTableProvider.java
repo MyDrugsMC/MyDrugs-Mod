@@ -25,6 +25,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.blocks.AloeVeraBushBlock;
 import org.mydrugs.mydrugs.blocks.crops.CannabisCropBlock;
 import org.mydrugs.mydrugs.blocks.crops.CoffeeCropBlock;
 import org.mydrugs.mydrugs.blocks.crops.MaltCropBlock;
@@ -69,6 +70,9 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.CHEMICAL_REACTOR.get());
             dropSelf(ModBlocks.CLAY_VAT.get());
             dropSelf(ModBlocks.DISTILLER.get());
+            dropSelf(ModBlocks.PSYCHOTROPE_DISTILLERY.get());
+            dropSelf(ModBlocks.DISTILLATE_ENGINE.get());
+            dropSelf(ModBlocks.PSYCHOTROPE_RESONATOR.get());
             dropSelf(ModBlocks.DRYING_RACK.get());
             dropSelf(ModBlocks.ELECTROLYZER.get());
             dropSelf(ModBlocks.FAST_FLUID_PIPE.get());
@@ -101,6 +105,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.MAGIC_MUSHROOM_STEM.get());
             dropSelf(ModBlocks.EVAPORATION_TRAY.get());
             dropSelf(ModBlocks.BITTER_NUT_BUSH.get());
+            aloeBush(ModBlocks.ALOE_VERA_BUSH.get());
 
             crop(ModCrops.ALOE_VERA_CROP.get(), ModItems.ALOE_VERA.get(), ModCrops.ALOE_VERA_SEEDS.get());
             crop(ModCrops.TOBACCO_CROP.get(), ModItems.TOBACCO_LEAF.get(), ModCrops.TOBACCO_SEEDS.get());
@@ -178,6 +183,19 @@ public class ModLootTableProvider extends LootTableProvider {
             ));
         }
 
+        private void aloeBush(Block block) {
+            add(block, applyExplosionDecay(block, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .add(LootItem.lootTableItem(ModItems.ALOE_VERA.get())
+                                    .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(AloeVeraBushBlock.AGE, AloeVeraBushBlock.MAX_AGE)))
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))))
+                    .withPool(LootPool.lootPool()
+                            .add(LootItem.lootTableItem(ModCrops.ALOE_VERA_SEEDS.get())
+                                    .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(AloeVeraBushBlock.AGE, AloeVeraBushBlock.MAX_AGE)))))));
+        }
+
         private void tallCrop(Block block, Item crop, Item seeds, EnumProperty<DoubleBlockHalf> halfProperty) {
             add(block, cropDrops(
                     block,
@@ -235,6 +253,9 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.CHEMICAL_REACTOR.get(),
                     ModBlocks.CLAY_VAT.get(),
                     ModBlocks.DISTILLER.get(),
+                    ModBlocks.PSYCHOTROPE_DISTILLERY.get(),
+                    ModBlocks.DISTILLATE_ENGINE.get(),
+                    ModBlocks.PSYCHOTROPE_RESONATOR.get(),
                     ModBlocks.DRYING_RACK.get(),
                     ModBlocks.ELECTROLYZER.get(),
                     ModBlocks.FAST_FLUID_PIPE.get(),
@@ -267,6 +288,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.MAGIC_MUSHROOM_STEM.get(),
                     ModBlocks.EVAPORATION_TRAY.get(),
                     ModBlocks.BITTER_NUT_BUSH.get(),
+                    ModBlocks.ALOE_VERA_BUSH.get(),
 
                     ModCrops.ALOE_VERA_CROP.get(),
                     ModCrops.TOBACCO_CROP.get(),

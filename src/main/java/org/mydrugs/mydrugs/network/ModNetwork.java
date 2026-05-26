@@ -19,6 +19,7 @@ import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
+import org.mydrugs.mydrugs.core.drug.integration.network.IntegrationSyncPayload;
 
 /**
  * Single source of truth for {@link RegisterPayloadHandlersEvent}.
@@ -52,6 +53,7 @@ public final class ModNetwork {
         registerAddictionPayloads(r);
         registerDiaryPayloads(r);
         registerMutationPayloads(r);
+        registerIntegrationPayloads(r);
     }
 
     // --- manual machines: shake / drag impulses, server clamps and validates ---
@@ -95,6 +97,7 @@ public final class ModNetwork {
         r.playToClient(DrugVisualPayload.TYPE, DrugVisualPayload.STREAM_CODEC);
         r.playToClient(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayload.STREAM_CODEC);
         r.playToClient(RecoveryRoomParticlesPayload.TYPE, RecoveryRoomParticlesPayload.STREAM_CODEC);
+        r.playToClient(DistillateEnginePreviewPayload.TYPE, DistillateEnginePreviewPayload.STREAM_CODEC);
     }
 
     private static void registerRecoveryPayloads(PayloadRegistrar r) {
@@ -126,5 +129,9 @@ public final class ModNetwork {
 
     private static void registerMutationPayloads(PayloadRegistrar r) {
         r.playToClient(MutationSyncPayload.TYPE, MutationSyncPayload.STREAM_CODEC);
+    }
+
+    private static void registerIntegrationPayloads(PayloadRegistrar r) {
+        r.playToClient(IntegrationSyncPayload.TYPE, IntegrationSyncPayload.STREAM_CODEC);
     }
 }
