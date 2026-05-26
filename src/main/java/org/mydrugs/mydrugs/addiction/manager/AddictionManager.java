@@ -12,6 +12,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.use.MethPurityModifiers;
 import org.mydrugs.mydrugs.core.drug.use.ResolvedDrugUse;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
@@ -73,13 +74,22 @@ public final class AddictionManager {
     }
 
     public static void consume(ResolvedDrugUse use) {
-        consumeEffective(use.player(), use.model(), use.effectiveDose(), use.strategy());
+        MethPurityModifiers mods = MethPurityModifiers.from(use.model(), use.strategy(), use.sourceStack());
+        consumeEffective(use.player(), use.model(), use.effectiveDose(), use.strategy(), mods);
     }
 
     private static void consumeEffective(ServerPlayer player,
                                          DrugModel model,
                                          float effectiveDose,
                                          @Nullable ConsumptionStrategy strategy) {
+        consumeEffective(player, model, effectiveDose, strategy, MethPurityModifiers.NO_OP);
+    }
+
+    private static void consumeEffective(ServerPlayer player,
+                                         DrugModel model,
+                                         float effectiveDose,
+                                         @Nullable ConsumptionStrategy strategy,
+                                         MethPurityModifiers purityMods) {
         if (!Config.SERVER.addictionEnabled.get()) {
             return;
         }
@@ -106,7 +116,7 @@ public final class AddictionManager {
         drugStats.lastUseTime = player.level().getGameTime();
         drugStats.lifetimeDoseConsumed = Math.min(1_000_000F, drugStats.lifetimeDoseConsumed + Math.max(0.0F, effectiveDose));
 
-        ToleranceManager.onUse(playerStats, model, effectiveDose);
+        ToleranceManager.onUse(playerStats, model, effectiveDose * purityMods.toleranceMul());
         RelapseManager.onUse(model, drugStats);
 
         float relief = AddictionMath.computeEffectiveRelief(cfg.reliefStrength(), drugStats.tolerance);
@@ -114,6 +124,9 @@ public final class AddictionManager {
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
 
         StressManager.reduceStress(playerStats, AddictionConstants.STRESS_RELIEF_ON_CONSUME);
+        if (purityMods.extraStressPerHit() > 0.0F) {
+            StressManager.addStress(playerStats, purityMods.extraStressPerHit());
+        }
 
         DoseManager.onConsume(drugStats, model, effectiveDose, strategy);
     }

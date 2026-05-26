@@ -1,6 +1,8 @@
 package org.mydrugs.mydrugs.core.drug.use;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +73,9 @@ public final class DrugUseService {
             return DrugUseResult.blocked(progression.blockedMessageKey());
         }
 
-        float effectiveDose = strategy != null ? strategy.getNewDose(BASE_DOSE) : BASE_DOSE;
+        MethPurityModifiers purityMods = MethPurityModifiers.from(model, strategy, sourceStack);
+        float strategyDose = strategy != null ? strategy.getNewDose(BASE_DOSE) : BASE_DOSE;
+        float effectiveDose = strategyDose * purityMods.doseMul();
         ResolvedDrugUse use = new ResolvedDrugUse(
                 player,
                 model,
@@ -82,8 +86,9 @@ public final class DrugUseService {
                 sourceStack.copy()
         );
 
-        applyEffects(use);
+        applyEffects(use, purityMods);
         applySmokingVisual(use);
+        applyContaminantSymptom(use, purityMods);
         AddictionManager.consume(use);
         DrugKnowledgeResult knowledgeResult = DrugKnowledge.markConsumed(use);
         AdvancementEventHooks.drugConsumed(player, knowledgeResult);
@@ -110,7 +115,7 @@ public final class DrugUseService {
         diary.recordBlocker(blockerType, player.level().getGameTime());
     }
 
-    private void applyEffects(ResolvedDrugUse use) {
+    private void applyEffects(ResolvedDrugUse use, MethPurityModifiers purityMods) {
         for (DrugEffect effect : use.model().getDrugEffects()) {
             int duration = use.strategy() != null
                     ? use.strategy().getNewDuration(effect)
@@ -119,8 +124,18 @@ public final class DrugUseService {
                     ? use.strategy().getNewIntensity(effect)
                     : effect.getBaseIntensity();
 
+            duration = Math.max(1, Math.round(duration * purityMods.durationMul()));
+            intensity *= purityMods.intensityMul();
+
             DrugEffectRuntimeManager.addEffect(use.player(), effect.getEffectType(), intensity, duration);
         }
+    }
+
+    private void applyContaminantSymptom(ResolvedDrugUse use, MethPurityModifiers purityMods) {
+        if (!purityMods.isActive() || purityMods.contaminantChance() <= 0.0F) return;
+        if (use.player().getRandom().nextFloat() >= purityMods.contaminantChance()) return;
+        int durationTicks = DrugDurationScale.seconds(8);
+        use.player().addEffect(new MobEffectInstance(MobEffects.NAUSEA, durationTicks, 0));
     }
 
     private void applySmokingVisual(ResolvedDrugUse use) {
