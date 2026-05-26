@@ -39,6 +39,9 @@ public class ModRecipeSerializers {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CoffeePulpingRecipe>> COFFEE_PULPING =
             RECIPE_SERIALIZERS.register("coffee_pulping", CoffeePulpingRecipe.Serializer::new);
 
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<org.mydrugs.mydrugs.recipes.reduction_still.ReductionStillRecipe>> REDUCTION_STILL =
+            RECIPE_SERIALIZERS.register("reduction_still", org.mydrugs.mydrugs.recipes.reduction_still.ReductionStillRecipe.Serializer::new);
+
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StompCraftingRecipe>> STOMP_CRAFTING =
             RECIPE_SERIALIZERS.register("stomp_crafting", StompCraftingRecipe.Serializer::new);
 

@@ -58,6 +58,7 @@ public class ClientModEvents {
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);
         event.register(ModMenus.MANUAL_COFFEE_PULPER.get(), ManualCoffeePulperScreen::new);
+        event.register(ModMenus.REDUCTION_STILL.get(), org.mydrugs.mydrugs.menu.client.ReductionStillScreen::new);
         event.register(ModMenus.FLUID_FILTERER.get(), FluidFiltererScreen::new);
         event.register(ModMenus.CENTRIFUGE.get(), CentrifugeScreen::new);
         event.register(ModMenus.BTX_FRACTIONATION_TOWER.get(), BTXFractionationTowerScreen::new);

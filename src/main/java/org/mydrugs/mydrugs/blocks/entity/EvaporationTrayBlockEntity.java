@@ -79,7 +79,10 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         }
 
         EvaporationTrayRecipe recipe = recipeHolder.get().value();
-        if (!be.canAcceptOutput(recipe.result())) {
+        boolean blocked = recipe.hasPurityRoll()
+                ? !be.resultItem.isEmpty()
+                : !be.canAcceptOutput(recipe.result());
+        if (blocked) {
             if (be.progress != 0) {
                 be.resetProgress();
                 be.notifyUpdate();
@@ -272,6 +275,12 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         consumeInputFluid(recipe.inputAmount());
 
         ItemStack result = recipe.result().copy();
+        if (recipe.hasPurityRoll() && this.level != null) {
+            float min = Math.min(recipe.purityMin(), recipe.purityMax());
+            float max = Math.max(recipe.purityMin(), recipe.purityMax());
+            float rolled = min == max ? min : min + this.level.random.nextFloat() * (max - min);
+            org.mydrugs.mydrugs.items.drugs.Purity.set(result, rolled);
+        }
         if (resultItem.isEmpty()) {
             resultItem = result;
         } else {

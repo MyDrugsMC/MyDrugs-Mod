@@ -74,6 +74,14 @@ public class ModDataComponents {
                             .networkSynchronized(ByteBufCodecs.VAR_INT)
             );
 
+    public static final Supplier<DataComponentType<Float>> PURITY =
+            DATA_COMPONENTS.registerComponentType(
+                    "purity",
+                    builder -> builder
+                            .persistent(Codec.floatRange(0.0F, 1.0F))
+                            .networkSynchronized(ByteBufCodecs.FLOAT)
+            );
+
     public static final Supplier<DataComponentType<BottleFluidContent>> BOTTLE_CONTENT =
             DATA_COMPONENTS.register("bottle_content", () ->
                     DataComponentType.<BottleFluidContent>builder()

@@ -64,6 +64,22 @@ public final class ModPlacedFeatures {
         );
 
         context.register(
+                ModWorldGenKeys.PHOSPHATE_ORE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.PHOSPHATE_ORE),
+                        List.of(
+                                CountPlacement.of(Config.WORLDGEN.phosphateVeinsPerChunk.get()),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(WorldgenConfig.orderedMinHeight(Config.WORLDGEN.phosphateMinHeight.get(), Config.WORLDGEN.phosphateMaxHeight.get())),
+                                        VerticalAnchor.absolute(WorldgenConfig.orderedMaxHeight(Config.WORLDGEN.phosphateMinHeight.get(), Config.WORLDGEN.phosphateMaxHeight.get()))
+                                ),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
+        context.register(
                 ModWorldGenKeys.ALUMINIUM_ORE_PLACED,
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(ModWorldGenKeys.ALUMINIUM_ORE),
@@ -138,6 +154,20 @@ public final class ModPlacedFeatures {
                         configuredFeatures.getOrThrow(ModWorldGenKeys.BITTER_NUT_BUSH_PATCH),
                         List.of(
                                 RarityFilter.onAverageOnceEvery(Config.WORLDGEN.bitterNutBushSpawnRate.get()),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
+        // Ephedra patches: arid biomes, sparse.
+        context.register(
+                ModWorldGenKeys.EPHEDRA_PATCH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.EPHEDRA_PATCH),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(Config.WORLDGEN.ephedraSpawnRate.get()),
                                 InSquarePlacement.spread(),
                                 HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
                                 BiomeFilter.biome()

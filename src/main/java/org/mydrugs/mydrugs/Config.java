@@ -248,6 +248,8 @@ public class Config {
 
     public static final class Server {
         public final ModConfigSpec.BooleanValue addictionEnabled;
+        public final ModConfigSpec.BooleanValue enableCookHazards;
+        public final ModConfigSpec.DoubleValue cookHazardIntensity;
         public final ModConfigSpec.BooleanValue overdoseEnabled;
         public final ModConfigSpec.BooleanValue withdrawalEnabled;
         public final ModConfigSpec.DoubleValue addictionGainMultiplier;
@@ -276,6 +278,12 @@ public class Config {
         private Server(ModConfigSpec.Builder builder) {
             builder.push("gameplay");
             addictionEnabled = builder.define("addictionEnabled", true);
+            enableCookHazards = builder
+                    .comment("Toxic fume hazard during street-meth one-pot cooks. Disable for accessibility.")
+                    .define("enableCookHazards", true);
+            cookHazardIntensity = builder
+                    .comment("Scales fume frequency, poison/nausea level, and fire chance. 0 disables, 1 default.")
+                    .defineInRange("cookHazardIntensity", 1.0D, 0.0D, 4.0D);
             overdoseEnabled = builder.define("overdoseEnabled", true);
             withdrawalEnabled = builder.define("withdrawalEnabled", true);
             addictionGainMultiplier = builder.defineInRange("addictionGainMultiplier", 1.0D, 0.0D, 100.0D);
@@ -362,6 +370,11 @@ public class Config {
         public final ModConfigSpec.IntValue aluminiumVeinsPerChunk;
         public final ModConfigSpec.IntValue aluminiumMinHeight;
         public final ModConfigSpec.IntValue aluminiumMaxHeight;
+        public final ModConfigSpec.BooleanValue enablePhosphateOre;
+        public final ModConfigSpec.IntValue phosphateVeinSize;
+        public final ModConfigSpec.IntValue phosphateVeinsPerChunk;
+        public final ModConfigSpec.IntValue phosphateMinHeight;
+        public final ModConfigSpec.IntValue phosphateMaxHeight;
         public final ModConfigSpec.BooleanValue mysticalOreDimensionOnly;
         public final ModConfigSpec.BooleanValue enableWildCannabis;
         public final ModConfigSpec.IntValue wildCannabisSpawnRate;
@@ -385,6 +398,8 @@ public class Config {
         public final ModConfigSpec.IntValue bitterNutBushSpawnRate;
         public final ModConfigSpec.BooleanValue enableThirdEyePetal;
         public final ModConfigSpec.IntValue thirdEyePetalSpawnRate;
+        public final ModConfigSpec.BooleanValue enableEphedra;
+        public final ModConfigSpec.IntValue ephedraSpawnRate;
         public final ModConfigSpec.BooleanValue requireLsdWakeUpEntry;
         public final ModConfigSpec.BooleanValue allowAdminPortalBlock;
         public final ModConfigSpec.IntValue skyIslandDensity;
@@ -445,6 +460,11 @@ public class Config {
             aluminiumVeinsPerChunk = builder.defineInRange("aluminiumVeinsPerChunk", 14, 0, 128);
             aluminiumMinHeight = builder.defineInRange("aluminiumMinHeight", -80, -128, 320);
             aluminiumMaxHeight = builder.defineInRange("aluminiumMaxHeight", 80, -128, 320);
+            enablePhosphateOre = builder.define("enablePhosphateOre", true);
+            phosphateVeinSize = builder.defineInRange("phosphateVeinSize", 5, 1, 64);
+            phosphateVeinsPerChunk = builder.defineInRange("phosphateVeinsPerChunk", 6, 0, 128);
+            phosphateMinHeight = builder.defineInRange("phosphateMinHeight", -32, -128, 320);
+            phosphateMaxHeight = builder.defineInRange("phosphateMaxHeight", 64, -128, 320);
             enableMethOre = builder
                     .comment("Reserved for legacy/future meth ore packs. The base mod currently does not generate meth ore.")
                     .define("enableMethOre", false);
@@ -479,6 +499,8 @@ public class Config {
             bitterNutBushSpawnRate = builder.defineInRange("bitterNutBushSpawnRate", 28, 1, 10000);
             enableThirdEyePetal = builder.define("enableThirdEyePetal", true);
             thirdEyePetalSpawnRate = builder.defineInRange("thirdEyePetalSpawnRate", 160, 1, 10000);
+            enableEphedra = builder.define("enableEphedra", true);
+            ephedraSpawnRate = builder.defineInRange("ephedraSpawnRate", 80, 1, 10000);
             builder.pop();
 
             builder.push("sky_island_dimension_future");

@@ -50,6 +50,16 @@ public final class ModBiomeModifiers {
         );
 
         context.register(
+                ModWorldGenKeys.ADD_PHOSPHATE_ORE,
+                new ConfigurableAddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.PHOSPHATE_ORE_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES,
+                        WorldgenConfig.PHOSPHATE_ORE
+                )
+        );
+
+        context.register(
                 ModWorldGenKeys.ADD_ALUMINIUM_ORE,
                 new ConfigurableAddFeaturesBiomeModifier(
                         biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
@@ -125,6 +135,25 @@ public final class ModBiomeModifiers {
                         HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.BITTER_NUT_BUSH_PATCH_PLACED)),
                         GenerationStep.Decoration.VEGETAL_DECORATION,
                         WorldgenConfig.BITTER_NUT_BUSH
+                )
+        );
+
+        // Ephedra: arid biomes (desert / savanna / badlands)
+        context.register(
+                ModWorldGenKeys.ADD_EPHEDRA,
+                new ConfigurableAddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.DESERT),
+                                biomes.getOrThrow(Biomes.SAVANNA),
+                                biomes.getOrThrow(Biomes.SAVANNA_PLATEAU),
+                                biomes.getOrThrow(Biomes.WINDSWEPT_SAVANNA),
+                                biomes.getOrThrow(Biomes.BADLANDS),
+                                biomes.getOrThrow(Biomes.ERODED_BADLANDS),
+                                biomes.getOrThrow(Biomes.WOODED_BADLANDS)
+                        ),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.EPHEDRA_PATCH_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION,
+                        WorldgenConfig.EPHEDRA
                 )
         );
 

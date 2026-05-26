@@ -259,6 +259,12 @@ public final class ModBlockEntities {
                     () -> new BlockEntityType<>(ManualCoffeePulperBlockEntity::new, ModBlocks.MANUAL_COFFEE_PULPER.get())
             );
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<org.mydrugs.mydrugs.blocks.entity.ReductionStillBlockEntity>> REDUCTION_STILL =
+            BLOCK_ENTITY_TYPES.register(
+                    "reduction_still",
+                    () -> new BlockEntityType<>(org.mydrugs.mydrugs.blocks.entity.ReductionStillBlockEntity::new, ModBlocks.REDUCTION_STILL.get())
+            );
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CoffeeDryingMatBlockEntity>> COFFEE_DRYING_MAT =
             BLOCK_ENTITY_TYPES.register(
                     "coffee_drying_mat",

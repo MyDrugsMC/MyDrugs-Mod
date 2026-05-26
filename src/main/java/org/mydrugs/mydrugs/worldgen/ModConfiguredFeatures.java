@@ -102,6 +102,25 @@ public final class ModConfiguredFeatures {
                 )
         );
 
+        List<OreConfiguration.TargetBlockState> phosphateTargets = List.of(
+                OreConfiguration.target(
+                        new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES),
+                        ModBlocks.PHOSPHATE_ORE.get().defaultBlockState()
+                ),
+                OreConfiguration.target(
+                        new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES),
+                        ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get().defaultBlockState()
+                )
+        );
+
+        context.register(
+                ModWorldGenKeys.PHOSPHATE_ORE,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(phosphateTargets, Config.WORLDGEN.phosphateVeinSize.get())
+                )
+        );
+
         // Petroleum lake: real LakeFeature, using your already-registered petroleum fluid block.
         LakeFeature.Configuration petroleumLakeConfig = new LakeFeature.Configuration(
                 SimpleStateProvider.simple(ModFluids.PETROLEUM.block().get().defaultBlockState()),
@@ -174,6 +193,25 @@ public final class ModConfiguredFeatures {
                                         Feature.SIMPLE_BLOCK,
                                         new SimpleBlockConfiguration(SimpleStateProvider.simple(
                                                 ModBlocks.BITTER_NUT_BUSH.get().defaultBlockState()
+                                        ))
+                                )
+                        )
+                )
+        );
+
+        // Ephedra: sparse shrub patches in arid biomes.
+        context.register(
+                ModWorldGenKeys.EPHEDRA_PATCH,
+                new ConfiguredFeature<>(
+                        Feature.RANDOM_PATCH,
+                        new RandomPatchConfiguration(
+                                5,
+                                4,
+                                2,
+                                PlacementUtils.onlyWhenEmpty(
+                                        Feature.SIMPLE_BLOCK,
+                                        new SimpleBlockConfiguration(SimpleStateProvider.simple(
+                                                ModCrops.EPHEDRA_CROP.get().defaultBlockState()
                                         ))
                                 )
                         )

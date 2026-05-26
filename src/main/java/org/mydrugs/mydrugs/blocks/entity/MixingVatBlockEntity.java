@@ -65,6 +65,7 @@ public class MixingVatBlockEntity extends BlockEntity {
     private int currentStirs = 0;
     private int requiredStirs = 0;
     private int stirAnimationTicks = 0;
+    private int pendingFumeTicks = 0;
 
     public MixingVatBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MIXING_VAT.get(), pos, state);
@@ -89,6 +90,32 @@ public class MixingVatBlockEntity extends BlockEntity {
                 entity.hurt(level.damageSources().inFire(), 2.0F);
                 entity.igniteForSeconds(2);
             }
+        }
+
+        if (level instanceof ServerLevel serverLevel) {
+            tickStreetCookHazard(serverLevel, pos, be);
+        }
+    }
+
+    private static void tickStreetCookHazard(ServerLevel level, BlockPos pos, MixingVatBlockEntity be) {
+        if (be.pendingFumeTicks > 0) {
+            be.pendingFumeTicks--;
+            if (be.pendingFumeTicks == 0) {
+                StreetCookFumeHazard.vent(level, pos);
+            }
+            return;
+        }
+        if (!StreetCookFumeHazard.isEnabled()) return;
+        if (level.getGameTime() % 20L != 0L) return;
+        if (!be.isHeated()) return;
+        Optional<RecipeHolder<MixingVatRecipe>> holder = be.getCurrentRecipe(level);
+        if (holder.isEmpty()) return;
+        if (!StreetCookFumeHazard.recipeProducesCrudeMethSlurry(holder.get().value())) return;
+        double chance = StreetCookFumeHazard.VENT_BASE_CHANCE_PER_SECOND * StreetCookFumeHazard.intensity();
+        if (level.random.nextDouble() < chance) {
+            StreetCookFumeHazard.telegraph(level, pos);
+            be.pendingFumeTicks = StreetCookFumeHazard.TELEGRAPH_TICKS;
+            be.setChanged();
         }
     }
 
@@ -724,6 +751,7 @@ public class MixingVatBlockEntity extends BlockEntity {
         output.putInt("current_stirs", currentStirs);
         output.putInt("required_stirs", requiredStirs);
         output.putInt("stir_animation_ticks", stirAnimationTicks);
+        output.putInt("pending_fume_ticks", pendingFumeTicks);
     }
 
     @Override
@@ -760,6 +788,7 @@ public class MixingVatBlockEntity extends BlockEntity {
         currentStirs = input.getIntOr("current_stirs", 0);
         requiredStirs = input.getIntOr("required_stirs", 0);
         stirAnimationTicks = input.getIntOr("stir_animation_ticks", 0);
+        pendingFumeTicks = input.getIntOr("pending_fume_ticks", 0);
     }
 
     @Override

@@ -1,0 +1,19 @@
+{
+  "type": "mydrugs:reduction_still",
+  "cuttings": {
+    "items": "mydrugs:ephedra_cuttings"
+  },
+  "solvent": {
+    "items": "minecraft:water_bucket"
+  },
+  "cuttings_per_batch": 16,
+  "extract_result": {
+    "id": "mydrugs:ephedra_extract",
+    "count": 1
+  },
+  "pulp_result": {
+    "id": "mydrugs:spent_plant_pulp",
+    "count": 1
+  },
+  "work": 600
+}

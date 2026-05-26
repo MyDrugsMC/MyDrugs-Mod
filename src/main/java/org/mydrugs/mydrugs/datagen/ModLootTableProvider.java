@@ -88,6 +88,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.CRISPR_CAS9_COMBINATOR.get());
             dropSelf(ModBlocks.MIXING_VAT.get());
             dropSelf(ModBlocks.GRINDING_BOWL.get());
+            dropSelf(ModBlocks.REDUCTION_STILL.get());
             dropSelf(ModBlocks.MECHANICAL_FRAME.get());
             dropSelf(ModBlocks.RECOVERY_ANCHOR.get());
             dropSelf(ModBlocks.DISC_SCRIBER.get());
@@ -113,6 +114,7 @@ public class ModLootTableProvider extends LootTableProvider {
             crop(ModCrops.OPIUM_POPPY_CROP.get(), ModCrops.OPIUM_POPPY_SEEDS.get(), ModCrops.OPIUM_POPPY_SEEDS.get());
             crop(ModCrops.LAVENDER_CROP.get(), ModItems.LAVENDER.get(), ModCrops.LAVENDER_SEEDS.get());
             crop(ModCrops.VALERIAN_CROP.get(), ModItems.VALERIAN_ROOT.get(), ModCrops.VALERIAN_SEEDS.get());
+            crop(ModCrops.EPHEDRA_CROP.get(), ModCrops.EPHEDRA_CUTTINGS.get(), ModCrops.EPHEDRA_CUTTINGS.get());
             tallCrop(ModCrops.CANNABIS_CROP.get(), ModItems.CANNABIS_LEAF.get(), ModCrops.CANNABIS_SEEDS.get(), CannabisCropBlock.HALF);
             tallCrop(ModCrops.COFFEE_CROP.get(), ModItems.COFFEE_CHERRIES.get(), ModCrops.COFFEE_SEEDS.get(), CoffeeCropBlock.HALF);
             tallCrop(ModCrops.MALT_CROP.get(), ModItems.MALT.get(), ModCrops.MALT_SEEDS.get(), MaltCropBlock.HALF);
@@ -149,6 +151,16 @@ public class ModLootTableProvider extends LootTableProvider {
             add(
                     ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(),
                     block -> createOreDrop(block, ModItems.RAW_ALUMINIUM.get())
+            );
+
+            add(
+                    ModBlocks.PHOSPHATE_ORE.get(),
+                    block -> createOreDrop(block, ModItems.RAW_PHOSPHORUS.get())
+            );
+
+            add(
+                    ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get(),
+                    block -> createOreDrop(block, ModItems.RAW_PHOSPHORUS.get())
             );
 
             dropSelf(ModBlocks.RAW_PLATINUM_BLOCK.get());
@@ -271,6 +283,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.CRISPR_CAS9_COMBINATOR.get(),
                     ModBlocks.MIXING_VAT.get(),
                     ModBlocks.GRINDING_BOWL.get(),
+                    ModBlocks.REDUCTION_STILL.get(),
                     ModBlocks.MECHANICAL_FRAME.get(),
                     ModBlocks.RECOVERY_ANCHOR.get(),
                     ModBlocks.DISC_SCRIBER.get(),
@@ -300,6 +313,7 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModCrops.COFFEE_CROP.get(),
                     ModCrops.MALT_CROP.get(),
                     ModCrops.RYE_CROP.get(),
+                    ModCrops.EPHEDRA_CROP.get(),
 
                     ModBlocks.SALT_BLOCK.get(),
 
@@ -310,6 +324,8 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.DEEPSLATE_PLATINUM_ORE.get(),
                     ModBlocks.ALUMINIUM_ORE.get(),
                     ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(),
+                    ModBlocks.PHOSPHATE_ORE.get(),
+                    ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get(),
                     ModBlocks.RAW_PLATINUM_BLOCK.get(),
                     ModBlocks.PLATINUM_BLOCK.get(),
                     ModBlocks.RAW_ALUMINIUM_BLOCK.get(),

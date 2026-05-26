@@ -26,6 +26,7 @@ public class ModCrops {
     private static final CropSpec<OpiumPoppyCropBlock> OPIUM_POPPY = new CropSpec<>("opium_poppy_crop", "opium_poppy_seeds", OpiumPoppyCropBlock::new);
     private static final CropSpec<LavenderCropBlock> LAVENDER = new CropSpec<>("lavender_crop", "lavender_seeds", LavenderCropBlock::new);
     private static final CropSpec<ValerianCropBlock> VALERIAN = new CropSpec<>("valerian_crop", "valerian_seeds", ValerianCropBlock::new);
+    private static final CropSpec<EphedraCropBlock> EPHEDRA = new CropSpec<>("ephedra_crop", "ephedra_cuttings", EphedraCropBlock::new);
 
     public static final DeferredBlock<RyeCropBlock> RYE_CROP =
             registerCropBlock(RYE);
@@ -87,6 +88,12 @@ public class ModCrops {
 
     public static final DeferredItem<BlockItem> VALERIAN_SEEDS =
             registerSeeds(VALERIAN, VALERIAN_CROP);
+
+    public static final DeferredBlock<EphedraCropBlock> EPHEDRA_CROP =
+            registerCropBlock(EPHEDRA);
+
+    public static final DeferredItem<BlockItem> EPHEDRA_CUTTINGS =
+            registerSeeds(EPHEDRA, EPHEDRA_CROP);
 
     private ModCrops() {}
 
