@@ -623,6 +623,22 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> DEEPSLATE_ALUMINIUM_ORE_ITEM =
             ITEMS.registerSimpleBlockItem(DEEPSLATE_ALUMINIUM_ORE);
 
+    public static final DeferredBlock<Block> PHOSPHATE_ORE = BLOCKS.registerSimpleBlock(
+            "phosphate_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_ORE)
+    );
+
+    public static final DeferredItem<BlockItem> PHOSPHATE_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(PHOSPHATE_ORE);
+
+    public static final DeferredBlock<Block> DEEPSLATE_PHOSPHATE_ORE = BLOCKS.registerSimpleBlock(
+            "deepslate_phosphate_ore",
+            props -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)
+    );
+
+    public static final DeferredItem<BlockItem> DEEPSLATE_PHOSPHATE_ORE_ITEM =
+            ITEMS.registerSimpleBlockItem(DEEPSLATE_PHOSPHATE_ORE);
+
     // Psy Mixer ritual blocks
     public static final DeferredBlock<Block> WOVEN_VINE_FRAME = BLOCKS.registerBlock(
             "woven_vine_frame",

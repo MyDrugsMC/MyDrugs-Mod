@@ -64,6 +64,22 @@ public final class ModPlacedFeatures {
         );
 
         context.register(
+                ModWorldGenKeys.PHOSPHATE_ORE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ModWorldGenKeys.PHOSPHATE_ORE),
+                        List.of(
+                                CountPlacement.of(Config.WORLDGEN.phosphateVeinsPerChunk.get()),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(WorldgenConfig.orderedMinHeight(Config.WORLDGEN.phosphateMinHeight.get(), Config.WORLDGEN.phosphateMaxHeight.get())),
+                                        VerticalAnchor.absolute(WorldgenConfig.orderedMaxHeight(Config.WORLDGEN.phosphateMinHeight.get(), Config.WORLDGEN.phosphateMaxHeight.get()))
+                                ),
+                                BiomeFilter.biome()
+                        )
+                )
+        );
+
+        context.register(
                 ModWorldGenKeys.ALUMINIUM_ORE_PLACED,
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(ModWorldGenKeys.ALUMINIUM_ORE),

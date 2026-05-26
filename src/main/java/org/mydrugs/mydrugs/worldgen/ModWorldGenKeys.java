@@ -93,6 +93,13 @@ public final class ModWorldGenKeys {
     public static final ResourceKey<BiomeModifier> ADD_EPHEDRA =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_ephedra"));
 
+    public static final ResourceKey<ConfiguredFeature<?, ?>> PHOSPHATE_ORE =
+            configured("phosphate_ore");
+    public static final ResourceKey<PlacedFeature> PHOSPHATE_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, id("phosphate_ore_placed"));
+    public static final ResourceKey<BiomeModifier> ADD_PHOSPHATE_ORE =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, id("add_phosphate_ore"));
+
     private ModWorldGenKeys() {
     }
 

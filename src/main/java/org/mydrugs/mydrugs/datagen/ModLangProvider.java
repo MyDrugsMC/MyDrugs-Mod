@@ -75,6 +75,13 @@ public class ModLangProvider extends LanguageProvider {
         add(ModCrops.OPIUM_POPPY_CROP.get(), "Poppy Crop");
         add(ModCrops.EPHEDRA_CROP.get(), "Ephedra Shrub");
         add(ModCrops.EPHEDRA_CUTTINGS.get(), "Ephedra Cuttings");
+        add(ModBlocks.PHOSPHATE_ORE.get(), "Phosphate Ore");
+        add(ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get(), "Deepslate Phosphate Ore");
+        add(ModItems.RAW_PHOSPHORUS.get(), "Raw Phosphorus");
+        add(ModItems.REACTIVE_PHOSPHORUS.get(), "Reactive Phosphorus");
+        add(ModItems.EPHEDRA_EXTRACT.get(), "Concentrated Ephedra Extract");
+        add(ModItems.SPENT_PLANT_PULP.get(), "Spent Plant Pulp");
+        add(ModItems.CRUDE_REACTANT_CAKE.get(), "Crude Reactant Cake");
         add("container.mydrugs.autoclave", "Autoclave");
         add("menu.mydrugs.autoclave", "Autoclave");
         add("screen.mydrugs.autoclave.progress", "Sterilization Progress");

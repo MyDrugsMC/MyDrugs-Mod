@@ -50,6 +50,16 @@ public final class ModBiomeModifiers {
         );
 
         context.register(
+                ModWorldGenKeys.ADD_PHOSPHATE_ORE,
+                new ConfigurableAddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(ModWorldGenKeys.PHOSPHATE_ORE_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES,
+                        WorldgenConfig.PHOSPHATE_ORE
+                )
+        );
+
+        context.register(
                 ModWorldGenKeys.ADD_ALUMINIUM_ORE,
                 new ConfigurableAddFeaturesBiomeModifier(
                         biomes.getOrThrow(BiomeTags.IS_OVERWORLD),

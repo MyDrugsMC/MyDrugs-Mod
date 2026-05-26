@@ -362,6 +362,11 @@ public class Config {
         public final ModConfigSpec.IntValue aluminiumVeinsPerChunk;
         public final ModConfigSpec.IntValue aluminiumMinHeight;
         public final ModConfigSpec.IntValue aluminiumMaxHeight;
+        public final ModConfigSpec.BooleanValue enablePhosphateOre;
+        public final ModConfigSpec.IntValue phosphateVeinSize;
+        public final ModConfigSpec.IntValue phosphateVeinsPerChunk;
+        public final ModConfigSpec.IntValue phosphateMinHeight;
+        public final ModConfigSpec.IntValue phosphateMaxHeight;
         public final ModConfigSpec.BooleanValue mysticalOreDimensionOnly;
         public final ModConfigSpec.BooleanValue enableWildCannabis;
         public final ModConfigSpec.IntValue wildCannabisSpawnRate;
@@ -447,6 +452,11 @@ public class Config {
             aluminiumVeinsPerChunk = builder.defineInRange("aluminiumVeinsPerChunk", 14, 0, 128);
             aluminiumMinHeight = builder.defineInRange("aluminiumMinHeight", -80, -128, 320);
             aluminiumMaxHeight = builder.defineInRange("aluminiumMaxHeight", 80, -128, 320);
+            enablePhosphateOre = builder.define("enablePhosphateOre", true);
+            phosphateVeinSize = builder.defineInRange("phosphateVeinSize", 5, 1, 64);
+            phosphateVeinsPerChunk = builder.defineInRange("phosphateVeinsPerChunk", 6, 0, 128);
+            phosphateMinHeight = builder.defineInRange("phosphateMinHeight", -32, -128, 320);
+            phosphateMaxHeight = builder.defineInRange("phosphateMaxHeight", 64, -128, 320);
             enableMethOre = builder
                     .comment("Reserved for legacy/future meth ore packs. The base mod currently does not generate meth ore.")
                     .define("enableMethOre", false);

@@ -9,6 +9,7 @@ public final class WorldgenConfig {
     public static final String SULFUR_ORE = "sulfur_ore";
     public static final String PLATINUM_ORE = "platinum_ore";
     public static final String ALUMINIUM_ORE = "aluminium_ore";
+    public static final String PHOSPHATE_ORE = "phosphate_ore";
     public static final String PETROLEUM_LAKE = "petroleum_lake";
     public static final String ALOE_VERA = "aloe_vera";
     public static final String LAVENDER = "lavender";
@@ -57,6 +58,7 @@ public final class WorldgenConfig {
             case SULFUR_ORE -> Config.WORLDGEN.enableSulfurOre.get();
             case PLATINUM_ORE -> Config.WORLDGEN.enablePlatinumOre.get();
             case ALUMINIUM_ORE -> Config.WORLDGEN.enableAluminiumOre.get();
+            case PHOSPHATE_ORE -> Config.WORLDGEN.enablePhosphateOre.get();
             case PETROLEUM_LAKE -> Config.WORLDGEN.enablePetroleumLakes.get();
             case ALOE_VERA -> Config.WORLDGEN.enableAloeVera.get();
             case LAVENDER -> Config.WORLDGEN.enableLavender.get();

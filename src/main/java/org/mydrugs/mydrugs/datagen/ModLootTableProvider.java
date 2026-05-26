@@ -152,6 +152,16 @@ public class ModLootTableProvider extends LootTableProvider {
                     block -> createOreDrop(block, ModItems.RAW_ALUMINIUM.get())
             );
 
+            add(
+                    ModBlocks.PHOSPHATE_ORE.get(),
+                    block -> createOreDrop(block, ModItems.RAW_PHOSPHORUS.get())
+            );
+
+            add(
+                    ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get(),
+                    block -> createOreDrop(block, ModItems.RAW_PHOSPHORUS.get())
+            );
+
             dropSelf(ModBlocks.RAW_PLATINUM_BLOCK.get());
             dropSelf(ModBlocks.PLATINUM_BLOCK.get());
             dropSelf(ModBlocks.RAW_ALUMINIUM_BLOCK.get());
@@ -312,6 +322,8 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.DEEPSLATE_PLATINUM_ORE.get(),
                     ModBlocks.ALUMINIUM_ORE.get(),
                     ModBlocks.DEEPSLATE_ALUMINIUM_ORE.get(),
+                    ModBlocks.PHOSPHATE_ORE.get(),
+                    ModBlocks.DEEPSLATE_PHOSPHATE_ORE.get(),
                     ModBlocks.RAW_PLATINUM_BLOCK.get(),
                     ModBlocks.PLATINUM_BLOCK.get(),
                     ModBlocks.RAW_ALUMINIUM_BLOCK.get(),

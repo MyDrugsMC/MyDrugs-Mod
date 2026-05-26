@@ -173,6 +173,21 @@ public class ModItems {
     public static final DeferredItem<Item> VALERIAN_ROOT =
             ITEMS.registerSimpleItem("valerian_root");
 
+    public static final DeferredItem<Item> RAW_PHOSPHORUS =
+            ITEMS.registerSimpleItem("raw_phosphorus");
+
+    public static final DeferredItem<Item> REACTIVE_PHOSPHORUS =
+            ITEMS.registerSimpleItem("reactive_phosphorus");
+
+    public static final DeferredItem<Item> EPHEDRA_EXTRACT =
+            ITEMS.registerSimpleItem("ephedra_extract");
+
+    public static final DeferredItem<Item> SPENT_PLANT_PULP =
+            ITEMS.registerSimpleItem("spent_plant_pulp");
+
+    public static final DeferredItem<Item> CRUDE_REACTANT_CAKE =
+            ITEMS.registerSimpleItem("crude_reactant_cake");
+
     public static final DeferredItem<Item> MIXED_DRUG =
             ITEMS.registerItem("mixed_drug", prop -> new MixedDrugItem(prop, new SmokingStrategy(true, true)));
 
