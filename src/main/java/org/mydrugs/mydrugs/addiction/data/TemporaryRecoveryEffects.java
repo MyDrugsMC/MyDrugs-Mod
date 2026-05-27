@@ -12,6 +12,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
     public int headphonesTrackNonce;
     public long thoughtSuppressionUntil;
     public long sleepBonusUntil;
+    public long preparedTeaUntil;
 
     @Override
     public void serialize(ValueOutput output) {
@@ -20,6 +21,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         output.putLong("headphones_until", headphonesUntil);
         output.putLong("thought_suppression_until", thoughtSuppressionUntil);
         output.putLong("sleep_bonus_until", sleepBonusUntil);
+        output.putLong("prepared_tea_until", preparedTeaUntil);
         output.putBoolean("headphones_enabled", headphonesEnabled);
         output.putInt("headphones_track_nonce", headphonesTrackNonce);
     }
@@ -31,6 +33,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         headphonesUntil = input.getLongOr("headphones_until", 0L);
         thoughtSuppressionUntil = input.getLongOr("thought_suppression_until", 0L);
         sleepBonusUntil = input.getLongOr("sleep_bonus_until", 0L);
+        preparedTeaUntil = input.getLongOr("prepared_tea_until", 0L);
         headphonesEnabled = input.getBooleanOr("headphones_enabled", false);
         headphonesTrackNonce = input.getIntOr("headphones_track_nonce", 0);
     }
@@ -42,6 +45,7 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         copy.headphonesUntil = headphonesUntil;
         copy.thoughtSuppressionUntil = thoughtSuppressionUntil;
         copy.sleepBonusUntil = sleepBonusUntil;
+        copy.preparedTeaUntil = preparedTeaUntil;
         copy.headphonesEnabled = headphonesEnabled;
         copy.headphonesTrackNonce = headphonesTrackNonce;
         return copy;
@@ -69,5 +73,9 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
 
     public boolean hasSleepBonus(long gameTime) {
         return sleepBonusUntil > gameTime;
+    }
+
+    public boolean hasPreparedTea(long gameTime) {
+        return preparedTeaUntil > gameTime;
     }
 }

@@ -104,6 +104,7 @@ public final class SymptomManager {
         if (effects.hasCalmingMixture(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
         if (effects.hasHeadphones(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
         if (effects.hasSleepBonus(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
+        if (effects.hasPreparedTea(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA;
 
         int overdoseTicksRemaining = Math.max(0, stats.overdoseDeathTimer);
 

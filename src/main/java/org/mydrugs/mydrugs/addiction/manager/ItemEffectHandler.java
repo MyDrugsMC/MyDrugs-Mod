@@ -155,6 +155,10 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         float itemMultiplier = recoveryItemMultiplier(room);
+        boolean teaKitchen = hasModule(room, SanctuaryModule.TEA_KITCHEN);
+        if (teaKitchen) {
+            itemMultiplier *= 1.10F;
+        }
         StressManager.reduce(stats, AddictionConstants.RELIEF_HERBAL_TEA * itemMultiplier * 1.35F);
 
         for (DrugCategory category : DrugCategory.values()) {
@@ -162,6 +166,10 @@ public final class ItemEffectHandler {
         }
 
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 120L * itemMultiplier);
+        if (teaKitchen) {
+            long preparedUntil = player.level().getGameTime() + 20L * 240L;
+            stats.temporaryEffects.preparedTeaUntil = Math.max(stats.temporaryEffects.preparedTeaUntil, preparedUntil);
+        }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.HERBAL_TEA, itemMultiplier);
         syncClientHud(player);
     }

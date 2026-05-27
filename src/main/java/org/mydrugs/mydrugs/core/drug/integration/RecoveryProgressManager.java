@@ -12,6 +12,7 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 
 import java.util.Map;
 
@@ -173,6 +174,9 @@ public final class RecoveryProgressManager {
         }
         if (RecoveryRoomManager.isValidRecoveryRoom(room)) {
             onProductiveAction(player, ActionKind.RECOVERY_ROOM_SUPPORT, roomSupportWeight(room));
+            if (room.hasModule(SanctuaryModule.MUSIC_CORNER) && room.hasActiveMusic()) {
+                onProductiveAction(player, ActionKind.MUSIC_SUPPORT, 0.20F);
+            }
         }
         int cappedCompanions = Math.min(3, Math.max(0, companions));
         if (cappedCompanions > 0) {
@@ -211,13 +215,20 @@ public final class RecoveryProgressManager {
         if (room == null) {
             return 0.0F;
         }
-        return switch (room.tier()) {
+        float weight = switch (room.tier()) {
             case NONE -> 0.0F;
             case FRAGILE_ROOM -> 0.12F;
             case RESTING_ROOM -> 0.22F;
             case SAFE_ROOM -> 0.38F;
             case SANCTUARY -> 0.60F;
         };
+        if (room.hasModule(SanctuaryModule.PLANT_BREATHING_CORNER)) {
+            weight += 0.04F;
+        }
+        if (room.hasModule(SanctuaryModule.TEA_KITCHEN)) {
+            weight += 0.03F;
+        }
+        return Math.min(0.75F, weight);
     }
 
     public static float recoveryResonanceMultiplier(@Nullable RecoveryRoomReport room) {

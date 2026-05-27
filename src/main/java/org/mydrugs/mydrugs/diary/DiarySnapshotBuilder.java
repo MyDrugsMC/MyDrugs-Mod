@@ -342,6 +342,7 @@ public final class DiarySnapshotBuilder {
         if (te.hasHeadphones(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
         if (te.hasCalmingMixture(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
         if (te.hasSleepBonus(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
+        if (te.hasPreparedTea(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA;
         if (SafeZoneManager.isInSafeZone(player)) {
             flags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
         }

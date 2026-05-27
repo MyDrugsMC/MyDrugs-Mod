@@ -894,6 +894,9 @@ public final class PersonalDiaryScreen extends Screen {
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS) != 0) {
             addWrappedReason(good, "Sleep bonus: rest is still protecting me.");
         }
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA) != 0) {
+            addWrappedReason(good, "Prepared tea: stress is rising more slowly for a while.");
+        }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE) != 0) {
             addWrappedReason(good, "Safe zone: this place makes recovery easier.");
         }

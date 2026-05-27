@@ -138,15 +138,36 @@ public final class RecoveryRoomManager {
     }
 
     public static float stressTargetReduction(RecoveryRoomReport report) {
-        return isValidRecoveryRoom(report) ? report.tier().stressTargetReduction() : 0.0F;
+        if (!isValidRecoveryRoom(report)) {
+            return 0.0F;
+        }
+        float reduction = report.tier().stressTargetReduction();
+        if (report.hasModule(SanctuaryModule.PLANT_BREATHING_CORNER)) {
+            reduction += 0.015F;
+        }
+        return Math.min(0.35F, reduction);
     }
 
     public static float badTripPressureReduction(RecoveryRoomReport report) {
-        return isValidRecoveryRoom(report) ? report.tier().badTripPressureReduction() : 0.0F;
+        if (!isValidRecoveryRoom(report)) {
+            return 0.0F;
+        }
+        float reduction = report.tier().badTripPressureReduction();
+        if (report.hasModule(SanctuaryModule.MUSIC_CORNER) && report.hasActiveMusic()) {
+            reduction += 0.02F;
+        }
+        return Math.min(0.35F, reduction);
     }
 
     public static float badTripIntensityReduction(RecoveryRoomReport report) {
-        return isValidRecoveryRoom(report) ? report.tier().badTripIntensityReduction() : 0.0F;
+        if (!isValidRecoveryRoom(report)) {
+            return 0.0F;
+        }
+        float reduction = report.tier().badTripIntensityReduction();
+        if (report.hasModule(SanctuaryModule.MUSIC_CORNER) && report.hasActiveMusic()) {
+            reduction += 0.04F;
+        }
+        return Math.min(0.45F, reduction);
     }
 
     public static boolean suppressesHostileHallucinations(RecoveryRoomReport report) {
