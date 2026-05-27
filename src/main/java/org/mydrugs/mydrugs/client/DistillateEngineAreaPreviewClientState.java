@@ -133,6 +133,11 @@ public final class DistillateEngineAreaPreviewClientState {
     }
 
     private static void spawnTargetHighlights(ClientLevel level, BlockPos enginePos, Preview preview) {
+        // Reduced motion players keep the cube outline (it's a passive marker) but skip the
+        // pulsing per-target highlights so there's no rhythmic flicker on the side of the screen.
+        if (Config.CLIENT.reducedMotionMode.get()) {
+            return;
+        }
         float density = (float) Math.max(0.0D, Config.CLIENT.particleDensityMultiplier.get());
         if (density <= 0.0F) {
             return;
