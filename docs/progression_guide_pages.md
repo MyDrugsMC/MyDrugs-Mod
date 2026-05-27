@@ -271,6 +271,7 @@ Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens
 @item mydrugs:copper_tube
 @item mydrugs:wooden_frame
 @item mydrugs:mixing_vat
+@item mydrugs:mixing_spatula
 
 Shape copper parts and assemble the mixing vat. From here, recipes start dealing in fluids, not just items.
 
@@ -637,6 +638,8 @@ MAIN QUEST + EXPLORATION — Chapter 12
 @item mydrugs:shroom_harvester
 
 You can find magic mushrooms early — but Mycelial Knowledge only opens after Overclocked.
+
+Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. If the valley feels impossible to find, use the biome finder once your progression points you toward mycelial exploration.
 
 Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes.
 
