@@ -36,7 +36,9 @@ public record PersonalDiarySnapshotPayload(
         int cooldownTicksRemaining,
         List<PsycheMapNodeDto> psycheNodes,
         DiaryClaritySnapshot clarity,
-        List<DiaryIntegrationProgressDto> integrationProgress
+        List<DiaryIntegrationProgressDto> integrationProgress,
+        List<String> sanctuaryModuleKeys,
+        List<String> sanctuarySuggestionKeys
 ) implements CustomPacketPayload {
 
     public PersonalDiarySnapshotPayload {
@@ -45,6 +47,8 @@ public record PersonalDiarySnapshotPayload(
         masteryStats = List.copyOf(masteryStats);
         psycheNodes = List.copyOf(psycheNodes);
         integrationProgress = integrationProgress == null ? List.of() : List.copyOf(integrationProgress);
+        sanctuaryModuleKeys = sanctuaryModuleKeys == null ? List.of() : List.copyOf(sanctuaryModuleKeys);
+        sanctuarySuggestionKeys = sanctuarySuggestionKeys == null ? List.of() : List.copyOf(sanctuarySuggestionKeys);
         if (clarity == null) {
             clarity = DiaryClaritySnapshot.EMPTY;
         }
@@ -115,6 +119,8 @@ public record PersonalDiarySnapshotPayload(
                         for (DiaryIntegrationProgressDto p : payload.integrationProgress()) {
                             encodeIntegrationProgress(buf, p);
                         }
+                        encodeStringList(buf, payload.sanctuaryModuleKeys());
+                        encodeStringList(buf, payload.sanctuarySuggestionKeys());
                     },
                     buf -> {
                         int entryCount = ByteBufCodecs.VAR_INT.decode(buf);
@@ -187,9 +193,40 @@ public record PersonalDiarySnapshotPayload(
                         for (int i = 0; i < integrationCount; i++) {
                             integrationProgress.add(decodeIntegrationProgress(buf));
                         }
-                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity, integrationProgress);
+                        List<String> sanctuaryModuleKeys = decodeStringList(buf);
+                        List<String> sanctuarySuggestionKeys = decodeStringList(buf);
+                        return new PersonalDiarySnapshotPayload(
+                                entries,
+                                drugStats,
+                                masteryStats,
+                                state,
+                                currentDay,
+                                cooldown,
+                                psycheNodes,
+                                clarity,
+                                integrationProgress,
+                                sanctuaryModuleKeys,
+                                sanctuarySuggestionKeys
+                        );
                     }
             );
+
+    private static void encodeStringList(RegistryFriendlyByteBuf buf, List<String> values) {
+        List<String> safe = values == null ? List.of() : values;
+        ByteBufCodecs.VAR_INT.encode(buf, safe.size());
+        for (String value : safe) {
+            ByteBufCodecs.STRING_UTF8.encode(buf, value == null ? "" : value);
+        }
+    }
+
+    private static List<String> decodeStringList(RegistryFriendlyByteBuf buf) {
+        int count = ByteBufCodecs.VAR_INT.decode(buf);
+        List<String> values = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            values.add(ByteBufCodecs.STRING_UTF8.decode(buf));
+        }
+        return values;
+    }
 
     private static void encodeIntegrationProgress(RegistryFriendlyByteBuf buf, DiaryIntegrationProgressDto p) {
         ByteBufCodecs.STRING_UTF8.encode(buf, p.drugId());

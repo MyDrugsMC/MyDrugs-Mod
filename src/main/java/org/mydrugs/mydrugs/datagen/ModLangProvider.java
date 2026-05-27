@@ -450,6 +450,9 @@ public class ModLangProvider extends LanguageProvider {
         add("screen.mydrugs.diary.integration.core", "Integration Core in inventory");
         add("screen.mydrugs.diary.integration.not_integrated", "Trait not already integrated");
         add("screen.mydrugs.diary.integration.integrated", "Already integrated");
+        add("screen.mydrugs.diary.sanctuary_modules", "Sanctuary modules");
+        add("screen.mydrugs.diary.sanctuary_no_modules", "The room is safe, but it has not become a practice yet.");
+        add("screen.mydrugs.diary.sanctuary_suggestions", "What the room asks for");
         add("diary.mydrugs.integration.roleplay.coffee", "The hand learned speed before the mind learned rest.");
         add("diary.mydrugs.integration.roleplay.tobacco", "Steadiness became a ritual before it became a choice.");
         add("diary.mydrugs.integration.roleplay.weed", "Calm is not absence. It is something I can build.");
