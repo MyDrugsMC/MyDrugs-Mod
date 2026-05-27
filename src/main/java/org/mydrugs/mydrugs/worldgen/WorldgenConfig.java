@@ -3,8 +3,14 @@ package org.mydrugs.mydrugs.worldgen;
 import java.util.Locale;
 
 import org.mydrugs.mydrugs.Config;
+import org.slf4j.Logger;
 
 public final class WorldgenConfig {
+    public static final String BOTH_PSYCHEDELIC_BIOME_OPTIONS_WARNING =
+            "Both replaceMushroomFields and addPsychedelicBiomeSeparately are enabled. Vanilla Mushroom Fields may be replaced while additional Psychedelic Mushroom Valleys may also generate.";
+    public static final String PSYCHEDELIC_BIOME_ZERO_WEIGHT_WARNING =
+            "Psychedelic Mushroom Valley injection is enabled but psychedelicBiomeWeight is 0, so no TerraBlender region will be registered.";
+
     public static final String SALT = "salt";
     public static final String SULFUR_ORE = "sulfur_ore";
     public static final String PLATINUM_ORE = "platinum_ore";
@@ -23,23 +29,73 @@ public final class WorldgenConfig {
     }
 
     public static boolean terraBlenderOverworldEnabled() {
-        return Config.WORLDGEN.enableWorldgen.get()
-                && Config.WORLDGEN.enableOverworldBiomes.get()
-                && Config.WORLDGEN.psychedelicBiomeWeight.get() > 0
-                && (Config.WORLDGEN.replaceMushroomFields.get()
-                || Config.WORLDGEN.addPsychedelicBiomeSeparately.get());
+        return terraBlenderOverworldEnabled(
+                Config.WORLDGEN.enableWorldgen.get(),
+                Config.WORLDGEN.enableOverworldBiomes.get(),
+                Config.WORLDGEN.psychedelicBiomeWeight.get(),
+                Config.WORLDGEN.replaceMushroomFields.get(),
+                Config.WORLDGEN.addPsychedelicBiomeSeparately.get()
+        );
+    }
+
+    public static boolean terraBlenderOverworldEnabled(
+            boolean enableWorldgen,
+            boolean enableOverworldBiomes,
+            int psychedelicBiomeWeight,
+            boolean replaceMushroomFields,
+            boolean addPsychedelicBiomeSeparately
+    ) {
+        return enableWorldgen
+                && enableOverworldBiomes
+                && psychedelicBiomeWeight > 0
+                && (replaceMushroomFields || addPsychedelicBiomeSeparately);
     }
 
     public static int psychedelicBiomeWeight() {
         return Math.max(0, Config.WORLDGEN.psychedelicBiomeWeight.get());
     }
 
+    public static void logPsychedelicBiomeConfigWarnings(Logger logger) {
+        boolean replaceMushroomFields = Config.WORLDGEN.replaceMushroomFields.get();
+        boolean addPsychedelicBiomeSeparately = Config.WORLDGEN.addPsychedelicBiomeSeparately.get();
+        int psychedelicBiomeWeight = Config.WORLDGEN.psychedelicBiomeWeight.get();
+
+        if (hasConflictingPsychedelicBiomeInjection(replaceMushroomFields, addPsychedelicBiomeSeparately)) {
+            logger.warn(BOTH_PSYCHEDELIC_BIOME_OPTIONS_WARNING);
+        }
+        if (hasEnabledPsychedelicBiomeInjectionWithoutWeight(
+                psychedelicBiomeWeight,
+                replaceMushroomFields,
+                addPsychedelicBiomeSeparately
+        )) {
+            logger.warn(PSYCHEDELIC_BIOME_ZERO_WEIGHT_WARNING);
+        }
+    }
+
+    public static boolean hasConflictingPsychedelicBiomeInjection(
+            boolean replaceMushroomFields,
+            boolean addPsychedelicBiomeSeparately
+    ) {
+        return replaceMushroomFields && addPsychedelicBiomeSeparately;
+    }
+
+    public static boolean hasEnabledPsychedelicBiomeInjectionWithoutWeight(
+            int psychedelicBiomeWeight,
+            boolean replaceMushroomFields,
+            boolean addPsychedelicBiomeSeparately
+    ) {
+        return psychedelicBiomeWeight <= 0 && (replaceMushroomFields || addPsychedelicBiomeSeparately);
+    }
+
     public static String psychedelicClimateBands() {
-        String configured = Config.WORLDGEN.psychedelicBiomeClimateBands.get();
+        return normalizePsychedelicClimateBands(Config.WORLDGEN.psychedelicBiomeClimateBands.get());
+    }
+
+    public static String normalizePsychedelicClimateBands(String configured) {
         String normalized = configured == null ? "" : configured.trim().toLowerCase(Locale.ROOT);
         return switch (normalized) {
             case "mushroom_only", "warm_wet", "broad_wet" -> normalized;
-            default -> "mushroom_only";
+            default -> Config.Worldgen.DEFAULT_PSYCHEDELIC_BIOME_CLIMATE_BANDS;
         };
     }
 

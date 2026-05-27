@@ -477,9 +477,9 @@
       { "type": "item", "text": "mydrugs:magic_mushroom" },
       { "type": "item", "text": "mydrugs:magic_mushroom_powder" },
       { "type": "item", "text": "mydrugs:mycelial_resonator" },
-      { "type": "item", "text": "mydrugs:vanilla_biome_finder" },
       { "type": "item", "text": "mydrugs:shroom_harvester" },
       { "type": "text", "text": "You can find magic mushrooms early — but Mycelial Knowledge only opens after Overclocked." },
+      { "type": "text", "text": "Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. The Vanilla Biome Finder intentionally tracks only vanilla biomes; it will not point at the valley." },
       { "type": "text", "text": "Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes." },
       { "type": "text", "text": "Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the future Inner Dimension." },
       { "type": "goal", "text": "Hunt down psychedelic terrain, unlock Mycelial Knowledge, and prepare for Resonator work." }
