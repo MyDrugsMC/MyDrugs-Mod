@@ -344,6 +344,11 @@ public class Config {
      * on both physical sides, and worldgen toggles are not meant to change at runtime anyway.
      */
     public static final class Worldgen {
+        public static final boolean DEFAULT_REPLACE_MUSHROOM_FIELDS = false;
+        public static final boolean DEFAULT_ADD_PSYCHEDELIC_BIOME_SEPARATELY = true;
+        public static final int DEFAULT_PSYCHEDELIC_BIOME_WEIGHT = 1;
+        public static final String DEFAULT_PSYCHEDELIC_BIOME_CLIMATE_BANDS = "mushroom_only";
+
         public final ModConfigSpec.BooleanValue enableWorldgen;
         public final ModConfigSpec.BooleanValue enableOverworldBiomes;
         public final ModConfigSpec.BooleanValue enableSkyIslandDimension;
@@ -428,17 +433,17 @@ public class Config {
 
             builder.push("overworld_biome");
             replaceMushroomFields = builder
-                    .comment("Replace vanilla Mushroom Fields with the psychedelic mushroom valley. Disable for less invasive overworld changes.")
-                    .define("replaceMushroomFields", true);
+                    .comment("Legacy/invasive option. Replaces vanilla Mushroom Fields with Psychedelic Mushroom Valley. Disabled by default to preserve vanilla biome identity.")
+                    .define("replaceMushroomFields", DEFAULT_REPLACE_MUSHROOM_FIELDS);
             addPsychedelicBiomeSeparately = builder
-                    .comment("Add psychedelic mushroom valley as its own rare warm/wet biome instead of only replacing Mushroom Fields.")
-                    .define("addPsychedelicBiomeSeparately", false);
+                    .comment("Adds Psychedelic Mushroom Valley as its own rare overworld biome without replacing vanilla Mushroom Fields. Recommended default.")
+                    .define("addPsychedelicBiomeSeparately", DEFAULT_ADD_PSYCHEDELIC_BIOME_SEPARATELY);
             psychedelicBiomeWeight = builder
-                    .comment("TerraBlender region weight for the psychedelic biome when overworld biomes are enabled.")
-                    .defineInRange("psychedelicBiomeWeight", 2, 0, 100);
+                    .comment("TerraBlender region weight for Psychedelic Mushroom Valley. Low values keep the biome rare.")
+                    .defineInRange("psychedelicBiomeWeight", DEFAULT_PSYCHEDELIC_BIOME_WEIGHT, 0, 100);
             psychedelicBiomeClimateBands = builder
-                    .comment("Climate band preset for separate psychedelic biome injection: mushroom_only, warm_wet, or broad_wet.")
-                    .define("psychedelicBiomeClimateBands", "mushroom_only");
+                    .comment("Climate band preset for separate Psychedelic Mushroom Valley injection: mushroom_only, warm_wet, or broad_wet. mushroom_only keeps generation rare and closest to Mushroom Fields behavior.")
+                    .define("psychedelicBiomeClimateBands", DEFAULT_PSYCHEDELIC_BIOME_CLIMATE_BANDS);
             enableCustomSurfaceRules = builder
                     .comment("Enable psychedelic mycelium surface rules for the MyDrugs biome.")
                     .define("enableCustomSurfaceRules", true);

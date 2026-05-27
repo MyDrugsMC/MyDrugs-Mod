@@ -23,11 +23,26 @@ public final class WorldgenConfig {
     }
 
     public static boolean terraBlenderOverworldEnabled() {
-        return Config.WORLDGEN.enableWorldgen.get()
-                && Config.WORLDGEN.enableOverworldBiomes.get()
-                && Config.WORLDGEN.psychedelicBiomeWeight.get() > 0
-                && (Config.WORLDGEN.replaceMushroomFields.get()
-                || Config.WORLDGEN.addPsychedelicBiomeSeparately.get());
+        return terraBlenderOverworldEnabled(
+                Config.WORLDGEN.enableWorldgen.get(),
+                Config.WORLDGEN.enableOverworldBiomes.get(),
+                Config.WORLDGEN.psychedelicBiomeWeight.get(),
+                Config.WORLDGEN.replaceMushroomFields.get(),
+                Config.WORLDGEN.addPsychedelicBiomeSeparately.get()
+        );
+    }
+
+    public static boolean terraBlenderOverworldEnabled(
+            boolean enableWorldgen,
+            boolean enableOverworldBiomes,
+            int psychedelicBiomeWeight,
+            boolean replaceMushroomFields,
+            boolean addPsychedelicBiomeSeparately
+    ) {
+        return enableWorldgen
+                && enableOverworldBiomes
+                && psychedelicBiomeWeight > 0
+                && (replaceMushroomFields || addPsychedelicBiomeSeparately);
     }
 
     public static int psychedelicBiomeWeight() {
@@ -35,11 +50,14 @@ public final class WorldgenConfig {
     }
 
     public static String psychedelicClimateBands() {
-        String configured = Config.WORLDGEN.psychedelicBiomeClimateBands.get();
+        return normalizePsychedelicClimateBands(Config.WORLDGEN.psychedelicBiomeClimateBands.get());
+    }
+
+    public static String normalizePsychedelicClimateBands(String configured) {
         String normalized = configured == null ? "" : configured.trim().toLowerCase(Locale.ROOT);
         return switch (normalized) {
             case "mushroom_only", "warm_wet", "broad_wet" -> normalized;
-            default -> "mushroom_only";
+            default -> Config.Worldgen.DEFAULT_PSYCHEDELIC_BIOME_CLIMATE_BANDS;
         };
     }
 
