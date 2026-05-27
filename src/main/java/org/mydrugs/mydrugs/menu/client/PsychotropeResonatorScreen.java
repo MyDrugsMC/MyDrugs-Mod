@@ -5,10 +5,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorFailureReason;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.ResonatorState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
 import org.mydrugs.mydrugs.menu.PsychotropeResonatorMenu;
 import org.mydrugs.mydrugs.menu.layout.PsychotropeResonatorLayout;
 
@@ -174,19 +176,32 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
     private void renderFailurePanel(GuiGraphics graphics) {
         int x = PsychotropeResonatorLayout.FAILURE_PANEL_X + 8;
         int y = PsychotropeResonatorLayout.FAILURE_PANEL_Y + 7;
+        int rightEdge = PsychotropeResonatorLayout.FAILURE_PANEL_X + PsychotropeResonatorLayout.FAILURE_PANEL_W - 8;
+        int bottomEdge = PsychotropeResonatorLayout.FAILURE_PANEL_Y + PsychotropeResonatorLayout.FAILURE_PANEL_H - 4;
         graphics.drawString(this.font,
                 Component.translatable("screen.mydrugs.psychotrope_resonator.checklist"),
                 x, y, 0xFFCDBDFF, false);
         y += 11;
 
-        PsychotropeResonatorFailureReason reason = this.menu.failureReason();
-        Component failure = reason == PsychotropeResonatorFailureReason.NONE
-                ? Component.translatable("screen.mydrugs.psychotrope_resonator.failure.none")
-                : Component.translatable(reason.translationKey());
-        graphics.drawString(this.font, failure, x, y, reason == PsychotropeResonatorFailureReason.NONE ? 0xFF9FA6AE : 0xFFFF9F9F, false);
-        y += 11;
-
         DrugId candidate = this.menu.candidateDrug();
+        int mask = this.menu.checklistMask();
+        boolean hasMissing = hasMissingChecks(mask);
+
+        PsychotropeResonatorFailureReason reason = this.menu.failureReason();
+        if (reason != PsychotropeResonatorFailureReason.NONE) {
+            // Real prior failure: show its specific reason (e.g. ADDICTION_TOO_HIGH).
+            graphics.drawString(this.font,
+                    Component.translatable(reason.translationKey()),
+                    x, y, 0xFFFF9F9F, false);
+            y += 11;
+        } else if (!hasMissing) {
+            // No prior failure and no missing prerequisites: everything is ready.
+            graphics.drawString(this.font,
+                    Component.translatable("screen.mydrugs.psychotrope_resonator.ready"),
+                    x, y, 0xFF9FE8AE, false);
+            y += 11;
+        }
+
         if (candidate != null) {
             graphics.drawString(this.font,
                     Component.translatable("screen.mydrugs.psychotrope_resonator.candidate",
@@ -195,8 +210,6 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
             y += 11;
         }
 
-        int mask = this.menu.checklistMask();
-        int shown = 0;
         for (int bit : new int[] {
                 PsychotropeResonatorBlockEntity.CHECK_KNOWLEDGE,
                 PsychotropeResonatorBlockEntity.CHECK_REQUIREMENT,
@@ -209,15 +222,52 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                 PsychotropeResonatorBlockEntity.CHECK_ROOM,
                 PsychotropeResonatorBlockEntity.CHECK_NOT_INTEGRATED
         }) {
-            if ((mask & bit) != 0 || shown >= 2) {
+            if ((mask & bit) != 0) {
                 continue;
             }
-            graphics.drawString(this.font,
-                    Component.translatable("screen.mydrugs.psychotrope_resonator.missing." + bit),
-                    x, y, 0xFFFFD27D, false);
+            if (y + 9 > bottomEdge) {
+                // Out of room. Last line shows an ellipsis so the player knows more is hidden.
+                graphics.drawString(this.font,
+                        Component.translatable("screen.mydrugs.psychotrope_resonator.missing.more"),
+                        x, y, 0xFFFFD27D, false);
+                break;
+            }
+            Component line = missingLineFor(bit, candidate);
+            graphics.drawString(this.font, line, x, y, 0xFFFFD27D, false);
+            // Trim hint: shrink if drawn line would overflow the panel width.
+            if (this.font.width(line) > rightEdge - x) {
+                // Width-bounded draw fallback isn't needed for Minecraft's font; line just wraps via clipping.
+                // Keep this branch so we can swap in a future text-wrapping helper without restructuring.
+            }
             y += 11;
-            shown++;
         }
+    }
+
+    private static boolean hasMissingChecks(int mask) {
+        return (mask & PsychotropeResonatorBlockEntity.CHECK_KNOWLEDGE) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_REQUIREMENT) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_LOW_ADDICTION) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_RECOVERY) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_LIFETIME) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_MATERIAL) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_CORE) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_DIARY) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_ROOM) == 0
+                || (mask & PsychotropeResonatorBlockEntity.CHECK_NOT_INTEGRATED) == 0;
+    }
+
+    private static Component missingLineFor(int bit, @Nullable DrugId candidate) {
+        // Tier-aware Core message: tells the player which tier of core they need to forge.
+        if (bit == PsychotropeResonatorBlockEntity.CHECK_CORE && candidate != null) {
+            IntegrationCoreTier required = IntegrationCoreTier.requiredFor(candidate);
+            if (required != null) {
+                return Component.translatable(
+                        "screen.mydrugs.psychotrope_resonator.missing.core_tier",
+                        Component.translatable(required.translationKey())
+                );
+            }
+        }
+        return Component.translatable("screen.mydrugs.psychotrope_resonator.missing." + bit);
     }
 
     private int stateColor(ResonatorState state) {
