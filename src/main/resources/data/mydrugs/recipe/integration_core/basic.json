@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "ICI",
+    " I "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "mydrugs:integration_core"
+  },
+  "result": {
+    "id": "mydrugs:basic_integration_core",
+    "count": 1
+  }
+}

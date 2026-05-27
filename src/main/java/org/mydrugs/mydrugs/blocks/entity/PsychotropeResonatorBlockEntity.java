@@ -28,6 +28,8 @@ import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
@@ -213,7 +215,19 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     }
 
     public static boolean isIntegrationCore(ItemStack stack) {
-        return stack.is(ModItems.INTEGRATION_CORE.get());
+        return IntegrationCoreTiers.isAnyCore(stack);
+    }
+
+    /**
+     * True when the slotted core is at least {@code required} tier. {@code null} required tier
+     * (uncurated drug) always fails — there is no integration to perform.
+     */
+    public static boolean coreSatisfies(ItemStack stack, @Nullable IntegrationCoreTier required) {
+        if (required == null) {
+            return false;
+        }
+        IntegrationCoreTier slotted = IntegrationCoreTier.ofStack(stack);
+        return slotted != null && slotted.satisfies(required);
     }
 
     public static boolean isDiary(ItemStack stack) {
@@ -521,7 +535,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         if (eligibilityFault != null) {
             return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, eligibilityFault, checklist);
         }
-        if (!this.getItem(SLOT_INTEGRATION_CORE).is(ModItems.INTEGRATION_CORE.get())) {
+        if (!coreSatisfies(this.getItem(SLOT_INTEGRATION_CORE), IntegrationCoreTier.requiredFor(drug))) {
             return IntegrationCandidate.fail(drug, MachineStatus.MISSING_CATALYST, PsychotropeResonatorFailureReason.MISSING_CORE, checklist);
         }
         if (!hasMaterialForDrug(drug)) {
@@ -565,7 +579,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         if (hasMaterialForDrug(drug)) {
             mask |= CHECK_MATERIAL;
         }
-        if (this.getItem(SLOT_INTEGRATION_CORE).is(ModItems.INTEGRATION_CORE.get())) {
+        if (coreSatisfies(this.getItem(SLOT_INTEGRATION_CORE), IntegrationCoreTier.requiredFor(drug))) {
             mask |= CHECK_CORE;
         }
         if (hasDiaryContext(player)) {

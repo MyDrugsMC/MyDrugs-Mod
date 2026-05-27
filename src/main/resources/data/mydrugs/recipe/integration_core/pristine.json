@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "ICI",
+    " I "
+  ],
+  "key": {
+    "I": "minecraft:diamond",
+    "C": "mydrugs:refined_integration_core"
+  },
+  "result": {
+    "id": "mydrugs:pristine_integration_core",
+    "count": 1
+  }
+}

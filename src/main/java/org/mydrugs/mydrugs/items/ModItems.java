@@ -653,6 +653,48 @@ public class ModItems {
                             "tooltip.mydrugs.integration_core.3",
                             "tooltip.mydrugs.integration_core.4"));
 
+    public static final DeferredItem<Item> BASIC_INTEGRATION_CORE =
+            ITEMS.registerItem("basic_integration_core",
+                    props -> new PsyTooltipItem(props,
+                            "tooltip.mydrugs.integration_core.tier.basic",
+                            "tooltip.mydrugs.integration_core.shared"));
+    public static final DeferredItem<Item> ADVANCED_INTEGRATION_CORE =
+            ITEMS.registerItem("advanced_integration_core",
+                    props -> new PsyTooltipItem(props,
+                            "tooltip.mydrugs.integration_core.tier.advanced",
+                            "tooltip.mydrugs.integration_core.shared"));
+    public static final DeferredItem<Item> REFINED_INTEGRATION_CORE =
+            ITEMS.registerItem("refined_integration_core",
+                    props -> new PsyTooltipItem(props,
+                            "tooltip.mydrugs.integration_core.tier.refined",
+                            "tooltip.mydrugs.integration_core.shared"));
+    public static final DeferredItem<Item> PRISTINE_INTEGRATION_CORE =
+            ITEMS.registerItem("pristine_integration_core",
+                    props -> new PsyTooltipItem(props,
+                            "tooltip.mydrugs.integration_core.tier.pristine",
+                            "tooltip.mydrugs.integration_core.shared"));
+    public static final DeferredItem<Item> PRIME_INTEGRATION_CORE =
+            ITEMS.registerItem("prime_integration_core",
+                    props -> new PsyTooltipItem(props,
+                            "tooltip.mydrugs.integration_core.tier.prime",
+                            "tooltip.mydrugs.integration_core.shared"));
+
+    static {
+        // Bind tier -> item supplier so the tier enum stays free of ModItems.
+        org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers.bind(
+                org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier.CRUDE, INTEGRATION_CORE);
+        org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers.bind(
+                org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier.BASIC, BASIC_INTEGRATION_CORE);
+        org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers.bind(
+                org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier.ADVANCED, ADVANCED_INTEGRATION_CORE);
+        org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers.bind(
+                org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier.REFINED, REFINED_INTEGRATION_CORE);
+        org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers.bind(
+                org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier.PRISTINE, PRISTINE_INTEGRATION_CORE);
+        org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers.bind(
+                org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier.PRIME, PRIME_INTEGRATION_CORE);
+    }
+
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();
 

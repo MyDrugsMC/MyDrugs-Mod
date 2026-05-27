@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "ICI",
+    " I "
+  ],
+  "key": {
+    "I": "mydrugs:platinum_ingot",
+    "C": "mydrugs:pristine_integration_core"
+  },
+  "result": {
+    "id": "mydrugs:prime_integration_core",
+    "count": 1
+  }
+}
