@@ -38,7 +38,10 @@ public final class PsychotropeResonatorLayout {
 
     public static final int PLAYER_INV_X = LayoutMath.centered(GUI_WIDTH, StandardInventoryLayout.PLAYER_INV_PANEL_W);
     public static final int PLAYER_INV_Y = LayoutMath.inventoryY(FAILURE_PANEL_Y, FAILURE_PANEL_H);
-    public static final int GUI_HEIGHT = LayoutMath.guiHeight(FAILURE_PANEL_Y, FAILURE_PANEL_H);
+    // LayoutMath.guiHeight(panelY, panelH) uses panelY as a symmetric bottom margin. Passing
+    // FAILURE_PANEL_Y (134) dumps 134 px of blank space under the inventory and overflows the
+    // screen at common GUI scales. Mirror the top margin (MACHINE_PANEL_Y = 15) instead.
+    public static final int GUI_HEIGHT = PLAYER_INV_Y + StandardInventoryLayout.TOTAL_H + MACHINE_PANEL_Y;
 
     private PsychotropeResonatorLayout() {
     }
