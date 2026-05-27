@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "ICI",
+    " I "
+  ],
+  "key": {
+    "I": "minecraft:copper_ingot",
+    "C": "minecraft:ender_pearl"
+  },
+  "result": {
+    "id": "mydrugs:integration_core",
+    "count": 1
+  }
+}

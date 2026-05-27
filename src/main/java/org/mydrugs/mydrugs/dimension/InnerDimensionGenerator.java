@@ -129,7 +129,7 @@ public final class InnerDimensionGenerator {
             case LSD -> setBlockIfReplaceable(level, featurePos, Blocks.SCULK.defaultBlockState());
             case METH -> setBlockIfReplaceable(level, featurePos, Blocks.GOLD_ORE.defaultBlockState());
             case MUSHROOMS -> placeStructureWithChest(level, drugId, featurePos, data,
-                    ModItems.INTEGRATION_CORE);
+                    ModItems.PRIME_INTEGRATION_CORE);
             default -> {
             }
         }
@@ -157,7 +157,7 @@ public final class InnerDimensionGenerator {
             case LSD -> setBlockIfReplaceable(level, featurePos, Blocks.SCULK.defaultBlockState());
             case METH -> setBlockIfReplaceable(level, featurePos, Blocks.GOLD_ORE.defaultBlockState());
             case MUSHROOMS -> placeStructureWithChest(level, drugId, featurePos, data, island,
-                    ModItems.INTEGRATION_CORE);
+                    ModItems.PRIME_INTEGRATION_CORE);
             default -> {
             }
         }

@@ -28,8 +28,8 @@ public final class RecoveryProgressManager {
 
     /** A recovery action, each carrying base weight and whether passive support may finish recovery. */
     public enum ActionKind {
-        ORE_MINED(1.0F, true, 1.0F, false),
-        CROP_TENDED(0.7F, true, 1.0F, false),
+        ORE_MINED(1.0F, true, 1.0F, true),
+        CROP_TENDED(0.7F, true, 1.0F, true),
         MACHINE_OUTPUT(1.4F, true, 1.0F, true),
         DISTILLERY_CYCLE(1.7F, true, 1.0F, true),
         PSY_MIXER_SUCCESS(2.0F, true, 1.0F, true),
@@ -38,7 +38,7 @@ public final class RecoveryProgressManager {
         SLEEP_REST(2.0F, true, 1.0F, false),
         FOOD(1.0F, true, 0.98F, false),
         HERBAL_TEA(1.35F, true, 1.0F, false),
-        CALMING_MIXTURE(5.0F, true, 1.0F, false),
+        CALMING_MIXTURE(2.0F, true, 1.0F, false),
         SLEEPING_AID(1.7F, true, 1.0F, false),
         MUSIC_SUPPORT(1.0F, false, 0.95F, false),
         RECOVERY_ROOM_SUPPORT(1.0F, false, 0.95F, false),
@@ -121,7 +121,7 @@ public final class RecoveryProgressManager {
 
     public static boolean isInReckoning(@Nullable DrugId drugId, DrugAddictionStats d) {
         IntegrationRequirementProfile profile = drugId == null ? null : IntegrationRequirements.profile(drugId);
-        float requiredPeak = profile == null ? IntegrationConstants.PEAK_THRESHOLD : profile.requiredPeakExposure();
+        float requiredPeak = profile == null ? IntegrationConstants.PEAK_THRESHOLD_FALLBACK : profile.requiredPeakExposure();
         float requiredRecovery = profile == null ? 1.0F : profile.requiredRecoveryProgress();
         if (profile != null && !profile.requiresRecoveryProgress()) {
             return false;

@@ -10,7 +10,7 @@ public final class IntegrationRequirements {
 
     static {
         put(new IntegrationRequirementProfile(DrugId.COFFEE, IntegrationRequirementType.ADDICTION_RECOVERY,
-                18.0F, 6.0F, 24.0F, 1.0F, 0, true));
+                9.0F, 6.0F, 14.0F, 1.0F, 0, true));
         put(new IntegrationRequirementProfile(DrugId.TOBACCO, IntegrationRequirementType.ADDICTION_RECOVERY,
                 35.0F, 8.0F, 35.0F, 1.0F, 0, true));
         put(new IntegrationRequirementProfile(DrugId.WEED, IntegrationRequirementType.ADDICTION_RECOVERY,

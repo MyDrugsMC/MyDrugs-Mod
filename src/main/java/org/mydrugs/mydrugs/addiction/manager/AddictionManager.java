@@ -19,6 +19,7 @@ import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationConstants;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
@@ -116,7 +117,9 @@ public final class AddictionManager {
         finalGain *= Math.max(0.0F, 1.0F - addictionResistance);
 
         drugStats.addictionValue = AddictionMath.clamp(drugStats.addictionValue + finalGain, 0.0F, 1000.0F);
-        drugStats.lastUseTime = player.level().getGameTime();
+        long currentGameTime = player.level().getGameTime();
+        long prevLastUseTime = drugStats.lastUseTime;
+        drugStats.lastUseTime = currentGameTime;
         drugStats.lifetimeDoseConsumed = Math.min(1_000_000F, drugStats.lifetimeDoseConsumed + Math.max(0.0F, effectiveDose));
 
         ToleranceManager.onUse(playerStats, model, effectiveDose * purityMods.toleranceMul());
@@ -126,10 +129,16 @@ public final class AddictionManager {
         drugStats.baseWithdrawalMeter = Math.max(0.0F, drugStats.baseWithdrawalMeter - relief);
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
         if (IntegrationRequirements.usesCleanDoseStreak(model.getId())) {
-            drugStats.cleanIntegrationDoseStreak = Math.min(
-                    999,
-                    drugStats.cleanIntegrationDoseStreak + 1
+            IntegrationService.onCleanStreakUse(
+                    drugStats,
+                    currentGameTime,
+                    prevLastUseTime,
+                    IntegrationConstants.MIN_CLEAN_STREAK_SPACING_TICKS
             );
+            // Psychedelics never enter RecoveryProgressManager's reckoning (no recovery progress
+            // requirement), so onProductiveAction would never promote them. Stage them here so the
+            // diary beat + chat notification fire once they meet the streak threshold.
+            IntegrationService.markEligible(player, model.getId());
         }
 
         StressManager.reduceStress(playerStats, AddictionConstants.STRESS_RELIEF_ON_CONSUME);

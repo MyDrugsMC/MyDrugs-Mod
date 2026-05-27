@@ -28,6 +28,8 @@ import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
@@ -87,7 +89,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     private @Nullable ResourceLocation activeRitual;
     private @Nullable DrugId activeIntegrationDrug;
     private boolean dimensionReady;
-    private FailureReason lastFailureReason = FailureReason.NONE;
+    private PsychotropeResonatorFailureReason lastFailureReason = PsychotropeResonatorFailureReason.NONE;
     private @Nullable DrugId lastCandidateDrug;
     private int lastChecklistMask;
     private ResonatorState state = ResonatorState.IDLE;
@@ -122,7 +124,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
                 case 4 -> dimensionReady = value != 0;
                 case 5 -> machineStatus = MachineStatus.byNetworkId(value);
                 case 6 -> activeIntegrationDrug = DrugId.byNetworkId(value);
-                case 7 -> lastFailureReason = FailureReason.byNetworkId(value);
+                case 7 -> lastFailureReason = PsychotropeResonatorFailureReason.byNetworkId(value);
                 case 8 -> lastCandidateDrug = DrugId.byNetworkId(value);
                 case 9 -> lastChecklistMask = value;
                 default -> {
@@ -176,8 +178,14 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         }
 
         if (!be.revalidateActiveRitual(player)) {
-            be.cancelActiveRitual(be.machineStatus);
-            be.sync();
+            // revalidateActiveRitual already set machineStatus + lastFailureReason; surface the
+            // granular reason to the player as a chat message so they can react.
+            DrugId surfacedDrug = be.lastCandidateDrug;
+            int surfacedMask = be.lastChecklistMask;
+            MachineStatus surfacedStatus = be.machineStatus;
+            PsychotropeResonatorFailureReason surfacedReason = be.lastFailureReason;
+            be.cancelActiveRitual(surfacedStatus);
+            be.fail(player, surfacedStatus, surfacedReason, surfacedDrug, surfacedMask);
             return;
         }
 
@@ -207,7 +215,19 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     }
 
     public static boolean isIntegrationCore(ItemStack stack) {
-        return stack.is(ModItems.INTEGRATION_CORE.get());
+        return IntegrationCoreTiers.isAnyCore(stack);
+    }
+
+    /**
+     * True when the slotted core is at least {@code required} tier. {@code null} required tier
+     * (uncurated drug) always fails — there is no integration to perform.
+     */
+    public static boolean coreSatisfies(ItemStack stack, @Nullable IntegrationCoreTier required) {
+        if (required == null) {
+            return false;
+        }
+        IntegrationCoreTier slotted = IntegrationCoreTier.ofStack(stack);
+        return slotted != null && slotted.satisfies(required);
     }
 
     public static boolean isDiary(ItemStack stack) {
@@ -220,7 +240,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         }
         this.lastViewer = serverPlayer.getUUID();
         if (this.activeRitual != null || this.cooldownTicks > 0) {
-            fail(serverPlayer, MachineStatus.PAUSED, FailureReason.BUSY);
+            fail(serverPlayer, MachineStatus.PAUSED, PsychotropeResonatorFailureReason.BUSY);
             return true;
         }
 
@@ -236,9 +256,9 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         if (id == PsychotropeResonatorMenu.OPEN_DIMENSION_BUTTON_ID) {
             InnerDimensionService.OpenStatus status = InnerDimensionService.openStatus(serverPlayer);
             if (status != InnerDimensionService.OpenStatus.READY) {
-                fail(serverPlayer, MachineStatus.DIMENSION_UNAVAILABLE, FailureReason.fromOpenStatus(status));
+                fail(serverPlayer, MachineStatus.DIMENSION_UNAVAILABLE, PsychotropeResonatorFailureReason.fromOpenStatus(status));
             } else if (!InnerDimensionService.open(serverPlayer, this.worldPosition)) {
-                fail(serverPlayer, MachineStatus.DIMENSION_UNAVAILABLE, FailureReason.INNER_DIMENSION_UNAVAILABLE);
+                fail(serverPlayer, MachineStatus.DIMENSION_UNAVAILABLE, PsychotropeResonatorFailureReason.INNER_DIMENSION_UNAVAILABLE);
             }
             return true;
         }
@@ -359,7 +379,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         this.activeIntegrationDrug = drug;
         this.progress = 0;
         this.maxProgress = ticks;
-        this.lastFailureReason = FailureReason.NONE;
+        this.lastFailureReason = PsychotropeResonatorFailureReason.NONE;
         this.lastCandidateDrug = drug;
         this.lastChecklistMask = drug == null ? 0 : buildChecklist(player, drug);
         setState(activeState);
@@ -398,7 +418,11 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         }
 
         if (INTEGRATION_RITUAL.equals(ritual) && drug != null) {
-            if (IntegrationService.canIntegrate(player, drug) && IntegrationService.integrate(player, drug)) {
+            // Defensive: revalidateActiveRitual is called every tick before progress increments,
+            // so reaching this branch with a failing candidate would require a state change racing
+            // through completion. Re-validate here for a granular PsychotropeResonatorFailureReason regardless.
+            IntegrationCandidate candidate = validateIntegrationCandidate(player, drug);
+            if (candidate.ok() && IntegrationService.integrate(player, drug)) {
                 this.getItem(SLOT_MATERIAL).shrink(1);
                 this.getItem(SLOT_INTEGRATION_CORE).shrink(1);
                 InnerDimensionService.onIntegration(player, drug);
@@ -406,7 +430,9 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
                 setState(InnerDimensionService.canOpen(player) ? ResonatorState.DIMENSION_READY : ResonatorState.COOLDOWN);
                 setMachineStatus(MachineStatus.PAUSED);
             } else {
-                fail(player, MachineStatus.NO_MATCHING_RECIPE, FailureReason.INTEGRATION_LOST);
+                PsychotropeResonatorFailureReason reason = candidate.ok() ? PsychotropeResonatorFailureReason.INTEGRATION_LOST : candidate.reason();
+                MachineStatus status = candidate.ok() ? MachineStatus.NO_MATCHING_RECIPE : candidate.status();
+                fail(player, status, reason, candidate.drug(), candidate.checklistMask());
             }
             setChanged();
         }
@@ -450,29 +476,29 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
 
     private Validation validateDreamAlignment(ServerPlayer player) {
         if (player.getData(ModAttachments.PLAYER_INTEGRATION.get()).isDreamAligned()) {
-            return Validation.fail(MachineStatus.BLOCKED, FailureReason.DREAM_ALREADY_ALIGNED);
+            return Validation.fail(MachineStatus.BLOCKED, PsychotropeResonatorFailureReason.DREAM_ALREADY_ALIGNED);
         }
         if (!hasLysergicKnowledge(player)) {
-            return Validation.fail(MachineStatus.BLOCKED, FailureReason.REQUIRES_LYSERGIC);
+            return Validation.fail(MachineStatus.BLOCKED, PsychotropeResonatorFailureReason.REQUIRES_LYSERGIC);
         }
         if (!this.getItem(SLOT_MATERIAL).is(ModItems.DREAM_RESIDUE.get())) {
-            return Validation.fail(MachineStatus.MISSING_INPUT_ITEM, FailureReason.MISSING_DREAM_RESIDUE);
+            return Validation.fail(MachineStatus.MISSING_INPUT_ITEM, PsychotropeResonatorFailureReason.MISSING_DREAM_RESIDUE);
         }
         if (!hasDiaryContext(player)) {
-            return Validation.fail(MachineStatus.MISSING_DIARY_CONTEXT, FailureReason.MISSING_DIARY);
+            return Validation.fail(MachineStatus.MISSING_DIARY_CONTEXT, PsychotropeResonatorFailureReason.MISSING_DIARY);
         }
         return Validation.success();
     }
 
     private Validation validateRecoveryResonance(ServerPlayer player) {
         if (!this.getItem(SLOT_MATERIAL).is(ModItems.CALMING_RESIN.get())) {
-            return Validation.fail(MachineStatus.MISSING_INPUT_ITEM, FailureReason.MISSING_CALMING_RESIN);
+            return Validation.fail(MachineStatus.MISSING_INPUT_ITEM, PsychotropeResonatorFailureReason.MISSING_CALMING_RESIN);
         }
         if (!hasDiaryContext(player)) {
-            return Validation.fail(MachineStatus.MISSING_DIARY_CONTEXT, FailureReason.MISSING_DIARY);
+            return Validation.fail(MachineStatus.MISSING_DIARY_CONTEXT, PsychotropeResonatorFailureReason.MISSING_DIARY);
         }
         if (!hasValidRecoveryRoom(player)) {
-            return Validation.fail(MachineStatus.MISSING_RECOVERY_CONTEXT, FailureReason.MISSING_RECOVERY_ROOM);
+            return Validation.fail(MachineStatus.MISSING_RECOVERY_CONTEXT, PsychotropeResonatorFailureReason.MISSING_RECOVERY_ROOM);
         }
         return Validation.success();
     }
@@ -490,49 +516,36 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         }
         return bestFailure != null
                 ? bestFailure
-                : IntegrationCandidate.fail(null, MachineStatus.NO_MATCHING_RECIPE, FailureReason.NO_ELIGIBLE_DRUG, 0);
+                : IntegrationCandidate.fail(null, MachineStatus.NO_MATCHING_RECIPE, PsychotropeResonatorFailureReason.NO_ELIGIBLE_DRUG, 0);
     }
 
     private IntegrationCandidate validateIntegrationCandidate(ServerPlayer player, DrugId drug) {
         IntegratedTrait trait = IntegratedTrait.bySource(drug);
         int checklist = buildChecklist(player, drug);
         if (trait == null) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.NO_ELIGIBLE_DRUG, checklist);
+            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, PsychotropeResonatorFailureReason.NO_ELIGIBLE_DRUG, checklist);
         }
         if (!hasKnowledgeForDrug(player, drug)) {
-            return IntegrationCandidate.fail(drug, MachineStatus.BLOCKED, FailureReason.MISSING_DRUG_KNOWLEDGE, checklist);
+            return IntegrationCandidate.fail(drug, MachineStatus.BLOCKED, PsychotropeResonatorFailureReason.MISSING_DRUG_KNOWLEDGE, checklist);
         }
         IntegrationService.EligibilityResult eligibility =
                 IntegrationService.evaluate(player.getData(ModAttachments.PLAYER_ADDICTION.get()), drug);
-        if (eligibility.alreadyIntegrated()) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.ALREADY_INTEGRATED, checklist);
+        PsychotropeResonatorFailureReason eligibilityFault =
+                PsychotropeResonatorFailureReason.firstEligibilityFailure(eligibility);
+        if (eligibilityFault != null) {
+            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, eligibilityFault, checklist);
         }
-        if (!eligibility.cleanDoseStreakMet()) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.CLEAN_STREAK_LOW, checklist);
-        }
-        if (!eligibility.peakMet()) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.PEAK_TOO_LOW, checklist);
-        }
-        if (!eligibility.lowAddictionMet()) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.ADDICTION_TOO_HIGH, checklist);
-        }
-        if (!eligibility.lifetimeDoseMet()) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.LIFETIME_DOSE_LOW, checklist);
-        }
-        if (!eligibility.recoveryMet()) {
-            return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, FailureReason.RECOVERY_INCOMPLETE, checklist);
-        }
-        if (!this.getItem(SLOT_INTEGRATION_CORE).is(ModItems.INTEGRATION_CORE.get())) {
-            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_CATALYST, FailureReason.MISSING_CORE, checklist);
+        if (!coreSatisfies(this.getItem(SLOT_INTEGRATION_CORE), IntegrationCoreTier.requiredFor(drug))) {
+            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_CATALYST, PsychotropeResonatorFailureReason.MISSING_CORE, checklist);
         }
         if (!hasMaterialForDrug(drug)) {
-            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_INPUT_ITEM, FailureReason.MISSING_MATERIAL, checklist);
+            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_INPUT_ITEM, PsychotropeResonatorFailureReason.MISSING_MATERIAL, checklist);
         }
         if (!hasDiaryContext(player)) {
-            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_DIARY_CONTEXT, FailureReason.MISSING_DIARY, checklist);
+            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_DIARY_CONTEXT, PsychotropeResonatorFailureReason.MISSING_DIARY, checklist);
         }
         if (!hasValidRecoveryRoom(player)) {
-            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_RECOVERY_CONTEXT, FailureReason.MISSING_RECOVERY_ROOM, checklist);
+            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_RECOVERY_CONTEXT, PsychotropeResonatorFailureReason.MISSING_RECOVERY_ROOM, checklist);
         }
         return IntegrationCandidate.ok(drug, checklist);
     }
@@ -566,7 +579,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         if (hasMaterialForDrug(drug)) {
             mask |= CHECK_MATERIAL;
         }
-        if (this.getItem(SLOT_INTEGRATION_CORE).is(ModItems.INTEGRATION_CORE.get())) {
+        if (coreSatisfies(this.getItem(SLOT_INTEGRATION_CORE), IntegrationCoreTier.requiredFor(drug))) {
             mask |= CHECK_CORE;
         }
         if (hasDiaryContext(player)) {
@@ -643,14 +656,14 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         setChanged();
     }
 
-    private void fail(ServerPlayer player, MachineStatus status, FailureReason reason) {
+    private void fail(ServerPlayer player, MachineStatus status, PsychotropeResonatorFailureReason reason) {
         fail(player, status, reason, null, 0);
     }
 
-    private void fail(ServerPlayer player, MachineStatus status, FailureReason reason, @Nullable DrugId drug, int checklistMask) {
+    private void fail(ServerPlayer player, MachineStatus status, PsychotropeResonatorFailureReason reason, @Nullable DrugId drug, int checklistMask) {
         setState(status == MachineStatus.INVALID_MULTIBLOCK ? ResonatorState.INVALID_STRUCTURE : ResonatorState.BLOCKED);
         setMachineStatus(status);
-        this.lastFailureReason = reason == null ? FailureReason.NONE : reason;
+        this.lastFailureReason = reason == null ? PsychotropeResonatorFailureReason.NONE : reason;
         this.lastCandidateDrug = drug;
         this.lastChecklistMask = checklistMask;
         player.displayClientMessage(Component.translatable(this.lastFailureReason.translationKey()).withStyle(ChatFormatting.DARK_PURPLE), true);
@@ -764,83 +777,24 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         }
     }
 
-    public enum FailureReason {
-        NONE(0, "screen.mydrugs.psychotrope_resonator.failure.none"),
-        BUSY(1, "message.mydrugs.resonator.busy"),
-        REQUIRES_LYSERGIC(2, "message.mydrugs.resonator.requires_lysergic"),
-        MISSING_DREAM_RESIDUE(3, "message.mydrugs.resonator.missing_dream_residue"),
-        MISSING_CALMING_RESIN(4, "message.mydrugs.resonator.missing_calming_resin"),
-        MISSING_DIARY(5, "message.mydrugs.resonator.missing_diary"),
-        MISSING_RECOVERY_ROOM(6, "message.mydrugs.resonator.missing_recovery_room"),
-        MISSING_DRUG_KNOWLEDGE(7, "message.mydrugs.resonator.missing_drug_knowledge"),
-        PEAK_TOO_LOW(8, "message.mydrugs.resonator.peak_too_low"),
-        ADDICTION_TOO_HIGH(9, "message.mydrugs.resonator.addiction_too_high"),
-        RECOVERY_INCOMPLETE(10, "message.mydrugs.resonator.recovery_incomplete"),
-        LIFETIME_DOSE_LOW(11, "message.mydrugs.resonator.lifetime_dose_low"),
-        CLEAN_STREAK_LOW(12, "message.mydrugs.resonator.clean_streak_low"),
-        MISSING_CORE(13, "message.mydrugs.resonator.missing_integration_core"),
-        MISSING_MATERIAL(14, "message.mydrugs.resonator.missing_integration_material"),
-        ALREADY_INTEGRATED(15, "message.mydrugs.resonator.already_integrated"),
-        NO_ELIGIBLE_DRUG(16, "message.mydrugs.resonator.no_eligible_drug"),
-        INTEGRATION_LOST(17, "message.mydrugs.resonator.integration_lost"),
-        DREAM_ALIGNMENT_MISSING(18, "message.mydrugs.inner_dimension.requires_dream_alignment"),
-        INTEGRATION_MISSING(19, "message.mydrugs.inner_dimension.requires_integration"),
-        INNER_DIMENSION_UNAVAILABLE(20, "message.mydrugs.inner_dimension.unavailable"),
-        DREAM_ALREADY_ALIGNED(21, "message.mydrugs.resonator.dream_already_aligned");
-
-        private final int networkId;
-        private final String translationKey;
-
-        FailureReason(int networkId, String translationKey) {
-            this.networkId = networkId;
-            this.translationKey = translationKey;
-        }
-
-        public int networkId() {
-            return networkId;
-        }
-
-        public String translationKey() {
-            return translationKey;
-        }
-
-        public static FailureReason byNetworkId(int id) {
-            for (FailureReason reason : values()) {
-                if (reason.networkId == id) {
-                    return reason;
-                }
-            }
-            return NONE;
-        }
-
-        public static FailureReason fromOpenStatus(InnerDimensionService.OpenStatus status) {
-            return switch (status) {
-                case READY -> NONE;
-                case MISSING_INTEGRATION -> INTEGRATION_MISSING;
-                case MISSING_DREAM_ALIGNMENT -> DREAM_ALIGNMENT_MISSING;
-                case UNAVAILABLE -> INNER_DIMENSION_UNAVAILABLE;
-            };
-        }
-    }
-
-    private record Validation(boolean ok, MachineStatus status, FailureReason reason) {
+    private record Validation(boolean ok, MachineStatus status, PsychotropeResonatorFailureReason reason) {
         static Validation success() {
-            return new Validation(true, MachineStatus.RUNNING, FailureReason.NONE);
+            return new Validation(true, MachineStatus.RUNNING, PsychotropeResonatorFailureReason.NONE);
         }
 
-        static Validation fail(MachineStatus status, FailureReason reason) {
+        static Validation fail(MachineStatus status, PsychotropeResonatorFailureReason reason) {
             return new Validation(false, status, reason);
         }
     }
 
     private record IntegrationCandidate(boolean ok, @Nullable DrugId drug, MachineStatus status,
-                                        FailureReason reason, int checklistMask) {
+                                        PsychotropeResonatorFailureReason reason, int checklistMask) {
         static IntegrationCandidate ok(DrugId drug, int checklistMask) {
-            return new IntegrationCandidate(true, drug, MachineStatus.RUNNING, FailureReason.NONE, checklistMask);
+            return new IntegrationCandidate(true, drug, MachineStatus.RUNNING, PsychotropeResonatorFailureReason.NONE, checklistMask);
         }
 
         static IntegrationCandidate fail(@Nullable DrugId drug, MachineStatus status,
-                                         FailureReason reason, int checklistMask) {
+                                         PsychotropeResonatorFailureReason reason, int checklistMask) {
             return new IntegrationCandidate(false, drug, status, reason, checklistMask);
         }
     }

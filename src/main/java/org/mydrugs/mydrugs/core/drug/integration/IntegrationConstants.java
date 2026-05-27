@@ -4,12 +4,13 @@ package org.mydrugs.mydrugs.core.drug.integration;
  * Tunable constants for the integration arc (Phase A).
  */
 public final class IntegrationConstants {
-    /** A drug must have driven addiction at least this high to ever become integratable. */
-    public static final float PEAK_THRESHOLD = 60.0F;
-    /** Current addiction must have fallen at or below this for a drug to be eligible. */
-    public static final float LOW_THRESHOLD = 8.0F;
-    /** Lifetime dose required: the drug must have been used massively, not dabbled with. */
-    public static final float MIN_LIFETIME_DOSE = 50.0F;
+    /**
+     * Fallback peak gate used ONLY by {@link RecoveryProgressManager#isInReckoning} when a drug has
+     * no {@link IntegrationRequirementProfile}. Live curated drugs never read this; their gate is
+     * {@link IntegrationRequirementProfile#requiredPeakExposure()}. Kept to avoid a null branch in
+     * the reckoning helper.
+     */
+    public static final float PEAK_THRESHOLD_FALLBACK = 60.0F;
 
     /** How often (ticks) integrated traits are reapplied through the effect runtime. */
     public static final int TRAIT_REFRESH_INTERVAL_TICKS = 20;
@@ -31,6 +32,14 @@ public final class IntegrationConstants {
     public static final float RECOVERY_RESONANCE_DETOX_BASE = 2.0F;
     /** Hard cap for Resonator recovery aid so active production still has to finish recovery. */
     public static final float RECOVERY_RESONANCE_PROGRESS_CAP = 0.95F;
+
+    /**
+     * Minimum ticks between two clean-streak psychedelic doses. A second dose closer than this
+     * resets {@link org.mydrugs.mydrugs.addiction.data.DrugAddictionStats#cleanIntegrationDoseStreak}
+     * to 0 — the streak is meant to reward disciplined, spaced use, not rapid intake.
+     * 12000 ticks = 10 real-time minutes at 20 tps.
+     */
+    public static final long MIN_CLEAN_STREAK_SPACING_TICKS = 12_000L;
 
     private IntegrationConstants() {
     }
