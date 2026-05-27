@@ -22,6 +22,7 @@ public record AddictionClientSnapshotPayload(
     public static final int RECOVERY_HEADPHONES = 1 << 2;
     public static final int RECOVERY_SLEEP_BONUS = 1 << 3;
     public static final int RECOVERY_CALMING_MIXTURE = 1 << 4;
+    public static final int RECOVERY_PREPARED_TEA = 1 << 5;
 
     public static final Type<AddictionClientSnapshotPayload> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "addiction_snapshot"));

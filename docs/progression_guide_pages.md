@@ -1519,7 +1519,9 @@ Fragile → Resting → Safe → Sanctuary.
 
 Higher tiers speed up withdrawal, tolerance and addiction recovery, lower your baseline stress, and blunt bad trips.
 
-Future Sanctuary progression should support therapy-like actions, diary integration, diet, exercise, music, psychedelic preparation, and post-trip integration.
+Sanctuary building now works like a second base. A factory produces more; a Sanctuary helps you become stable enough to handle more. Modules such as a resting place, diary desk, music corner, plant corner, tea kitchen, memory wall, and integration alcove add modest recovery support without erasing consequence.
+
+The anchor and diary can show which modules are active. Duplicate copies do not stack into stronger effects; the goal is a complete room, not a pile of the same block.
 
 > [TIP] The anchor tells you exactly what to add. Follow its hints up to Sanctuary.
 

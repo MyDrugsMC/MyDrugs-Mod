@@ -34,6 +34,7 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.psyche.PlayerPsycheMapAttachment;
 import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,24 +138,34 @@ public final class DiarySnapshotBuilder {
             ));
         }
 
+        RecoveryRoomReport recoveryRoom = RecoveryRoomManager.getBestRoom(player).orElse(null);
         DiaryClaritySnapshot clarity = DiaryClarityService.build(player, diary, state, psycheNodes);
-        List<DiaryIntegrationProgressDto> integrationProgress = buildIntegrationProgress(player, diary, stats);
+        List<DiaryIntegrationProgressDto> integrationProgress = buildIntegrationProgress(player, diary, stats, recoveryRoom);
 
         return new PersonalDiarySnapshotPayload(
-                entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity, integrationProgress
+                entries,
+                drugStats,
+                masteryStats,
+                state,
+                currentDay,
+                cooldown,
+                psycheNodes,
+                clarity,
+                integrationProgress,
+                buildSanctuaryModuleKeys(recoveryRoom),
+                buildSanctuarySuggestionKeys(recoveryRoom)
         );
     }
 
     private static List<DiaryIntegrationProgressDto> buildIntegrationProgress(
             ServerPlayer player,
             PlayerDiaryAttachment diary,
-            PlayerAddictionStats stats
+            PlayerAddictionStats stats,
+            @Nullable RecoveryRoomReport recoveryRoomReport
     ) {
         List<DiaryIntegrationProgressDto> out = new ArrayList<>();
         boolean diaryContext = !diary.getEntries().isEmpty();
-        boolean recoveryRoom = RecoveryRoomManager.getBestRoom(player)
-                .filter(RecoveryRoomManager::isValidRecoveryRoom)
-                .isPresent();
+        boolean recoveryRoom = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoomReport);
         boolean hasCore = hasInventoryItem(player, ModItems.INTEGRATION_CORE.get());
 
         for (DrugId drug : CuratedDrugChain.ORDER) {
@@ -211,6 +222,20 @@ public final class DiarySnapshotBuilder {
             ));
         }
         return out;
+    }
+
+    private static List<String> buildSanctuaryModuleKeys(@Nullable RecoveryRoomReport recoveryRoom) {
+        if (!RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            return List.of();
+        }
+        return recoveryRoom.activeSanctuaryModuleKeys();
+    }
+
+    private static List<String> buildSanctuarySuggestionKeys(@Nullable RecoveryRoomReport recoveryRoom) {
+        if (!RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            return List.of();
+        }
+        return recoveryRoom.sanctuarySuggestionKeys();
     }
 
     private static boolean isFormulaMasteryKey(ResourceLocation id) {
@@ -317,6 +342,7 @@ public final class DiarySnapshotBuilder {
         if (te.hasHeadphones(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
         if (te.hasCalmingMixture(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
         if (te.hasSleepBonus(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
+        if (te.hasPreparedTea(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA;
         if (SafeZoneManager.isInSafeZone(player)) {
             flags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
         }

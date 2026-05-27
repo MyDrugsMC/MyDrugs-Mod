@@ -18,6 +18,8 @@ public record RecoveryRoomParticlesPayload(
         List<BlockPos> samples,
         int score,
         int tierId,
+        int moduleFlags,
+        boolean activeMusic,
         long seed,
         boolean highlight,
         boolean ambient
@@ -37,6 +39,8 @@ public record RecoveryRoomParticlesPayload(
                 }
                 ByteBufCodecs.VAR_INT.encode(buf, payload.score());
                 ByteBufCodecs.VAR_INT.encode(buf, payload.tierId());
+                ByteBufCodecs.VAR_INT.encode(buf, payload.moduleFlags());
+                ByteBufCodecs.BOOL.encode(buf, payload.activeMusic());
                 ByteBufCodecs.VAR_LONG.encode(buf, payload.seed());
                 ByteBufCodecs.BOOL.encode(buf, payload.highlight());
                 ByteBufCodecs.BOOL.encode(buf, payload.ambient());
@@ -52,10 +56,12 @@ public record RecoveryRoomParticlesPayload(
                 }
                 int score = ByteBufCodecs.VAR_INT.decode(buf);
                 int tierId = ByteBufCodecs.VAR_INT.decode(buf);
+                int moduleFlags = ByteBufCodecs.VAR_INT.decode(buf);
+                boolean activeMusic = ByteBufCodecs.BOOL.decode(buf);
                 long seed = ByteBufCodecs.VAR_LONG.decode(buf);
                 boolean highlight = ByteBufCodecs.BOOL.decode(buf);
                 boolean ambient = ByteBufCodecs.BOOL.decode(buf);
-                return new RecoveryRoomParticlesPayload(anchorPos, min, max, samples, score, tierId, seed, highlight, ambient);
+                return new RecoveryRoomParticlesPayload(anchorPos, min, max, samples, score, tierId, moduleFlags, activeMusic, seed, highlight, ambient);
             }
     );
 

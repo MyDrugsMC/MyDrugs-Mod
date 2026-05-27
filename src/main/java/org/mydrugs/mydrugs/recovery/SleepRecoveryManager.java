@@ -38,13 +38,21 @@ public final class SleepRecoveryManager {
 
     public static void onWakeUp(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+        boolean restModule = RecoveryRoomManager.isValidRecoveryRoom(room)
+                && room.hasModule(SanctuaryModule.REST_MODULE);
+        float withdrawalRelief = restModule ? 14.0F : 10.0F;
 
         for (DrugCategory category : DrugCategory.values()) {
-            stats.reduceWithdrawalInCategory(category, 10.0F);
+            stats.reduceWithdrawalInCategory(category, withdrawalRelief);
         }
 
         StressManager.reduce(stats, AddictionConstants.RELIEF_ON_WAKE_UP);
         ResilienceManager.onSuccessfulSleep(stats);
-        RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEP_REST, 1.0F);
+        if (restModule) {
+            StressManager.reduce(stats, 0.015F);
+            ResilienceManager.add(stats, 0.0015F);
+        }
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEP_REST, restModule ? 1.15F : 1.0F);
     }
 }

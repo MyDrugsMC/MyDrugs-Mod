@@ -7,11 +7,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,6 +29,8 @@ import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TorchBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.WallTorchBlock;
@@ -38,6 +43,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
 import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
+import org.mydrugs.mydrugs.recovery.block.RecoveryJukeboxBlockEntity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -132,15 +138,36 @@ public final class RecoveryRoomManager {
     }
 
     public static float stressTargetReduction(RecoveryRoomReport report) {
-        return isValidRecoveryRoom(report) ? report.tier().stressTargetReduction() : 0.0F;
+        if (!isValidRecoveryRoom(report)) {
+            return 0.0F;
+        }
+        float reduction = report.tier().stressTargetReduction();
+        if (report.hasModule(SanctuaryModule.PLANT_BREATHING_CORNER)) {
+            reduction += 0.015F;
+        }
+        return Math.min(0.35F, reduction);
     }
 
     public static float badTripPressureReduction(RecoveryRoomReport report) {
-        return isValidRecoveryRoom(report) ? report.tier().badTripPressureReduction() : 0.0F;
+        if (!isValidRecoveryRoom(report)) {
+            return 0.0F;
+        }
+        float reduction = report.tier().badTripPressureReduction();
+        if (report.hasModule(SanctuaryModule.MUSIC_CORNER) && report.hasActiveMusic()) {
+            reduction += 0.02F;
+        }
+        return Math.min(0.35F, reduction);
     }
 
     public static float badTripIntensityReduction(RecoveryRoomReport report) {
-        return isValidRecoveryRoom(report) ? report.tier().badTripIntensityReduction() : 0.0F;
+        if (!isValidRecoveryRoom(report)) {
+            return 0.0F;
+        }
+        float reduction = report.tier().badTripIntensityReduction();
+        if (report.hasModule(SanctuaryModule.MUSIC_CORNER) && report.hasActiveMusic()) {
+            reduction += 0.04F;
+        }
+        return Math.min(0.45F, reduction);
     }
 
     public static boolean suppressesHostileHallucinations(RecoveryRoomReport report) {
@@ -240,6 +267,9 @@ public final class RecoveryRoomManager {
         if (valid && (total >= RecoveryRoomTier.SAFE_ROOM.minScore() || improve.isEmpty())) {
             collectPolishHints(score, total, improve);
         }
+        RecoveryRoomTier tier = RecoveryRoomTier.fromScore(total);
+        Set<SanctuaryModule> modules = SanctuaryModuleDetector.detect(contents.moduleScan(averageLight, hostileCount), valid, tier);
+        List<String> moduleSuggestions = SanctuaryModuleDetector.suggestionKeys(modules, valid, tier);
 
         return new RecoveryRoomReport(
                 anchorPos,
@@ -262,7 +292,10 @@ public final class RecoveryRoomManager {
                 contents.plants,
                 contents.bookshelves,
                 contents.music,
+                contents.activeMusic,
                 score.dangerPenalty(),
+                modules,
+                moduleSuggestions,
                 good,
                 improve
         );
@@ -395,7 +428,15 @@ public final class RecoveryRoomManager {
         int carpets = 0;
         int plants = 0;
         int bookshelves = 0;
+        int lecterns = 0;
+        int seats = 0;
+        int tableLikeBlocks = 0;
         int music = 0;
+        int activeMusic = 0;
+        int teaHeatSources = 0;
+        int cauldrons = 0;
+        int teaStorageBlocks = 0;
+        int integrationMarkers = 0;
         int dangerBlocks = 0;
         int clutter = 0;
         int lightTotal = 0;
@@ -428,15 +469,38 @@ public final class RecoveryRoomManager {
             if (isPlant(state)) {
                 plants++;
             }
+            if (block instanceof LecternBlock) {
+                lecterns++;
+            }
             if (isBookshelf(state) || block instanceof LecternBlock) {
                 bookshelves++;
             }
-            if (isActiveJukebox(state)) {
+            if (isSeat(state)) {
+                seats++;
+            }
+            if (isTableLike(state)) {
+                tableLikeBlocks++;
+            }
+            boolean activeJukebox = isActiveJukebox(state) || isActiveRecoveryJukebox(level, pos, state);
+            if (activeJukebox) {
                 music += 2;
+                activeMusic++;
             } else if (state.is(ModBlocks.RECOVERY_JUKEBOX.get())) {
                 music += 2;
             } else if (state.is(Blocks.JUKEBOX)) {
                 music++;
+            }
+            if (isTeaHeatSource(state)) {
+                teaHeatSources++;
+            }
+            if (isTeaCauldron(state)) {
+                cauldrons++;
+            }
+            if (isTeaStorage(state)) {
+                teaStorageBlocks++;
+            }
+            if (isIntegrationMarker(state)) {
+                integrationMarkers++;
             }
             if (isDangerBlock(state)) {
                 dangerBlocks++;
@@ -446,7 +510,29 @@ public final class RecoveryRoomManager {
             }
         }
 
-        return new RoomContents(beds, softLights, torches, carpets, plants, bookshelves, music, dangerBlocks, clutter, lightTotal);
+        int memoryDisplays = countMemoryDisplays(level, bounds);
+
+        return new RoomContents(
+                beds,
+                softLights,
+                torches,
+                carpets,
+                plants,
+                bookshelves,
+                lecterns,
+                seats,
+                tableLikeBlocks,
+                music,
+                activeMusic,
+                teaHeatSources,
+                cauldrons,
+                teaStorageBlocks,
+                memoryDisplays,
+                integrationMarkers,
+                dangerBlocks,
+                clutter,
+                lightTotal
+        );
     }
 
     private static RecoveryRoomScore scoreRoom(
@@ -612,6 +698,14 @@ public final class RecoveryRoomManager {
             player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.good", joinTranslated(report.goodKeys()))
                     .withStyle(ChatFormatting.GREEN));
         }
+        if (detailed && !report.sanctuaryModules().isEmpty()) {
+            player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.modules", joinTranslated(report.activeSanctuaryModuleKeys()))
+                    .withStyle(ChatFormatting.AQUA));
+        }
+        if (detailed && !report.sanctuarySuggestionKeys().isEmpty()) {
+            player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.module_suggestions", joinTranslated(report.sanctuarySuggestionKeys()))
+                    .withStyle(ChatFormatting.GOLD));
+        }
         if (detailed && !report.improvementKeys().isEmpty()) {
             player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.improve", joinTranslated(report.improvementKeys()))
                     .withStyle(ChatFormatting.GOLD));
@@ -648,6 +742,8 @@ public final class RecoveryRoomManager {
                 samples,
                 report.score(),
                 report.tier().networkId(),
+                SanctuaryModule.flags(report.sanctuaryModules()),
+                report.hasActiveMusic(),
                 player.level().getRandom().nextLong(),
                 highlight,
                 ambient
@@ -664,6 +760,19 @@ public final class RecoveryRoomManager {
                 bounds.max.getZ() + 1.0D
         ).inflate(1.0D);
         return level.getEntitiesOfClass(Monster.class, box).size();
+    }
+
+    private static int countMemoryDisplays(Level level, Bounds bounds) {
+        AABB box = new AABB(
+                bounds.min.getX(),
+                bounds.min.getY(),
+                bounds.min.getZ(),
+                bounds.max.getX() + 1.0D,
+                bounds.max.getY() + 1.0D,
+                bounds.max.getZ() + 1.0D
+        ).inflate(1.0D);
+        return level.getEntitiesOfClass(ItemFrame.class, box).size()
+                + level.getEntitiesOfClass(Painting.class, box).size();
     }
 
     private static int computeFloorArea(Level level, List<BlockPos> interior, Set<BlockPos> interiorSet) {
@@ -798,6 +907,50 @@ public final class RecoveryRoomManager {
                 && state.getOptionalValue(JukeboxBlock.HAS_RECORD).orElse(false);
     }
 
+    private static boolean isActiveRecoveryJukebox(Level level, BlockPos pos, BlockState state) {
+        return state.is(ModBlocks.RECOVERY_JUKEBOX.get())
+                && level.getBlockEntity(pos) instanceof RecoveryJukeboxBlockEntity jukebox
+                && jukebox.isPlaying();
+    }
+
+    private static boolean isSeat(BlockState state) {
+        return state.getBlock() instanceof StairBlock;
+    }
+
+    private static boolean isTableLike(BlockState state) {
+        Block block = state.getBlock();
+        return block instanceof SlabBlock
+                || state.is(Blocks.CRAFTING_TABLE)
+                || state.is(Blocks.BARREL)
+                || state.is(Blocks.CHISELED_BOOKSHELF)
+                || state.is(Blocks.LECTERN);
+    }
+
+    private static boolean isTeaHeatSource(BlockState state) {
+        Block block = state.getBlock();
+        if (block instanceof AbstractFurnaceBlock) {
+            return true;
+        }
+        return block instanceof CampfireBlock && state.getOptionalValue(BlockStateProperties.LIT).orElse(false);
+    }
+
+    private static boolean isTeaCauldron(BlockState state) {
+        return state.is(Blocks.CAULDRON)
+                || state.is(Blocks.WATER_CAULDRON)
+                || state.is(Blocks.LAVA_CAULDRON)
+                || state.is(Blocks.POWDER_SNOW_CAULDRON);
+    }
+
+    private static boolean isTeaStorage(BlockState state) {
+        Block block = state.getBlock();
+        return block instanceof ChestBlock || block instanceof BarrelBlock || state.is(Blocks.DECORATED_POT);
+    }
+
+    private static boolean isIntegrationMarker(BlockState state) {
+        return state.is(ModBlocks.PSYCHOTROPE_RESONATOR.get())
+                || state.is(ModBlocks.PSY_ANVIL.get());
+    }
+
     private static boolean isDangerBlock(BlockState state) {
         return state.is(Blocks.FIRE)
                 || state.is(Blocks.SOUL_FIRE)
@@ -893,6 +1046,9 @@ public final class RecoveryRoomManager {
                 0,
                 0,
                 0,
+                0,
+                Set.of(),
+                List.of(),
                 List.of(),
                 improvements
         );
@@ -952,11 +1108,42 @@ public final class RecoveryRoomManager {
             int carpets,
             int plants,
             int bookshelves,
+            int lecterns,
+            int seats,
+            int tableLikeBlocks,
             int music,
+            int activeMusic,
+            int teaHeatSources,
+            int cauldrons,
+            int teaStorageBlocks,
+            int memoryDisplays,
+            int integrationMarkers,
             int dangerBlocks,
             int clutter,
             int lightTotal
     ) {
+        SanctuaryModuleScan moduleScan(float averageLight, int hostileCount) {
+            return new SanctuaryModuleScan(
+                    beds,
+                    softLights,
+                    averageLight,
+                    plants,
+                    bookshelves,
+                    lecterns,
+                    seats,
+                    tableLikeBlocks,
+                    music,
+                    activeMusic,
+                    teaHeatSources,
+                    cauldrons,
+                    teaStorageBlocks,
+                    memoryDisplays,
+                    integrationMarkers,
+                    dangerBlocks,
+                    clutter,
+                    hostileCount
+            );
+        }
     }
 
     private record ResourceLocationPath(String namespace, String path) {

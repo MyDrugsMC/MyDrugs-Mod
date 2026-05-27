@@ -12,6 +12,7 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 
 import java.util.Map;
 
@@ -172,7 +173,10 @@ public final class RecoveryProgressManager {
             onProductiveAction(player, ActionKind.MUSIC_SUPPORT, 0.35F);
         }
         if (RecoveryRoomManager.isValidRecoveryRoom(room)) {
-            onProductiveAction(player, ActionKind.RECOVERY_ROOM_SUPPORT, roomSupportWeight(room));
+            onProductiveAction(player, ActionKind.RECOVERY_ROOM_SUPPORT, roomSupportWeight(player, room));
+            if (room.hasModule(SanctuaryModule.MUSIC_CORNER) && room.hasActiveMusic()) {
+                onProductiveAction(player, ActionKind.MUSIC_SUPPORT, 0.20F);
+            }
         }
         int cappedCompanions = Math.min(3, Math.max(0, companions));
         if (cappedCompanions > 0) {
@@ -207,30 +211,52 @@ public final class RecoveryProgressManager {
         }
     }
 
-    private static float roomSupportWeight(RecoveryRoomReport room) {
+    private static float roomSupportWeight(ServerPlayer player, RecoveryRoomReport room) {
         if (room == null) {
             return 0.0F;
         }
-        return switch (room.tier()) {
+        float weight = switch (room.tier()) {
             case NONE -> 0.0F;
             case FRAGILE_ROOM -> 0.12F;
             case RESTING_ROOM -> 0.22F;
             case SAFE_ROOM -> 0.38F;
             case SANCTUARY -> 0.60F;
         };
+        if (room.hasModule(SanctuaryModule.PLANT_BREATHING_CORNER)) {
+            weight += 0.04F;
+        }
+        if (room.hasModule(SanctuaryModule.TEA_KITCHEN)) {
+            weight += 0.03F;
+        }
+        if (room.hasModule(SanctuaryModule.MEMORY_WALL) && hasEarnedMemory(player)) {
+            weight += 0.05F;
+        }
+        if (room.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) {
+            weight += 0.05F;
+        }
+        return Math.min(0.75F, weight);
+    }
+
+    private static boolean hasEarnedMemory(ServerPlayer player) {
+        return !player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get()).getNodes().isEmpty()
+                || !player.getData(ModAttachments.PLAYER_INTEGRATION.get()).isEmpty();
     }
 
     public static float recoveryResonanceMultiplier(@Nullable RecoveryRoomReport room) {
         if (!RecoveryRoomManager.isValidRecoveryRoom(room)) {
             return 0.0F;
         }
-        return switch (room.tier()) {
+        float multiplier = switch (room.tier()) {
             case NONE -> 0.0F;
             case FRAGILE_ROOM -> 1.0F;
             case RESTING_ROOM -> 1.2F;
             case SAFE_ROOM -> 1.5F;
             case SANCTUARY -> 2.0F;
         };
+        if (room.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) {
+            multiplier += 0.20F;
+        }
+        return Math.min(2.25F, multiplier);
     }
 
     public record RecoveryDelta(float addictionReduced, float recoveryProgressAdded) {

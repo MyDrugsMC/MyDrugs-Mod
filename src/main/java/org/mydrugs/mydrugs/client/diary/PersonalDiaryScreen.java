@@ -545,6 +545,7 @@ public final class PersonalDiaryScreen extends Screen {
             lines.add(DiaryLine.text("Sleep refuses me right now."));
         }
 
+        appendSanctuaryModuleSection(lines);
         appendFeelingReasonSections(lines, s);
 
         return new BasicPage(Component.translatable("screen.mydrugs.diary.inner_compass"), lines);
@@ -816,6 +817,30 @@ public final class PersonalDiaryScreen extends Screen {
         return (ok ? "[x] " : "[ ] ") + text;
     }
 
+    private void appendSanctuaryModuleSection(List<DiaryLine> lines) {
+        if (snapshot.sanctuaryModuleKeys().isEmpty() && snapshot.sanctuarySuggestionKeys().isEmpty()) {
+            return;
+        }
+
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.sanctuary_modules")));
+        if (snapshot.sanctuaryModuleKeys().isEmpty()) {
+            addWrapped(lines, tr("screen.mydrugs.diary.sanctuary_no_modules"),
+                    DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS);
+        } else {
+            for (String key : snapshot.sanctuaryModuleKeys()) {
+                addWrappedReason(lines, tr(key));
+            }
+        }
+
+        if (!snapshot.sanctuarySuggestionKeys().isEmpty()) {
+            lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.sanctuary_suggestions")));
+            for (String key : snapshot.sanctuarySuggestionKeys()) {
+                addWrapped(lines, "- " + tr(key), DiaryLine.Kind.HINT, DiaryLine.Visibility.ALWAYS);
+            }
+        }
+    }
+
     private float progressRatio(float value, float required) {
         if (required <= 0.0F) {
             return 1.0F;
@@ -868,6 +893,9 @@ public final class PersonalDiaryScreen extends Screen {
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS) != 0) {
             addWrappedReason(good, "Sleep bonus: rest is still protecting me.");
+        }
+        if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA) != 0) {
+            addWrappedReason(good, "Prepared tea: stress is rising more slowly for a while.");
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE) != 0) {
             addWrappedReason(good, "Safe zone: this place makes recovery easier.");
