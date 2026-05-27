@@ -661,7 +661,8 @@
       { "type": "text", "text": "Place a Recovery Anchor inside an enclosed room with a door. The anchor scans the space and scores it on light, beds, decoration, seating and music. The score sets a tier:" },
       { "type": "text", "text": "Fragile → Resting → Safe → Sanctuary." },
       { "type": "text", "text": "Higher tiers speed up withdrawal, tolerance and addiction recovery, lower your baseline stress, and blunt bad trips." },
-      { "type": "text", "text": "Future Sanctuary progression should support therapy-like actions, diary integration, diet, exercise, music, psychedelic preparation, and post-trip integration." },
+      { "type": "text", "text": "Sanctuary building now works like a second base. A factory produces more; a Sanctuary helps you become stable enough to handle more. Modules such as a resting place, diary desk, music corner, plant corner, tea kitchen, memory wall, and integration alcove add modest recovery support without erasing consequence." },
+      { "type": "text", "text": "The anchor and diary can show which modules are active. Duplicate copies do not stack into stronger effects; the goal is a complete room, not a pile of the same block." },
       { "type": "tip", "text": "The anchor tells you exactly what to add. Follow its hints up to Sanctuary." },
       { "type": "goal", "text": "Build a real Sanctuary before crack, meth, infection, adaptation work, or serious psychedelic exploration." }
     ]
