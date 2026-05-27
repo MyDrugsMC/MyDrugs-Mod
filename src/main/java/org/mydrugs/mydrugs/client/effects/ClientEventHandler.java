@@ -65,6 +65,7 @@ public final class ClientEventHandler {
             RecoveryRoomOverlay.clear();
             RecoveryRoomParticleClient.clear();
             CustomDiscPlaybackController.clear();
+            org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.clear();
         }
 
         @SubscribeEvent

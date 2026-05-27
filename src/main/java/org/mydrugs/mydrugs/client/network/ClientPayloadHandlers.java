@@ -64,7 +64,13 @@ public final class ClientPayloadHandlers {
         event.register(PsyBlueprintPreviewPayload.TYPE, PsyBlueprintPreviewPayloadHandler::handle);
         event.register(RecoveryRoomParticlesPayload.TYPE, RecoveryRoomParticleClient::handle);
         event.register(DistillateEnginePreviewPayload.TYPE, (payload, context) ->
-                DistillateEngineAreaPreviewClientState.start(payload.enginePos(), payload.radius(), payload.durationTicks()));
+                DistillateEngineAreaPreviewClientState.start(
+                        payload.enginePos(),
+                        payload.radius(),
+                        payload.durationTicks(),
+                        payload.validTargets(),
+                        payload.fullTargets(),
+                        payload.incompatibleTargets()));
         event.register(BiomeFinderOpenScreenPayload.TYPE, BiomeFinderClientPayloadHandler::handleOpenScreen);
         event.register(OpenDrugFormulaNamingPayload.TYPE, DrugFormulaNamingPayloadHandler::handle);
         event.register(PsyMixerRitualSyncPayload.TYPE, PsyMixerRitualClientState::handle);

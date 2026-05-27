@@ -227,10 +227,20 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
         if (player == null) {
             return;
         }
+        // Force a fresh scan so the player sees current target state when toggling preview.
+        if (this.level instanceof ServerLevel serverLevel) {
+            this.cachedScan = PsyCurrentDistributor.scan(serverLevel, this.worldPosition, this.powerRadius);
+            this.targetRescanCooldown = PsyCurrentConstants.ENGINE_TARGET_RESCAN_INTERVAL_TICKS;
+        }
         net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
                 player,
                 new org.mydrugs.mydrugs.network.DistillateEnginePreviewPayload(
-                        this.worldPosition, this.powerRadius, AREA_PREVIEW_TICKS
+                        this.worldPosition,
+                        this.powerRadius,
+                        AREA_PREVIEW_TICKS,
+                        this.cachedScan.valid(),
+                        this.cachedScan.full(),
+                        this.cachedScan.incompatible()
                 )
         );
     }
