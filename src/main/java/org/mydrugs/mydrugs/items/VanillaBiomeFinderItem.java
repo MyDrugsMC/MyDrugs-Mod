@@ -24,6 +24,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.items.data.BiomeFinderTarget;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
+import org.mydrugs.mydrugs.worldgen.biomes.ModBiomes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class VanillaBiomeFinderItem extends Item {
+    public static final ResourceLocation PSYCHEDELIC_MUSHROOM_VALLEY =
+            ModBiomes.PSYCHEDELIC_MUSHROOM_VALLEY.location();
     private static final int SEARCH_RADIUS = 6400;
     private static final int SEARCH_HORIZONTAL_STEP = 32;
     private static final int SEARCH_VERTICAL_STEP = 64;
@@ -108,7 +111,7 @@ public final class VanillaBiomeFinderItem extends Item {
     }
 
     private BiomeFinderTarget cycleSelection(ServerLevel level, BiomeFinderTarget current) {
-        List<ResourceLocation> available = collectVanillaBiomes(level);
+        List<ResourceLocation> available = collectSelectableBiomes(level);
         if (available.isEmpty()) {
             return current;
         }
@@ -126,17 +129,20 @@ public final class VanillaBiomeFinderItem extends Item {
         return current.withSelected(next);
     }
 
-    public static List<ResourceLocation> collectVanillaBiomes(ServerLevel level) {
+    public static List<ResourceLocation> collectSelectableBiomes(ServerLevel level) {
         HolderLookup.RegistryLookup<Biome> registry = level.registryAccess().lookupOrThrow(Registries.BIOME);
         List<ResourceLocation> result = new ArrayList<>();
         registry.listElementIds().forEach(key -> {
             ResourceLocation id = key.location();
-            if (!"minecraft".equals(id.getNamespace())) return;
             if (isExcluded(id)) return;
             result.add(id);
         });
         result.sort((a, b) -> prettyName(a).compareToIgnoreCase(prettyName(b)));
         return result;
+    }
+
+    public static List<ResourceLocation> collectVanillaBiomes(ServerLevel level) {
+        return collectSelectableBiomes(level);
     }
 
     public static Pair<BlockPos, Holder<Biome>> findClosestSelectedBiome(
@@ -163,15 +169,20 @@ public final class VanillaBiomeFinderItem extends Item {
     ) {
         PacketDistributor.sendToPlayer(
                 player,
-                new BiomeFinderOpenScreenPayload(hand, current.selectedBiome(), collectVanillaBiomes(level))
+                new BiomeFinderOpenScreenPayload(hand, current.selectedBiome(), collectSelectableBiomes(level))
         );
     }
 
     public static boolean isExcluded(ResourceLocation id) {
-        if (!"minecraft".equals(id.getNamespace())) return true;
+        return !isSelectableBiome(id);
+    }
+
+    public static boolean isSelectableBiome(ResourceLocation id) {
+        if (PSYCHEDELIC_MUSHROOM_VALLEY.equals(id)) return true;
+        if (!"minecraft".equals(id.getNamespace())) return false;
         String path = id.getPath().toLowerCase(Locale.ROOT);
-        if (path.contains("mushroom")) return true;
-        return false;
+        if (path.contains("mushroom")) return false;
+        return true;
     }
 
     public static String prettyName(ResourceLocation id) {
