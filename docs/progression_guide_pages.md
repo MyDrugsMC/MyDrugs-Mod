@@ -49,6 +49,7 @@ JEI has exact recipes. Machine screens explain immediate refusals. Advancements 
 @link Fermentation|Ch.5 — Fermented
 @link Hash and Steel|Ch.6 — Steel Plating
 @link Machine Era|Ch.7 — Machines
+@link Machine Handbook|Machine reference
 @link Coca|Ch.8 — Stimulant
 @link Lab Chemistry|Ch.9 — Gases
 @link LSD|Ch.10 — Lysergic
@@ -361,6 +362,638 @@ Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, outpu
 > [TIP] A machine that "does nothing" is almost always telling you why. Read its screen first.
 
 > [GOAL] Furnace, distiller, centrifuge, filterer, tray and advanced vat — all built.
+
+---
+
+# Machine Handbook
+
+MACHINE REFERENCE
+
+Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression.
+
+Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker.
+
+@link Machine Handbook - Early Processing|Hand Processing / Early Processing
+@link Machine Handbook - Crude Machine Era|Crude Machine Era
+@link Machine Handbook - Chemical Machine Era|Chemical Machine Era
+@link Machine Handbook - Psy Current Era|Psy Current Era
+@link Machine Handbook - Ritual and Integration Era|Ritual / Integration Era
+
+> [TIP] The handbook stays conceptual. It names roles, cargo types, blockers and automation habits without replacing JEI.
+
+---
+
+# Machine Handbook - Early Processing
+
+HAND PROCESSING / EARLY PROCESSING
+
+Early machines turn hand work into reliable preparation. They usually handle items, manual action, time, drying, batch containers, or small liquid steps.
+
+Common blockers are simple: wrong form of input, missing player action, missing container, no room for output, or a block that is waiting for time instead of power.
+
+@item mydrugs:manual_coffee_pulper
+## Manual Coffee Pulper
+
+Era: Hand Processing.
+
+Purpose: Breaks fresh coffee harvests into prepared coffee material and biomass without requiring a full machine line.
+
+Handles: Item input, manual interaction, item outputs.
+
+Common blockers: Wrong crop form, output slots full, no player action.
+
+Automation: Treat it as a hand tool; later machines are where automation starts to matter.
+
+See also: Coffee, First Crops.
+
+@item mydrugs:coffee_drying_mat
+## Coffee Drying Mat
+
+Era: Hand Processing.
+
+Purpose: Lets early coffee material dry in the world before deeper processing.
+
+Handles: Placed item state, time, block orientation.
+
+Common blockers: Wrong material, interrupted placement, waiting for drying time.
+
+Automation: Not a logistics block; keep it near the early coffee workspace.
+
+See also: Coffee.
+
+@item mydrugs:drying_rack
+## Drying Rack
+
+Era: Early Processing.
+
+Purpose: Prepares harvested ingredients that need slow drying instead of active machine work.
+
+Handles: Item input, time, item output.
+
+Common blockers: Wrong item, rack occupied, output not collected.
+
+Automation: Best used as a small staging area before items enter pipes.
+
+See also: First Crops, Support Materials.
+
+@item mydrugs:grinding_bowl
+## Mortar
+
+Era: Early Processing.
+
+Purpose: Performs primitive grinding before powered machines and catalysts become available.
+
+Handles: Item input, manual work, item output.
+
+Common blockers: Wrong material, missing hand interaction, output blocked.
+
+Automation: Not intended as a factory block; replace repeated work with later machines.
+
+See also: Tools and Resin.
+
+@item mydrugs:sieve
+## Sieve
+
+Era: Early Processing.
+
+Purpose: Separates coarse material into useful pieces and occasional bonus material.
+
+Handles: Item input, manual drag work, item outputs.
+
+Common blockers: Wrong input, output slots full, no manual sieving.
+
+Automation: Item transfer can help with input and output, but the early action is still deliberate.
+
+See also: Anvil and Sieve, Machine Handbook - Crude Machine Era.
+
+@item mydrugs:stomp_crafter
+## Stomp Crafter
+
+Era: Early Processing.
+
+Purpose: Applies heavy mechanical pressure before steel-era machines take over.
+
+Handles: Item input, stomp plate context, item output.
+
+Common blockers: Missing plate setup, wrong input, output full.
+
+Automation: Keep inputs and outputs accessible; the stomp action remains the key step.
+
+See also: Hash and Steel.
+
+@item mydrugs:clay_vat
+## Clay Vat
+
+Era: Early Processing.
+
+Purpose: Holds early batch processing where liquid context matters but powered tanks are not online yet.
+
+Handles: Items, simple fluids, batch state, time.
+
+Common blockers: Wrong mixture, missing container, batch not finished, output blocked.
+
+Automation: Use it as a bridge into proper tanks, not as a permanent factory core.
+
+See also: Fermentation, Alcohol Distillation.
+
+@item mydrugs:mixing_vat
+## Mixing Vat
+
+Era: Early Processing.
+
+Purpose: Combines early items and fluids into the first machine-era preparations.
+
+Handles: Item input, fluid input, tank output, basic machine status.
+
+Common blockers: Missing item, missing fluid, wrong fluid, output tank full, no matching process.
+
+Automation: Side transfer helps once pipes are available; keep one side free for fluid handling.
+
+See also: Machine Era, Pipes and Transfer.
+
+@link Machine Handbook - Crude Machine Era|Next era: crude machines
+
+---
+
+# Machine Handbook - Crude Machine Era
+
+CRUDE MACHINE ERA
+
+Crude machines are the first factory layer. They introduce heat, tanks, side transfer, filters and split outputs, but most of the work is still close to a single block.
+
+Common blockers include no heat, no valid fluid, wrong container, output tank full, missing filter, and side rules that prevent transfer.
+
+@item mydrugs:advanced_furnace
+## Advanced Furnace
+
+Era: Crude Machine Era.
+
+Purpose: Provides hotter, more controlled processing for machine materials and fluid-adjacent work.
+
+Handles: Fuel, heat, item inputs, item outputs, fluid containers or output tanks.
+
+Common blockers: No fuel, not enough heat, missing input, output slot full, output tank full.
+
+Automation: Pipe fuel and inputs separately from outputs so the side rules do not fight each other.
+
+See also: Machine Era, Support Materials.
+
+@item mydrugs:distiller
+## Distiller
+
+Era: Crude Machine Era.
+
+Purpose: Splits valid fluid inputs into controlled liquid outputs for alcohol and later lab work.
+
+Handles: Fluid input, heat or burn state, two output tanks, containers.
+
+Common blockers: Missing fluid, not enough heat, no matching distillation, output tank A full, output tank B full.
+
+Automation: Reserve distinct output paths for each tank before leaving it unattended.
+
+See also: Alcohol Distillation, Lab Chemistry.
+
+@item mydrugs:centrifuge
+## Centrifuge
+
+Era: Crude Machine Era.
+
+Purpose: Separates mixed fluid or material states into cleaner output categories.
+
+Handles: Fluid input, machine progress, paired outputs, containers.
+
+Common blockers: Missing input fluid, no matching separation, output tank full, output container missing.
+
+Automation: Treat each output as its own product line; one full side can block the whole process.
+
+See also: Lab Chemistry, Pipes and Transfer.
+
+@item mydrugs:fluid_filterer
+## Fluid Filterer
+
+Era: Crude Machine Era.
+
+Purpose: Cleans or redirects liquid inputs while collecting residue or side outputs.
+
+Handles: Fluid input, filter item, output fluid, residue item, containers.
+
+Common blockers: Missing fluid, missing filter, no output space, output tank full.
+
+Automation: Keep filters supplied and route residue away from the fluid output.
+
+See also: Support Materials, Pipes and Transfer.
+
+@item mydrugs:evaporation_tray
+## Evaporation Tray
+
+Era: Crude Machine Era.
+
+Purpose: Turns wet or dissolved material into dry output through exposed time-based processing.
+
+Handles: Fluid or wet input, time, item output.
+
+Common blockers: Wrong input, tray occupied, process still evaporating, output not collected.
+
+Automation: Use it as a slow batch endpoint; do not expect fast line throughput.
+
+See also: Lab Chemistry.
+
+@item mydrugs:advanced_mixing_vat
+## Advanced Mixing Vat
+
+Era: Crude Machine Era.
+
+Purpose: Combines multiple fluid streams and gas context into more specialized mixtures.
+
+Handles: Fluid inputs, gas input, item catalyst or container support, fluid output.
+
+Common blockers: Missing fluid, missing gas, no matching mixture, output tank full.
+
+Automation: Give each input category a clear side and keep the output side separate.
+
+See also: Pipes and Transfer, Chemical Machine Era.
+
+@item mydrugs:fluid_pump
+## Fluid Pump
+
+Era: Crude Machine Era.
+
+Purpose: Moves liquids between tanks, machines and pipe networks when passive container work becomes too slow.
+
+Handles: Fluid source, fluid target, side configuration, transfer timing.
+
+Common blockers: No source fluid, target tank full, blocked transfer, wrong side rule.
+
+Automation: Use the transfer overlay and pipe wrench when a line stops moving.
+
+See also: Pipes and Transfer.
+
+@link Machine Handbook - Chemical Machine Era|Next era: chemical machines
+
+---
+
+# Machine Handbook - Chemical Machine Era
+
+CHEMICAL MACHINE ERA
+
+Chemical machines handle mixed item, fluid and gas routes. They are more sensitive to storage type, gas tanks, catalysts and multi-output buffers than the early factory machines.
+
+Common blockers include missing gas, missing catalyst, not enough energy, output gas tank full, no matching recipe, or a full secondary output that blocks the whole batch.
+
+@item mydrugs:biochemical_reactor
+## Biochemical Reactor
+
+Era: Chemical Machine Era.
+
+Purpose: Handles organic reaction steps where living or plant-derived material needs controlled machine context.
+
+Handles: Item input, fluid input, energy, progress, item or fluid output.
+
+Common blockers: Missing input, missing fluid, not enough energy, no matching reaction, output blocked.
+
+Automation: Keep organic inputs buffered separately from fluid feedstock so failed matching is easy to diagnose.
+
+See also: Lab Chemistry, Mushrooms.
+
+@item mydrugs:growth_chamber
+## Growth Chamber
+
+Era: Chemical Machine Era.
+
+Purpose: Accelerates controlled biological growth without relying only on field space.
+
+Handles: Growth substrate, water or fluid support, energy, item outputs.
+
+Common blockers: Missing input item, missing fluid, not enough energy, output slot full.
+
+Automation: Pipe supplies in slowly; biological outputs usually block when storage backs up.
+
+See also: Coca, Mushrooms, Somatic Adaptation.
+
+@item mydrugs:chemical_reactor
+## Chemical Reactor
+
+Era: Chemical Machine Era.
+
+Purpose: Performs abstract lab-grade reactions across item, fluid and gas categories.
+
+Handles: Gas input, fluid input, catalysts, energy, fluid output.
+
+Common blockers: Missing gas, missing fluid, missing catalyst, not enough energy, no matching reaction, output tank full.
+
+Automation: Label gas and fluid lines clearly; swapping cargo type is the fastest way to stall it.
+
+See also: Lab Chemistry, Acids and Reagents.
+
+@item mydrugs:gasifier
+## Gasifier
+
+Era: Chemical Machine Era.
+
+Purpose: Converts valid material or fluid inputs into gas handling for later chemistry.
+
+Handles: Item or fluid feed, gas output, energy, tanks.
+
+Common blockers: Missing input, no valid gas output, output gas tank full, not enough energy.
+
+Automation: Connect a gas tank or gas pipe before running long batches.
+
+See also: Gases, Pipes and Transfer.
+
+@item mydrugs:electrolyzer
+## Electrolyzer
+
+Era: Chemical Machine Era.
+
+Purpose: Splits valid liquids into multiple advanced output streams.
+
+Handles: Fluid input, energy, multiple fluid or gas outputs, containers.
+
+Common blockers: Missing input fluid, not enough energy, output tank full, output gas tank full.
+
+Automation: Empty every output branch; one full buffer can block the split.
+
+See also: Lab Chemistry, Acids and Reagents.
+
+@item mydrugs:gas_tank
+## Gas Tank
+
+Era: Chemical Machine Era.
+
+Purpose: Stores gas safely so machines do not depend on one direct transfer path.
+
+Handles: Gas storage, gas insertion, gas extraction, linked tank items.
+
+Common blockers: Tank full, tank empty, wrong gas, missing linked tank item.
+
+Automation: Use it as a buffer between gas producers and consumers.
+
+See also: Pipes and Transfer.
+
+@item mydrugs:gas_pump
+## Gas Pump
+
+Era: Chemical Machine Era.
+
+Purpose: Pushes gas through networks when passive adjacency is not enough.
+
+Handles: Gas source, gas target, side configuration, transfer timing.
+
+Common blockers: No source gas, target full, blocked transfer, wrong side rule.
+
+Automation: Pair it with gas tanks so short production bursts do not starve consumers.
+
+See also: Pipes and Transfer.
+
+@item mydrugs:steam_cracker
+## Steam Cracker
+
+Era: Chemical Machine Era.
+
+Purpose: Breaks heavy industrial feedstock into several lighter output categories.
+
+Handles: Fluid or gas input, energy, multiple output tanks, optional container handling.
+
+Common blockers: Missing feed, not enough energy, no matching cracking route, any output tank full.
+
+Automation: Plan every output path before starting; multi-output machines punish partial storage.
+
+See also: Petroleum, Lab Chemistry.
+
+@item mydrugs:catalytic_reformer
+## Catalytic Reformer
+
+Era: Chemical Machine Era.
+
+Purpose: Refines compatible industrial streams through catalyst-supported conversion.
+
+Handles: Fluid input, catalyst fluid, energy, multiple outputs, containers.
+
+Common blockers: Missing input fluid, missing catalyst, output tanks full, not enough energy.
+
+Automation: Keep catalyst supply separate from product lines; do not let outputs share a full buffer.
+
+See also: Petroleum, Acids and Reagents.
+
+@item mydrugs:aromatic_extractor
+## Aromatic Extractor
+
+Era: Chemical Machine Era.
+
+Purpose: Pulls useful aromatic fractions from compatible industrial mixtures.
+
+Handles: Fluid input, catalyst or solvent context, paired output tanks, energy.
+
+Common blockers: Missing input, missing catalyst context, output tank A full, output tank B full.
+
+Automation: Treat each output tank as important even if one product feels secondary.
+
+See also: Petroleum, Lab Chemistry.
+
+@item mydrugs:btx_fractionation_tower
+## BTX Fractionation Tower
+
+Era: Chemical Machine Era.
+
+Purpose: Splits aromatic streams into separate high-tier chemical categories.
+
+Handles: Fluid input, heat or energy context, multiple output tanks, containers.
+
+Common blockers: Missing feed, not enough energy or heat, output tank full, no matching fraction.
+
+Automation: Give the tower more output storage than you think it needs.
+
+See also: Petroleum, Acids and Reagents.
+
+@item mydrugs:reduction_still
+## Reduction Still
+
+Era: Chemical Machine Era.
+
+Purpose: Runs a focused late-lab reduction step without teaching the player real chemistry.
+
+Handles: Plant-derived input, solvent context, progress, extract output, spent output.
+
+Common blockers: Missing cuttings, missing solvent, not enough input for a batch, output blocked.
+
+Automation: Keep the two outputs clear; spent material can block the useful extract.
+
+See also: Meth, Lab Chemistry.
+
+@link Machine Handbook - Psy Current Era|Next era: Psy Current
+
+---
+
+# Machine Handbook - Psy Current Era
+
+PSY CURRENT ERA
+
+Psy Current machines turn psychotrope extracts into abstract machine power. This is factory support, not ritual integration.
+
+Watch for fuel validity, nearby targets, current buffers, strain and overload cooldowns. JEI explains fuel compatibility; the machine screen explains current status.
+
+@item mydrugs:psychotrope_distillery
+## Psychotrope Distillery
+
+Era: Psy Current Era.
+
+Purpose: Converts advanced psychotrope materials into industrial extracts and residues for power or integration-adjacent systems.
+
+Handles: Item input, catalyst context, extract output, residue output, transfer sides.
+
+Common blockers: Missing valid material, missing catalyst context, output slot full, no matching distillation.
+
+Automation: Route extract and residue to different storage so fuel work does not bury integration material.
+
+See also: Psy Current, Psychotrope Resonator.
+
+@item mydrugs:distillate_engine
+## Distillate Engine
+
+Era: Psy Current Era.
+
+Purpose: Converts valid distillate fuels into Psy Current for nearby compatible machines.
+
+Handles: Fuel item or fuel fluid, internal Psy Current storage, strain, nearby machine targets.
+
+Common blockers: No valid fuel, no valid targets in range, target buffers full, strain too high, overload cooldown.
+
+Automation: Keep the engine near compatible machines and use inspection or transfer tools to understand what it can reach.
+
+See also: Psy Current, Pipes and Transfer, Recovery Basics.
+
+@link Machine Handbook - Ritual and Integration Era|Next era: ritual and integration
+
+---
+
+# Machine Handbook - Ritual and Integration Era
+
+RITUAL / INTEGRATION ERA
+
+Ritual and integration machines read progression, diary, recovery, multiblock shape and body-state context. Their blockers are often about meaning, not just empty slots.
+
+Common blockers include missing knowledge, invalid structure, missing diary context, missing recovery context, wrong ritual material, dirty tools, or output blocked.
+
+@item mydrugs:psy_anvil
+## Psy Anvil
+
+Era: Ritual / Integration Era.
+
+Purpose: Turns knowledge into strange tools and progression items without becoming a normal crafting table.
+
+Handles: Item input, knowledge gates, player interaction, item output.
+
+Common blockers: Missing knowledge, no matching work, wrong input, output blocked.
+
+Automation: Not a factory block; use it when progression or ritual work asks for it.
+
+See also: Knowledge Spine, Anvil and Sieve.
+
+## Psy Mixer
+
+Era: Ritual / Integration Era.
+
+Purpose: Forms mixed-drug rituals from offerings, materials and performance rather than exact machine cycles.
+
+Handles: Multiblock shape, offering, material, optional catalyst, optional stabilizer, optional vessel, ritual timing, output.
+
+Common blockers: Invalid structure, missing offering, missing material, missing knowledge, ritual already running, output blocked.
+
+Automation: Automation is intentionally limited; the server owns ritual timing and judgement.
+
+See also: Psy Mixer, Strong Mixes, Recovery Basics.
+
+@item mydrugs:psychotrope_resonator
+## Psychotrope Resonator
+
+Era: Ritual / Integration Era.
+
+Purpose: Converts dream, diary and recovery context into lasting integration or dimension progression.
+
+Handles: Multiblock validation, dream material, active drug context, diary context, recovery room context, integration cores.
+
+Common blockers: Invalid structure, missing drug knowledge, missing diary context, missing recovery room, wrong material, integration already complete.
+
+Automation: Do not automate the meaning out of it; prepare the room and materials, then read the checklist.
+
+See also: Psychotrope Resonator, The Diary, Recovery Basics.
+
+@item mydrugs:gene_extractor
+## Gene Extractor
+
+Era: Ritual / Integration Era.
+
+Purpose: Starts the somatic machine chain by extracting body imprints from gathered biological material.
+
+Handles: Item input, energy, progress, imprint output.
+
+Common blockers: Missing input, not enough energy, output slot full, no valid extraction target.
+
+Automation: Keep the output clear so later adaptation machines can consume the imprints deliberately.
+
+See also: Somatic Machines, Somatic Adaptation.
+
+@item mydrugs:crispr_cas9_combinator
+## CRISPR-CAS9 Combinator
+
+Era: Ritual / Integration Era.
+
+Purpose: Combines compatible body imprints into a more specialized adaptation direction.
+
+Handles: Two imprint inputs, compatibility checks, energy, progress, combined output.
+
+Common blockers: Missing input, same source blocked, incompatible inputs, not enough energy, output slot full.
+
+Automation: Keep inputs curated; blindly piping imprints into it makes compatibility failures hard to read.
+
+See also: Somatic Machines, Adaptation Patterns.
+
+@item mydrugs:bacterial_incubator
+## Bacterial Incubator
+
+Era: Ritual / Integration Era.
+
+Purpose: Grows adaptation material under controlled biological conditions.
+
+Handles: Imprint or vector input, biological context, energy, progress, output.
+
+Common blockers: Missing input, not enough energy, output blocked, growth still in progress.
+
+Automation: Buffer inputs carefully and let incubation finish before extracting outputs.
+
+See also: Somatic Machines.
+
+@item mydrugs:hemogenic_infuser
+## Hemogenic Infuser
+
+Era: Ritual / Integration Era.
+
+Purpose: Infuses adaptation material with blood context before syringe work.
+
+Handles: Vector input, blood context, energy, progress, vial output.
+
+Common blockers: Missing vector, missing blood, not enough energy, output full.
+
+Automation: Keep blood handling separate from sterile syringe handling.
+
+See also: Bottles and Syringes, Somatic Machines.
+
+@item mydrugs:autoclave
+## Autoclave
+
+Era: Ritual / Integration Era.
+
+Purpose: Sterilizes dirty empty syringes before risky body work.
+
+Handles: Dirty tool input, heat or energy context, sterile output.
+
+Common blockers: Missing dirty tool, not enough energy or heat, output full.
+
+Automation: Put it near mutation storage and treat sterile output as safety-critical.
+
+See also: Bottles and Syringes, Recovery Basics.
+
+@link Machine Handbook|Back to handbook intro
 
 ---
 

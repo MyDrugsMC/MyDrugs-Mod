@@ -661,6 +661,7 @@
   "screen.mydrugs.machine_transfer.open": "Transfer Configuration",
   "screen.mydrugs.machine_transfer.open_short": "T",
   "screen.mydrugs.machine_transfer.tooltip": "Transfer Configuration",
+  "screen.mydrugs.machine_handbook.status_hint": "See Machine Handbook.",
   "screen.mydrugs.machine_transfer.click_to_cycle": "Click to cycle",
   "screen.mydrugs.machine_transfer.toggle.on": "On",
   "screen.mydrugs.machine_transfer.toggle.off": "Off",
