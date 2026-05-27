@@ -24,17 +24,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.items.data.BiomeFinderTarget;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
-import org.mydrugs.mydrugs.worldgen.biomes.ModBiomes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class VanillaBiomeFinderItem extends Item {
     public static final ResourceLocation PSYCHEDELIC_MUSHROOM_VALLEY =
-            ModBiomes.PSYCHEDELIC_MUSHROOM_VALLEY.location();
+            BiomeFinderSelectableBiomes.PSYCHEDELIC_MUSHROOM_VALLEY;
     private static final int SEARCH_RADIUS = 6400;
     private static final int SEARCH_HORIZONTAL_STEP = 32;
     private static final int SEARCH_VERTICAL_STEP = 64;
@@ -174,27 +172,15 @@ public final class VanillaBiomeFinderItem extends Item {
     }
 
     public static boolean isExcluded(ResourceLocation id) {
-        return !isSelectableBiome(id);
+        return BiomeFinderSelectableBiomes.isExcluded(id);
     }
 
     public static boolean isSelectableBiome(ResourceLocation id) {
-        if (PSYCHEDELIC_MUSHROOM_VALLEY.equals(id)) return true;
-        if (!"minecraft".equals(id.getNamespace())) return false;
-        String path = id.getPath().toLowerCase(Locale.ROOT);
-        if (path.contains("mushroom")) return false;
-        return true;
+        return BiomeFinderSelectableBiomes.isSelectableBiome(id);
     }
 
     public static String prettyName(ResourceLocation id) {
-        String[] parts = id.getPath().split("_");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < parts.length; i++) {
-            if (i > 0) sb.append(' ');
-            if (parts[i].isEmpty()) continue;
-            sb.append(Character.toUpperCase(parts[i].charAt(0)));
-            sb.append(parts[i].substring(1));
-        }
-        return sb.toString();
+        return BiomeFinderSelectableBiomes.prettyName(id);
     }
 
     @Override
