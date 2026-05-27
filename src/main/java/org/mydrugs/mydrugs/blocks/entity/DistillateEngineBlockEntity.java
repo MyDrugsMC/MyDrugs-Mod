@@ -156,6 +156,7 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
         if (generated > 0) {
             PsyCurrentDistributor.distribute(serverLevel, generated, be.current, be.cachedScan.valid());
             AdvancementEventHooks.psychotropeEvent(serverLevel, pos, "psy_current_generated", "", generated, be.current.stored());
+            be.maybeBroadcastPulse(serverLevel, pos);
         }
 
         be.fuelTicksRemaining--;
@@ -246,6 +247,9 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
     }
 
     public static final int AREA_PREVIEW_TICKS = PsyCurrentConstants.ENGINE_AREA_PREVIEW_TICKS;
+    private static final int PULSE_INTERVAL_TICKS = 24;
+    private static final int PULSE_MAX_TARGETS = 6;
+    private int pulseCooldown;
 
     @Override
     protected Component getDefaultName() {
@@ -430,6 +434,31 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
 
     private void sync() {
         MachineSync.sync(this);
+    }
+
+    /**
+     * Throttle: every {@link #PULSE_INTERVAL_TICKS} server ticks while running, emit a transfer
+     * pulse packet to clients tracking this chunk. The client animates the trail; the server
+     * never spawns particles itself.
+     */
+    private void maybeBroadcastPulse(ServerLevel level, BlockPos pos) {
+        if (this.pulseCooldown-- > 0) {
+            return;
+        }
+        this.pulseCooldown = PULSE_INTERVAL_TICKS;
+        java.util.List<BlockPos> valid = this.cachedScan.valid();
+        if (valid.isEmpty()) {
+            return;
+        }
+        java.util.List<BlockPos> selected = valid.size() <= PULSE_MAX_TARGETS
+                ? java.util.List.copyOf(valid)
+                : java.util.List.copyOf(valid.subList(0, PULSE_MAX_TARGETS));
+        int strainBucket = org.mydrugs.mydrugs.energy.psycurrent.StrainRisk.forStrain(this.strain).ordinal();
+        net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingChunk(
+                level,
+                new net.minecraft.world.level.ChunkPos(pos),
+                new org.mydrugs.mydrugs.network.DistillateEnginePulsePayload(pos, selected, strainBucket)
+        );
     }
 
     private record StartResult(boolean didStart, boolean changed, MachineStatus status) {

@@ -39,7 +39,9 @@ import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
 import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
 import org.mydrugs.mydrugs.network.DistillateEnginePreviewPayload;
+import org.mydrugs.mydrugs.network.DistillateEnginePulsePayload;
 import org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState;
+import org.mydrugs.mydrugs.client.PsyCurrentPulseClientState;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
 
 /**
@@ -71,6 +73,8 @@ public final class ClientPayloadHandlers {
                         payload.validTargets(),
                         payload.fullTargets(),
                         payload.incompatibleTargets()));
+        event.register(DistillateEnginePulsePayload.TYPE, (payload, context) ->
+                PsyCurrentPulseClientState.enqueue(payload.enginePos(), payload.targets(), payload.strainBucket()));
         event.register(BiomeFinderOpenScreenPayload.TYPE, BiomeFinderClientPayloadHandler::handleOpenScreen);
         event.register(OpenDrugFormulaNamingPayload.TYPE, DrugFormulaNamingPayloadHandler::handle);
         event.register(PsyMixerRitualSyncPayload.TYPE, PsyMixerRitualClientState::handle);

@@ -66,6 +66,7 @@ public final class ClientEventHandler {
             RecoveryRoomParticleClient.clear();
             CustomDiscPlaybackController.clear();
             org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.clear();
+            org.mydrugs.mydrugs.client.PsyCurrentPulseClientState.clear();
         }
 
         @SubscribeEvent
@@ -78,6 +79,7 @@ public final class ClientEventHandler {
             FakeEntityRenderController.tick();
             HeartbeatPulse.tick();
             org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.tick();
+            org.mydrugs.mydrugs.client.PsyCurrentPulseClientState.tick();
             PsyBlueprintPreviewClientState.tick();
             VomitOverlayClientState.tick();
             BadTripScreamerOverlay.tick();
