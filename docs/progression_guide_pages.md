@@ -49,6 +49,7 @@ JEI has exact recipes. Machine screens explain immediate refusals. Advancements 
 @link Fermentation|Ch.5 — Fermented
 @link Hash and Steel|Ch.6 — Steel Plating
 @link Machine Era|Ch.7 — Machines
+@link Machine Handbook|Machine reference
 @link Coca|Ch.8 — Stimulant
 @link Lab Chemistry|Ch.9 — Gases
 @link LSD|Ch.10 — Lysergic
@@ -361,6 +362,24 @@ Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, outpu
 > [TIP] A machine that "does nothing" is almost always telling you why. Read its screen first.
 
 > [GOAL] Furnace, distiller, centrifuge, filterer, tray and advanced vat — all built.
+
+---
+
+# Machine Handbook
+
+MACHINE REFERENCE
+
+Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression.
+
+Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker.
+
+@link Machine Handbook - Early Processing|Hand Processing / Early Processing
+@link Machine Handbook - Crude Machine Era|Crude Machine Era
+@link Machine Handbook - Chemical Machine Era|Chemical Machine Era
+@link Machine Handbook - Psy Current Era|Psy Current Era
+@link Machine Handbook - Ritual and Integration Era|Ritual / Integration Era
+
+> [TIP] The handbook stays conceptual. It names roles, cargo types, blockers and automation habits without replacing JEI.
 
 ---
 

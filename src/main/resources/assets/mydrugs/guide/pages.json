@@ -27,6 +27,7 @@
       { "type": "link", "text": "Ch.5 — Fermented", "target": "Fermentation" },
       { "type": "link", "text": "Ch.6 — Steel Plating", "target": "Hash and Steel" },
       { "type": "link", "text": "Ch.7 — Machines", "target": "Machine Era" },
+      { "type": "link", "text": "Machine reference", "target": "Machine Handbook" },
       { "type": "link", "text": "Ch.8 — Stimulant", "target": "Coca" },
       { "type": "link", "text": "Ch.9 — Gases", "target": "Lab Chemistry" },
       { "type": "link", "text": "Ch.10 — Lysergic", "target": "LSD" },
@@ -260,6 +261,20 @@
       { "type": "text", "text": "Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, output full, bad side config, missing knowledge." },
       { "type": "tip", "text": "A machine that \"does nothing\" is almost always telling you why. Read its screen first." },
       { "type": "goal", "text": "Furnace, distiller, centrifuge, filterer, tray and advanced vat — all built." }
+    ]
+  },
+  {
+    "title": "Machine Handbook",
+    "elements": [
+      { "type": "text", "text": "MACHINE REFERENCE" },
+      { "type": "text", "text": "Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression." },
+      { "type": "text", "text": "Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker." },
+      { "type": "link", "text": "Hand Processing / Early Processing", "target": "Machine Handbook - Early Processing" },
+      { "type": "link", "text": "Crude Machine Era", "target": "Machine Handbook - Crude Machine Era" },
+      { "type": "link", "text": "Chemical Machine Era", "target": "Machine Handbook - Chemical Machine Era" },
+      { "type": "link", "text": "Psy Current Era", "target": "Machine Handbook - Psy Current Era" },
+      { "type": "link", "text": "Ritual / Integration Era", "target": "Machine Handbook - Ritual and Integration Era" },
+      { "type": "tip", "text": "The handbook stays conceptual. It names roles, cargo types, blockers and automation habits without replacing JEI." }
     ]
   },
   {
