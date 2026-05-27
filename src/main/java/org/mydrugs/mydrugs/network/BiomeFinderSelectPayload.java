@@ -60,7 +60,7 @@ public record BiomeFinderSelectPayload(InteractionHand hand, ResourceLocation bi
             return;
         }
 
-        boolean available = VanillaBiomeFinderItem.collectSelectableBiomes(level).contains(payload.biome());
+        boolean available = VanillaBiomeFinderItem.collectVanillaBiomes(level).contains(payload.biome());
         if (!available) {
             return;
         }

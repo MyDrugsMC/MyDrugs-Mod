@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class VanillaBiomeFinderItemTest {
 
     @Test
-    void customPsychedelicValleyIsSelectable() {
-        ResourceLocation valley = BiomeFinderSelectableBiomes.PSYCHEDELIC_MUSHROOM_VALLEY;
+    void customPsychedelicValleyIsExcluded() {
+        ResourceLocation valley = ResourceLocation.fromNamespaceAndPath("mydrugs", "psychedelic_mushroom_valley");
 
-        assertTrue(BiomeFinderSelectableBiomes.isSelectableBiome(valley));
-        assertFalse(BiomeFinderSelectableBiomes.isExcluded(valley));
+        assertFalse(BiomeFinderSelectableBiomes.isSelectableBiome(valley));
+        assertTrue(BiomeFinderSelectableBiomes.isExcluded(valley));
         assertEquals("Psychedelic Mushroom Valley", BiomeFinderSelectableBiomes.prettyName(valley));
     }
 

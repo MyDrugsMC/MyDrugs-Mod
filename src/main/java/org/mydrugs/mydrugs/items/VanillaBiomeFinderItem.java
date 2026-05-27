@@ -31,8 +31,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class VanillaBiomeFinderItem extends Item {
-    public static final ResourceLocation PSYCHEDELIC_MUSHROOM_VALLEY =
-            BiomeFinderSelectableBiomes.PSYCHEDELIC_MUSHROOM_VALLEY;
     private static final int SEARCH_RADIUS = 6400;
     private static final int SEARCH_HORIZONTAL_STEP = 32;
     private static final int SEARCH_VERTICAL_STEP = 64;
@@ -109,7 +107,7 @@ public final class VanillaBiomeFinderItem extends Item {
     }
 
     private BiomeFinderTarget cycleSelection(ServerLevel level, BiomeFinderTarget current) {
-        List<ResourceLocation> available = collectSelectableBiomes(level);
+        List<ResourceLocation> available = collectVanillaBiomes(level);
         if (available.isEmpty()) {
             return current;
         }
@@ -127,7 +125,7 @@ public final class VanillaBiomeFinderItem extends Item {
         return current.withSelected(next);
     }
 
-    public static List<ResourceLocation> collectSelectableBiomes(ServerLevel level) {
+    public static List<ResourceLocation> collectVanillaBiomes(ServerLevel level) {
         HolderLookup.RegistryLookup<Biome> registry = level.registryAccess().lookupOrThrow(Registries.BIOME);
         List<ResourceLocation> result = new ArrayList<>();
         registry.listElementIds().forEach(key -> {
@@ -137,10 +135,6 @@ public final class VanillaBiomeFinderItem extends Item {
         });
         result.sort((a, b) -> prettyName(a).compareToIgnoreCase(prettyName(b)));
         return result;
-    }
-
-    public static List<ResourceLocation> collectVanillaBiomes(ServerLevel level) {
-        return collectSelectableBiomes(level);
     }
 
     public static Pair<BlockPos, Holder<Biome>> findClosestSelectedBiome(
@@ -167,7 +161,7 @@ public final class VanillaBiomeFinderItem extends Item {
     ) {
         PacketDistributor.sendToPlayer(
                 player,
-                new BiomeFinderOpenScreenPayload(hand, current.selectedBiome(), collectSelectableBiomes(level))
+                new BiomeFinderOpenScreenPayload(hand, current.selectedBiome(), collectVanillaBiomes(level))
         );
     }
 

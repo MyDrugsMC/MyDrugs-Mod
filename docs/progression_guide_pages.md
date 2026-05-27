@@ -634,12 +634,11 @@ MAIN QUEST + EXPLORATION — Chapter 12
 @item mydrugs:magic_mushroom
 @item mydrugs:magic_mushroom_powder
 @item mydrugs:mycelial_resonator
-@item mydrugs:vanilla_biome_finder
 @item mydrugs:shroom_harvester
 
 You can find magic mushrooms early — but Mycelial Knowledge only opens after Overclocked.
 
-Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. If the valley feels impossible to find, use the biome finder once your progression points you toward mycelial exploration.
+Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. The Vanilla Biome Finder intentionally tracks only vanilla biomes; it will not point at the valley.
 
 Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes.
 
