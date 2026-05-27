@@ -231,6 +231,9 @@ public final class RecoveryProgressManager {
         if (room.hasModule(SanctuaryModule.MEMORY_WALL) && hasEarnedMemory(player)) {
             weight += 0.05F;
         }
+        if (room.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) {
+            weight += 0.05F;
+        }
         return Math.min(0.75F, weight);
     }
 
@@ -243,13 +246,17 @@ public final class RecoveryProgressManager {
         if (!RecoveryRoomManager.isValidRecoveryRoom(room)) {
             return 0.0F;
         }
-        return switch (room.tier()) {
+        float multiplier = switch (room.tier()) {
             case NONE -> 0.0F;
             case FRAGILE_ROOM -> 1.0F;
             case RESTING_ROOM -> 1.2F;
             case SAFE_ROOM -> 1.5F;
             case SANCTUARY -> 2.0F;
         };
+        if (room.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) {
+            multiplier += 0.20F;
+        }
+        return Math.min(2.25F, multiplier);
     }
 
     public record RecoveryDelta(float addictionReduced, float recoveryProgressAdded) {
