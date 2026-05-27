@@ -742,6 +742,8 @@ public final class RecoveryRoomManager {
                 samples,
                 report.score(),
                 report.tier().networkId(),
+                SanctuaryModule.flags(report.sanctuaryModules()),
+                report.hasActiveMusic(),
                 player.level().getRandom().nextLong(),
                 highlight,
                 ambient
