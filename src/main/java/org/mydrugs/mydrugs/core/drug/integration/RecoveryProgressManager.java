@@ -121,7 +121,7 @@ public final class RecoveryProgressManager {
 
     public static boolean isInReckoning(@Nullable DrugId drugId, DrugAddictionStats d) {
         IntegrationRequirementProfile profile = drugId == null ? null : IntegrationRequirements.profile(drugId);
-        float requiredPeak = profile == null ? IntegrationConstants.PEAK_THRESHOLD : profile.requiredPeakExposure();
+        float requiredPeak = profile == null ? IntegrationConstants.PEAK_THRESHOLD_FALLBACK : profile.requiredPeakExposure();
         float requiredRecovery = profile == null ? 1.0F : profile.requiredRecoveryProgress();
         if (profile != null && !profile.requiresRecoveryProgress()) {
             return false;
