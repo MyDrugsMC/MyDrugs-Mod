@@ -27,7 +27,7 @@ public final class AddictionConstants {
     public static final float STRESS_OVERDOSE_DOSE_BONUS = 0.35F;
     public static final float STRESS_RISE_RATE = 0.003F;
     public static final float STRESS_FALL_RATE = 0.006F;
-    public static final float STRESS_HEADPHONES_EXTRA_FALL_RATE = 0.004F;
+    public static final float STRESS_HEADPHONES_EXTRA_FALL_RATE = 0.001F;
     public static final float STRESS_CANNABIS_EXTRA_FALL_RATE = 0.002F;
     public static final float STRESS_DAMAGE_BONUS_PER_HP = 0.01F;
     public static final float STRESS_DAMAGE_FLAT_BONUS = 0.08F;
