@@ -221,6 +221,7 @@ public class ModLangProvider extends LanguageProvider {
         add("screen.mydrugs.machine_transfer.open", "Transfer Configuration");
         add("screen.mydrugs.machine_transfer.open_short", "T");
         add("screen.mydrugs.machine_transfer.tooltip", "Transfer Configuration");
+        add("screen.mydrugs.machine_handbook.status_hint", "See Machine Handbook.");
         add("screen.mydrugs.machine_transfer.click_to_cycle", "Click to cycle");
         add("screen.mydrugs.machine_transfer.toggle.on", "On");
         add("screen.mydrugs.machine_transfer.toggle.off", "Off");
