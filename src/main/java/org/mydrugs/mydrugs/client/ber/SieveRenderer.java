@@ -97,22 +97,22 @@ public final class SieveRenderer implements BlockEntityRenderer<SieveBlockEntity
         // input: flat on the sieve floor
         submitItem(renderState, poseStack, collector,
                 renderState.input,
-                0.50F, 0.705F, 0.50F,
+                0.50F, 0.855F, 0.50F,
                 0.55F,
-                90.0F, 18.0F, 0.0F);
+                90.0F, 0.0F, 0.0F);
 
         // main output: also flat, slightly offset on top
         submitItem(renderState, poseStack, collector,
                 renderState.result,
-                0.32F, 0.715F, 0.34F,
+                0.32F, 0.855F, 0.34F,
                 0.38F,
-                90.0F, -14.0F, 0.0F);
+                90.0F, 0.0F, 0.0F);
 
         // bonus output: flat inside the sieve
         submitItem(renderState, poseStack, collector,
                 renderState.bonus,
-                0.67F, 0.45F, 0.60F,
+                0.5F, 0.10F, 0.5F,
                 0.34F,
-                90.0F, 26.0F, 0.0F);
+                90.0F, 0.0F, 0.0F);
     }
 }

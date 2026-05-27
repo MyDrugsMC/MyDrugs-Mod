@@ -5,6 +5,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.FailureReason;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.ResonatorState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.menu.PsychotropeResonatorMenu;
@@ -65,12 +67,19 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                 PsychotropeResonatorLayout.MACHINE_PANEL_H,
                 0xFF1E1B25
         );
+        drawPanel(
+                graphics,
+                PsychotropeResonatorLayout.FAILURE_PANEL_X,
+                PsychotropeResonatorLayout.FAILURE_PANEL_Y,
+                PsychotropeResonatorLayout.FAILURE_PANEL_W,
+                PsychotropeResonatorLayout.FAILURE_PANEL_H,
+                0xFF17141D
+        );
         drawSieveInventoryPanels(graphics, PsychotropeResonatorLayout.PLAYER_INV_X, PsychotropeResonatorLayout.PLAYER_INV_Y);
 
-        drawSlotFrame(graphics, PsychotropeResonatorLayout.DREAM_SLOT_X, PsychotropeResonatorLayout.DREAM_SLOT_Y);
+        drawSlotFrame(graphics, PsychotropeResonatorLayout.MATERIAL_SLOT_X, PsychotropeResonatorLayout.MATERIAL_SLOT_Y);
         drawSlotFrame(graphics, PsychotropeResonatorLayout.CORE_SLOT_X, PsychotropeResonatorLayout.CORE_SLOT_Y);
         drawSlotFrame(graphics, PsychotropeResonatorLayout.DIARY_SLOT_X, PsychotropeResonatorLayout.DIARY_SLOT_Y);
-        drawSlotFrame(graphics, PsychotropeResonatorLayout.OUTPUT_SLOT_X, PsychotropeResonatorLayout.OUTPUT_SLOT_Y);
 
         drawHorizontalBar(
                 graphics,
@@ -90,29 +99,32 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
         graphics.drawString(
                 this.font,
                 Component.translatable(this.menu.state().translationKey()),
-                116,
-                31,
+                PsychotropeResonatorLayout.STATUS_X,
+                PsychotropeResonatorLayout.STATUS_Y,
                 stateColor(this.menu.state()),
                 false
         );
         graphics.drawString(
                 this.font,
                 activeDrugLabel(),
-                116,
-                62,
+                PsychotropeResonatorLayout.STATUS_X,
+                PsychotropeResonatorLayout.STATUS_Y + 31,
                 0xFFE8ECEF,
                 false
         );
         graphics.drawString(
                 this.font,
                 this.menu.dimensionReady()
+                        ? (this.menu.canOpenDimension()
                         ? Component.translatable("screen.mydrugs.psychotrope_resonator.dimension_ready")
+                        : Component.translatable("screen.mydrugs.psychotrope_resonator.dimension_aligned"))
                         : Component.translatable("screen.mydrugs.psychotrope_resonator.dimension_locked"),
-                116,
-                74,
-                this.menu.dimensionReady() ? 0xFFB58CFF : 0xFF9FA6AE,
+                PsychotropeResonatorLayout.STATUS_X,
+                PsychotropeResonatorLayout.STATUS_Y + 43,
+                this.menu.canOpenDimension() ? 0xFFB58CFF : 0xFF9FA6AE,
                 false
         );
+        renderFailurePanel(graphics);
         graphics.drawString(
                 this.font,
                 Component.translatable("screen.mydrugs.ui.inventory"),
@@ -157,6 +169,55 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                 "screen.mydrugs.psychotrope_resonator.active_drug",
                 Component.translatable("drug.mydrugs." + drug.serializedName())
         );
+    }
+
+    private void renderFailurePanel(GuiGraphics graphics) {
+        int x = PsychotropeResonatorLayout.FAILURE_PANEL_X + 8;
+        int y = PsychotropeResonatorLayout.FAILURE_PANEL_Y + 7;
+        graphics.drawString(this.font,
+                Component.translatable("screen.mydrugs.psychotrope_resonator.checklist"),
+                x, y, 0xFFCDBDFF, false);
+        y += 11;
+
+        FailureReason reason = this.menu.failureReason();
+        Component failure = reason == FailureReason.NONE
+                ? Component.translatable("screen.mydrugs.psychotrope_resonator.failure.none")
+                : Component.translatable(reason.translationKey());
+        graphics.drawString(this.font, failure, x, y, reason == FailureReason.NONE ? 0xFF9FA6AE : 0xFFFF9F9F, false);
+        y += 11;
+
+        DrugId candidate = this.menu.candidateDrug();
+        if (candidate != null) {
+            graphics.drawString(this.font,
+                    Component.translatable("screen.mydrugs.psychotrope_resonator.candidate",
+                            Component.translatable("drug.mydrugs." + candidate.serializedName())),
+                    x, y, 0xFFE8ECEF, false);
+            y += 11;
+        }
+
+        int mask = this.menu.checklistMask();
+        int shown = 0;
+        for (int bit : new int[] {
+                PsychotropeResonatorBlockEntity.CHECK_KNOWLEDGE,
+                PsychotropeResonatorBlockEntity.CHECK_REQUIREMENT,
+                PsychotropeResonatorBlockEntity.CHECK_LOW_ADDICTION,
+                PsychotropeResonatorBlockEntity.CHECK_RECOVERY,
+                PsychotropeResonatorBlockEntity.CHECK_LIFETIME,
+                PsychotropeResonatorBlockEntity.CHECK_MATERIAL,
+                PsychotropeResonatorBlockEntity.CHECK_CORE,
+                PsychotropeResonatorBlockEntity.CHECK_DIARY,
+                PsychotropeResonatorBlockEntity.CHECK_ROOM,
+                PsychotropeResonatorBlockEntity.CHECK_NOT_INTEGRATED
+        }) {
+            if ((mask & bit) != 0 || shown >= 2) {
+                continue;
+            }
+            graphics.drawString(this.font,
+                    Component.translatable("screen.mydrugs.psychotrope_resonator.missing." + bit),
+                    x, y, 0xFFFFD27D, false);
+            y += 11;
+            shown++;
+        }
     }
 
     private int stateColor(ResonatorState state) {

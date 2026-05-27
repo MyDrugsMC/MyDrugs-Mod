@@ -14,6 +14,8 @@ import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 import org.mydrugs.mydrugs.items.ModItems;
 
 public final class ItemEffectHandler {
@@ -29,6 +31,7 @@ public final class ItemEffectHandler {
         stats.temporaryEffects.diaryCalmUntil = now + (20L * 90L);
         stats.temporaryEffects.thoughtSuppressionUntil = now + (20L * 60L);
         StressManager.reduce(stats, AddictionConstants.RELIEF_DIARY);
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.DIARY_WRITTEN, 1.0F);
         syncClientHud(player);
     }
 
@@ -146,13 +149,14 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         float itemMultiplier = recoveryItemMultiplier(room);
-        StressManager.reduce(stats, AddictionConstants.RELIEF_HERBAL_TEA * itemMultiplier);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_HERBAL_TEA * itemMultiplier * 1.35F);
 
         for (DrugCategory category : DrugCategory.values()) {
-            stats.reduceWithdrawalInCategory(category, 6.0F * itemMultiplier);
+            stats.reduceWithdrawalInCategory(category, 10.0F * itemMultiplier);
         }
 
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 120L * itemMultiplier);
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.HERBAL_TEA, itemMultiplier);
         syncClientHud(player);
     }
 
@@ -160,14 +164,15 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         float itemMultiplier = recoveryItemMultiplier(room);
-        StressManager.reduce(stats, AddictionConstants.RELIEF_CALMING_MIXTURE * itemMultiplier);
+        StressManager.reduce(stats, AddictionConstants.RELIEF_CALMING_MIXTURE * itemMultiplier * 2.5F);
 
         for (DrugCategory category : DrugCategory.values()) {
-            stats.reduceWithdrawalInCategory(category, 10.0F * itemMultiplier);
+            stats.reduceWithdrawalInCategory(category, 30.0F * itemMultiplier);
         }
 
         stats.temporaryEffects.calmingMixtureUntil = player.level().getGameTime() + Math.round(20L * 60L * itemMultiplier);
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 180L * itemMultiplier);
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.CALMING_MIXTURE, itemMultiplier);
         syncClientHud(player);
     }
 
@@ -178,7 +183,8 @@ public final class ItemEffectHandler {
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + 20L * 240L;
         StressManager.reduce(stats, AddictionConstants.RELIEF_SLEEPING_AID);
 
-        stats.reduceWithdrawalInCategory(DrugCategory.SEDATIVE, 4.0F);
+        stats.reduceWithdrawalInCategory(DrugCategory.SEDATIVE, 8.0F);
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEPING_AID, 1.0F);
         syncClientHud(player);
     }
 
@@ -191,10 +197,10 @@ public final class ItemEffectHandler {
             return 1.0F;
         }
         return switch (room.tier()) {
-            case NONE, FRAGILE_ROOM -> 1.03F;
-            case RESTING_ROOM -> 1.06F;
-            case SAFE_ROOM -> 1.10F;
-            case SANCTUARY -> 1.15F;
+            case NONE, FRAGILE_ROOM -> 1.0F;
+            case RESTING_ROOM -> 1.15F;
+            case SAFE_ROOM -> 1.45F;
+            case SANCTUARY -> 1.85F;
         };
     }
 }

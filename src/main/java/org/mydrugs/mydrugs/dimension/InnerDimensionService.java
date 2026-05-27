@@ -22,24 +22,46 @@ import org.mydrugs.mydrugs.diary.IntegrationDiary;
  * via {@link InnerDimensionGenerator}.
  */
 public final class InnerDimensionService {
-    private static final double SPAWN_X = 0.5D;
     private static final double SPAWN_Y = InnerDimensions.ISLAND_Y + 1.0D;
-    private static final double SPAWN_Z = 0.5D;
 
     private InnerDimensionService() {
     }
 
+    public enum OpenStatus {
+        READY,
+        MISSING_INTEGRATION,
+        MISSING_DREAM_ALIGNMENT,
+        UNAVAILABLE
+    }
+
     public static boolean canOpen(ServerPlayer player) {
-        return player != null && player.getData(ModAttachments.PLAYER_INTEGRATION.get()).unlockedCount() > 0;
+        return openStatus(player) == OpenStatus.READY;
+    }
+
+    public static OpenStatus openStatus(ServerPlayer player) {
+        if (player == null || player.level().getServer() == null) {
+            return OpenStatus.UNAVAILABLE;
+        }
+        if (player.getData(ModAttachments.PLAYER_INTEGRATION.get()).unlockedCount() <= 0) {
+            return OpenStatus.MISSING_INTEGRATION;
+        }
+        if (!hasDreamAlignment(player)) {
+            return OpenStatus.MISSING_DREAM_ALIGNMENT;
+        }
+        return innerLevel(player.level().getServer()) == null ? OpenStatus.UNAVAILABLE : OpenStatus.READY;
     }
 
     public static boolean open(ServerPlayer player, BlockPos resonatorPos) {
         if (player == null) {
             return false;
         }
-        if (!canOpen(player)) {
+        OpenStatus status = openStatus(player);
+        if (status != OpenStatus.READY) {
+            String message = status == OpenStatus.MISSING_DREAM_ALIGNMENT
+                    ? "message.mydrugs.inner_dimension.requires_dream_alignment"
+                    : "message.mydrugs.inner_dimension.requires_integration";
             player.displayClientMessage(
-                    Component.translatable("message.mydrugs.inner_dimension.requires_integration")
+                    Component.translatable(message)
                             .withStyle(ChatFormatting.DARK_PURPLE),
                     false
             );
@@ -56,11 +78,13 @@ public final class InnerDimensionService {
             return false;
         }
 
-        InnerDimensionGenerator.ensureInitialIsland(innerLevel);
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerDimensionGenerator.ensureInitialIsland(innerLevel, island);
 
         player.teleport(new TeleportTransition(
                 innerLevel,
-                new Vec3(SPAWN_X, SPAWN_Y, SPAWN_Z),
+                new Vec3(island.centerX() + 0.5D, SPAWN_Y, island.centerZ() + 0.5D),
                 Vec3.ZERO,
                 player.getYRot(),
                 player.getXRot(),
@@ -82,15 +106,27 @@ public final class InnerDimensionService {
         if (innerLevel == null) {
             return;
         }
-        if (InnerDimensionGenerator.onIntegration(innerLevel, drugId)) {
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        if (InnerDimensionGenerator.onIntegration(innerLevel, island, drugId)) {
             IntegrationDiary.dimensionExpanded(player, drugId);
         }
     }
 
     public static boolean markDreamCoordinate(ServerPlayer player, BlockPos resonatorPos) {
-        // Reserved for the Dream Alignment ritual; concrete behavior lives in the Resonator
-        // (Phase E). The dimension itself has no per-resonator coordinate yet.
-        return player != null;
+        if (player == null) {
+            return false;
+        }
+        player.getData(ModAttachments.PLAYER_INTEGRATION.get()).markDreamAligned();
+        ServerLevel innerLevel = innerLevel(player.level().getServer());
+        if (innerLevel != null) {
+            InnerDimensionSavedData.get(innerLevel).markDreamAligned(player.getUUID(), resonatorPos);
+        }
+        return true;
+    }
+
+    public static boolean hasDreamAlignment(ServerPlayer player) {
+        return player != null && player.getData(ModAttachments.PLAYER_INTEGRATION.get()).isDreamAligned();
     }
 
     /** Returns the player to the overworld spawn — invoked when they fall off the island. */

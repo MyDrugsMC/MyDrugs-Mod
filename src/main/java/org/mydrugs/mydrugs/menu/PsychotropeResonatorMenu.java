@@ -13,13 +13,13 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.FailureReason;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.ResonatorState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.menu.layout.PsychotropeResonatorLayout;
-import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
 public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
-    public static final int DATA_COUNT = 7;
+    public static final int DATA_COUNT = 11;
     public static final int MACHINE_SLOT_COUNT = PsychotropeResonatorBlockEntity.SLOT_COUNT;
     public static final int DREAM_ALIGNMENT_BUTTON_ID = 0;
     public static final int INTEGRATION_BUTTON_ID = 1;
@@ -61,11 +61,11 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
 
         container.startOpen(playerInventory.player);
 
-        this.addSlot(new Slot(container, PsychotropeResonatorBlockEntity.SLOT_DREAM_MATERIAL,
-                PsychotropeResonatorLayout.DREAM_SLOT_X, PsychotropeResonatorLayout.DREAM_SLOT_Y) {
+        this.addSlot(new Slot(container, PsychotropeResonatorBlockEntity.SLOT_MATERIAL,
+                PsychotropeResonatorLayout.MATERIAL_SLOT_X, PsychotropeResonatorLayout.MATERIAL_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return PsychotropeResonatorBlockEntity.isDreamMaterial(stack);
+                return PsychotropeResonatorBlockEntity.isIntegrationMaterial(stack);
             }
         });
         this.addSlot(new Slot(container, PsychotropeResonatorBlockEntity.SLOT_INTEGRATION_CORE,
@@ -82,9 +82,6 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
                 return PsychotropeResonatorBlockEntity.isDiary(stack);
             }
         });
-        this.addSlot(new OutputSlot(container, PsychotropeResonatorBlockEntity.SLOT_OUTPUT,
-                PsychotropeResonatorLayout.OUTPUT_SLOT_X, PsychotropeResonatorLayout.OUTPUT_SLOT_Y));
-
         this.addPlayerInventorySlots(playerInventory, PsychotropeResonatorLayout.PLAYER_INV_X, PsychotropeResonatorLayout.PLAYER_INV_Y);
         this.addDataSlots(data);
     }
@@ -126,8 +123,24 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
         return this.data.get(4) != 0;
     }
 
+    public boolean canOpenDimension() {
+        return this.data.get(10) != 0;
+    }
+
     public @Nullable DrugId activeIntegrationDrug() {
         return DrugId.byNetworkId(this.data.get(6));
+    }
+
+    public FailureReason failureReason() {
+        return FailureReason.byNetworkId(this.data.get(7));
+    }
+
+    public @Nullable DrugId candidateDrug() {
+        return DrugId.byNetworkId(this.data.get(8));
+    }
+
+    public int checklistMask() {
+        return this.data.get(9);
     }
 
     public int getScaledProgress(int pixels) {
@@ -149,9 +162,9 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
-                if (PsychotropeResonatorBlockEntity.isDreamMaterial(rawStack)) {
-                    if (!this.moveItemStackTo(rawStack, PsychotropeResonatorBlockEntity.SLOT_DREAM_MATERIAL,
-                            PsychotropeResonatorBlockEntity.SLOT_DREAM_MATERIAL + 1, false)) {
+                if (PsychotropeResonatorBlockEntity.isIntegrationMaterial(rawStack)) {
+                    if (!this.moveItemStackTo(rawStack, PsychotropeResonatorBlockEntity.SLOT_MATERIAL,
+                            PsychotropeResonatorBlockEntity.SLOT_MATERIAL + 1, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else if (PsychotropeResonatorBlockEntity.isIntegrationCore(rawStack)) {

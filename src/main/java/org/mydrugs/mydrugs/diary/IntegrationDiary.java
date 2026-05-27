@@ -28,6 +28,22 @@ public final class IntegrationDiary {
                         "Something it gave me, the part that was useful, is mine to keep now. Cleanly.");
     }
 
+    public static void firstIntegrationCore(ServerPlayer player) {
+        append(player, DrugId.COFFEE, "integration.core_first",
+                "Coffee pushed me to the edge of useful speed, then made me account for it. " +
+                        "The core it left behind feels like a way to bind recovery into something permanent.");
+    }
+
+    public static void dreamAligned(ServerPlayer player) {
+        append(player, DrugId.LSD, "dimension.dream_aligned",
+                "The dream has coordinates now. It still asks for integration, not escape.");
+    }
+
+    public static void recoveryResonance(ServerPlayer player) {
+        append(player, null, "integration.recovery_resonance",
+                "The room held. The craving had somewhere to go besides back into me.");
+    }
+
     public static void firstDimensionEntry(ServerPlayer player) {
         append(player, null, "dimension.first_entry",
                 "I stepped into the inner world for the first time. It is small and bare, but it is mine. " +

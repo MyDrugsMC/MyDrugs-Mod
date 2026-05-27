@@ -53,6 +53,8 @@ import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualScoring;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerStructureValidator;
 import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugFormula;
 import org.mydrugs.mydrugs.core.drug.ritual.ServerDrugFormulaRegistry;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.menu.PsyMixerMenu;
@@ -536,6 +538,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             if (completedOutput) {
                 sendRandomMessage(player, SUCCESS_MESSAGES);
             }
+            RecoveryProgressManager.onProductiveAction(player, ActionKind.PSY_MIXER_SUCCESS,
+                    quality == PsyMixerRitualQuality.MASTERWORK ? 1.5F : 1.0F);
             PsycheMapMilestones.psyMixerRitual(player);
             PsycheMapMilestones.ritualSuccess(player);
         }

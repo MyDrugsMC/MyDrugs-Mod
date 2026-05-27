@@ -39,6 +39,18 @@ public final class InnerDimensionGenerator {
         data.markInitialIslandBuilt();
     }
 
+    public static void ensureInitialIsland(ServerLevel innerLevel, InnerDimensionSavedData.IslandState island) {
+        if (island == null || island.owner() == null || island.initialIslandBuilt()) {
+            return;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        fillDisc(innerLevel, island.centerX(), island.centerZ(), InnerDimensionSavedData.INITIAL_RADIUS,
+                Blocks.STONE.defaultBlockState(), null);
+        innerLevel.setBlock(new BlockPos(island.centerX(), InnerDimensions.ISLAND_Y, island.centerZ()),
+                Blocks.AMETHYST_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+        data.markInitialIslandBuilt(island.owner());
+    }
+
     /**
      * Expands the island for a freshly integrated drug. Places the new annulus and that tier's
      * distinguishing feature (and, where the design calls for it, a once-only loot chest).
@@ -70,6 +82,31 @@ public final class InnerDimensionGenerator {
         return true;
     }
 
+    public static boolean onIntegration(ServerLevel innerLevel, InnerDimensionSavedData.IslandState island, DrugId drugId) {
+        if (drugId == null || island == null || island.owner() == null) {
+            return false;
+        }
+        ensureInitialIsland(innerLevel, island);
+
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        if (island.integratedDrugs().contains(drugId)) {
+            return false;
+        }
+
+        int previousRadius = island.currentRadius();
+        int newRadius = InnerDimensionSavedData.radiusAfterIntegration(island.integratedCount(), drugId);
+        if (newRadius <= previousRadius) {
+            return data.recordIntegration(island.owner(), drugId, previousRadius);
+        }
+
+        BlockState floor = tierFloor(drugId);
+        fillAnnulus(innerLevel, island.centerX(), island.centerZ(), previousRadius, newRadius, floor, null);
+        placeTierFeature(innerLevel, drugId, previousRadius, newRadius, data, island);
+
+        data.recordIntegration(island.owner(), drugId, newRadius);
+        return true;
+    }
+
     private static void placeTierFeature(
             ServerLevel level,
             DrugId drugId,
@@ -92,6 +129,34 @@ public final class InnerDimensionGenerator {
             case LSD -> setBlockIfReplaceable(level, featurePos, Blocks.SCULK.defaultBlockState());
             case METH -> setBlockIfReplaceable(level, featurePos, Blocks.GOLD_ORE.defaultBlockState());
             case MUSHROOMS -> placeStructureWithChest(level, drugId, featurePos, data,
+                    ModItems.INTEGRATION_CORE);
+            default -> {
+            }
+        }
+    }
+
+    private static void placeTierFeature(
+            ServerLevel level,
+            DrugId drugId,
+            int previousRadius,
+            int newRadius,
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island
+    ) {
+        int featureX = island.centerX() + (previousRadius + newRadius) / 2;
+        BlockPos featurePos = new BlockPos(featureX, InnerDimensions.ISLAND_Y + 1, island.centerZ());
+
+        switch (drugId) {
+            case COFFEE -> setBlockIfReplaceable(level, featurePos, Blocks.GRASS_BLOCK.defaultBlockState());
+            case TOBACCO -> setBlockIfReplaceable(level, featurePos, Blocks.IRON_ORE.defaultBlockState());
+            case WEED -> placeSmallTree(level, featurePos);
+            case HASH -> setBlockIfReplaceable(level, featurePos, Blocks.AMETHYST_CLUSTER.defaultBlockState());
+            case ALCOHOL -> placeStructureWithChest(level, drugId, featurePos, data, island,
+                    ModItems.OVERDOSE_ANTIDOTE);
+            case COCAINE -> setBlockIfReplaceable(level, featurePos, Blocks.QUARTZ_BLOCK.defaultBlockState());
+            case LSD -> setBlockIfReplaceable(level, featurePos, Blocks.SCULK.defaultBlockState());
+            case METH -> setBlockIfReplaceable(level, featurePos, Blocks.GOLD_ORE.defaultBlockState());
+            case MUSHROOMS -> placeStructureWithChest(level, drugId, featurePos, data, island,
                     ModItems.INTEGRATION_CORE);
             default -> {
             }
@@ -127,6 +192,28 @@ public final class InnerDimensionGenerator {
         String structureId = "tier_" + drugId.serializedName() + "@" + anchor.getX() + "," + anchor.getY() + "," + anchor.getZ();
         if (!data.markStructureGenerated(structureId)) {
             return; // already placed; do not regenerate, do not refill.
+        }
+
+        setBlockIfReplaceable(level, anchor, Blocks.CHEST.defaultBlockState());
+        BlockEntity be = level.getBlockEntity(anchor);
+        if (be instanceof Container container) {
+            container.setItem(0, new ItemStack(lootItemSupplier.get()));
+            be.setChanged();
+        }
+    }
+
+    private static void placeStructureWithChest(
+            ServerLevel level,
+            DrugId drugId,
+            BlockPos anchor,
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island,
+            Supplier<? extends net.minecraft.world.level.ItemLike> lootItemSupplier
+    ) {
+        String structureId = "player_" + island.owner() + ":tier_" + drugId.serializedName()
+                + "@" + anchor.getX() + "," + anchor.getY() + "," + anchor.getZ();
+        if (!data.markStructureGenerated(island.owner(), structureId)) {
+            return;
         }
 
         setBlockIfReplaceable(level, anchor, Blocks.CHEST.defaultBlockState());

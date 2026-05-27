@@ -15,13 +15,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.Config;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.RecoveryRitualLogic.RecoveryKind;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.RecoveryRitualLogic.SlotKind;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.items.ModItemTags;
 import org.mydrugs.mydrugs.items.drugs.DrugItem;
 
 /**
@@ -63,6 +66,9 @@ public final class PsyMixerRecoveryRitual {
         if (stack.is(Items.COPPER_INGOT)) {
             return SlotKind.COPPER_INGOT;
         }
+        if (stack.is(ModItemTags.INTEGRATION_CORE_SEED_SOURCES)) {
+            return SlotKind.SEED;
+        }
         if (stack.is(ModItems.PSY_RECEPTACLE.get())) {
             return SlotKind.RECEPTACLE;
         }
@@ -83,6 +89,15 @@ public final class PsyMixerRecoveryRitual {
                                   FormedPsyMixerCoreBlockEntity core,
                                   ServerPlayer player,
                                   RecoveryKind kind) {
+        if (kind == RecoveryKind.INTEGRATION_CORE
+                && !player.getData(ModAttachments.PLAYER_INTEGRATION.get()).hasReceivedFirstIntegrationCore()) {
+            player.displayClientMessage(
+                    Component.translatable("message.mydrugs.psy_mixer.recovery.integration_core_locked"),
+                    false
+            );
+            player.closeContainer();
+            return true;
+        }
         int maxLevels = Config.SERVER.recoveryRitualMaxLevels.get();
         DrugId drug = findDrug(core.getItems());
         double chance = RecoveryRitualLogic.successChance(player.experienceLevel, maxLevels,
@@ -109,6 +124,7 @@ public final class PsyMixerRecoveryRitual {
                     18, 0.5, 0.5, 0.5, 0.0);
             player.displayClientMessage(
                     Component.translatable("message.mydrugs.psy_mixer.recovery.success"), false);
+            RecoveryProgressManager.onProductiveAction(player, RecoveryProgressManager.ActionKind.PSY_MIXER_SUCCESS, 0.75F);
         } else {
             level.playSound(null, pos, SoundEvents.GLASS_BREAK, SoundSource.BLOCKS, 1.0F, 0.8F);
             level.playSound(null, pos, SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.BLOCKS, 0.6F, 0.4F);
@@ -133,6 +149,7 @@ public final class PsyMixerRecoveryRitual {
             case RECEPTACLE -> new ItemStack(ModItems.PSY_RECEPTACLE.get());
             case WIRE -> new ItemStack(ModItems.INSULATED_WIRE.get(),
                     Config.SERVER.crudeWireOutputCount.get());
+            case INTEGRATION_CORE -> new ItemStack(ModItems.INTEGRATION_CORE.get());
         };
     }
 

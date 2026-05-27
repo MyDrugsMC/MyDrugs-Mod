@@ -19,6 +19,9 @@ import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.addiction.progression.RelapseManager;
 import org.mydrugs.mydrugs.addiction.withdrawal.WithdrawalManager;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
@@ -122,6 +125,12 @@ public final class AddictionManager {
         float relief = AddictionMath.computeEffectiveRelief(cfg.reliefStrength(), drugStats.tolerance);
         drugStats.baseWithdrawalMeter = Math.max(0.0F, drugStats.baseWithdrawalMeter - relief);
         drugStats.peakHistoricalAddiction = Math.max(drugStats.peakHistoricalAddiction, drugStats.addictionValue);
+        if (IntegrationRequirements.usesCleanDoseStreak(model.getId())) {
+            drugStats.cleanIntegrationDoseStreak = Math.min(
+                    999,
+                    drugStats.cleanIntegrationDoseStreak + 1
+            );
+        }
 
         StressManager.reduceStress(playerStats, AddictionConstants.STRESS_RELIEF_ON_CONSUME);
         if (purityMods.extraStressPerHit() > 0.0F) {
@@ -129,6 +138,7 @@ public final class AddictionManager {
         }
 
         DoseManager.onConsume(drugStats, model, effectiveDose, strategy);
+        IntegrationService.afterDrugStatsUpdated(player, model.getId());
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -148,6 +158,9 @@ public final class AddictionManager {
         }
         stats.wasInSafeZoneLastTick = inSafeZone;
         long gameTime = player.level().getGameTime();
+        if (player.tickCount % 20 == 0) {
+            RecoveryProgressManager.tickPassiveSupport(player, stats, recoveryRoom, companions);
+        }
 
         float maxSeverity = 0.0F;
         float sumSeverity = 0.0F;

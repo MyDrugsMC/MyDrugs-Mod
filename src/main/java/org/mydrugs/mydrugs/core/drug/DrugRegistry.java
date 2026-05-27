@@ -250,7 +250,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.CAMERA_SWAY, COFFEE_MAIN_DURATION, 0.045F))
                 .addEffect(new DrugEffect(EffectType.TREMOR, COFFEE_MAIN_DURATION, 0.04F))
                 .addEffect(new DrugEffect(EffectType.HEARTBEAT, COFFEE_MAIN_DURATION, 0.18F))
-                .setAddictionRate(0.2F)
+                .setAddictionRate(0.5F)
                 .build()
         );
 

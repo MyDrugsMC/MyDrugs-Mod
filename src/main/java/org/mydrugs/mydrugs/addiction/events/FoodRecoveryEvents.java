@@ -1,8 +1,8 @@
 package org.mydrugs.mydrugs.addiction.events;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -12,6 +12,8 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class FoodRecoveryEvents {
@@ -25,7 +27,8 @@ public final class FoodRecoveryEvents {
         ItemStack used = event.getItem();
 
         // Simple filter: only reward actual edible items
-        if (!used.has(DataComponents.FOOD)) {
+        FoodProperties food = used.get(DataComponents.FOOD);
+        if (food == null) {
             return;
         }
 
@@ -36,10 +39,6 @@ public final class FoodRecoveryEvents {
 
         // Tiny resilience gain
         ResilienceManager.add(stats, 0.001F);
-
-        player.displayClientMessage(
-                Component.translatable("message.mydrugs.food_recovery.steady"),
-                true
-        );
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.FOOD, Math.max(1, food.nutrition()) * 0.10F);
     }
 }

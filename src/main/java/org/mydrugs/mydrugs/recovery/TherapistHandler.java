@@ -10,6 +10,8 @@ import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 import org.mydrugs.mydrugs.worldgen.ModVillagerProfessions;
 
 public final class TherapistHandler {
@@ -43,6 +45,7 @@ public final class TherapistHandler {
 
         player.displayClientMessage(Component.translatable("message.mydrugs.therapy.success"), true);
         AdvancementEventHooks.recoveryAction(player, "therapy");
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.THERAPY_SESSION, 1.0F);
         return true;
     }
 }

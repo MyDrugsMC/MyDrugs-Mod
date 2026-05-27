@@ -1,7 +1,9 @@
 package org.mydrugs.mydrugs.diary;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
@@ -14,14 +16,22 @@ import org.mydrugs.mydrugs.addiction.data.TemporaryRecoveryEffects;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
 import org.mydrugs.mydrugs.core.drug.ritual.DrugPatentSavedData;
 import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
+import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
+import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
+import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
+import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.psyche.PlayerPsycheMapAttachment;
 import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
@@ -128,10 +138,79 @@ public final class DiarySnapshotBuilder {
         }
 
         DiaryClaritySnapshot clarity = DiaryClarityService.build(player, diary, state, psycheNodes);
+        List<DiaryIntegrationProgressDto> integrationProgress = buildIntegrationProgress(player, diary, stats);
 
         return new PersonalDiarySnapshotPayload(
-                entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity
+                entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity, integrationProgress
         );
+    }
+
+    private static List<DiaryIntegrationProgressDto> buildIntegrationProgress(
+            ServerPlayer player,
+            PlayerDiaryAttachment diary,
+            PlayerAddictionStats stats
+    ) {
+        List<DiaryIntegrationProgressDto> out = new ArrayList<>();
+        boolean diaryContext = !diary.getEntries().isEmpty();
+        boolean recoveryRoom = RecoveryRoomManager.getBestRoom(player)
+                .filter(RecoveryRoomManager::isValidRecoveryRoom)
+                .isPresent();
+        boolean hasCore = hasInventoryItem(player, ModItems.INTEGRATION_CORE.get());
+
+        for (DrugId drug : CuratedDrugChain.ORDER) {
+            PsyKnowledgeKey key = CuratedDrugChain.stageKnowledge(drug);
+            boolean knowledge = key != null && PsyKnowledgeManager.has(player, key);
+            DrugAddictionStats ds = stats.getDrugStats(drug);
+            boolean hasStats = ds != null && (ds.lifetimeDoseConsumed > 0.0F
+                    || ds.addictionValue > 0.0F
+                    || ds.peakHistoricalAddiction > 0.0F
+                    || ds.cleanIntegrationDoseStreak > 0
+                    || ds.integrationStage > 0);
+            if (!knowledge && !hasStats) {
+                continue;
+            }
+            if (ds == null) {
+                ds = new DrugAddictionStats();
+            }
+
+            IntegrationRequirementProfile profile = IntegrationService.profile(drug);
+            if (profile == null) {
+                continue;
+            }
+            IntegrationService.EligibilityResult eligibility = IntegrationService.evaluate(stats, drug);
+            IntegratedTrait trait = IntegratedTrait.bySource(drug);
+            String materialId = IntegrationMaterials.itemIdFor(drug);
+            out.add(new DiaryIntegrationProgressDto(
+                    drug.serializedName(),
+                    trait == null ? "" : trait.translationKey(),
+                    trait == null ? "" : trait.rewardKey(),
+                    "diary.mydrugs.integration.roleplay." + drug.serializedName(),
+                    materialId,
+                    profile.type().name(),
+                    knowledge,
+                    eligibility.peakMet(),
+                    eligibility.lowAddictionMet(),
+                    eligibility.recoveryMet(),
+                    eligibility.lifetimeDoseMet(),
+                    eligibility.cleanDoseStreakMet(),
+                    diaryContext,
+                    recoveryRoom,
+                    hasInventoryItemId(player, materialId),
+                    hasCore,
+                    eligibility.alreadyIntegrated(),
+                    ds.peakHistoricalAddiction,
+                    profile.requiredPeakExposure(),
+                    ds.addictionValue,
+                    profile.maxCurrentAddiction(),
+                    ds.recoveryProgress,
+                    profile.requiredRecoveryProgress(),
+                    ds.lifetimeDoseConsumed,
+                    profile.requiredLifetimeDose(),
+                    ds.cleanIntegrationDoseStreak,
+                    profile.requiredCleanDoseStreak()
+            ));
+        }
+        return out;
     }
 
     private static boolean isFormulaMasteryKey(ResourceLocation id) {
@@ -189,6 +268,29 @@ public final class DiarySnapshotBuilder {
             }
         }
         return null;
+    }
+
+    private static boolean hasInventoryItem(ServerPlayer player, Item item) {
+        if (player == null || item == null) {
+            return false;
+        }
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack stack = inv.getItem(i);
+            if (!stack.isEmpty() && stack.is(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasInventoryItemId(ServerPlayer player, String itemId) {
+        ResourceLocation id = ResourceLocation.tryParse(itemId == null ? "" : itemId);
+        if (id == null) {
+            return false;
+        }
+        Item item = BuiltInRegistries.ITEM.getValue(id);
+        return hasInventoryItem(player, item);
     }
 
     @Nullable

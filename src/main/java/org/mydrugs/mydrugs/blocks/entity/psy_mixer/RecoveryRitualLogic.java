@@ -27,6 +27,7 @@ public final class RecoveryRitualLogic {
         EMPTY,
         VINE,
         COPPER_INGOT,
+        SEED,
         DRUG,
         RECEPTACLE,
         WIRE,
@@ -36,7 +37,8 @@ public final class RecoveryRitualLogic {
     /** Which recovery a loadout resolves to. */
     public enum RecoveryKind {
         RECEPTACLE,
-        WIRE
+        WIRE,
+        INTEGRATION_CORE
     }
 
     private RecoveryRitualLogic() {
@@ -52,11 +54,13 @@ public final class RecoveryRitualLogic {
         }
         int vines = 0;
         int copper = 0;
+        int seeds = 0;
         int drugs = 0;
         for (SlotKind kind : slots) {
             switch (kind) {
                 case VINE -> vines++;
                 case COPPER_INGOT -> copper++;
+                case SEED -> seeds++;
                 case DRUG -> drugs++;
                 default -> {
                     // EMPTY, OTHER, and — critically — RECEPTACLE/WIRE make this not a recovery loadout.
@@ -70,8 +74,11 @@ public final class RecoveryRitualLogic {
         if (vines == 4 && copper == 0) {
             return RecoveryKind.RECEPTACLE;
         }
-        if (copper == 4 && vines == 0) {
+        if (copper == 4 && vines == 0 && seeds == 0) {
             return RecoveryKind.WIRE;
+        }
+        if (seeds == 4 && vines == 0 && copper == 0) {
+            return RecoveryKind.INTEGRATION_CORE;
         }
         return null;
     }

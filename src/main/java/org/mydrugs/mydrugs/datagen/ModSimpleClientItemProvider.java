@@ -185,7 +185,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "mydrugs:item/mutagenic_blood_vial"));
         futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "mydrugs:item/nutrient_gel"));
 
-        // Phase D extracts / materials / components — placeholder textures until art lands.
+        // Phase D extracts / materials / components.
         futures.add(saveFlatItem(cachedOutput, "lucid_extract", "mydrugs:item/lucid_extract"));
         futures.add(saveFlatItem(cachedOutput, "calming_resin", "mydrugs:item/calming_resin"));
         futures.add(saveFlatItem(cachedOutput, "redline_fuel", "mydrugs:item/redline_fuel"));
@@ -193,6 +193,8 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "unstable_essence", "mydrugs:item/unstable_essence"));
         futures.add(saveFlatItem(cachedOutput, "dream_residue", "mydrugs:item/dream_residue"));
         futures.add(saveFlatItem(cachedOutput, "mycelial_insight", "mydrugs:item/mycelial_insight"));
+        futures.add(saveFlatItem(cachedOutput, "pressed_calm", "mydrugs:item/pressed_calm"));
+        futures.add(saveFlatItem(cachedOutput, "fermented_memory", "mydrugs:item/fermented_memory"));
         futures.add(saveFlatItem(cachedOutput, "bitter_residue", "mydrugs:item/bitter_residue"));
         futures.add(saveFlatItem(cachedOutput, "burnt_nerve_residue", "mydrugs:item/burnt_nerve_residue"));
         futures.add(saveFlatItem(cachedOutput, "spent_filter", "mydrugs:item/spent_filter"));

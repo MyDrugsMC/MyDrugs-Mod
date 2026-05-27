@@ -40,12 +40,14 @@ public final class IntegratedTraitManager {
         }
 
         for (IntegratedTrait trait : integration.all()) {
-            DrugEffectRuntimeManager.addEffect(
-                    player,
-                    trait.effect(),
-                    trait.magnitude(),
-                    IntegrationConstants.TRAIT_EFFECT_DURATION_TICKS
-            );
+            for (IntegratedTrait.EffectEcho echo : trait.effects()) {
+                DrugEffectRuntimeManager.addEffect(
+                        player,
+                        echo.effect(),
+                        echo.magnitude(),
+                        IntegrationConstants.TRAIT_EFFECT_DURATION_TICKS
+                );
+            }
         }
 
         if (player.tickCount % IntegrationConstants.CLIENT_SYNC_INTERVAL_TICKS == 0) {

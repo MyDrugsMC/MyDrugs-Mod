@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.diary.DiaryBreadcrumb;
 import org.mydrugs.mydrugs.diary.DiaryClaritySnapshot;
 import org.mydrugs.mydrugs.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.diary.DiaryEntryDto;
+import org.mydrugs.mydrugs.diary.DiaryIntegrationProgressDto;
 import org.mydrugs.mydrugs.diary.DiaryMasteryStatDto;
 import org.mydrugs.mydrugs.diary.DiaryMemory;
 import org.mydrugs.mydrugs.diary.DiaryPlayerStateDto;
@@ -34,7 +35,8 @@ public record PersonalDiarySnapshotPayload(
         long currentDay,
         int cooldownTicksRemaining,
         List<PsycheMapNodeDto> psycheNodes,
-        DiaryClaritySnapshot clarity
+        DiaryClaritySnapshot clarity,
+        List<DiaryIntegrationProgressDto> integrationProgress
 ) implements CustomPacketPayload {
 
     public PersonalDiarySnapshotPayload {
@@ -42,6 +44,7 @@ public record PersonalDiarySnapshotPayload(
         drugStats = List.copyOf(drugStats);
         masteryStats = List.copyOf(masteryStats);
         psycheNodes = List.copyOf(psycheNodes);
+        integrationProgress = integrationProgress == null ? List.of() : List.copyOf(integrationProgress);
         if (clarity == null) {
             clarity = DiaryClaritySnapshot.EMPTY;
         }
@@ -107,6 +110,11 @@ public record PersonalDiarySnapshotPayload(
                         }
 
                         encodeClarity(buf, payload.clarity());
+
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.integrationProgress().size());
+                        for (DiaryIntegrationProgressDto p : payload.integrationProgress()) {
+                            encodeIntegrationProgress(buf, p);
+                        }
                     },
                     buf -> {
                         int entryCount = ByteBufCodecs.VAR_INT.decode(buf);
@@ -174,9 +182,76 @@ public record PersonalDiarySnapshotPayload(
                             ));
                         }
                         DiaryClaritySnapshot clarity = decodeClarity(buf);
-                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity);
+                        int integrationCount = ByteBufCodecs.VAR_INT.decode(buf);
+                        List<DiaryIntegrationProgressDto> integrationProgress = new ArrayList<>(integrationCount);
+                        for (int i = 0; i < integrationCount; i++) {
+                            integrationProgress.add(decodeIntegrationProgress(buf));
+                        }
+                        return new PersonalDiarySnapshotPayload(entries, drugStats, masteryStats, state, currentDay, cooldown, psycheNodes, clarity, integrationProgress);
                     }
             );
+
+    private static void encodeIntegrationProgress(RegistryFriendlyByteBuf buf, DiaryIntegrationProgressDto p) {
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.drugId());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.traitKey());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.rewardKey());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.roleplayKey());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.materialItemId());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.requirementType());
+        ByteBufCodecs.BOOL.encode(buf, p.knowledgeUnlocked());
+        ByteBufCodecs.BOOL.encode(buf, p.peakMet());
+        ByteBufCodecs.BOOL.encode(buf, p.lowAddictionMet());
+        ByteBufCodecs.BOOL.encode(buf, p.recoveryMet());
+        ByteBufCodecs.BOOL.encode(buf, p.lifetimeDoseMet());
+        ByteBufCodecs.BOOL.encode(buf, p.cleanDoseStreakMet());
+        ByteBufCodecs.BOOL.encode(buf, p.diaryContext());
+        ByteBufCodecs.BOOL.encode(buf, p.recoveryRoom());
+        ByteBufCodecs.BOOL.encode(buf, p.materialInInventory());
+        ByteBufCodecs.BOOL.encode(buf, p.integrationCoreInInventory());
+        ByteBufCodecs.BOOL.encode(buf, p.alreadyIntegrated());
+        ByteBufCodecs.FLOAT.encode(buf, p.peakCurrent());
+        ByteBufCodecs.FLOAT.encode(buf, p.peakRequired());
+        ByteBufCodecs.FLOAT.encode(buf, p.addictionCurrent());
+        ByteBufCodecs.FLOAT.encode(buf, p.addictionMax());
+        ByteBufCodecs.FLOAT.encode(buf, p.recoveryProgress());
+        ByteBufCodecs.FLOAT.encode(buf, p.recoveryRequired());
+        ByteBufCodecs.FLOAT.encode(buf, p.lifetimeDose());
+        ByteBufCodecs.FLOAT.encode(buf, p.lifetimeDoseRequired());
+        ByteBufCodecs.VAR_INT.encode(buf, p.cleanDoseStreak());
+        ByteBufCodecs.VAR_INT.encode(buf, p.cleanDoseStreakRequired());
+    }
+
+    private static DiaryIntegrationProgressDto decodeIntegrationProgress(RegistryFriendlyByteBuf buf) {
+        return new DiaryIntegrationProgressDto(
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf)
+        );
+    }
 
     private static void encodeClarity(RegistryFriendlyByteBuf buf, DiaryClaritySnapshot clarity) {
         DiaryClaritySnapshot safe = clarity == null ? DiaryClaritySnapshot.EMPTY : clarity;

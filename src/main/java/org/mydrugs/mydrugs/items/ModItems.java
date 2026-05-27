@@ -623,6 +623,10 @@ public class ModItems {
             ITEMS.registerSimpleItem("dream_residue");
     public static final DeferredItem<Item> MYCELIAL_INSIGHT =
             ITEMS.registerSimpleItem("mycelial_insight");
+    public static final DeferredItem<Item> PRESSED_CALM =
+            ITEMS.registerSimpleItem("pressed_calm");
+    public static final DeferredItem<Item> FERMENTED_MEMORY =
+            ITEMS.registerSimpleItem("fermented_memory");
 
     // Deterministic distillery byproducts.
     public static final DeferredItem<Item> BITTER_RESIDUE =
@@ -642,7 +646,12 @@ public class ModItems {
     public static final DeferredItem<Item> RESONANCE_LENS =
             ITEMS.registerSimpleItem("resonance_lens");
     public static final DeferredItem<Item> INTEGRATION_CORE =
-            ITEMS.registerSimpleItem("integration_core");
+            ITEMS.registerItem("integration_core",
+                    props -> new PsyTooltipItem(props,
+                            "tooltip.mydrugs.integration_core.1",
+                            "tooltip.mydrugs.integration_core.2",
+                            "tooltip.mydrugs.integration_core.3",
+                            "tooltip.mydrugs.integration_core.4"));
 
     public static final Map<ResourceLocation, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ID = new LinkedHashMap<>();
     public static final Map<Item, DeferredItem<SpaceFoodItem>> SPACE_FOODS_BY_BASE_ITEM = new IdentityHashMap<>();

@@ -3,12 +3,14 @@ package org.mydrugs.mydrugs.core.drug.integration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.attachment.PlayerIntegrationAttachment;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
+import org.mydrugs.mydrugs.items.ModItems;
 
 /**
  * Decides whether a curated drug may be integrated and performs the integration (Phase A).
@@ -26,31 +28,45 @@ public final class IntegrationService {
             boolean lowAddictionMet,
             boolean recoveryMet,
             boolean lifetimeDoseMet,
+            boolean cleanDoseStreakMet,
             boolean alreadyIntegrated
     ) {
     }
 
     public static EligibilityResult evaluate(PlayerAddictionStats stats, DrugId drugId) {
         if (stats == null || drugId == null) {
-            return new EligibilityResult(false, false, false, false, false, false);
+            return new EligibilityResult(false, false, false, false, false, false, false);
+        }
+        IntegrationRequirementProfile profile = IntegrationRequirements.profile(drugId);
+        if (profile == null) {
+            return new EligibilityResult(false, false, false, false, false, false, false);
         }
         DrugAddictionStats d = stats.getDrugStats(drugId);
         if (d == null) {
-            return new EligibilityResult(false, false, false, false, false, false);
+            return new EligibilityResult(false, false, false, false, false, false, false);
         }
-        boolean peakMet = d.peakHistoricalAddiction >= IntegrationConstants.PEAK_THRESHOLD;
-        boolean lowAddictionMet = d.addictionValue <= IntegrationConstants.LOW_THRESHOLD;
-        boolean recoveryMet = d.recoveryProgress >= 1.0F;
-        boolean lifetimeDoseMet = d.lifetimeDoseConsumed >= IntegrationConstants.MIN_LIFETIME_DOSE;
+        boolean peakMet = profile.usesCleanDoseStreak()
+                || d.peakHistoricalAddiction >= profile.requiredPeakExposure();
+        boolean lowAddictionMet = !profile.currentAddictionRelevant()
+                || d.addictionValue <= profile.maxCurrentAddiction();
+        boolean recoveryMet = d.recoveryProgress >= profile.requiredRecoveryProgress();
+        boolean lifetimeDoseMet = d.lifetimeDoseConsumed >= profile.requiredLifetimeDose();
+        boolean cleanDoseStreakMet = !profile.usesCleanDoseStreak()
+                || d.cleanIntegrationDoseStreak >= profile.requiredCleanDoseStreak();
         boolean alreadyIntegrated = d.isIntegrated();
         return new EligibilityResult(
-                peakMet && lowAddictionMet && recoveryMet && lifetimeDoseMet && !alreadyIntegrated,
+                peakMet && lowAddictionMet && recoveryMet && lifetimeDoseMet && cleanDoseStreakMet && !alreadyIntegrated,
                 peakMet,
                 lowAddictionMet,
                 recoveryMet,
                 lifetimeDoseMet,
+                cleanDoseStreakMet,
                 alreadyIntegrated
         );
+    }
+
+    public static IntegrationRequirementProfile profile(DrugId drugId) {
+        return IntegrationRequirements.profile(drugId);
     }
 
     private static boolean isEligible(PlayerAddictionStats stats, DrugId drugId) {
@@ -68,6 +84,32 @@ public final class IntegrationService {
             return false;
         }
         return isEligible(stats, drugId);
+    }
+
+    public static void afterDrugStatsUpdated(ServerPlayer player, DrugId drugId) {
+        if (player == null || drugId != DrugId.COFFEE) {
+            return;
+        }
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        DrugAddictionStats coffee = stats.getDrugStats(DrugId.COFFEE);
+        IntegrationRequirementProfile profile = IntegrationRequirements.profile(DrugId.COFFEE);
+        if (coffee == null || profile == null || coffee.peakHistoricalAddiction < profile.requiredPeakExposure()) {
+            return;
+        }
+        PlayerIntegrationAttachment integration = player.getData(ModAttachments.PLAYER_INTEGRATION.get());
+        if (integration.hasReceivedFirstIntegrationCore()) {
+            return;
+        }
+        integration.markFirstIntegrationCoreAwarded();
+        ItemStack core = new ItemStack(ModItems.INTEGRATION_CORE.get());
+        if (!player.getInventory().add(core)) {
+            player.drop(core, false);
+        }
+        player.displayClientMessage(
+                Component.translatable("message.mydrugs.integration_core.awarded").withStyle(ChatFormatting.AQUA),
+                false
+        );
+        IntegrationDiary.firstIntegrationCore(player);
     }
 
     /** Promotes an eligible drug into the reckoning window (stage 1). No-op once integrated. */

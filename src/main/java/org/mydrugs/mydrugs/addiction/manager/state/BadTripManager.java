@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.addiction.config.DoseConstants;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
 import org.mydrugs.mydrugs.core.drug.dose.DosePath;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
@@ -149,12 +150,24 @@ public final class BadTripManager {
         state.sourceCategory = candidate.category();
         state.violentDemonHook = severityBand(state.severity) >= 2;
         state.lastSyncedBand = severityBand(state.severity);
+        resetCleanIntegrationStreak(player, candidate.drugId());
 
         String key = START_MESSAGES[player.getRandom().nextInt(START_MESSAGES.length)];
         player.displayClientMessage(Component.translatable(key), true);
         player.level().playSound(null, player.blockPosition(), ModSounds.HALLUCINATION_CUE.get(), SoundSource.PLAYERS, 0.75F, 0.75F);
         PsycheMapMilestones.badTrip(player);
         sync(player, state);
+    }
+
+    private static void resetCleanIntegrationStreak(ServerPlayer player, @Nullable DrugId drugId) {
+        if (!IntegrationRequirements.usesCleanDoseStreak(drugId)) {
+            return;
+        }
+        PlayerAddictionStats stats = player.getData(org.mydrugs.mydrugs.addiction.attachment.ModAttachments.PLAYER_ADDICTION.get());
+        DrugAddictionStats drugStats = stats.getDrugStats(drugId);
+        if (drugStats != null) {
+            drugStats.cleanIntegrationDoseStreak = 0;
+        }
     }
 
     private static void stop(ServerPlayer player, BadTripState state) {

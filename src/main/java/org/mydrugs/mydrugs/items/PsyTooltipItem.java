@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import java.util.function.Consumer;
 
 public class PsyTooltipItem extends Item {
-    private final String tooltipKey;
+    private final String[] tooltipKeys;
     private final String useMessageKey;
 
     public PsyTooltipItem(Properties properties, String tooltipKey) {
@@ -22,8 +22,14 @@ public class PsyTooltipItem extends Item {
 
     public PsyTooltipItem(Properties properties, String tooltipKey, String useMessageKey) {
         super(properties);
-        this.tooltipKey = tooltipKey;
+        this.tooltipKeys = tooltipKey == null || tooltipKey.isBlank() ? new String[0] : new String[] { tooltipKey };
         this.useMessageKey = useMessageKey;
+    }
+
+    public PsyTooltipItem(Properties properties, String... tooltipKeys) {
+        super(properties);
+        this.tooltipKeys = tooltipKeys == null ? new String[0] : tooltipKeys;
+        this.useMessageKey = "";
     }
 
     @Override
@@ -35,8 +41,10 @@ public class PsyTooltipItem extends Item {
             TooltipFlag flag
     ) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
-        if (!this.tooltipKey.isBlank()) {
-            tooltipAdder.accept(Component.translatable(this.tooltipKey));
+        for (String tooltipKey : this.tooltipKeys) {
+            if (tooltipKey != null && !tooltipKey.isBlank()) {
+                tooltipAdder.accept(Component.translatable(tooltipKey));
+            }
         }
     }
 

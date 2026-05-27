@@ -9,6 +9,8 @@ import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 
 public final class SleepRecoveryManager {
     private SleepRecoveryManager() {
@@ -43,5 +45,6 @@ public final class SleepRecoveryManager {
 
         StressManager.reduce(stats, AddictionConstants.RELIEF_ON_WAKE_UP);
         ResilienceManager.onSuccessfulSleep(stats);
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEP_REST, 1.0F);
     }
 }

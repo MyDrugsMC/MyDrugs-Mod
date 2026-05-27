@@ -23,6 +23,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     public int integrationStage;
     public float recoveryProgress;
     public long integratedAtGameTime = -1L;
+    public int cleanIntegrationDoseStreak;
 
     public final List<DoseContribution> doseContributions = new ArrayList<>();
     public DoseState lastDoseState = DoseState.NORMAL;
@@ -46,6 +47,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
                 && relapseMemory <= 0.0001F
                 && peakHistoricalAddiction <= 0.0001F
                 && lifetimeDoseConsumed <= 0.0001F
+                && cleanIntegrationDoseStreak <= 0
                 && doseContributions.isEmpty();
     }
 
@@ -61,6 +63,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         output.putInt("integration_stage", integrationStage);
         output.putFloat("recovery_progress", recoveryProgress);
         output.putLong("integrated_at_game_time", integratedAtGameTime);
+        output.putInt("clean_integration_dose_streak", cleanIntegrationDoseStreak);
         output.putString("last_dose_state", lastDoseState.name());
 
         ValueOutput contribs = output.child("dose_contributions");
@@ -86,6 +89,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         integrationStage = input.getIntOr("integration_stage", 0);
         recoveryProgress = input.getFloatOr("recovery_progress", 0.0F);
         integratedAtGameTime = input.getLongOr("integrated_at_game_time", -1L);
+        cleanIntegrationDoseStreak = input.getIntOr("clean_integration_dose_streak", 0);
 
         String stateName = input.getStringOr("last_dose_state", "NORMAL");
         try {
@@ -120,6 +124,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         copy.integrationStage = integrationStage;
         copy.recoveryProgress = recoveryProgress;
         copy.integratedAtGameTime = integratedAtGameTime;
+        copy.cleanIntegrationDoseStreak = cleanIntegrationDoseStreak;
         copy.lastDoseState = lastDoseState;
         for (DoseContribution c : doseContributions) {
             copy.doseContributions.add(new DoseContribution(c.amount, c.ticksRemaining, c.totalDuration));

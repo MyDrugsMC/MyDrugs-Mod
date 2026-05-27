@@ -8,6 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 
 import java.util.Optional;
 
@@ -59,8 +61,11 @@ public final class AdvancementEventHooks {
                 Optional.empty(),
                 Optional.empty()
         );
-        forNearbyPlayers(level, blockEntity.getBlockPos(), player ->
-                ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event));
+        ActionKind action = machineRecoveryAction(machine);
+        forNearbyPlayers(level, blockEntity.getBlockPos(), player -> {
+            ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event);
+            RecoveryProgressManager.onProductiveAction(player, action, 1.0F);
+        });
     }
 
     public static void machineRecipeCompleted(BlockEntity blockEntity, Optional<ResourceLocation> recipe, Optional<ResourceLocation> resultItem) {
@@ -77,8 +82,11 @@ public final class AdvancementEventHooks {
                 Optional.empty(),
                 Optional.empty()
         );
-        forNearbyPlayers(level, blockEntity.getBlockPos(), player ->
-                ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event));
+        ActionKind action = machineRecoveryAction(machine);
+        forNearbyPlayers(level, blockEntity.getBlockPos(), player -> {
+            ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event);
+            RecoveryProgressManager.onProductiveAction(player, action, 1.0F);
+        });
     }
 
     public static void psychotropeEvent(ServerLevel level, BlockPos pos, String event, String drug, int amount, int threshold) {
@@ -108,5 +116,10 @@ public final class AdvancementEventHooks {
                 consumer.accept(player);
             }
         }
+    }
+
+    private static ActionKind machineRecoveryAction(ResourceLocation machine) {
+        String path = machine == null ? "" : machine.getPath();
+        return path.contains("distillery") ? ActionKind.DISTILLERY_CYCLE : ActionKind.MACHINE_OUTPUT;
     }
 }

@@ -32,6 +32,9 @@ public final class ModPsychotropeDistilleryRecipeProvider implements DataProvide
         recipe(futures, cachedOutput, "lucid_extract_from_dried_tobacco",
                 "mydrugs:dried_tobacco_leaf", "mydrugs:activated_coal",
                 "mydrugs:lucid_extract", "mydrugs:spent_filter", 4, 180);
+        recipe(futures, cachedOutput, "bitter_residue_from_tobacco",
+                "mydrugs:dried_tobacco_leaf", "mydrugs:fluid_filter",
+                "mydrugs:bitter_residue", "mydrugs:spent_filter", 3, 200);
 
         recipe(futures, cachedOutput, "calming_resin_from_cannabis",
                 "mydrugs:cannabis_powder", "mydrugs:fluid_filter",
@@ -42,9 +45,19 @@ public final class ModPsychotropeDistilleryRecipeProvider implements DataProvide
         recipe(futures, cachedOutput, "calming_resin_from_hash_brick",
                 "mydrugs:hash_brick", "mydrugs:fluid_filter",
                 "mydrugs:calming_resin", "mydrugs:spent_filter", 2, 320);
+        recipe(futures, cachedOutput, "pressed_calm_from_hash_piece",
+                "mydrugs:hash_piece", "mydrugs:calming_resin",
+                "mydrugs:pressed_calm", "mydrugs:spent_filter", 2, 280);
+        recipe(futures, cachedOutput, "pressed_calm_from_hash_brick",
+                "mydrugs:hash_brick", "mydrugs:calming_resin",
+                "mydrugs:pressed_calm", "mydrugs:spent_filter", 2, 340);
         recipe(futures, cachedOutput, "calming_resin_from_cannabis_resin",
                 "mydrugs:cannabis_resin", "mydrugs:fluid_filter",
                 "mydrugs:calming_resin", "mydrugs:spent_filter", 3, 260);
+
+        recipe(futures, cachedOutput, "fermented_memory_from_defiant_spirit",
+                "mydrugs:defiant_spirit_bottle", "mydrugs:resonance_lens",
+                "mydrugs:fermented_memory", "mydrugs:spent_filter", 2, 300);
 
         recipe(futures, cachedOutput, "redline_fuel_from_cocaine",
                 "mydrugs:cocaine_powder", "mydrugs:activated_coal",

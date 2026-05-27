@@ -26,6 +26,7 @@ import org.mydrugs.mydrugs.client.effects.hud.HudSymptomIcons;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.diary.DiaryEntryDto;
+import org.mydrugs.mydrugs.diary.DiaryIntegrationProgressDto;
 import org.mydrugs.mydrugs.diary.DiaryMasteryStatDto;
 import org.mydrugs.mydrugs.diary.DiaryBlocker;
 import org.mydrugs.mydrugs.diary.DiaryBreadcrumb;
@@ -451,6 +452,9 @@ public final class PersonalDiaryScreen extends Screen {
         pages.add(buildPage1());
         pages.add(buildMindMapPage());
         pages.add(buildPage2());
+        for (DiaryIntegrationProgressDto progress : snapshot.integrationProgress()) {
+            pages.add(buildIntegrationPage(progress));
+        }
 
         // Group entries by day
         Map<Long, List<DiaryEntryDto>> byDay = new LinkedHashMap<>();
@@ -623,6 +627,55 @@ public final class PersonalDiaryScreen extends Screen {
         return new MindMapPageHolder(Component.translatable("screen.mydrugs.diary.mind_map"), page);
     }
 
+    private DiaryPage buildIntegrationPage(DiaryIntegrationProgressDto p) {
+        List<DiaryLine> lines = new ArrayList<>();
+        DrugId id = DrugId.bySerializedNameOrNull(p.drugId());
+        ItemStack icon = id == null ? ItemStack.EMPTY : DrugIconHelper.stackFor(id);
+        lines.add(DiaryLine.withIcon(icon, tr("screen.mydrugs.diary.integration.drug", prettyDrug(p.drugId()))));
+        if (!p.roleplayKey().isBlank()) {
+            addWrapped(lines, tr(p.roleplayKey()), DiaryLine.Kind.HINT, DiaryLine.Visibility.ALWAYS);
+        }
+        lines.add(DiaryLine.spacer());
+        String traitName = p.traitKey().isBlank() ? "-" : tr(p.traitKey());
+        String reward = p.rewardKey().isBlank() ? "-" : tr(p.rewardKey());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.integration.reward")));
+        addWrapped(lines, traitName + ": " + reward, DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS);
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.integration.checklist")));
+        lines.add(DiaryLine.text(statusLine(p.knowledgeUnlocked(), tr("screen.mydrugs.diary.integration.knowledge"))));
+        if ("CLEAN_PSYCHEDELIC_STREAK".equals(p.requirementType())) {
+            lines.add(DiaryLine.text(statusLine(p.cleanDoseStreakMet(),
+                    tr("screen.mydrugs.diary.integration.clean_doses",
+                            p.cleanDoseStreak(), p.cleanDoseStreakRequired()))));
+        } else {
+            lines.add(DiaryLine.text(statusLine(p.peakMet(),
+                    tr("screen.mydrugs.diary.integration.peak",
+                            formatOneDecimal(p.peakCurrent()), formatOneDecimal(p.peakRequired())))));
+            lines.add(DiaryLine.text(statusLine(p.lowAddictionMet(),
+                    tr("screen.mydrugs.diary.integration.current_addiction",
+                            formatOneDecimal(p.addictionCurrent()), formatOneDecimal(p.addictionMax())))));
+            lines.add(DiaryLine.text(statusLine(p.lifetimeDoseMet(),
+                    tr("screen.mydrugs.diary.integration.lifetime",
+                            formatOneDecimal(p.lifetimeDose()), formatOneDecimal(p.lifetimeDoseRequired())))));
+            lines.add(DiaryLine.text(statusLine(p.recoveryMet(),
+                    tr("screen.mydrugs.diary.integration.recovery",
+                            formatPercent(progressRatio(p.recoveryProgress(), p.recoveryRequired()))))));
+        }
+        lines.add(DiaryLine.text(statusLine(p.diaryContext(), tr("screen.mydrugs.diary.integration.diary"))));
+        lines.add(DiaryLine.text(statusLine(p.recoveryRoom(), tr("screen.mydrugs.diary.integration.room"))));
+        lines.add(DiaryLine.withIcon(stackForItemId(p.materialItemId()),
+                statusLine(p.materialInInventory(), tr("screen.mydrugs.diary.integration.material",
+                        itemName(p.materialItemId())))));
+        lines.add(DiaryLine.withIcon(stackForItemId("mydrugs:integration_core"),
+                statusLine(p.integrationCoreInInventory(), tr("screen.mydrugs.diary.integration.core"))));
+        lines.add(DiaryLine.text(statusLine(!p.alreadyIntegrated(), tr("screen.mydrugs.diary.integration.not_integrated"))));
+        if (p.alreadyIntegrated()) {
+            lines.add(DiaryLine.text(statusLine(true, tr("screen.mydrugs.diary.integration.integrated"))));
+        }
+
+        return new BasicPage(Component.translatable("screen.mydrugs.diary.integration.title", prettyDrug(p.drugId())), lines);
+    }
+
     private void addWarning(List<DiaryLine> lines, DiaryWarning warning) {
         addWrappedWithIcon(lines, tr(warning.textKey()), stackForItemId(warning.iconItemId()),
                 DiaryLine.Kind.WARNING, DiaryLine.Visibility.ALWAYS);
@@ -757,6 +810,22 @@ public final class PersonalDiaryScreen extends Screen {
             return ItemStack.EMPTY;
         }
         return new ItemStack(item);
+    }
+
+    private String statusLine(boolean ok, String text) {
+        return (ok ? "[x] " : "[ ] ") + text;
+    }
+
+    private float progressRatio(float value, float required) {
+        if (required <= 0.0F) {
+            return 1.0F;
+        }
+        return Math.min(1.0F, Math.max(0.0F, value / required));
+    }
+
+    private String itemName(String itemId) {
+        ItemStack stack = stackForItemId(itemId);
+        return stack.isEmpty() ? "-" : stack.getHoverName().getString();
     }
 
     // ----------------------- Helpers (formatting) -----------------------

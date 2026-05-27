@@ -17,6 +17,8 @@ import java.util.Set;
  */
 public final class PlayerIntegrationAttachment implements ValueIOSerializable {
     private final EnumSet<IntegratedTrait> unlocked = EnumSet.noneOf(IntegratedTrait.class);
+    private boolean firstIntegrationCoreAwarded;
+    private boolean dreamAligned;
 
     public boolean unlock(IntegratedTrait trait) {
         return trait != null && unlocked.add(trait);
@@ -38,6 +40,22 @@ public final class PlayerIntegrationAttachment implements ValueIOSerializable {
         return Collections.unmodifiableSet(unlocked);
     }
 
+    public boolean hasReceivedFirstIntegrationCore() {
+        return firstIntegrationCoreAwarded;
+    }
+
+    public void markFirstIntegrationCoreAwarded() {
+        this.firstIntegrationCoreAwarded = true;
+    }
+
+    public boolean isDreamAligned() {
+        return dreamAligned;
+    }
+
+    public void markDreamAligned() {
+        this.dreamAligned = true;
+    }
+
     @Override
     public void serialize(ValueOutput output) {
         ValueOutput.ValueOutputList list = output.childrenList("traits");
@@ -47,6 +65,8 @@ public final class PlayerIntegrationAttachment implements ValueIOSerializable {
         if (list.isEmpty()) {
             output.discard("traits");
         }
+        output.putBoolean("first_integration_core_awarded", firstIntegrationCoreAwarded);
+        output.putBoolean("dream_aligned", dreamAligned);
     }
 
     @Override
@@ -58,5 +78,7 @@ public final class PlayerIntegrationAttachment implements ValueIOSerializable {
                 unlocked.add(trait);
             }
         }
+        firstIntegrationCoreAwarded = input.getBooleanOr("first_integration_core_awarded", false);
+        dreamAligned = input.getBooleanOr("dream_aligned", false);
     }
 }

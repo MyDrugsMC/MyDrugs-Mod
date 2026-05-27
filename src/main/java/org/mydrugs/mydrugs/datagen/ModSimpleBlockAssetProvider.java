@@ -52,6 +52,11 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlockWithTexture(futures, cachedOutput, "disc_scriber", MyDrugs.MODID + ":block/disc_scriber");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_jukebox", MyDrugs.MODID + ":block/recovery_jukebox");
 
+        saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
+        saveHorizontalBlockState(futures, cachedOutput, "sieve");
+        saveHorizontalBlockState(futures, cachedOutput, "fluid_filterer");
+        saveHorizontalBlockState(futures, cachedOutput, "stomp_crafter");
+        saveHorizontalBlockState(futures, cachedOutput, "distiller");
         saveHorizontalBlockState(futures, cachedOutput, "advanced_mixing_vat");
         saveHorizontalBlockState(futures, cachedOutput, "aromatic_extractor");
         saveHorizontalBlockState(futures, cachedOutput, "autoclave");
@@ -90,8 +95,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
                 textures("top", "chemical_reactor_top", "front", "chemical_reactor_front", "side", "chemical_reactor_side", "bottom", "chemical_reactor_bottom"));
         saveOrientableBlock(futures, cachedOutput, "chemical_reactor_on", "minecraft:block/orientable",
                 textures("top", "chemical_reactor_top", "front", "chemical_reactor_front_on", "side", "chemical_reactor_side", "bottom", "chemical_reactor_bottom"));
-        saveOrientableBlock(futures, cachedOutput, "distiller", "minecraft:block/orientable_with_bottom",
-                textures("top", "distiller_top", "front", "distiller_front", "side", "distiller_side", "bottom", "distiller_bottom"));
         saveOrientableBlock(futures, cachedOutput, "psychotrope_distillery", "minecraft:block/orientable_with_bottom",
                 textures("top", "psychotrope_distillery_top", "front", "psychotrope_distillery_front", "side", "psychotrope_distillery_side", "bottom", "psychotrope_distillery_bottom"));
         saveOrientableBlock(futures, cachedOutput, "distillate_engine", "minecraft:block/orientable_with_bottom",
@@ -100,11 +103,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
                 textures("all", "psychotrope_resonator", "particle", "psychotrope_resonator"));
         saveOrientableBlock(futures, cachedOutput, "electrolyzer", "minecraft:block/orientable_with_bottom",
                 textures("top", "electrolyzer_top", "front", "electrolyzer_front", "side", "electrolyzer_side", "bottom", "electrolyzer_bottom"));
-        saveOrientableBlock(futures, cachedOutput, "fluid_filterer", "minecraft:block/orientable_with_bottom",
-                textures("top", "fluid_filterer_top", "bottom", "fluid_filterer_bottom", "side", "fluid_filterer_side", "front", "fluid_filterer_front"));
         saveOrientableBlock(futures, cachedOutput, "steam_cracker", "minecraft:block/orientable_with_bottom",
                 textures("top", "steam_cracker_top", "front", "steam_cracker_front", "side", "steam_cracker_side", "bottom", "steam_cracker_bottom"));
-        saveAdvancedFurnaceModel(futures, cachedOutput);
         saveCubeMachineModel(futures, cachedOutput, "biochemical_reactor", "biochemical_reactor_front", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "biochemical_reactor_on", "biochemical_reactor_front_on", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "autoclave", "autoclave_front", "autoclave_side", "autoclave_top", "autoclave_bottom");
@@ -117,7 +117,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveSimpleBlockState(futures, cachedOutput, "psy_anvil");
         saveVomitSplash(futures, cachedOutput);
 
-        saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_furnace");
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_mixing_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "aromatic_extractor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "autoclave");
@@ -128,14 +127,12 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "centrifuge");
         saveBlockItemViaBlockModel(futures, cachedOutput, "chemical_reactor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "clay_vat");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "distiller");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_distillery");
         saveBlockItemViaBlockModel(futures, cachedOutput, "distillate_engine");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_resonator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "drying_rack");
         saveBlockItemViaBlockModel(futures, cachedOutput, "electrolyzer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "evaporation_tray");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "fluid_filterer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "fluid_pump");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gas_pump");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gas_tank");
@@ -155,8 +152,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "disc_scriber");
         saveBlockItemViaBlockModel(futures, cachedOutput, "recovery_jukebox");
         saveBlockItemViaBlockModel(futures, cachedOutput, "salt_block");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "sieve");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_crafter");
         saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_plate_block");
         saveBlockItemViaItemModel(futures, cachedOutput, "stomp_plate");
         saveBlockItemViaBlockModel(futures, cachedOutput, "sulfur_ore");
@@ -323,11 +318,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         root.add("textures", textures);
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
-    }
-
-    private void saveAdvancedFurnaceModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput) {
-        saveOrientableBlock(futures, cachedOutput, "advanced_furnace", "minecraft:block/cube_bottom_top",
-                textures("top", "advanced_furnace_top", "bottom", "advanced_furnace_bottom", "side", "advanced_furnace_side"));
     }
 
     private void saveCubeMachineModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String front, String side, String top, String bottom) {
