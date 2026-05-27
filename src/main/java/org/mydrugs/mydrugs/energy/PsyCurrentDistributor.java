@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.mydrugs.mydrugs.energy.psycurrent.PsyCurrentTargetScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +15,52 @@ public final class PsyCurrentDistributor {
     }
 
     public static List<BlockPos> rebuildTargets(ServerLevel level, BlockPos origin, int radius) {
-        List<BlockPos> targets = new ArrayList<>();
+        return scan(level, origin, radius).valid();
+    }
+
+    /**
+     * Categorise every block entity in range into Psy Current target buckets.
+     * Cached on the engine and re-used by the GUI, area preview, and inspection tool.
+     */
+    public static PsyCurrentTargetScan scan(ServerLevel level, BlockPos origin, int radius) {
+        List<BlockPos> valid = new ArrayList<>();
+        List<BlockPos> full = new ArrayList<>();
+        List<BlockPos> incompatible = new ArrayList<>();
+        int totalReceivable = 0;
         int r = Math.max(0, radius);
-        BlockPos.betweenClosedStream(origin.offset(-r, -r, -r), origin.offset(r, r, r))
-                .filter(pos -> !pos.equals(origin))
-                .forEach(pos -> {
-                    BlockEntity blockEntity = level.getBlockEntity(pos);
-                    if (blockEntity != null && MachineEnergyAttachments.hasEnergyStorage(blockEntity)) {
-                        targets.add(blockEntity.getBlockPos().immutable());
-                    }
-                });
-        return targets;
+
+        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-r, -r, -r), origin.offset(r, r, r))) {
+            if (pos.equals(origin)) {
+                continue;
+            }
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity == null) {
+                continue;
+            }
+            BlockPos immutable = blockEntity.getBlockPos().immutable();
+            if (MachineEnergyAttachments.hasEnergyStorage(blockEntity)) {
+                PsyCurrentStorage storage = MachineEnergyAttachments.get(blockEntity).storage();
+                int receivable = storage.receive(Integer.MAX_VALUE, true);
+                if (receivable > 0) {
+                    valid.add(immutable);
+                    totalReceivable = saturatedAdd(totalReceivable, receivable);
+                } else {
+                    full.add(immutable);
+                }
+            } else if (MachineEnergyAttachments.supportsEnergyUpgrade(blockEntity)
+                    || MachineEnergyAttachments.supportsAutomationUpgrade(blockEntity)) {
+                incompatible.add(immutable);
+            }
+        }
+        return new PsyCurrentTargetScan(valid, full, incompatible, totalReceivable);
+    }
+
+    private static int saturatedAdd(int a, int b) {
+        long sum = (long) a + (long) b;
+        if (sum > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) sum;
     }
 
     public static int totalReceivable(ServerLevel level, List<BlockPos> targets, PsyCurrentStorage internalStorage) {

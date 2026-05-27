@@ -3,9 +3,17 @@ package org.mydrugs.mydrugs.menu.client;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import org.mydrugs.mydrugs.blocks.entity.DistillateEngineBlockEntity;
+import org.mydrugs.mydrugs.energy.PsyCurrentConstants;
+import org.mydrugs.mydrugs.energy.psycurrent.DistillateFuel;
+import org.mydrugs.mydrugs.energy.psycurrent.DistillateFuelRegistry;
+import org.mydrugs.mydrugs.energy.psycurrent.StrainRisk;
+import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.menu.DistillateEngineMenu;
 import org.mydrugs.mydrugs.menu.layout.DistillateEngineLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class DistillateEngineScreen extends AbstractMachineScreen<DistillateEngineMenu> {
@@ -122,6 +130,54 @@ public final class DistillateEngineScreen extends AbstractMachineScreen<Distilla
                 0xFFE8ECEF,
                 false
         );
+
+        // Target summary line.
+        Component targetsLine = Component.translatable(
+                "screen.mydrugs.distillate_engine.targets_summary",
+                this.menu.validTargetCount(),
+                this.menu.fullTargetCount(),
+                this.menu.incompatibleTargetCount()
+        );
+        graphics.drawString(
+                this.font,
+                targetsLine,
+                DistillateEngineLayout.STATUS_BLOCK_X,
+                DistillateEngineLayout.STATUS_TARGETS_Y,
+                0xFFD5C9FF,
+                false
+        );
+
+        // Buffer line.
+        graphics.drawString(
+                this.font,
+                Component.translatable(
+                        "screen.mydrugs.distillate_engine.buffer",
+                        formatNumber(this.menu.currentStored()),
+                        formatNumber(this.menu.currentCapacity())
+                ),
+                DistillateEngineLayout.STATUS_BLOCK_X,
+                DistillateEngineLayout.STATUS_BUFFER_Y,
+                0xFFE8ECEF,
+                false
+        );
+
+        // Strain state line / overload cooldown.
+        StrainRisk risk = StrainRisk.forStrain(this.menu.strain());
+        Component strainLine = this.menu.overloadTicks() > 0
+                ? Component.translatable(
+                        "screen.mydrugs.distillate_engine.overload_cooldown",
+                        formatSeconds(this.menu.overloadTicks()))
+                : Component.translatable("screen.mydrugs.distillate_engine.strain_state", risk.label());
+        int strainColor = this.menu.overloadTicks() > 0 ? 0xFFFF5D4D : risk.colorPrimary();
+        graphics.drawString(
+                this.font,
+                strainLine,
+                DistillateEngineLayout.STATUS_BLOCK_X,
+                DistillateEngineLayout.STATUS_STRAIN_Y,
+                strainColor,
+                false
+        );
+
         graphics.drawString(
                 this.font,
                 Component.translatable("screen.mydrugs.ui.inventory"),
@@ -130,6 +186,15 @@ public final class DistillateEngineScreen extends AbstractMachineScreen<Distilla
                 0xFFE8ECEF,
                 false
         );
+    }
+
+    private static String formatNumber(int value) {
+        return String.format("%,d", value);
+    }
+
+    private static String formatSeconds(int ticks) {
+        int seconds = (ticks + 19) / 20;
+        return seconds + "s";
     }
 
     @Override
@@ -164,14 +229,87 @@ public final class DistillateEngineScreen extends AbstractMachineScreen<Distilla
             );
         } else if (isHoveringBox(DistillateEngineLayout.STRAIN_BAR_X, DistillateEngineLayout.STRAIN_BAR_Y,
                 DistillateEngineLayout.STRAIN_BAR_W, DistillateEngineLayout.STRAIN_BAR_H, mouseX, mouseY)) {
+            StrainRisk risk = StrainRisk.forStrain(this.menu.strain());
             renderTooltipLines(
                     graphics,
                     mouseX,
                     mouseY,
                     Component.translatable("screen.mydrugs.distillate_engine.strain"),
-                    Component.translatable("screen.mydrugs.distillate_engine.strain_value", this.menu.strain())
+                    Component.translatable("screen.mydrugs.distillate_engine.strain_value", this.menu.strain()),
+                    Component.translatable("screen.mydrugs.distillate_engine.strain_state", risk.label())
+            );
+        } else if (isHoveringBox(DistillateEngineLayout.STATUS_BLOCK_X, DistillateEngineLayout.STATUS_TARGETS_Y,
+                DistillateEngineLayout.STATUS_BLOCK_W, DistillateEngineLayout.STATUS_LINE_H, mouseX, mouseY)) {
+            renderTooltipLines(
+                    graphics,
+                    mouseX,
+                    mouseY,
+                    Component.translatable("screen.mydrugs.distillate_engine.targets_tooltip_title"),
+                    Component.translatable(
+                            "screen.mydrugs.distillate_engine.targets_total",
+                            this.menu.totalTargetCount()),
+                    Component.translatable(
+                            "screen.mydrugs.distillate_engine.targets_valid",
+                            this.menu.validTargetCount()),
+                    Component.translatable(
+                            "screen.mydrugs.distillate_engine.targets_full",
+                            this.menu.fullTargetCount()),
+                    Component.translatable(
+                            "screen.mydrugs.distillate_engine.targets_incompatible",
+                            this.menu.incompatibleTargetCount()),
+                    Component.translatable(
+                            "screen.mydrugs.distillate_engine.receivable",
+                            formatNumber(this.menu.totalReceivable()))
             );
         }
+    }
+
+    @Override
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
+        List<Component> tooltip = super.getTooltipFromContainerItem(stack);
+        if (this.hoveredSlot == null || stack.isEmpty()) {
+            return tooltip;
+        }
+        if (this.hoveredSlot.index != DistillateEngineBlockEntity.SLOT_FUEL) {
+            return tooltip;
+        }
+        DistillateFuel fuel = DistillateFuelRegistry.get(stack).orElse(null);
+        if (fuel == null) {
+            return tooltip;
+        }
+
+        boolean hasRegulator = this.menu.slots.get(DistillateEngineBlockEntity.SLOT_REGULATOR).getItem()
+                .is(ModItems.CURRENT_REGULATOR.get());
+        int strainPerSecond = fuel.strainPerSecond();
+        if (strainPerSecond > 0 && hasRegulator) {
+            strainPerSecond = Math.max(0,
+                    strainPerSecond - PsyCurrentConstants.ENGINE_CURRENT_REGULATOR_STRAIN_REDUCTION);
+        }
+        int seconds = Math.max(1, fuel.durationTicks() / 20);
+        int averagePerTick = Math.max(1, fuel.totalCurrent() / fuel.durationTicks());
+        StrainRisk forecast = StrainRisk.forecast(this.menu.strain(), fuel, hasRegulator);
+
+        List<Component> extended = new ArrayList<>(tooltip);
+        extended.add(Component.empty());
+        extended.add(Component.translatable("screen.mydrugs.distillate_engine.fuel_forecast_title")
+                .withStyle(net.minecraft.ChatFormatting.GOLD));
+        extended.add(Component.translatable(
+                "screen.mydrugs.distillate_engine.fuel_output", formatNumber(fuel.totalCurrent())));
+        extended.add(Component.translatable(
+                "screen.mydrugs.distillate_engine.fuel_duration", seconds));
+        extended.add(Component.translatable(
+                "screen.mydrugs.distillate_engine.fuel_average", averagePerTick));
+        extended.add(Component.translatable(
+                "screen.mydrugs.distillate_engine.fuel_strain_start", signed(fuel.strainOnStart())));
+        extended.add(Component.translatable(
+                "screen.mydrugs.distillate_engine.fuel_strain_per_second", signed(strainPerSecond)));
+        extended.add(Component.translatable(
+                "screen.mydrugs.distillate_engine.fuel_risk", forecast.label()));
+        return extended;
+    }
+
+    private static String signed(int value) {
+        return value >= 0 ? "+" + value : Integer.toString(value);
     }
 
     private void drawRadiusButton(GuiGraphics graphics, int x, boolean hovered, String symbol) {

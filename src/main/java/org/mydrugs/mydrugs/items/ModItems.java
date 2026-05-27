@@ -640,7 +640,7 @@ public class ModItems {
     public static final DeferredItem<Item> DISTILLATION_COIL =
             ITEMS.registerSimpleItem("distillation_coil");
     public static final DeferredItem<Item> CURRENT_REGULATOR =
-            ITEMS.registerSimpleItem("current_regulator");
+            ITEMS.registerItem("current_regulator", CurrentRegulatorItem::new);
     public static final DeferredItem<Item> STRAIN_VENT =
             ITEMS.registerSimpleItem("strain_vent");
     public static final DeferredItem<Item> RESONANCE_LENS =

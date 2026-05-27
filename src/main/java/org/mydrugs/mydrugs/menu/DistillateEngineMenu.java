@@ -16,7 +16,7 @@ import org.mydrugs.mydrugs.menu.layout.DistillateEngineLayout;
 import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
 public final class DistillateEngineMenu extends AbstractMachineMenu {
-    public static final int DATA_COUNT = 8;
+    public static final int DATA_COUNT = 12;
     public static final int MACHINE_SLOT_COUNT = DistillateEngineBlockEntity.SLOT_COUNT;
     public static final int RADIUS_DOWN_BUTTON_ID = 0;
     public static final int RADIUS_UP_BUTTON_ID = 1;
@@ -138,6 +138,26 @@ public final class DistillateEngineMenu extends AbstractMachineMenu {
 
     public int powerRadius() {
         return this.data.get(7);
+    }
+
+    public int validTargetCount() {
+        return this.data.get(8);
+    }
+
+    public int fullTargetCount() {
+        return this.data.get(9);
+    }
+
+    public int incompatibleTargetCount() {
+        return this.data.get(10);
+    }
+
+    public int totalReceivable() {
+        return this.data.get(11);
+    }
+
+    public int totalTargetCount() {
+        return validTargetCount() + fullTargetCount() + incompatibleTargetCount();
     }
 
     public int getScaledCurrent(int pixels) {
