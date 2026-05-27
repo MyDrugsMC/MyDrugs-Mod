@@ -5,7 +5,7 @@ public final class DistillateEngineLayout {
     public static final int MACHINE_PANEL_X = 10;
     public static final int MACHINE_PANEL_Y = 15;
     public static final int MACHINE_PANEL_W = 192;
-    public static final int MACHINE_PANEL_H = 86;
+    public static final int MACHINE_PANEL_H = 116;
 
     public static final int FUEL_SLOT_X = 22;
     public static final int FUEL_SLOT_Y = 35;
@@ -39,6 +39,15 @@ public final class DistillateEngineLayout {
     public static final int SHOW_AREA_Y = 62;
     public static final int SHOW_AREA_W = 16;
     public static final int SHOW_AREA_H = 14;
+
+    // Status block — target counts, buffer, strain state, overload cooldown.
+    public static final int STATUS_BLOCK_X = 18;
+    public static final int STATUS_BLOCK_Y = 94;
+    public static final int STATUS_BLOCK_W = 176;
+    public static final int STATUS_LINE_H = 10;
+    public static final int STATUS_TARGETS_Y = STATUS_BLOCK_Y;
+    public static final int STATUS_BUFFER_Y = STATUS_BLOCK_Y + STATUS_LINE_H;
+    public static final int STATUS_STRAIN_Y = STATUS_BLOCK_Y + STATUS_LINE_H * 2;
 
     public static final int PLAYER_INV_X = LayoutMath.centered(GUI_WIDTH, StandardInventoryLayout.PLAYER_INV_PANEL_W);
     public static final int PLAYER_INV_Y = LayoutMath.inventoryY(MACHINE_PANEL_Y, MACHINE_PANEL_H);

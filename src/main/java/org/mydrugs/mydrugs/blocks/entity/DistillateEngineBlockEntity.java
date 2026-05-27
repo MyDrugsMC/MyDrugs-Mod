@@ -29,14 +29,13 @@ import org.mydrugs.mydrugs.energy.PsyCurrentStorage;
 import org.mydrugs.mydrugs.energy.psycurrent.DistillateFuel;
 import org.mydrugs.mydrugs.energy.psycurrent.DistillateFuelRegistry;
 import org.mydrugs.mydrugs.energy.psycurrent.DistillateFuelType;
+import org.mydrugs.mydrugs.energy.psycurrent.PsyCurrentTargetScan;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.menu.DistillateEngineMenu;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity implements MachineStatusProvider {
@@ -56,7 +55,7 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
     private int overloadTicks;
     private int powerRadius = PsyCurrentConstants.ENGINE_MIN_RADIUS;
     private int targetRescanCooldown;
-    private List<BlockPos> cachedCurrentTargets = new ArrayList<>();
+    private PsyCurrentTargetScan cachedScan = PsyCurrentTargetScan.EMPTY;
     private @Nullable DistillateFuel activeFuel;
     private MachineStatus machineStatus = MachineStatus.IDLE;
 
@@ -72,6 +71,10 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
                 case 5 -> strain;
                 case 6 -> overloadTicks;
                 case 7 -> powerRadius;
+                case 8 -> cachedScan.validCount();
+                case 9 -> cachedScan.fullCount();
+                case 10 -> cachedScan.incompatibleCount();
+                case 11 -> cachedScan.totalReceivable();
                 default -> 0;
             };
         }
@@ -107,7 +110,7 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
 
         boolean changed = false;
         if (be.targetRescanCooldown-- <= 0) {
-            be.cachedCurrentTargets = PsyCurrentDistributor.rebuildTargets(serverLevel, pos, be.powerRadius);
+            be.cachedScan = PsyCurrentDistributor.scan(serverLevel, pos, be.powerRadius);
             be.targetRescanCooldown = PsyCurrentConstants.ENGINE_TARGET_RESCAN_INTERVAL_TICKS;
             changed = true;
         }
@@ -117,7 +120,7 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
             if (serverLevel.getGameTime() % PsyCurrentConstants.ENGINE_OVERLOAD_COOL_INTERVAL_TICKS == 0) {
                 be.coolStrain(PsyCurrentConstants.ENGINE_OVERLOAD_COOL_AMOUNT);
             }
-            changed |= PsyCurrentDistributor.distributeStored(serverLevel, be.current, be.cachedCurrentTargets);
+            changed |= PsyCurrentDistributor.distributeStored(serverLevel, be.current, be.cachedScan.valid());
             changed |= be.setMachineStatus(MachineStatus.PAUSED);
             if (changed) {
                 be.sync();
@@ -129,7 +132,7 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
             StartResult result = be.tryStartFuel();
             changed |= result.changed();
             if (!result.didStart()) {
-                changed |= PsyCurrentDistributor.distributeStored(serverLevel, be.current, be.cachedCurrentTargets);
+                changed |= PsyCurrentDistributor.distributeStored(serverLevel, be.current, be.cachedScan.valid());
                 changed |= be.decayIdleStrain(serverLevel);
                 changed |= be.setMachineStatus(result.status());
                 if (changed) {
@@ -141,9 +144,9 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
 
         int elapsed = be.fuelTicksTotal - be.fuelTicksRemaining;
         int generated = be.activeFuel == null ? 0 : be.activeFuel.outputForTick(elapsed);
-        if (generated > 0 && PsyCurrentDistributor.totalReceivable(serverLevel, be.cachedCurrentTargets, be.current) < generated) {
+        if (generated > 0 && PsyCurrentDistributor.totalReceivable(serverLevel, be.cachedScan.valid(), be.current) < generated) {
             changed |= be.setMachineStatus(MachineStatus.OUTPUT_TANK_FULL);
-            changed |= PsyCurrentDistributor.distributeStored(serverLevel, be.current, be.cachedCurrentTargets);
+            changed |= PsyCurrentDistributor.distributeStored(serverLevel, be.current, be.cachedScan.valid());
             if (changed) {
                 be.sync();
             }
@@ -151,7 +154,7 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
         }
 
         if (generated > 0) {
-            PsyCurrentDistributor.distribute(serverLevel, generated, be.current, be.cachedCurrentTargets);
+            PsyCurrentDistributor.distribute(serverLevel, generated, be.current, be.cachedScan.valid());
             AdvancementEventHooks.psychotropeEvent(serverLevel, pos, "psy_current_generated", "", generated, be.current.stored());
         }
 
@@ -183,6 +186,31 @@ public final class DistillateEngineBlockEntity extends BaseContainerBlockEntity 
 
     public PsyCurrentStorage current() {
         return this.current;
+    }
+
+    /** Server-only: most recent target scan used by {@link DistillateEngineBlockEntity#tick}. */
+    public PsyCurrentTargetScan cachedScan() {
+        return this.cachedScan;
+    }
+
+    public int powerRadius() {
+        return this.powerRadius;
+    }
+
+    public int strain() {
+        return this.strain;
+    }
+
+    public int overloadTicks() {
+        return this.overloadTicks;
+    }
+
+    public boolean isRunning() {
+        return this.activeFuel != null && this.fuelTicksRemaining > 0 && this.overloadTicks == 0;
+    }
+
+    public @Nullable DistillateFuel activeFuel() {
+        return this.activeFuel;
     }
 
     public void setPowerRadius(int radius) {
