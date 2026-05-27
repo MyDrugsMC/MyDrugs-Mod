@@ -33,6 +33,14 @@ public final class IntegrationConstants {
     /** Hard cap for Resonator recovery aid so active production still has to finish recovery. */
     public static final float RECOVERY_RESONANCE_PROGRESS_CAP = 0.95F;
 
+    /**
+     * Minimum ticks between two clean-streak psychedelic doses. A second dose closer than this
+     * resets {@link org.mydrugs.mydrugs.addiction.data.DrugAddictionStats#cleanIntegrationDoseStreak}
+     * to 0 — the streak is meant to reward disciplined, spaced use, not rapid intake.
+     * 12000 ticks = 10 real-time minutes at 20 tps.
+     */
+    public static final long MIN_CLEAN_STREAK_SPACING_TICKS = 12_000L;
+
     private IntegrationConstants() {
     }
 }

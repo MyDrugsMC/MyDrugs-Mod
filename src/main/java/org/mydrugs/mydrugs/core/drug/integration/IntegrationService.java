@@ -112,6 +112,29 @@ public final class IntegrationService {
         IntegrationDiary.firstIntegrationCore(player);
     }
 
+    /**
+     * Updates the clean-streak counter for a psychedelic dose, applying the spacing rule:
+     * if the previous use happened less than {@code minSpacingTicks} ago, the streak resets to 0;
+     * otherwise it increments (capped at 999). Pure function on the stats record so unit-testable.
+     *
+     * <p>Bad-trip resets are handled separately in {@code BadTripManager}.
+     */
+    public static void onCleanStreakUse(DrugAddictionStats stats,
+                                        long currentGameTime,
+                                        long prevLastUseTime,
+                                        long minSpacingTicks) {
+        if (stats == null) {
+            return;
+        }
+        boolean rushed = prevLastUseTime > 0L
+                && currentGameTime - prevLastUseTime < minSpacingTicks;
+        if (rushed) {
+            stats.cleanIntegrationDoseStreak = 0;
+        } else {
+            stats.cleanIntegrationDoseStreak = Math.min(999, stats.cleanIntegrationDoseStreak + 1);
+        }
+    }
+
     /** Promotes an eligible drug into the reckoning window (stage 1). No-op once integrated. */
     public static void markEligible(ServerPlayer player, DrugId drugId) {
         if (player == null || drugId == null) {
