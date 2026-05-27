@@ -50,6 +50,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastDiaryHintTick = 0L;
     public long lastHeadphonesHintTick = 0L;
     public long lastDrugHintTick = 0L;
+    public long lastBadTripResilienceGameTime = 0L;
 
     public int overdoseDeathTimer = -1;
     public float overdoseProtectionAccumulator = 0.0F;
@@ -295,6 +296,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         temporaryEffects = other.temporaryEffects.copy();
         lastTherapyDay = other.lastTherapyDay;
         sleepBlockedUntil = other.sleepBlockedUntil;
+        lastBadTripResilienceGameTime = other.lastBadTripResilienceGameTime;
         resilience = other.resilience;
         stressLevel = other.stressLevel;
         overdoseDeathTimer = wasDeath ? -1 : other.overdoseDeathTimer;
@@ -316,6 +318,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         output.putFloat("stress_level", stressLevel);
         output.putLong("last_therapy_day", lastTherapyDay);
         output.putLong("sleep_blocked_until", sleepBlockedUntil);
+        output.putLong("last_bad_trip_resilience_game_time", lastBadTripResilienceGameTime);
         output.putInt("overdose_death_timer", overdoseDeathTimer);
         output.putBoolean("addiction_symptoms_immune", addictionSymptomsImmune);
 
@@ -340,6 +343,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         stressLevel = input.getFloatOr("stress_level", AddictionConstants.STRESS_BASELINE);
         lastTherapyDay = input.getLongOr("last_therapy_day", -1L);
         sleepBlockedUntil = input.getLongOr("sleep_blocked_until", 0L);
+        lastBadTripResilienceGameTime = input.getLongOr("last_bad_trip_resilience_game_time", 0L);
         overdoseDeathTimer = input.getIntOr("overdose_death_timer", -1);
         addictionSymptomsImmune = input.getBooleanOr("addiction_symptoms_immune", false);
         badTrip.reset();

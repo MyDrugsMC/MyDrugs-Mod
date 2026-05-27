@@ -6,6 +6,7 @@ import net.minecraft.sounds.SoundSource;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.Config;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -22,11 +23,18 @@ import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
+import org.mydrugs.mydrugs.diary.DiaryEntry;
+import org.mydrugs.mydrugs.diary.DiaryEntryType;
+import org.mydrugs.mydrugs.diary.PlayerDiaryAttachment;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomTier;
+import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 import org.mydrugs.mydrugs.sounds.ModSounds;
+
+import java.util.Locale;
 
 public final class BadTripManager {
     private static final String[] START_MESSAGES = {
@@ -35,6 +43,8 @@ public final class BadTripManager {
             "message.mydrugs.bad_trip.start.3",
             "message.mydrugs.bad_trip.start.4"
     };
+    private static final int MIN_RESILIENCE_RECOVERY_TICKS = 200;
+    private static final long RESILIENCE_RECOVERY_COOLDOWN_TICKS = 24000L;
 
     private BadTripManager() {
     }
@@ -50,7 +60,7 @@ public final class BadTripManager {
 
         if (candidate == null) {
             if (state.active) {
-                stop(player, state);
+                stop(player, stats, state, recoveryRoom);
             } else {
                 state.reset();
             }
@@ -82,7 +92,7 @@ public final class BadTripManager {
         state.ticksActive++;
 
         if (candidate.stress() < candidate.threshold() - AddictionConstants.BAD_TRIP_STOP_HYSTERESIS) {
-            stop(player, state);
+            stop(player, stats, state, recoveryRoom);
             return;
         }
 
@@ -112,7 +122,7 @@ public final class BadTripManager {
 
     public static void stop(ServerPlayer player, PlayerAddictionStats stats) {
         if (stats.badTrip.active) {
-            stop(player, stats.badTrip);
+            stop(player, stats, stats.badTrip, RecoveryRoomManager.getBestRoom(player).orElse(null));
         } else {
             stats.badTrip.reset();
         }
@@ -163,14 +173,14 @@ public final class BadTripManager {
         if (!IntegrationRequirements.usesCleanDoseStreak(drugId)) {
             return;
         }
-        PlayerAddictionStats stats = player.getData(org.mydrugs.mydrugs.addiction.attachment.ModAttachments.PLAYER_ADDICTION.get());
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         DrugAddictionStats drugStats = stats.getDrugStats(drugId);
         if (drugStats != null) {
             drugStats.cleanIntegrationDoseStreak = 0;
         }
     }
 
-    private static void stop(ServerPlayer player, BadTripState state) {
+    private static void stop(ServerPlayer player, PlayerAddictionStats stats, BadTripState state, @Nullable RecoveryRoomReport recoveryRoom) {
         InnerDemonSpawnManager.markOwnedDemonsForDespawn(player);
         if (state.reachedViolentSeverity) {
             net.minecraft.world.item.ItemStack reward = new net.minecraft.world.item.ItemStack(
@@ -179,9 +189,127 @@ public final class BadTripManager {
                 player.drop(reward, false);
             }
         }
+        recordRecovery(player, stats, state, recoveryRoom);
         state.reset();
         player.displayClientMessage(Component.translatable("message.mydrugs.bad_trip.end"), true);
         sync(player, state);
+    }
+
+    private static void recordRecovery(ServerPlayer player, PlayerAddictionStats stats, BadTripState state,
+                                       @Nullable RecoveryRoomReport recoveryRoom) {
+        if (state.ticksActive < MIN_RESILIENCE_RECOVERY_TICKS && !state.reachedViolentSeverity) {
+            return;
+        }
+
+        long now = player.level().getGameTime();
+        if (now - stats.lastBadTripResilienceGameTime < RESILIENCE_RECOVERY_COOLDOWN_TICKS) {
+            return;
+        }
+
+        float before = stats.resilience;
+        float amount = resilienceAmount(stats, state, recoveryRoom);
+        if (amount <= 0.0F) {
+            return;
+        }
+
+        ResilienceManager.add(stats, amount);
+        float gained = stats.resilience - before;
+        if (gained <= 0.00001F) {
+            return;
+        }
+
+        stats.lastBadTripResilienceGameTime = now;
+        player.displayClientMessage(Component.translatable(resilienceMessageKey(recoveryRoom)), true);
+        appendRecoveryDiaryEntry(player, state, recoveryRoom, gained);
+    }
+
+    private static float resilienceAmount(PlayerAddictionStats stats, BadTripState state,
+                                          @Nullable RecoveryRoomReport recoveryRoom) {
+        boolean validRoom = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom);
+        float base;
+        if (!validRoom) {
+            base = state.reachedViolentSeverity || state.ticksActive >= 1200 ? 0.0005F : 0.0F;
+        } else if (recoveryRoom.tier().ordinal() >= RecoveryRoomTier.SANCTUARY.ordinal()) {
+            base = 0.0045F;
+        } else if (recoveryRoom.tier().ordinal() >= RecoveryRoomTier.SAFE_ROOM.ordinal()) {
+            base = 0.0028F;
+        } else {
+            base = 0.0012F;
+        }
+        if (base <= 0.0F) {
+            return 0.0F;
+        }
+
+        float moduleBonus = 0.0F;
+        if (validRoom) {
+            if (recoveryRoom.hasModule(SanctuaryModule.REST_MODULE)) moduleBonus += 0.0003F;
+            if (recoveryRoom.hasModule(SanctuaryModule.DIARY_DESK)) moduleBonus += 0.0003F;
+            if (recoveryRoom.hasModule(SanctuaryModule.MUSIC_CORNER) && recoveryRoom.hasActiveMusic()) moduleBonus += 0.0005F;
+            if (recoveryRoom.hasModule(SanctuaryModule.TEA_KITCHEN)) moduleBonus += 0.0003F;
+            if (recoveryRoom.hasModule(SanctuaryModule.MEMORY_WALL)) moduleBonus += 0.0002F;
+            if (recoveryRoom.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) moduleBonus += 0.0002F;
+        }
+
+        float diminishing = Math.max(0.25F, 1.0F - stats.resilience / 0.50F);
+        return Math.min(0.006F, (base + Math.min(0.0016F, moduleBonus)) * diminishing);
+    }
+
+    private static String resilienceMessageKey(@Nullable RecoveryRoomReport recoveryRoom) {
+        if (!RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            return "message.mydrugs.bad_trip.resilience.outside";
+        }
+        return recoveryRoom.tier() == RecoveryRoomTier.SANCTUARY
+                ? "message.mydrugs.bad_trip.resilience.sanctuary"
+                : "message.mydrugs.bad_trip.resilience.safe_room";
+    }
+
+    private static void appendRecoveryDiaryEntry(ServerPlayer player, BadTripState state,
+                                                @Nullable RecoveryRoomReport recoveryRoom, float gained) {
+        PlayerDiaryAttachment diary = player.getData(ModAttachments.PLAYER_DIARY.get());
+        long now = player.level().getGameTime();
+        String content = "A bad trip faded after " + triggerName(state) + ". I came back "
+                + recoveryPlace(recoveryRoom) + helperSentence(recoveryRoom)
+                + " Resilience grew by " + Math.max(1, Math.round(gained * 10000.0F)) + " traces.";
+        String dominantDrug = state.sourceDrug == null ? "" : state.sourceDrug.serializedName();
+        diary.append(new DiaryEntry(
+                PlayerDiaryAttachment.currentDay(now),
+                now,
+                DiaryEntryType.AUTO,
+                content,
+                "bad_trip_recovery",
+                dominantDrug
+        ));
+    }
+
+    private static String triggerName(BadTripState state) {
+        if (state.sourceCategory == null) {
+            return "unknown pressure";
+        }
+        return state.sourceCategory.name().toLowerCase(Locale.ROOT).replace('_', ' ');
+    }
+
+    private static String recoveryPlace(@Nullable RecoveryRoomReport recoveryRoom) {
+        if (!RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            return "outside a safe room.";
+        }
+        return recoveryRoom.tier() == RecoveryRoomTier.SANCTUARY
+                ? "inside a sanctuary."
+                : "inside a safe room.";
+    }
+
+    private static String helperSentence(@Nullable RecoveryRoomReport recoveryRoom) {
+        if (!RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            return "";
+        }
+        java.util.ArrayList<String> helpers = new java.util.ArrayList<>();
+        if (recoveryRoom.hasModule(SanctuaryModule.REST_MODULE)) helpers.add("rest");
+        if (recoveryRoom.hasModule(SanctuaryModule.DIARY_DESK)) helpers.add("diary");
+        if (recoveryRoom.hasModule(SanctuaryModule.MUSIC_CORNER) && recoveryRoom.hasActiveMusic()) helpers.add("music");
+        if (recoveryRoom.hasModule(SanctuaryModule.TEA_KITCHEN)) helpers.add("tea");
+        if (helpers.isEmpty()) {
+            return "";
+        }
+        return " The room helped through " + String.join(", ", helpers) + ".";
     }
 
     private static void applySymptoms(ServerPlayer player, BadTripState state, @Nullable RecoveryRoomReport recoveryRoom) {

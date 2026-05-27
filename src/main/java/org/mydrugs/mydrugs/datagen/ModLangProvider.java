@@ -543,6 +543,9 @@ public class ModLangProvider extends LanguageProvider {
         add("message.mydrugs.bad_trip.shelter", "The room steadies you.");
         add("message.mydrugs.bad_trip.shelter_strong", "The walls hold.");
         add("message.mydrugs.bad_trip.shelter.strong", "The walls hold.");
+        add("message.mydrugs.bad_trip.resilience.outside", "Something in you learned how to return.");
+        add("message.mydrugs.bad_trip.resilience.safe_room", "The room held. So did you.");
+        add("message.mydrugs.bad_trip.resilience.sanctuary", "You came back steadier.");
         add("recovery.mydrugs.room.none", "No Room");
         add("recovery.mydrugs.room.fragile", "Fragile Room");
         add("recovery.mydrugs.room.resting", "Resting Room");
