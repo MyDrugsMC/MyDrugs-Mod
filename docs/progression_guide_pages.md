@@ -383,6 +383,66 @@ Use the handbook when a machine status is clear but the system around it is not.
 
 ---
 
+# Machine Handbook - Early Processing
+
+HAND PROCESSING / EARLY PROCESSING
+
+Early machines turn hand work into reliable preparation. They usually handle items, manual action, time, drying, batch containers, or small liquid steps.
+
+Common blockers are simple: wrong form of input, missing player action, missing container, no room for output, or a block that is waiting for time instead of power.
+
+@link Machine Handbook - Crude Machine Era|Next era: crude machines
+
+---
+
+# Machine Handbook - Crude Machine Era
+
+CRUDE MACHINE ERA
+
+Crude machines are the first factory layer. They introduce heat, tanks, side transfer, filters and split outputs, but most of the work is still close to a single block.
+
+Common blockers include no heat, no valid fluid, wrong container, output tank full, missing filter, and side rules that prevent transfer.
+
+@link Machine Handbook - Chemical Machine Era|Next era: chemical machines
+
+---
+
+# Machine Handbook - Chemical Machine Era
+
+CHEMICAL MACHINE ERA
+
+Chemical machines handle mixed item, fluid and gas routes. They are more sensitive to storage type, gas tanks, catalysts and multi-output buffers than the early factory machines.
+
+Common blockers include missing gas, missing catalyst, not enough energy, output gas tank full, no matching recipe, or a full secondary output that blocks the whole batch.
+
+@link Machine Handbook - Psy Current Era|Next era: Psy Current
+
+---
+
+# Machine Handbook - Psy Current Era
+
+PSY CURRENT ERA
+
+Psy Current machines turn psychotrope extracts into abstract machine power. This is factory support, not ritual integration.
+
+Watch for fuel validity, nearby targets, current buffers, strain and overload cooldowns. JEI explains fuel compatibility; the machine screen explains current status.
+
+@link Machine Handbook - Ritual and Integration Era|Next era: ritual and integration
+
+---
+
+# Machine Handbook - Ritual and Integration Era
+
+RITUAL / INTEGRATION ERA
+
+Ritual and integration machines read progression, diary, recovery, multiblock shape and body-state context. Their blockers are often about meaning, not just empty slots.
+
+Common blockers include missing knowledge, invalid structure, missing diary context, missing recovery context, wrong ritual material, dirty tools, or output blocked.
+
+@link Machine Handbook|Back to handbook intro
+
+---
+
 # Support Materials
 
 SUPPORT
