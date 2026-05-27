@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity;
@@ -14,7 +15,12 @@ import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
 import org.mydrugs.mydrugs.menu.PsychotropeResonatorMenu;
 import org.mydrugs.mydrugs.menu.layout.PsychotropeResonatorLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class PsychotropeResonatorScreen extends AbstractMachineScreen<PsychotropeResonatorMenu> {
+    private int checklistScroll;
+
     public PsychotropeResonatorScreen(PsychotropeResonatorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, PsychotropeResonatorLayout.GUI_WIDTH, PsychotropeResonatorLayout.GUI_HEIGHT);
     }
@@ -110,7 +116,7 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                 this.font,
                 activeDrugLabel(),
                 PsychotropeResonatorLayout.STATUS_X,
-                PsychotropeResonatorLayout.STATUS_Y + 31,
+                PsychotropeResonatorLayout.STATUS_Y + PsychotropeResonatorLayout.STATUS_DRUG_Y_OFFSET,
                 0xFFE8ECEF,
                 false
         );
@@ -122,7 +128,7 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                         : Component.translatable("screen.mydrugs.psychotrope_resonator.dimension_aligned"))
                         : Component.translatable("screen.mydrugs.psychotrope_resonator.dimension_locked"),
                 PsychotropeResonatorLayout.STATUS_X,
-                PsychotropeResonatorLayout.STATUS_Y + 43,
+                PsychotropeResonatorLayout.STATUS_Y + PsychotropeResonatorLayout.STATUS_DIMENSION_Y_OFFSET,
                 this.menu.canOpenDimension() ? 0xFFB58CFF : 0xFF9FA6AE,
                 false
         );
@@ -151,6 +157,25 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
         }
     }
 
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (isOverFailurePanel(mouseX, mouseY)) {
+            int delta = (int) -Math.signum(scrollY); // wheel up (scrollY > 0) -> scroll up (offset--)
+            if (delta != 0) {
+                checklistScroll = Mth.clamp(checklistScroll + delta, 0, maxChecklistScroll());
+            }
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    private boolean isOverFailurePanel(double mouseX, double mouseY) {
+        int x = this.leftPos + PsychotropeResonatorLayout.FAILURE_PANEL_X;
+        int y = this.topPos + PsychotropeResonatorLayout.FAILURE_PANEL_Y;
+        return mouseX >= x && mouseX < x + PsychotropeResonatorLayout.FAILURE_PANEL_W
+                && mouseY >= y && mouseY < y + PsychotropeResonatorLayout.FAILURE_PANEL_H;
+    }
+
     private void addRitualButton(int x, int id, String labelKey, String tooltipKey) {
         this.addRenderableWidget(Button.builder(
                         Component.translatable(labelKey),
@@ -175,39 +200,68 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
 
     private void renderFailurePanel(GuiGraphics graphics) {
         int x = PsychotropeResonatorLayout.FAILURE_PANEL_X + 8;
-        int y = PsychotropeResonatorLayout.FAILURE_PANEL_Y + 7;
-        int rightEdge = PsychotropeResonatorLayout.FAILURE_PANEL_X + PsychotropeResonatorLayout.FAILURE_PANEL_W - 8;
-        int bottomEdge = PsychotropeResonatorLayout.FAILURE_PANEL_Y + PsychotropeResonatorLayout.FAILURE_PANEL_H - 4;
+        int headerY = PsychotropeResonatorLayout.FAILURE_PANEL_Y + 7;
+
         graphics.drawString(this.font,
                 Component.translatable("screen.mydrugs.psychotrope_resonator.checklist"),
-                x, y, 0xFFCDBDFF, false);
-        y += 11;
+                x, headerY, 0xFFCDBDFF, false);
 
+        List<ChecklistLine> lines = buildChecklistLines();
+        int lineHeight = PsychotropeResonatorLayout.FAILURE_PANEL_LINE_HEIGHT;
+        int bodyTop = headerY + PsychotropeResonatorLayout.FAILURE_PANEL_HEADER_H;
+        int bodyBottom = PsychotropeResonatorLayout.FAILURE_PANEL_Y
+                + PsychotropeResonatorLayout.FAILURE_PANEL_H
+                - PsychotropeResonatorLayout.FAILURE_PANEL_BOTTOM_PAD;
+        int visibleLines = Math.max(0, (bodyBottom - bodyTop) / lineHeight);
+        int maxScroll = Math.max(0, lines.size() - visibleLines);
+        checklistScroll = Mth.clamp(checklistScroll, 0, maxScroll);
+
+        // Clip lines to the body so partially-visible text gets cut at the panel edges.
+        graphics.enableScissor(
+                this.leftPos + PsychotropeResonatorLayout.FAILURE_PANEL_X,
+                this.topPos + bodyTop,
+                this.leftPos + PsychotropeResonatorLayout.FAILURE_PANEL_X + PsychotropeResonatorLayout.FAILURE_PANEL_W,
+                this.topPos + bodyBottom
+        );
+        int drawY = bodyTop;
+        for (int i = checklistScroll; i < lines.size(); i++) {
+            if (drawY >= bodyBottom) break;
+            ChecklistLine line = lines.get(i);
+            graphics.drawString(this.font, line.text(), x, drawY, line.color(), false);
+            drawY += lineHeight;
+        }
+        graphics.disableScissor();
+
+        // Scroll indicators in the panel's right gutter.
+        int gutterX = PsychotropeResonatorLayout.FAILURE_PANEL_X + PsychotropeResonatorLayout.FAILURE_PANEL_W - 9;
+        if (checklistScroll > 0) {
+            graphics.drawString(this.font, "▲", gutterX, bodyTop, 0xFFCDBDFF, false);
+        }
+        if (checklistScroll < maxScroll) {
+            graphics.drawString(this.font, "▼", gutterX, bodyBottom - 7, 0xFFCDBDFF, false);
+        }
+    }
+
+    private List<ChecklistLine> buildChecklistLines() {
+        List<ChecklistLine> lines = new ArrayList<>();
         DrugId candidate = this.menu.candidateDrug();
         int mask = this.menu.checklistMask();
         boolean hasMissing = hasMissingChecks(mask);
 
         PsychotropeResonatorFailureReason reason = this.menu.failureReason();
         if (reason != PsychotropeResonatorFailureReason.NONE) {
-            // Real prior failure: show its specific reason (e.g. ADDICTION_TOO_HIGH).
-            graphics.drawString(this.font,
-                    Component.translatable(reason.translationKey()),
-                    x, y, 0xFFFF9F9F, false);
-            y += 11;
+            lines.add(new ChecklistLine(Component.translatable(reason.translationKey()), 0xFFFF9F9F));
         } else if (!hasMissing) {
-            // No prior failure and no missing prerequisites: everything is ready.
-            graphics.drawString(this.font,
+            lines.add(new ChecklistLine(
                     Component.translatable("screen.mydrugs.psychotrope_resonator.ready"),
-                    x, y, 0xFF9FE8AE, false);
-            y += 11;
+                    0xFF9FE8AE));
         }
 
         if (candidate != null) {
-            graphics.drawString(this.font,
+            lines.add(new ChecklistLine(
                     Component.translatable("screen.mydrugs.psychotrope_resonator.candidate",
                             Component.translatable("drug.mydrugs." + candidate.serializedName())),
-                    x, y, 0xFFE8ECEF, false);
-            y += 11;
+                    0xFFE8ECEF));
         }
 
         for (int bit : new int[] {
@@ -225,22 +279,19 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
             if ((mask & bit) != 0) {
                 continue;
             }
-            if (y + 9 > bottomEdge) {
-                // Out of room. Last line shows an ellipsis so the player knows more is hidden.
-                graphics.drawString(this.font,
-                        Component.translatable("screen.mydrugs.psychotrope_resonator.missing.more"),
-                        x, y, 0xFFFFD27D, false);
-                break;
-            }
-            Component line = missingLineFor(bit, candidate);
-            graphics.drawString(this.font, line, x, y, 0xFFFFD27D, false);
-            // Trim hint: shrink if drawn line would overflow the panel width.
-            if (this.font.width(line) > rightEdge - x) {
-                // Width-bounded draw fallback isn't needed for Minecraft's font; line just wraps via clipping.
-                // Keep this branch so we can swap in a future text-wrapping helper without restructuring.
-            }
-            y += 11;
+            lines.add(new ChecklistLine(missingLineFor(bit, candidate), 0xFFFFD27D));
         }
+        return lines;
+    }
+
+    private int maxChecklistScroll() {
+        int lineHeight = PsychotropeResonatorLayout.FAILURE_PANEL_LINE_HEIGHT;
+        int bodyTop = PsychotropeResonatorLayout.FAILURE_PANEL_Y + 7 + PsychotropeResonatorLayout.FAILURE_PANEL_HEADER_H;
+        int bodyBottom = PsychotropeResonatorLayout.FAILURE_PANEL_Y
+                + PsychotropeResonatorLayout.FAILURE_PANEL_H
+                - PsychotropeResonatorLayout.FAILURE_PANEL_BOTTOM_PAD;
+        int visibleLines = Math.max(0, (bodyBottom - bodyTop) / lineHeight);
+        return Math.max(0, buildChecklistLines().size() - visibleLines);
     }
 
     private static boolean hasMissingChecks(int mask) {
@@ -277,5 +328,8 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
             case COOLDOWN, AWAITING_CONDITIONS -> 0xFFFFD27D;
             default -> 0xFFE8ECEF;
         };
+    }
+
+    private record ChecklistLine(Component text, int color) {
     }
 }
