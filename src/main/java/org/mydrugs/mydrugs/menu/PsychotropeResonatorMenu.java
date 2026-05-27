@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity;
-import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.FailureReason;
+import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorFailureReason;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.ResonatorState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.menu.layout.PsychotropeResonatorLayout;
@@ -131,8 +131,8 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
         return DrugId.byNetworkId(this.data.get(6));
     }
 
-    public FailureReason failureReason() {
-        return FailureReason.byNetworkId(this.data.get(7));
+    public PsychotropeResonatorFailureReason failureReason() {
+        return PsychotropeResonatorFailureReason.byNetworkId(this.data.get(7));
     }
 
     public @Nullable DrugId candidateDrug() {

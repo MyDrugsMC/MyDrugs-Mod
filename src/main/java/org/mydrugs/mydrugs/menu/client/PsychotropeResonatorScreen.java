@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity;
-import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.FailureReason;
+import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorFailureReason;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.ResonatorState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.menu.PsychotropeResonatorMenu;
@@ -179,11 +179,11 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                 x, y, 0xFFCDBDFF, false);
         y += 11;
 
-        FailureReason reason = this.menu.failureReason();
-        Component failure = reason == FailureReason.NONE
+        PsychotropeResonatorFailureReason reason = this.menu.failureReason();
+        Component failure = reason == PsychotropeResonatorFailureReason.NONE
                 ? Component.translatable("screen.mydrugs.psychotrope_resonator.failure.none")
                 : Component.translatable(reason.translationKey());
-        graphics.drawString(this.font, failure, x, y, reason == FailureReason.NONE ? 0xFF9FA6AE : 0xFFFF9F9F, false);
+        graphics.drawString(this.font, failure, x, y, reason == PsychotropeResonatorFailureReason.NONE ? 0xFF9FA6AE : 0xFFFF9F9F, false);
         y += 11;
 
         DrugId candidate = this.menu.candidateDrug();
