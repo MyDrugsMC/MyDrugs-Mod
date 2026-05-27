@@ -105,6 +105,7 @@ public class MyDrugs {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            WorldgenConfig.logPsychedelicBiomeConfigWarnings(LOGGER);
             if (WorldgenConfig.terraBlenderOverworldEnabled()) {
                 Regions.register(new ModRegions(
                         ResourceLocation.fromNamespaceAndPath(MODID, "overworld"),
