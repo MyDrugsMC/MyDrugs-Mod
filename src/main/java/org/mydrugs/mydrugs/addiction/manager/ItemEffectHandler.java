@@ -17,6 +17,7 @@ import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 
 public final class ItemEffectHandler {
     private static final long HEADPHONES_REFRESH_TICKS = 5L;
@@ -27,11 +28,16 @@ public final class ItemEffectHandler {
     public static void applyDiary(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         long now = player.level().getGameTime();
+        RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+        boolean diaryDesk = hasModule(room, SanctuaryModule.DIARY_DESK);
 
-        stats.temporaryEffects.diaryCalmUntil = now + (20L * 90L);
-        stats.temporaryEffects.thoughtSuppressionUntil = now + (20L * 60L);
+        stats.temporaryEffects.diaryCalmUntil = now + (20L * (diaryDesk ? 120L : 90L));
+        stats.temporaryEffects.thoughtSuppressionUntil = now + (20L * (diaryDesk ? 90L : 60L));
         StressManager.reduce(stats, AddictionConstants.RELIEF_DIARY);
-        RecoveryProgressManager.onProductiveAction(player, ActionKind.DIARY_WRITTEN, 1.0F);
+        if (diaryDesk) {
+            StressManager.reduce(stats, 0.015F);
+        }
+        RecoveryProgressManager.onProductiveAction(player, ActionKind.DIARY_WRITTEN, diaryDesk ? 1.15F : 1.0F);
         syncClientHud(player);
     }
 
@@ -202,5 +208,9 @@ public final class ItemEffectHandler {
             case SAFE_ROOM -> 1.45F;
             case SANCTUARY -> 1.85F;
         };
+    }
+
+    private static boolean hasModule(RecoveryRoomReport room, SanctuaryModule module) {
+        return RecoveryRoomManager.isValidRecoveryRoom(room) && room.hasModule(module);
     }
 }
