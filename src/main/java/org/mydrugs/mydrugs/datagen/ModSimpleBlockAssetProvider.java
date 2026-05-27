@@ -61,7 +61,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "aromatic_extractor");
         saveHorizontalBlockState(futures, cachedOutput, "autoclave");
         saveHorizontalBlockState(futures, cachedOutput, "bacterial_incubator");
-        saveHorizontalBlockState(futures, cachedOutput, "btx_fractionation_tower");
+        saveDoubleHalfHorizontalBlockState(futures, cachedOutput, "btx_fractionation_tower");
         saveHorizontalBlockState(futures, cachedOutput, "catalytic_reformer");
         saveHorizontalBlockState(futures, cachedOutput, "centrifuge");
         saveHorizontalBlockState(futures, cachedOutput, "psychotrope_distillery");
@@ -85,8 +85,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
                 textures("front", "advanced_mixing_vat_front", "side", "advanced_mixing_vat_side", "top", "advanced_mixing_vat_top", "bottom", "advanced_mixing_vat_bottom", "particle", "advanced_mixing_vat_top"));
         saveOrientableBlock(futures, cachedOutput, "aromatic_extractor", "minecraft:block/orientable_with_bottom",
                 textures("top", "aromatic_extractor_top", "front", "aromatic_extractor_front", "side", "aromatic_extractor_side", "bottom", "aromatic_extractor_bottom"));
-        saveOrientableBlock(futures, cachedOutput, "btx_fractionation_tower", "minecraft:block/orientable_with_bottom",
-                textures("top", "btx_fractionation_tower_top", "front", "btx_fractionation_tower_front", "side", "btx_fractionation_tower_side", "bottom", "btx_fractionation_tower_bottom"));
         saveOrientableBlock(futures, cachedOutput, "catalytic_reformer", "minecraft:block/orientable_with_bottom",
                 textures("top", "catalytic_reformer_top", "front", "catalytic_reformer_front", "side", "catalytic_reformer_side", "bottom", "catalytic_reformer_bottom"));
         saveOrientableBlock(futures, cachedOutput, "centrifuge", "minecraft:block/orientable_with_bottom",
@@ -122,7 +120,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "autoclave");
         saveBlockItemViaBlockModel(futures, cachedOutput, "bacterial_incubator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "biochemical_reactor");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "btx_fractionation_tower");
         saveBlockItemViaBlockModel(futures, cachedOutput, "catalytic_reformer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "centrifuge");
         saveBlockItemViaBlockModel(futures, cachedOutput, "chemical_reactor");
@@ -261,6 +258,31 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         variants.add("facing=south", modelVariant(name, 180));
         variants.add("facing=west", modelVariant(name, 270));
         variants.add("facing=east", modelVariant(name, 90));
+        root.add("variants", variants);
+        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+    }
+
+    /**
+     * Blockstate for a horizontally-facing 2-block-tall block (DoubleBlockHalf). The single
+     * block model (named {@code name}) carries the FULL 2-block-tall geometry (elements extending
+     * up to Y=32). The lower half references that model; the upper half renders nothing via the
+     * shared {@code mydrugs:block/empty} model, so the tall geometry is drawn once instead of
+     * being stacked twice.
+     */
+    private void saveDoubleHalfHorizontalBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
+        JsonObject root = new JsonObject();
+        JsonObject variants = new JsonObject();
+        for (int yRot : new int[] {0, 90, 180, 270}) {
+            String facing = switch (yRot) {
+                case 90 -> "east";
+                case 180 -> "south";
+                case 270 -> "west";
+                default -> "north";
+            };
+            variants.add("facing=" + facing + ",half=lower", modelVariant(name, yRot));
+            variants.add("facing=" + facing + ",half=upper", modelVariant("empty", yRot));
+        }
         root.add("variants", variants);
         futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
     }

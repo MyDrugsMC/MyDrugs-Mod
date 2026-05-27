@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=east,half=lower": {
+      "model": "mydrugs:block/btx_fractionation_tower",
+      "y": 90
+    },
+    "facing=east,half=upper": {
+      "model": "mydrugs:block/empty",
+      "y": 90
+    },
+    "facing=north,half=lower": {
+      "model": "mydrugs:block/btx_fractionation_tower",
+      "y": 0
+    },
+    "facing=north,half=upper": {
+      "model": "mydrugs:block/empty",
+      "y": 0
+    },
+    "facing=south,half=lower": {
+      "model": "mydrugs:block/btx_fractionation_tower",
+      "y": 180
+    },
+    "facing=south,half=upper": {
+      "model": "mydrugs:block/empty",
+      "y": 180
+    },
+    "facing=west,half=lower": {
+      "model": "mydrugs:block/btx_fractionation_tower",
+      "y": 270
+    },
+    "facing=west,half=upper": {
+      "model": "mydrugs:block/empty",
+      "y": 270
+    }
+  }
+}
