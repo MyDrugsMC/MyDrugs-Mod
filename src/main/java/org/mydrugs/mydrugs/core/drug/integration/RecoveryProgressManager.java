@@ -173,7 +173,7 @@ public final class RecoveryProgressManager {
             onProductiveAction(player, ActionKind.MUSIC_SUPPORT, 0.35F);
         }
         if (RecoveryRoomManager.isValidRecoveryRoom(room)) {
-            onProductiveAction(player, ActionKind.RECOVERY_ROOM_SUPPORT, roomSupportWeight(room));
+            onProductiveAction(player, ActionKind.RECOVERY_ROOM_SUPPORT, roomSupportWeight(player, room));
             if (room.hasModule(SanctuaryModule.MUSIC_CORNER) && room.hasActiveMusic()) {
                 onProductiveAction(player, ActionKind.MUSIC_SUPPORT, 0.20F);
             }
@@ -211,7 +211,7 @@ public final class RecoveryProgressManager {
         }
     }
 
-    private static float roomSupportWeight(RecoveryRoomReport room) {
+    private static float roomSupportWeight(ServerPlayer player, RecoveryRoomReport room) {
         if (room == null) {
             return 0.0F;
         }
@@ -228,7 +228,15 @@ public final class RecoveryProgressManager {
         if (room.hasModule(SanctuaryModule.TEA_KITCHEN)) {
             weight += 0.03F;
         }
+        if (room.hasModule(SanctuaryModule.MEMORY_WALL) && hasEarnedMemory(player)) {
+            weight += 0.05F;
+        }
         return Math.min(0.75F, weight);
+    }
+
+    private static boolean hasEarnedMemory(ServerPlayer player) {
+        return !player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get()).getNodes().isEmpty()
+                || !player.getData(ModAttachments.PLAYER_INTEGRATION.get()).isEmpty();
     }
 
     public static float recoveryResonanceMultiplier(@Nullable RecoveryRoomReport room) {
