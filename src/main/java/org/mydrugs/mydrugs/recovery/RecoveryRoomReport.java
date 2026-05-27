@@ -2,7 +2,10 @@ package org.mydrugs.mydrugs.recovery;
 
 import net.minecraft.core.BlockPos;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public record RecoveryRoomReport(
         BlockPos anchorPos,
@@ -25,7 +28,10 @@ public record RecoveryRoomReport(
         int plantCount,
         int bookshelfCount,
         int musicCount,
+        int activeMusicCount,
         int dangerPenalty,
+        Set<SanctuaryModule> sanctuaryModules,
+        List<String> sanctuarySuggestionKeys,
         List<String> goodKeys,
         List<String> improvementKeys
 ) {
@@ -34,6 +40,10 @@ public record RecoveryRoomReport(
         min = min.immutable();
         max = max.immutable();
         interior = List.copyOf(interior);
+        sanctuaryModules = sanctuaryModules == null || sanctuaryModules.isEmpty()
+                ? Set.of()
+                : EnumSet.copyOf(sanctuaryModules);
+        sanctuarySuggestionKeys = sanctuarySuggestionKeys == null ? List.of() : List.copyOf(sanctuarySuggestionKeys);
         goodKeys = List.copyOf(goodKeys);
         improvementKeys = List.copyOf(improvementKeys);
         score = Math.max(0, Math.min(100, score));
@@ -75,6 +85,27 @@ public record RecoveryRoomReport(
         return musicCount > 0;
     }
 
+    public boolean hasActiveMusic() {
+        return activeMusicCount > 0;
+    }
+
+    public boolean hasModule(SanctuaryModule module) {
+        return sanctuaryModules.contains(module);
+    }
+
+    public List<String> activeSanctuaryModuleKeys() {
+        if (sanctuaryModules.isEmpty()) {
+            return List.of();
+        }
+        List<String> keys = new ArrayList<>();
+        for (SanctuaryModule module : SanctuaryModule.values()) {
+            if (sanctuaryModules.contains(module)) {
+                keys.add(module.translationKey());
+            }
+        }
+        return keys;
+    }
+
     public boolean contains(BlockPos pos) {
         return interior.contains(pos.immutable());
     }
@@ -104,7 +135,10 @@ public record RecoveryRoomReport(
                 plantCount,
                 bookshelfCount,
                 musicCount,
+                activeMusicCount,
                 dangerPenalty,
+                sanctuaryModules,
+                sanctuarySuggestionKeys,
                 goodKeys,
                 improvementKeys
         );
