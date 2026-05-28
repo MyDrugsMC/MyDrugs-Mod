@@ -1409,6 +1409,8 @@ These adaptations let your body regulate intensity, survive withdrawal, enter th
 
 Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience.
 
+A mutation makes you harder to break, but infection or time can take it from you. Integration changes what breaks you, and once kept it stays.
+
 > [GOAL] Use body adaptation to support recovery and safe exploration, not to avoid healing forever.
 ---
 # Somatic Machines

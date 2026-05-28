@@ -936,6 +936,7 @@
       { "type": "text", "text": "The current route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time." },
       { "type": "text", "text": "These adaptations let your body regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover." },
       { "type": "text", "text": "Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience." },
+      { "type": "text", "text": "A mutation makes you harder to break, but infection or time can take it from you. Integration changes what breaks you, and once kept it stays." },
       { "type": "goal", "text": "Use body adaptation to support recovery and safe exploration, not to avoid healing forever." }
     ]
   },
