@@ -1275,7 +1275,7 @@ Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordi
 
 Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes.
 
-Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the future Inner Dimension.
+Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the Inner Dimension.
 
 > [GOAL] Hunt down psychedelic terrain, unlock Mycelial Knowledge, and prepare for Resonator work.
 ---
@@ -1347,11 +1347,7 @@ ENDGAME — DREAM AND INTEGRATION
 
 Build lens → dream residue → resonator. This route has been reframed from Psychotrope Generator into Psychotrope Resonator.
 
-The Resonator should not be a hungry machine. It should help stabilize dream states, convert insight into integration, open the Inner Dimension, and craft endgame recovery tools.
-
-Future states should be deterministic:
-
-Dormant → Stable → Lucid → Dream → Integration → Overstrained.
+The Resonator is not a hungry machine. It stabilizes dream states, converts insight into integration, opens the Inner Dimension, and crafts endgame recovery tools.
 
 > [WARN] If the Resonator becomes a constant chore, it is failing its purpose. It should help you integrate, not demand attention forever.
 
@@ -1409,7 +1405,7 @@ ENDGAME BODY
 
 The current route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
 
-The future direction is Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover.
+These adaptations let your body regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover.
 
 Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience.
 
@@ -1447,8 +1443,6 @@ Ritualist — Ritual Neural Sync, Stability, Visual Accuracy.
 Safe Chemist — Infection Resistance, Health Stability, Stability.
 Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance.
 
-Future review should rename and rebalance these around resilience, grounding, safe trips, withdrawal recovery, and dimension traversal.
-
 > [TIP] A balanced pattern supports freedom better than one enormous stat.
 ---
 # The Diary
@@ -1477,7 +1471,7 @@ Inside the Personal Diary is the Psyche Map — a zoomable map of everything you
 
 It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first adaptation, first bad trip, first recovery room, first integrated fragment, first Resonator use, and more. Locked nodes stay hidden until you reach them.
 
-The future map should follow the real story:
+The map plots that story:
 
 Discovery → control → temptation → recovery → psychedelic opening → integration → Inner Dimension → boss → freedom.
 
@@ -1497,7 +1491,7 @@ Recovery is not an endgame chore. Coffee, tobacco, cannabis, alcohol and stimula
 
 Headphones steady you while carried. Tea and calming mixture cut stress and withdrawal. Sleeping aid restores blocked sleep. The antidote pulls you back from an overdose.
 
-Future recovery should grow into several paths: diary work, safe rooms, sleep, diet, exercise, therapy-like actions, psychedelics with integration, and endgame ketamine-like integration.
+Recovery takes several paths: diary work, safe rooms, sleep, social relief, therapist visits, psychedelics with integration, and endgame integration.
 
 > [GOAL] Carry at least one recovery option before any repeated use.
 

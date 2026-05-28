@@ -836,7 +836,7 @@
       { "type": "text", "text": "You can find magic mushrooms early — but Mycelial Knowledge only opens after Overclocked." },
       { "type": "text", "text": "Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. The Vanilla Biome Finder intentionally tracks only vanilla biomes; it will not point at the valley." },
       { "type": "text", "text": "Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes." },
-      { "type": "text", "text": "Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the future Inner Dimension." },
+      { "type": "text", "text": "Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the Inner Dimension." },
       { "type": "goal", "text": "Hunt down psychedelic terrain, unlock Mycelial Knowledge, and prepare for Resonator work." }
     ]
   },
@@ -887,9 +887,7 @@
       { "type": "item", "text": "mydrugs:energy_upgrade" },
       { "type": "item", "text": "mydrugs:automation_upgrade" },
       { "type": "text", "text": "Build lens → dream residue → resonator. This route has been reframed from Psychotrope Generator into Psychotrope Resonator." },
-      { "type": "text", "text": "The Resonator should not be a hungry machine. It should help stabilize dream states, convert insight into integration, open the Inner Dimension, and craft endgame recovery tools." },
-      { "type": "text", "text": "Future states should be deterministic:" },
-      { "type": "text", "text": "Dormant → Stable → Lucid → Dream → Integration → Overstrained." },
+      { "type": "text", "text": "The Resonator is not a hungry machine. It stabilizes dream states, converts insight into integration, opens the Inner Dimension, and crafts endgame recovery tools." },
       { "type": "warning", "text": "If the Resonator becomes a constant chore, it is failing its purpose. It should help you integrate, not demand attention forever." },
       { "type": "goal", "text": "Build the Resonator after LSD and use it to turn experiences into something lasting." }
     ]
@@ -936,7 +934,7 @@
       { "type": "item", "text": "mydrugs:mutagenic_blood_vial" },
       { "type": "item", "text": "mydrugs:syringe" },
       { "type": "text", "text": "The current route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time." },
-      { "type": "text", "text": "The future direction is Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover." },
+      { "type": "text", "text": "These adaptations let your body regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover." },
       { "type": "text", "text": "Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience." },
       { "type": "goal", "text": "Use body adaptation to support recovery and safe exploration, not to avoid healing forever." }
     ]
@@ -961,7 +959,6 @@
       { "type": "text", "text": "ENDGAME — reference" },
       { "type": "text", "text": "A few patterns that hold together well:" },
       { "type": "text", "text": "Clear Mind — Mental Strength, Visual Accuracy, Withdrawal Resilience. Durable Body — Health Stability, Metabolic Control, Infection Resistance. Ritualist — Ritual Neural Sync, Stability, Visual Accuracy. Safe Chemist — Infection Resistance, Health Stability, Stability. Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance." },
-      { "type": "text", "text": "Future review should rename and rebalance these around resilience, grounding, safe trips, withdrawal recovery, and dimension traversal." },
       { "type": "tip", "text": "A balanced pattern supports freedom better than one enormous stat." }
     ]
   },
@@ -984,7 +981,7 @@
       { "type": "text", "text": "ORIENTATION" },
       { "type": "text", "text": "Inside the Personal Diary is the Psyche Map — a zoomable map of everything you have done." },
       { "type": "text", "text": "It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first adaptation, first bad trip, first recovery room, first integrated fragment, first Resonator use, and more. Locked nodes stay hidden until you reach them." },
-      { "type": "text", "text": "The future map should follow the real story:" },
+      { "type": "text", "text": "The map plots that story:" },
       { "type": "text", "text": "Discovery → control → temptation → recovery → psychedelic opening → integration → Inner Dimension → boss → freedom." },
       { "type": "tip", "text": "If you ever feel lost in the mid game, open the diary first, then read the map as a constellation of what you have already lived through." }
     ]
@@ -1000,7 +997,7 @@
       { "type": "item", "text": "mydrugs:sleeping_aid" },
       { "type": "item", "text": "mydrugs:overdose_antidote" },
       { "type": "text", "text": "Headphones steady you while carried. Tea and calming mixture cut stress and withdrawal. Sleeping aid restores blocked sleep. The antidote pulls you back from an overdose." },
-      { "type": "text", "text": "Future recovery should grow into several paths: diary work, safe rooms, sleep, diet, exercise, therapy-like actions, psychedelics with integration, and endgame ketamine-like integration." },
+      { "type": "text", "text": "Recovery takes several paths: diary work, safe rooms, sleep, social relief, therapist visits, psychedelics with integration, and endgame integration." },
       { "type": "goal", "text": "Carry at least one recovery option before any repeated use." },
       { "type": "link", "text": "The room that does the work", "target": "Recovery Sanctuary" },
       { "type": "link", "text": "Rebuild a lost key item", "target": "Recovering Lost Progression Items" }
