@@ -81,9 +81,31 @@ ENDGAME is Resonator, Inner Dimension, somatic adaptation, boss, and freedom.
 
 > [TIP] Lost? Open the diary first. If it points at a system you do not understand, come back here for the reference page.
 ---
+# Five Pillars
+
+OVERVIEW
+
+The mod is five overlapping pillars. Every chapter from here on touches one or more of them — the tag at the top of each page tells you which.
+
+Production is what you grow, distill, press and circuit together: crops, fluids, gases, machines, Psy Current. It is the base layer everything else sits on.
+
+Risk is the cost of using what you make: addiction, withdrawal, overdose, bad trips, infection. The diary tracks it, the machines hint at it, the world reacts to it.
+
+Recovery is how you climb back: diary work, safe rooms, sleep, social relief, therapist visits, sanctuary modules. It runs alongside everything, not after.
+
+Integration is the permanent lesson kept from each curated drug. Where mutations can erode, integration stays — one trait per drug, earned by surviving, recovering, and resonating it through.
+
+Inner Dimension is what the route opens into: a small world that grows as you integrate, where the late game answers the question the early game asked.
+
+The goal is not stronger consumption but freedom from compulsive use. You don't keep the drug, you keep the lesson.
+
+> [TIP] If a chapter feels off-route, check its pillars. A page tagged Recovery during a Production chapter is reminding you the two are not separate.
+---
 # The Route
 
 OVERVIEW
+
+Pillars: Production · Risk · Recovery · Integration · Inner Dimension
 
 This is the whole game on one page. Each arrow is roughly one chapter.
 
@@ -103,6 +125,8 @@ The machine route teaches control. The stimulant route tempts overclocking. LSD 
 # Knowledge Spine
 
 MAIN QUEST
+
+Pillars: Production
 
 Knowledge is permanent. You earn each one by consuming a drug in its finished form — and each gate needs the one before it.
 
@@ -125,6 +149,8 @@ Knowledge is permanent. You earn each one by consuming a drug in its finished fo
 # First Crops
 
 MAIN QUEST + EXPLORATION
+
+Pillars: Production
 
 Everything starts in the grass. Break grass, tall grass, ferns and large ferns by hand — no shears — and seeds will drop.
 
@@ -152,6 +178,8 @@ While you explore, pocket the wild finds too — they matter later.
 
 MAIN QUEST — Chapter 1
 
+Pillars: Production · Risk
+
 Your first drug, and the gentlest. It teaches you the whole pattern: harvest, process, refine, consume.
 
 @item mydrugs:coffee_cherries
@@ -177,6 +205,8 @@ That first sip grants Caffeine Knowledge — and hands you the Psy Receptacle, t
 
 SUPPORT
 
+Pillars: Production
+
 Before tobacco, you need a workshop.
 
 @item mydrugs:resin
@@ -199,6 +229,8 @@ Build the drying rack, grinding bowl and grinding tool. These three process near
 # Tobacco
 
 MAIN QUEST + RECOVERY — Chapter 2
+
+Pillars: Production · Risk
 
 Tobacco is the second gate — and the first thing that bites back.
 
@@ -225,6 +257,8 @@ Processed tobacco grants Nicotinic Knowledge.
 
 MAIN QUEST + SUPPORT — Chapter 3
 
+Pillars: Production
+
 Two knowledges in your head means the Psy Anvil will finally listen to you.
 
 @item mydrugs:psy_receptacle
@@ -245,6 +279,8 @@ The anvil unlocks new recipes with every knowledge you gain. If it refuses you, 
 
 MAIN QUEST — Chapter 4
 
+Pillars: Production · Risk
+
 @item mydrugs:cannabis_leaf
 @item mydrugs:cured_cannabis_leaf
 @item mydrugs:dried_cannabis_leaf
@@ -264,6 +300,8 @@ Smoke or roll the powder for Cannabinoid Knowledge.
 # Copper Workshop
 
 SUPPORT
+
+Pillars: Production
 
 Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens the fluid era.
 
@@ -286,6 +324,8 @@ Shape copper parts and assemble the mixing vat. From here, recipes start dealing
 
 MAIN QUEST — Chapter 5
 
+Pillars: Production
+
 @item mydrugs:rye
 @item mydrugs:malt
 @item mydrugs:malt_powder
@@ -306,6 +346,8 @@ Bottle the fermented mash in a MyDrugs glass bottle and drink it for Fermented K
 
 SUPPORT
 
+Pillars: Production
+
 Fermented Knowledge unlocks heavy iron on the Psy Anvil — the metal that builds machines.
 
 @item mydrugs:heavy_iron
@@ -323,6 +365,8 @@ Heavy iron becomes frames, casings, the stomp crafter, and the first real machin
 # Hash and Steel
 
 MAIN QUEST — Chapter 6
+
+Pillars: Production
 
 This is where your hoarded resin pays off.
 
@@ -345,6 +389,8 @@ Hash grants Steel Plating Knowledge — then forge steel and steel plates on the
 # Machine Era
 
 SUPPORT — Chapter 7
+
+Pillars: Production
 
 Steel means machines. From here you stop doing things by hand.
 
@@ -369,6 +415,8 @@ Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, outpu
 
 MACHINE REFERENCE
 
+Pillars: Production
+
 Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression.
 
 Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker.
@@ -386,6 +434,8 @@ Use the handbook when a machine status is clear but the system around it is not.
 # Machine Handbook - Early Processing
 
 HAND PROCESSING / EARLY PROCESSING
+
+Pillars: Production
 
 Early machines turn hand work into reliable preparation. They usually handle items, manual action, time, drying, batch containers, or small liquid steps.
 
@@ -519,6 +569,8 @@ See also: Machine Era, Pipes and Transfer.
 
 CRUDE MACHINE ERA
 
+Pillars: Production
+
 Crude machines are the first factory layer. They introduce heat, tanks, side transfer, filters and split outputs, but most of the work is still close to a single block.
 
 Common blockers include no heat, no valid fluid, wrong container, output tank full, missing filter, and side rules that prevent transfer.
@@ -635,6 +687,8 @@ See also: Pipes and Transfer.
 # Machine Handbook - Chemical Machine Era
 
 CHEMICAL MACHINE ERA
+
+Pillars: Production
 
 Chemical machines handle mixed item, fluid and gas routes. They are more sensitive to storage type, gas tanks, catalysts and multi-output buffers than the early factory machines.
 
@@ -828,6 +882,8 @@ See also: Meth, Lab Chemistry.
 
 PSY CURRENT ERA
 
+Pillars: Production
+
 Psy Current machines turn psychotrope extracts into abstract machine power. This is factory support, not ritual integration.
 
 Watch for fuel validity, nearby targets, current buffers, strain and overload cooldowns. JEI explains fuel compatibility; the machine screen explains current status.
@@ -869,6 +925,8 @@ See also: Psy Current, Pipes and Transfer, Recovery Basics.
 # Machine Handbook - Ritual and Integration Era
 
 RITUAL / INTEGRATION ERA
+
+Pillars: Production · Integration
 
 Ritual and integration machines read progression, diary, recovery, multiblock shape and body-state context. Their blockers are often about meaning, not just empty slots.
 
@@ -1001,6 +1059,8 @@ See also: Bottles and Syringes, Recovery Basics.
 
 SUPPORT
 
+Pillars: Production
+
 The boring stockpile that stops you mid-recipe later. Build a chest for it.
 
 @item mydrugs:plant_biomass
@@ -1023,6 +1083,8 @@ Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, 
 
 EXPLORATION
 
+Pillars: Production
+
 Late chemistry runs on things you have to go and dig for.
 
 @item mydrugs:aluminium_ore
@@ -1042,6 +1104,8 @@ Mine sulfur, aluminium and platinum. Find salt in ocean terrain. Mark every dese
 
 UTILITY
 
+Pillars: Production
+
 When carrying buckets gets old, automate.
 
 @item mydrugs:basic_item_pipe
@@ -1060,6 +1124,8 @@ Match the pipe to the cargo — items, fluids and gases each need their own. Use
 # Coca
 
 MAIN QUEST — Chapter 8
+
+Pillars: Production · Risk
 
 The first hard drug. It needs a machine line and it does not forgive sloppy recovery.
 
@@ -1087,6 +1153,8 @@ Cocaine powder grants Stimulant Knowledge.
 
 SUPPORT
 
+Pillars: Production · Risk
+
 Coca and lab chemistry both run on absolute ethanol. Make it before chapter 8.
 
 @item mydrugs:low_wines_bucket
@@ -1103,6 +1171,8 @@ Distill fermented mash up the chain: low wines → raw alcohol → ethanol. Mix 
 # Cocaine and Crack
 
 SIDE — RISK ROUTE
+
+Pillars: Production · Risk
 
 @item mydrugs:cocaine_powder
 @item mydrugs:cupboard_piece
@@ -1121,6 +1191,8 @@ Crack is the harder smoking branch. Follow JEI for the advanced vat and tray ste
 
 SUPPORT
 
+Pillars: Production
+
 @item mydrugs:insulated_wire
 @item mydrugs:control_circuit
 @item mydrugs:electric_motor
@@ -1137,6 +1209,8 @@ Stimulant Knowledge unlocks repeatable insulated wire — and wire becomes contr
 # Lab Chemistry
 
 SUPPORT — Chapter 9
+
+Pillars: Production
 
 The late game splits every recipe into three streams: items, fluids and gases. Each is a separate input.
 
@@ -1157,6 +1231,8 @@ Build gas storage, both pumps, the chemical reactor, the gasifier and the electr
 
 SUPPORT
 
+Pillars: Production
+
 @item mydrugs:hydrochloric_acid_bucket
 @item mydrugs:sulfuric_acid_bucket
 @item mydrugs:acylating_agent_bucket
@@ -1174,6 +1250,8 @@ JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water
 # LSD
 
 MAIN QUEST — Chapter 10
+
+Pillars: Production · Risk · Integration
 
 @item mydrugs:growth_chamber
 @item mydrugs:biochemical_reactor
@@ -1201,6 +1279,8 @@ LSD is not just a stronger buff. It is the first door into insight systems: drea
 
 SUPPORT
 
+Pillars: Production
+
 @item mydrugs:advanced_control_circuit
 @item mydrugs:reaction_core
 @item mydrugs:catalyst_bed
@@ -1219,6 +1299,8 @@ Lysergic Knowledge unlocks advanced circuits and the high-tier machine parts the
 
 SUPPORT
 
+Pillars: Production
+
 @item mydrugs:naphtha_bucket
 @item mydrugs:reformate_bucket
 @item mydrugs:btx_mix_bucket
@@ -1236,6 +1318,8 @@ Build the cracker, reformer, extractor and BTX tower, then refine petroleum into
 # Meth
 
 MAIN QUEST — Chapter 11
+
+Pillars: Production · Risk
 
 The longest chain in the mod. There is no shortcut — this is the payoff for the machine route, but not the end of the story.
 
@@ -1264,6 +1348,8 @@ It gives power, but the diary may start asking whether movement is the same as p
 
 MAIN QUEST + EXPLORATION — Chapter 12
 
+Pillars: Production · Integration · Inner Dimension
+
 @item mydrugs:magic_mushroom
 @item mydrugs:magic_mushroom_powder
 @item mydrugs:mycelial_resonator
@@ -1283,6 +1369,8 @@ Mushrooms are not only a late material. They are part of the healing route: myce
 # Psy Mixer
 
 RITUAL
+
+Pillars: Production · Integration
 
 The Psy Mixer is the mod's sandbox. It blends a base drug with a material, a vessel and your knowledge into something new.
 
@@ -1304,6 +1392,8 @@ Get the formula wrong and the ritual fails — leaving unstable residue behind. 
 
 RITUAL — gentle
 
+Pillars: Production · Risk
+
 Begin with the calm drugs. These themes are reliable:
 
 Coffee + sugar / redstone / cocoa / bitter nut → work speed, mining speed.
@@ -1323,6 +1413,8 @@ Alcohol + ghast tear / broken courage → stress and damage resistance.
 
 RITUAL — high power, high cost
 
+Pillars: Production · Risk
+
 The stimulant and psychedelic mixes are where the real power is — and the real danger.
 
 Cocaine + redstone / blaze powder / rabbit foot → speed, adrenaline, dash.
@@ -1337,6 +1429,8 @@ Mushrooms + amethyst / glow berries → ore aura, gamma, bad-trip resistance.
 # Psychotrope Resonator
 
 ENDGAME — DREAM AND INTEGRATION
+
+Pillars: Integration · Inner Dimension
 
 @item mydrugs:psychotrope_lens
 @item mydrugs:psychotrope_resonator
@@ -1354,9 +1448,42 @@ The Resonator is not a hungry machine. It stabilizes dream states, converts insi
 > [GOAL] Build the Resonator after LSD and use it to turn experiences into something lasting.
 ---
 
+# Integrated Traits
+
+ENDGAME — REFERENCE
+
+Pillars: Integration
+
+Each curated drug, once you have survived it, recovered from it, and resonated it through the Psychotrope Resonator, leaves a single permanent trait behind. The trait is not the drug. It is the part of the drug your body learned to keep without paying its price.
+
+Mutations can erode. Integrated traits do not. One trait per curated drug.
+
+Clear Focus — Coffee. The hand learned speed before the mind learned rest.
+
+Steady Hands — Tobacco. Steadiness became a ritual before it became a choice.
+
+Even Keel — Weed. Calm is not absence. It is something I can build.
+
+Fine Motor — Hash. Still hands can shape small things without needing hunger.
+
+Hardened — Alcohol. Borrowed courage left a bruise. Kept courage stands cleaner.
+
+Quickstep — Cocaine. Speed taught the body a route. Recovery decides where it leads.
+
+Richer Seams — LSD. Five doors opened. None swallowed me.
+
+Overdrive Memory — Meth. The overdrive became memory instead of command.
+
+Structural Sense — Mushrooms. The structure was never outside me alone.
+
+> [GOAL] Treat each drug as a lesson to keep, not a habit to defend. Integration is the proof you kept it.
+---
+
 # Psy Current
 
 SUPPORT - EXTRACTION POWER
+
+Pillars: Production
 
 @item mydrugs:psychotrope_distillery
 @item mydrugs:distillate_engine
@@ -1379,6 +1506,8 @@ Dream Residue and Mycelial Insight are different. They belong to the Resonator, 
 
 UTILITY + MUTATION PREP
 
+Pillars: Production
+
 @item mydrugs:glass_bottle
 @item mydrugs:syringe
 @item mydrugs:blood_bucket
@@ -1395,6 +1524,8 @@ Syringes draw blood and inject mutation payloads — but a dirty syringe causes 
 # Somatic Adaptation
 
 ENDGAME BODY
+
+Pillars: Risk · Recovery
 
 @item mydrugs:adn_scraper
 @item mydrugs:adn_scrap
@@ -1417,6 +1548,8 @@ A mutation makes you harder to break, but infection or time can take it from you
 
 ENDGAME BODY
 
+Pillars: Production · Risk
+
 @item mydrugs:gene_extractor
 @item mydrugs:crispr_cas9_combinator
 @item mydrugs:bacterial_incubator
@@ -1437,6 +1570,8 @@ Autoclave — sterilises dirty empty syringes.
 
 ENDGAME — reference
 
+Pillars: Risk · Recovery
+
 A few patterns that hold together well:
 
 Clear Mind — Mental Strength, Visual Accuracy, Withdrawal Resilience.
@@ -1450,6 +1585,8 @@ Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance.
 # The Diary
 
 RECOVERY — CENTRAL SYSTEM
+
+Pillars: Recovery · Integration
 
 @item mydrugs:personal_diary
 
@@ -1469,6 +1606,8 @@ The diary remembers firsts, failures, recovery pressure, and progression hints. 
 
 ORIENTATION
 
+Pillars: Recovery · Integration
+
 Inside the Personal Diary is the Psyche Map — a zoomable map of everything you have done.
 
 It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first adaptation, first bad trip, first recovery room, first integrated fragment, first Resonator use, and more. Locked nodes stay hidden until you reach them.
@@ -1482,6 +1621,8 @@ Discovery → control → temptation → recovery → psychedelic opening → in
 # Recovery Basics
 
 RECOVERY
+
+Pillars: Recovery
 
 Recovery is not an endgame chore. Coffee, tobacco, cannabis, alcohol and stimulants can all build pressure — start managing it now.
 
@@ -1503,6 +1644,8 @@ Recovery takes several paths: diary work, safe rooms, sleep, social relief, ther
 # Recovery Sanctuary
 
 RECOVERY
+
+Pillars: Recovery
 
 A recovery room is the strongest healing tool in the mod — passive, permanent, and built from blocks.
 
@@ -1527,6 +1670,8 @@ The anchor and diary can show which modules are active. Duplicate copies do not 
 
 RECOVERY — INTENSITY
 
+Pillars: Risk · Recovery · Integration
+
 Push a psychedelic or stimulant too hard and you can trigger a bad trip. A mild one is stress and bad symptoms. A strong one may externalize psychological fragments.
 
 @item mydrugs:inner_demon_remains
@@ -1544,6 +1689,8 @@ A bad trip should be recoverable and meaningful. Safe setting, recovery room, di
 
 UTILITY
 
+Pillars: Production · Risk
+
 @item mydrugs:drug_analyzer
 
 Not sure what something does? Put it in the Drug Analyzer.
@@ -1557,6 +1704,8 @@ Drop any drug — base, processed or a Psy Mixer creation — into its slot and 
 # Recovering Lost Progression Items
 
 RECOVERY
+
+Pillars: Recovery
 
 Lost your Psy Receptacle to lava, a death, or a storage mistake? It is not gone for good. The Psy Mixer can rebind a new one — and the same ritual can re-make Centrifuge Wires if your industrial chain ever stalls.
 
@@ -1585,6 +1734,8 @@ Your success chance is your experience plus the drug you offered. Experience alo
 # When You Are Stuck
 
 HELP
+
+Pillars: Recovery
 
 Start with the diary, then work down this list. One of these is always the answer.
 
