@@ -77,7 +77,7 @@ public class JEIModPlugin implements IModPlugin {
         registration.addRecipes(StompCraftingRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getStompCraftingRecipes"));
         registration.addRecipes(CatalyticReformerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getCatalyticReformerRecipes"));
         registration.addRecipes(SteamCrackerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getSteamCrackerRecipes"));
-        registration.addRecipes(BTXFractionationTowerRecipeCategory.TYPE, BTXFractionationTowerRecipeCategory.RECIPES);
+        registration.addRecipes(BTXFractionationTowerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getBtxFractionationRecipes"));
         registration.addRecipes(AromaticExtractorRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getAromaticExtractorRecipes"));
         registration.addRecipes(PsyAnvilRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getPsyAnvilRecipes"));
         registration.addRecipes(PsyMixerRecipeCategory.TYPE, JeiCompatUtil.cachedRecipes("getPsyMixerRecipes"));

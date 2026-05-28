@@ -9,19 +9,25 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.BTXFractionationTowerLayout;
+import org.mydrugs.mydrugs.recipes.btx_fractionation.BTXFractionationRecipe;
+import org.mydrugs.mydrugs.recipes.chemical_reactor.FluidRequirement;
 
 import java.util.List;
 
-final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCategory<BTXFractionationTowerJeiRecipe> {
-    static final RecipeType<BTXFractionationTowerJeiRecipe> TYPE =
-            new RecipeType<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "btx_fractionation_tower"), BTXFractionationTowerJeiRecipe.class);
+final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCategory<BTXFractionationRecipe> {
+    static final RecipeType<BTXFractionationRecipe> TYPE =
+            new RecipeType<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "btx_fractionation_tower"), BTXFractionationRecipe.class);
 
-    static final List<BTXFractionationTowerJeiRecipe> RECIPES = List.of(BTXFractionationTowerJeiRecipe.DEFAULT);
+    private static final Ingredient FUEL_PREVIEW =
+            Ingredient.of(Items.COAL, Items.CHARCOAL, Items.BLAZE_ROD, Items.LAVA_BUCKET);
 
     BTXFractionationTowerRecipeCategory(IGuiHelper helper) {
         super(
@@ -35,25 +41,49 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, BTXFractionationTowerJeiRecipe recipe, IFocusGroup focuses) {
-        addFluid(builder, RecipeIngredientRole.INPUT, BTXFractionationTowerLayout.INPUT_SLOT_X, BTXFractionationTowerLayout.INPUT_SLOT_Y, recipe.inputFluid(), recipe.inputAmount());
-        addItemIngredient(builder, RecipeIngredientRole.INPUT, BTXFractionationTowerLayout.FUEL_SLOT_X, BTXFractionationTowerLayout.FUEL_SLOT_Y, recipe.fuelPreview());
+    public void setRecipe(IRecipeLayoutBuilder builder, BTXFractionationRecipe recipe, IFocusGroup focuses) {
+        addFluid(builder, RecipeIngredientRole.INPUT,
+                BTXFractionationTowerLayout.INPUT_SLOT_X, BTXFractionationTowerLayout.INPUT_SLOT_Y,
+                recipe.input().fluidId(), recipe.input().amount());
+        addItemIngredient(builder, RecipeIngredientRole.INPUT,
+                BTXFractionationTowerLayout.FUEL_SLOT_X, BTXFractionationTowerLayout.FUEL_SLOT_Y,
+                FUEL_PREVIEW);
 
-        addFluid(builder, RecipeIngredientRole.OUTPUT, BTXFractionationTowerLayout.BENZENE_SLOT_X, BTXFractionationTowerLayout.BENZENE_SLOT_Y, recipe.benzeneFluid(), recipe.benzeneAmount());
-        addFluid(builder, RecipeIngredientRole.OUTPUT, BTXFractionationTowerLayout.TOLUENE_SLOT_X, BTXFractionationTowerLayout.TOLUENE_SLOT_Y, recipe.tolueneFluid(), recipe.tolueneAmount());
-        addFluid(builder, RecipeIngredientRole.OUTPUT, BTXFractionationTowerLayout.XYLENE_SLOT_X, BTXFractionationTowerLayout.XYLENE_SLOT_Y, recipe.xyleneFluid(), recipe.xyleneAmount());
+        FluidRequirement benzene = outputFor(recipe, ModFluids.rl(ModFluids.BENZENE.name()));
+        FluidRequirement toluene = outputFor(recipe, ModFluids.rl(ModFluids.TOLUENE.name()));
+        FluidRequirement xylene = outputFor(recipe, ModFluids.rl(ModFluids.XYLENE.name()));
+
+        if (benzene != null) {
+            addFluid(builder, RecipeIngredientRole.OUTPUT,
+                    BTXFractionationTowerLayout.BENZENE_SLOT_X, BTXFractionationTowerLayout.BENZENE_SLOT_Y,
+                    benzene.fluidId(), benzene.amount());
+        }
+        if (toluene != null) {
+            addFluid(builder, RecipeIngredientRole.OUTPUT,
+                    BTXFractionationTowerLayout.TOLUENE_SLOT_X, BTXFractionationTowerLayout.TOLUENE_SLOT_Y,
+                    toluene.fluidId(), toluene.amount());
+        }
+        if (xylene != null) {
+            addFluid(builder, RecipeIngredientRole.OUTPUT,
+                    BTXFractionationTowerLayout.XYLENE_SLOT_X, BTXFractionationTowerLayout.XYLENE_SLOT_Y,
+                    xylene.fluidId(), xylene.amount());
+        }
     }
 
     @Override
-    public void draw(BTXFractionationTowerJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
+    public void draw(BTXFractionationRecipe recipe, IRecipeSlotsView slots, GuiGraphics g, double mouseX, double mouseY) {
+        FluidRequirement benzene = outputFor(recipe, ModFluids.rl(ModFluids.BENZENE.name()));
+        FluidRequirement toluene = outputFor(recipe, ModFluids.rl(ModFluids.TOLUENE.name()));
+        FluidRequirement xylene = outputFor(recipe, ModFluids.rl(ModFluids.XYLENE.name()));
+
         MachineGuiRenderer.drawBTXFractionationTower(
                 this,
                 g,
                 new MachineGuiRenderer.BTXFractionationTowerState(
-                        MachineGuiRenderer.TankFill.preview(recipe.inputFluid(), recipe.inputAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
-                        MachineGuiRenderer.TankFill.preview(recipe.benzeneFluid(), recipe.benzeneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
-                        MachineGuiRenderer.TankFill.preview(recipe.tolueneFluid(), recipe.tolueneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
-                        MachineGuiRenderer.TankFill.preview(recipe.xyleneFluid(), recipe.xyleneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(recipe.input().fluidId(), recipe.input().amount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(benzene == null ? null : benzene.fluidId(), benzene == null ? 0 : benzene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(toluene == null ? null : toluene.fluidId(), toluene == null ? 0 : toluene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY),
+                        MachineGuiRenderer.TankFill.preview(xylene == null ? null : xylene.fluidId(), xylene == null ? 0 : xylene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY),
                         BTXFractionationTowerLayout.PROGRESS_W,
                         BTXFractionationTowerLayout.FUEL_BAR_INNER_H,
                         0xFFE38D3F,
@@ -61,18 +91,22 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
                         false,
                         false,
                         false,
-                        recipe.inputAmount() > 0,
-                        recipe.benzeneAmount() > 0,
-                        recipe.tolueneAmount() > 0,
-                        recipe.xyleneAmount() > 0
+                        recipe.input().amount() > 0,
+                        benzene != null && benzene.amount() > 0,
+                        toluene != null && toluene.amount() > 0,
+                        xylene != null && xylene.amount() > 0
                 ),
                 false
         );
-        MachineGuiRenderer.drawBTXFractionationTowerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), jeiString("screen.mydrugs.jei.fuel_time", recipe.processingTime()));
+        MachineGuiRenderer.drawBTXFractionationTowerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), jeiString("screen.mydrugs.jei.fuel_time", recipe.processTime()));
     }
 
     @Override
-    public List<Component> getTooltipStrings(BTXFractionationTowerJeiRecipe recipe, IRecipeSlotsView slots, double mouseX, double mouseY) {
+    public List<Component> getTooltipStrings(BTXFractionationRecipe recipe, IRecipeSlotsView slots, double mouseX, double mouseY) {
+        FluidRequirement benzene = outputFor(recipe, ModFluids.rl(ModFluids.BENZENE.name()));
+        FluidRequirement toluene = outputFor(recipe, ModFluids.rl(ModFluids.TOLUENE.name()));
+        FluidRequirement xylene = outputFor(recipe, ModFluids.rl(ModFluids.XYLENE.name()));
+
         if (isHoveringBox(BTXFractionationTowerLayout.DUMP_INPUT_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
             return tooltip("Dump input tank");
         } else if (isHoveringBox(BTXFractionationTowerLayout.DUMP_BENZENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
@@ -82,20 +116,27 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
         } else if (isHoveringBox(BTXFractionationTowerLayout.DUMP_XYLENE_X, BTXFractionationTowerLayout.DUMP_BUTTON_Y, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, BTXFractionationTowerLayout.DUMP_BUTTON_SIZE, mouseX, mouseY)) {
             return tooltip("Dump xylene tank");
         } else if (isHoveringBox(BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("BTX Mix input tank", recipe.inputFluid(), recipe.inputAmount(), BTXFractionationTowerMenu.TANK_CAPACITY);
-        } else if (isHoveringBox(BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Benzene output tank", recipe.benzeneFluid(), recipe.benzeneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY);
-        } else if (isHoveringBox(BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Toluene output tank", recipe.tolueneFluid(), recipe.tolueneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY);
-        } else if (isHoveringBox(BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Xylene output tank", recipe.xyleneFluid(), recipe.xyleneAmount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+            return fluidTankTooltip("BTX Mix input tank", recipe.input().fluidId(), recipe.input().amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+        } else if (benzene != null && isHoveringBox(BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
+            return fluidTankTooltip("Benzene output tank", benzene.fluidId(), benzene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+        } else if (toluene != null && isHoveringBox(BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
+            return fluidTankTooltip("Toluene output tank", toluene.fluidId(), toluene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+        } else if (xylene != null && isHoveringBox(BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
+            return fluidTankTooltip("Xylene output tank", xylene.fluidId(), xylene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
         } else if (isHoveringBox(BTXFractionationTowerLayout.PROGRESS_X, BTXFractionationTowerLayout.PROGRESS_Y, BTXFractionationTowerLayout.PROGRESS_W, BTXFractionationTowerLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Fractionation progress", 0, recipe.processingTime());
+            return amountTooltip("Fractionation progress", 0, recipe.processTime());
         } else if (isHoveringBox(BTXFractionationTowerLayout.FUEL_BAR_X, BTXFractionationTowerLayout.FUEL_BAR_Y, BTXFractionationTowerLayout.FUEL_BAR_W, BTXFractionationTowerLayout.FUEL_BAR_H, mouseX, mouseY)) {
-            return amountTooltip("Fuel burn time", 0, recipe.processingTime(), "ticks");
+            return amountTooltip("Fuel burn time", 0, recipe.processTime(), "ticks");
         }
         return List.of();
     }
 
+    private static FluidRequirement outputFor(BTXFractionationRecipe recipe, ResourceLocation fluidId) {
+        for (FluidRequirement output : recipe.outputs()) {
+            if (fluidId.equals(output.fluidId())) {
+                return output;
+            }
+        }
+        return null;
+    }
 }
-

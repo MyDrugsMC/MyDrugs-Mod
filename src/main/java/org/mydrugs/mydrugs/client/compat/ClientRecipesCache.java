@@ -43,6 +43,7 @@ public final class ClientRecipesCache {
     private static final List<CentrifugeRecipe> CENTRIFUGE_RECIPES = new ArrayList<>();
     private static final List<ElectrolyzerRecipe> ELECTROLYZER_RECIPES = new ArrayList<>();
     private static final List<ChemicalReactorRecipe> CHEMICAL_REACTOR_RECIPES = new ArrayList<>();
+    private static final List<org.mydrugs.mydrugs.recipes.btx_fractionation.BTXFractionationRecipe> BTX_FRACTIONATION_RECIPES = new ArrayList<>();
     private static final List<DistillerRecipe> DISTILLER_RECIPES = new ArrayList<>();
     private static final List<PsychotropeDistilleryRecipe> PSYCHOTROPE_DISTILLERY_RECIPES = new ArrayList<>();
     private static final List<DryingRecipe> DRYING_RECIPES = new ArrayList<>();
@@ -85,6 +86,10 @@ public final class ClientRecipesCache {
 
     public static List<ChemicalReactorRecipe> getChemicalReactorRecipes() {
         return List.copyOf(CHEMICAL_REACTOR_RECIPES);
+    }
+
+    public static List<org.mydrugs.mydrugs.recipes.btx_fractionation.BTXFractionationRecipe> getBtxFractionationRecipes() {
+        return List.copyOf(BTX_FRACTIONATION_RECIPES);
     }
 
     public static List<DistillerRecipe> getDistillerRecipes() {
@@ -167,6 +172,7 @@ public final class ClientRecipesCache {
         CENTRIFUGE_RECIPES.clear();
         ELECTROLYZER_RECIPES.clear();
         CHEMICAL_REACTOR_RECIPES.clear();
+        BTX_FRACTIONATION_RECIPES.clear();
         DISTILLER_RECIPES.clear();
         PSYCHOTROPE_DISTILLERY_RECIPES.clear();
         DRYING_RECIPES.clear();
@@ -221,6 +227,12 @@ public final class ClientRecipesCache {
                 .stream()
                 .map(RecipeHolder::value)
                 .forEach(CHEMICAL_REACTOR_RECIPES::add);
+
+        event.getRecipeMap()
+                .byType(ModRecipeTypes.BTX_FRACTIONATION.get())
+                .stream()
+                .map(RecipeHolder::value)
+                .forEach(BTX_FRACTIONATION_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.DISTILLER.get())
@@ -341,6 +353,7 @@ public final class ClientRecipesCache {
         CENTRIFUGE_RECIPES.clear();
         ELECTROLYZER_RECIPES.clear();
         CHEMICAL_REACTOR_RECIPES.clear();
+        BTX_FRACTIONATION_RECIPES.clear();
         DISTILLER_RECIPES.clear();
         PSYCHOTROPE_DISTILLERY_RECIPES.clear();
         DRYING_RECIPES.clear();
