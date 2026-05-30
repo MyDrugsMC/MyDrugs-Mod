@@ -1,12 +1,10 @@
 {
   "type": "mydrugs:inner",
   "generator": {
-    "type": "minecraft:flat",
-    "settings": {
-      "biome": "minecraft:the_void",
-      "lakes": false,
-      "features": false,
-      "layers": []
+    "type": "mydrugs:inner_v7",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:the_void"
     }
   }
 }

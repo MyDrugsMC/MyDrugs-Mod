@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.core.drug.ritual.DrugPatentSavedData;
 import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
@@ -166,7 +167,8 @@ public final class DiarySnapshotBuilder {
         List<DiaryIntegrationProgressDto> out = new ArrayList<>();
         boolean diaryContext = !diary.getEntries().isEmpty();
         boolean recoveryRoom = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoomReport);
-        boolean hasCore = hasInventoryItem(player, ModItems.INTEGRATION_CORE.get());
+        IntegrationCoreTier bestCore = bestAvailableCoreTier(player);
+        long gameTime = player.level().getGameTime();
 
         for (DrugId drug : CuratedDrugChain.ORDER) {
             PsyKnowledgeKey key = CuratedDrugChain.stageKnowledge(drug);
@@ -188,9 +190,16 @@ public final class DiarySnapshotBuilder {
             if (profile == null) {
                 continue;
             }
-            IntegrationService.EligibilityResult eligibility = IntegrationService.evaluate(stats, drug);
+            IntegrationService.EligibilityResult eligibility = IntegrationService.evaluate(stats, drug, gameTime);
             IntegratedTrait trait = IntegratedTrait.bySource(drug);
             String materialId = IntegrationMaterials.itemIdFor(drug);
+            IntegrationCoreTier requiredCore = IntegrationCoreTier.requiredFor(drug);
+            boolean coreSufficient = bestCore != null && bestCore.satisfies(requiredCore);
+            long badTripRemaining = IntegrationService.recentBadTripRemainingTicks(ds, profile, gameTime);
+            long spacingRemaining = profile.usesCleanDoseStreak()
+                    && ds.cleanIntegrationDoseStreak < profile.requiredCleanDoseStreak()
+                    ? IntegrationService.cleanDoseSpacingRemainingTicks(ds, gameTime)
+                    : 0L;
             out.add(new DiaryIntegrationProgressDto(
                     drug.serializedName(),
                     trait == null ? "" : trait.translationKey(),
@@ -207,8 +216,15 @@ public final class DiarySnapshotBuilder {
                     diaryContext,
                     recoveryRoom,
                     hasInventoryItemId(player, materialId),
-                    hasCore,
+                    bestCore != null,
+                    coreSufficient,
+                    eligibility.psychedelicReflectionMet(),
+                    eligibility.safePsychedelicUseMet(),
+                    eligibility.noRecentBadTripMet(),
+                    spacingRemaining <= 0L,
                     eligibility.alreadyIntegrated(),
+                    requiredCore == null ? "" : requiredCore.id(),
+                    bestCore == null ? "" : bestCore.id(),
                     ds.peakHistoricalAddiction,
                     profile.requiredPeakExposure(),
                     ds.addictionValue,
@@ -218,7 +234,13 @@ public final class DiarySnapshotBuilder {
                     ds.lifetimeDoseConsumed,
                     profile.requiredLifetimeDose(),
                     ds.cleanIntegrationDoseStreak,
-                    profile.requiredCleanDoseStreak()
+                    profile.requiredCleanDoseStreak(),
+                    ds.cleanPsychedelicReflectionCount,
+                    profile.requiredPsychedelicReflections(),
+                    ds.cleanPsychedelicSafeUseCount,
+                    profile.requiredSafePsychedelicUses(),
+                    cappedInt(badTripRemaining),
+                    cappedInt(spacingRemaining)
             ));
         }
         return out;
@@ -316,6 +338,23 @@ public final class DiarySnapshotBuilder {
         }
         Item item = BuiltInRegistries.ITEM.getValue(id);
         return hasInventoryItem(player, item);
+    }
+
+    @Nullable
+    private static IntegrationCoreTier bestAvailableCoreTier(ServerPlayer player) {
+        IntegrationCoreTier best = null;
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            IntegrationCoreTier tier = IntegrationCoreTier.ofStack(inv.getItem(i));
+            if (tier != null && (best == null || tier.rank() > best.rank())) {
+                best = tier;
+            }
+        }
+        return best;
+    }
+
+    private static int cappedInt(long value) {
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, value));
     }
 
     @Nullable

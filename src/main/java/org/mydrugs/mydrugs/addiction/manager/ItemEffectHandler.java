@@ -14,6 +14,7 @@ import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 import org.mydrugs.mydrugs.items.ModItems;
@@ -38,6 +39,7 @@ public final class ItemEffectHandler {
             StressManager.reduce(stats, 0.015F);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.DIARY_WRITTEN, diaryDesk ? 1.15F : 1.0F);
+        IntegrationService.onReflectionAction(player);
         syncClientHud(player);
     }
 

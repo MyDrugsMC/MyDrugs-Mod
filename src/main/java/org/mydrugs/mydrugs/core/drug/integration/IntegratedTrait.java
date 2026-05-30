@@ -11,8 +11,9 @@ import java.util.Optional;
 /**
  * A permanent, stable trait earned by surviving, recovering from and integrating a curated drug.
  *
- * Integrated traits are NOT mutation stats: they are immune to fragility decay and grant a clean,
- * addiction-free echo (~35-50%) of the drug's production gift. One trait per curated drug.
+ * Integrated traits are NOT mutation stats: they are immune to fragility decay and grant a
+ * permanent echo of the drug's production gift. Consequences such as addiction and withdrawal
+ * stay in their own systems.
  */
 public enum IntegratedTrait {
     CLEAR_FOCUS("clear_focus", DrugId.COFFEE,

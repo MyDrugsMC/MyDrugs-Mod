@@ -415,6 +415,7 @@ public class Config {
         public final ModConfigSpec.DoubleValue skyIslandMobSpawnMultiplier;
         public final ModConfigSpec.IntValue fallingSafetyGraceTicks;
         public final ModConfigSpec.BooleanValue returnAnchorRequired;
+        public final ModConfigSpec.BooleanValue enableInnerDimensionV7DebugLogging;
 
         private Worldgen(ModConfigSpec.Builder builder) {
             builder.push("worldgen");
@@ -519,6 +520,12 @@ public class Config {
             skyIslandMobSpawnMultiplier = builder.defineInRange("mobSpawnMultiplier", 1.0D, 0.0D, 20.0D);
             fallingSafetyGraceTicks = builder.defineInRange("fallingSafetyGraceTicks", 100, 0, 20 * 60);
             returnAnchorRequired = builder.define("returnAnchorRequired", true);
+            builder.pop();
+
+            builder.push("inner_dimension_v7");
+            enableInnerDimensionV7DebugLogging = builder
+                    .comment("Log verbose Inner Dimension V7 overlay queue diagnostics. V7 is the only active Inner Dimension generator.")
+                    .define("enableInnerDimensionV7DebugLogging", false);
             builder.pop();
             builder.pop();
         }

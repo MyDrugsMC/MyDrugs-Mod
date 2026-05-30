@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
+import org.mydrugs.mydrugs.core.drug.DrugId;
 
 class ActiveRecoveryTest {
 
@@ -51,9 +52,29 @@ class ActiveRecoveryTest {
     }
 
     @Test
+    void activeRecoveryContinuesAfterProgressCapUntilAddictionThreshold() {
+        DrugAddictionStats stats = new DrugAddictionStats();
+        IntegrationRequirementProfile profile = IntegrationRequirements.profile(DrugId.COFFEE);
+        stats.peakHistoricalAddiction = profile.requiredPeakExposure() + 10.0F;
+        stats.addictionValue = profile.maxCurrentAddiction() + 4.0F;
+        stats.recoveryProgress = profile.requiredRecoveryProgress();
+        stats.lifetimeDoseConsumed = profile.requiredLifetimeDose();
+
+        assertTrue(RecoveryProgressManager.isInReckoning(DrugId.COFFEE, stats));
+
+        RecoveryProgressManager.RecoveryDelta delta = RecoveryProgressManager.applyRecoveryAction(
+                DrugId.COFFEE, stats, RecoveryProgressManager.ActionKind.DIARY_WRITTEN, 100.0F);
+
+        assertTrue(delta.addictionReduced() > 0.0F);
+        assertEquals(profile.requiredRecoveryProgress(), stats.recoveryProgress, 1e-6F);
+        assertEquals(profile.maxCurrentAddiction(), stats.addictionValue, 1e-6F);
+        assertFalse(RecoveryProgressManager.isInReckoning(DrugId.COFFEE, stats));
+    }
+
+    @Test
     void integratedDrugsAreNotInReckoning() {
         DrugAddictionStats stats = reckoningStats();
-        stats.integrationStage = 2;
+        stats.integrationStage = DrugAddictionStats.INTEGRATION_STAGE_INTEGRATED;
 
         assertFalse(RecoveryProgressManager.isInReckoning(stats));
     }

@@ -245,7 +245,14 @@ public record PersonalDiarySnapshotPayload(
         ByteBufCodecs.BOOL.encode(buf, p.recoveryRoom());
         ByteBufCodecs.BOOL.encode(buf, p.materialInInventory());
         ByteBufCodecs.BOOL.encode(buf, p.integrationCoreInInventory());
+        ByteBufCodecs.BOOL.encode(buf, p.coreSufficient());
+        ByteBufCodecs.BOOL.encode(buf, p.psychedelicReflectionMet());
+        ByteBufCodecs.BOOL.encode(buf, p.safePsychedelicUseMet());
+        ByteBufCodecs.BOOL.encode(buf, p.noRecentBadTripMet());
+        ByteBufCodecs.BOOL.encode(buf, p.cleanSpacingReady());
         ByteBufCodecs.BOOL.encode(buf, p.alreadyIntegrated());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.requiredCoreTierId());
+        ByteBufCodecs.STRING_UTF8.encode(buf, p.bestCoreTierId());
         ByteBufCodecs.FLOAT.encode(buf, p.peakCurrent());
         ByteBufCodecs.FLOAT.encode(buf, p.peakRequired());
         ByteBufCodecs.FLOAT.encode(buf, p.addictionCurrent());
@@ -256,6 +263,12 @@ public record PersonalDiarySnapshotPayload(
         ByteBufCodecs.FLOAT.encode(buf, p.lifetimeDoseRequired());
         ByteBufCodecs.VAR_INT.encode(buf, p.cleanDoseStreak());
         ByteBufCodecs.VAR_INT.encode(buf, p.cleanDoseStreakRequired());
+        ByteBufCodecs.VAR_INT.encode(buf, p.psychedelicReflections());
+        ByteBufCodecs.VAR_INT.encode(buf, p.psychedelicReflectionsRequired());
+        ByteBufCodecs.VAR_INT.encode(buf, p.safePsychedelicUses());
+        ByteBufCodecs.VAR_INT.encode(buf, p.safePsychedelicUsesRequired());
+        ByteBufCodecs.VAR_INT.encode(buf, p.recentBadTripRemainingTicks());
+        ByteBufCodecs.VAR_INT.encode(buf, p.cleanSpacingRemainingTicks());
     }
 
     private static DiaryIntegrationProgressDto decodeIntegrationProgress(RegistryFriendlyByteBuf buf) {
@@ -277,6 +290,13 @@ public record PersonalDiarySnapshotPayload(
                 ByteBufCodecs.BOOL.decode(buf),
                 ByteBufCodecs.BOOL.decode(buf),
                 ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.BOOL.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ByteBufCodecs.STRING_UTF8.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
@@ -285,6 +305,12 @@ public record PersonalDiarySnapshotPayload(
                 ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf)
         );

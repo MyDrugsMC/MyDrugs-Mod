@@ -106,6 +106,11 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.MAGIC_MUSHROOM_STEM.get());
             dropSelf(ModBlocks.EVAPORATION_TRAY.get());
             dropSelf(ModBlocks.BITTER_NUT_BUSH.get());
+            dropSelf(ModBlocks.BREATH_GRASS.get());
+            dropSelf(ModBlocks.CALMING_FERN.get());
+            dropSelf(ModBlocks.MEMORY_REEDS.get());
+            dropSelf(ModBlocks.REDLINE_THORN.get());
+            dropSelf(ModBlocks.MYCELIAL_ROOT.get());
             aloeBush(ModBlocks.ALOE_VERA_BUSH.get());
 
             crop(ModCrops.ALOE_VERA_CROP.get(), ModItems.ALOE_VERA.get(), ModCrops.ALOE_VERA_SEEDS.get());
@@ -163,6 +168,25 @@ public class ModLootTableProvider extends LootTableProvider {
                     block -> createOreDrop(block, ModItems.RAW_PHOSPHORUS.get())
             );
 
+            add(ModBlocks.LUCID_ECHO_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.LUCID_EXTRACT.get()));
+            add(ModBlocks.BITTER_ECHO_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.BITTER_RESIDUE.get()));
+            add(ModBlocks.CALMING_ECHO_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.CALMING_RESIN.get()));
+            add(ModBlocks.PRESSED_CALM_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.PRESSED_CALM.get()));
+            add(ModBlocks.FERMENTED_MEMORY_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.FERMENTED_MEMORY.get()));
+            add(ModBlocks.REDLINE_CRYSTAL_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.REDLINE_FUEL.get()));
+            add(ModBlocks.DREAM_RESIDUE_GEODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.DREAM_RESIDUE.get()));
+            add(ModBlocks.OVERDRIVE_SLAG.get(),
+                    block -> symbolicNodeDrop(block, ModItems.OVERDRIVE_FUEL.get()));
+            add(ModBlocks.MYCELIAL_INSIGHT_NODE.get(),
+                    block -> symbolicNodeDrop(block, ModItems.MYCELIAL_INSIGHT.get()));
+
             dropSelf(ModBlocks.RAW_PLATINUM_BLOCK.get());
             dropSelf(ModBlocks.PLATINUM_BLOCK.get());
             dropSelf(ModBlocks.RAW_ALUMINIUM_BLOCK.get());
@@ -183,6 +207,13 @@ public class ModLootTableProvider extends LootTableProvider {
                                     .apply(ApplyBonusCount.addOreBonusCount(fortune))
                     )
             );
+        }
+
+        private LootTable.Builder symbolicNodeDrop(Block block, ItemLike drop) {
+            return applyExplosionDecay(block, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .add(LootItem.lootTableItem(drop)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F))))));
         }
 
         private void crop(Block block, Item crop, Item seeds) {
@@ -302,6 +333,20 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.EVAPORATION_TRAY.get(),
                     ModBlocks.BITTER_NUT_BUSH.get(),
                     ModBlocks.ALOE_VERA_BUSH.get(),
+                    ModBlocks.LUCID_ECHO_NODE.get(),
+                    ModBlocks.BITTER_ECHO_NODE.get(),
+                    ModBlocks.CALMING_ECHO_NODE.get(),
+                    ModBlocks.PRESSED_CALM_NODE.get(),
+                    ModBlocks.FERMENTED_MEMORY_NODE.get(),
+                    ModBlocks.REDLINE_CRYSTAL_NODE.get(),
+                    ModBlocks.DREAM_RESIDUE_GEODE.get(),
+                    ModBlocks.OVERDRIVE_SLAG.get(),
+                    ModBlocks.MYCELIAL_INSIGHT_NODE.get(),
+                    ModBlocks.BREATH_GRASS.get(),
+                    ModBlocks.CALMING_FERN.get(),
+                    ModBlocks.MEMORY_REEDS.get(),
+                    ModBlocks.REDLINE_THORN.get(),
+                    ModBlocks.MYCELIAL_ROOT.get(),
 
                     ModCrops.ALOE_VERA_CROP.get(),
                     ModCrops.TOBACCO_CROP.get(),

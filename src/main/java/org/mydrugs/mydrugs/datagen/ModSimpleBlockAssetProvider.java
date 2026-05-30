@@ -39,6 +39,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlock(futures, cachedOutput, "platinum_block");
         saveCubeAllBlock(futures, cachedOutput, "aluminium_ore");
         saveCubeAllBlock(futures, cachedOutput, "deepslate_aluminium_ore");
+        saveCubeAllBlock(futures, cachedOutput, "phosphate_ore");
+        saveCubeAllBlock(futures, cachedOutput, "deepslate_phosphate_ore");
         saveCubeAllBlock(futures, cachedOutput, "raw_aluminium_block");
         saveCubeAllBlock(futures, cachedOutput, "aluminium_block");
         saveCubeAllBlock(futures, cachedOutput, "sulfur_ore");
@@ -51,6 +53,20 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlockWithTexture(futures, cachedOutput, "therapist_desk", MyDrugs.MODID + ":block/therapist_desk");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "disc_scriber", MyDrugs.MODID + ":block/disc_scriber");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_jukebox", MyDrugs.MODID + ":block/recovery_jukebox");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "lucid_echo_node", "minecraft:block/amethyst_block");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "bitter_echo_node", "minecraft:block/tuff");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "calming_echo_node", "minecraft:block/moss_block");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "pressed_calm_node", "minecraft:block/calcite");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "fermented_memory_node", "minecraft:block/deepslate");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "redline_crystal_node", "minecraft:block/redstone_block");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "dream_residue_geode", "minecraft:block/sculk");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "overdrive_slag", "minecraft:block/blackstone");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "mycelial_insight_node", "minecraft:block/mycelium_top");
+        saveCrossPlantBlock(futures, cachedOutput, "breath_grass", MyDrugs.MODID + ":block/coffee_stage1");
+        saveCrossPlantBlock(futures, cachedOutput, "calming_fern", MyDrugs.MODID + ":block/cannabis_stage2");
+        saveCrossPlantBlock(futures, cachedOutput, "memory_reeds", MyDrugs.MODID + ":block/rye_stage3");
+        saveCrossPlantBlock(futures, cachedOutput, "redline_thorn", MyDrugs.MODID + ":block/coca_stage3");
+        saveCrossPlantBlock(futures, cachedOutput, "mycelial_root", MyDrugs.MODID + ":block/magic_mushroom");
 
         saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "sieve");
@@ -68,6 +84,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "distillate_engine");
         saveHorizontalBlockState(futures, cachedOutput, "psychotrope_resonator");
         saveHorizontalBlockState(futures, cachedOutput, "drying_rack");
+        saveHorizontalBlockState(futures, cachedOutput, "reduction_still");
         saveHorizontalBlockState(futures, cachedOutput, "electrolyzer");
         saveHorizontalBlockState(futures, cachedOutput, "gasifier");
         saveHorizontalBlockState(futures, cachedOutput, "gas_tank");
@@ -112,6 +129,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeMachineModel(futures, cachedOutput, "hemogenic_infuser", "hemogenic_infuser_front", "hemogenic_infuser_side", "hemogenic_infuser_top", "hemogenic_infuser_bottom");
         saveCubeMachineModel(futures, cachedOutput, "growth_chamber", "growth_chamber_front", "growth_chamber_side", "growth_chamber_top", "growth_chamber_bottom");
         saveCubeMachineModel(futures, cachedOutput, "crispr_cas9_combinator", "crispr_cas9_combinator_front", "crispr_cas9_combinator_side", "crispr_cas9_combinator_top", "crispr_cas9_combinator_bottom");
+        saveCubeMachineModel(futures, cachedOutput, "reduction_still", "reduction_still_front", "reduction_still_side", "reduction_still_top", "reduction_still_bottom");
         saveSimpleBlockState(futures, cachedOutput, "psy_anvil");
         saveVomitSplash(futures, cachedOutput);
 
@@ -128,6 +146,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "distillate_engine");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_resonator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "drying_rack");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "reduction_still");
         saveBlockItemViaBlockModel(futures, cachedOutput, "electrolyzer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "evaporation_tray");
         saveBlockItemViaBlockModel(futures, cachedOutput, "fluid_pump");
@@ -162,6 +181,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveTallCrop(futures, cachedOutput, "coffee_crop", "coffee_stage", 6);
         saveCrossCrop(futures, cachedOutput, "lavender_crop", "lavender_stage");
         saveCrossCrop(futures, cachedOutput, "valerian_crop", "valerian_stage");
+        saveCrossCrop(futures, cachedOutput, "ephedra_crop", "ephedra_stage");
         saveTallCrop(futures, cachedOutput, "malt_crop", "malt_stage", 4);
         saveCrossCrop(futures, cachedOutput, "opium_poppy_crop", "opium_poppy_stage");
         saveTallCrop(futures, cachedOutput, "rye_crop", "rye_stage", 4);
@@ -379,6 +399,32 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         JsonObject itemModelRoot = new JsonObject();
         itemModelRoot.addProperty("parent", MyDrugs.MODID + ":block/" + name);
         futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+    }
+
+    private void saveCrossPlantBlock(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String texture) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
+        JsonObject blockStateRoot = new JsonObject();
+        JsonObject variants = new JsonObject();
+        variants.add("", modelVariant(name, 0));
+        blockStateRoot.add("variants", variants);
+        futures.add(DataProvider.saveStable(cachedOutput, blockStateRoot, this.blockStatePathProvider.json(id)));
+
+        JsonObject blockModelRoot = new JsonObject();
+        JsonObject blockTextures = new JsonObject();
+        blockModelRoot.addProperty("parent", "minecraft:block/cross");
+        blockModelRoot.addProperty("render_type", "minecraft:cutout");
+        blockTextures.addProperty("cross", texture);
+        blockTextures.addProperty("particle", texture);
+        blockModelRoot.add("textures", blockTextures);
+        futures.add(DataProvider.saveStable(cachedOutput, blockModelRoot, this.blockModelPathProvider.json(id)));
+
+        JsonObject itemModelRoot = new JsonObject();
+        JsonObject itemTextures = new JsonObject();
+        itemModelRoot.addProperty("parent", "minecraft:item/generated");
+        itemTextures.addProperty("layer0", texture);
+        itemModelRoot.add("textures", itemTextures);
+        futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+        saveClientItemModel(futures, cachedOutput, id, MyDrugs.MODID + ":item/" + name);
     }
 
     private void saveClientItemModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, ResourceLocation id, String model) {

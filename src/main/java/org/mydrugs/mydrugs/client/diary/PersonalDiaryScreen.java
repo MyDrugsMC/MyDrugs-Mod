@@ -648,6 +648,14 @@ public final class PersonalDiaryScreen extends Screen {
             lines.add(DiaryLine.text(statusLine(p.cleanDoseStreakMet(),
                     tr("screen.mydrugs.diary.integration.clean_doses",
                             p.cleanDoseStreak(), p.cleanDoseStreakRequired()))));
+            lines.add(DiaryLine.text(statusLine(p.cleanSpacingReady(), spacingDiaryLine(p))));
+            lines.add(DiaryLine.text(statusLine(p.psychedelicReflectionMet(),
+                    tr("screen.mydrugs.diary.integration.reflection",
+                            p.psychedelicReflections(), p.psychedelicReflectionsRequired()))));
+            lines.add(DiaryLine.text(statusLine(p.safePsychedelicUseMet(),
+                    tr("screen.mydrugs.diary.integration.safe_use",
+                            p.safePsychedelicUses(), p.safePsychedelicUsesRequired()))));
+            lines.add(DiaryLine.text(statusLine(p.noRecentBadTripMet(), badTripDiaryLine(p))));
         } else {
             lines.add(DiaryLine.text(statusLine(p.peakMet(),
                     tr("screen.mydrugs.diary.integration.peak",
@@ -668,7 +676,8 @@ public final class PersonalDiaryScreen extends Screen {
                 statusLine(p.materialInInventory(), tr("screen.mydrugs.diary.integration.material",
                         itemName(p.materialItemId())))));
         lines.add(DiaryLine.withIcon(stackForItemId("mydrugs:integration_core"),
-                statusLine(p.integrationCoreInInventory(), tr("screen.mydrugs.diary.integration.core"))));
+                statusLine(p.coreSufficient(), tr("screen.mydrugs.diary.integration.core_tier",
+                        coreTierName(p.requiredCoreTierId()), coreTierName(p.bestCoreTierId())))));
         lines.add(DiaryLine.text(statusLine(!p.alreadyIntegrated(), tr("screen.mydrugs.diary.integration.not_integrated"))));
         if (p.alreadyIntegrated()) {
             lines.add(DiaryLine.text(statusLine(true, tr("screen.mydrugs.diary.integration.integrated"))));
@@ -853,6 +862,27 @@ public final class PersonalDiaryScreen extends Screen {
         return stack.isEmpty() ? "-" : stack.getHoverName().getString();
     }
 
+    private String coreTierName(String tierId) {
+        if (tierId == null || tierId.isBlank()) {
+            return tr("screen.mydrugs.diary.integration.core_none");
+        }
+        return tr("integration.mydrugs.core_tier." + tierId);
+    }
+
+    private String spacingDiaryLine(DiaryIntegrationProgressDto p) {
+        if (p.cleanSpacingRemainingTicks() <= 0) {
+            return tr("screen.mydrugs.diary.integration.spacing_ready");
+        }
+        return tr("screen.mydrugs.diary.integration.spacing_wait", formatDuration(p.cleanSpacingRemainingTicks()));
+    }
+
+    private String badTripDiaryLine(DiaryIntegrationProgressDto p) {
+        if (p.recentBadTripRemainingTicks() <= 0) {
+            return tr("screen.mydrugs.diary.integration.bad_trip_clear");
+        }
+        return tr("screen.mydrugs.diary.integration.bad_trip_wait", formatDuration(p.recentBadTripRemainingTicks()));
+    }
+
     // ----------------------- Helpers (formatting) -----------------------
     private void appendFeelingReasonSections(List<DiaryLine> lines, DiaryPlayerStateDto s) {
         List<DiaryLine> good = new ArrayList<>();
@@ -978,6 +1008,15 @@ public final class PersonalDiaryScreen extends Screen {
 
     private String formatOneDecimal(float value) {
         return String.format(Locale.ROOT, "%.1f", value);
+    }
+
+    private String formatDuration(int ticks) {
+        int seconds = Math.max(1, (ticks + 19) / 20);
+        if (seconds < 90) {
+            return seconds + "s";
+        }
+        int minutes = Math.max(1, (seconds + 59) / 60);
+        return minutes + "m";
     }
 
     private String stressLine(float stress) {

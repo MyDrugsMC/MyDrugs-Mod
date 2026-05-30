@@ -16,7 +16,7 @@ import org.mydrugs.mydrugs.addiction.config.DoseConstants;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.dose.DosePath;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
@@ -170,14 +170,7 @@ public final class BadTripManager {
     }
 
     private static void resetCleanIntegrationStreak(ServerPlayer player, @Nullable DrugId drugId) {
-        if (!IntegrationRequirements.usesCleanDoseStreak(drugId)) {
-            return;
-        }
-        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        DrugAddictionStats drugStats = stats.getDrugStats(drugId);
-        if (drugStats != null) {
-            drugStats.cleanIntegrationDoseStreak = 0;
-        }
+        IntegrationService.recordPsychedelicBadTrip(player, drugId);
     }
 
     private static void stop(ServerPlayer player, PlayerAddictionStats stats, BadTripState state, @Nullable RecoveryRoomReport recoveryRoom) {

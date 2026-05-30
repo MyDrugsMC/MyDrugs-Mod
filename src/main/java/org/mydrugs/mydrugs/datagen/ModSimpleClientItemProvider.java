@@ -58,6 +58,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "copper_tube",
                 "crack_plate",
                 "crack_shard",
+                "crude_reactant_cake",
                 "cup",
                 "cupboard_piece",
                 "cured_cannabis_leaf",
@@ -69,6 +70,8 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "energy_upgrade",
                 "ergot",
                 "ergotamine",
+                "ephedra_cuttings",
+                "ephedra_extract",
                 "fast_fluid_pipe",
                 "fast_gas_pipe",
                 "fast_item_pipe",
@@ -130,10 +133,12 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "psychotrope_lens",
                 "pump_head",
                 "raw_aluminium",
+                "raw_phosphorus",
                 "raw_platinum",
                 "raw_rubber",
                 "raw_thick_glass",
                 "reaction_core",
+                "reactive_phosphorus",
                 "refractory_brick",
                 "refractory_mix",
                 "reinforced_casing",
@@ -150,6 +155,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "steel_ingot",
                 "steel_plate",
                 "stone_hammer",
+                "spent_plant_pulp",
                 "sulfur_powder",
                 "tank_wall",
                 "thick_glass",
@@ -203,6 +209,11 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "strain_vent", "mydrugs:item/strain_vent"));
         futures.add(saveFlatItem(cachedOutput, "resonance_lens", "mydrugs:item/resonance_lens"));
         futures.add(saveFlatItem(cachedOutput, "integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "basic_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "advanced_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "refined_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "pristine_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "prime_integration_core", "mydrugs:item/integration_core"));
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

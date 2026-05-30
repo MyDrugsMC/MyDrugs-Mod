@@ -31,7 +31,12 @@ public enum PsychotropeResonatorFailureReason {
     DREAM_ALIGNMENT_MISSING(18, "message.mydrugs.inner_dimension.requires_dream_alignment"),
     INTEGRATION_MISSING(19, "message.mydrugs.inner_dimension.requires_integration"),
     INNER_DIMENSION_UNAVAILABLE(20, "message.mydrugs.inner_dimension.unavailable"),
-    DREAM_ALREADY_ALIGNED(21, "message.mydrugs.resonator.dream_already_aligned");
+    DREAM_ALREADY_ALIGNED(21, "message.mydrugs.resonator.dream_already_aligned"),
+    INSERT_INTEGRATION_MATERIAL(22, "message.mydrugs.resonator.insert_integration_material"),
+    UNKNOWN_INTEGRATION_MATERIAL(23, "message.mydrugs.resonator.unknown_integration_material"),
+    PSYCHEDELIC_REFLECTION_INCOMPLETE(24, "message.mydrugs.resonator.psychedelic_reflection_incomplete"),
+    PSYCHEDELIC_SAFE_SETTING_INCOMPLETE(25, "message.mydrugs.resonator.psychedelic_safe_setting_incomplete"),
+    RECENT_BAD_TRIP(26, "message.mydrugs.resonator.recent_bad_trip");
 
     private final int networkId;
     private final String translationKey;
@@ -72,6 +77,9 @@ public enum PsychotropeResonatorFailureReason {
         }
         if (eligibility.alreadyIntegrated()) return ALREADY_INTEGRATED;
         if (!eligibility.cleanDoseStreakMet()) return CLEAN_STREAK_LOW;
+        if (!eligibility.psychedelicReflectionMet()) return PSYCHEDELIC_REFLECTION_INCOMPLETE;
+        if (!eligibility.safePsychedelicUseMet()) return PSYCHEDELIC_SAFE_SETTING_INCOMPLETE;
+        if (!eligibility.noRecentBadTripMet()) return RECENT_BAD_TRIP;
         if (!eligibility.peakMet()) return PEAK_TOO_LOW;
         if (!eligibility.lowAddictionMet()) return ADDICTION_TOO_HIGH;
         if (!eligibility.lifetimeDoseMet()) return LIFETIME_DOSE_LOW;

@@ -19,7 +19,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.menu.layout.PsychotropeResonatorLayout;
 
 public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
-    public static final int DATA_COUNT = 11;
+    public static final int DATA_COUNT = 29;
     public static final int MACHINE_SLOT_COUNT = PsychotropeResonatorBlockEntity.SLOT_COUNT;
     public static final int DREAM_ALIGNMENT_BUTTON_ID = 0;
     public static final int INTEGRATION_BUTTON_ID = 1;
@@ -65,7 +65,7 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
                 PsychotropeResonatorLayout.MATERIAL_SLOT_X, PsychotropeResonatorLayout.MATERIAL_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return PsychotropeResonatorBlockEntity.isIntegrationMaterial(stack);
+                return !stack.isEmpty();
             }
         });
         this.addSlot(new Slot(container, PsychotropeResonatorBlockEntity.SLOT_INTEGRATION_CORE,
@@ -141,6 +141,78 @@ public final class PsychotropeResonatorMenu extends AbstractMachineMenu {
 
     public int checklistMask() {
         return this.data.get(9);
+    }
+
+    public int peakCurrentTenth() {
+        return this.data.get(11);
+    }
+
+    public int peakRequiredTenth() {
+        return this.data.get(12);
+    }
+
+    public int addictionCurrentTenth() {
+        return this.data.get(13);
+    }
+
+    public int addictionMaxTenth() {
+        return this.data.get(14);
+    }
+
+    public int recoveryCurrentPercent() {
+        return this.data.get(15);
+    }
+
+    public int recoveryRequiredPercent() {
+        return this.data.get(16);
+    }
+
+    public int lifetimeDoseTenth() {
+        return this.data.get(17);
+    }
+
+    public int lifetimeDoseRequiredTenth() {
+        return this.data.get(18);
+    }
+
+    public int cleanDoseStreak() {
+        return this.data.get(19);
+    }
+
+    public int cleanDoseStreakRequired() {
+        return this.data.get(20);
+    }
+
+    public int psychedelicReflections() {
+        return this.data.get(21);
+    }
+
+    public int psychedelicReflectionsRequired() {
+        return this.data.get(22);
+    }
+
+    public int safePsychedelicUses() {
+        return this.data.get(23);
+    }
+
+    public int safePsychedelicUsesRequired() {
+        return this.data.get(24);
+    }
+
+    public int cleanSpacingRemainingTicks() {
+        return this.data.get(25);
+    }
+
+    public int recentBadTripRemainingTicks() {
+        return this.data.get(26);
+    }
+
+    public int requiredCoreRank() {
+        return this.data.get(27);
+    }
+
+    public int slottedCoreRank() {
+        return this.data.get(28);
     }
 
     public int getScaledProgress(int pixels) {

@@ -13,13 +13,13 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
+import org.mydrugs.mydrugs.dimension.inner.v7.InnerDimensionV7;
 
 /**
  * Phase G: the Inner Dimension boundary.
  *
  * The Resonator calls {@link #canOpen}/{@link #open}/{@link #onIntegration}, which manipulate the
- * persistent island state ({@link InnerDimensionSavedData}) and place the next ring of terrain
- * via {@link InnerDimensionGenerator}.
+ * persistent owner state ({@link InnerDimensionSavedData}) and enqueue V7 owner overlays.
  */
 public final class InnerDimensionService {
     private static final double SPAWN_Y = InnerDimensions.ISLAND_Y + 1.0D;
@@ -80,7 +80,8 @@ public final class InnerDimensionService {
 
         InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        InnerDimensionGenerator.ensureInitialIsland(innerLevel, island);
+        InnerDimensionV7.ensureOwnerReady(innerLevel, island);
+        // TODO: Feed player recovery/stress state into sparse Thought Echo and Craving Wisp hooks.
 
         player.teleport(new TeleportTransition(
                 innerLevel,
@@ -108,7 +109,7 @@ public final class InnerDimensionService {
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        if (InnerDimensionGenerator.onIntegration(innerLevel, island, drugId)) {
+        if (InnerDimensionV7.onIntegration(innerLevel, island, drugId)) {
             IntegrationDiary.dimensionExpanded(player, drugId);
         }
     }

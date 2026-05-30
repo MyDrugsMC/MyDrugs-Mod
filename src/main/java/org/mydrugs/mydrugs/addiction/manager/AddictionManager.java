@@ -135,10 +135,8 @@ public final class AddictionManager {
                     prevLastUseTime,
                     IntegrationConstants.MIN_CLEAN_STREAK_SPACING_TICKS
             );
-            // Psychedelics never enter RecoveryProgressManager's reckoning (no recovery progress
-            // requirement), so onProductiveAction would never promote them. Stage them here so the
-            // diary beat + chat notification fire once they meet the streak threshold.
-            IntegrationService.markEligible(player, model.getId());
+            boolean safeSetting = !playerStats.badTrip.active && isPsychedelicSafeSetting(player);
+            IntegrationService.onCleanPsychedelicUseContext(drugStats, safeSetting);
         }
 
         StressManager.reduceStress(playerStats, AddictionConstants.STRESS_RELIEF_ON_CONSUME);
@@ -193,7 +191,11 @@ public final class AddictionManager {
                     recoveryRoom == null && inSafeZone
             ) * RecoveryRoomManager.addictionRecoveryMultiplier(recoveryRoom) / 20.0F;
 
+            float addictionBeforeDecay = drugStats.addictionValue;
             drugStats.addictionValue = Math.max(0.0F, drugStats.addictionValue - addictionRecovery);
+            if (drugStats.addictionValue < addictionBeforeDecay) {
+                IntegrationService.afterDrugStatsUpdated(player, drugId);
+            }
             RelapseManager.decay(drugStats);
 
             DoseManager.tickDrug(player, stats, drugId);
@@ -248,6 +250,11 @@ public final class AddictionManager {
             doses[category.networkId()] = stats.getCategoryCurrentDose(category);
         }
         PacketDistributor.sendToPlayer(player, new DoseSyncPayload(doses));
+    }
+
+    private static boolean isPsychedelicSafeSetting(ServerPlayer player) {
+        RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+        return RecoveryRoomManager.isValidRecoveryRoom(room) || SafeZoneManager.isInSafeZone(player);
     }
 
     public static float getGlobalSeverity(ServerPlayer player) {
