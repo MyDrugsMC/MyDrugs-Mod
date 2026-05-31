@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.core.drug.integration.IntegratedTraitManager;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.dimension.InnerDimensionService;
 import org.mydrugs.mydrugs.dimension.InnerDimensions;
+import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.items.bottle.LightningBottleManager;
 import org.mydrugs.mydrugs.mutation.MutationManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
@@ -40,10 +41,15 @@ public final class PlayerTickEvents {
             MutationManager.tickPlayer(player);
             Profiler.get().popPush("integration");
             IntegratedTraitManager.tickPlayer(player);
-            Profiler.get().popPush("inner_dimension_fall_out");
-            if (InnerDimensionService.isInInnerDimension(player)
-                    && player.getY() < InnerDimensions.FALL_OUT_Y) {
-                InnerDimensionService.returnToOverworld(player);
+            Profiler.get().popPush("inner_dimension");
+            if (InnerDimensionService.isInInnerDimension(player)) {
+                if (player.getY() < InnerDimensions.FALL_OUT_Y) {
+                    InnerDimensionService.returnToOverworld(player);
+                    InnerDemonSpawnManager.clearInnerAmbient(player);
+                } else {
+                    // B3: atmosphere danger drives sparse symbolic encounters in scarred regions.
+                    InnerDemonSpawnManager.tickInnerAmbient(player);
+                }
             }
         } finally {
             Profiler.get().pop();

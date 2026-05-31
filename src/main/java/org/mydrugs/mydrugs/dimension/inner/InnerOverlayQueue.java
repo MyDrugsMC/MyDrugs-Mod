@@ -6,6 +6,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -16,7 +18,6 @@ import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -76,6 +77,32 @@ public final class InnerOverlayQueue {
         return new InnerRefreshJob(island.owner(), chunks.size(), replaced);
     }
 
+    /**
+     * B1: enqueue a single freshly-loaded chunk for idempotent decoration. Placement is gated by
+     * the marker system (B2) and {@code safeSet}, so re-processing an already-dressed chunk is a
+     * no-op. Appends to the owner's existing overlay queue or starts a new one.
+     */
+    public static void enqueueChunkDecoration(InnerDimensionSavedData.IslandState island, ChunkPos chunkPos) {
+        if (island == null || island.owner() == null || chunkPos == null) {
+            return;
+        }
+        ChunkCollector chunks = new ChunkCollector();
+        chunks.add(chunkPos);
+        appendQueue(island.owner(), chunks);
+    }
+
+    /**
+     * B5: clear the static per-owner queue and metrics maps when the server stops, so stale state
+     * does not leak across world loads in singleplayer. All access to these maps (enqueue*,
+     * onLevelTick, onChunkLoad, here) happens on the server thread.
+     */
+    @SubscribeEvent
+    public static void onServerStopping(ServerStoppingEvent event) {
+        QUEUES.clear();
+        LAST_METRICS.clear();
+        org.mydrugs.mydrugs.entity.InnerDemonSpawnManager.clearInnerAmbientState();
+    }
+
     public static boolean cancel(UUID owner) {
         return QUEUES.remove(owner) != null;
     }
@@ -103,15 +130,7 @@ public final class InnerOverlayQueue {
         return state == null ? 0 : state.remaining();
     }
 
-    public static int deduplicatedChunkCountForTest(List<ChunkPos> chunks) {
-        ChunkCollector collector = new ChunkCollector();
-        for (ChunkPos chunk : chunks) {
-            collector.add(chunk);
-        }
-        return collector.size();
-    }
-
-    public static int deduplicatedChunkCoordinateCountForTest(int[][] chunks) {
+    static int deduplicatedChunkCoordinateCountForTest(int[][] chunks) {
         Set<Long> keys = new LinkedHashSet<>();
         for (int[] chunk : chunks) {
             if (chunk.length >= 2) {
@@ -119,6 +138,29 @@ public final class InnerOverlayQueue {
             }
         }
         return keys.size();
+    }
+
+    /**
+     * B1: when a chunk loads in the inner dimension, enqueue it for decoration so the owner's
+     * island is dressed regardless of how the player arrived (no reliance on an entry/integration
+     * event having fired). The event fires before the chunk is promoted to FULL, so we must not
+     * touch the level here — enqueueing only defers the work to {@link #onLevelTick}.
+     */
+    @SubscribeEvent
+    public static void onChunkLoad(ChunkEvent.Load event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
+            return;
+        }
+        ChunkPos chunkPos = event.getChunk().getPos();
+        if (!InnerTerrain.chunkMayHaveLand(chunkPos.getMinBlockX(), chunkPos.getMinBlockZ())) {
+            return;
+        }
+        int centerX = InnerTerrain.slotCenter(chunkPos.getMiddleBlockX());
+        int centerZ = InnerTerrain.slotCenter(chunkPos.getMiddleBlockZ());
+        InnerDimensionSavedData.IslandState island = InnerDimensionSavedData.get(level).findIslandBySlot(centerX, centerZ);
+        if (island != null) {
+            enqueueChunkDecoration(island, chunkPos);
+        }
     }
 
     @SubscribeEvent
@@ -173,31 +215,39 @@ public final class InnerOverlayQueue {
             QueueMode mode
     ) {
         InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
-        if (mode == QueueMode.FULL_RECREATE) {
-            InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
-        }
-        int centerChunkX = island.centerX() >> 4;
-        int centerChunkZ = island.centerZ() >> 4;
-        if (chunkPos.x == centerChunkX && chunkPos.z == centerChunkZ) {
-            InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
-        }
+        // B4: memoize terrain samples for the duration of this single-threaded pass so the
+        // rebuilder, sanctuary/landmark builders, decorator and surfaceTop share one lookup
+        // per column instead of recomputing the warped sample each time.
+        InnerTerrain.beginCachePass();
+        try {
+            if (mode == QueueMode.FULL_RECREATE) {
+                InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
+            }
+            int centerChunkX = island.centerX() >> 4;
+            int centerChunkZ = island.centerZ() >> 4;
+            if (chunkPos.x == centerChunkX && chunkPos.z == centerChunkZ) {
+                InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
+            }
 
-        InnerDecorator.decoratePathChunk(level, chunkPos, count);
-        for (DrugId drugId : CuratedDrugChain.ORDER) {
-            BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
-            ChunkPos landmarkChunk = new ChunkPos(landmark);
-            int dx = Math.abs(chunkPos.x - landmarkChunk.x);
-            int dz = Math.abs(chunkPos.z - landmarkChunk.z);
-            if (dx > 4 || dz > 4) {
-                continue;
+            InnerDecorator.decoratePathChunk(level, chunkPos, count);
+            for (DrugId drugId : CuratedDrugChain.ORDER) {
+                BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
+                ChunkPos landmarkChunk = new ChunkPos(landmark);
+                int dx = Math.abs(chunkPos.x - landmarkChunk.x);
+                int dz = Math.abs(chunkPos.z - landmarkChunk.z);
+                if (dx > 4 || dz > 4) {
+                    continue;
+                }
+                boolean unlocked = island.integratedDrugs().contains(drugId);
+                if (chunkPos.x == landmarkChunk.x && chunkPos.z == landmarkChunk.z) {
+                    InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
+                }
+                if (unlocked) {
+                    InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, island.integratedCount(), count);
+                }
             }
-            boolean unlocked = island.integratedDrugs().contains(drugId);
-            if (chunkPos.x == landmarkChunk.x && chunkPos.z == landmarkChunk.z) {
-                InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
-            }
-            if (unlocked) {
-                InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, count);
-            }
+        } finally {
+            InnerTerrain.endCachePass();
         }
         return count.freeze();
     }
@@ -270,13 +320,13 @@ public final class InnerOverlayQueue {
         }
     }
 
-    public static int fullRecreateChunkCountForTest(int centerX, int centerZ) {
+    static int fullRecreateChunkCountForTest(int centerX, int centerZ) {
         Set<Long> keys = new LinkedHashSet<>();
         forEachRecreateChunkCoordinate(centerX, centerZ, (chunkX, chunkZ) -> keys.add(chunkKey(chunkX, chunkZ)));
         return keys.size();
     }
 
-    public static boolean processedChunkCanBeRequeuedForTest() {
+    static boolean processedChunkCanBeRequeuedForTest() {
         long key = chunkKey(4, -7);
         Set<Long> queued = new LinkedHashSet<>();
         queued.add(key);

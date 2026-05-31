@@ -48,6 +48,14 @@ public class ClientModEvents {
     }
 
     @SubscribeEvent
+    public static void registerDimensionEffects(RegisterDimensionSpecialEffectsEvent event) {
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "inner"),
+                new org.mydrugs.mydrugs.client.InnerDimensionEffects()
+        );
+    }
+
+    @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.BANG_CONTAINER.get(), SingleSlotMenuScreen::new);
         event.register(ModMenus.ADVANCED_FURNACE.get(), AdvancedFurnaceScreen::new);

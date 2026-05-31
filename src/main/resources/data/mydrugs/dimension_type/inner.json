@@ -11,7 +11,7 @@
   "fixed_time": 18000,
   "infiniburn": "#minecraft:infiniburn_overworld",
   "logical_height": 256,
-  "effects": "minecraft:the_end",
+  "effects": "mydrugs:inner",
   "min_y": 0,
   "height": 256,
   "monster_spawn_block_light_limit": 0,

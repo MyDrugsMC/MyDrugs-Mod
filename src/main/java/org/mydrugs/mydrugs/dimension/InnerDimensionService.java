@@ -13,6 +13,7 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
 import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
+import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 
 /**
  * Boundary for Resonator access to the Inner Dimension.
@@ -76,7 +77,9 @@ public final class InnerDimensionService {
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
         InnerDimensionSystem.ensureOwnerReady(innerLevel, island);
         BlockPos spawn = InnerDimensionSystem.safeSpawnPos(innerLevel, island);
-        // TODO: Feed player recovery/stress state into sparse symbolic encounter hooks.
+        // B3: prime the sparse symbolic-encounter system so the player gets a grace period before
+        // any atmosphere-danger-driven encounter; per-tick weighting then happens in PlayerTickEvents.
+        InnerDemonSpawnManager.primeInnerAmbient(player);
 
         player.teleport(new TeleportTransition(
                 innerLevel,
