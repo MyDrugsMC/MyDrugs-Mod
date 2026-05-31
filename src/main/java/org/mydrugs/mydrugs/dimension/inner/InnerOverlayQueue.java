@@ -18,7 +18,6 @@ import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -131,15 +130,7 @@ public final class InnerOverlayQueue {
         return state == null ? 0 : state.remaining();
     }
 
-    public static int deduplicatedChunkCountForTest(List<ChunkPos> chunks) {
-        ChunkCollector collector = new ChunkCollector();
-        for (ChunkPos chunk : chunks) {
-            collector.add(chunk);
-        }
-        return collector.size();
-    }
-
-    public static int deduplicatedChunkCoordinateCountForTest(int[][] chunks) {
+    static int deduplicatedChunkCoordinateCountForTest(int[][] chunks) {
         Set<Long> keys = new LinkedHashSet<>();
         for (int[] chunk : chunks) {
             if (chunk.length >= 2) {
@@ -329,13 +320,13 @@ public final class InnerOverlayQueue {
         }
     }
 
-    public static int fullRecreateChunkCountForTest(int centerX, int centerZ) {
+    static int fullRecreateChunkCountForTest(int centerX, int centerZ) {
         Set<Long> keys = new LinkedHashSet<>();
         forEachRecreateChunkCoordinate(centerX, centerZ, (chunkX, chunkZ) -> keys.add(chunkKey(chunkX, chunkZ)));
         return keys.size();
     }
 
-    public static boolean processedChunkCanBeRequeuedForTest() {
+    static boolean processedChunkCanBeRequeuedForTest() {
         long key = chunkKey(4, -7);
         Set<Long> queued = new LinkedHashSet<>();
         queued.add(key);
