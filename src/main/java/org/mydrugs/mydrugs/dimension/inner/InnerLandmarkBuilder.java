@@ -19,17 +19,21 @@ public final class InnerLandmarkBuilder {
             boolean unlocked,
             InnerPlacement.MutablePlacementCount count
     ) {
+        // B2: skip the full shrine rebuild if this landmark has already been placed in its current
+        // (locked/unlocked) state. The locked->unlocked transition flips the marker so it rebuilds
+        // exactly once when the region is integrated.
+        String marker = InnerDimensionConstants.landmarkMarker(drugId, unlocked);
+        if (island.hasMarker(marker)) {
+            return;
+        }
         BlockPos anchor = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
         BlockPos surface = InnerPlacement.surfaceTop(level, anchor.getX(), anchor.getZ());
         if (unlocked) {
             placeUnlockedLandmark(level, island, drugId, surface, count);
-            InnerDimensionSavedData.get(level).markStructurePlaced(
-                    island.owner(),
-                    InnerDimensionConstants.landmarkMarker(drugId)
-            );
         } else {
             placeLockedLandmark(level, drugId, surface, count);
         }
+        InnerDimensionSavedData.get(level).markStructurePlaced(island.owner(), marker);
     }
 
     static void placeLockedLandmark(

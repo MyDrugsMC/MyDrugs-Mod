@@ -39,8 +39,20 @@ public final class InnerDimensionConstants {
     private InnerDimensionConstants() {
     }
 
-    public static String landmarkMarker(DrugId drugId) {
-        return "landmark:" + drugId.serializedName();
+    /**
+     * Sanctuary marker keyed by integration count so the gate (B2) lets the sanctuary regrow each
+     * time a new drug is integrated, then skips re-placement on idle chunk loads at the same count.
+     */
+    public static String sanctuaryMarker(int integratedCount) {
+        return MARKER_SANCTUARY + ":" + integratedCount;
+    }
+
+    /**
+     * Landmark marker keyed by its unlocked state so the locked->unlocked transition re-places the
+     * shrine once, after which idle loads skip it.
+     */
+    public static String landmarkMarker(DrugId drugId, boolean unlocked) {
+        return "landmark:" + drugId.serializedName() + (unlocked ? ":unlocked" : ":locked");
     }
 
     public static String pathMarker(DrugId drugId) {
