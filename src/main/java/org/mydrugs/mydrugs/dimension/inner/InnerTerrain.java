@@ -82,7 +82,7 @@ public final class InnerTerrain {
 
         double heightNoise = InnerNoise.fbm(seed + 29L, worldX, worldZ, 150.0D, 5);
         double ridge = InnerNoise.ridged(seed + 31L, worldX, worldZ, 72.0D, 3);
-        double localSilhouette = silhouette(drugId, seed, worldX, worldZ, distance);
+        double localSilhouette = silhouette(drugId, seed, worldX, worldZ);
         int topY = InnerDimensionConstants.BASE_Y
                 + (int) Math.round(heightNoise * (18.0D + silhouetteScale * 8.0D))
                 + (int) Math.round(ridge * (8.0D + ridgeScale * 8.0D))
@@ -177,19 +177,39 @@ public final class InnerTerrain {
         return sample(centerX, centerZ, centerX, centerZ).topY() + 1;
     }
 
-    private static double silhouette(DrugId drugId, long seed, int worldX, int worldZ, double distance) {
-        double ridge = InnerNoise.ridged(seed + 501L + drugId.networkId(), worldX, worldZ, 48.0D, 3);
+    /**
+     * A3: per-drug surface character expressed purely as noise sampled at world XZ — no term is
+     * a function of {@code distance} alone, so silhouettes no longer ripple in concentric rings.
+     * Each region mixes ridged (jagged), billow (bulbous) and fbm (rolling) noise at its own
+     * amplitude/frequency: shattered glass for METH/COCAINE, soft hills for WEED, pressed
+     * terraces for HASH, sunken marsh basins for ALCOHOL, layered shelves for LSD.
+     */
+    private static double silhouette(DrugId drugId, long seed, int worldX, int worldZ) {
+        long s = seed + 501L + drugId.networkId();
         return switch (drugId) {
-            case TOBACCO -> ridge * 11.0D;
-            case WEED -> -Math.max(0.0D, ridge - 0.54D) * 6.0D;
-            case HASH -> ridge * 8.0D;
-            case ALCOHOL -> -Math.max(0.0D, Math.sin(distance / 58.0D)) * 9.0D;
-            case COCAINE -> ridge * 14.0D;
-            case LSD -> Math.sin(distance / 42.0D) * 8.0D + ridge * 14.0D;
-            case METH -> ridge * 16.0D;
-            case MUSHROOMS -> Math.sin(distance / 85.0D) * 5.0D;
-            default -> ridge * 4.0D;
+            case TOBACCO -> InnerNoise.ridged(s, worldX, worldZ, 54.0D, 3) * 11.0D;
+            case WEED -> InnerNoise.fbm(s, worldX, worldZ, 96.0D, 4) * 6.0D - 1.5D;
+            case HASH -> terraced(InnerNoise.ridged(s, worldX, worldZ, 60.0D, 3), 3) * 12.0D;
+            case ALCOHOL -> (InnerNoise.fbm(s, worldX, worldZ, 70.0D, 4) - 0.55D) * 14.0D;
+            case COCAINE -> sharpen(InnerNoise.ridged(s, worldX, worldZ, 38.0D, 4)) * 16.0D;
+            case LSD -> InnerNoise.ridged(s, worldX, worldZ, 44.0D, 3) * 12.0D
+                    + InnerNoise.fbm(s + 7L, worldX, worldZ, 120.0D, 4) * 9.0D;
+            case METH -> sharpen(InnerNoise.ridged(s, worldX, worldZ, 33.0D, 4)) * 18.0D;
+            case MUSHROOMS -> InnerNoise.fbm(s, worldX, worldZ, 80.0D, 4) * 5.0D
+                    + Math.abs(InnerNoise.fbm(s + 3L, worldX, worldZ, 30.0D, 3)) * 3.0D;
+            default -> InnerNoise.fbm(s, worldX, worldZ, 110.0D, 4) * 4.0D;
         };
+    }
+
+    /** Quantise a 0..1 noise value into {@code levels} flat steps for a terraced look. */
+    private static double terraced(double value, int levels) {
+        return Math.floor(InnerNoise.clamp01(value) * levels) / levels;
+    }
+
+    /** Sharpen a 0..1 ridged value so peaks become brittle spikes and flanks fall away faster. */
+    private static double sharpen(double value) {
+        double v = InnerNoise.clamp01(value);
+        return v * v;
     }
 
     private static double scarStrength(long seed, double dx, double dz, double angle, double distance) {
