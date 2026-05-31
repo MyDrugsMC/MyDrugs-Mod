@@ -16,7 +16,28 @@ public final class InnerTerrain {
     // A5: salt for the surface accent-scatter noise.
     private static final long ACCENT_SALT = 0x00AC_CE57L;
 
+    // B4: optional per-pass Sample memoization. Enabled only around the (single-threaded,
+    // server-side) overlay/placement pass via begin/endCachePass, where the same column is
+    // sampled repeatedly (decorator + builders + surfaceTop + rebuilder). Worldgen worker threads
+    // never enable it, so there is no cross-thread sharing of mutable state.
+    private static final ThreadLocal<java.util.Map<Long, Sample>> PASS_CACHE = new ThreadLocal<>();
+
+    // B4: satellite ring layout is a function of the slot seed only; precompute it once per slot
+    // instead of re-running the 9-iteration trig loop on every sample() call. Immutable once built.
+    private static final java.util.Map<Long, SatelliteCenter[]> SATELLITE_CENTERS =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
     private InnerTerrain() {
+    }
+
+    /** Begin a per-pass Sample cache on the current thread. Must be paired with {@link #endCachePass()}. */
+    public static void beginCachePass() {
+        PASS_CACHE.set(new java.util.HashMap<>());
+    }
+
+    /** End the current thread's per-pass Sample cache. */
+    public static void endCachePass() {
+        PASS_CACHE.remove();
     }
 
     public static Sample sample(int worldX, int worldZ) {
@@ -24,6 +45,22 @@ public final class InnerTerrain {
     }
 
     public static Sample sample(int centerX, int centerZ, int worldX, int worldZ) {
+        java.util.Map<Long, Sample> cache = PASS_CACHE.get();
+        if (cache == null) {
+            return computeSample(centerX, centerZ, worldX, worldZ);
+        }
+        // A pass always runs against a single island, so (worldX, worldZ) keys the column uniquely.
+        long key = ((long) worldX & 0xffffffffL) | (((long) worldZ & 0xffffffffL) << 32);
+        Sample cached = cache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        Sample computed = computeSample(centerX, centerZ, worldX, worldZ);
+        cache.put(key, computed);
+        return computed;
+    }
+
+    private static Sample computeSample(int centerX, int centerZ, int worldX, int worldZ) {
         long seed = seedForSlot(centerX, centerZ);
 
         // A1: warp the sampling position with low-frequency fBm before computing polar
@@ -186,7 +223,9 @@ public final class InnerTerrain {
             return false;
         }
         long seed = InnerDimensionConstants.BASE_SEED + sample.drugId().networkId() * 101L;
-        double cave = InnerNoise.ridged(seed, worldX, worldZ + y * 5.0D, 46.0D, 3);
+        // B4: 2 octaves instead of 3 — this runs per-block inside the column, so the cheaper
+        // ridged lookup matters; the cave silhouette is unchanged at the visible scale.
+        double cave = InnerNoise.ridged(seed, worldX, worldZ + y * 5.0D, 46.0D, 2);
         return cave > 0.84D;
     }
 
@@ -293,24 +332,41 @@ public final class InnerTerrain {
     }
 
     private static Satellite satellite(long seed, int centerX, int centerZ, double worldX, double worldZ) {
+        SatelliteCenter[] centers = satelliteCenters(seed, centerX, centerZ);
         double bestDensity = -1000.0D;
         int bestTop = InnerDimensionConstants.BASE_Y + 22;
-        for (int i = 0; i < 9; i++) {
-            double angle = (i + 0.35D) / 9.0D * Math.PI * 2.0D;
-            double radius = 1320.0D + InnerNoise.value(seed + 91L, i, 0) * 150.0D;
-            int sx = centerX + (int) Math.round(Math.cos(angle) * radius);
-            int sz = centerZ + (int) Math.round(Math.sin(angle) * radius);
-            double dx = worldX - sx;
-            double dz = worldZ - sz;
+        for (int i = 0; i < centers.length; i++) {
+            SatelliteCenter c = centers[i];
+            double dx = worldX - c.x();
+            double dz = worldZ - c.z();
             double distance = Math.sqrt(dx * dx + dz * dz);
-            double size = 82.0D + InnerNoise.value(seed + 93L, i, 0) * 36.0D;
-            double density = size - distance + InnerNoise.fbm(seed + i * 19L, worldX, worldZ, 55.0D, 3) * 28.0D;
+            double density = c.size() - distance + InnerNoise.fbm(seed + i * 19L, worldX, worldZ, 55.0D, 3) * 28.0D;
             if (density > bestDensity) {
                 bestDensity = density;
-                bestTop = InnerDimensionConstants.BASE_Y + 22 + (int) Math.round(InnerNoise.value(seed + 97L, i, 0) * 16.0D);
+                bestTop = c.topY();
             }
         }
         return new Satellite(bestDensity, bestTop);
+    }
+
+    private static SatelliteCenter[] satelliteCenters(long seed, int centerX, int centerZ) {
+        return SATELLITE_CENTERS.computeIfAbsent(seed, s -> {
+            SatelliteCenter[] arr = new SatelliteCenter[9];
+            for (int i = 0; i < arr.length; i++) {
+                double angle = (i + 0.35D) / 9.0D * Math.PI * 2.0D;
+                double radius = 1320.0D + InnerNoise.value(s + 91L, i, 0) * 150.0D;
+                int sx = centerX + (int) Math.round(Math.cos(angle) * radius);
+                int sz = centerZ + (int) Math.round(Math.sin(angle) * radius);
+                double size = 82.0D + InnerNoise.value(s + 93L, i, 0) * 36.0D;
+                int topY = InnerDimensionConstants.BASE_Y + 22
+                        + (int) Math.round(InnerNoise.value(s + 97L, i, 0) * 16.0D);
+                arr[i] = new SatelliteCenter(sx, sz, size, topY);
+            }
+            return arr;
+        });
+    }
+
+    private record SatelliteCenter(int x, int z, double size, int topY) {
     }
 
     private record Satellite(double density, int topY) {

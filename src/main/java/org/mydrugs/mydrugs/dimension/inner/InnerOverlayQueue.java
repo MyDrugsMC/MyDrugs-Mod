@@ -173,31 +173,39 @@ public final class InnerOverlayQueue {
             QueueMode mode
     ) {
         InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
-        if (mode == QueueMode.FULL_RECREATE) {
-            InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
-        }
-        int centerChunkX = island.centerX() >> 4;
-        int centerChunkZ = island.centerZ() >> 4;
-        if (chunkPos.x == centerChunkX && chunkPos.z == centerChunkZ) {
-            InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
-        }
+        // B4: memoize terrain samples for the duration of this single-threaded pass so the
+        // rebuilder, sanctuary/landmark builders, decorator and surfaceTop share one lookup
+        // per column instead of recomputing the warped sample each time.
+        InnerTerrain.beginCachePass();
+        try {
+            if (mode == QueueMode.FULL_RECREATE) {
+                InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
+            }
+            int centerChunkX = island.centerX() >> 4;
+            int centerChunkZ = island.centerZ() >> 4;
+            if (chunkPos.x == centerChunkX && chunkPos.z == centerChunkZ) {
+                InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
+            }
 
-        InnerDecorator.decoratePathChunk(level, chunkPos, count);
-        for (DrugId drugId : CuratedDrugChain.ORDER) {
-            BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
-            ChunkPos landmarkChunk = new ChunkPos(landmark);
-            int dx = Math.abs(chunkPos.x - landmarkChunk.x);
-            int dz = Math.abs(chunkPos.z - landmarkChunk.z);
-            if (dx > 4 || dz > 4) {
-                continue;
+            InnerDecorator.decoratePathChunk(level, chunkPos, count);
+            for (DrugId drugId : CuratedDrugChain.ORDER) {
+                BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
+                ChunkPos landmarkChunk = new ChunkPos(landmark);
+                int dx = Math.abs(chunkPos.x - landmarkChunk.x);
+                int dz = Math.abs(chunkPos.z - landmarkChunk.z);
+                if (dx > 4 || dz > 4) {
+                    continue;
+                }
+                boolean unlocked = island.integratedDrugs().contains(drugId);
+                if (chunkPos.x == landmarkChunk.x && chunkPos.z == landmarkChunk.z) {
+                    InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
+                }
+                if (unlocked) {
+                    InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, count);
+                }
             }
-            boolean unlocked = island.integratedDrugs().contains(drugId);
-            if (chunkPos.x == landmarkChunk.x && chunkPos.z == landmarkChunk.z) {
-                InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
-            }
-            if (unlocked) {
-                InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, count);
-            }
+        } finally {
+            InnerTerrain.endCachePass();
         }
         return count.freeze();
     }
