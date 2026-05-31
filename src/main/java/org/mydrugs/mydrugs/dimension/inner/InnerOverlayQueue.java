@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -89,6 +90,18 @@ public final class InnerOverlayQueue {
         ChunkCollector chunks = new ChunkCollector();
         chunks.add(chunkPos);
         appendQueue(island.owner(), chunks);
+    }
+
+    /**
+     * B5: clear the static per-owner queue and metrics maps when the server stops, so stale state
+     * does not leak across world loads in singleplayer. All access to these maps (enqueue*,
+     * onLevelTick, onChunkLoad, here) happens on the server thread.
+     */
+    @SubscribeEvent
+    public static void onServerStopping(ServerStoppingEvent event) {
+        QUEUES.clear();
+        LAST_METRICS.clear();
+        org.mydrugs.mydrugs.entity.InnerDemonSpawnManager.clearInnerAmbientState();
     }
 
     public static boolean cancel(UUID owner) {
