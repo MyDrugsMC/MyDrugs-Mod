@@ -45,11 +45,16 @@ final class InnerDecorator {
             ChunkPos chunkPos,
             DrugId drugId,
             boolean unlocked,
+            int integratedCount,
             InnerPlacement.MutablePlacementCount count
     ) {
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
+        // Part C: healing brings order. The overlay layer has island state, so we modulate
+        // decoration here (never the pure terrain shape). As the player heals overall, integrated
+        // regions trade chaos (redline thorns in scars) for order (calming plants, denser accent).
+        double order = unlocked ? InnerNoise.clamp01(integratedCount / 9.0D) : 0.0D;
         for (int localZ = 1; localZ < 16; localZ += 3) {
             for (int localX = 1; localX < 16; localX += 3) {
                 int x = minX + localX;
@@ -60,18 +65,29 @@ final class InnerDecorator {
                 }
                 long hash = InnerNoise.mix64(InnerTerrain.seedForSlot(InnerTerrain.slotCenter(x), InnerTerrain.slotCenter(z))
                         + x * 73428767L + z * 912931L + drugId.networkId());
+                int roll = (int) (hash & 1023L);
                 BlockPos top = InnerPlacement.surfaceTop(level, x, z);
-                if (sample.scar() && (drugId == DrugId.COCAINE || drugId == DrugId.METH) && (hash & 3L) == 0L) {
-                    InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count);
-                    continue;
+                if (sample.scar() && (drugId == DrugId.COCAINE || drugId == DrugId.METH)) {
+                    // Thorns thin out as the region heals; some scar cells turn to calming growth.
+                    double thornChance = 0.25D * (1.0D - 0.7D * order);
+                    if (roll < thornChance * 1024.0D) {
+                        InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count);
+                        continue;
+                    }
+                    if (unlocked && roll < (thornChance + 0.20D * order) * 1024.0D) {
+                        InnerPlacement.safeSet(level, top.above(), healingPlantFor(drugId), false, count);
+                        continue;
+                    }
                 }
-                if (sample.scar() && unlocked && (hash & 7L) == 0L) {
+                if (sample.scar() && unlocked && roll < (0.125D + 0.20D * order) * 1024.0D) {
                     InnerPlacement.safeSet(level, top.above(), healingPlantFor(drugId), false, count);
                     continue;
                 }
-                if ((hash & 15L) == 2L) {
+                double plantChance = 0.0625D + 0.10D * order;
+                double accentChance = unlocked ? 0.015D + 0.05D * order : 0.0D;
+                if (roll < plantChance * 1024.0D) {
                     InnerPlacement.safeSet(level, top.above(), plantFromProfile(profile, hash), false, count);
-                } else if (unlocked && (hash & 63L) == 4L) {
+                } else if (accentChance > 0.0D && roll >= 1024.0D - accentChance * 1024.0D) {
                     InnerPlacement.safeSet(level, top.above(), profile.accentBlock(), true, count);
                 }
             }

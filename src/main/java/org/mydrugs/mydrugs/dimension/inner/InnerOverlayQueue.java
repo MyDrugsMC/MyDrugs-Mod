@@ -243,7 +243,7 @@ public final class InnerOverlayQueue {
                     InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
                 }
                 if (unlocked) {
-                    InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, count);
+                    InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, island.integratedCount(), count);
                 }
             }
         } finally {

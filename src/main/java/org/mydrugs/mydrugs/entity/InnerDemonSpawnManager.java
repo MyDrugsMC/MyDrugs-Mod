@@ -12,6 +12,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
+import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
 import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
@@ -77,7 +78,16 @@ public final class InnerDemonSpawnManager {
         BlockPos pos = player.blockPosition();
         int centerX = InnerTerrain.slotCenter(pos.getX());
         int centerZ = InnerTerrain.slotCenter(pos.getZ());
-        double danger = InnerAtmosphere.sample(centerX, centerZ, pos).danger();
+        InnerAtmosphere.Sample atmosphere = InnerAtmosphere.sample(centerX, centerZ, pos);
+        double danger = atmosphere.danger();
+        // Part C: healing brings order. A region whose drug the owner has integrated is calmer, so
+        // sparse symbolic encounters there are dampened. Island state lives on the server, so this
+        // gameplay dial stays out of the pure terrain/atmosphere math.
+        InnerDimensionSavedData.IslandState island =
+                InnerDimensionSavedData.get(level).findIslandBySlot(centerX, centerZ);
+        if (island != null && island.integratedDrugs().contains(atmosphere.dominantDrug())) {
+            danger *= 0.4D;
+        }
         if (danger < INNER_AMBIENT_DANGER_GATE) {
             return;
         }
