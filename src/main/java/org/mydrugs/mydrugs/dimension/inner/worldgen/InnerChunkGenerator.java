@@ -87,6 +87,9 @@ public final class InnerChunkGenerator extends ChunkGenerator {
                     if (InnerTerrain.caveAir(sample, worldX, y, worldZ)) {
                         continue;
                     }
+                    // B9: ChunkAccess.setBlockState(BlockPos, BlockState, int flags) — verified
+                    // against the mappings in use (Parchment 1.21.10); the third arg is block-update
+                    // flags (int), not a boolean, and ProtoChunk ignores it during worldgen.
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerTerrain.stateFor(sample, worldX, y, worldZ), 2);
                 }
             }

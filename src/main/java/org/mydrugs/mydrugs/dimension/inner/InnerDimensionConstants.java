@@ -15,6 +15,15 @@ public final class InnerDimensionConstants {
     public static final int BASE_Y = 64;
     public static final int MIN_Y = 0;
     public static final int GEN_DEPTH = 256;
+    /**
+     * B8 — deliberate choice: a fixed base seed, NOT mixed with {@code level.getSeed()}. The inner
+     * dimension is an archetypal psyche: its structure (sanctuary, one region per drug, radiating
+     * paths, shrines) is meant to be the same symbolic map in every world. Per-player variation
+     * still exists because {@link InnerTerrain#seedForSlot} mixes the slot's centre coordinates, so
+     * two players get different islands while a given player's island is identical across saves.
+     * Mixing the world seed would also require threading it through the static, seedless worldgen
+     * path (see Ground Rule #2), which we intentionally avoid.
+     */
     public static final long BASE_SEED = 0x4D59445255475321L;
 
     public static final int CENTER_RING_RADIUS = 96;
