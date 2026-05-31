@@ -1,7 +1,7 @@
 {
   "type": "mydrugs:inner",
   "generator": {
-    "type": "mydrugs:inner_v7",
+    "type": "mydrugs:inner_continent",
     "biome_source": {
       "type": "minecraft:fixed",
       "biome": "minecraft:the_void"

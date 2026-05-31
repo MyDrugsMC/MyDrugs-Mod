@@ -1,4 +1,4 @@
-package org.mydrugs.mydrugs.dimension.inner.v7.worldgen;
+package org.mydrugs.mydrugs.dimension.inner.worldgen;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,25 +10,25 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import org.mydrugs.mydrugs.dimension.inner.v7.InnerV7Constants;
-import org.mydrugs.mydrugs.dimension.inner.v7.InnerV7Terrain;
+import org.mydrugs.mydrugs.dimension.inner.InnerDimensionConstants;
+import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public final class InnerV7ChunkGenerator extends ChunkGenerator {
-    public static final MapCodec<InnerV7ChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BiomeSource.CODEC.fieldOf("biome_source").forGetter(InnerV7ChunkGenerator::getBiomeSource)
-    ).apply(instance, InnerV7ChunkGenerator::new));
+public final class InnerChunkGenerator extends ChunkGenerator {
+    public static final MapCodec<InnerChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BiomeSource.CODEC.fieldOf("biome_source").forGetter(InnerChunkGenerator::getBiomeSource)
+    ).apply(instance, InnerChunkGenerator::new));
 
-    public InnerV7ChunkGenerator(BiomeSource biomeSource) {
+    public InnerChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
     }
 
@@ -67,7 +67,7 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
         ChunkPos chunkPos = chunk.getPos();
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
-        if (!InnerV7Terrain.chunkMayHaveLand(minX, minZ)) {
+        if (!InnerTerrain.chunkMayHaveLand(minX, minZ)) {
             return CompletableFuture.completedFuture(chunk);
         }
 
@@ -76,7 +76,7 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
             int worldX = minX + localX;
             for (int localZ = 0; localZ < 16; localZ++) {
                 int worldZ = minZ + localZ;
-                InnerV7Terrain.Sample sample = InnerV7Terrain.sample(worldX, worldZ);
+                InnerTerrain.Sample sample = InnerTerrain.sample(worldX, worldZ);
                 if (!sample.land()) {
                     continue;
                 }
@@ -84,10 +84,10 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
                     if (y < chunk.getMinY() || y >= chunk.getMinY() + chunk.getHeight()) {
                         continue;
                     }
-                    if (InnerV7Terrain.caveAir(sample, worldX, y, worldZ)) {
+                    if (InnerTerrain.caveAir(sample, worldX, y, worldZ)) {
                         continue;
                     }
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerV7Terrain.stateFor(sample, y), 2);
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerTerrain.stateFor(sample, y), 2);
                 }
             }
         }
@@ -96,12 +96,12 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
 
     @Override
     public int getSpawnHeight(LevelHeightAccessor level) {
-        return InnerV7Constants.BASE_Y + 8;
+        return InnerDimensionConstants.BASE_Y + 8;
     }
 
     @Override
     public int getGenDepth() {
-        return InnerV7Constants.GEN_DEPTH;
+        return InnerDimensionConstants.GEN_DEPTH;
     }
 
     @Override
@@ -111,7 +111,7 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
 
     @Override
     public int getMinY() {
-        return InnerV7Constants.MIN_Y;
+        return InnerDimensionConstants.MIN_Y;
     }
 
     @Override
@@ -122,7 +122,7 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
             LevelHeightAccessor level,
             RandomState randomState
     ) {
-        InnerV7Terrain.Sample sample = InnerV7Terrain.sample(x, z);
+        InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
         return sample.land() ? sample.topY() + 1 : level.getMinY();
     }
 
@@ -133,14 +133,14 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
             states[i] = Blocks.AIR.defaultBlockState();
         }
 
-        InnerV7Terrain.Sample sample = InnerV7Terrain.sample(x, z);
+        InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
         if (sample.land()) {
             for (int y = sample.bottomY(); y <= sample.topY(); y++) {
                 if (y < level.getMinY() || y >= level.getMinY() + level.getHeight()) {
                     continue;
                 }
-                if (!InnerV7Terrain.caveAir(sample, x, y, z)) {
-                    states[y - level.getMinY()] = InnerV7Terrain.stateFor(sample, y);
+                if (!InnerTerrain.caveAir(sample, x, y, z)) {
+                    states[y - level.getMinY()] = InnerTerrain.stateFor(sample, y);
                 }
             }
         }
@@ -153,10 +153,12 @@ public final class InnerV7ChunkGenerator extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState randomState, BlockPos pos) {
-        InnerV7Terrain.Sample sample = InnerV7Terrain.sample(pos.getX(), pos.getZ());
-        info.add("Inner V7 " + InnerV7Constants.VERSION
+        InnerTerrain.Sample sample = InnerTerrain.sample(pos.getX(), pos.getZ());
+        info.add("Inner Dimension"
                 + " land=" + sample.land()
                 + " drug=" + sample.drugId().serializedName()
-                + " top=" + sample.topY());
+                + " top=" + sample.topY()
+                + " path=" + String.format(java.util.Locale.ROOT, "%.2f", sample.pathStrength())
+                + " scar=" + String.format(java.util.Locale.ROOT, "%.2f", sample.scarStrength()));
     }
 }

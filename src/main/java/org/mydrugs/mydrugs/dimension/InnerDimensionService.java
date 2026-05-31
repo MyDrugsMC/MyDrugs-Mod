@@ -6,24 +6,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
-import org.mydrugs.mydrugs.dimension.inner.v7.InnerDimensionV7;
+import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
 
 /**
- * Phase G: the Inner Dimension boundary.
- *
- * The Resonator calls {@link #canOpen}/{@link #open}/{@link #onIntegration}, which manipulate the
- * persistent owner state ({@link InnerDimensionSavedData}) and enqueue V7 owner overlays.
+ * Boundary for Resonator access to the Inner Dimension.
  */
 public final class InnerDimensionService {
-    private static final double SPAWN_Y = InnerDimensions.ISLAND_Y + 1.0D;
-
     private InnerDimensionService() {
     }
 
@@ -80,12 +74,13 @@ public final class InnerDimensionService {
 
         InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        InnerDimensionV7.ensureOwnerReady(innerLevel, island);
-        // TODO: Feed player recovery/stress state into sparse Thought Echo and Craving Wisp hooks.
+        InnerDimensionSystem.ensureOwnerReady(innerLevel, island);
+        BlockPos spawn = InnerDimensionSystem.safeSpawnPos(innerLevel, island);
+        // TODO: Feed player recovery/stress state into sparse symbolic encounter hooks.
 
         player.teleport(new TeleportTransition(
                 innerLevel,
-                new Vec3(island.centerX() + 0.5D, SPAWN_Y, island.centerZ() + 0.5D),
+                new Vec3(spawn.getX() + 0.5D, spawn.getY(), spawn.getZ() + 0.5D),
                 Vec3.ZERO,
                 player.getYRot(),
                 player.getXRot(),
@@ -96,8 +91,7 @@ public final class InnerDimensionService {
     }
 
     /**
-     * Called by the Resonator right after a successful integration. Records the drug on the
-     * dimension's saved data and expands the island by that drug's §3.3 ring.
+     * Called by the Resonator right after a successful integration.
      */
     public static void onIntegration(ServerPlayer player, DrugId drugId) {
         if (player == null || drugId == null) {
@@ -109,7 +103,7 @@ public final class InnerDimensionService {
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        if (InnerDimensionV7.onIntegration(innerLevel, island, drugId)) {
+        if (InnerDimensionSystem.onIntegration(innerLevel, island, drugId)) {
             IntegrationDiary.dimensionExpanded(player, drugId);
         }
     }
@@ -130,7 +124,7 @@ public final class InnerDimensionService {
         return player != null && player.getData(ModAttachments.PLAYER_INTEGRATION.get()).isDreamAligned();
     }
 
-    /** Returns the player to the overworld spawn — invoked when they fall off the island. */
+    /** Returns the player to the overworld spawn when they fall out of the continent. */
     public static void returnToOverworld(ServerPlayer player) {
         if (player == null) {
             return;

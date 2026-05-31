@@ -1,7 +1,7 @@
-package org.mydrugs.mydrugs.dimension.inner.v7;
+package org.mydrugs.mydrugs.dimension.inner;
 
-public final class InnerV7Noise {
-    private InnerV7Noise() {
+public final class InnerNoise {
+    private InnerNoise() {
     }
 
     public static long mix64(long value) {
@@ -56,6 +56,10 @@ public final class InnerV7Noise {
 
     public static double lerp(double a, double b, double t) {
         return a + (b - a) * t;
+    }
+
+    public static double clamp01(double value) {
+        return Math.max(0.0D, Math.min(1.0D, value));
     }
 
     private static double fade(double t) {

@@ -1,0 +1,49 @@
+package org.mydrugs.mydrugs.dimension.inner;
+
+import net.minecraft.world.level.block.Block;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+
+public final class InnerDimensionConstants {
+    public static final String SYSTEM_NAME = "Inner Dimension";
+    public static final int OVERLAY_SCHEMA_VERSION = 2;
+
+    public static final int SLOT_SPACING = 4096;
+    public static final int ISLAND_RADIUS = 1280;
+    public static final int CORE_RADIUS = 112;
+    public static final int SATELLITE_REACH = 420;
+
+    public static final int BASE_Y = 64;
+    public static final int MIN_Y = 0;
+    public static final int GEN_DEPTH = 256;
+    public static final long BASE_SEED = 0x4D59445255475321L;
+
+    public static final int CENTER_RING_RADIUS = 96;
+    public static final int MID_RING_RADIUS = 420;
+    public static final int OUTER_RING_RADIUS = 930;
+    public static final int LANDMARK_BASE_RADIUS = 520;
+    public static final int LANDMARK_RADIUS_STEP = 58;
+
+    public static final int UPDATE_FLAGS = Block.UPDATE_ALL;
+    public static final int RECREATE_UPDATE_FLAGS = Block.UPDATE_CLIENTS
+            | Block.UPDATE_KNOWN_SHAPE
+            | Block.UPDATE_SUPPRESS_DROPS;
+    public static final int OVERLAY_CHUNKS_PER_TICK = 6;
+    public static final int RECREATE_CHUNKS_PER_TICK = 1;
+    public static final int MAX_OVERLAY_BLOCKS_PER_CHUNK = 3600;
+    public static final int FULL_RECREATE_BLOCK_RADIUS = ISLAND_RADIUS + SATELLITE_REACH + 192;
+    public static final int FULL_RECREATE_CHUNK_RADIUS = (FULL_RECREATE_BLOCK_RADIUS + 15) / 16;
+
+    public static final String MARKER_SANCTUARY = "sanctuary:center";
+    public static final String MARKER_OWNER_READY = "owner:ready";
+
+    private InnerDimensionConstants() {
+    }
+
+    public static String landmarkMarker(DrugId drugId) {
+        return "landmark:" + drugId.serializedName();
+    }
+
+    public static String pathMarker(DrugId drugId) {
+        return "path:" + drugId.serializedName();
+    }
+}

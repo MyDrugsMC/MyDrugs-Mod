@@ -32,7 +32,7 @@ import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.entity.ModEntityAttributes;
 import org.mydrugs.mydrugs.entity.ModEntities;
-import org.mydrugs.mydrugs.dimension.inner.v7.worldgen.ModInnerV7Worldgen;
+import org.mydrugs.mydrugs.dimension.inner.worldgen.ModInnerWorldgen;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.worldgen.ModBiomeModifierSerializers;
 import org.mydrugs.mydrugs.worldgen.WorldgenConfig;
@@ -92,7 +92,7 @@ public class MyDrugs {
         ModFluids.FLUID_ITEMS.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModBiomeModifierSerializers.register(modEventBus);
-        ModInnerV7Worldgen.register(modEventBus);
+        ModInnerWorldgen.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         ModCriteriaTriggers.register(modEventBus);
         ModAttachments.register(modEventBus);

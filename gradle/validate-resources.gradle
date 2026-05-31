@@ -1,0 +1,374 @@
+import groovy.json.JsonSlurper
+import org.gradle.api.GradleException
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+
+tasks.register('validateResources') {
+    group = 'verification'
+    description = 'Validates MyDrugs resources, localization coverage, guide refs, and asset TODOs.'
+
+    def projectDirFile = layout.projectDirectory.asFile
+    def projectDirPath = projectDirFile.toPath()
+    def guideFile = layout.projectDirectory.file('docs/progression_guide_pages.md').asFile
+    def gitignoreFile = layout.projectDirectory.file('.gitignore').asFile
+    def assetTodoFile = layout.projectDirectory.file('docs/ASSET_TODO.md').asFile
+    def resourceRoots = [
+            layout.projectDirectory.dir('src/main/resources'),
+            layout.projectDirectory.dir('src/generated/resources')
+    ]
+    def resourceRootFiles = resourceRoots.collect { it.asFile }
+    def javaSources = fileTree('src/main/java') {
+        include '**/*.java'
+    }
+    def jsonResources = files(resourceRoots.collect { root ->
+        fileTree(root) {
+            include '**/*.json'
+        }
+    })
+    def backupFiles = fileTree(projectDirFile) {
+        include '**/*~'
+        include '**/*.bak'
+        include '**/*.orig'
+        include '**/*.rej'
+        include '**/*.swp'
+        include '**/*.swo'
+        exclude '.git/**'
+        exclude '.gradle/**'
+        exclude 'build/**'
+        exclude '**/build/**'
+        exclude 'run/**'
+        exclude 'runs/**'
+    }
+
+    inputs.files(jsonResources)
+    inputs.files(javaSources)
+    inputs.files(backupFiles)
+    inputs.file(guideFile).optional()
+    inputs.file(gitignoreFile).optional()
+    outputs.file(assetTodoFile)
+
+    doLast {
+        def roots = resourceRootFiles.findAll { it.exists() }
+        def allJsonFiles = jsonResources.files.findAll { it.exists() && it.isFile() }.sort {
+            projectDirPath.relativize(it.toPath()).toString().replace('\\', '/')
+        }
+        def slurper = new JsonSlurper()
+        def parsedJson = [:]
+        def hardErrors = []
+        def softFindings = [] as Set
+
+        Closure<String> rel
+        rel = { File file -> projectDirPath.relativize(file.toPath()).toString().replace('\\', '/') }
+
+        Closure<Object> parseJson
+        parseJson = { File file ->
+            if (!parsedJson.containsKey(file)) {
+                parsedJson[file] = slurper.parse(file)
+            }
+            parsedJson[file]
+        }
+
+        Closure<List<File>> resourceFiles
+        resourceFiles = { String subdir ->
+            allJsonFiles.findAll { file ->
+                rel(file).contains("/assets/mydrugs/${subdir}/")
+            }.sort { rel(it) }
+        }
+
+        Closure<Map<String, String>> parseResourceLocation
+        parseResourceLocation = { String value, String defaultNamespace = 'mydrugs' ->
+            if (value == null || value.isBlank() || value.startsWith('#')) {
+                return null
+            }
+            String normalized = value.contains(':') ? value : "${defaultNamespace}:${value}"
+            int separator = normalized.indexOf(':')
+            if (separator <= 0 || separator == normalized.length() - 1) {
+                return null
+            }
+            String namespace = normalized.substring(0, separator)
+            String path = normalized.substring(separator + 1)
+            if (!(namespace ==~ /[a-z0-9_.-]+/) || !(path ==~ /[a-z0-9_.\/-]+/)) {
+                return null
+            }
+            [namespace: namespace, path: path]
+        }
+
+        Closure<File> findResource
+        findResource = { String namespace, String relativePath ->
+            roots.collect { root -> new File(root, "assets/${namespace}/${relativePath}") }
+                    .find { it.exists() && it.isFile() }
+        }
+
+        Closure<Boolean> resourceExists
+        resourceExists = { String namespace, String relativePath ->
+            findResource(namespace, relativePath) != null
+        }
+
+        Closure<Void> collectStringValuesByKey
+        collectStringValuesByKey = { Object node, String key, List<String> values ->
+            if (node instanceof Map) {
+                node.each { entryKey, entryValue ->
+                    if (entryKey == key && entryValue instanceof CharSequence) {
+                        values.add(entryValue.toString())
+                    }
+                    collectStringValuesByKey(entryValue, key, values)
+                }
+            } else if (node instanceof Iterable) {
+                node.each { collectStringValuesByKey(it, key, values) }
+            }
+        }
+
+        Closure<Void> collectTextureValues
+        collectTextureValues = { Object node, List<String> values ->
+            if (node instanceof Map) {
+                node.each { entryKey, entryValue ->
+                    if (entryKey == 'textures' && entryValue instanceof Map) {
+                        entryValue.values().findAll { it instanceof CharSequence }.each { values.add(it.toString()) }
+                    }
+                    if (entryKey == 'texture' && entryValue instanceof CharSequence) {
+                        values.add(entryValue.toString())
+                    }
+                    collectTextureValues(entryValue, values)
+                }
+            } else if (node instanceof Iterable) {
+                node.each { collectTextureValues(it, values) }
+            }
+        }
+
+        Closure<String> expectedUseForTexture
+        expectedUseForTexture = { String texturePath ->
+            if (texturePath.startsWith('block/')) {
+                return 'Block model texture'
+            }
+            if (texturePath.startsWith('item/')) {
+                return 'Item model texture'
+            }
+            return 'MyDrugs texture'
+        }
+
+        def visitedModels = [] as Set
+        Closure<Void> validateModel
+        validateModel = { String modelRef, String referencedBy ->
+            def modelId = parseResourceLocation(modelRef, 'mydrugs')
+            if (modelId == null || modelId.namespace != 'mydrugs') {
+                return
+            }
+
+            String modelResource = "models/${modelId.path}.json"
+            File modelFile = findResource(modelId.namespace, modelResource)
+            if (modelFile == null) {
+                softFindings.add([
+                        "asset: assets/${modelId.namespace}/${modelResource}",
+                        "referencedBy: ${referencedBy}",
+                        "expectedUse: Client model referenced by blockstate or item definition",
+                        "priority: high"
+                ].join('\n'))
+                return
+            }
+
+            String visitKey = "${modelId.namespace}:${modelId.path}"
+            if (!visitedModels.add(visitKey)) {
+                return
+            }
+
+            def modelJson = parseJson(modelFile)
+            List<String> parents = []
+            collectStringValuesByKey(modelJson, 'parent', parents)
+            parents.each { parentRef -> validateModel(parentRef, rel(modelFile)) }
+
+            List<String> textureRefs = []
+            collectTextureValues(modelJson, textureRefs)
+            textureRefs.each { textureRef ->
+                def textureId = parseResourceLocation(textureRef, 'mydrugs')
+                if (textureId == null || textureId.namespace != 'mydrugs') {
+                    return
+                }
+                String textureResource = "textures/${textureId.path}.png"
+                if (!resourceExists(textureId.namespace, textureResource)) {
+                    softFindings.add([
+                            "asset: assets/${textureId.namespace}/${textureResource}",
+                            "referencedBy: ${rel(modelFile)}",
+                            "expectedUse: ${expectedUseForTexture(textureId.path)}",
+                            "priority: medium"
+                    ].join('\n'))
+                }
+            }
+        }
+
+        // JSON must be UTF-8 without BOM.
+        allJsonFiles.each { file ->
+            byte[] bytes = Files.readAllBytes(file.toPath())
+            if (bytes.length >= 3 && bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
+                hardErrors.add("JSON file has UTF-8 BOM: ${rel(file)}")
+            }
+        }
+
+        // Accidental editor/checkpoint files should never enter the repo.
+        backupFiles.files.sort { rel(it) }.each { file ->
+            hardErrors.add("Backup/checkpoint file found: ${rel(file)}")
+        }
+
+        if (!gitignoreFile.exists() || !gitignoreFile.readLines(StandardCharsets.UTF_8.name()).any {
+            it.trim() in ['src/generated/resources/.cache/', '/src/generated/resources/.cache/']
+        }) {
+            hardErrors.add('src/generated/resources/.cache/ is not explicitly gitignored')
+        }
+
+        resourceFiles('blockstates').each { blockstate ->
+            def json = parseJson(blockstate)
+            List<String> models = []
+            collectStringValuesByKey(json, 'model', models)
+            models.each { modelRef -> validateModel(modelRef, rel(blockstate)) }
+        }
+
+        resourceFiles('items').each { itemDefinition ->
+            def json = parseJson(itemDefinition)
+            List<String> models = []
+            collectStringValuesByKey(json, 'model', models)
+            models.each { modelRef -> validateModel(modelRef, rel(itemDefinition)) }
+        }
+
+        resourceFiles('models').each { modelFile ->
+            def modelJson = parseJson(modelFile)
+            List<String> parents = []
+            collectStringValuesByKey(modelJson, 'parent', parents)
+            parents.each { parentRef -> validateModel(parentRef, rel(modelFile)) }
+
+            List<String> textureRefs = []
+            collectTextureValues(modelJson, textureRefs)
+            textureRefs.each { textureRef ->
+                def textureId = parseResourceLocation(textureRef, 'mydrugs')
+                if (textureId != null && textureId.namespace == 'mydrugs') {
+                    String textureResource = "textures/${textureId.path}.png"
+                    if (!resourceExists(textureId.namespace, textureResource)) {
+                        softFindings.add([
+                                "asset: assets/${textureId.namespace}/${textureResource}",
+                                "referencedBy: ${rel(modelFile)}",
+                                "expectedUse: ${expectedUseForTexture(textureId.path)}",
+                                "priority: medium"
+                        ].join('\n'))
+                    }
+                }
+            }
+        }
+
+        def javaText = javaSources.files.findAll { it.exists() }.collect { it.getText(StandardCharsets.UTF_8.name()) }.join('\n')
+        def registeredBlocks = new TreeSet<String>()
+        def registeredItems = new TreeSet<String>()
+
+        (javaText =~ /(?s)\bBLOCKS\s*\.\s*register(?:Block|SimpleBlock)?\s*\(\s*"([^"]+)"/).each { match ->
+            registeredBlocks.add(match[1].toString())
+        }
+        (javaText =~ /new\s+MachineSpec(?:<[^>]*>)?\s*\(\s*"([^"]+)"/).each { match ->
+            registeredBlocks.add(match[1].toString())
+        }
+        (javaText =~ /new\s+CropSpec(?:<[^>]*>)?\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/).each { match ->
+            registeredBlocks.add(match[1].toString())
+            registeredItems.add(match[2].toString())
+        }
+        (javaText =~ /(?m)register\s*\(\s*"([^"]+)"\s*,\s*PipeResourceKind\./).each { match ->
+            registeredBlocks.add(match[1].toString())
+        }
+        (javaText =~ /(?s)\bFLUID_BLOCKS\s*\.\s*registerBlock\s*\(\s*def\.name\(\)/).each {
+            (javaText =~ /new\s+FluidSpec\s*\(\s*"([^"]+)"/).each { fluid -> registeredBlocks.add(fluid[1].toString()) }
+        }
+        (javaText =~ /(?s)\bITEMS\s*\.\s*register(?:Item|SimpleItem)\s*\(\s*"([^"]+)"/).each { match ->
+            registeredItems.add(match[1].toString())
+        }
+        (javaText =~ /new\s+ItemSpec(?:<[^>]*>)?\s*\(\s*"([^"]+)"/).each { match ->
+            registeredItems.add(match[1].toString())
+        }
+        (javaText =~ /new\s+FluidSpec\s*\(\s*"([^"]+)"/).each { match ->
+            registeredItems.add("${match[1]}_bucket".toString())
+        }
+        if (javaText.contains('SPACE_FOODS_BY_BASE_ID')) {
+            resourceFiles('items').findAll { it.name.startsWith('space_') }.each { itemDefinition ->
+                registeredItems.add(itemDefinition.name[0..-6].toString())
+            }
+        }
+
+        registeredBlocks.each { id ->
+            if (!resourceExists('mydrugs', "blockstates/${id}.json")) {
+                hardErrors.add("Registered block has no blockstate: mydrugs:${id}")
+            }
+        }
+
+        registeredItems.each { id ->
+            if (!resourceExists('mydrugs', "items/${id}.json")) {
+                hardErrors.add("Registered item has no client item definition: mydrugs:${id}")
+            }
+        }
+
+        def langKeys = new TreeSet<String>()
+        resourceFiles('lang').findAll { it.name == 'en_us.json' }.each { langFile ->
+            def lang = parseJson(langFile)
+            if (lang instanceof Map) {
+                langKeys.addAll(lang.keySet().collect { it.toString() })
+            }
+        }
+        registeredBlocks.each { id ->
+            String key = "block.mydrugs.${id}"
+            if (!langKeys.contains(key)) {
+                hardErrors.add("Registered block has no en_us translation: ${key}")
+            }
+        }
+        registeredItems.each { id ->
+            String key = "item.mydrugs.${id}"
+            if (!langKeys.contains(key)) {
+                hardErrors.add("Registered item has no en_us translation: ${key}")
+            }
+        }
+
+        if (guideFile.exists()) {
+            def registeredGuideTargets = new TreeSet<String>()
+            registeredBlocks.each { registeredGuideTargets.add("mydrugs:${it}".toString()) }
+            registeredItems.each { registeredGuideTargets.add("mydrugs:${it}".toString()) }
+            guideFile.readLines(StandardCharsets.UTF_8.name()).eachWithIndex { line, index ->
+                if (line.trim().startsWith('#')) {
+                    return
+                }
+                (line =~ /@item\s+([a-z0-9_.-]+:[a-z0-9_.\/-]+)/).each { match ->
+                    String guideTarget = match[1].toString()
+                    if (!registeredGuideTargets.contains(guideTarget)) {
+                        hardErrors.add("Guide @item reference does not resolve to a registered item/block at line ${index + 1}: ${guideTarget}")
+                    }
+                }
+            }
+        }
+
+        File assetTodo = assetTodoFile
+        assetTodo.parentFile.mkdirs()
+        def lines = []
+        lines.add('# Asset TODO')
+        lines.add('')
+        lines.add('Generated by `./gradlew validateResources`. Do not add placeholder art just to clear this list.')
+        lines.add('')
+        if (softFindings.isEmpty()) {
+            lines.add('No missing MyDrugs model or texture references were found.')
+            lines.add('')
+        } else {
+            lines.add('## Missing Asset References')
+            lines.add('')
+            softFindings.sort().each { finding ->
+                lines.add('- ' + finding.replace('\n', '\n  '))
+            }
+            lines.add('')
+        }
+        String nextContent = lines.join(System.lineSeparator())
+        if (!assetTodo.exists() || assetTodo.getText(StandardCharsets.UTF_8.name()) != nextContent) {
+            assetTodo.setText(nextContent, StandardCharsets.UTF_8.name())
+        }
+
+        if (!softFindings.isEmpty()) {
+            logger.lifecycle("validateResources wrote ${softFindings.size()} missing asset finding(s) to ${rel(assetTodo)}")
+        }
+        if (!hardErrors.isEmpty()) {
+            throw new GradleException("Resource validation failed:\n - " + hardErrors.sort().join('\n - '))
+        }
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('validateResources')
+}
