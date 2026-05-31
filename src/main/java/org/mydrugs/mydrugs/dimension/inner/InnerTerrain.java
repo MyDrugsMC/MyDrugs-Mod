@@ -68,7 +68,7 @@ public final class InnerTerrain {
                 * (24.0D + ridgeScale * 22.0D);
         double density = InnerDimensionConstants.ISLAND_RADIUS - distance + coastWarp - cliffBreak;
 
-        double scarStrength = scarStrength(seed, dx, dz, angle, distance) * scarCarve;
+        double scarStrength = scarStrength(seed, sampleX, sampleZ, distance) * scarCarve;
         density -= scarStrength * 78.0D;
 
         double pathStrength = pathStrength(distance, angle, drugId);
@@ -251,20 +251,25 @@ public final class InnerTerrain {
         return v * v;
     }
 
-    private static double scarStrength(long seed, double dx, double dz, double angle, double distance) {
+    /**
+     * A6: scars as a branching fault network rather than drawn angular spokes. Two ridged-noise
+     * octaves on the (already domain-warped) sample coords are combined and thresholded high; the
+     * ridge crests form thin, forking cracks that feather out from a strong core. Region-level
+     * intensity (scars radiate from hard drugs) comes from the per-region {@code scarCarve} the
+     * caller multiplies in. No term depends on angle or on distance alone.
+     */
+    private static double scarStrength(long seed, double worldX, double worldZ, double distance) {
         if (distance < InnerDimensionConstants.CORE_RADIUS + 32.0D) {
             return 0.0D;
         }
-        double strength = 0.0D;
-        for (int i = 0; i < 5; i++) {
-            double scarAngle = i * Math.PI * 0.4D + InnerNoise.value(seed + 71L, i, 0) * 0.25D;
-            double angular = InnerRegionMap.angularDistance(angle, scarAngle);
-            double radialBand = Math.sin(distance / (150.0D + i * 17.0D));
-            double line = Math.max(0.0D, 1.0D - angular / 0.035D) * Math.max(0.0D, 0.65D + radialBand);
-            strength = Math.max(strength, line);
+        double fault = InnerNoise.ridged(seed + 71L, worldX, worldZ, 120.0D, 4);
+        double detail = InnerNoise.ridged(seed + 211L, worldX, worldZ, 38.0D, 3);
+        double combined = fault * 0.7D + detail * 0.3D;
+        double threshold = 0.85D;
+        if (combined <= threshold) {
+            return 0.0D;
         }
-        double cross = Math.abs(Math.sin((dx * 0.006D) + InnerNoise.smoothValue(seed + 73L, dx, dz, 240.0D)));
-        return Math.max(strength, cross > 0.985D && distance > 360.0D ? 0.7D : 0.0D);
+        return InnerNoise.clamp01((combined - threshold) / (1.0D - threshold));
     }
 
     private static double pathStrength(double distance, double angle, DrugId drugId) {
