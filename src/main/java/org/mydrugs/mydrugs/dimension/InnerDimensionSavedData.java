@@ -93,6 +93,19 @@ public final class InnerDimensionSavedData extends SavedData {
         return created;
     }
 
+    /**
+     * Find the already-existing island assigned to a given slot center, or {@code null}. Does not
+     * create islands — used by lazy chunk-load decoration (B1) to discover a chunk's owner.
+     */
+    public IslandState findIslandBySlot(int centerX, int centerZ) {
+        for (IslandState island : islands.values()) {
+            if (island.centerX() == centerX && island.centerZ() == centerZ) {
+                return island;
+            }
+        }
+        return null;
+    }
+
     public boolean markInitialIslandBuilt(UUID playerId) {
         IslandState island = getOrCreateIsland(playerId);
         if (island.initialIslandBuilt) {

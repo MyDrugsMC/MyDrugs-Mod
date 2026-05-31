@@ -6,6 +6,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -76,6 +77,20 @@ public final class InnerOverlayQueue {
         return new InnerRefreshJob(island.owner(), chunks.size(), replaced);
     }
 
+    /**
+     * B1: enqueue a single freshly-loaded chunk for idempotent decoration. Placement is gated by
+     * the marker system (B2) and {@code safeSet}, so re-processing an already-dressed chunk is a
+     * no-op. Appends to the owner's existing overlay queue or starts a new one.
+     */
+    public static void enqueueChunkDecoration(InnerDimensionSavedData.IslandState island, ChunkPos chunkPos) {
+        if (island == null || island.owner() == null || chunkPos == null) {
+            return;
+        }
+        ChunkCollector chunks = new ChunkCollector();
+        chunks.add(chunkPos);
+        appendQueue(island.owner(), chunks);
+    }
+
     public static boolean cancel(UUID owner) {
         return QUEUES.remove(owner) != null;
     }
@@ -119,6 +134,29 @@ public final class InnerOverlayQueue {
             }
         }
         return keys.size();
+    }
+
+    /**
+     * B1: when a chunk loads in the inner dimension, enqueue it for decoration so the owner's
+     * island is dressed regardless of how the player arrived (no reliance on an entry/integration
+     * event having fired). The event fires before the chunk is promoted to FULL, so we must not
+     * touch the level here — enqueueing only defers the work to {@link #onLevelTick}.
+     */
+    @SubscribeEvent
+    public static void onChunkLoad(ChunkEvent.Load event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
+            return;
+        }
+        ChunkPos chunkPos = event.getChunk().getPos();
+        if (!InnerTerrain.chunkMayHaveLand(chunkPos.getMinBlockX(), chunkPos.getMinBlockZ())) {
+            return;
+        }
+        int centerX = InnerTerrain.slotCenter(chunkPos.getMiddleBlockX());
+        int centerZ = InnerTerrain.slotCenter(chunkPos.getMiddleBlockZ());
+        InnerDimensionSavedData.IslandState island = InnerDimensionSavedData.get(level).findIslandBySlot(centerX, centerZ);
+        if (island != null) {
+            enqueueChunkDecoration(island, chunkPos);
+        }
     }
 
     @SubscribeEvent
