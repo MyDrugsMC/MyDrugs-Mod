@@ -80,17 +80,25 @@ public final class InnerTerrain {
         boolean path = pathStrength > 0.42D && density > -72.0D;
         boolean land = mainLand || satelliteLand || path;
 
-        double heightNoise = InnerNoise.fbm(seed + 29L, worldX, worldZ, 150.0D, 5);
-        double ridge = InnerNoise.ridged(seed + 31L, worldX, worldZ, 72.0D, 3);
+        // A4: a low-frequency base elevation pushed through a plateau/cliff spline (mid values
+        // flatten into plateaus, extremes drop to valleys or rear into cliffs), plus ridged
+        // detail scaled by local slope so flats stay readable and slopes gain texture. Everything
+        // is summed in double and rounded exactly once at the end (no per-term stair-stepping).
+        double baseElev = InnerNoise.fbm(seed + 29L, worldX, worldZ, 150.0D, 5);
+        double probe = 6.0D;
+        double shaped = elevationSpline(baseElev);
+        double gradX = elevationSpline(InnerNoise.fbm(seed + 29L, worldX + probe, worldZ, 150.0D, 5)) - shaped;
+        double gradZ = elevationSpline(InnerNoise.fbm(seed + 29L, worldX, worldZ + probe, 150.0D, 5)) - shaped;
+        double slope = InnerNoise.clamp01(Math.hypot(gradX, gradZ) * 3.0D);
         double localSilhouette = silhouette(drugId, seed, worldX, worldZ);
-        int topY = InnerDimensionConstants.BASE_Y
-                + (int) Math.round(heightNoise * (18.0D + silhouetteScale * 8.0D))
-                + (int) Math.round(ridge * (8.0D + ridgeScale * 8.0D))
-                + (int) Math.round(localSilhouette)
-                + (int) Math.round(heightBias);
+        double baseHeight = shaped * (20.0D + silhouetteScale * 10.0D);
+        double detail = InnerNoise.ridged(seed + 31L, worldX, worldZ, 72.0D, 3)
+                * (3.0D + ridgeScale * 7.0D) * (0.25D + 0.75D * slope);
+        double topYd = InnerDimensionConstants.BASE_Y + baseHeight + detail + localSilhouette + heightBias;
+        int topY = (int) Math.round(topYd);
 
         if (path) {
-            topY = InnerDimensionConstants.BASE_Y + 4 + (int) Math.round(heightNoise * 3.0D);
+            topY = InnerDimensionConstants.BASE_Y + 4 + (int) Math.round(baseElev * 3.0D);
         }
         if (satelliteLand && !mainLand) {
             topY = satellite.topY();
@@ -199,6 +207,17 @@ public final class InnerTerrain {
                     + Math.abs(InnerNoise.fbm(s + 3L, worldX, worldZ, 30.0D, 3)) * 3.0D;
             default -> InnerNoise.fbm(s, worldX, worldZ, 110.0D, 4) * 4.0D;
         };
+    }
+
+    /**
+     * A4 elevation spline. Blends a linear and a cubic response so mid-range base-elevation values
+     * compress toward a common height (broad plateaus) while the tails are preserved or pushed
+     * further (deeper valleys, sharper cliffs). Maps [-1,1] -> [-1,1].
+     */
+    private static double elevationSpline(double n) {
+        double clamped = Math.max(-1.0D, Math.min(1.0D, n));
+        double cubic = clamped * clamped * clamped;
+        return 0.35D * clamped + 0.65D * cubic;
     }
 
     /** Quantise a 0..1 noise value into {@code levels} flat steps for a terraced look. */
