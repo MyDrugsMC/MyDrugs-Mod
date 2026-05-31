@@ -12,17 +12,90 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
+import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
+import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class InnerDemonSpawnManager {
     private static final int MAX_BOUND_TO_PLAYER = 3;
     private static final int MAX_NEARBY = 6;
     private static final double NEARBY_RADIUS = 32.0D;
 
+    // B3: sparse, atmosphere-danger-weighted symbolic encounters while wandering the inner
+    // dimension (distinct from the bad-trip path above). Per-player cooldown in ticks; entries are
+    // dropped on overworld return and cleared on server stop (see clearInnerAmbientState).
+    private static final Map<UUID, Integer> INNER_AMBIENT_COOLDOWN = new ConcurrentHashMap<>();
+    private static final int INNER_AMBIENT_GRACE_TICKS = 20 * 30;
+    private static final double INNER_AMBIENT_DANGER_GATE = 0.45D;
+
     private InnerDemonSpawnManager() {
+    }
+
+    /** Give the player a grace period before any ambient encounter when they enter the dimension. */
+    public static void primeInnerAmbient(ServerPlayer player) {
+        if (player != null) {
+            INNER_AMBIENT_COOLDOWN.put(player.getUUID(), INNER_AMBIENT_GRACE_TICKS);
+        }
+    }
+
+    /** Forget a player's ambient cooldown (e.g. when they leave the inner dimension). */
+    public static void clearInnerAmbient(ServerPlayer player) {
+        if (player != null) {
+            INNER_AMBIENT_COOLDOWN.remove(player.getUUID());
+        }
+    }
+
+    /** Drop all ambient cooldown state. Call on server stop to avoid leaking across world loads. */
+    public static void clearInnerAmbientState() {
+        INNER_AMBIENT_COOLDOWN.clear();
+    }
+
+    /**
+     * Per-tick hook for a player standing in the inner dimension. The atmosphere {@code danger} at
+     * the player's position (high in scarred / hard-drug regions) acts as the spawn weight: it
+     * gates and scales the chance of a sparse symbolic encounter. The relatively expensive
+     * atmosphere sample only runs when the cooldown elapses, not every tick.
+     */
+    public static void tickInnerAmbient(ServerPlayer player) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return;
+        }
+        UUID id = player.getUUID();
+        int cooldown = INNER_AMBIENT_COOLDOWN.getOrDefault(id, INNER_AMBIENT_GRACE_TICKS);
+        if (cooldown > 0) {
+            INNER_AMBIENT_COOLDOWN.put(id, cooldown - 1);
+            return;
+        }
+        INNER_AMBIENT_COOLDOWN.put(id, nextInnerAmbientDelay(player));
+
+        BlockPos pos = player.blockPosition();
+        int centerX = InnerTerrain.slotCenter(pos.getX());
+        int centerZ = InnerTerrain.slotCenter(pos.getZ());
+        double danger = InnerAtmosphere.sample(centerX, centerZ, pos).danger();
+        if (danger < INNER_AMBIENT_DANGER_GATE) {
+            return;
+        }
+        if (countBoundToPlayer(level, player) >= MAX_BOUND_TO_PLAYER || countNearby(level, player) >= MAX_NEARBY) {
+            return;
+        }
+        float chance = (float) Mth.clamp((danger - INNER_AMBIENT_DANGER_GATE) * 0.6D, 0.0D, 0.5D);
+        if (player.getRandom().nextFloat() >= chance) {
+            return;
+        }
+        BlockPos spawnPos = findSpawnPos(level, player);
+        if (spawnPos != null) {
+            spawn(level, player, spawnPos, false, false);
+        }
+    }
+
+    private static int nextInnerAmbientDelay(ServerPlayer player) {
+        return 20 * 18 + player.getRandom().nextInt(20 * 24 + 1);
     }
 
     public static void tickBadTrip(ServerPlayer player, PlayerAddictionStats stats) {
