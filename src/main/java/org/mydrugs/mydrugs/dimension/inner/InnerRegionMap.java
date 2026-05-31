@@ -10,7 +10,49 @@ public final class InnerRegionMap {
     private static final List<DrugId> ORDER = CuratedDrugChain.ORDER;
     private static final double TWO_PI = Math.PI * 2.0D;
 
+    // A2: angular half-width of the transition band on either side of a sector boundary.
+    // Sector size is TWO_PI/ORDER.size() (~0.70 rad); the band must stay below the half-sector
+    // (~0.35 rad) so two regions never overlap a third.
+    private static final double BLEND_BAND = 0.22D;
+
     private InnerRegionMap() {
+    }
+
+    /**
+     * The two regions nearest an angle and how strongly the secondary bleeds into the primary.
+     * Outside the transition band {@code secondaryWeight} is 0 (pure primary); at a sector
+     * boundary it reaches 0.5 (equal mingling). {@code primaryWeight + secondaryWeight == 1}.
+     */
+    public record RegionBlend(DrugId primary, DrugId secondary, double secondaryWeight) {
+        public double primaryWeight() {
+            return 1.0D - secondaryWeight;
+        }
+    }
+
+    public static RegionBlend regionBlend(double angle) {
+        double normalized = normalizedAngle(angle);
+        int n = ORDER.size();
+        double sectorSize = TWO_PI / n;
+        int i = Math.floorMod((int) Math.floor(normalized / sectorSize), n);
+        double center = (i + 0.5D) * sectorSize;
+        double offset = normalized - center;
+        if (offset > Math.PI) {
+            offset -= TWO_PI;
+        } else if (offset < -Math.PI) {
+            offset += TWO_PI;
+        }
+        int neighbor = Math.floorMod(offset >= 0.0D ? i + 1 : i - 1, n);
+        double distToBoundary = sectorSize / 2.0D - Math.abs(offset);
+        double secondaryWeight = 0.0D;
+        if (distToBoundary < BLEND_BAND) {
+            double t = InnerNoise.clamp01(distToBoundary / BLEND_BAND);
+            secondaryWeight = 0.5D * (1.0D - smoothstep(t));
+        }
+        return new RegionBlend(ORDER.get(i), ORDER.get(neighbor), secondaryWeight);
+    }
+
+    private static double smoothstep(double t) {
+        return t * t * (3.0D - 2.0D * t);
     }
 
     public static List<DrugId> regionOrder() {
@@ -18,8 +60,16 @@ public final class InnerRegionMap {
     }
 
     public static DrugId dominantDrug(int centerX, int centerZ, int worldX, int worldZ) {
-        double angle = normalizedAngle(Math.atan2(worldZ - centerZ, worldX - centerX));
-        int index = Math.floorMod((int) Math.floor(angle / TWO_PI * ORDER.size()), ORDER.size());
+        return dominantDrugForAngle(Math.atan2(worldZ - centerZ, worldX - centerX));
+    }
+
+    /**
+     * Dominant region for an already-computed (possibly domain-warped) angle.
+     * Single source of the sector-to-drug mapping; {@link #dominantDrug} delegates here.
+     */
+    public static DrugId dominantDrugForAngle(double angle) {
+        double normalized = normalizedAngle(angle);
+        int index = Math.floorMod((int) Math.floor(normalized / TWO_PI * ORDER.size()), ORDER.size());
         return ORDER.get(index);
     }
 

@@ -35,7 +35,10 @@ public final class InnerDimensionSavedData extends SavedData {
             Codec.INT.optionalFieldOf("dream_z", 0).forGetter(IslandState::dreamZ),
             Codec.INT.optionalFieldOf("overlay_schema", InnerDimensionConstants.OVERLAY_SCHEMA_VERSION)
                     .forGetter(IslandState::overlaySchemaVersion),
-            Codec.STRING.optionalFieldOf("last_overlay_metrics", "").forGetter(IslandState::lastOverlayMetricsSummary)
+            Codec.STRING.optionalFieldOf("last_overlay_metrics", "").forGetter(IslandState::lastOverlayMetricsSummary),
+            // B7: explicit slot index so a removed island can never make a survivor's slot collide.
+            // Default -1 = legacy data; the constructor then derives it from the stored centers.
+            Codec.INT.optionalFieldOf("slot_index", -1).forGetter(IslandState::slotIndex)
     ).apply(instance, IslandState::new));
 
     public static final Codec<InnerDimensionSavedData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -86,11 +89,36 @@ public final class InnerDimensionSavedData extends SavedData {
             return existing;
         }
 
-        int index = islands.size();
-        IslandState created = new IslandState(playerId, slotCenterX(index), slotCenterZ(index));
+        IslandState created = new IslandState(playerId, nextFreeSlotIndex());
         islands.put(playerId, created);
         setDirty();
         return created;
+    }
+
+    /** Smallest non-negative slot index not already in use, robust to islands having been removed. */
+    private int nextFreeSlotIndex() {
+        Set<Integer> used = new LinkedHashSet<>();
+        for (IslandState island : islands.values()) {
+            used.add(island.slotIndex());
+        }
+        int index = 0;
+        while (used.contains(index)) {
+            index++;
+        }
+        return index;
+    }
+
+    /**
+     * Find the already-existing island assigned to a given slot center, or {@code null}. Does not
+     * create islands — used by lazy chunk-load decoration (B1) to discover a chunk's owner.
+     */
+    public IslandState findIslandBySlot(int centerX, int centerZ) {
+        for (IslandState island : islands.values()) {
+            if (island.centerX() == centerX && island.centerZ() == centerZ) {
+                return island;
+            }
+        }
+        return null;
     }
 
     public boolean markInitialIslandBuilt(UUID playerId) {
@@ -180,7 +208,15 @@ public final class InnerDimensionSavedData extends SavedData {
         return (index / 64) * InnerDimensionConstants.SLOT_SPACING;
     }
 
+    /** Reverse of slotCenterX/Z: recover a slot index from legacy data that stored only centers. */
+    private static int slotIndexFromCenter(int centerX, int centerZ) {
+        int col = Math.floorDiv(centerX, InnerDimensionConstants.SLOT_SPACING);
+        int row = Math.floorDiv(centerZ, InnerDimensionConstants.SLOT_SPACING);
+        return row * 64 + col;
+    }
+
     public static final class IslandState {
+        private final int slotIndex;
         private final int centerX;
         private final int centerZ;
         private final Set<DrugId> integratedDrugs;
@@ -195,11 +231,11 @@ public final class InnerDimensionSavedData extends SavedData {
         private int overlaySchemaVersion;
         private String lastOverlayMetricsSummary;
 
-        private IslandState(UUID owner, int centerX, int centerZ) {
+        private IslandState(UUID owner, int slotIndex) {
             this(
                     owner.toString(),
-                    centerX,
-                    centerZ,
+                    slotCenterX(slotIndex),
+                    slotCenterZ(slotIndex),
                     List.of(),
                     List.of(),
                     false,
@@ -209,7 +245,8 @@ public final class InnerDimensionSavedData extends SavedData {
                     0,
                     0,
                     InnerDimensionConstants.OVERLAY_SCHEMA_VERSION,
-                    ""
+                    "",
+                    slotIndex
             );
             this.owner = owner;
         }
@@ -227,9 +264,11 @@ public final class InnerDimensionSavedData extends SavedData {
                 int dreamY,
                 int dreamZ,
                 int overlaySchemaVersion,
-                String lastOverlayMetricsSummary
+                String lastOverlayMetricsSummary,
+                int slotIndex
         ) {
             this.owner = parseUuid(owner);
+            this.slotIndex = slotIndex >= 0 ? slotIndex : slotIndexFromCenter(centerX, centerZ);
             this.centerX = centerX;
             this.centerZ = centerZ;
             this.integratedDrugs = integratedDrugs.stream()
@@ -260,6 +299,10 @@ public final class InnerDimensionSavedData extends SavedData {
 
         public String ownerString() {
             return owner == null ? "" : owner.toString();
+        }
+
+        public int slotIndex() {
+            return slotIndex;
         }
 
         public int centerX() {

@@ -15,6 +15,15 @@ public final class InnerDimensionConstants {
     public static final int BASE_Y = 64;
     public static final int MIN_Y = 0;
     public static final int GEN_DEPTH = 256;
+    /**
+     * B8 — deliberate choice: a fixed base seed, NOT mixed with {@code level.getSeed()}. The inner
+     * dimension is an archetypal psyche: its structure (sanctuary, one region per drug, radiating
+     * paths, shrines) is meant to be the same symbolic map in every world. Per-player variation
+     * still exists because {@link InnerTerrain#seedForSlot} mixes the slot's centre coordinates, so
+     * two players get different islands while a given player's island is identical across saves.
+     * Mixing the world seed would also require threading it through the static, seedless worldgen
+     * path (see Ground Rule #2), which we intentionally avoid.
+     */
     public static final long BASE_SEED = 0x4D59445255475321L;
 
     public static final int CENTER_RING_RADIUS = 96;
@@ -39,8 +48,20 @@ public final class InnerDimensionConstants {
     private InnerDimensionConstants() {
     }
 
-    public static String landmarkMarker(DrugId drugId) {
-        return "landmark:" + drugId.serializedName();
+    /**
+     * Sanctuary marker keyed by integration count so the gate (B2) lets the sanctuary regrow each
+     * time a new drug is integrated, then skips re-placement on idle chunk loads at the same count.
+     */
+    public static String sanctuaryMarker(int integratedCount) {
+        return MARKER_SANCTUARY + ":" + integratedCount;
+    }
+
+    /**
+     * Landmark marker keyed by its unlocked state so the locked->unlocked transition re-places the
+     * shrine once, after which idle loads skip it.
+     */
+    public static String landmarkMarker(DrugId drugId, boolean unlocked) {
+        return "landmark:" + drugId.serializedName() + (unlocked ? ":unlocked" : ":locked");
     }
 
     public static String pathMarker(DrugId drugId) {

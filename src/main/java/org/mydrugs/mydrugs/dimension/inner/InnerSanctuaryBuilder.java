@@ -17,9 +17,15 @@ final class InnerSanctuaryBuilder {
             InnerDimensionSavedData.IslandState island,
             InnerPlacement.MutablePlacementCount count
     ) {
+        int integratedCount = island.integratedCount();
+        // B2: skip the full sanctuary rebuild if it has already been placed at this integration
+        // count. Integrating a new drug bumps the count, invalidating the marker so it regrows.
+        String marker = InnerDimensionConstants.sanctuaryMarker(integratedCount);
+        if (island.hasMarker(marker)) {
+            return;
+        }
         int centerX = island.centerX();
         int centerZ = island.centerZ();
-        int integratedCount = island.integratedCount();
         int radius = 21 + Math.min(8, integratedCount);
 
         for (int dz = -radius; dz <= radius; dz++) {
@@ -49,7 +55,7 @@ final class InnerSanctuaryBuilder {
         placeCompassMarkers(level, island, centerTop, count);
         placePathExits(level, island, count);
 
-        InnerDimensionSavedData.get(level).markStructurePlaced(island.owner(), InnerDimensionConstants.MARKER_SANCTUARY);
+        InnerDimensionSavedData.get(level).markStructurePlaced(island.owner(), marker);
     }
 
     private static BlockState sanctuaryFloor(double distance, int integratedCount) {
