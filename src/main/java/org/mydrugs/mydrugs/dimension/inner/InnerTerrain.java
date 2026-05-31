@@ -5,6 +5,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerTerrain {
+    // A1: low-frequency domain warp. Offsets the sampling position with fBm before any
+    // polar math so the wedge/ring/spoke structure stops being a closed-form function of
+    // (distance, angle) from one fixed center. Deterministic: derived purely from the slot seed.
+    private static final double WARP_SCALE = 360.0D;
+    private static final int WARP_OCTAVES = 4;
+    private static final double WARP_AMPLITUDE = 135.0D;
+    private static final long WARP_SALT_X = 0x5F1D_2A3BL;
+    private static final long WARP_SALT_Z = 0x9E77_C4A1L;
+
     private InnerTerrain() {
     }
 
@@ -13,13 +22,22 @@ public final class InnerTerrain {
     }
 
     public static Sample sample(int centerX, int centerZ, int worldX, int worldZ) {
-        double dx = worldX - centerX;
-        double dz = worldZ - centerZ;
-        double distance = Math.sqrt(dx * dx + dz * dz);
-        double angle = Math.atan2(dz, dx);
         long seed = seedForSlot(centerX, centerZ);
 
-        DrugId drugId = InnerRegionMap.dominantDrug(centerX, centerZ, worldX, worldZ);
+        // A1: warp the sampling position with low-frequency fBm before computing polar
+        // coordinates so every distance/angle-derived feature inherits a wandering, organic
+        // shape instead of perfect concentric/radial symmetry.
+        double warpX = InnerNoise.fbm(seed + WARP_SALT_X, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE;
+        double warpZ = InnerNoise.fbm(seed + WARP_SALT_Z, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE;
+        double sampleX = worldX + warpX;
+        double sampleZ = worldZ + warpZ;
+
+        double dx = sampleX - centerX;
+        double dz = sampleZ - centerZ;
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        double angle = Math.atan2(dz, dx);
+
+        DrugId drugId = InnerRegionMap.dominantDrugForAngle(angle);
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
 
         double coastWarp = InnerNoise.fbm(seed, worldX, worldZ, 240.0D, 4)
@@ -36,7 +54,7 @@ public final class InnerTerrain {
             density += pathStrength * 84.0D;
         }
 
-        Satellite satellite = satellite(seed, centerX, centerZ, worldX, worldZ);
+        Satellite satellite = satellite(seed, centerX, centerZ, sampleX, sampleZ);
         boolean satelliteLand = satellite.density() > 0.0D;
         boolean mainLand = density > 0.0D;
         boolean path = pathStrength > 0.42D && density > -72.0D;
@@ -190,7 +208,7 @@ public final class InnerTerrain {
         return InnerNoise.clamp01(1.0D - Math.abs(distance - ringRadius) / halfWidth);
     }
 
-    private static Satellite satellite(long seed, int centerX, int centerZ, int worldX, int worldZ) {
+    private static Satellite satellite(long seed, int centerX, int centerZ, double worldX, double worldZ) {
         double bestDensity = -1000.0D;
         int bestTop = InnerDimensionConstants.BASE_Y + 22;
         for (int i = 0; i < 9; i++) {

@@ -18,8 +18,16 @@ public final class InnerRegionMap {
     }
 
     public static DrugId dominantDrug(int centerX, int centerZ, int worldX, int worldZ) {
-        double angle = normalizedAngle(Math.atan2(worldZ - centerZ, worldX - centerX));
-        int index = Math.floorMod((int) Math.floor(angle / TWO_PI * ORDER.size()), ORDER.size());
+        return dominantDrugForAngle(Math.atan2(worldZ - centerZ, worldX - centerX));
+    }
+
+    /**
+     * Dominant region for an already-computed (possibly domain-warped) angle.
+     * Single source of the sector-to-drug mapping; {@link #dominantDrug} delegates here.
+     */
+    public static DrugId dominantDrugForAngle(double angle) {
+        double normalized = normalizedAngle(angle);
+        int index = Math.floorMod((int) Math.floor(normalized / TWO_PI * ORDER.size()), ORDER.size());
         return ORDER.get(index);
     }
 
