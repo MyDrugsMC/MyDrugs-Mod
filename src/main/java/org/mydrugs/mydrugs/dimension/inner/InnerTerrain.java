@@ -13,6 +13,8 @@ public final class InnerTerrain {
     private static final double WARP_AMPLITUDE = 135.0D;
     private static final long WARP_SALT_X = 0x5F1D_2A3BL;
     private static final long WARP_SALT_Z = 0x9E77_C4A1L;
+    // A5: salt for the surface accent-scatter noise.
+    private static final long ACCENT_SALT = 0x00AC_CE57L;
 
     private InnerTerrain() {
     }
@@ -115,6 +117,10 @@ public final class InnerTerrain {
             thickness = Math.max(9, thickness / 2);
         }
         int bottomY = Math.max(InnerDimensionConstants.MIN_Y + 4, topY - thickness);
+
+        // A5: vary the surface/subsurface band depth (2..6) so flat palettes do not read as a
+        // uniformly thin painted slab.
+        int surfaceDepth = 2 + (int) Math.round(InnerNoise.ridged(seed + 53L, worldX, worldZ, 40.0D, 2) * 4.0D);
         return new Sample(
                 land,
                 topY,
@@ -127,7 +133,8 @@ public final class InnerTerrain {
                 satelliteLand && !mainLand,
                 density,
                 distance,
-                surfaceProfile
+                surfaceProfile,
+                surfaceDepth
         );
     }
 
@@ -142,20 +149,33 @@ public final class InnerTerrain {
                 + 160;
     }
 
-    public static BlockState stateFor(Sample sample, int y) {
+    public static BlockState stateFor(Sample sample, int worldX, int y, int worldZ) {
+        InnerTerrainProfile profile = sample.profile();
         if (sample.path() && y == sample.topY()) {
-            return sample.profile().pathBlock();
+            return profile.pathBlock();
         }
         if (sample.scar() && y >= sample.topY() - 2) {
-            return sample.profile().scarBlock();
+            return profile.scarBlock();
         }
-        if (y == sample.topY()) {
-            return sample.profile().surfaceBlock();
+        // A5: scatter the profile's accent block through the surface band by a clumpy noise
+        // threshold so flat single-colour palettes (quartz, calcite, prismarine, magma...) gain
+        // texture instead of reading as painted slabs.
+        if (y == sample.topY() || y >= sample.topY() - sample.surfaceDepth()) {
+            boolean nearTop = y >= sample.topY() - 1;
+            if (accentScatter(profile, worldX, y, worldZ, nearTop)) {
+                return profile.accentBlock();
+            }
+            return y == sample.topY() ? profile.surfaceBlock() : profile.subsurfaceBlock();
         }
-        if (y >= sample.topY() - 3) {
-            return sample.profile().subsurfaceBlock();
-        }
-        return sample.profile().deepBlock();
+        return profile.deepBlock();
+    }
+
+    private static boolean accentScatter(InnerTerrainProfile profile, int worldX, int y, int worldZ, boolean nearTop) {
+        long salt = ACCENT_SALT + profile.drugId().networkId() * 131L;
+        double noise = InnerNoise.smoothValue(salt, worldX, worldZ, 6.5D);
+        // Looser threshold right at the surface, tighter just below, for a weathered crust.
+        double threshold = nearTop ? 0.58D : 0.74D;
+        return noise > threshold;
     }
 
     public static boolean caveAir(Sample sample, int worldX, int y, int worldZ) {
@@ -303,7 +323,8 @@ public final class InnerTerrain {
             boolean satellite,
             double density,
             double distanceFromCenter,
-            InnerTerrainProfile profile
+            InnerTerrainProfile profile,
+            int surfaceDepth
     ) {
     }
 }

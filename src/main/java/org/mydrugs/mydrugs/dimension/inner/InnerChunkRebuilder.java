@@ -70,7 +70,7 @@ final class InnerChunkRebuilder {
                         continue;
                     }
                     pos.set(worldX, y, worldZ);
-                    BlockState state = InnerTerrain.stateFor(sample, y);
+                    BlockState state = InnerTerrain.stateFor(sample, worldX, y, worldZ);
                     if (level.getBlockState(pos).equals(state)) {
                         continue;
                     }
