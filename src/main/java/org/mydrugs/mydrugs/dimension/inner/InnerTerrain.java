@@ -37,16 +37,36 @@ public final class InnerTerrain {
         double distance = Math.sqrt(dx * dx + dz * dz);
         double angle = Math.atan2(dz, dx);
 
-        DrugId drugId = InnerRegionMap.dominantDrugForAngle(angle);
+        // A2: blend the two regions nearest this angle so the profile's scalar fields cross
+        // the sector boundary continuously (no dead-straight cliffs/seams). drugId stays the
+        // dominant region for downstream keying; only the visual fields are interpolated.
+        InnerRegionMap.RegionBlend blend = InnerRegionMap.regionBlend(angle);
+        DrugId drugId = blend.primary();
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
+        InnerTerrainProfile secondaryProfile = InnerTerrainProfile.forDrug(blend.secondary());
+        double blendW = blend.secondaryWeight();
+        double silhouetteScale = InnerNoise.lerp(profile.silhouetteScale(), secondaryProfile.silhouetteScale(), blendW);
+        double ridgeScale = InnerNoise.lerp(profile.ridgeScale(), secondaryProfile.ridgeScale(), blendW);
+        double scarCarve = InnerNoise.lerp(profile.scarCarve(), secondaryProfile.scarCarve(), blendW);
+        double heightBias = InnerNoise.lerp(profile.heightBias(), secondaryProfile.heightBias(), blendW);
+
+        // Within the transition band scatter the two palettes by a per-column noise threshold
+        // against the blend weight, so the boundary reads as a dithered mingling, not a hard line.
+        InnerTerrainProfile surfaceProfile = profile;
+        if (blendW > 0.0D) {
+            double dither = (InnerNoise.smoothValue(seed + 0x1357L, worldX, worldZ, 14.0D) + 1.0D) * 0.5D;
+            if (dither < blendW) {
+                surfaceProfile = secondaryProfile;
+            }
+        }
 
         double coastWarp = InnerNoise.fbm(seed, worldX, worldZ, 240.0D, 4)
-                * (74.0D + profile.silhouetteScale() * 30.0D);
+                * (74.0D + silhouetteScale * 30.0D);
         double cliffBreak = InnerNoise.ridged(seed + 13L, worldX, worldZ, 84.0D, 3)
-                * (24.0D + profile.ridgeScale() * 22.0D);
+                * (24.0D + ridgeScale * 22.0D);
         double density = InnerDimensionConstants.ISLAND_RADIUS - distance + coastWarp - cliffBreak;
 
-        double scarStrength = scarStrength(seed, dx, dz, angle, distance) * profile.scarCarve();
+        double scarStrength = scarStrength(seed, dx, dz, angle, distance) * scarCarve;
         density -= scarStrength * 78.0D;
 
         double pathStrength = pathStrength(distance, angle, drugId);
@@ -64,10 +84,10 @@ public final class InnerTerrain {
         double ridge = InnerNoise.ridged(seed + 31L, worldX, worldZ, 72.0D, 3);
         double localSilhouette = silhouette(drugId, seed, worldX, worldZ, distance);
         int topY = InnerDimensionConstants.BASE_Y
-                + (int) Math.round(heightNoise * (18.0D + profile.silhouetteScale() * 8.0D))
-                + (int) Math.round(ridge * (8.0D + profile.ridgeScale() * 8.0D))
+                + (int) Math.round(heightNoise * (18.0D + silhouetteScale * 8.0D))
+                + (int) Math.round(ridge * (8.0D + ridgeScale * 8.0D))
                 + (int) Math.round(localSilhouette)
-                + profile.heightBias();
+                + (int) Math.round(heightBias);
 
         if (path) {
             topY = InnerDimensionConstants.BASE_Y + 4 + (int) Math.round(heightNoise * 3.0D);
@@ -99,7 +119,7 @@ public final class InnerTerrain {
                 satelliteLand && !mainLand,
                 density,
                 distance,
-                profile
+                surfaceProfile
         );
     }
 
