@@ -15,7 +15,12 @@ public record AddictionClientSnapshotPayload(
         int symptomFlags,
         int insomniaTicksRemaining,
         int recoveryFlags,
-        int overdoseTicksRemaining
+        int overdoseTicksRemaining,
+        int primaryDangerReason,
+        int suggestedAction,
+        int withdrawalPhase,
+        float dominantTolerance,
+        float dominantDose
 ) implements CustomPacketPayload {
     public static final int RECOVERY_SAFE_ZONE = 1 << 0;
     public static final int RECOVERY_DIARY = 1 << 1;
@@ -28,16 +33,37 @@ public record AddictionClientSnapshotPayload(
             new Type<>(ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "addiction_snapshot"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AddictionClientSnapshotPayload> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.FLOAT, AddictionClientSnapshotPayload::globalSeverity,
-                    ByteBufCodecs.FLOAT, AddictionClientSnapshotPayload::stressLevel,
-                    ByteBufCodecs.STRING_UTF8, AddictionClientSnapshotPayload::dominantDrugId,
-                    ByteBufCodecs.STRING_UTF8, AddictionClientSnapshotPayload::dominantCategory,
-                    ByteBufCodecs.VAR_INT, AddictionClientSnapshotPayload::symptomFlags,
-                    ByteBufCodecs.VAR_INT, AddictionClientSnapshotPayload::insomniaTicksRemaining,
-                    ByteBufCodecs.VAR_INT, AddictionClientSnapshotPayload::recoveryFlags,
-                    ByteBufCodecs.VAR_INT, AddictionClientSnapshotPayload::overdoseTicksRemaining,
-                    AddictionClientSnapshotPayload::new
+            StreamCodec.of(
+                    (buf, payload) -> {
+                        ByteBufCodecs.FLOAT.encode(buf, payload.globalSeverity());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.stressLevel());
+                        ByteBufCodecs.STRING_UTF8.encode(buf, payload.dominantDrugId());
+                        ByteBufCodecs.STRING_UTF8.encode(buf, payload.dominantCategory());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.symptomFlags());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.insomniaTicksRemaining());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.recoveryFlags());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.overdoseTicksRemaining());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.primaryDangerReason());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.suggestedAction());
+                        ByteBufCodecs.VAR_INT.encode(buf, payload.withdrawalPhase());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.dominantTolerance());
+                        ByteBufCodecs.FLOAT.encode(buf, payload.dominantDose());
+                    },
+                    buf -> new AddictionClientSnapshotPayload(
+                            ByteBufCodecs.FLOAT.decode(buf),
+                            ByteBufCodecs.FLOAT.decode(buf),
+                            ByteBufCodecs.STRING_UTF8.decode(buf),
+                            ByteBufCodecs.STRING_UTF8.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.VAR_INT.decode(buf),
+                            ByteBufCodecs.FLOAT.decode(buf),
+                            ByteBufCodecs.FLOAT.decode(buf)
+                    )
             );
 
     @Override

@@ -90,9 +90,41 @@ public final class HudSymptomIcons {
         };
     }
 
+    public static ResourceLocation textureForEffect(EffectType type) {
+        return texture(iconNameForEffect(type));
+    }
+
+    public static ResourceLocation texture(String iconName) {
+        return ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "textures/gui/symptoms/" + iconName + ".png");
+    }
+
+    public static String iconNameForEffect(EffectType type) {
+        if (type == null) {
+            return "dose";
+        }
+        return switch (type) {
+            case CUSTOM_NAUSEA, NAUSEA, VOMIT -> "vomit";
+            case BLUR -> "blur";
+            case CAMERA_SWAY -> "camera_sway";
+            case TREMOR, TREMOR_REDUCTION -> "tremor";
+            case STUMBLE -> "stumble";
+            case INPUT_FAIL -> "input_fail";
+            case HEARTBEAT -> "heartbeat";
+            case CONFUSION -> "confusion";
+            case HP_DECREASE -> "fragility";
+            case CHROMATIC_DREAM, ACID_WARP, VOID_PULSE, FOG, IRIDESCENT_HAZE, LUCID_DREAM,
+                    MELT_REALITY, VELVET_ECHO, EVENT_HORIZON, NEON_CELLS, OPAL_WAVE,
+                    QUANTUM_FLOWER, COSMIC_TUNNEL, FRACTAL_WARP, LIQUID_CHROMA,
+                    MELTING_REALITY, AURORA_RIBBONS, SPECTRAL_POSTER, DRUNK_VISION,
+                    ORE_AURA, MULTIBLOCK_VISION, LOW_LIGHT_VISION, BRIGHTNESS_BOOST,
+                    GAMMA_BOOST -> "vision";
+            default -> "dose";
+        };
+    }
+
     public record HudSymptomIcon(String iconName, String label, IntensityProvider provider) {
         public ResourceLocation texture() {
-            return ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "textures/gui/symptoms/" + iconName + ".png");
+            return HudSymptomIcons.texture(iconName);
         }
 
         public float intensity() {

@@ -83,7 +83,8 @@ public class ModSounds {
     }
 
     public static SoundEvent fromEffectType(EffectType effectType) {
-        if (effectType.getCategory() != EffectCategory.SOUND_EFFECT) return null;
+        if (effectType.getCategory() != EffectCategory.SOUND
+                && effectType.getCategory() != EffectCategory.SOUND_EFFECT) return null;
         return switch (effectType) {
             case HEARTBEAT -> HEARTBEAT.get();
             default -> null;

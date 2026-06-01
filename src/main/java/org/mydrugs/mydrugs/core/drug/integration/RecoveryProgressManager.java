@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
@@ -89,6 +90,7 @@ public final class RecoveryProgressManager {
 
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         float roomMultiplier = RecoveryRoomManager.addictionRecoveryMultiplier(room);
+        boolean applied = false;
 
         for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.perDrug.entrySet()) {
             DrugId drug = entry.getKey();
@@ -98,9 +100,16 @@ public final class RecoveryProgressManager {
             }
 
             float effectiveWeight = effectiveWeight(kind, weight, roomMultiplier, worksTowardNextDrug(player, drug));
-            applyRecoveryAction(drug, d, kind, effectiveWeight);
+            RecoveryDelta delta = applyRecoveryAction(drug, d, kind, effectiveWeight);
+            if (delta.addictionReduced() > 0.0F || delta.recoveryProgressAdded() > 0.0F) {
+                applied = true;
+            }
 
             IntegrationService.markEligible(player, drug);
+        }
+
+        if (applied) {
+            AddictionRecoveryFeedback.sendForAction(player, kind);
         }
     }
 

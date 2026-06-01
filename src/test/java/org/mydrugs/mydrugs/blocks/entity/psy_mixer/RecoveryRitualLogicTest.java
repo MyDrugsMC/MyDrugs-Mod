@@ -128,7 +128,6 @@ class RecoveryRitualLogicTest {
     @Test
     void unknownDrugsUseTheDefaultBonus() {
         assertEquals(RecoveryRitualLogic.DEFAULT_DRUG_BONUS, RecoveryRitualLogic.drugBonus(null), 1e-9);
-        assertEquals(RecoveryRitualLogic.DEFAULT_DRUG_BONUS, RecoveryRitualLogic.drugBonus(DrugId.HEROIN), 1e-9);
     }
 
     @Test

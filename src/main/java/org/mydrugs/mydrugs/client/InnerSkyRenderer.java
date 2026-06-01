@@ -196,9 +196,9 @@ public final class InnerSkyRenderer {
     private static int[] constellationTint(DrugId drug) {
         return switch (drug) {
             case WEED, HASH, MUSHROOMS -> new int[]{180, 255, 200};
-            case LSD, DMT, SALVIA -> new int[]{200, 190, 255};
+            case LSD -> new int[]{200, 190, 255};
             case METH, COCAINE, CRACK -> new int[]{255, 200, 190};
-            case ALCOHOL, BENZODIAZEPINE, BARBITURATE -> new int[]{190, 210, 255};
+            case ALCOHOL -> new int[]{190, 210, 255};
             case COFFEE, TOBACCO -> new int[]{255, 226, 180};
             default -> new int[]{225, 235, 255};
         };

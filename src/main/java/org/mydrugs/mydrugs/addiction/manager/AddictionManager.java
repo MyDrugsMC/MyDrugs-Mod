@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationConstants;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
@@ -159,8 +160,10 @@ public final class AddictionManager {
         int companions = environment.companionCount();
         RecoveryRoomReport recoveryRoom = environment.recoveryRoom();
         boolean inSafeZone = environment.inSafeZone();
-        if (inSafeZone && !stats.wasInSafeZoneLastTick) {
+        boolean enteredSafeZone = inSafeZone && !stats.wasInSafeZoneLastTick;
+        if (enteredSafeZone) {
             AdvancementEventHooks.recoveryAction(player, "safe_zone");
+            AddictionRecoveryFeedback.sendRoomSupport(player);
         }
         stats.wasInSafeZoneLastTick = inSafeZone;
         long gameTime = player.level().getGameTime();

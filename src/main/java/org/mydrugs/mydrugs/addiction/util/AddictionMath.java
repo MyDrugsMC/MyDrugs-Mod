@@ -69,7 +69,9 @@ public final class AddictionMath {
         if (abstinence < onset) return WithdrawalPhase.NONE;
         if (abstinence < risingEnd) return WithdrawalPhase.RISING;
         if (abstinence < peakEnd) return WithdrawalPhase.PEAK;
-        if (abstinence < recoveryEnd) return WithdrawalPhase.RECOVERY;
+        long easingEnd = peakEnd + Math.max(1L, cfg.recoveryTicks() / 2L);
+        if (abstinence < easingEnd) return WithdrawalPhase.EASING;
+        if (abstinence < recoveryEnd) return WithdrawalPhase.SETTLING;
         return WithdrawalPhase.NONE;
     }
 

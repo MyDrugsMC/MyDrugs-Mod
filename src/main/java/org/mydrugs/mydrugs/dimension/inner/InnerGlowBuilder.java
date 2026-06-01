@@ -226,7 +226,7 @@ final class InnerGlowBuilder {
     private static BlockState lakeBedGlowFor(DrugId drugId) {
         return switch (drugId) {
             case MUSHROOMS, WEED, HASH -> ModInnerDimensionBlocks.MYCELIAL_INSIGHT_NODE.get().defaultBlockState();
-            case LSD, MDMA -> ModInnerDimensionBlocks.LUCID_ECHO_NODE.get().defaultBlockState();
+            case LSD -> ModInnerDimensionBlocks.LUCID_ECHO_NODE.get().defaultBlockState();
             case COCAINE, METH, CRACK -> ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE.get().defaultBlockState();
             default -> ModInnerDimensionBlocks.DREAM_RESIDUE_GEODE.get().defaultBlockState();
         };
@@ -242,7 +242,7 @@ final class InnerGlowBuilder {
         }
         return switch (drugId) {
             case WEED, HASH, MUSHROOMS -> ModInnerDimensionBlocks.SPORE_BLOOM.get().defaultBlockState();
-            case LSD, MDMA, DMT -> ModInnerDimensionBlocks.PRISM_LOTUS.get().defaultBlockState();
+            case LSD -> ModInnerDimensionBlocks.PRISM_LOTUS.get().defaultBlockState();
             case COCAINE, METH, CRACK -> ModInnerDimensionBlocks.REDLINE_SPARK_BLOOM.get().defaultBlockState();
             default -> ModInnerDimensionBlocks.DREAM_ORCHID.get().defaultBlockState();
         };

@@ -53,9 +53,8 @@ class IntegratedTraitTest {
 
     @Test
     void nonCuratedDrugsDoNotGainIntegratedTraits() {
-        assertNull(IntegratedTrait.bySource(DrugId.HEROIN));
         assertNull(IntegratedTrait.bySource(DrugId.CRACK));
-        assertNull(IntegratedTrait.bySource(DrugId.DMT));
+        assertNull(IntegratedTrait.bySource(null));
     }
 
     @Test

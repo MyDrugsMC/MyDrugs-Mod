@@ -8,6 +8,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
@@ -59,6 +60,7 @@ public final class ClientEventHandler {
             HeartbeatPulse.clear();
             FakeEntityRenderController.clear();
             VomitOverlayClientState.clear();
+            AddictionHudRenderer.clearPulses();
             BadTripScreamerOverlay.clear();
             BadTripSkyTint.clear();
             PsyMixerRitualClientState.clear();
@@ -80,6 +82,7 @@ public final class ClientEventHandler {
             Minecraft mc = Minecraft.getInstance();
 
             AddictionClientState.tick();
+            AddictionHudRenderer.tick();
             ClientSoundController.tick();
             HeadphonesMusicController.tick();
             FakeEntityRenderController.tick();
@@ -111,6 +114,13 @@ public final class ClientEventHandler {
         @SubscribeEvent
         public static void onMovementInput(net.neoforged.neoforge.client.event.MovementInputUpdateEvent event) {
             ClientInputInterceptor.applyToInput(event.getInput(), event.getEntity().tickCount);
+        }
+
+        @SubscribeEvent
+        public static void onScreenMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
+            if (AddictionHudRenderer.mouseScrolled(event.getMouseX(), event.getMouseY(), event.getScrollDeltaY())) {
+                event.setCanceled(true);
+            }
         }
 
         @SubscribeEvent

@@ -45,6 +45,7 @@ public final class BadTripManager {
     };
     private static final int MIN_RESILIENCE_RECOVERY_TICKS = 200;
     private static final long RESILIENCE_RECOVERY_COOLDOWN_TICKS = 24000L;
+    private static final long BAD_TRIP_GROUNDING_COOLDOWN_TICKS = 400L;
 
     private BadTripManager() {
     }
@@ -107,16 +108,7 @@ public final class BadTripManager {
 
         applySymptoms(player, state, recoveryRoom);
         InnerDemonSpawnManager.tickBadTrip(player, stats, recoveryRoom);
-        if (recoveryRoom != null
-                && RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)
-                && recoveryRoom.tier().ordinal() >= org.mydrugs.mydrugs.recovery.RecoveryRoomTier.SAFE_ROOM.ordinal()
-                && player.tickCount % 400 == 0) {
-            player.displayClientMessage(Component.translatable(
-                    recoveryRoom.tier() == org.mydrugs.mydrugs.recovery.RecoveryRoomTier.SANCTUARY
-                            ? "message.mydrugs.bad_trip.shelter.strong"
-                            : "message.mydrugs.bad_trip.shelter"
-            ), true);
-        }
+        maybeSendGroundingMessage(player, stats, recoveryRoom);
         syncIfNeeded(player, state, rerolled);
     }
 
@@ -334,6 +326,38 @@ public final class BadTripManager {
 
     private static void sync(ServerPlayer player, BadTripState state) {
         PacketDistributor.sendToPlayer(player, BadTripPayload.from(state));
+    }
+
+    private static void maybeSendGroundingMessage(ServerPlayer player,
+                                                  PlayerAddictionStats stats,
+                                                  @Nullable RecoveryRoomReport recoveryRoom) {
+        long now = player.level().getGameTime();
+        if (now - stats.lastBadTripGroundingTick < BAD_TRIP_GROUNDING_COOLDOWN_TICKS) {
+            return;
+        }
+        stats.lastBadTripGroundingTick = now;
+        player.displayClientMessage(Component.translatable(groundingMessageKey(stats, recoveryRoom, now)), true);
+    }
+
+    private static String groundingMessageKey(PlayerAddictionStats stats,
+                                              @Nullable RecoveryRoomReport recoveryRoom,
+                                              long now) {
+        if (RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom)) {
+            return recoveryRoom.tier() == RecoveryRoomTier.SANCTUARY
+                    ? "message.mydrugs.bad_trip.shelter.strong"
+                    : "message.mydrugs.bad_trip.shelter";
+        }
+        if (stats.temporaryEffects.hasHeadphones(now)
+                || recoveryRoom != null && recoveryRoom.hasModule(SanctuaryModule.MUSIC_CORNER) && recoveryRoom.hasActiveMusic()) {
+            return "message.mydrugs.bad_trip.grounding.music";
+        }
+        if (stats.temporaryEffects.hasPreparedTea(now)) {
+            return "message.mydrugs.bad_trip.grounding.tea";
+        }
+        if (stats.temporaryEffects.hasDiaryCalm(now)) {
+            return "message.mydrugs.bad_trip.grounding.diary";
+        }
+        return "message.mydrugs.bad_trip.grounding.none";
     }
 
     private static @Nullable Candidate findBestCandidate(PlayerAddictionStats stats, float stress) {

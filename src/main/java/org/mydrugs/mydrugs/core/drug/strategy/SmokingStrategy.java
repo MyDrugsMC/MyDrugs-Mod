@@ -3,20 +3,28 @@ package org.mydrugs.mydrugs.core.drug.strategy;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 
 public record SmokingStrategy(boolean bang, boolean joint) implements ConsumptionStrategy {
+    private static final RouteEffectProfile PROFILE = new RouteEffectProfile(
+            20,
+            20 * 35,
+            20 * 35,
+            0.95F,
+            0.95F,
+            1.0F,
+            1.0F
+    );
 
     @Override
     public float getNewIntensity(DrugEffect drugEffect) {
-        return drugEffect.getBaseIntensity() * 0.9F;
+        return drugEffect.getBaseIntensity() * PROFILE.intensityMultiplier();
     }
 
     @Override
     public int getNewDuration(DrugEffect drugEffect) {
-        return (int) Math.round(drugEffect.getBaseDuration() * 1.0);
+        return Math.max(1, Math.round(drugEffect.getBaseDuration() * PROFILE.durationMultiplier()));
     }
 
-    /** Smoking is the baseline route — dose multiplier 1.0. */
     @Override
-    public float getNewDose(float baseDose) {
-        return baseDose * 1.0f;
+    public RouteEffectProfile routeEffectProfile() {
+        return PROFILE;
     }
 }

@@ -6,6 +6,7 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.config.SymptomThresholds;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.util.AddictionMath;
@@ -54,5 +55,6 @@ public final class SleepRecoveryManager {
             ResilienceManager.add(stats, 0.0015F);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEP_REST, restModule ? 1.15F : 1.0F);
+        AddictionRecoveryFeedback.sendForAction(player, ActionKind.SLEEP_REST);
     }
 }

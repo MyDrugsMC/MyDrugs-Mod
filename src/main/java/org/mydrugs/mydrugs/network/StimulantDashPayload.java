@@ -8,6 +8,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCueKind;
+import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.core.drug.runtime.StimulantDashManager;
 
 public record StimulantDashPayload(float forward, float strafe) implements CustomPacketPayload {
@@ -39,6 +42,16 @@ public record StimulantDashPayload(float forward, float strafe) implements Custo
         // Vanilla Player.zza/xxa are normalised to [-1, 1]; clamp for safety.
         float forward = PayloadValidation.clamp(payload.forward(), -1.0F, 1.0F);
         float strafe = PayloadValidation.clamp(payload.strafe(), -1.0F, 1.0F);
-        StimulantDashManager.tryDash(player, forward, strafe);
+        StimulantDashManager.DashResult result = StimulantDashManager.tryDash(player, forward, strafe);
+        DrugEffectRuntimeManager.sendCue(player, EffectType.DASH_POWER, cueKind(result), result == StimulantDashManager.DashResult.SUCCESS ? 1.0F : 0.6F);
+    }
+
+    private static DrugEffectCueKind cueKind(StimulantDashManager.DashResult result) {
+        return switch (result) {
+            case SUCCESS -> DrugEffectCueKind.DASH_SUCCESS;
+            case NO_STIMULANT_EFFECT -> DrugEffectCueKind.DASH_NO_EFFECT;
+            case COOLDOWN -> DrugEffectCueKind.DASH_COOLDOWN;
+            case INVALID_DIRECTION_STATE -> DrugEffectCueKind.DASH_INVALID;
+        };
     }
 }

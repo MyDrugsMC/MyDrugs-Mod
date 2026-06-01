@@ -3,19 +3,28 @@ package org.mydrugs.mydrugs.core.drug.strategy;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 
 public class EatingStrategy implements ConsumptionStrategy {
+    private static final RouteEffectProfile PROFILE = new RouteEffectProfile(
+            20 * 35,
+            20 * 90,
+            20 * 75,
+            0.85F,
+            1.60F,
+            0.80F,
+            0.85F
+    );
+
     @Override
     public float getNewIntensity(DrugEffect drugEffect) {
-        return drugEffect.getBaseIntensity() * 1.2F;
+        return drugEffect.getBaseIntensity() * PROFILE.intensityMultiplier();
     }
 
     @Override
     public int getNewDuration(DrugEffect drugEffect) {
-        return (int) Math.round(drugEffect.getBaseDuration() * 1.7);
+        return Math.max(1, Math.round(drugEffect.getBaseDuration() * PROFILE.durationMultiplier()));
     }
 
-    /** Eating has lower bioavailability — slightly reduced dose. */
     @Override
-    public float getNewDose(float baseDose) {
-        return baseDose * 0.8f;
+    public RouteEffectProfile routeEffectProfile() {
+        return PROFILE;
     }
 }

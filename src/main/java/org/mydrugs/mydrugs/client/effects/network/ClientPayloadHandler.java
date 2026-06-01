@@ -7,6 +7,7 @@ import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.client.effects.AddictionDebugScreen;
+import org.mydrugs.mydrugs.client.effects.hud.AddictionHudRenderer;
 import org.mydrugs.mydrugs.client.diary.PersonalDiaryScreen;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.client.effects.sound.HeadphonesMusicController;
@@ -15,6 +16,7 @@ import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCuePayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
@@ -53,34 +55,12 @@ public final class ClientPayloadHandler {
 
     public static void handleDrugEffectSync(DrugEffectSyncPayload payload, IPayloadContext context) {
         AddictionClientState.applyDrugEffectSync(payload);
+        ShaderManager.INSTANCE.reconcileDirectEffects(payload.effects());
+        ClientSoundsHandler.reconcileEffects(payload.effects());
+    }
 
-        for (DrugEffectSyncPayload.Entry entry : payload.effects()) {
-            float effectiveIntensity = entry.effectiveIntensity();
-            if (entry.type() == null || entry.remainingTicks() <= 0 || effectiveIntensity <= 0.0F) {
-                continue;
-            }
-
-            EffectCategory category = entry.type().getCategory();
-            if (category == EffectCategory.SHADER && Config.CLIENT.psychedelicShadersEnabled()) {
-                int fadeTicks = entry.fadeTicksRemaining();
-                int fadeDuration = entry.fadeDurationTicks();
-                int duration = Config.CLIENT.reducedMotionMode.get()
-                        ? Math.max(1, entry.remainingTicks() / 2)
-                        : entry.remainingTicks();
-                if (Config.CLIENT.reducedMotionMode.get()) {
-                    fadeTicks = Math.max(0, fadeTicks / 2);
-                    fadeDuration = Math.max(0, fadeDuration / 2);
-                }
-                ShaderManager.INSTANCE.addDirect(duration, entry.type(), entry.intensity(), fadeTicks, fadeDuration);
-            } else if ((category == EffectCategory.SOUND || category == EffectCategory.SOUND_EFFECT) && Config.CLIENT.enableDrugSounds.get()) {
-                ClientSoundsHandler.setToStart(
-                        ModSounds.fromEffectType(entry.type()),
-                        entry.remainingTicks(),
-                        entry.fadeTicksRemaining(),
-                        entry.fadeDurationTicks()
-                );
-            }
-        }
+    public static void handleDrugEffectCue(DrugEffectCuePayload payload, IPayloadContext context) {
+        AddictionHudRenderer.enqueuePulse(payload.effectType(), payload.kind(), payload.intensity());
     }
 
     public static void handleVomitOverlay(VomitOverlayPayload payload, IPayloadContext context) {

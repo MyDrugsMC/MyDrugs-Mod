@@ -15,6 +15,11 @@ public record DiaryPlayerStateDto(
         int overdoseTimerTicks,
         int symptomFlags,
         int recoveryFlags,
-        boolean sleepBlocked
+        boolean sleepBlocked,
+        int primaryDangerReason,
+        int suggestedAction,
+        int withdrawalPhase,
+        float dominantTolerance,
+        float dominantDose
 ) {
 }

@@ -3,19 +3,28 @@ package org.mydrugs.mydrugs.core.drug.strategy;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 
 public class SniffingStrategy implements ConsumptionStrategy {
+    private static final RouteEffectProfile PROFILE = new RouteEffectProfile(
+            8,
+            20 * 24,
+            20 * 25,
+            1.15F,
+            0.65F,
+            1.25F,
+            1.25F
+    );
+
     @Override
     public float getNewIntensity(DrugEffect drugEffect) {
-        return drugEffect.getBaseIntensity() * 1.1F;
+        return drugEffect.getBaseIntensity() * PROFILE.intensityMultiplier();
     }
 
     @Override
     public int getNewDuration(DrugEffect drugEffect) {
-        return (int) Math.round(drugEffect.getBaseDuration() * 0.5);
+        return Math.max(1, Math.round(drugEffect.getBaseDuration() * PROFILE.durationMultiplier()));
     }
 
-    /** Sniffing delivers a stronger hit with shorter duration. */
     @Override
-    public float getNewDose(float baseDose) {
-        return baseDose * 1.3f;
+    public RouteEffectProfile routeEffectProfile() {
+        return PROFILE;
     }
 }

@@ -327,7 +327,7 @@ public class Config {
             recoveryRoomSanctuaryThreshold = builder.defineInRange("recoveryRoomSanctuaryThreshold", 85, 1, 100);
             therapyCooldownMultiplier = builder.defineInRange("therapyCooldownMultiplier", 1.0D, 0.0D, 100.0D);
             allowClientInputFailHudOnly = builder
-                    .comment("Allow clients to replace the input-fail disruption with a HUD warning. Default false for multiplayer fairness.")
+                    .comment("Deprecated compatibility toggle. Server-side input-fail balance is always authoritative; clients may only reduce local presentation.")
                     .define("allowClientInputFailHudOnly", false);
             builder.pop();
 

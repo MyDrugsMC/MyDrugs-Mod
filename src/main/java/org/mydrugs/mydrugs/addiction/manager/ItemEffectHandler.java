@@ -8,6 +8,7 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
 import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
@@ -40,6 +41,7 @@ public final class ItemEffectHandler {
             StressManager.reduce(stats, 0.015F);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.DIARY_WRITTEN, diaryDesk ? 1.15F : 1.0F);
+        AddictionRecoveryFeedback.sendForAction(player, ActionKind.DIARY_WRITTEN);
         IntegrationService.onReflectionAction(player);
         syncClientHud(player);
     }
@@ -74,6 +76,9 @@ public final class ItemEffectHandler {
 
         syncHeadphones(player);
         syncClientHud(player);
+        if (stats.temporaryEffects.headphonesEnabled) {
+            AddictionRecoveryFeedback.sendHeadphones(player);
+        }
         return stats.temporaryEffects.headphonesEnabled;
     }
 
@@ -110,6 +115,9 @@ public final class ItemEffectHandler {
                 : 0L;
         syncHeadphones(player);
         syncClientHud(player);
+        if (playing) {
+            AddictionRecoveryFeedback.sendHeadphones(player);
+        }
         return playing;
     }
 
@@ -174,6 +182,7 @@ public final class ItemEffectHandler {
             stats.temporaryEffects.preparedTeaUntil = Math.max(stats.temporaryEffects.preparedTeaUntil, preparedUntil);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.HERBAL_TEA, itemMultiplier);
+        AddictionRecoveryFeedback.sendForAction(player, ActionKind.HERBAL_TEA);
         syncClientHud(player);
     }
 
@@ -190,6 +199,7 @@ public final class ItemEffectHandler {
         stats.temporaryEffects.calmingMixtureUntil = player.level().getGameTime() + Math.round(20L * 60L * itemMultiplier);
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 180L * itemMultiplier);
         RecoveryProgressManager.onProductiveAction(player, ActionKind.CALMING_MIXTURE, itemMultiplier);
+        AddictionRecoveryFeedback.sendForAction(player, ActionKind.CALMING_MIXTURE);
         syncClientHud(player);
     }
 
@@ -202,6 +212,7 @@ public final class ItemEffectHandler {
 
         stats.reduceWithdrawalInCategory(DrugCategory.SEDATIVE, 8.0F);
         RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEPING_AID, 1.0F);
+        AddictionRecoveryFeedback.sendForAction(player, ActionKind.SLEEPING_AID);
         syncClientHud(player);
     }
 

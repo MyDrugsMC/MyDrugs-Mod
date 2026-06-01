@@ -3,10 +3,13 @@ package org.mydrugs.mydrugs.addiction.manager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionDangerReason;
+import org.mydrugs.mydrugs.addiction.explain.AddictionStateExplainer;
+import org.mydrugs.mydrugs.addiction.explain.AddictionSuggestedAction;
+import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.recovery.PlayerEnvironmentSnapshot;
 import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 
@@ -72,6 +75,10 @@ public final class WithdrawalHintManager {
             "message.mydrugs.withdrawal_hint.drug_need.1",
             "message.mydrugs.withdrawal_hint.drug_need.2"
     };
+    private static final String SLEEP_BLOCKED_DEFAULT = "message.mydrugs.withdrawal_hint.sleep_blocked.default";
+    private static final String SLEEP_BLOCKED_ROOM = "message.mydrugs.withdrawal_hint.sleep_blocked.room";
+    private static final String SLEEP_BLOCKED_AID = "message.mydrugs.withdrawal_hint.sleep_blocked.aid";
+    private static final String SLEEP_BLOCKED_FOOD = "message.mydrugs.withdrawal_hint.sleep_blocked.food";
 
     private WithdrawalHintManager() {
     }
@@ -128,6 +135,23 @@ public final class WithdrawalHintManager {
         boolean diaryActive = stats.temporaryEffects.hasCalmRelief(now);
         boolean headphonesActive = stats.temporaryEffects.hasHeadphones(now);
         boolean night = isNight(player);
+        AddictionStateExplainer.Explanation explanation = AddictionStateExplainer.explain(
+                player,
+                stats,
+                globalSeverity,
+                inSafeZone,
+                environment
+        );
+
+        HintChoice priorityHint = priorityHint(explanation, hasFood, hasDiary, hasHeadphones);
+        if (priorityHint != null && canSendTopic(stats, priorityHint.topic(), now, urgentCooldown, topicCooldown)) {
+            sendHint(player, stats, priorityHint.topic(), priorityHint.variants());
+            if (priorityHint.topic() == HintTopic.SAFE_ZONE) {
+                stats.anchorHintShownThisVisit = true;
+            }
+            markTopicTick(stats, priorityHint.topic(), now);
+            return;
+        }
 
         // Anchor hint once per visit only.
         if (inSafeZone && !stats.anchorHintShownThisVisit && now - stats.lastAnchorHintTick >= topicCooldown) {
@@ -197,8 +221,8 @@ public final class WithdrawalHintManager {
         }
 
         DrugId withdrawingDrug = stats.getMostWithdrawingDrugId();
-        if (withdrawingDrug != null && pressure >= 0.30F && now - stats.lastDrugHintTick >= topicCooldown) {
-            float score = 0.70F + pressure * 0.40F;
+        if (withdrawingDrug != null && pressure >= 0.70F && bestTopic == null && now - stats.lastDrugHintTick >= topicCooldown) {
+            float score = 0.25F + pressure * 0.15F;
             if (score > bestScore) {
                 bestScore = score;
                 bestTopic = HintTopic.DRUG_NEED;
@@ -235,8 +259,43 @@ public final class WithdrawalHintManager {
             return;
         }
 
-        sendHint(player, stats, HintTopic.SLEEP, SLEEP_HINTS);
+        sendFixedHint(player, stats, HintTopic.SLEEP, sleepBlockedKey(player));
         stats.lastSleepHintTick = now;
+    }
+
+    private static HintChoice priorityHint(AddictionStateExplainer.Explanation explanation,
+                                           boolean hasFood,
+                                           boolean hasDiary,
+                                           boolean hasHeadphones) {
+        AddictionDangerReason reason = explanation.primaryDangerReason();
+        AddictionSuggestedAction action = explanation.suggestedAction();
+        return switch (reason) {
+            case HUNGER -> new HintChoice(HintTopic.FOOD, hasFood ? FOOD_HAVE_HINTS : FOOD_NEED_HINTS);
+            case LOW_HEALTH -> new HintChoice(HintTopic.HEALTH, HEALTH_HINTS);
+            case SLEEP_BLOCKED -> new HintChoice(HintTopic.SLEEP, SLEEP_HINTS);
+            case HIGH_STRESS, WITHDRAWAL_PEAK -> switch (action) {
+                case WRITE_DIARY -> new HintChoice(HintTopic.DIARY, hasDiary ? DIARY_HAVE_HINTS : DIARY_NEED_HINTS);
+                case USE_HEADPHONES -> new HintChoice(HintTopic.HEADPHONES, hasHeadphones ? HEADPHONES_HAVE_HINTS : HEADPHONES_NEED_HINTS);
+                case STAY_SAFE -> new HintChoice(HintTopic.SAFE_ZONE, SAFE_ZONE_HINTS);
+                default -> null;
+            };
+            case ISOLATION -> new HintChoice(HintTopic.SOCIAL, SOCIAL_HINTS);
+            case UNSAFE_PLACE -> new HintChoice(HintTopic.GENERAL, GENERAL_HINTS);
+            default -> null;
+        };
+    }
+
+    private static boolean canSendTopic(PlayerAddictionStats stats,
+                                        HintTopic topic,
+                                        long now,
+                                        long urgentCooldown,
+                                        long topicCooldown) {
+        long cooldown = switch (topic) {
+            case FOOD, HEALTH, SLEEP -> urgentCooldown;
+            case GENERAL -> topicCooldown;
+            default -> topicCooldown;
+        };
+        return now - lastTopicTick(stats, topic) >= cooldown;
     }
 
     private static void markTopicTick(PlayerAddictionStats stats, HintTopic topic, long now) {
@@ -252,6 +311,20 @@ public final class WithdrawalHintManager {
             case GENERAL -> {
             }
         }
+    }
+
+    private static long lastTopicTick(PlayerAddictionStats stats, HintTopic topic) {
+        return switch (topic) {
+            case FOOD -> stats.lastFoodHintTick;
+            case HEALTH -> stats.lastHealthHintTick;
+            case DIARY -> stats.lastDiaryHintTick;
+            case HEADPHONES -> stats.lastHeadphonesHintTick;
+            case SOCIAL -> stats.lastSocialHintTick;
+            case SLEEP -> stats.lastSleepHintTick;
+            case SAFE_ZONE -> stats.lastAnchorHintTick;
+            case DRUG_NEED -> stats.lastDrugHintTick;
+            case GENERAL -> stats.lastHintTick;
+        };
     }
 
     private static float computeHintPressure(PlayerAddictionStats stats, float globalSeverity) {
@@ -275,6 +348,17 @@ public final class WithdrawalHintManager {
         stats.lastHintZ = player.getZ();
         stats.lastHintTopicId = topic.serializedName;
         stats.lastHintVariantIndex = variantIndex;
+    }
+
+    private static void sendFixedHint(ServerPlayer player, PlayerAddictionStats stats, HintTopic topic, String key) {
+        player.displayClientMessage(Component.translatable(key), true);
+
+        stats.lastHintTick = player.level().getGameTime();
+        stats.lastHintX = player.getX();
+        stats.lastHintY = player.getY();
+        stats.lastHintZ = player.getZ();
+        stats.lastHintTopicId = topic.serializedName;
+        stats.lastHintVariantIndex = 0;
     }
 
     private static void sendDrugHint(ServerPlayer player, PlayerAddictionStats stats, DrugId drugId, String[] variants) {
@@ -303,6 +387,23 @@ public final class WithdrawalHintManager {
         }
 
         return chosen;
+    }
+
+    private static String sleepBlockedKey(ServerPlayer player) {
+        if (player.getFoodData().getFoodLevel() <= 6) {
+            return SLEEP_BLOCKED_FOOD;
+        }
+        PlayerEnvironmentSnapshot environment = PlayerRecoveryEnvironmentCache.snapshot(player);
+        if (environment.inSafeZone()) {
+            return SLEEP_BLOCKED_ROOM;
+        }
+        if (AddictionStateExplainer.hasInventoryItem(player, ModItems.SLEEPING_AID.get())) {
+            return SLEEP_BLOCKED_AID;
+        }
+        return SLEEP_BLOCKED_DEFAULT;
+    }
+
+    private record HintChoice(HintTopic topic, String[] variants) {
     }
 
     private enum HintTopic {

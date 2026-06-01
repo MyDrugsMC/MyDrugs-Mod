@@ -14,15 +14,19 @@ import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import org.mydrugs.mydrugs.addiction.config.DoseConstants;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionStateExplainer;
 import org.mydrugs.mydrugs.core.drug.dose.DoseContribution;
 import org.mydrugs.mydrugs.core.drug.dose.DosePath;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
+import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.mutation.MutationManager;
 import org.mydrugs.mydrugs.mutation.MutationStat;
 
 import java.util.Iterator;
 
 public final class DoseManager {
+    private static final long OVERDOSE_HINT_COOLDOWN_TICKS = 80L;
+
     private DoseManager() {
     }
 
@@ -143,9 +147,11 @@ public final class DoseManager {
 
         if (playerStats.overdoseDeathTimer < 0) {
             playerStats.overdoseDeathTimer = DoseConstants.OVERDOSE_DEATH_TICKS;
+            sendOverdoseHint(player, playerStats);
             return;
         }
 
+        sendOverdoseHint(player, playerStats);
         float metabolicControl = MutationManager.getValue(player, MutationStat.METABOLIC_CONTROL);
         playerStats.overdoseProtectionAccumulator += Math.min(0.95F, metabolicControl * 0.75F);
         int skip = (int) playerStats.overdoseProtectionAccumulator;
@@ -188,6 +194,18 @@ public final class DoseManager {
         }
 
         playerStats.overdoseDeathTimer = -1;
+    }
+
+    private static void sendOverdoseHint(ServerPlayer player, PlayerAddictionStats playerStats) {
+        long now = player.level().getGameTime();
+        if (now - playerStats.lastOverdoseHintTick < OVERDOSE_HINT_COOLDOWN_TICKS) {
+            return;
+        }
+        playerStats.lastOverdoseHintTick = now;
+        String key = AddictionStateExplainer.hasInventoryItem(player, ModItems.OVERDOSE_ANTIDOTE.get())
+                ? "message.mydrugs.overdose.use_antidote"
+                : "message.mydrugs.overdose.get_safe";
+        player.displayClientMessage(Component.translatable(key), true);
     }
 
     private static void sendStateChangeMessage(ServerPlayer player,

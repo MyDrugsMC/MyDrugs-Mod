@@ -12,7 +12,7 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.addiction.data.TemporaryRecoveryEffects;
+import org.mydrugs.mydrugs.addiction.explain.AddictionStateExplainer;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
 import org.mydrugs.mydrugs.core.drug.ritual.DrugPatentSavedData;
 import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
@@ -23,11 +23,11 @@ import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
-import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.PlayerEnvironmentSnapshot;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
-import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
@@ -110,25 +110,38 @@ public final class DiarySnapshotBuilder {
         // Player state DTO
         DrugId dominantDrug = findDominantDrug(stats);
         DrugCategory dominantCategory = dominantDrug == null ? null : DrugRegistry.getCategory(dominantDrug);
-        DrugAddictionStats dominantStats = dominantDrug == null ? null : stats.getDrugStats(dominantDrug);
-        DoseState dose = dominantStats == null ? DoseState.NORMAL : dominantStats.lastDoseState;
+        PlayerEnvironmentSnapshot environment = PlayerRecoveryEnvironmentCache.snapshot(player);
 
         float globalSeverity = AddictionManager.getGlobalSeverity(player);
         int symptomFlags = SymptomManager.buildFlags(globalSeverity) | BadTripManager.symptomFlags(stats);
-        int recoveryFlags = buildRecoveryFlags(player, stats);
+        AddictionStateExplainer.Explanation explanation = AddictionStateExplainer.explain(
+                player,
+                stats,
+                globalSeverity,
+                environment.inSafeZone(),
+                environment
+        );
+        int recoveryFlags = explanation.recoveryFlags();
+        DoseState dose = explanation.dominantDoseState();
+        DrugCategory displayedCategory = dominantCategory == null ? explanation.dominantDoseCategory() : dominantCategory;
 
         DiaryPlayerStateDto state = new DiaryPlayerStateDto(
                 stats.stressLevel,
                 globalSeverity,
                 dominantDrug == null ? "" : dominantDrug.serializedName(),
-                dominantCategory == null ? "" : dominantCategory.name(),
+                displayedCategory == null ? "" : displayedCategory.name(),
                 dose == null ? "NORMAL" : dose.name(),
                 stats.badTrip.active,
                 stats.badTrip.severity,
                 Math.max(0, stats.overdoseDeathTimer),
                 symptomFlags,
                 recoveryFlags,
-                stats.sleepBlockedUntil > gameTime
+                stats.sleepBlockedUntil > gameTime,
+                explanation.primaryDangerReasonId(),
+                explanation.suggestedActionId(),
+                explanation.withdrawalPhaseId(),
+                explanation.dominantTolerance(),
+                explanation.dominantDose()
         );
 
         PlayerPsycheMapAttachment psycheMap = player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get());
@@ -373,18 +386,4 @@ public final class DiarySnapshotBuilder {
         return best;
     }
 
-    private static int buildRecoveryFlags(ServerPlayer player, PlayerAddictionStats stats) {
-        TemporaryRecoveryEffects te = stats.temporaryEffects;
-        long now = player.level().getGameTime();
-        int flags = 0;
-        if (te.hasDiaryCalm(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_DIARY;
-        if (te.hasHeadphones(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
-        if (te.hasCalmingMixture(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
-        if (te.hasSleepBonus(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
-        if (te.hasPreparedTea(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA;
-        if (SafeZoneManager.isInSafeZone(player)) {
-            flags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
-        }
-        return flags;
-    }
 }

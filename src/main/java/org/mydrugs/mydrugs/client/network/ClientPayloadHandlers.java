@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCuePayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
@@ -91,6 +92,7 @@ public final class ClientPayloadHandlers {
         event.register(HeadphonesStatePayload.TYPE, ClientPayloadHandler::handleHeadphonesState);
         event.register(DoseSyncPayload.TYPE, ClientPayloadHandler::handleDoseSync);
         event.register(DrugEffectSyncPayload.TYPE, ClientPayloadHandler::handleDrugEffectSync);
+        event.register(DrugEffectCuePayload.TYPE, ClientPayloadHandler::handleDrugEffectCue);
         event.register(VomitOverlayPayload.TYPE, ClientPayloadHandler::handleVomitOverlay);
         event.register(BadTripPayload.TYPE, ClientPayloadHandler::handleBadTrip);
         event.register(BadTripScreamerPayload.TYPE, ClientPayloadHandler::handleBadTripScreamer);

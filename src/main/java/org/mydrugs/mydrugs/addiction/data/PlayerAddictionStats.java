@@ -51,6 +51,11 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastHeadphonesHintTick = 0L;
     public long lastDrugHintTick = 0L;
     public long lastBadTripResilienceGameTime = 0L;
+    public long lastOverdoseHintTick = -100000L;
+    public long lastBadTripGroundingTick = -100000L;
+    public long lastRecoveryFeedbackTick = -100000L;
+    public long lastRoomFeedbackTick = -100000L;
+    public String lastRecoveryFeedbackKey = "";
 
     public int overdoseDeathTimer = -1;
     public float overdoseProtectionAccumulator = 0.0F;

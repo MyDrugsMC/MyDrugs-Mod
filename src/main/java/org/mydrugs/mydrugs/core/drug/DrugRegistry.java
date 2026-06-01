@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, CANNABIS_MAIN_DURATION, 0.25F))
                 .addEffect(new DrugEffect(EffectType.MOB_DETECTION_REDUCTION, CANNABIS_MAIN_DURATION, 0.15F))
                 .setAddictionRate(2)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("calm_stability", "slowdown, threat perception", 1.0F, 2.0F, 0.4F))
                 .build()
         );
 
@@ -59,6 +61,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.RITUAL_STABILITY, CANNABIS_MAIN_DURATION, 0.35F))
                 .addEffect(new DrugEffect(EffectType.MOB_DETECTION_REDUCTION, CANNABIS_MAIN_DURATION, 0.22F))
                 .setAddictionRate(2.5F)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("precision_stability", "strong visual drift", 1.1F, 2.5F, 0.6F))
                 .build()
         );
 
@@ -73,6 +76,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.TREMOR, METH_MAIN_DURATION, 0.35F))
                 .addEffect(new DrugEffect(EffectType.HEARTBEAT, METH_MAIN_DURATION, 1.25F))
                 .setAddictionRate(6)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("late_overclock", "heartbeat, tremor, crash", 1.5F, 6.0F, 2.0F))
                 .build()
         );
 
@@ -87,6 +91,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.HEARTBEAT, COCAINE_AFTEREFFECT_DURATION, 0.95F))
                 .addEffect(new DrugEffect(EffectType.TREMOR, COCAINE_AFTEREFFECT_DURATION, 0.20F))
                 .setAddictionRate(6)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("short_overclock", "heartbeat, tremor", 1.3F, 6.0F, 1.5F))
                 .build()
         );
 
@@ -100,13 +105,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.TREMOR, COCAINE_AFTEREFFECT_DURATION, 0.35F))
                 .addEffect(new DrugEffect(EffectType.INPUT_FAIL, COCAINE_AFTEREFFECT_DURATION, 0.08F))
                 .setAddictionRate(6)
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.MDMA)
-                .setCategory(DrugCategory.EMPATHOGEN)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 12, 2.0F))
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("violent_burst", "heartbeat, tremor, input fail", 1.45F, 6.5F, 2.0F))
                 .build()
         );
 
@@ -119,6 +118,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.ORE_FORTUNE, PSYCHEDELIC_MAIN_DURATION, 2.0F))
                 .addEffect(new DrugEffect(EffectType.ORE_AURA, PSYCHEDELIC_MAIN_DURATION, 3.0F))
                 .setAddictionRate(0)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("ritual_certainty", "strong visual distortion", 0.9F, 0.0F, 0.9F))
                 .build()
         );
 
@@ -131,73 +131,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.MULTIBLOCK_VISION, PSYCHEDELIC_MAIN_DURATION, 1.0F))
                 .addEffect(new DrugEffect(EffectType.LOW_LIGHT_VISION, PSYCHEDELIC_MAIN_DURATION, 1.0F))
                 .setAddictionRate(0)
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.SALVIA)
-                .setCategory(DrugCategory.PSYCHEDELIC)
-                .addEffect(new DrugEffect(EffectType.ACID_WARP, 20 * 10, 3.0F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.DMT)
-                .setCategory(DrugCategory.PSYCHEDELIC)
-                .addEffect(new DrugEffect(EffectType.ACID_WARP, 20 * 8, 4.0F))
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 6, 2.0F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.HEROIN)
-                .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 18, 0.18F))
-                .setAddictionRate(9)
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.MORPHINE)
-                .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 20, 0.18F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.FENTANYL)
-                .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 14, 0.35F))
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 8, 0.35F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.OPIUM)
-                .setCategory(DrugCategory.OPIOID)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 22, 0.12F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.KETAMINE)
-                .setCategory(DrugCategory.DISSOCIATIVE)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 12, 2.0F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.PCP)
-                .setCategory(DrugCategory.DISSOCIATIVE)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 18, 3.0F))
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 8, 0.20F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.DXM)
-                .setCategory(DrugCategory.DISSOCIATIVE)
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 6, 0.18F))
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("structural_vision", "altered perception", 0.9F, 0.0F, 0.8F))
                 .build()
         );
 
@@ -210,21 +144,8 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.INPUT_FAIL, ALCOHOL_MAIN_DURATION, 0.08F))
                 .addEffect(new DrugEffect(EffectType.VOMIT, ALCOHOL_MAIN_DURATION, 0.15F))
                 .addEffect(new DrugEffect(EffectType.DRUNK_VISION, ALCOHOL_MAIN_DURATION, 1.0F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.BENZODIAZEPINE)
-                .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 20, 0.18F))
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.BARBITURATE)
-                .setCategory(DrugCategory.DEPRESSANT)
-                .addEffect(new DrugEffect(EffectType.MOVEMENT_SLOWDOWN, 20 * 22, 0.28F))
-                .addEffect(new DrugEffect(EffectType.CUSTOM_NAUSEA, 20 * 10, 0.20F))
+                .setAddictionRate(1.0F)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("courage_resistance", "stumble, input fail, nausea", 1.1F, 1.0F, 1.2F))
                 .build()
         );
 
@@ -237,6 +158,7 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.TREMOR_REDUCTION, TOBACCO_MAIN_DURATION, 0.35F))
                 .addEffect(new DrugEffect(EffectType.RITUAL_FOCUS, TOBACCO_MAIN_DURATION, 0.30F))
                 .setAddictionRate(0.8F)
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("steady_focus", "brief visual pulse", 0.8F, 0.8F, 0.3F))
                 .build()
         );
 
@@ -251,18 +173,13 @@ public final class DrugRegistry {
                 .addEffect(new DrugEffect(EffectType.TREMOR, COFFEE_MAIN_DURATION, 0.04F))
                 .addEffect(new DrugEffect(EffectType.HEARTBEAT, COFFEE_MAIN_DURATION, 0.18F))
                 .setAddictionRate(0.5F)
-                .build()
-        );
-
-        addDrug(new DrugModel.Builder()
-                .setId(DrugId.NITROUS_OXIDE)
-                .setCategory(DrugCategory.INHALANT)
-                .addEffect(new DrugEffect(EffectType.VOID_PULSE, 20 * 5, 2.0F))
+                .setTuningProfile(DrugModel.DrugTuningProfile.of("early_productivity", "sway, tremor, heartbeat", 0.7F, 0.5F, 0.2F))
                 .build()
         );
 
         initializeRepresentativeDrugs();
         initializePsychotropeValues();
+        auditRegistry();
     }
 
     private static DrugModel addDrug(DrugModel model) {
@@ -280,14 +197,10 @@ public final class DrugRegistry {
 
         representativeDrugs.put(DrugCategory.CANNABINOID, DrugId.WEED);
         representativeDrugs.put(DrugCategory.STIMULANT, DrugId.METH);
-        representativeDrugs.put(DrugCategory.EMPATHOGEN, DrugId.MDMA);
         representativeDrugs.put(DrugCategory.PSYCHEDELIC, DrugId.LSD);
-        representativeDrugs.put(DrugCategory.OPIOID, DrugId.HEROIN);
-        representativeDrugs.put(DrugCategory.DISSOCIATIVE, DrugId.KETAMINE);
         representativeDrugs.put(DrugCategory.DEPRESSANT, DrugId.ALCOHOL);
         representativeDrugs.put(DrugCategory.NICOTINIC, DrugId.TOBACCO);
         representativeDrugs.put(DrugCategory.CAFFEINE, DrugId.COFFEE);
-        representativeDrugs.put(DrugCategory.INHALANT, DrugId.NITROUS_OXIDE);
     }
 
     private static void initializePsychotropeValues() {
@@ -298,6 +211,50 @@ public final class DrugRegistry {
         psychotropeValues.put(DrugId.CRACK, 20);
         psychotropeValues.put(DrugId.LSD, 50);
         psychotropeValues.put(DrugId.METH, 100);
+    }
+
+    private static void auditRegistry() {
+        for (DrugModel model : drugs.values()) {
+            if (model.getDrugEffects().isEmpty()) {
+                Core.getLOGGER().warning("Drug registry audit: " + model.getId() + " has no runtime effects.");
+            }
+            if (!model.hasExplicitAddictionRate()) {
+                Core.getLOGGER().warning("Drug registry audit: " + model.getId() + " relies on the default addiction rate.");
+            }
+            if (!model.tuningProfile().isSpecified()) {
+                Core.getLOGGER().warning("Drug registry audit: " + model.getId() + " has no explicit tuning profile.");
+            }
+            for (DrugEffect effect : model.getDrugEffects()) {
+                if (effect.getBaseDuration() <= 0 || effect.getBaseDuration() > DrugDurationScale.fromRealHours(8.0F, 12.0F)) {
+                    Core.getLOGGER().warning("Drug registry audit: " + model.getId() + " effect "
+                            + effect.getEffectType() + " has unusual duration " + effect.getBaseDuration() + ".");
+                }
+                if (effect.getBaseIntensity() <= 0.0F || effect.getBaseIntensity() > 4.0F) {
+                    Core.getLOGGER().warning("Drug registry audit: " + model.getId() + " effect "
+                            + effect.getEffectType() + " has unusual intensity " + effect.getBaseIntensity() + ".");
+                }
+            }
+        }
+
+        for (Map.Entry<DrugCategory, DrugId> entry : representativeDrugs.entrySet()) {
+            if (!drugs.containsKey(entry.getValue())) {
+                Core.getLOGGER().warning("Drug registry audit: representative " + entry.getValue()
+                        + " for category " + entry.getKey() + " is not registered.");
+            }
+        }
+
+        for (DrugCategory expected : EnumSet.of(
+                DrugCategory.CANNABINOID,
+                DrugCategory.STIMULANT,
+                DrugCategory.PSYCHEDELIC,
+                DrugCategory.DEPRESSANT,
+                DrugCategory.NICOTINIC,
+                DrugCategory.CAFFEINE)) {
+            DrugId representative = representativeDrugs.get(expected);
+            if (representative == null || !drugs.containsKey(representative)) {
+                Core.getLOGGER().warning("Drug registry audit: expected category " + expected + " has no registered representative.");
+            }
+        }
     }
 
     public static @Nullable DrugModel getDrug(DrugId id) {

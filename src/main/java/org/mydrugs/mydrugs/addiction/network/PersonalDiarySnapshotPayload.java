@@ -100,6 +100,11 @@ public record PersonalDiarySnapshotPayload(
                         ByteBufCodecs.VAR_INT.encode(buf, s.symptomFlags());
                         ByteBufCodecs.VAR_INT.encode(buf, s.recoveryFlags());
                         ByteBufCodecs.BOOL.encode(buf, s.sleepBlocked());
+                        ByteBufCodecs.VAR_INT.encode(buf, s.primaryDangerReason());
+                        ByteBufCodecs.VAR_INT.encode(buf, s.suggestedAction());
+                        ByteBufCodecs.VAR_INT.encode(buf, s.withdrawalPhase());
+                        ByteBufCodecs.FLOAT.encode(buf, s.dominantTolerance());
+                        ByteBufCodecs.FLOAT.encode(buf, s.dominantDose());
 
                         ByteBufCodecs.VAR_LONG.encode(buf, payload.currentDay());
                         ByteBufCodecs.VAR_INT.encode(buf, payload.cooldownTicksRemaining());
@@ -171,7 +176,12 @@ public record PersonalDiarySnapshotPayload(
                                 ByteBufCodecs.VAR_INT.decode(buf),
                                 ByteBufCodecs.VAR_INT.decode(buf),
                                 ByteBufCodecs.VAR_INT.decode(buf),
-                                ByteBufCodecs.BOOL.decode(buf)
+                                ByteBufCodecs.BOOL.decode(buf),
+                                ByteBufCodecs.VAR_INT.decode(buf),
+                                ByteBufCodecs.VAR_INT.decode(buf),
+                                ByteBufCodecs.VAR_INT.decode(buf),
+                                ByteBufCodecs.FLOAT.decode(buf),
+                                ByteBufCodecs.FLOAT.decode(buf)
                         );
                         long currentDay = ByteBufCodecs.VAR_LONG.decode(buf);
                         int cooldown = ByteBufCodecs.VAR_INT.decode(buf);

@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.addiction.network.BadTripPayload;
 import org.mydrugs.mydrugs.addiction.network.BadTripScreamerPayload;
 import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCuePayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
@@ -117,6 +118,7 @@ public final class ModNetwork {
         r.playToClient(HeadphonesStatePayload.TYPE, HeadphonesStatePayload.STREAM_CODEC);
         r.playToClient(DoseSyncPayload.TYPE, DoseSyncPayload.STREAM_CODEC);
         r.playToClient(DrugEffectSyncPayload.TYPE, DrugEffectSyncPayload.STREAM_CODEC);
+        r.playToClient(DrugEffectCuePayload.TYPE, DrugEffectCuePayload.STREAM_CODEC);
         r.playToClient(VomitOverlayPayload.TYPE, VomitOverlayPayload.STREAM_CODEC);
         r.playToClient(BadTripPayload.TYPE, BadTripPayload.STREAM_CODEC);
         r.playToClient(BadTripScreamerPayload.TYPE, BadTripScreamerPayload.STREAM_CODEC);

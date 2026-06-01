@@ -15,7 +15,7 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.addiction.config.SymptomThresholds;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.addiction.data.TemporaryRecoveryEffects;
+import org.mydrugs.mydrugs.addiction.explain.AddictionStateExplainer;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
@@ -111,8 +111,13 @@ public final class SymptomManager {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         DrugId dominantDrugId = AddictionManager.getDominantDrugId(player);
         DrugCategory dominantCategory = AddictionManager.getDominantCategory(player);
-        TemporaryRecoveryEffects effects = stats.temporaryEffects;
         long now = player.level().getGameTime();
+        AddictionStateExplainer.Explanation explanation = AddictionStateExplainer.explain(
+                player,
+                stats,
+                globalSeverity,
+                inSafeZone
+        );
 
         int insomniaRemaining = (int) Math.max(0L, stats.sleepBlockedUntil - now);
         float mentalStrength = MutationManager.getValue(player, MutationStat.MENTAL_STRENGTH);
@@ -121,29 +126,26 @@ public final class SymptomManager {
         float physicalSeverity = globalSeverity * Math.max(0.0F, 1.0F - withdrawalResilience);
         int flags = buildFlags(mentalSeverity, physicalSeverity);
         flags |= BadTripManager.symptomFlags(stats);
-        if (effects.hasSleepBonus(now)) {
+        if (stats.temporaryEffects.hasSleepBonus(now)) {
             flags &= ~SymptomFlags.INSOMNIA;
         }
-
-        int recoveryFlags = 0;
-        if (inSafeZone) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
-        if (effects.hasDiaryCalm(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_DIARY;
-        if (effects.hasCalmingMixture(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
-        if (effects.hasHeadphones(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
-        if (effects.hasSleepBonus(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
-        if (effects.hasPreparedTea(now)) recoveryFlags |= AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA;
 
         int overdoseTicksRemaining = Math.max(0, stats.overdoseDeathTimer);
 
         return new AddictionClientSnapshotPayload(
                 globalSeverity,
                 stats.stressLevel,
-                dominantDrugId != null ? dominantDrugId.name() : "",
+                dominantDrugId != null ? dominantDrugId.serializedName() : "",
                 dominantCategory.name(),
                 flags,
                 insomniaRemaining,
-                recoveryFlags,
-                overdoseTicksRemaining
+                explanation.recoveryFlags(),
+                overdoseTicksRemaining,
+                explanation.primaryDangerReasonId(),
+                explanation.suggestedActionId(),
+                explanation.withdrawalPhaseId(),
+                explanation.dominantTolerance(),
+                explanation.dominantDose()
         );
     }
 

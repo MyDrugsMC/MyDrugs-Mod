@@ -3,19 +3,28 @@ package org.mydrugs.mydrugs.core.drug.strategy;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 
 public class InjectingStrategy implements ConsumptionStrategy {
+    private static final RouteEffectProfile PROFILE = new RouteEffectProfile(
+            0,
+            20 * 35,
+            20 * 90,
+            1.80F,
+            1.15F,
+            1.80F,
+            1.70F
+    );
+
     @Override
     public float getNewIntensity(DrugEffect drugEffect) {
-        return drugEffect.getBaseIntensity() * 2.0F;
+        return drugEffect.getBaseIntensity() * PROFILE.intensityMultiplier();
     }
 
     @Override
     public int getNewDuration(DrugEffect drugEffect) {
-        return (int) Math.round(drugEffect.getBaseDuration() * 2.5);
+        return Math.max(1, Math.round(drugEffect.getBaseDuration() * PROFILE.durationMultiplier()));
     }
 
-    /** Injecting bypasses first-pass metabolism — highest dose multiplier. */
     @Override
-    public float getNewDose(float baseDose) {
-        return baseDose * 2.0f;
+    public RouteEffectProfile routeEffectProfile() {
+        return PROFILE;
     }
 }

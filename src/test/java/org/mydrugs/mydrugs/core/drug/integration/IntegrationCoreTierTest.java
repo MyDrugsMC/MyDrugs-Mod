@@ -26,8 +26,8 @@ class IntegrationCoreTierTest {
 
     @Test
     void uncuratedDrugsHaveNoTier() {
-        assertNull(IntegrationCoreTier.requiredFor(DrugId.HEROIN));
-        assertNull(IntegrationCoreTier.requiredFor(DrugId.DMT));
+        assertNull(IntegrationCoreTier.requiredFor(DrugId.CRACK));
+        assertNull(IntegrationCoreTier.requiredFor(null));
     }
 
     @Test

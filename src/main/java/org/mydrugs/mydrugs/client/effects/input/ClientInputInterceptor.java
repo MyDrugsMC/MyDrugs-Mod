@@ -10,6 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.phys.Vec2;
 import org.mydrugs.mydrugs.Config;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCueKind;
+import org.mydrugs.mydrugs.client.effects.hud.AddictionHudRenderer;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
@@ -185,8 +187,7 @@ public final class ClientInputInterceptor {
     }
 
     private static boolean hudOnlyInputFailAllowed() {
-        return Config.CLIENT.replaceInputFailWithHudWarningOnly.get()
-                && Config.SERVER.allowClientInputFailHudOnly.get();
+        return Config.CLIENT.replaceInputFailWithHudWarningOnly.get();
     }
 
     private static void showInputWarning() {
@@ -195,8 +196,10 @@ public final class ClientInputInterceptor {
         }
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
+            AddictionHudRenderer.enqueuePulse(EffectType.INPUT_FAIL, DrugEffectCueKind.INPUT_FAIL,
+                    AddictionClientState.getEffectIntensity(EffectType.INPUT_FAIL));
             mc.player.displayClientMessage(Component.translatable("message.mydrugs.input_fail.warning"), true);
-            hudWarningCooldownTicks = 30;
+            hudWarningCooldownTicks = 100;
         }
     }
 
