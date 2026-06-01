@@ -705,6 +705,9 @@
       { "type": "item", "text": "mydrugs:pipe_filter_upgrade" },
       { "type": "item", "text": "mydrugs:machine_transfer_upgrade" },
       { "type": "text", "text": "Match the pipe to the cargo — items, fluids and gases each need their own. Use the wrench to set machine sides, and filters when only one resource should move down a line." },
+      { "type": "text", "text": "Set a Pipe Filter Upgrade to Item, Fluid or Gas before applying it. The filter kind must match the pipe kind." },
+      { "type": "text", "text": "To move only X: set the mode to Allowlist, add X as a sample, then apply the filter to the relevant pipe side. To block Y: set the mode to Blocklist, add Y as a sample, then apply it to the side." },
+      { "type": "text", "text": "Route fluids and gases separately: configure a fluid filter with a bucket or fluid container, and configure a gas filter with a gas tank. Apply each one to the matching pipe type." },
       { "type": "tip", "text": "Line stopped? Check, in order: output space, tank type, pipe direction, side config, filter, energy." }
     ]
   },

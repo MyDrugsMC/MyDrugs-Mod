@@ -118,7 +118,10 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<PipeFilterConfig>> PIPE_FILTER_CONFIG =
             DATA_COMPONENTS.registerComponentType(
                     "pipe_filter_config",
-                    builder -> builder.persistent(PipeFilterConfig.CODEC).cacheEncoding()
+                    builder -> builder
+                            .persistent(PipeFilterConfig.CODEC)
+                            .networkSynchronized(PipeFilterConfig.STREAM_CODEC)
+                            .cacheEncoding()
             );
 
     public static final Supplier<DataComponentType<MixedDrugData>> MIXED_DRUG_DATA =

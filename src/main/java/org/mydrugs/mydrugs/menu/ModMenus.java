@@ -124,7 +124,7 @@ public class ModMenus {
                     () -> IMenuTypeExtension.create(PsyMixerMenu::new));
 
     public static final Supplier<MenuType<PipeFilterMenu>> PIPE_FILTER =
-            MENUS.register("pipe_filter", () -> new MenuType<>(PipeFilterMenu::new, FeatureFlags.DEFAULT_FLAGS));
+            MENUS.register("pipe_filter", () -> IMenuTypeExtension.create(PipeFilterMenu::new));
 
     public static final Supplier<MenuType<MachineTransferConfigMenu>> MACHINE_TRANSFER_CONFIG =
             MENUS.register(

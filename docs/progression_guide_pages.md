@@ -1084,6 +1084,12 @@ When carrying buckets gets old, automate.
 
 Match the pipe to the cargo — items, fluids and gases each need their own. Use the wrench to set machine sides, and filters when only one resource should move down a line.
 
+Set a Pipe Filter Upgrade to Item, Fluid or Gas before applying it. The filter kind must match the pipe kind.
+
+To move only X: set the mode to Allowlist, add X as a sample, then apply the filter to the relevant pipe side. To block Y: set the mode to Blocklist, add Y as a sample, then apply it to the side.
+
+Route fluids and gases separately: configure a fluid filter with a bucket or fluid container, and configure a gas filter with a gas tank. Apply each one to the matching pipe type.
+
 > [TIP] Line stopped? Check, in order: output space, tank type, pipe direction, side config, filter, energy.
 
 ---
