@@ -31,6 +31,7 @@ import org.mydrugs.mydrugs.blocks.crops.CoffeeCropBlock;
 import org.mydrugs.mydrugs.blocks.crops.MaltCropBlock;
 import org.mydrugs.mydrugs.blocks.crops.ModCrops;
 import org.mydrugs.mydrugs.blocks.crops.RyeCropBlock;
+import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 import org.mydrugs.mydrugs.items.ModItems;
 
 import java.util.List;
@@ -111,6 +112,24 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.MEMORY_REEDS.get());
             dropSelf(ModBlocks.REDLINE_THORN.get());
             dropSelf(ModBlocks.MYCELIAL_ROOT.get());
+            dropSelf(ModInnerDimensionBlocks.LUCID_CLOVER.get());
+            dropSelf(ModInnerDimensionBlocks.ASH_GRASS.get());
+            dropSelf(ModInnerDimensionBlocks.MOSS_BREATH_CARPET.get());
+            dropSelf(ModInnerDimensionBlocks.QUARTZ_NEEDLEGRASS.get());
+            dropSelf(ModInnerDimensionBlocks.MYCELIAL_THREADS.get());
+            dropSelf(ModInnerDimensionBlocks.DREAM_ORCHID.get());
+            dropSelf(ModInnerDimensionBlocks.SPORE_BLOOM.get());
+            dropSelf(ModInnerDimensionBlocks.BITTER_SPROUT.get());
+            dropSelf(ModInnerDimensionBlocks.REDLINE_SPARK_BLOOM.get());
+            dropSelf(ModInnerDimensionBlocks.CALMING_BUSH.get());
+            dropSelf(ModInnerDimensionBlocks.MEMORY_SEDGE.get());
+            dropSelf(ModInnerDimensionBlocks.REDLINE_BRAMBLE.get());
+            dropSelf(ModInnerDimensionBlocks.CRYSTAL_SHRUB.get());
+            dropSelf(ModInnerDimensionBlocks.FERMENTED_SHRUB.get());
+            dropSelf(ModInnerDimensionBlocks.MUD_REEDS.get());
+            dropSelf(ModInnerDimensionBlocks.MEMORY_LOTUS.get());
+            dropSelf(ModInnerDimensionBlocks.BREATH_LILY.get());
+            dropSelf(ModInnerDimensionBlocks.PRISM_LOTUS.get());
             aloeBush(ModBlocks.ALOE_VERA_BUSH.get());
 
             crop(ModCrops.ALOE_VERA_CROP.get(), ModItems.ALOE_VERA.get(), ModCrops.ALOE_VERA_SEEDS.get());
@@ -347,6 +366,24 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.MEMORY_REEDS.get(),
                     ModBlocks.REDLINE_THORN.get(),
                     ModBlocks.MYCELIAL_ROOT.get(),
+                    ModInnerDimensionBlocks.LUCID_CLOVER.get(),
+                    ModInnerDimensionBlocks.ASH_GRASS.get(),
+                    ModInnerDimensionBlocks.MOSS_BREATH_CARPET.get(),
+                    ModInnerDimensionBlocks.QUARTZ_NEEDLEGRASS.get(),
+                    ModInnerDimensionBlocks.MYCELIAL_THREADS.get(),
+                    ModInnerDimensionBlocks.DREAM_ORCHID.get(),
+                    ModInnerDimensionBlocks.SPORE_BLOOM.get(),
+                    ModInnerDimensionBlocks.BITTER_SPROUT.get(),
+                    ModInnerDimensionBlocks.REDLINE_SPARK_BLOOM.get(),
+                    ModInnerDimensionBlocks.CALMING_BUSH.get(),
+                    ModInnerDimensionBlocks.MEMORY_SEDGE.get(),
+                    ModInnerDimensionBlocks.REDLINE_BRAMBLE.get(),
+                    ModInnerDimensionBlocks.CRYSTAL_SHRUB.get(),
+                    ModInnerDimensionBlocks.FERMENTED_SHRUB.get(),
+                    ModInnerDimensionBlocks.MUD_REEDS.get(),
+                    ModInnerDimensionBlocks.MEMORY_LOTUS.get(),
+                    ModInnerDimensionBlocks.BREATH_LILY.get(),
+                    ModInnerDimensionBlocks.PRISM_LOTUS.get(),
 
                     ModCrops.ALOE_VERA_CROP.get(),
                     ModCrops.TOBACCO_CROP.get(),

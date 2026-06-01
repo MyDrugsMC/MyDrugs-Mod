@@ -77,6 +77,8 @@ public class Config {
         public final ModConfigSpec.BooleanValue showActiveEffectExplanations;
         public final ModConfigSpec.BooleanValue showMachineMoodStatusText;
         public final ModConfigSpec.BooleanValue showGeneratorCravingsAsText;
+        public final ModConfigSpec.BooleanValue innerPostProcessing;
+        public final ModConfigSpec.DoubleValue innerAmbientVolume;
 
         private Client(ModConfigSpec.Builder builder) {
             builder.push("accessibility");
@@ -211,6 +213,17 @@ public class Config {
             showGeneratorCravingsAsText = builder
                     .comment("Show psychotrope generator cravings as text instead of audio-only cues where supported.")
                     .define("showGeneratorCravingsAsText", true);
+            builder.pop();
+
+            builder.push("inner_dimension");
+            innerPostProcessing = builder
+                    .comment("Enable the Inner Dimension atmospheric post-processing pass (bloom / god-rays / vignette).",
+                            "Client-only and forced off under reduced motion. Disable if the post pass misbehaves on your GPU.")
+                    .define("innerPostProcessing", true);
+            innerAmbientVolume = builder
+                    .comment("Master volume for the Inner Dimension ambient soundscape (region drones, heartbeat bed, one-shots).",
+                            "0 disables the soundscape entirely.")
+                    .defineInRange("innerAmbientVolume", 1.0D, 0.0D, 1.0D);
             builder.pop();
             builder.pop();
         }

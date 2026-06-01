@@ -25,7 +25,8 @@ import java.util.function.BiConsumer;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class InnerOverlayQueue {
-    private static final Map<UUID, QueueState> QUEUES = new LinkedHashMap<>();
+    private static final Map<UUID, QueueState> OVERLAY_QUEUES = new LinkedHashMap<>();
+    private static final Map<UUID, QueueState> RECREATE_QUEUES = new LinkedHashMap<>();
     private static final Map<UUID, InnerGenerationMetrics> LAST_METRICS = new LinkedHashMap<>();
 
     private InnerOverlayQueue() {
@@ -41,6 +42,17 @@ public final class InnerOverlayQueue {
     }
 
     public static void enqueueIntegrationAwakening(InnerDimensionSavedData.IslandState island, DrugId drugId) {
+        enqueueIntegrationAwakening(island, drugId, false);
+    }
+
+    /**
+     * Enqueue the integration awakening. When {@code centerOutward} is true (the owning player is
+     * present in the dimension — Phase 8), the collected chunks are ordered by distance from the
+     * island centre so the existing per-tick overlay budget reveals them as a visible outward wave
+     * radiating from the sanctuary. The reveal is still paced by {@code OVERLAY_CHUNKS_PER_TICK} —
+     * this only changes the order, never the per-tick chunk cap.
+     */
+    public static void enqueueIntegrationAwakening(InnerDimensionSavedData.IslandState island, DrugId drugId, boolean centerOutward) {
         if (island == null || island.owner() == null || drugId == null) {
             return;
         }
@@ -48,6 +60,9 @@ public final class InnerOverlayQueue {
         addSquare(chunks, island.centerX() >> 4, island.centerZ() >> 4, 1);
         addLandmarkPatch(chunks, island, drugId, 4);
         addPathChunks(chunks, island, drugId);
+        if (centerOutward) {
+            chunks.sortByDistanceFromChunk(island.centerX() >> 4, island.centerZ() >> 4);
+        }
         appendQueue(island.owner(), chunks);
     }
 
@@ -63,7 +78,7 @@ public final class InnerOverlayQueue {
                 addPathChunks(chunks, island, drugId);
             }
         }
-        boolean replaced = QUEUES.put(island.owner(), new QueueState(chunks.chunks(), chunks.keys(), QueueMode.OVERLAY)) != null;
+        boolean replaced = OVERLAY_QUEUES.put(island.owner(), new QueueState(chunks.chunks(), chunks.keys(), QueueMode.OVERLAY)) != null;
         return new InnerRefreshJob(island.owner(), chunks.size(), replaced);
     }
 
@@ -73,14 +88,13 @@ public final class InnerOverlayQueue {
         }
         ChunkCollector chunks = new ChunkCollector();
         addRecreateChunks(chunks, island);
-        boolean replaced = QUEUES.put(island.owner(), new QueueState(chunks.chunks(), chunks.keys(), QueueMode.FULL_RECREATE)) != null;
+        boolean replaced = RECREATE_QUEUES.put(island.owner(), new QueueState(chunks.chunks(), chunks.keys(), QueueMode.FULL_RECREATE)) != null;
         return new InnerRefreshJob(island.owner(), chunks.size(), replaced);
     }
 
     /**
-     * B1: enqueue a single freshly-loaded chunk for idempotent decoration. Placement is gated by
-     * the marker system (B2) and {@code safeSet}, so re-processing an already-dressed chunk is a
-     * no-op. Appends to the owner's existing overlay queue or starts a new one.
+     * Enqueue a freshly-loaded chunk for idempotent decoration. Placement is gated by markers and
+     * {@code safeSet}, so re-processing an already-dressed chunk is a no-op.
      */
     public static void enqueueChunkDecoration(InnerDimensionSavedData.IslandState island, ChunkPos chunkPos) {
         if (island == null || island.owner() == null || chunkPos == null) {
@@ -92,42 +106,56 @@ public final class InnerOverlayQueue {
     }
 
     /**
-     * B5: clear the static per-owner queue and metrics maps when the server stops, so stale state
+     * Clear the static per-owner queue and metrics maps when the server stops, so stale state
      * does not leak across world loads in singleplayer. All access to these maps (enqueue*,
      * onLevelTick, onChunkLoad, here) happens on the server thread.
      */
     @SubscribeEvent
     public static void onServerStopping(ServerStoppingEvent event) {
-        QUEUES.clear();
+        OVERLAY_QUEUES.clear();
+        RECREATE_QUEUES.clear();
         LAST_METRICS.clear();
         org.mydrugs.mydrugs.entity.InnerDemonSpawnManager.clearInnerAmbientState();
     }
 
     public static boolean cancel(UUID owner) {
-        return QUEUES.remove(owner) != null;
+        return OVERLAY_QUEUES.remove(owner) != null | RECREATE_QUEUES.remove(owner) != null;
     }
 
     public static String queueStatus(UUID owner) {
-        QueueState state = QUEUES.get(owner);
-        if (state == null) {
+        QueueState recreate = RECREATE_QUEUES.get(owner);
+        QueueState overlay = OVERLAY_QUEUES.get(owner);
+        if (recreate == null && overlay == null) {
             InnerGenerationMetrics metrics = LAST_METRICS.getOrDefault(owner, InnerGenerationMetrics.EMPTY);
             return "Inner Dimension overlay queue idle. Last metrics: " + metrics.toDebugString();
         }
-        return "Inner Dimension overlay queue owner=" + owner
-                + " mode=" + state.mode.id
-                + " remaining=" + state.remaining()
-                + ", processed=" + state.processedChunks
-                + ", placed=" + state.placedBlocks
-                + ", skipped=" + state.skippedBlocks;
+        return "Inner Dimension queue owner=" + owner
+                + stateDebug(" destructive", recreate)
+                + stateDebug(" overlay", overlay);
     }
 
     public static String lastMetricsFor(UUID owner) {
         return LAST_METRICS.getOrDefault(owner, InnerGenerationMetrics.EMPTY).toDebugString();
     }
 
+    private static String stateDebug(String label, QueueState state) {
+        if (state == null) {
+            return label + "=idle";
+        }
+        return label
+                + "[mode=" + state.mode.id
+                + ", remaining=" + state.remaining()
+                + ", processed=" + state.processedChunks
+                + ", placed=" + state.placedBlocks
+                + ", skipped=" + state.skippedBlocks
+                + "]";
+    }
+
     public static int remainingFor(UUID owner) {
-        QueueState state = QUEUES.get(owner);
-        return state == null ? 0 : state.remaining();
+        QueueState recreate = RECREATE_QUEUES.get(owner);
+        QueueState overlay = OVERLAY_QUEUES.get(owner);
+        return (recreate == null ? 0 : recreate.remaining())
+                + (overlay == null ? 0 : overlay.remaining());
     }
 
     static int deduplicatedChunkCoordinateCountForTest(int[][] chunks) {
@@ -141,7 +169,7 @@ public final class InnerOverlayQueue {
     }
 
     /**
-     * B1: when a chunk loads in the inner dimension, enqueue it for decoration so the owner's
+     * When a chunk loads in the inner dimension, enqueue it for decoration so the owner's
      * island is dressed regardless of how the player arrived (no reliance on an entry/integration
      * event having fired). The event fires before the chunk is promoted to FULL, so we must not
      * touch the level here — enqueueing only defers the work to {@link #onLevelTick}.
@@ -168,18 +196,34 @@ public final class InnerOverlayQueue {
         if (!(event.getLevel() instanceof ServerLevel level) || !level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
             return;
         }
-        if (QUEUES.isEmpty()) {
+        if (OVERLAY_QUEUES.isEmpty() && RECREATE_QUEUES.isEmpty()) {
             return;
         }
 
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         int chunksLeftThisTick = InnerDimensionConstants.OVERLAY_CHUNKS_PER_TICK;
-        var iterator = QUEUES.entrySet().iterator();
+        chunksLeftThisTick = processQueues(level, data, RECREATE_QUEUES, chunksLeftThisTick, true);
+        if (chunksLeftThisTick > 0) {
+            processQueues(level, data, OVERLAY_QUEUES, chunksLeftThisTick, false);
+        }
+    }
+
+    private static int processQueues(
+            ServerLevel level,
+            InnerDimensionSavedData data,
+            Map<UUID, QueueState> queues,
+            int chunksLeftThisTick,
+            boolean destructive
+    ) {
+        var iterator = queues.entrySet().iterator();
         while (iterator.hasNext() && chunksLeftThisTick > 0) {
             Map.Entry<UUID, QueueState> entry = iterator.next();
+            if (!destructive && RECREATE_QUEUES.containsKey(entry.getKey())) {
+                continue;
+            }
             QueueState state = entry.getValue();
             InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(entry.getKey());
-            int queueBudget = state.mode == QueueMode.FULL_RECREATE
+            int queueBudget = destructive
                     ? Math.min(chunksLeftThisTick, InnerDimensionConstants.RECREATE_CHUNKS_PER_TICK)
                     : chunksLeftThisTick;
             while (queueBudget > 0 && !state.chunks.isEmpty()) {
@@ -193,19 +237,24 @@ public final class InnerOverlayQueue {
                 queueBudget--;
             }
             if (state.chunks.isEmpty()) {
-                long elapsed = Math.max(0L, System.currentTimeMillis() - state.startedMillis);
-                InnerGenerationMetrics metrics = new InnerGenerationMetrics(
-                        state.processedChunks,
-                        state.enqueuedChunks,
-                        state.placedBlocks,
-                        state.skippedBlocks,
-                        elapsed
-                );
-                LAST_METRICS.put(entry.getKey(), metrics);
-                data.updateOverlayMetrics(entry.getKey(), metrics.toDebugString());
+                completeQueue(data, entry.getKey(), state);
                 iterator.remove();
             }
         }
+        return chunksLeftThisTick;
+    }
+
+    private static void completeQueue(InnerDimensionSavedData data, UUID owner, QueueState state) {
+        long elapsed = Math.max(0L, System.currentTimeMillis() - state.startedMillis);
+        InnerGenerationMetrics metrics = new InnerGenerationMetrics(
+                state.processedChunks,
+                state.enqueuedChunks,
+                state.placedBlocks,
+                state.skippedBlocks,
+                elapsed
+        );
+        LAST_METRICS.put(owner, metrics);
+        data.updateOverlayMetrics(owner, state.mode.id + " " + metrics.toDebugString());
     }
 
     private static InnerPlacement.PlacementCount placeChunk(
@@ -215,13 +264,20 @@ public final class InnerOverlayQueue {
             QueueMode mode
     ) {
         InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
-        // B4: memoize terrain samples for the duration of this single-threaded pass so the
-        // rebuilder, sanctuary/landmark builders, decorator and surfaceTop share one lookup
-        // per column instead of recomputing the warped sample each time.
+        // Keep the older pass cache active for helpers that still call surfaceTop/sample directly.
         InnerTerrain.beginCachePass();
         try {
             if (mode == QueueMode.FULL_RECREATE) {
                 InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
+            }
+            InnerChunkSampleCache cache = InnerChunkSampleCache.build(
+                    island.centerX(),
+                    island.centerZ(),
+                    chunkPos.getMinBlockX(),
+                    chunkPos.getMinBlockZ()
+            );
+            if (mode == QueueMode.OVERLAY) {
+                InnerVisualFeatureBuilders.placeOverlayFeatures(level, chunkPos, cache, count);
             }
             int centerChunkX = island.centerX() >> 4;
             int centerChunkZ = island.centerZ() >> 4;
@@ -229,7 +285,8 @@ public final class InnerOverlayQueue {
                 InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
             }
 
-            InnerDecorator.decoratePathChunk(level, chunkPos, count);
+            InnerDecorator.decoratePathChunk(level, chunkPos, cache, count);
+            InnerDecorator.decorateAmbientChunk(level, chunkPos, cache, count);
             for (DrugId drugId : CuratedDrugChain.ORDER) {
                 BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
                 ChunkPos landmarkChunk = new ChunkPos(landmark);
@@ -243,7 +300,15 @@ public final class InnerOverlayQueue {
                     InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
                 }
                 if (unlocked) {
-                    InnerDecorator.decorateRegionAwakening(level, chunkPos, drugId, true, island.integratedCount(), count);
+                    InnerDecorator.decorateRegionAwakening(
+                            level,
+                            chunkPos,
+                            drugId,
+                            true,
+                            island.integratedCount(),
+                            cache,
+                            count
+                    );
                 }
             }
         } finally {
@@ -252,8 +317,16 @@ public final class InnerOverlayQueue {
         return count.freeze();
     }
 
+    static InnerPlacement.PlacementCount recreateAndDecorateChunkNow(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            ChunkPos chunkPos
+    ) {
+        return placeChunk(level, island, chunkPos, QueueMode.FULL_RECREATE);
+    }
+
     private static void appendQueue(UUID owner, ChunkCollector chunks) {
-        QUEUES.compute(owner, (id, existing) -> existing == null
+        OVERLAY_QUEUES.compute(owner, (id, existing) -> existing == null
                 ? new QueueState(chunks.chunks(), chunks.keys(), QueueMode.OVERLAY)
                 : existing.append(chunks));
     }
@@ -301,7 +374,7 @@ public final class InnerOverlayQueue {
         forEachRecreateChunkCoordinate(centerX, centerZ, (chunkX, chunkZ) -> chunks.add(new ChunkPos(chunkX, chunkZ)));
     }
 
-    private static void forEachRecreateChunkCoordinate(int centerX, int centerZ, BiConsumer<Integer, Integer> consumer) {
+    static void forEachRecreateChunkCoordinate(int centerX, int centerZ, BiConsumer<Integer, Integer> consumer) {
         int centerChunkX = centerX >> 4;
         int centerChunkZ = centerZ >> 4;
         int radius = InnerDimensionConstants.FULL_RECREATE_CHUNK_RADIUS;
@@ -334,6 +407,23 @@ public final class InnerOverlayQueue {
         return queued.add(key);
     }
 
+    static boolean destructiveQueueIsSeparateFromOverlayQueueForTest() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-00000000d00d");
+        try {
+            RECREATE_QUEUES.put(owner, new QueueState(new ArrayDeque<>(), new LinkedHashSet<>(), QueueMode.FULL_RECREATE));
+            appendQueue(owner, new ChunkCollector());
+            QueueState recreate = RECREATE_QUEUES.get(owner);
+            QueueState overlay = OVERLAY_QUEUES.get(owner);
+            return recreate != null
+                    && overlay != null
+                    && recreate.mode == QueueMode.FULL_RECREATE
+                    && overlay.mode == QueueMode.OVERLAY;
+        } finally {
+            RECREATE_QUEUES.remove(owner);
+            OVERLAY_QUEUES.remove(owner);
+        }
+    }
+
     private static long chunkKey(ChunkPos chunkPos) {
         return chunkKey(chunkPos.x, chunkPos.z);
     }
@@ -350,6 +440,18 @@ public final class InnerOverlayQueue {
             if (keys.add(chunkKey(chunkPos))) {
                 chunks.add(chunkPos);
             }
+        }
+
+        /** Reorder so nearer-to-centre chunks are polled first (the Phase 8 outward wave). */
+        void sortByDistanceFromChunk(int centerChunkX, int centerChunkZ) {
+            java.util.List<ChunkPos> sorted = new java.util.ArrayList<>(chunks);
+            sorted.sort(java.util.Comparator.comparingLong(c -> {
+                long dx = (long) c.x - centerChunkX;
+                long dz = (long) c.z - centerChunkZ;
+                return dx * dx + dz * dz;
+            }));
+            chunks.clear();
+            chunks.addAll(sorted);
         }
 
         int size() {

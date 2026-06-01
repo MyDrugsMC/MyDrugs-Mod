@@ -23,6 +23,15 @@ public final class InnerDimensionSystem {
     }
 
     public static boolean onIntegration(ServerLevel level, InnerDimensionSavedData.IslandState island, DrugId drugId) {
+        return onIntegration(level, island, drugId, false);
+    }
+
+    /**
+     * @param liveWave when true (the owning player is present in the dimension — Phase 8), the new
+     *                 region's chunks are revealed as a center-outward wave instead of the silent
+     *                 unordered enqueue used when nobody is watching.
+     */
+    public static boolean onIntegration(ServerLevel level, InnerDimensionSavedData.IslandState island, DrugId drugId, boolean liveWave) {
         if (level == null || island == null || island.owner() == null || drugId == null) {
             return false;
         }
@@ -30,7 +39,7 @@ public final class InnerDimensionSystem {
         boolean recorded = data.recordIntegration(island.owner(), drugId);
         if (recorded) {
             data.markStructurePlaced(island.owner(), InnerDimensionConstants.pathMarker(drugId));
-            InnerOverlayQueue.enqueueIntegrationAwakening(island, drugId);
+            InnerOverlayQueue.enqueueIntegrationAwakening(island, drugId, liveWave);
         }
         return recorded;
     }
@@ -59,6 +68,19 @@ public final class InnerDimensionSystem {
         data.clearOverlayMarkers(island.owner());
         restoreSemanticMarkers(data, island);
         return InnerOverlayQueue.enqueueOwnerFullRecreate(island);
+    }
+
+    public static InnerGenerationMetrics burstRecreateOwnerDebug(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island
+    ) {
+        if (level == null || island == null || island.owner() == null) {
+            return InnerGenerationMetrics.EMPTY;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
+        data.clearOverlayMarkers(island.owner());
+        restoreSemanticMarkers(data, island);
+        return InnerBurstRegenerator.recreateOwnerNow(level, island);
     }
 
     private static void restoreSemanticMarkers(

@@ -14,10 +14,13 @@ final class InnerPlacement {
             Blocks.AIR,
             Blocks.CAVE_AIR,
             Blocks.VOID_AIR,
+            Blocks.WATER,
+            Blocks.LAVA,
             Blocks.GRASS_BLOCK,
             Blocks.DIRT,
             Blocks.DIRT_PATH,
             Blocks.ROOTED_DIRT,
+            Blocks.CLAY,
             Blocks.MOSS_BLOCK,
             Blocks.MYCELIUM,
             Blocks.TUFF,
@@ -48,7 +51,21 @@ final class InnerPlacement {
             Blocks.BROWN_MUSHROOM_BLOCK,
             Blocks.SMOOTH_STONE,
             Blocks.SEA_LANTERN,
+            Blocks.GLOWSTONE,
+            Blocks.SHROOMLIGHT,
             Blocks.LANTERN,
+            Blocks.SOUL_LANTERN,
+            Blocks.REDSTONE_TORCH,
+            Blocks.OAK_LOG,
+            Blocks.OAK_LEAVES,
+            Blocks.DARK_OAK_LEAVES,
+            Blocks.JUNGLE_LOG,
+            Blocks.JUNGLE_LEAVES,
+            Blocks.AZALEA_LEAVES,
+            Blocks.DARK_OAK_LOG,
+            Blocks.STRIPPED_DARK_OAK_LOG,
+            Blocks.SPRUCE_LOG,
+            Blocks.STRIPPED_SPRUCE_LOG,
             Blocks.IRON_BARS,
             Blocks.BOOKSHELF
     );
@@ -108,29 +125,12 @@ final class InnerPlacement {
                 || state.is(Blocks.LANTERN)
                 || state.is(Blocks.SOUL_LANTERN)
                 || state.is(Blocks.AMETHYST_CLUSTER)
-                || state.is(ModInnerDimensionBlocks.BREATH_GRASS.get())
-                || state.is(ModInnerDimensionBlocks.CALMING_FERN.get())
-                || state.is(ModInnerDimensionBlocks.MEMORY_REEDS.get())
-                || state.is(ModInnerDimensionBlocks.REDLINE_THORN.get())
-                || state.is(ModInnerDimensionBlocks.MYCELIAL_ROOT.get());
+                || ModInnerDimensionBlocks.isSymbolicPlantBlock(state.getBlock());
     }
 
     private static boolean isGeneratedReplaceable(Block block) {
         return VANILLA_GENERATED_REPLACEABLE.contains(block)
-                || block == ModInnerDimensionBlocks.LUCID_ECHO_NODE.get()
-                || block == ModInnerDimensionBlocks.BITTER_ECHO_NODE.get()
-                || block == ModInnerDimensionBlocks.CALMING_ECHO_NODE.get()
-                || block == ModInnerDimensionBlocks.PRESSED_CALM_NODE.get()
-                || block == ModInnerDimensionBlocks.FERMENTED_MEMORY_NODE.get()
-                || block == ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE.get()
-                || block == ModInnerDimensionBlocks.DREAM_RESIDUE_GEODE.get()
-                || block == ModInnerDimensionBlocks.OVERDRIVE_SLAG.get()
-                || block == ModInnerDimensionBlocks.MYCELIAL_INSIGHT_NODE.get()
-                || block == ModInnerDimensionBlocks.BREATH_GRASS.get()
-                || block == ModInnerDimensionBlocks.CALMING_FERN.get()
-                || block == ModInnerDimensionBlocks.MEMORY_REEDS.get()
-                || block == ModInnerDimensionBlocks.REDLINE_THORN.get()
-                || block == ModInnerDimensionBlocks.MYCELIAL_ROOT.get();
+                || ModInnerDimensionBlocks.isGeneratedInnerBlock(block);
     }
 
     static final class MutablePlacementCount {
@@ -144,6 +144,10 @@ final class InnerPlacement {
 
         void recordPlaced() {
             placed++;
+        }
+
+        void recordSkipped() {
+            skipped++;
         }
     }
 

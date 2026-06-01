@@ -29,4 +29,9 @@ class InnerOverlayQueueTest {
     void fullRecreateQueuesWholeOwnerArea() {
         assertTrue(InnerOverlayQueue.fullRecreateChunkCountForTest(0, 0) > 40_000);
     }
+
+    @Test
+    void destructiveQueueCannotAbsorbOverlayAppends() {
+        assertTrue(InnerOverlayQueue.destructiveQueueIsSeparateFromOverlayQueueForTest());
+    }
 }

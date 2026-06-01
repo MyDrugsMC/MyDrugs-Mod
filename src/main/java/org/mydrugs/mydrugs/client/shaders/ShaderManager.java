@@ -48,6 +48,15 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         }
         WithdrawalTunnelShader.INSTANCE.buildPipeline();
         event.registerPipeline(WithdrawalTunnelShader.INSTANCE.getRenderPipeline());
+
+        // Inner Dimension atmosphere post-pass (Phase 2). Degrade gracefully: if the pipeline
+        // fails to build we log and skip it rather than letting the whole registration throw.
+        try {
+            InnerAtmosphereShader.INSTANCE.buildPipeline();
+            event.registerPipeline(InnerAtmosphereShader.INSTANCE.getRenderPipeline());
+        } catch (RuntimeException e) {
+            MyDrugs.getLOGGER().error("Failed to build inner_atmosphere post pipeline; disabling it", e);
+        }
     }
 
     @SubscribeEvent

@@ -10,9 +10,7 @@ public final class InnerRegionMap {
     private static final List<DrugId> ORDER = CuratedDrugChain.ORDER;
     private static final double TWO_PI = Math.PI * 2.0D;
 
-    // A2: angular half-width of the transition band on either side of a sector boundary.
-    // Sector size is TWO_PI/ORDER.size() (~0.70 rad); the band must stay below the half-sector
-    // (~0.35 rad) so two regions never overlap a third.
+    // Angular half-width of the transition band on either side of a sector boundary.
     private static final double BLEND_BAND = 0.22D;
 
     private InnerRegionMap() {

@@ -99,6 +99,8 @@ public final class ModNetwork {
         r.playToClient(RecoveryRoomParticlesPayload.TYPE, RecoveryRoomParticlesPayload.STREAM_CODEC);
         r.playToClient(DistillateEnginePreviewPayload.TYPE, DistillateEnginePreviewPayload.STREAM_CODEC);
         r.playToClient(DistillateEnginePulsePayload.TYPE, DistillateEnginePulsePayload.STREAM_CODEC);
+        r.playToClient(InnerSkyStatePayload.TYPE, InnerSkyStatePayload.STREAM_CODEC);
+        r.playToClient(InnerGrowthWavePayload.TYPE, InnerGrowthWavePayload.STREAM_CODEC);
     }
 
     private static void registerRecoveryPayloads(PayloadRegistrar r) {

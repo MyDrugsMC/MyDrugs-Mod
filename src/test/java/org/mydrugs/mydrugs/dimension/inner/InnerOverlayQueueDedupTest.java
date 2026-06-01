@@ -34,4 +34,9 @@ class InnerOverlayQueueDedupTest {
         assertTrue(InnerOverlayQueue.processedChunkCanBeRequeuedForTest(),
                 "a chunk removed from the queued set must be re-addable");
     }
+
+    @Test
+    void destructiveAndOverlayQueuesStaySeparate() {
+        assertTrue(InnerOverlayQueue.destructiveQueueIsSeparateFromOverlayQueueForTest());
+    }
 }

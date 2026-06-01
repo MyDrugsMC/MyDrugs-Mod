@@ -61,6 +61,21 @@ public class ModSounds {
     public static final Supplier<SoundEvent> PSY_MIXER_VOICE_STAND_STILL = registerSound("psy_mixer_voice_stand_still");
     public static final Supplier<SoundEvent> PSY_MIXER_VOICE_REOPEN_GUI = registerSound("psy_mixer_voice_reopen_gui");
 
+    // --- Inner Dimension ambient soundscape (Phase 5) -----------------------------------------
+    // Per-region looping drone beds, crossfaded by the region-blend weight the visuals use.
+    public static final Supplier<SoundEvent> INNER_DRONE_WARM = registerSound("inner_drone_warm");
+    public static final Supplier<SoundEvent> INNER_DRONE_TENSE = registerSound("inner_drone_tense");
+    public static final Supplier<SoundEvent> INNER_DRONE_WATER = registerSound("inner_drone_water");
+    public static final Supplier<SoundEvent> INNER_DRONE_CRYSTAL = registerSound("inner_drone_crystal");
+    public static final Supplier<SoundEvent> INNER_DRONE_ASH = registerSound("inner_drone_ash");
+    // Heartbeat bed (one-shot pulses paced from danger <-> calm).
+    public static final Supplier<SoundEvent> INNER_HEARTBEAT = registerSound("inner_heartbeat");
+    // Reactive one-shots.
+    public static final Supplier<SoundEvent> INNER_BREATH = registerSound("inner_breath");
+    public static final Supplier<SoundEvent> INNER_CHIME = registerSound("inner_chime");
+    public static final Supplier<SoundEvent> INNER_CROSSING = registerSound("inner_crossing");
+    public static final Supplier<SoundEvent> INNER_LANDMARK_TONE = registerSound("inner_landmark_tone");
+
     private static DeferredHolder<SoundEvent, SoundEvent> registerSound(String name) {
         return SOUND_EVENTS.register(name,
                 () -> SoundEvent.createVariableRangeEvent(

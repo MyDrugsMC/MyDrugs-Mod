@@ -31,6 +31,7 @@ import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
+import org.mydrugs.mydrugs.dimension.inner.InnerGenerationMetrics;
 import org.mydrugs.mydrugs.dimension.inner.InnerLocation;
 import org.mydrugs.mydrugs.dimension.inner.InnerRefreshJob;
 
@@ -39,6 +40,9 @@ import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class ModCommands {
+    static final int INNER_DIMENSION_ADMIN_PERMISSION_LEVEL = 2;
+    static final String BURST_RECREATE_CONFIRM_LITERAL = "confirm";
+
     private ModCommands() {
     }
 
@@ -147,7 +151,7 @@ public final class ModCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> innerDimensionCommand() {
         return Commands.literal("innerdim")
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> source.hasPermission(INNER_DIMENSION_ADMIN_PERMISSION_LEVEL))
                 .then(Commands.literal("status")
                         .executes(context -> innerDimensionStatus(context.getSource()))
                 )
@@ -156,6 +160,11 @@ public final class ModCommands {
                 )
                 .then(Commands.literal("refresh_owner")
                         .executes(context -> innerDimensionRefreshOwner(context.getSource()))
+                )
+                .then(Commands.literal("burst_recreate")
+                        .then(Commands.literal(BURST_RECREATE_CONFIRM_LITERAL)
+                                .executes(context -> innerDimensionBurstRecreate(context.getSource()))
+                        )
                 )
                 .then(Commands.literal("queue_status")
                         .executes(context -> innerDimensionQueueStatus(context.getSource()))
@@ -208,6 +217,21 @@ public final class ModCommands {
         source.sendSuccess(() -> Component.literal("Queued destructive Inner Dimension owner recreate: chunks="
                 + job.enqueuedChunks() + ", replaced_existing_queue=" + job.replacedExistingQueue() + "."), true);
         return Math.max(1, job.enqueuedChunks());
+    }
+
+    private static int innerDimensionBurstRecreate(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerGenerationMetrics metrics = InnerDimensionSystem.burstRecreateOwnerDebug(innerLevel, island);
+        source.sendSuccess(() -> Component.literal("Destructive Inner Dimension burst recreate completed. "
+                + metrics.toDebugString()
+                + ". This did not preserve player builds inside the generated island radius."), true);
+        return Math.max(1, metrics.processedChunks());
     }
 
     private static int innerDimensionQueueStatus(CommandSourceStack source) throws CommandSyntaxException {
@@ -405,5 +429,10 @@ public final class ModCommands {
         }
 
         return builder.buildFuture();
+    }
+
+    static boolean burstRecreateRequiresConfirmForTest() {
+        return "confirm".equals(BURST_RECREATE_CONFIRM_LITERAL)
+                && INNER_DIMENSION_ADMIN_PERMISSION_LEVEL >= 2;
     }
 }

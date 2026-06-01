@@ -9,7 +9,17 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.dimension.block.RedlineThornBlock;
+import org.mydrugs.mydrugs.dimension.block.SmallSymbolicPlantBlock;
+import org.mydrugs.mydrugs.dimension.block.SymbolicBushBlock;
+import org.mydrugs.mydrugs.dimension.block.SymbolicGlowPlantBlock;
 import org.mydrugs.mydrugs.dimension.block.SymbolicPlantBlock;
+import org.mydrugs.mydrugs.dimension.block.SymbolicReedBlock;
+import org.mydrugs.mydrugs.dimension.block.TallSymbolicPlantBlock;
+import org.mydrugs.mydrugs.dimension.block.WideSymbolicPlantBlock;
+
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public final class ModInnerDimensionBlocks {
     public static final DeferredBlock<Block> LUCID_ECHO_NODE =
@@ -168,7 +178,262 @@ public final class ModInnerDimensionBlocks {
     public static final DeferredItem<BlockItem> MYCELIAL_ROOT_ITEM =
             ModBlocks.ITEMS.registerSimpleBlockItem(MYCELIAL_ROOT);
 
+    public static final DeferredBlock<SmallSymbolicPlantBlock> LUCID_CLOVER =
+            ModBlocks.BLOCKS.registerBlock(
+                    "lucid_clover",
+                    SmallSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties()
+            );
+    public static final DeferredItem<BlockItem> LUCID_CLOVER_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(LUCID_CLOVER);
+
+    public static final DeferredBlock<TallSymbolicPlantBlock> ASH_GRASS =
+            ModBlocks.BLOCKS.registerBlock(
+                    "ash_grass",
+                    TallSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.NETHER_SPROUTS)
+            );
+    public static final DeferredItem<BlockItem> ASH_GRASS_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(ASH_GRASS);
+
+    public static final DeferredBlock<WideSymbolicPlantBlock> MOSS_BREATH_CARPET =
+            ModBlocks.BLOCKS.registerBlock(
+                    "moss_breath_carpet",
+                    WideSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.MOSS_CARPET)
+            );
+    public static final DeferredItem<BlockItem> MOSS_BREATH_CARPET_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(MOSS_BREATH_CARPET);
+
+    public static final DeferredBlock<TallSymbolicPlantBlock> QUARTZ_NEEDLEGRASS =
+            ModBlocks.BLOCKS.registerBlock(
+                    "quartz_needlegrass",
+                    TallSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.AMETHYST)
+            );
+    public static final DeferredItem<BlockItem> QUARTZ_NEEDLEGRASS_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(QUARTZ_NEEDLEGRASS);
+
+    public static final DeferredBlock<WideSymbolicPlantBlock> MYCELIAL_THREADS =
+            ModBlocks.BLOCKS.registerBlock(
+                    "mycelial_threads",
+                    WideSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.ROOTED_DIRT)
+            );
+    public static final DeferredItem<BlockItem> MYCELIAL_THREADS_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(MYCELIAL_THREADS);
+
+    public static final DeferredBlock<SmallSymbolicPlantBlock> DREAM_ORCHID =
+            ModBlocks.BLOCKS.registerBlock(
+                    "dream_orchid",
+                    SmallSymbolicPlantBlock::new,
+                    props -> glowPlantProperties(3)
+            );
+    public static final DeferredItem<BlockItem> DREAM_ORCHID_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(DREAM_ORCHID);
+
+    public static final DeferredBlock<SymbolicGlowPlantBlock> SPORE_BLOOM =
+            ModBlocks.BLOCKS.registerBlock(
+                    "spore_bloom",
+                    SymbolicGlowPlantBlock::new,
+                    props -> glowPlantProperties(5).sound(SoundType.FUNGUS)
+            );
+    public static final DeferredItem<BlockItem> SPORE_BLOOM_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(SPORE_BLOOM);
+
+    public static final DeferredBlock<SmallSymbolicPlantBlock> BITTER_SPROUT =
+            ModBlocks.BLOCKS.registerBlock(
+                    "bitter_sprout",
+                    SmallSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.NETHER_SPROUTS)
+            );
+    public static final DeferredItem<BlockItem> BITTER_SPROUT_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(BITTER_SPROUT);
+
+    public static final DeferredBlock<SymbolicGlowPlantBlock> REDLINE_SPARK_BLOOM =
+            ModBlocks.BLOCKS.registerBlock(
+                    "redline_spark_bloom",
+                    SymbolicGlowPlantBlock::new,
+                    props -> glowPlantProperties(6).sound(SoundType.SWEET_BERRY_BUSH)
+            );
+    public static final DeferredItem<BlockItem> REDLINE_SPARK_BLOOM_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(REDLINE_SPARK_BLOOM);
+
+    public static final DeferredBlock<SymbolicBushBlock> CALMING_BUSH =
+            ModBlocks.BLOCKS.registerBlock(
+                    "calming_bush",
+                    SymbolicBushBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.AZALEA_LEAVES)
+            );
+    public static final DeferredItem<BlockItem> CALMING_BUSH_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(CALMING_BUSH);
+
+    public static final DeferredBlock<SymbolicReedBlock> MEMORY_SEDGE =
+            ModBlocks.BLOCKS.registerBlock(
+                    "memory_sedge",
+                    SymbolicReedBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.WET_GRASS)
+            );
+    public static final DeferredItem<BlockItem> MEMORY_SEDGE_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(MEMORY_SEDGE);
+
+    public static final DeferredBlock<SymbolicBushBlock> REDLINE_BRAMBLE =
+            ModBlocks.BLOCKS.registerBlock(
+                    "redline_bramble",
+                    SymbolicBushBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.SWEET_BERRY_BUSH)
+            );
+    public static final DeferredItem<BlockItem> REDLINE_BRAMBLE_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(REDLINE_BRAMBLE);
+
+    public static final DeferredBlock<SymbolicBushBlock> CRYSTAL_SHRUB =
+            ModBlocks.BLOCKS.registerBlock(
+                    "crystal_shrub",
+                    SymbolicBushBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.AMETHYST)
+            );
+    public static final DeferredItem<BlockItem> CRYSTAL_SHRUB_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(CRYSTAL_SHRUB);
+
+    public static final DeferredBlock<SymbolicBushBlock> FERMENTED_SHRUB =
+            ModBlocks.BLOCKS.registerBlock(
+                    "fermented_shrub",
+                    SymbolicBushBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.ROOTED_DIRT)
+            );
+    public static final DeferredItem<BlockItem> FERMENTED_SHRUB_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(FERMENTED_SHRUB);
+
+    public static final DeferredBlock<SymbolicReedBlock> MUD_REEDS =
+            ModBlocks.BLOCKS.registerBlock(
+                    "mud_reeds",
+                    SymbolicReedBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.WET_GRASS)
+            );
+    public static final DeferredItem<BlockItem> MUD_REEDS_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(MUD_REEDS);
+
+    public static final DeferredBlock<WideSymbolicPlantBlock> MEMORY_LOTUS =
+            ModBlocks.BLOCKS.registerBlock(
+                    "memory_lotus",
+                    WideSymbolicPlantBlock::new,
+                    props -> glowPlantProperties(2).sound(SoundType.LILY_PAD)
+            );
+    public static final DeferredItem<BlockItem> MEMORY_LOTUS_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(MEMORY_LOTUS);
+
+    public static final DeferredBlock<WideSymbolicPlantBlock> BREATH_LILY =
+            ModBlocks.BLOCKS.registerBlock(
+                    "breath_lily",
+                    WideSymbolicPlantBlock::new,
+                    props -> symbolicPlantProperties().sound(SoundType.LILY_PAD)
+            );
+    public static final DeferredItem<BlockItem> BREATH_LILY_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(BREATH_LILY);
+
+    public static final DeferredBlock<SymbolicGlowPlantBlock> PRISM_LOTUS =
+            ModBlocks.BLOCKS.registerBlock(
+                    "prism_lotus",
+                    SymbolicGlowPlantBlock::new,
+                    props -> glowPlantProperties(7).sound(SoundType.LILY_PAD)
+            );
+    public static final DeferredItem<BlockItem> PRISM_LOTUS_ITEM =
+            ModBlocks.ITEMS.registerSimpleBlockItem(PRISM_LOTUS);
+
+    private static final List<Supplier<? extends Block>> NODE_BLOCKS = List.of(
+            supplier(LUCID_ECHO_NODE),
+            supplier(BITTER_ECHO_NODE),
+            supplier(CALMING_ECHO_NODE),
+            supplier(PRESSED_CALM_NODE),
+            supplier(FERMENTED_MEMORY_NODE),
+            supplier(REDLINE_CRYSTAL_NODE),
+            supplier(DREAM_RESIDUE_GEODE),
+            supplier(OVERDRIVE_SLAG),
+            supplier(MYCELIAL_INSIGHT_NODE)
+    );
+
+    private static final List<Supplier<? extends Block>> SYMBOLIC_PLANTS = List.of(
+            supplier(BREATH_GRASS),
+            supplier(CALMING_FERN),
+            supplier(MEMORY_REEDS),
+            supplier(REDLINE_THORN),
+            supplier(MYCELIAL_ROOT),
+            supplier(LUCID_CLOVER),
+            supplier(ASH_GRASS),
+            supplier(MOSS_BREATH_CARPET),
+            supplier(QUARTZ_NEEDLEGRASS),
+            supplier(MYCELIAL_THREADS),
+            supplier(DREAM_ORCHID),
+            supplier(SPORE_BLOOM),
+            supplier(BITTER_SPROUT),
+            supplier(REDLINE_SPARK_BLOOM),
+            supplier(CALMING_BUSH),
+            supplier(MEMORY_SEDGE),
+            supplier(REDLINE_BRAMBLE),
+            supplier(CRYSTAL_SHRUB),
+            supplier(FERMENTED_SHRUB),
+            supplier(MUD_REEDS),
+            supplier(MEMORY_LOTUS),
+            supplier(BREATH_LILY),
+            supplier(PRISM_LOTUS)
+    );
+
+    private static final Set<String> SYMBOLIC_PLANT_IDS = Set.of(
+            "breath_grass",
+            "calming_fern",
+            "memory_reeds",
+            "redline_thorn",
+            "mycelial_root",
+            "lucid_clover",
+            "ash_grass",
+            "moss_breath_carpet",
+            "quartz_needlegrass",
+            "mycelial_threads",
+            "dream_orchid",
+            "spore_bloom",
+            "bitter_sprout",
+            "redline_spark_bloom",
+            "calming_bush",
+            "memory_sedge",
+            "redline_bramble",
+            "crystal_shrub",
+            "fermented_shrub",
+            "mud_reeds",
+            "memory_lotus",
+            "breath_lily",
+            "prism_lotus"
+    );
+
     private ModInnerDimensionBlocks() {
+    }
+
+    public static List<Supplier<? extends Block>> symbolicPlantSuppliers() {
+        return SYMBOLIC_PLANTS;
+    }
+
+    public static Set<String> symbolicPlantIdsForTest() {
+        return SYMBOLIC_PLANT_IDS;
+    }
+
+    public static boolean isSymbolicPlantBlock(Block block) {
+        return containsBlock(SYMBOLIC_PLANTS, block);
+    }
+
+    public static boolean isGeneratedInnerBlock(Block block) {
+        return isSymbolicPlantBlock(block) || containsBlock(NODE_BLOCKS, block);
+    }
+
+    private static boolean containsBlock(List<Supplier<? extends Block>> blocks, Block block) {
+        for (Supplier<? extends Block> supplier : blocks) {
+            if (supplier.get() == block) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Supplier<? extends Block> supplier(DeferredBlock<? extends Block> block) {
+        return block::get;
     }
 
     private static BlockBehaviour.Properties symbolicPlantProperties() {
@@ -178,5 +443,9 @@ public final class ModInnerDimensionBlocks {
                 .replaceable()
                 .sound(SoundType.GRASS)
                 .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY);
+    }
+
+    private static BlockBehaviour.Properties glowPlantProperties(int light) {
+        return symbolicPlantProperties().lightLevel(state -> light);
     }
 }

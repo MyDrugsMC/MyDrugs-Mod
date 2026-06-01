@@ -12,14 +12,19 @@ final class InnerDecorator {
     private InnerDecorator() {
     }
 
-    static void decoratePathChunk(ServerLevel level, ChunkPos chunkPos, InnerPlacement.MutablePlacementCount count) {
+    static void decoratePathChunk(
+            ServerLevel level,
+            ChunkPos chunkPos,
+            InnerChunkSampleCache cache,
+            InnerPlacement.MutablePlacementCount count
+    ) {
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
         for (int localZ = 0; localZ < 16; localZ += 2) {
             for (int localX = 0; localX < 16; localX += 2) {
                 int x = minX + localX;
                 int z = minZ + localZ;
-                InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
+                InnerTerrain.Sample sample = cache.sample(localX, localZ);
                 if (!sample.land() || sample.pathStrength() < 0.55D) {
                     continue;
                 }
@@ -40,26 +45,53 @@ final class InnerDecorator {
         }
     }
 
+    static void decorateAmbientChunk(
+            ServerLevel level,
+            ChunkPos chunkPos,
+            InnerChunkSampleCache cache,
+            InnerPlacement.MutablePlacementCount count
+    ) {
+        int minX = chunkPos.getMinBlockX();
+        int minZ = chunkPos.getMinBlockZ();
+        for (int localZ = 0; localZ < 16; localZ++) {
+            for (int localX = 0; localX < 16; localX++) {
+                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                if (!sample.land() || sample.lake() || sample.pathStrength() > 0.70D || !sample.plantPatch()) {
+                    continue;
+                }
+                int x = minX + localX;
+                int z = minZ + localZ;
+                long hash = InnerNoise.mix64(InnerTerrain.seedForSlot(InnerTerrain.slotCenter(x), InnerTerrain.slotCenter(z))
+                        ^ x * 0x2C1B3C6DL ^ z * 0x4AA5F731L);
+                double chance = 0.10D + sample.plantDensity() * 0.26D;
+                if ((hash & 1023L) >= chance * 1024.0D) {
+                    continue;
+                }
+                BlockPos top = new BlockPos(x, sample.topY(), z);
+                InnerPlacement.safeSet(level, top.above(), ambientPlantFor(sample, hash), false, count);
+            }
+        }
+    }
+
     static void decorateRegionAwakening(
             ServerLevel level,
             ChunkPos chunkPos,
             DrugId drugId,
             boolean unlocked,
             int integratedCount,
+            InnerChunkSampleCache cache,
             InnerPlacement.MutablePlacementCount count
     ) {
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
-        // Part C: healing brings order. The overlay layer has island state, so we modulate
-        // decoration here (never the pure terrain shape). As the player heals overall, integrated
-        // regions trade chaos (redline thorns in scars) for order (calming plants, denser accent).
+        // Healing brings order through overlay decoration without changing the pure terrain shape.
         double order = unlocked ? InnerNoise.clamp01(integratedCount / 9.0D) : 0.0D;
         for (int localZ = 1; localZ < 16; localZ += 3) {
             for (int localX = 1; localX < 16; localX += 3) {
                 int x = minX + localX;
                 int z = minZ + localZ;
-                InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
+                InnerTerrain.Sample sample = cache.sample(localX, localZ);
                 if (!sample.land() || sample.drugId() != drugId) {
                     continue;
                 }
@@ -101,6 +133,26 @@ final class InnerDecorator {
         }
         int index = Math.floorMod((int) hash, plants.size());
         return plants.get(index);
+    }
+
+    private static BlockState ambientPlantFor(InnerTerrain.Sample sample, long hash) {
+        if (sample.lakeStrength() > 0.08D) {
+            return switch (sample.drugId()) {
+                case ALCOHOL -> ModInnerDimensionBlocks.MEMORY_REEDS.get().defaultBlockState();
+                case WEED, HASH -> ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState();
+                case MUSHROOMS -> ModInnerDimensionBlocks.MYCELIAL_ROOT.get().defaultBlockState();
+                default -> plantFromProfile(sample.profile(), hash);
+            };
+        }
+        if (sample.holeStrength() > 0.14D) {
+            return switch (sample.holeType()) {
+                case ROOT_TUNNEL -> ModInnerDimensionBlocks.MYCELIAL_ROOT.get().defaultBlockState();
+                case SCAR_SHAFT -> ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState();
+                case MEMORY_SINK -> ModInnerDimensionBlocks.MEMORY_REEDS.get().defaultBlockState();
+                default -> plantFromProfile(sample.profile(), hash);
+            };
+        }
+        return plantFromProfile(sample.profile(), hash);
     }
 
     private static BlockState healingPlantFor(DrugId drugId) {

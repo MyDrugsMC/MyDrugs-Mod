@@ -67,6 +67,24 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCrossPlantBlock(futures, cachedOutput, "memory_reeds", MyDrugs.MODID + ":block/rye_stage3");
         saveCrossPlantBlock(futures, cachedOutput, "redline_thorn", MyDrugs.MODID + ":block/coca_stage3");
         saveCrossPlantBlock(futures, cachedOutput, "mycelial_root", MyDrugs.MODID + ":block/magic_mushroom");
+        saveCrossPlantBlock(futures, cachedOutput, "lucid_clover", MyDrugs.MODID + ":block/coffee_stage2");
+        saveCrossPlantBlock(futures, cachedOutput, "ash_grass", MyDrugs.MODID + ":block/tobacco_stage2");
+        saveCrossPlantBlock(futures, cachedOutput, "moss_breath_carpet", MyDrugs.MODID + ":block/cannabis_stage1");
+        saveCrossPlantBlock(futures, cachedOutput, "quartz_needlegrass", MyDrugs.MODID + ":block/coca_stage2");
+        saveCrossPlantBlock(futures, cachedOutput, "mycelial_threads", MyDrugs.MODID + ":block/magic_mushroom");
+        saveCrossPlantBlock(futures, cachedOutput, "dream_orchid", MyDrugs.MODID + ":block/third_eye_petal");
+        saveCrossPlantBlock(futures, cachedOutput, "spore_bloom", MyDrugs.MODID + ":block/magic_mushroom");
+        saveCrossPlantBlock(futures, cachedOutput, "bitter_sprout", MyDrugs.MODID + ":block/tobacco_stage1");
+        saveCrossPlantBlock(futures, cachedOutput, "redline_spark_bloom", MyDrugs.MODID + ":block/coca_stage3");
+        saveCrossPlantBlock(futures, cachedOutput, "calming_bush", MyDrugs.MODID + ":block/cannabis_stage3");
+        saveCrossPlantBlock(futures, cachedOutput, "memory_sedge", MyDrugs.MODID + ":block/rye_stage2");
+        saveCrossPlantBlock(futures, cachedOutput, "redline_bramble", MyDrugs.MODID + ":block/coca_stage4");
+        saveCrossPlantBlock(futures, cachedOutput, "crystal_shrub", MyDrugs.MODID + ":block/third_eye_petal");
+        saveCrossPlantBlock(futures, cachedOutput, "fermented_shrub", MyDrugs.MODID + ":block/malt_stage3");
+        saveCrossPlantBlock(futures, cachedOutput, "mud_reeds", MyDrugs.MODID + ":block/rye_stage4");
+        saveCrossPlantBlock(futures, cachedOutput, "memory_lotus", MyDrugs.MODID + ":block/rye_stage1");
+        saveCrossPlantBlock(futures, cachedOutput, "breath_lily", MyDrugs.MODID + ":block/coffee_stage1");
+        saveCrossPlantBlock(futures, cachedOutput, "prism_lotus", MyDrugs.MODID + ":block/third_eye_petal");
 
         saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "sieve");
@@ -100,12 +118,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
 
         saveOrientableBlock(futures, cachedOutput, "advanced_mixing_vat", "minecraft:block/orientable",
                 textures("front", "advanced_mixing_vat_front", "side", "advanced_mixing_vat_side", "top", "advanced_mixing_vat_top", "bottom", "advanced_mixing_vat_bottom", "particle", "advanced_mixing_vat_top"));
-        saveOrientableBlock(futures, cachedOutput, "aromatic_extractor", "minecraft:block/orientable_with_bottom",
-                textures("top", "aromatic_extractor_top", "front", "aromatic_extractor_front", "side", "aromatic_extractor_side", "bottom", "aromatic_extractor_bottom"));
         saveOrientableBlock(futures, cachedOutput, "catalytic_reformer", "minecraft:block/orientable_with_bottom",
                 textures("top", "catalytic_reformer_top", "front", "catalytic_reformer_front", "side", "catalytic_reformer_side", "bottom", "catalytic_reformer_bottom"));
-        saveOrientableBlock(futures, cachedOutput, "centrifuge", "minecraft:block/orientable_with_bottom",
-                textures("top", "centrifuge_top", "front", "centrifuge_front", "side", "centrifuge_side", "bottom", "centrifuge_bottom"));
         saveOrientableBlock(futures, cachedOutput, "chemical_reactor", "minecraft:block/orientable",
                 textures("top", "chemical_reactor_top", "front", "chemical_reactor_front", "side", "chemical_reactor_side", "bottom", "chemical_reactor_bottom"));
         saveOrientableBlock(futures, cachedOutput, "chemical_reactor_on", "minecraft:block/orientable",
@@ -124,10 +138,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeMachineModel(futures, cachedOutput, "biochemical_reactor_on", "biochemical_reactor_front_on", "biochemical_reactor_side", "biochemical_reactor_top", "biochemical_reactor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "autoclave", "autoclave_front", "autoclave_side", "autoclave_top", "autoclave_bottom");
         saveCubeMachineModel(futures, cachedOutput, "bacterial_incubator", "bacterial_incubator_front", "bacterial_incubator_side", "bacterial_incubator_top", "bacterial_incubator_bottom");
-        saveCubeMachineModel(futures, cachedOutput, "gas_pump", "gas_pump_front", "gas_pump_side", "gas_pump_top", "gas_pump_bottom");
         saveCubeMachineModel(futures, cachedOutput, "gene_extractor", "gene_extractor_front", "gene_extractor_side", "gene_extractor_top", "gene_extractor_bottom");
         saveCubeMachineModel(futures, cachedOutput, "hemogenic_infuser", "hemogenic_infuser_front", "hemogenic_infuser_side", "hemogenic_infuser_top", "hemogenic_infuser_bottom");
-        saveCubeMachineModel(futures, cachedOutput, "growth_chamber", "growth_chamber_front", "growth_chamber_side", "growth_chamber_top", "growth_chamber_bottom");
         saveCubeMachineModel(futures, cachedOutput, "crispr_cas9_combinator", "crispr_cas9_combinator_front", "crispr_cas9_combinator_side", "crispr_cas9_combinator_top", "crispr_cas9_combinator_bottom");
         saveCubeMachineModel(futures, cachedOutput, "reduction_still", "reduction_still_front", "reduction_still_side", "reduction_still_top", "reduction_still_bottom");
         saveSimpleBlockState(futures, cachedOutput, "psy_anvil");

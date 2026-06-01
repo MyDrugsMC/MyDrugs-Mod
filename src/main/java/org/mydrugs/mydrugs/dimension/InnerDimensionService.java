@@ -8,12 +8,17 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
 import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
+import org.mydrugs.mydrugs.network.InnerGrowthWavePayload;
+import org.mydrugs.mydrugs.network.InnerSkyStatePayload;
+
+import java.util.List;
 
 /**
  * Boundary for Resonator access to the Inner Dimension.
@@ -77,7 +82,7 @@ public final class InnerDimensionService {
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
         InnerDimensionSystem.ensureOwnerReady(innerLevel, island);
         BlockPos spawn = InnerDimensionSystem.safeSpawnPos(innerLevel, island);
-        // B3: prime the sparse symbolic-encounter system so the player gets a grace period before
+        // Prime the sparse symbolic-encounter system so the player gets a grace period before
         // any atmosphere-danger-driven encounter; per-tick weighting then happens in PlayerTickEvents.
         InnerDemonSpawnManager.primeInnerAmbient(player);
 
@@ -90,7 +95,21 @@ public final class InnerDimensionService {
                 TeleportTransition.DO_NOTHING
         ));
         IntegrationDiary.firstDimensionEntry(player);
+        syncSky(player, island);
         return true;
+    }
+
+    /**
+     * Pushes the player's integrated-drug set to the client so the custom sky (constellations +
+     * core beacon brightness) reflects current healing progress. Cheap, fire-and-forget; safe to
+     * call on entry and after each integration.
+     */
+    public static void syncSky(ServerPlayer player, InnerDimensionSavedData.IslandState island) {
+        if (player == null || island == null) {
+            return;
+        }
+        List<Integer> ids = island.integratedDrugs().stream().map(DrugId::networkId).toList();
+        PacketDistributor.sendToPlayer(player, new InnerSkyStatePayload(ids));
     }
 
     /**
@@ -106,9 +125,19 @@ public final class InnerDimensionService {
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
         InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        if (InnerDimensionSystem.onIntegration(innerLevel, island, drugId)) {
+        // Phase 8: if the player is standing in their dimension at integration time, pace the new
+        // region in as a visible outward wave and fire the client growth flourish; otherwise the
+        // awakening enqueues silently as before.
+        boolean liveWave = isInInnerDimension(player);
+        if (InnerDimensionSystem.onIntegration(innerLevel, island, drugId, liveWave)) {
             IntegrationDiary.dimensionExpanded(player, drugId);
+            if (liveWave) {
+                PacketDistributor.sendToPlayer(player, new InnerGrowthWavePayload(drugId.networkId()));
+            }
         }
+        // Reflect the (possibly newly) integrated set on the client sky even if the system reported
+        // no structural expansion — the constellation/beacon state still needs to be current.
+        syncSky(player, island);
     }
 
     public static boolean markDreamCoordinate(ServerPlayer player, BlockPos resonatorPos) {

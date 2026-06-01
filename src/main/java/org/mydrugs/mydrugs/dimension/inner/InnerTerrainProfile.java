@@ -18,6 +18,7 @@ public record InnerTerrainProfile(
         Supplier<BlockState> accent,
         Supplier<? extends Block> nodeBlock,
         List<Supplier<? extends Block>> plantBlocks,
+        InnerFloraPalette flora,
         int heightBias,
         double silhouetteScale,
         double ridgeScale,
@@ -34,6 +35,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.BOOKSHELF.defaultBlockState(),
                     lucidNode(),
                     List.of(breathGrass()),
+                    coffeeFlora(),
                     -5,
                     0.65D,
                     0.55D,
@@ -49,6 +51,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.CRACKED_STONE_BRICKS.defaultBlockState(),
                     bitterNode(),
                     List.of(breathGrass()),
+                    tobaccoFlora(),
                     -1,
                     1.15D,
                     1.35D,
@@ -64,6 +67,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.MOSSY_COBBLESTONE.defaultBlockState(),
                     calmingNode(),
                     List.of(calmingFern(), breathGrass()),
+                    weedFlora(),
                     -4,
                     0.45D,
                     0.45D,
@@ -79,6 +83,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.AMETHYST_BLOCK.defaultBlockState(),
                     pressedNode(),
                     List.of(calmingFern()),
+                    hashFlora(),
                     5,
                     0.9D,
                     1.1D,
@@ -94,6 +99,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.CRACKED_DEEPSLATE_TILES.defaultBlockState(),
                     memoryNode(),
                     List.of(memoryReeds()),
+                    alcoholFlora(),
                     -10,
                     0.7D,
                     0.75D,
@@ -109,6 +115,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.REDSTONE_BLOCK.defaultBlockState(),
                     redlineNode(),
                     List.of(redlineThorn()),
+                    cocaineFlora(),
                     5,
                     1.2D,
                     1.55D,
@@ -124,6 +131,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.SEA_LANTERN.defaultBlockState(),
                     dreamNode(),
                     List.of(breathGrass()),
+                    lsdFlora(),
                     16,
                     1.35D,
                     1.25D,
@@ -139,6 +147,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.MAGMA_BLOCK.defaultBlockState(),
                     overdriveNode(),
                     List.of(redlineThorn()),
+                    methFlora(),
                     3,
                     1.35D,
                     1.7D,
@@ -154,6 +163,7 @@ public record InnerTerrainProfile(
                     () -> Blocks.RED_MUSHROOM_BLOCK.defaultBlockState(),
                     mycelialNode(),
                     List.of(mycelialRoot(), calmingFern()),
+                    mushroomFlora(),
                     0,
                     0.8D,
                     0.8D,
@@ -165,6 +175,9 @@ public record InnerTerrainProfile(
 
     public InnerTerrainProfile {
         plantBlocks = List.copyOf(plantBlocks);
+        if (flora == null || !flora.hasAny()) {
+            flora = new InnerFloraPalette(plantBlocks, List.of(), List.of(), List.of(), List.of(), List.of());
+        }
     }
 
     public static boolean hasProfile(DrugId drugId) {
@@ -265,5 +278,176 @@ public record InnerTerrainProfile(
 
     private static Supplier<? extends Block> mycelialRoot() {
         return () -> ModInnerDimensionBlocks.MYCELIAL_ROOT.get();
+    }
+
+    private static Supplier<? extends Block> lucidClover() {
+        return () -> ModInnerDimensionBlocks.LUCID_CLOVER.get();
+    }
+
+    private static Supplier<? extends Block> ashGrass() {
+        return () -> ModInnerDimensionBlocks.ASH_GRASS.get();
+    }
+
+    private static Supplier<? extends Block> mossBreathCarpet() {
+        return () -> ModInnerDimensionBlocks.MOSS_BREATH_CARPET.get();
+    }
+
+    private static Supplier<? extends Block> quartzNeedlegrass() {
+        return () -> ModInnerDimensionBlocks.QUARTZ_NEEDLEGRASS.get();
+    }
+
+    private static Supplier<? extends Block> mycelialThreads() {
+        return () -> ModInnerDimensionBlocks.MYCELIAL_THREADS.get();
+    }
+
+    private static Supplier<? extends Block> dreamOrchid() {
+        return () -> ModInnerDimensionBlocks.DREAM_ORCHID.get();
+    }
+
+    private static Supplier<? extends Block> sporeBloom() {
+        return () -> ModInnerDimensionBlocks.SPORE_BLOOM.get();
+    }
+
+    private static Supplier<? extends Block> bitterSprout() {
+        return () -> ModInnerDimensionBlocks.BITTER_SPROUT.get();
+    }
+
+    private static Supplier<? extends Block> redlineSparkBloom() {
+        return () -> ModInnerDimensionBlocks.REDLINE_SPARK_BLOOM.get();
+    }
+
+    private static Supplier<? extends Block> calmingBush() {
+        return () -> ModInnerDimensionBlocks.CALMING_BUSH.get();
+    }
+
+    private static Supplier<? extends Block> memorySedge() {
+        return () -> ModInnerDimensionBlocks.MEMORY_SEDGE.get();
+    }
+
+    private static Supplier<? extends Block> redlineBramble() {
+        return () -> ModInnerDimensionBlocks.REDLINE_BRAMBLE.get();
+    }
+
+    private static Supplier<? extends Block> crystalShrub() {
+        return () -> ModInnerDimensionBlocks.CRYSTAL_SHRUB.get();
+    }
+
+    private static Supplier<? extends Block> fermentedShrub() {
+        return () -> ModInnerDimensionBlocks.FERMENTED_SHRUB.get();
+    }
+
+    private static Supplier<? extends Block> mudReeds() {
+        return () -> ModInnerDimensionBlocks.MUD_REEDS.get();
+    }
+
+    private static Supplier<? extends Block> memoryLotus() {
+        return () -> ModInnerDimensionBlocks.MEMORY_LOTUS.get();
+    }
+
+    private static Supplier<? extends Block> breathLily() {
+        return () -> ModInnerDimensionBlocks.BREATH_LILY.get();
+    }
+
+    private static Supplier<? extends Block> prismLotus() {
+        return () -> ModInnerDimensionBlocks.PRISM_LOTUS.get();
+    }
+
+    private static InnerFloraPalette coffeeFlora() {
+        return new InnerFloraPalette(
+                List.of(breathGrass(), lucidClover(), breathLily()),
+                List.of(lucidClover(), dreamOrchid()),
+                List.of(calmingBush()),
+                List.of(breathLily()),
+                List.of(dreamOrchid()),
+                List.of()
+        );
+    }
+
+    private static InnerFloraPalette tobaccoFlora() {
+        return new InnerFloraPalette(
+                List.of(ashGrass(), bitterSprout()),
+                List.of(bitterSprout(), lucidClover()),
+                List.of(redlineBramble()),
+                List.of(),
+                List.of(),
+                List.of(redlineThorn())
+        );
+    }
+
+    private static InnerFloraPalette weedFlora() {
+        return new InnerFloraPalette(
+                List.of(mossBreathCarpet(), breathGrass(), calmingFern()),
+                List.of(calmingFern(), dreamOrchid()),
+                List.of(calmingBush()),
+                List.of(breathLily(), memorySedge()),
+                List.of(sporeBloom()),
+                List.of()
+        );
+    }
+
+    private static InnerFloraPalette hashFlora() {
+        return new InnerFloraPalette(
+                List.of(quartzNeedlegrass(), calmingFern()),
+                List.of(dreamOrchid(), prismLotus()),
+                List.of(crystalShrub()),
+                List.of(prismLotus()),
+                List.of(prismLotus(), dreamOrchid()),
+                List.of(redlineThorn())
+        );
+    }
+
+    private static InnerFloraPalette alcoholFlora() {
+        return new InnerFloraPalette(
+                List.of(memoryReeds(), mudReeds(), memoryLotus()),
+                List.of(memoryLotus()),
+                List.of(fermentedShrub()),
+                List.of(memorySedge(), mudReeds()),
+                List.of(memoryLotus()),
+                List.of(redlineBramble())
+        );
+    }
+
+    private static InnerFloraPalette cocaineFlora() {
+        return new InnerFloraPalette(
+                List.of(quartzNeedlegrass(), ashGrass()),
+                List.of(redlineSparkBloom()),
+                List.of(redlineBramble(), crystalShrub()),
+                List.of(),
+                List.of(redlineSparkBloom()),
+                List.of(redlineThorn(), redlineBramble())
+        );
+    }
+
+    private static InnerFloraPalette lsdFlora() {
+        return new InnerFloraPalette(
+                List.of(dreamOrchid(), lucidClover(), prismLotus()),
+                List.of(dreamOrchid(), prismLotus(), sporeBloom()),
+                List.of(crystalShrub()),
+                List.of(prismLotus()),
+                List.of(prismLotus(), dreamOrchid(), sporeBloom()),
+                List.of(redlineSparkBloom())
+        );
+    }
+
+    private static InnerFloraPalette methFlora() {
+        return new InnerFloraPalette(
+                List.of(ashGrass(), quartzNeedlegrass()),
+                List.of(redlineSparkBloom()),
+                List.of(redlineBramble(), crystalShrub()),
+                List.of(),
+                List.of(redlineSparkBloom()),
+                List.of(redlineThorn(), redlineBramble())
+        );
+    }
+
+    private static InnerFloraPalette mushroomFlora() {
+        return new InnerFloraPalette(
+                List.of(mycelialRoot(), mycelialThreads(), mossBreathCarpet()),
+                List.of(sporeBloom(), dreamOrchid()),
+                List.of(calmingBush(), fermentedShrub()),
+                List.of(mudReeds()),
+                List.of(sporeBloom(), dreamOrchid()),
+                List.of(mycelialRoot())
+        );
     }
 }

@@ -36,7 +36,7 @@ public final class InnerDimensionSavedData extends SavedData {
             Codec.INT.optionalFieldOf("overlay_schema", InnerDimensionConstants.OVERLAY_SCHEMA_VERSION)
                     .forGetter(IslandState::overlaySchemaVersion),
             Codec.STRING.optionalFieldOf("last_overlay_metrics", "").forGetter(IslandState::lastOverlayMetricsSummary),
-            // B7: explicit slot index so a removed island can never make a survivor's slot collide.
+            // Explicit slot index so a removed island can never make a survivor's slot collide.
             // Default -1 = legacy data; the constructor then derives it from the stored centers.
             Codec.INT.optionalFieldOf("slot_index", -1).forGetter(IslandState::slotIndex)
     ).apply(instance, IslandState::new));
@@ -110,7 +110,7 @@ public final class InnerDimensionSavedData extends SavedData {
 
     /**
      * Find the already-existing island assigned to a given slot center, or {@code null}. Does not
-     * create islands — used by lazy chunk-load decoration (B1) to discover a chunk's owner.
+     * create islands, used by lazy chunk-load decoration to discover a chunk's owner.
      */
     public IslandState findIslandBySlot(int centerX, int centerZ) {
         for (IslandState island : islands.values()) {

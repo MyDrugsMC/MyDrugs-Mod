@@ -5,25 +5,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerTerrain {
-    // A1: low-frequency domain warp. Offsets the sampling position with fBm before any
-    // polar math so the wedge/ring/spoke structure stops being a closed-form function of
-    // (distance, angle) from one fixed center. Deterministic: derived purely from the slot seed.
+    // Low-frequency domain warp keeps the continent from reading as perfect rings and spokes.
     private static final double WARP_SCALE = 360.0D;
     private static final int WARP_OCTAVES = 4;
     private static final double WARP_AMPLITUDE = 135.0D;
     private static final long WARP_SALT_X = 0x5F1D_2A3BL;
     private static final long WARP_SALT_Z = 0x9E77_C4A1L;
-    // A5: salt for the surface accent-scatter noise.
     private static final long ACCENT_SALT = 0x00AC_CE57L;
 
-    // B4: optional per-pass Sample memoization. Enabled only around the (single-threaded,
-    // server-side) overlay/placement pass via begin/endCachePass, where the same column is
-    // sampled repeatedly (decorator + builders + surfaceTop + rebuilder). Worldgen worker threads
-    // never enable it, so there is no cross-thread sharing of mutable state.
+    // Optional per-pass Sample memoization for single-threaded server placement passes.
     private static final ThreadLocal<java.util.Map<Long, Sample>> PASS_CACHE = new ThreadLocal<>();
 
-    // B4: satellite ring layout is a function of the slot seed only; precompute it once per slot
-    // instead of re-running the 9-iteration trig loop on every sample() call. Immutable once built.
+    // Satellite ring layout is a function of the slot seed only, so it is safe to share.
     private static final java.util.Map<Long, SatelliteCenter[]> SATELLITE_CENTERS =
             new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -63,9 +56,7 @@ public final class InnerTerrain {
     private static Sample computeSample(int centerX, int centerZ, int worldX, int worldZ) {
         long seed = seedForSlot(centerX, centerZ);
 
-        // A1: warp the sampling position with low-frequency fBm before computing polar
-        // coordinates so every distance/angle-derived feature inherits a wandering, organic
-        // shape instead of perfect concentric/radial symmetry.
+        // Warp before polar math so distance and angle features inherit organic wandering.
         double warpX = InnerNoise.fbm(seed + WARP_SALT_X, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE;
         double warpZ = InnerNoise.fbm(seed + WARP_SALT_Z, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE;
         double sampleX = worldX + warpX;
@@ -76,9 +67,7 @@ public final class InnerTerrain {
         double distance = Math.sqrt(dx * dx + dz * dz);
         double angle = Math.atan2(dz, dx);
 
-        // A2: blend the two regions nearest this angle so the profile's scalar fields cross
-        // the sector boundary continuously (no dead-straight cliffs/seams). drugId stays the
-        // dominant region for downstream keying; only the visual fields are interpolated.
+        // Blend visual scalars across sector boundaries while keeping the primary drug id stable.
         InnerRegionMap.RegionBlend blend = InnerRegionMap.regionBlend(angle);
         DrugId drugId = blend.primary();
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
@@ -119,22 +108,23 @@ public final class InnerTerrain {
         boolean path = pathStrength > 0.42D && density > -72.0D;
         boolean land = mainLand || satelliteLand || path;
 
-        // A4: a low-frequency base elevation pushed through a plateau/cliff spline (mid values
-        // flatten into plateaus, extremes drop to valleys or rear into cliffs), plus ridged
-        // detail scaled by local slope so flats stay readable and slopes gain texture. Everything
-        // is summed in double and rounded exactly once at the end (no per-term stair-stepping).
+        // Broad elevation forms plateaus and cliff bands; ridged detail is strongest on slopes.
         double baseElev = InnerNoise.fbm(seed + 29L, worldX, worldZ, 150.0D, 5);
         double probe = 6.0D;
         double shaped = elevationSpline(baseElev);
         double gradX = elevationSpline(InnerNoise.fbm(seed + 29L, worldX + probe, worldZ, 150.0D, 5)) - shaped;
         double gradZ = elevationSpline(InnerNoise.fbm(seed + 29L, worldX, worldZ + probe, 150.0D, 5)) - shaped;
         double slope = InnerNoise.clamp01(Math.hypot(gradX, gradZ) * 3.0D);
-        double localSilhouette = silhouette(drugId, seed, worldX, worldZ);
+        double primarySilhouette = silhouette(drugId, seed, worldX, worldZ);
+        double secondarySilhouette = silhouette(secondaryProfile.drugId(), seed, worldX, worldZ);
+        double localSilhouette = InnerNoise.lerp(primarySilhouette, secondarySilhouette, blendW);
+        double cliffStrength = InnerNoise.clamp01(slope * 0.55D + cliffBreak / 72.0D);
         double baseHeight = shaped * (20.0D + silhouetteScale * 10.0D);
         double detail = InnerNoise.ridged(seed + 31L, worldX, worldZ, 72.0D, 3)
                 * (3.0D + ridgeScale * 7.0D) * (0.25D + 0.75D * slope);
         double topYd = InnerDimensionConstants.BASE_Y + baseHeight + detail + localSilhouette + heightBias;
-        int topY = (int) Math.round(topYd);
+        int naturalTopY = (int) Math.round(topYd);
+        int topY = naturalTopY;
 
         if (path) {
             topY = InnerDimensionConstants.BASE_Y + 4 + (int) Math.round(baseElev * 3.0D);
@@ -149,20 +139,60 @@ public final class InnerTerrain {
             scarStrength = 0.0D;
         }
 
+        InnerFeatureSample features = InnerFeatureSampler.sample(
+                seed,
+                centerX,
+                centerZ,
+                worldX,
+                worldZ,
+                drugId,
+                distance,
+                pathStrength,
+                density,
+                topY,
+                slope,
+                cliffStrength,
+                satelliteLand && !mainLand
+        );
+
+        boolean voidHole = false;
+        if (land && features.hole()) {
+            int drop = 5 + (int) Math.round(features.holeStrength() * 24.0D);
+            topY -= drop;
+            if (features.holeStrength() > 0.82D) {
+                land = false;
+                topY = naturalTopY;
+                voidHole = true;
+            }
+        }
+
+        if (land && features.lake()) {
+            topY = Math.min(topY, features.lakeFloorY());
+        }
+
         int thickness = 18 + (int) Math.round(InnerNoise.ridged(seed + 41L, worldX, worldZ, 65.0D, 3) * 24.0D);
         if (path) {
             thickness = Math.max(9, thickness / 2);
         }
-        int bottomY = Math.max(InnerDimensionConstants.MIN_Y + 4, topY - thickness);
+        if (features.hole()) {
+            thickness = Math.max(7, thickness - (int) Math.round(features.holeStrength() * 14.0D));
+        }
+        int bottomY = voidHole
+                ? InnerDimensionConstants.MIN_Y + 4
+                : Math.max(InnerDimensionConstants.MIN_Y + 4, topY - thickness);
 
-        // A5: vary the surface/subsurface band depth (2..6) so flat palettes do not read as a
-        // uniformly thin painted slab.
+        // Vary the surface band depth so flat palettes do not read as a thin painted slab.
         int surfaceDepth = 2 + (int) Math.round(InnerNoise.ridged(seed + 53L, worldX, worldZ, 40.0D, 2) * 4.0D);
         return new Sample(
                 land,
                 topY,
                 bottomY,
                 drugId,
+                drugId,
+                blend.secondary(),
+                blendW,
+                blendW > 0.0D,
+                InnerNoise.clamp01(blendW * 2.0D),
                 path,
                 pathStrength,
                 scarStrength > 0.42D,
@@ -171,7 +201,8 @@ public final class InnerTerrain {
                 density,
                 distance,
                 surfaceProfile,
-                surfaceDepth
+                surfaceDepth,
+                features
         );
     }
 
@@ -194,9 +225,21 @@ public final class InnerTerrain {
         if (sample.scar() && y >= sample.topY() - 2) {
             return profile.scarBlock();
         }
-        // A5: scatter the profile's accent block through the surface band by a clumpy noise
-        // threshold so flat single-colour palettes (quartz, calcite, prismarine, magma...) gain
-        // texture instead of reading as painted slabs.
+        if (sample.hole() && y == sample.topY()) {
+            return sample.holeStrength() > 0.62D ? profile.scarBlock() : profile.accentBlock();
+        }
+        if (sample.shoreStrength() > 0.12D && !sample.lake() && y == sample.topY()) {
+            return sample.transitionZone() && transitionScatter(sample, worldX, worldZ, 0.34D)
+                    ? InnerTransitionPalette.shoreAccent(sample)
+                    : profile.accentBlock();
+        }
+        if (sample.transitionZone()
+                && sample.transitionStrength() > 0.28D
+                && y == sample.topY()
+                && transitionScatter(sample, worldX, worldZ, 0.18D + sample.transitionStrength() * 0.18D)) {
+            return InnerTransitionPalette.surfaceAccent(sample);
+        }
+        // Scatter accent blocks through the surface band to break up flat single-material areas.
         if (y == sample.topY() || y >= sample.topY() - sample.surfaceDepth()) {
             boolean nearTop = y >= sample.topY() - 1;
             if (accentScatter(profile, worldX, y, worldZ, nearTop)) {
@@ -215,6 +258,15 @@ public final class InnerTerrain {
         return noise > threshold;
     }
 
+    private static boolean transitionScatter(Sample sample, int worldX, int worldZ, double chance) {
+        long hash = InnerNoise.mix64(0x7472_616EL
+                ^ (long) sample.primaryDrug().networkId() * 971L
+                ^ (long) sample.secondaryDrug().networkId() * 1933L
+                ^ (long) worldX * 73428767L
+                ^ (long) worldZ * 912931L);
+        return (hash & 1023L) < InnerNoise.clamp01(chance) * 1024.0D;
+    }
+
     public static boolean caveAir(Sample sample, int worldX, int y, int worldZ) {
         if (sample.pathStrength() > 0.2D
                 || sample.distanceFromCenter() < InnerDimensionConstants.CORE_RADIUS + 40.0D
@@ -223,8 +275,7 @@ public final class InnerTerrain {
             return false;
         }
         long seed = InnerDimensionConstants.BASE_SEED + sample.drugId().networkId() * 101L;
-        // B4: 2 octaves instead of 3 — this runs per-block inside the column, so the cheaper
-        // ridged lookup matters; the cave silhouette is unchanged at the visible scale.
+        // Keep this lookup cheap because it runs per block inside each generated column.
         double cave = InnerNoise.ridged(seed, worldX, worldZ + y * 5.0D, 46.0D, 2);
         return cave > 0.84D;
     }
@@ -244,13 +295,7 @@ public final class InnerTerrain {
         return sample(centerX, centerZ, centerX, centerZ).topY() + 1;
     }
 
-    /**
-     * A3: per-drug surface character expressed purely as noise sampled at world XZ — no term is
-     * a function of {@code distance} alone, so silhouettes no longer ripple in concentric rings.
-     * Each region mixes ridged (jagged), billow (bulbous) and fbm (rolling) noise at its own
-     * amplitude/frequency: shattered glass for METH/COCAINE, soft hills for WEED, pressed
-     * terraces for HASH, sunken marsh basins for ALCOHOL, layered shelves for LSD.
-     */
+    /** Per-drug surface character expressed as world-space noise, not concentric rings. */
     private static double silhouette(DrugId drugId, long seed, int worldX, int worldZ) {
         long s = seed + 501L + drugId.networkId();
         return switch (drugId) {
@@ -268,11 +313,7 @@ public final class InnerTerrain {
         };
     }
 
-    /**
-     * A4 elevation spline. Blends a linear and a cubic response so mid-range base-elevation values
-     * compress toward a common height (broad plateaus) while the tails are preserved or pushed
-     * further (deeper valleys, sharper cliffs). Maps [-1,1] -> [-1,1].
-     */
+    /** Compresses mid elevations into plateaus while preserving valley and cliff extremes. */
     private static double elevationSpline(double n) {
         double clamped = Math.max(-1.0D, Math.min(1.0D, n));
         double cubic = clamped * clamped * clamped;
@@ -290,13 +331,7 @@ public final class InnerTerrain {
         return v * v;
     }
 
-    /**
-     * A6: scars as a branching fault network rather than drawn angular spokes. Two ridged-noise
-     * octaves on the (already domain-warped) sample coords are combined and thresholded high; the
-     * ridge crests form thin, forking cracks that feather out from a strong core. Region-level
-     * intensity (scars radiate from hard drugs) comes from the per-region {@code scarCarve} the
-     * caller multiplies in. No term depends on angle or on distance alone.
-     */
+    /** Branching fault network used for scarred regions and hard-region cracks. */
     private static double scarStrength(long seed, double worldX, double worldZ, double distance) {
         if (distance < InnerDimensionConstants.CORE_RADIUS + 32.0D) {
             return 0.0D;
@@ -377,6 +412,11 @@ public final class InnerTerrain {
             int topY,
             int bottomY,
             DrugId drugId,
+            DrugId primaryDrug,
+            DrugId secondaryDrug,
+            double secondaryWeight,
+            boolean transitionZone,
+            double transitionStrength,
             boolean path,
             double pathStrength,
             boolean scar,
@@ -385,7 +425,99 @@ public final class InnerTerrain {
             double density,
             double distanceFromCenter,
             InnerTerrainProfile profile,
-            int surfaceDepth
+            int surfaceDepth,
+            InnerFeatureSample features
     ) {
+        public boolean lake() {
+            return features.lake();
+        }
+
+        public double lakeStrength() {
+            return features.lakeStrength();
+        }
+
+        public double lakeCoreStrength() {
+            return features.lakeCoreStrength();
+        }
+
+        public double shoreStrength() {
+            return features.shoreStrength();
+        }
+
+        public double wetlandStrength() {
+            return features.wetlandStrength();
+        }
+
+        public InnerLakeType lakeType() {
+            return features.lakeType();
+        }
+
+        public int lakeSurfaceY() {
+            return features.lakeSurfaceY();
+        }
+
+        public int lakeFloorY() {
+            return features.lakeFloorY();
+        }
+
+        public boolean lakeIsland() {
+            return features.lakeIsland();
+        }
+
+        public boolean lakeCenterpiece() {
+            return features.lakeCenterpiece();
+        }
+
+        public boolean hole() {
+            return features.hole();
+        }
+
+        public double holeStrength() {
+            return features.holeStrength();
+        }
+
+        public InnerHoleType holeType() {
+            return features.holeType();
+        }
+
+        public boolean spikeField() {
+            return features.spikeField();
+        }
+
+        public double spikeStrength() {
+            return features.spikeStrength();
+        }
+
+        public boolean treeZone() {
+            return features.treeZone();
+        }
+
+        public double treeDensity() {
+            return features.treeDensity();
+        }
+
+        public boolean plantPatch() {
+            return features.plantPatch();
+        }
+
+        public double plantDensity() {
+            return features.plantDensity();
+        }
+
+        public double cliffStrength() {
+            return features.cliffStrength();
+        }
+
+        public double slopeHint() {
+            return features.slopeHint();
+        }
+
+        public int visualTopY() {
+            return lake() ? Math.max(topY, lakeSurfaceY()) : topY;
+        }
+
+        public DrugId chooseFeatureDrug(long hash) {
+            return InnerTransitionPalette.chooseFeatureDrug(this, hash);
+        }
     }
 }

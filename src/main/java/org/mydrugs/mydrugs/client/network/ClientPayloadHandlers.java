@@ -40,6 +40,10 @@ import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
 import org.mydrugs.mydrugs.network.DistillateEnginePreviewPayload;
 import org.mydrugs.mydrugs.network.DistillateEnginePulsePayload;
+import org.mydrugs.mydrugs.network.InnerSkyStatePayload;
+import org.mydrugs.mydrugs.network.InnerGrowthWavePayload;
+import org.mydrugs.mydrugs.client.InnerSkyClientState;
+import org.mydrugs.mydrugs.client.InnerGrowthWaveClient;
 import org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState;
 import org.mydrugs.mydrugs.client.PsyCurrentPulseClientState;
 import org.mydrugs.mydrugs.pipe.client.MachineTransferClientPayloadHandler;
@@ -99,5 +103,11 @@ public final class ClientPayloadHandlers {
 
         // Integrated trait sync from server.
         event.register(IntegrationSyncPayload.TYPE, ClientPayloadHandler::handleIntegrationSync);
+
+        // Inner Dimension sky progress (constellations + core beacon).
+        event.register(InnerSkyStatePayload.TYPE, (payload, context) -> InnerSkyClientState.accept(payload));
+
+        // Inner Dimension live integration growth flourish (Phase 8).
+        event.register(InnerGrowthWavePayload.TYPE, (payload, context) -> InnerGrowthWaveClient.trigger(payload.drugNetworkId()));
     }
 }

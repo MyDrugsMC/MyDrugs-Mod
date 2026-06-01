@@ -33,10 +33,31 @@ public class SymbolicPlantBlock extends VegetationBlock {
                 || state.is(Blocks.PODZOL)
                 || state.is(Blocks.MOSS_BLOCK)
                 || state.is(Blocks.MYCELIUM)
+                || state.is(Blocks.MUD)
+                || state.is(Blocks.ROOTED_DIRT)
+                || state.is(Blocks.TUFF)
+                || state.is(Blocks.STONE_BRICKS)
+                || state.is(Blocks.CRACKED_STONE_BRICKS)
+                || state.is(Blocks.MOSSY_COBBLESTONE)
                 || state.is(Blocks.CALCITE)
+                || state.is(Blocks.AMETHYST_BLOCK)
+                || state.is(Blocks.SMOOTH_QUARTZ)
+                || state.is(Blocks.QUARTZ_BLOCK)
+                || state.is(Blocks.WHITE_CONCRETE)
+                || state.is(Blocks.REDSTONE_BLOCK)
+                || state.is(Blocks.PRISMARINE)
+                || state.is(Blocks.SEA_LANTERN)
                 || state.is(Blocks.SCULK)
                 || state.is(Blocks.DEEPSLATE)
-                || state.is(Blocks.BLACKSTONE);
+                || state.is(Blocks.DEEPSLATE_TILES)
+                || state.is(Blocks.CRACKED_DEEPSLATE_TILES)
+                || state.is(Blocks.BLACKSTONE)
+                || state.is(Blocks.POLISHED_BLACKSTONE)
+                || state.is(Blocks.BASALT)
+                || state.is(Blocks.SMOOTH_BASALT)
+                || state.is(Blocks.SMOOTH_STONE)
+                || state.is(Blocks.MAGMA_BLOCK)
+                || state.is(Blocks.MUSHROOM_STEM);
     }
 
     @Override

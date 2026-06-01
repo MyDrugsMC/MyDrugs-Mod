@@ -67,6 +67,12 @@ public final class ClientEventHandler {
             CustomDiscPlaybackController.clear();
             org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.clear();
             org.mydrugs.mydrugs.client.PsyCurrentPulseClientState.clear();
+            org.mydrugs.mydrugs.client.InnerEntrySequence.clear();
+            org.mydrugs.mydrugs.client.InnerSkyClientState.clear();
+            org.mydrugs.mydrugs.client.InnerRegionCrossingController.clear();
+            org.mydrugs.mydrugs.client.InnerSoundscapeController.clear();
+            org.mydrugs.mydrugs.client.InnerPlayerResponseController.clear();
+            org.mydrugs.mydrugs.client.InnerAtmosphereClient.clear();
         }
 
         @SubscribeEvent
@@ -84,12 +90,19 @@ public final class ClientEventHandler {
             VomitOverlayClientState.tick();
             BadTripScreamerOverlay.tick();
             BadTripSkyTint.tick();
+            org.mydrugs.mydrugs.client.InnerEntrySequence.tick(mc);
+            org.mydrugs.mydrugs.client.InnerSkyClientState.tick();
+            org.mydrugs.mydrugs.client.InnerRegionCrossingController.tick(mc);
+            org.mydrugs.mydrugs.client.InnerSoundscapeController.tick(mc);
+            org.mydrugs.mydrugs.client.InnerPlayerResponseController.tick(mc);
+            org.mydrugs.mydrugs.client.InnerAmbientParticleController.tick(mc);
             PsyMixerRitualClientState.tick();
             RecoveryRoomOverlay.tick();
             RecoveryRoomParticleClient.tick();
             CustomDiscPlaybackController.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
+            org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.tick(mc);
             ClientInputInterceptor.tick(mc);
             ClientGammaController.tick(mc);
         }
@@ -114,6 +127,11 @@ public final class ClientEventHandler {
                 WithdrawalTunnelShader.INSTANCE.render(mc);
             }
 
+            if (org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.shouldRender()) {
+                org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.render(mc);
+            }
+
+            org.mydrugs.mydrugs.client.InnerRegionCrossingController.render(event.getGuiGraphics());
             FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
             VomitOverlayClientState.render(event.getGuiGraphics());
             BadTripScreamerOverlay.render(event.getGuiGraphics());
@@ -121,6 +139,8 @@ public final class ClientEventHandler {
             BiomeFinderCompassOverlay.render(event.getGuiGraphics());
             PsyMixerRitualOverlay.render(event.getGuiGraphics());
             RecoveryRoomOverlay.render(event.getGuiGraphics());
+            // Entry veil last so it covers the HUD as the world resolves.
+            org.mydrugs.mydrugs.client.InnerEntrySequence.render(event.getGuiGraphics());
         }
 
         @SubscribeEvent

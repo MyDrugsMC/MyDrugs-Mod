@@ -29,7 +29,7 @@ class InnerDimensionPersistenceTest {
     void semanticOverlayMarkersAreRecordedOnce() {
         InnerDimensionSavedData data = new InnerDimensionSavedData();
         UUID owner = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        String marker = InnerDimensionConstants.landmarkMarker(DrugId.COFFEE);
+        String marker = InnerDimensionConstants.landmarkMarker(DrugId.COFFEE, false);
 
         assertTrue(data.markStructurePlaced(owner, marker));
         assertFalse(data.markStructurePlaced(owner, marker));

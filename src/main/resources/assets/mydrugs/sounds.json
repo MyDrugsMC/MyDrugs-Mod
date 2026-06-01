@@ -91,5 +91,55 @@
     "sounds": [
       "mydrugs:psy_mixer/voice/reopen_gui"
     ]
+  },
+  "inner_drone_warm": {
+    "sounds": [
+      { "name": "mydrugs:inner/drone_warm", "stream": true }
+    ]
+  },
+  "inner_drone_tense": {
+    "sounds": [
+      { "name": "mydrugs:inner/drone_tense", "stream": true }
+    ]
+  },
+  "inner_drone_water": {
+    "sounds": [
+      { "name": "mydrugs:inner/drone_water", "stream": true }
+    ]
+  },
+  "inner_drone_crystal": {
+    "sounds": [
+      { "name": "mydrugs:inner/drone_crystal", "stream": true }
+    ]
+  },
+  "inner_drone_ash": {
+    "sounds": [
+      { "name": "mydrugs:inner/drone_ash", "stream": true }
+    ]
+  },
+  "inner_heartbeat": {
+    "sounds": [
+      "mydrugs:inner/heartbeat"
+    ]
+  },
+  "inner_breath": {
+    "sounds": [
+      "mydrugs:inner/breath"
+    ]
+  },
+  "inner_chime": {
+    "sounds": [
+      "mydrugs:inner/chime"
+    ]
+  },
+  "inner_crossing": {
+    "sounds": [
+      "mydrugs:inner/crossing"
+    ]
+  },
+  "inner_landmark_tone": {
+    "sounds": [
+      "mydrugs:inner/landmark_tone"
+    ]
   }
 }

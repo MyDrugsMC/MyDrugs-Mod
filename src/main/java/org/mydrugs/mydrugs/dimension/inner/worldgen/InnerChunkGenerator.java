@@ -17,8 +17,11 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import org.mydrugs.mydrugs.dimension.inner.InnerChunkSampleCache;
 import org.mydrugs.mydrugs.dimension.inner.InnerDimensionConstants;
+import org.mydrugs.mydrugs.dimension.inner.InnerLakeBuilder;
 import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
+import org.mydrugs.mydrugs.dimension.inner.InnerVisualFeatureBuilders;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -70,13 +73,16 @@ public final class InnerChunkGenerator extends ChunkGenerator {
         if (!InnerTerrain.chunkMayHaveLand(minX, minZ)) {
             return CompletableFuture.completedFuture(chunk);
         }
+        int centerX = InnerTerrain.slotCenter(chunkPos.getMiddleBlockX());
+        int centerZ = InnerTerrain.slotCenter(chunkPos.getMiddleBlockZ());
+        InnerChunkSampleCache cache = InnerChunkSampleCache.build(centerX, centerZ, minX, minZ);
 
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         for (int localX = 0; localX < 16; localX++) {
             int worldX = minX + localX;
             for (int localZ = 0; localZ < 16; localZ++) {
                 int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = InnerTerrain.sample(worldX, worldZ);
+                InnerTerrain.Sample sample = cache.sample(localX, localZ);
                 if (!sample.land()) {
                     continue;
                 }
@@ -87,13 +93,13 @@ public final class InnerChunkGenerator extends ChunkGenerator {
                     if (InnerTerrain.caveAir(sample, worldX, y, worldZ)) {
                         continue;
                     }
-                    // B9: ChunkAccess.setBlockState(BlockPos, BlockState, int flags) — verified
-                    // against the mappings in use (Parchment 1.21.10); the third arg is block-update
-                    // flags (int), not a boolean, and ProtoChunk ignores it during worldgen.
+                    // ProtoChunk ignores update flags during worldgen, but the signature expects an int.
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerTerrain.stateFor(sample, worldX, y, worldZ), 2);
                 }
+                InnerLakeBuilder.fillLakeColumn(chunk, mutable, sample, worldX, worldZ);
             }
         }
+        InnerVisualFeatureBuilders.placeInitialFeatures(chunk, cache);
         return CompletableFuture.completedFuture(chunk);
     }
 
@@ -126,7 +132,7 @@ public final class InnerChunkGenerator extends ChunkGenerator {
             RandomState randomState
     ) {
         InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
-        return sample.land() ? sample.topY() + 1 : level.getMinY();
+        return sample.land() ? sample.visualTopY() + 1 : level.getMinY();
     }
 
     @Override
@@ -144,6 +150,17 @@ public final class InnerChunkGenerator extends ChunkGenerator {
                 }
                 if (!InnerTerrain.caveAir(sample, x, y, z)) {
                     states[y - level.getMinY()] = InnerTerrain.stateFor(sample, x, y, z);
+                }
+            }
+            if (sample.lake()) {
+                for (int y = sample.topY(); y <= sample.lakeSurfaceY(); y++) {
+                    if (y < level.getMinY() || y >= level.getMinY() + level.getHeight()) {
+                        continue;
+                    }
+                    BlockState state = InnerLakeBuilder.stateForLakeColumn(sample, x, y, z);
+                    if (state != null) {
+                        states[y - level.getMinY()] = state;
+                    }
                 }
             }
         }

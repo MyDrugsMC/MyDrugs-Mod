@@ -1,0 +1,20 @@
+package org.mydrugs.mydrugs.dimension.inner;
+
+public enum InnerSceneType {
+    QUIET_FIELD,
+    DENSE_GROVE,
+    HERO_TREE_GROVE,
+    MIRROR_LAKE,
+    MEMORY_MARSH,
+    PRISM_BASIN,
+    ROOTED_WETLAND,
+    EMBER_PIT,
+    SCAR_FIELD,
+    PATH_VISTA,
+    LANDMARK_APPROACH,
+    TRANSITION_GARDEN,
+    ASH_FLAT,
+    CRYSTAL_CLEARING,
+    FLOATING_DEBRIS_COAST,
+    SATELLITE_CROWN
+}

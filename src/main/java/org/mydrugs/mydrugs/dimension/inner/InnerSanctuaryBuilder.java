@@ -18,8 +18,7 @@ final class InnerSanctuaryBuilder {
             InnerPlacement.MutablePlacementCount count
     ) {
         int integratedCount = island.integratedCount();
-        // B2: skip the full sanctuary rebuild if it has already been placed at this integration
-        // count. Integrating a new drug bumps the count, invalidating the marker so it regrows.
+        // Skip the full sanctuary rebuild if it has already been placed at this integration count.
         String marker = InnerDimensionConstants.sanctuaryMarker(integratedCount);
         if (island.hasMarker(marker)) {
             return;
@@ -54,6 +53,9 @@ final class InnerSanctuaryBuilder {
         InnerPlacement.clearSpawnColumn(level, centerTop.above(), count);
         placeCompassMarkers(level, island, centerTop, count);
         placePathExits(level, island, count);
+        placeGentleLightRings(level, island, count);
+        placeSubtlePlantRings(level, island, count);
+        placeVistaOpenings(level, island, count);
 
         InnerDimensionSavedData.get(level).markStructurePlaced(island.owner(), marker);
     }
@@ -126,6 +128,65 @@ final class InnerSanctuaryBuilder {
                 if (radius % 17 == 0) {
                     InnerPlacement.safeSet(level, top.above(), Blocks.LANTERN.defaultBlockState(), false, count);
                 }
+            }
+        }
+    }
+
+    private static void placeGentleLightRings(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            InnerPlacement.MutablePlacementCount count
+    ) {
+        int rings = island.integratedCount() >= 4 ? 16 : 8;
+        for (int i = 0; i < rings; i++) {
+            double angle = i / (double) rings * Math.PI * 2.0D;
+            double radius = i % 2 == 0 ? 9.0D : 13.0D;
+            BlockPos top = InnerPlacement.surfaceTop(
+                    level,
+                    island.centerX() + (int) Math.round(Math.cos(angle) * radius),
+                    island.centerZ() + (int) Math.round(Math.sin(angle) * radius)
+            );
+            InnerPlacement.safeSet(level, top, Blocks.SEA_LANTERN.defaultBlockState(), true, count);
+        }
+    }
+
+    private static void placeSubtlePlantRings(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            InnerPlacement.MutablePlacementCount count
+    ) {
+        int radius = 18 + Math.min(5, island.integratedCount());
+        for (int i = 0; i < 32; i++) {
+            if (i % 3 == 0) {
+                continue;
+            }
+            double angle = i / 32.0D * Math.PI * 2.0D;
+            BlockPos top = InnerPlacement.surfaceTop(
+                    level,
+                    island.centerX() + (int) Math.round(Math.cos(angle) * radius),
+                    island.centerZ() + (int) Math.round(Math.sin(angle) * radius)
+            );
+            BlockState plant = island.integratedCount() >= 3
+                    ? ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState()
+                    : ModInnerDimensionBlocks.BREATH_GRASS.get().defaultBlockState();
+            InnerPlacement.safeSet(level, top.above(), plant, false, count);
+        }
+    }
+
+    private static void placeVistaOpenings(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            InnerPlacement.MutablePlacementCount count
+    ) {
+        for (DrugId drugId : InnerRegionMap.regionOrder()) {
+            double angle = InnerRegionMap.angleFor(drugId);
+            for (int radius = 24; radius <= 42; radius += 3) {
+                int x = island.centerX() + (int) Math.round(Math.cos(angle) * radius);
+                int z = island.centerZ() + (int) Math.round(Math.sin(angle) * radius);
+                BlockPos top = InnerPlacement.surfaceTop(level, x, z);
+                InnerPlacement.safeSet(level, top, Blocks.DIRT_PATH.defaultBlockState(), true, count);
+                InnerPlacement.safeSet(level, top.above(), Blocks.AIR.defaultBlockState(), true, count);
+                InnerPlacement.safeSet(level, top.above(2), Blocks.AIR.defaultBlockState(), true, count);
             }
         }
     }
