@@ -236,7 +236,7 @@ Tobacco is the second gate — and the first thing that bites back.
 @item mydrugs:tobacco_handful
 @item mydrugs:bang
 @item mydrugs:roller
-@item mydrugs:cigaret
+@item mydrugs:cigarette
 
 Dry the leaves, grind them into handfuls, then smoke them raw with a bang or roll a proper cigarette.
 
@@ -961,7 +961,7 @@ Automation: Keep the output clear so later adaptation machines can consume the i
 See also: Somatic Machines, Somatic Adaptation.
 
 @item mydrugs:crispr_cas9_combinator
-## CRISPR-CAS9 Combinator
+## CRISPR-Cas9 Combinator
 
 Era: Ritual / Integration Era.
 
@@ -1201,11 +1201,11 @@ SUPPORT
 @item mydrugs:amino_acid_bucket
 @item mydrugs:tryptophan
 @item mydrugs:diethylamine_bucket
-@item mydrugs:ammoniac_bucket
+@item mydrugs:ammonia_bucket
 
-JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammoniac.
+JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammonia.
 
-For LSD, keep hydrochloric acid, sulfuric acid, acylating agent, tryptophan and diethylamine ready. Tryptophan comes from filtering amino acid. Diethylamine uses absolute ethanol and ammoniac.
+For LSD, keep hydrochloric acid, sulfuric acid, acylating agent, tryptophan and diethylamine ready. Tryptophan comes from filtering amino acid. Diethylamine uses absolute ethanol and ammonia.
 
 > [TIP] When an LSD recipe is blocked, the missing piece is almost always a gas, an acid, or the wrong tank type.
 
@@ -1549,14 +1549,14 @@ Syringes draw blood and inject mutation payloads — but a dirty syringe causes 
 
 ENDGAME BODY
 
-@item mydrugs:adn_scraper
-@item mydrugs:adn_scrap
-@item mydrugs:adn_gene
+@item mydrugs:dna_scraper
+@item mydrugs:dna_scrap
+@item mydrugs:dna_gene
 @item mydrugs:mutation_vector
 @item mydrugs:mutagenic_blood_vial
 @item mydrugs:syringe
 
-The route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
+The route still uses DNA items internally: scrape DNA → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
 
 Read it as Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover.
 
@@ -1576,8 +1576,8 @@ ENDGAME BODY
 
 These machines turn body material into adaptation payloads.
 
-Gene Extractor — ADN Scrap into single-stat imprints.
-CRISPR-CAS9 — combines compatible body imprints.
+Gene Extractor — DNA Scrap into single-stat imprints.
+CRISPR-Cas9 — combines compatible body imprints.
 Bacterial Incubator — imprint into an adaptation vector.
 Hemogenic Infuser — vector plus blood into an adaptation vial.
 Autoclave — sterilises dirty empty syringes.

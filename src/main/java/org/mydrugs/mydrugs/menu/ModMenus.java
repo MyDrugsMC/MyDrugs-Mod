@@ -73,9 +73,9 @@ public class ModMenus {
             MENUS.register("gene_extractor",
                     () -> new MenuType<>(GeneExtractorMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
-    public static final Supplier<MenuType<KrisprKas9CombinatorMenu>> CRISPR_CAS9_COMBINATOR =
+    public static final Supplier<MenuType<CrisprCas9CombinatorMenu>> CRISPR_CAS9_COMBINATOR =
             MENUS.register("crispr_cas9_combinator",
-                    () -> new MenuType<>(KrisprKas9CombinatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
+                    () -> new MenuType<>(CrisprCas9CombinatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
     public static final Supplier<MenuType<BacterialIncubatorMenu>> BACTERIAL_INCUBATOR =
             MENUS.register("bacterial_incubator",

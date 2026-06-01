@@ -116,7 +116,7 @@ public interface FluidTankAccess {
     }
 
     default boolean has(ResourceLocation resourceLocation) {
-        return getFluidId().equals(resourceLocation);
+        return resourceLocation != null && resourceLocation.equals(getFluidId());
     }
 
     default boolean dump() {

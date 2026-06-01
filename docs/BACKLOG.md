@@ -98,9 +98,9 @@ This is not the full idea dump. Use Trello for raw ideas. This file keeps the ma
 - Add long cooldown and careful guide text.
 - Avoid dosage, medical advice, or procedural real-world details.
 
-## Priority 9 — ADN / Somatic Adaptation review
+## Priority 9 — DNA / Somatic Adaptation review
 
-- Review all ADN names and player-facing text.
+- Review all DNA names and player-facing text.
 - Reframe from sci-fi gene optimization to somatic adaptation / body regulation.
 - Review stats: favor resilience, grounding, withdrawal resistance, safe trips, dimension traversal, and recovery.
 - Keep registry IDs if needed, but update lang keys and guide tone.

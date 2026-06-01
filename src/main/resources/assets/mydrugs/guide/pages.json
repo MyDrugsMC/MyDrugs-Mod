@@ -176,7 +176,7 @@
       { "type": "item", "text": "mydrugs:tobacco_handful" },
       { "type": "item", "text": "mydrugs:bang" },
       { "type": "item", "text": "mydrugs:roller" },
-      { "type": "item", "text": "mydrugs:cigaret" },
+      { "type": "item", "text": "mydrugs:cigarette" },
       { "type": "text", "text": "Dry the leaves, grind them into handfuls, then smoke them raw with a bang or roll a proper cigarette." },
       { "type": "text", "text": "Processed tobacco grants Nicotinic Knowledge." },
       { "type": "warning", "text": "Addiction climbs fast here. The habits you skip now become the crisis you fix later." },
@@ -619,7 +619,7 @@
       { "type": "text", "text": "Automation: Keep the output clear so later adaptation machines can consume the imprints deliberately." },
       { "type": "text", "text": "See also: Somatic Machines, Somatic Adaptation." },
       { "type": "item", "text": "mydrugs:crispr_cas9_combinator" },
-      { "type": "heading", "text": "CRISPR-CAS9 Combinator" },
+      { "type": "heading", "text": "CRISPR-Cas9 Combinator" },
       { "type": "text", "text": "Era: Ritual / Integration Era." },
       { "type": "text", "text": "Purpose: Combines compatible body imprints into a more specialized adaptation direction." },
       { "type": "text", "text": "Handles: Two imprint inputs, compatibility checks, energy, progress, combined output." },
@@ -800,9 +800,9 @@
       { "type": "item", "text": "mydrugs:amino_acid_bucket" },
       { "type": "item", "text": "mydrugs:tryptophan" },
       { "type": "item", "text": "mydrugs:diethylamine_bucket" },
-      { "type": "item", "text": "mydrugs:ammoniac_bucket" },
-      { "type": "text", "text": "JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammoniac." },
-      { "type": "text", "text": "For LSD, keep hydrochloric acid, sulfuric acid, acylating agent, tryptophan and diethylamine ready. Tryptophan comes from filtering amino acid. Diethylamine uses absolute ethanol and ammoniac." },
+      { "type": "item", "text": "mydrugs:ammonia_bucket" },
+      { "type": "text", "text": "JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammonia." },
+      { "type": "text", "text": "For LSD, keep hydrochloric acid, sulfuric acid, acylating agent, tryptophan and diethylamine ready. Tryptophan comes from filtering amino acid. Diethylamine uses absolute ethanol and ammonia." },
       { "type": "tip", "text": "When an LSD recipe is blocked, the missing piece is almost always a gas, an acid, or the wrong tank type." },
       { "type": "goal", "text": "Build a reagent shelf before you start the LSD chain." }
     ]
@@ -1075,13 +1075,13 @@
     "title": "Somatic Adaptation",
     "elements": [
       { "type": "text", "text": "ENDGAME BODY" },
-      { "type": "item", "text": "mydrugs:adn_scraper" },
-      { "type": "item", "text": "mydrugs:adn_scrap" },
-      { "type": "item", "text": "mydrugs:adn_gene" },
+      { "type": "item", "text": "mydrugs:dna_scraper" },
+      { "type": "item", "text": "mydrugs:dna_scrap" },
+      { "type": "item", "text": "mydrugs:dna_gene" },
       { "type": "item", "text": "mydrugs:mutation_vector" },
       { "type": "item", "text": "mydrugs:mutagenic_blood_vial" },
       { "type": "item", "text": "mydrugs:syringe" },
-      { "type": "text", "text": "The route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time." },
+      { "type": "text", "text": "The route still uses DNA items internally: scrape DNA → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time." },
       { "type": "text", "text": "Read it as Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover." },
       { "type": "text", "text": "Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience." },
       { "type": "goal", "text": "Use body adaptation to support recovery and safe exploration, not to avoid healing forever." }
@@ -1097,7 +1097,7 @@
       { "type": "item", "text": "mydrugs:hemogenic_infuser" },
       { "type": "item", "text": "mydrugs:autoclave" },
       { "type": "text", "text": "These machines turn body material into adaptation payloads." },
-      { "type": "text", "text": "Gene Extractor — ADN Scrap into single-stat imprints. CRISPR-CAS9 — combines compatible body imprints. Bacterial Incubator — imprint into an adaptation vector. Hemogenic Infuser — vector plus blood into an adaptation vial. Autoclave — sterilises dirty empty syringes." },
+      { "type": "text", "text": "Gene Extractor — DNA Scrap into single-stat imprints. CRISPR-Cas9 — combines compatible body imprints. Bacterial Incubator — imprint into an adaptation vector. Hemogenic Infuser — vector plus blood into an adaptation vial. Autoclave — sterilises dirty empty syringes." },
       { "type": "warning", "text": "Strong adaptation is not the same as recovery. If you only optimize the body, the diary may still ask what you are avoiding." }
     ]
   },

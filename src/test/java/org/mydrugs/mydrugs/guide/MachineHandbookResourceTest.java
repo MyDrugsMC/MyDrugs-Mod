@@ -62,7 +62,7 @@ class MachineHandbookResourceTest {
             "Psy Mixer",
             "Psychotrope Resonator",
             "Gene Extractor",
-            "CRISPR-CAS9 Combinator",
+            "CRISPR-Cas9 Combinator",
             "Bacterial Incubator",
             "Hemogenic Infuser",
             "Autoclave"

@@ -3,7 +3,7 @@ package org.mydrugs.mydrugs.fluids;
 import net.minecraft.resources.ResourceLocation;
 
 public final class ModBottleLiquids {
-    public static final ResourceLocation AMMONIAC = ModFluids.rl("ammoniac");
+    public static final ResourceLocation AMMONIA = ModFluids.rl("ammonia");
     public static final ResourceLocation WATER = ResourceLocation.withDefaultNamespace("water");
     public static final ResourceLocation BLOOD = ModFluids.rl("blood");
 
@@ -12,7 +12,7 @@ public final class ModBottleLiquids {
 
     public static int getArgb(ResourceLocation liquidId, int fallbackRgb) {
         int rgb;
-        if (AMMONIAC.equals(liquidId)) {
+        if (AMMONIA.equals(liquidId)) {
             rgb = 0xCFE17A;
         } else if (WATER.equals(liquidId)) {
             rgb = 0x3F76E4;
@@ -26,8 +26,8 @@ public final class ModBottleLiquids {
     }
 
     public static String getDisplayName(ResourceLocation liquidId) {
-        if (AMMONIAC.equals(liquidId)) {
-            return "Ammoniac";
+        if (AMMONIA.equals(liquidId)) {
+            return "Ammonia";
         }
         if (WATER.equals(liquidId)) {
             return "Water";

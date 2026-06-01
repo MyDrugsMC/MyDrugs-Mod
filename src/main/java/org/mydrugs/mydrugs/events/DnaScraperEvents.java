@@ -8,12 +8,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.items.AdnScraperItem;
+import org.mydrugs.mydrugs.items.DnaScraperItem;
 import org.mydrugs.mydrugs.items.ModItems;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
-public final class AdnScraperEvents {
-    private AdnScraperEvents() {
+public final class DnaScraperEvents {
+    private DnaScraperEvents() {
     }
 
     @SubscribeEvent
@@ -26,15 +26,15 @@ public final class AdnScraperEvents {
             return;
         }
 
-        InteractionHand hand = player.getMainHandItem().is(ModItems.ADN_SCRAPER.get())
+        InteractionHand hand = player.getMainHandItem().is(ModItems.DNA_SCRAPER.get())
                 ? InteractionHand.MAIN_HAND
                 : InteractionHand.OFF_HAND;
         ItemStack stack = player.getItemInHand(hand);
-        if (!stack.is(ModItems.ADN_SCRAPER.get())) {
+        if (!stack.is(ModItems.DNA_SCRAPER.get())) {
             return;
         }
 
         event.setCanceled(true);
-        AdnScraperItem.scrapeTarget(stack, player, target, hand);
+        DnaScraperItem.scrapeTarget(stack, player, target, hand);
     }
 }

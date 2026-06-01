@@ -11,16 +11,16 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
-import org.mydrugs.mydrugs.blocks.entity.KrisprKas9CombinatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.CrisprCas9CombinatorBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
-import org.mydrugs.mydrugs.menu.layout.KrisprKas9CombinatorLayout;
+import org.mydrugs.mydrugs.menu.layout.CrisprCas9CombinatorLayout;
 
-public class KrisprKas9CombinatorMenu extends AbstractMachineMenu {
-    public static final int INPUT_A_SLOT = KrisprKas9CombinatorBlockEntity.INPUT_A_SLOT;
-    public static final int INPUT_B_SLOT = KrisprKas9CombinatorBlockEntity.INPUT_B_SLOT;
-    public static final int OUTPUT_SLOT = KrisprKas9CombinatorBlockEntity.OUTPUT_SLOT;
-    public static final int MACHINE_SLOT_COUNT = KrisprKas9CombinatorBlockEntity.SLOT_COUNT;
+public class CrisprCas9CombinatorMenu extends AbstractMachineMenu {
+    public static final int INPUT_A_SLOT = CrisprCas9CombinatorBlockEntity.INPUT_A_SLOT;
+    public static final int INPUT_B_SLOT = CrisprCas9CombinatorBlockEntity.INPUT_B_SLOT;
+    public static final int OUTPUT_SLOT = CrisprCas9CombinatorBlockEntity.OUTPUT_SLOT;
+    public static final int MACHINE_SLOT_COUNT = CrisprCas9CombinatorBlockEntity.SLOT_COUNT;
     public static final int DATA_COUNT = 5;
 
     private static final int PLAYER_INV_START = MACHINE_SLOT_COUNT;
@@ -32,7 +32,7 @@ public class KrisprKas9CombinatorMenu extends AbstractMachineMenu {
     private final ContainerData data;
     private final ContainerLevelAccess access;
 
-    public KrisprKas9CombinatorMenu(int containerId, Inventory playerInventory) {
+    public CrisprCas9CombinatorMenu(int containerId, Inventory playerInventory) {
         this(
                 containerId,
                 playerInventory,
@@ -42,7 +42,7 @@ public class KrisprKas9CombinatorMenu extends AbstractMachineMenu {
         );
     }
 
-    public KrisprKas9CombinatorMenu(int containerId, Inventory playerInventory, Container container, ContainerData data, ContainerLevelAccess access) {
+    public CrisprCas9CombinatorMenu(int containerId, Inventory playerInventory, Container container, ContainerData data, ContainerLevelAccess access) {
         super(ModMenus.CRISPR_CAS9_COMBINATOR.get(), containerId);
         checkContainerSize(container, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, DATA_COUNT);
@@ -53,16 +53,16 @@ public class KrisprKas9CombinatorMenu extends AbstractMachineMenu {
 
         container.startOpen(playerInventory.player);
 
-        this.addGeneInputSlot(container, INPUT_A_SLOT, KrisprKas9CombinatorLayout.INPUT_A_SLOT_X, KrisprKas9CombinatorLayout.INPUT_A_SLOT_Y);
-        this.addGeneInputSlot(container, INPUT_B_SLOT, KrisprKas9CombinatorLayout.INPUT_B_SLOT_X, KrisprKas9CombinatorLayout.INPUT_B_SLOT_Y);
-        this.addSlot(new Slot(container, OUTPUT_SLOT, KrisprKas9CombinatorLayout.OUTPUT_SLOT_X, KrisprKas9CombinatorLayout.OUTPUT_SLOT_Y) {
+        this.addGeneInputSlot(container, INPUT_A_SLOT, CrisprCas9CombinatorLayout.INPUT_A_SLOT_X, CrisprCas9CombinatorLayout.INPUT_A_SLOT_Y);
+        this.addGeneInputSlot(container, INPUT_B_SLOT, CrisprCas9CombinatorLayout.INPUT_B_SLOT_X, CrisprCas9CombinatorLayout.INPUT_B_SLOT_Y);
+        this.addSlot(new Slot(container, OUTPUT_SLOT, CrisprCas9CombinatorLayout.OUTPUT_SLOT_X, CrisprCas9CombinatorLayout.OUTPUT_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
             }
         });
 
-        this.addPlayerInventorySlots(playerInventory, KrisprKas9CombinatorLayout.PLAYER_INV_X, KrisprKas9CombinatorLayout.PLAYER_INV_Y);
+        this.addPlayerInventorySlots(playerInventory, CrisprCas9CombinatorLayout.PLAYER_INV_X, CrisprCas9CombinatorLayout.PLAYER_INV_Y);
         this.addDataSlots(data);
     }
 
@@ -70,7 +70,7 @@ public class KrisprKas9CombinatorMenu extends AbstractMachineMenu {
         this.addSlot(new Slot(container, slot, x, y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(ModItems.ADN_GENE.get()) && stack.get(ModDataComponents.ADN_GENE_DATA.get()) != null;
+                return stack.is(ModItems.DNA_GENE.get()) && stack.get(ModDataComponents.DNA_GENE_DATA.get()) != null;
             }
         });
     }
@@ -126,7 +126,7 @@ public class KrisprKas9CombinatorMenu extends AbstractMachineMenu {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
-                if (rawStack.is(ModItems.ADN_GENE.get()) && rawStack.get(ModDataComponents.ADN_GENE_DATA.get()) != null) {
+                if (rawStack.is(ModItems.DNA_GENE.get()) && rawStack.get(ModDataComponents.DNA_GENE_DATA.get()) != null) {
                     if (!this.moveItemStackTo(rawStack, INPUT_A_SLOT, OUTPUT_SLOT, false)) {
                         return ItemStack.EMPTY;
                     }

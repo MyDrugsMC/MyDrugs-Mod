@@ -47,7 +47,7 @@ public record MutationPayloadData(
         rejectionRisk = Math.clamp(rejectionRisk, 0.02F, 0.35F);
     }
 
-    public static MutationPayloadData fromGene(AdnGeneData gene) {
+    public static MutationPayloadData fromGene(DnaGeneData gene) {
         List<MutationStatValue> stats = gene.stats();
         float avg = 0.0F;
         float max = 0.0F;

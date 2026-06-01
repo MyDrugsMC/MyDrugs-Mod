@@ -6,7 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import org.mydrugs.mydrugs.items.data.AdnScrapData;
+import org.mydrugs.mydrugs.items.data.DnaScrapData;
 import org.mydrugs.mydrugs.items.data.MutationStatValue;
 
 import java.nio.ByteBuffer;
@@ -22,12 +22,12 @@ import java.util.Locale;
 public final class GeneticProfileGenerator {
     private static final String SOURCE_PLAYER = "player";
     private static final String SOURCE_ENTITY = "entity";
-    private static final String GENERATION_VERSION = "adn_v1";
+    private static final String GENERATION_VERSION = "dna_v1";
 
     private GeneticProfileGenerator() {
     }
 
-    public static AdnScrapData fromEntity(LivingEntity entity) {
+    public static DnaScrapData fromEntity(LivingEntity entity) {
         ResourceLocation typeId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         String sourceKind = entity instanceof Player ? SOURCE_PLAYER : SOURCE_ENTITY;
         GeneticRarityTier tier = tierForProfile(entity);
@@ -45,7 +45,7 @@ public final class GeneticProfileGenerator {
             stats.add(new MutationStatValue(stat.serializedName(), value, improbability));
         }
 
-        return new AdnScrapData(
+        return new DnaScrapData(
                 entity.getStringUUID(),
                 typeId.toString(),
                 entity.getName().getString(),
@@ -56,9 +56,9 @@ public final class GeneticProfileGenerator {
         );
     }
 
-    public static AdnScrapData fromPlayerMutations(Player player, List<MutationStatValue> stats) {
+    public static DnaScrapData fromPlayerMutations(Player player, List<MutationStatValue> stats) {
         ResourceLocation typeId = BuiltInRegistries.ENTITY_TYPE.getKey(player.getType());
-        return new AdnScrapData(
+        return new DnaScrapData(
                 player.getStringUUID(),
                 typeId.toString(),
                 player.getName().getString(),
@@ -224,7 +224,7 @@ public final class GeneticProfileGenerator {
             }
             return digest.digest();
         } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 is required for ADN generation", exception);
+            throw new IllegalStateException("SHA-256 is required for DNA generation", exception);
         }
     }
 }

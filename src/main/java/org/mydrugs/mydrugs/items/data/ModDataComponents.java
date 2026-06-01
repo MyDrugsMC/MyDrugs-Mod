@@ -42,20 +42,20 @@ public class ModDataComponents {
                             .networkSynchronized(BloodSample.STREAM_CODEC)
             );
 
-    public static final Supplier<DataComponentType<AdnScrapData>> ADN_SCRAP_DATA =
+    public static final Supplier<DataComponentType<DnaScrapData>> DNA_SCRAP_DATA =
             DATA_COMPONENTS.registerComponentType(
-                    "adn_scrap_data",
+                    "dna_scrap_data",
                     builder -> builder
-                            .persistent(AdnScrapData.CODEC)
-                            .networkSynchronized(AdnScrapData.STREAM_CODEC)
+                            .persistent(DnaScrapData.CODEC)
+                            .networkSynchronized(DnaScrapData.STREAM_CODEC)
             );
 
-    public static final Supplier<DataComponentType<AdnGeneData>> ADN_GENE_DATA =
+    public static final Supplier<DataComponentType<DnaGeneData>> DNA_GENE_DATA =
             DATA_COMPONENTS.registerComponentType(
-                    "adn_gene_data",
+                    "dna_gene_data",
                     builder -> builder
-                            .persistent(AdnGeneData.CODEC)
-                            .networkSynchronized(AdnGeneData.STREAM_CODEC)
+                            .persistent(DnaGeneData.CODEC)
+                            .networkSynchronized(DnaGeneData.STREAM_CODEC)
             );
 
     public static final Supplier<DataComponentType<MutationPayloadData>> MUTATION_PAYLOAD =

@@ -301,9 +301,9 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> GENE_EXTRACTOR_ITEM = registerMachineBlockItem("gene_extractor", GENE_EXTRACTOR);
 
-    public static final DeferredBlock<KrisprKas9CombinatorBlock> CRISPR_CAS9_COMBINATOR = BLOCKS.registerBlock(
+    public static final DeferredBlock<CrisprCas9CombinatorBlock> CRISPR_CAS9_COMBINATOR = BLOCKS.registerBlock(
             "crispr_cas9_combinator",
-            KrisprKas9CombinatorBlock::new,
+            CrisprCas9CombinatorBlock::new,
             props -> props
                     .strength(4.0F)
                     .requiresCorrectToolForDrops()

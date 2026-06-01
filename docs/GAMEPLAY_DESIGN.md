@@ -256,7 +256,7 @@ No hunger, cravings, favorite drugs, random sabotage, or passive punishment in t
 
 ## Somatic adaptation design rules
 
-The old ADN system should be reframed.
+The old DNA system should be reframed.
 
 Avoid presenting body progression as clean sci-fi gene optimization. The better arc is:
 
@@ -268,7 +268,7 @@ Suggested terminology:
 
 | Old direction | Preferred direction |
 |---|---|
-| ADN mutation | Somatic Adaptation |
+| DNA mutation | Somatic Adaptation |
 | gene stat | body imprint / adaptation trait |
 | CRISPR upgrade | Body Loom / Somatic Sequencer |
 | mutation build | resilience pattern |

@@ -21,12 +21,12 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import org.mydrugs.mydrugs.blocks.entity.KrisprKas9CombinatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.CrisprCas9CombinatorBlockEntity;
 
-public class KrisprKas9CombinatorBlock extends BaseEntityBlock {
+public class CrisprCas9CombinatorBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public KrisprKas9CombinatorBlock(Properties props) {
+    public CrisprCas9CombinatorBlock(Properties props) {
         super(props);
     }
 
@@ -37,7 +37,7 @@ public class KrisprKas9CombinatorBlock extends BaseEntityBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new KrisprKas9CombinatorBlockEntity(blockPos, blockState);
+        return new CrisprCas9CombinatorBlockEntity(blockPos, blockState);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class KrisprKas9CombinatorBlock extends BaseEntityBlock {
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, ModBlockEntities.CRISPR_CAS9_COMBINATOR.get(), KrisprKas9CombinatorBlockEntity::tick);
+        return createTickerHelper(type, ModBlockEntities.CRISPR_CAS9_COMBINATOR.get(), CrisprCas9CombinatorBlockEntity::tick);
     }
 
     @Override

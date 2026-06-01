@@ -166,13 +166,13 @@ Done when:
 - The system feels serious, controlled, and recovery-oriented.
 - It helps addiction/integration gameplay without becoming a new abuse loop.
 
-## Milestone 8 — Somatic Adaptation / ADN Review
+## Milestone 8 — Somatic Adaptation / DNA Review
 
 Goal: reframe body progression so it fits the recovery/integration mood.
 
 Work candidates:
 
-- Rename ADN-facing concepts where possible.
+- Rename DNA-facing concepts where possible.
 - Review all body stats and effects.
 - Replace pure “bigger stats” with resilience/regulation/adaptation effects.
 - Make body progression support recovery, safe trips, dimension traversal, and endgame freedom.

@@ -37,7 +37,7 @@ public final class ModFluids {
     public static final FluidEntry FERMENTED_MASH;
     public static final FluidEntry RAW_ALCOHOL;
     public static final FluidEntry VODKA;
-    public static final FluidEntry AMMONIAC;
+    public static final FluidEntry AMMONIA;
     public static final FluidEntry BLOOD;
     public static final FluidEntry MURKY_EXTRACT;
     public static final FluidEntry FILTERED_EXTRACT;
@@ -105,7 +105,7 @@ public final class ModFluids {
 
         VODKA = register(new FluidSpec("vodka", 0x66F8FCFF, true, DrugId.ALCOHOL));
 
-        AMMONIAC = register(new FluidSpec("ammoniac", 0x66EEF8FF, false, null));
+        AMMONIA = register(new FluidSpec("ammonia", 0x66EEF8FF, false, null));
         BLOOD = register(new FluidSpec("blood", 0xFF7A1014, false, null));
         MURKY_EXTRACT = register(new FluidSpec("murky_extract", 0xFF4B5B2B, false, null));
         FILTERED_EXTRACT = register(new FluidSpec("filtered_extract", 0xFF88A85A, false, null));

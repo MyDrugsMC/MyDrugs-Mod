@@ -56,7 +56,7 @@ public class GeneExtractorMenu extends AbstractMachineMenu {
         this.addSlot(new Slot(container, INPUT_SLOT, GeneExtractorLayout.INPUT_SLOT_X, GeneExtractorLayout.INPUT_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(ModItems.ADN_SCRAP.get());
+                return stack.is(ModItems.DNA_SCRAP.get());
             }
         });
         this.addOutputSlot(container, OUTPUT_SLOT_A, GeneExtractorLayout.OUTPUT_A_SLOT_X, GeneExtractorLayout.OUTPUT_A_SLOT_Y);
@@ -115,7 +115,7 @@ public class GeneExtractorMenu extends AbstractMachineMenu {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
-                if (rawStack.is(ModItems.ADN_SCRAP.get())) {
+                if (rawStack.is(ModItems.DNA_SCRAP.get())) {
                     if (!this.moveItemStackTo(rawStack, INPUT_SLOT, INPUT_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }

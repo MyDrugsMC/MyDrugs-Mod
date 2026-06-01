@@ -21,8 +21,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.items.data.AdnGeneData;
-import org.mydrugs.mydrugs.items.data.AdnScrapData;
+import org.mydrugs.mydrugs.items.data.DnaGeneData;
+import org.mydrugs.mydrugs.items.data.DnaScrapData;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.items.data.MutationStatValue;
 import org.mydrugs.mydrugs.machine.MachineStatus;
@@ -84,7 +84,7 @@ public final class GeneExtractorBlockEntity extends BaseContainerBlockEntity imp
         boolean changed = false;
         be.maxProgress = OPERATION_TICKS;
 
-        AdnScrapData scrapData = be.getInputScrapData();
+        DnaScrapData scrapData = be.getInputScrapData();
         if (scrapData == null || scrapData.stats().isEmpty()) {
             changed |= be.setMachineStatus(MachineStatus.MISSING_INPUT_ITEM);
             changed |= be.resetProgress();
@@ -136,15 +136,15 @@ public final class GeneExtractorBlockEntity extends BaseContainerBlockEntity imp
         }
     }
 
-    private AdnScrapData getInputScrapData() {
+    private DnaScrapData getInputScrapData() {
         ItemStack input = this.getItem(INPUT_SLOT);
-        if (!input.is(ModItems.ADN_SCRAP.get())) {
+        if (!input.is(ModItems.DNA_SCRAP.get())) {
             return null;
         }
-        return input.get(ModDataComponents.ADN_SCRAP_DATA.get());
+        return input.get(ModDataComponents.DNA_SCRAP_DATA.get());
     }
 
-    private List<ItemStack> createRandomOutputs(AdnScrapData scrapData) {
+    private List<ItemStack> createRandomOutputs(DnaScrapData scrapData) {
         List<MutationStatValue> selected = selectRandomStats(scrapData, this.level == null ? RandomSource.create() : this.level.random);
         if (selected.isEmpty()) {
             return List.of();
@@ -152,14 +152,14 @@ public final class GeneExtractorBlockEntity extends BaseContainerBlockEntity imp
 
         List<ItemStack> outputs = new ArrayList<>(3);
         for (MutationStatValue stat : selected) {
-            ItemStack output = new ItemStack(ModItems.ADN_GENE.get());
-            output.set(ModDataComponents.ADN_GENE_DATA.get(), AdnGeneData.singleStatFromScrap(scrapData, stat));
+            ItemStack output = new ItemStack(ModItems.DNA_GENE.get());
+            output.set(ModDataComponents.DNA_GENE_DATA.get(), DnaGeneData.singleStatFromScrap(scrapData, stat));
             outputs.add(output);
         }
         return outputs;
     }
 
-    private static List<MutationStatValue> selectRandomStats(AdnScrapData scrapData, RandomSource random) {
+    private static List<MutationStatValue> selectRandomStats(DnaScrapData scrapData, RandomSource random) {
         List<MutationStatValue> available = new ArrayList<>(scrapData.stats());
         List<MutationStatValue> selected = new ArrayList<>(3);
 
@@ -251,7 +251,7 @@ public final class GeneExtractorBlockEntity extends BaseContainerBlockEntity imp
 
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
-        return slot == INPUT_SLOT && stack.is(ModItems.ADN_SCRAP.get());
+        return slot == INPUT_SLOT && stack.is(ModItems.DNA_SCRAP.get());
     }
 
     @Override

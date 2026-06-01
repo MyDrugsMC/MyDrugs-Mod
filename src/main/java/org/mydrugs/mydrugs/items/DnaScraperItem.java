@@ -20,7 +20,7 @@ import org.mydrugs.mydrugs.damage.ModDamageTypes;
 import java.util.List;
 import java.util.function.Consumer;
 
-public final class AdnScraperItem extends Item {
+public final class DnaScraperItem extends Item {
     private static final int COOLDOWN_TICKS = 15;
     private static final float SELF_EXTRACTION_DAMAGE = 1.0F;
 
@@ -38,7 +38,7 @@ public final class AdnScraperItem extends Item {
             EntityType.CREAKING
     );
 
-    public AdnScraperItem(Properties properties) {
+    public DnaScraperItem(Properties properties) {
         super(properties);
     }
 
@@ -51,11 +51,11 @@ public final class AdnScraperItem extends Item {
 
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             if (player.getHealth() <= 2.0F) {
-                player.displayClientMessage(Component.translatable("message.mydrugs.adn_scraper.too_weak").withStyle(ChatFormatting.RED), true);
+                player.displayClientMessage(Component.translatable("message.mydrugs.dna_scraper.too_weak").withStyle(ChatFormatting.RED), true);
                 return InteractionResult.FAIL;
             }
 
-            giveScrap(serverPlayer, AdnScrapItem.createScrapFrom(player));
+            giveScrap(serverPlayer, DnaScrapItem.createScrapFrom(player));
             player.hurt(ModDamageTypes.bloodDraw(player), SELF_EXTRACTION_DAMAGE);
             damageScraper(stack, player, hand);
             player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
@@ -80,11 +80,11 @@ public final class AdnScraperItem extends Item {
         }
 
         if (!canScrape(target)) {
-            player.displayClientMessage(Component.translatable("message.mydrugs.adn_scraper.invalid_target").withStyle(ChatFormatting.GRAY), true);
+            player.displayClientMessage(Component.translatable("message.mydrugs.dna_scraper.invalid_target").withStyle(ChatFormatting.GRAY), true);
             return InteractionResult.FAIL;
         }
 
-        giveScrap(serverPlayer, AdnScrapItem.createScrapFrom(target));
+        giveScrap(serverPlayer, DnaScrapItem.createScrapFrom(target));
         damageScraper(stack, player, hand);
         player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
         player.level().playSound(null, target.blockPosition(), SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 0.6F, 1.25F);
@@ -117,6 +117,6 @@ public final class AdnScraperItem extends Item {
             TooltipFlag flag
     ) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
-        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.adn_scraper").withStyle(ChatFormatting.GRAY));
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_scraper").withStyle(ChatFormatting.GRAY));
     }
 }

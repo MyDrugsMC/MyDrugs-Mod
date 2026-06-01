@@ -101,7 +101,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                         "P", itemId(Items.PAPER)
                 ),
                 itemId(ModItems.PSY_BLUEPRINT.get()), 1);
-        saveShaped(futures, cachedOutput, "adn_scraper",
+        saveShaped(futures, cachedOutput, "dna_scraper",
                 List.of(" IA", "CRG", " I "),
                 Map.of(
                         "I", itemId(Items.IRON_INGOT),
@@ -110,7 +110,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                         "R", itemId(Items.REDSTONE),
                         "G", itemId(Items.GLASS_PANE)
                 ),
-                itemId(ModItems.ADN_SCRAPER.get()), 1);
+                itemId(ModItems.DNA_SCRAPER.get()), 1);
         saveShaped(futures, cachedOutput, "gene_extractor",
                 List.of("GAG", "CRC", "IPI"),
                 Map.of(

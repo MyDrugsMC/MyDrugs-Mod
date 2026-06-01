@@ -21,7 +21,7 @@ import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.items.data.AdnGeneData;
+import org.mydrugs.mydrugs.items.data.DnaGeneData;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.items.data.MutationPayloadData;
 import org.mydrugs.mydrugs.machine.MachineStatus;
@@ -83,7 +83,7 @@ public final class BacterialIncubatorBlockEntity extends BaseContainerBlockEntit
         boolean changed = false;
         be.maxProgress = OPERATION_TICKS;
 
-        AdnGeneData gene = be.getInputGeneData();
+        DnaGeneData gene = be.getInputGeneData();
         if (!isValidGene(gene) || !be.getItem(NUTRIENT_SLOT).is(ModItems.NUTRIENT_GEL.get())) {
             changed |= be.setMachineStatus(MachineStatus.MISSING_INPUT_ITEM);
             changed |= be.resetProgress();
@@ -147,20 +147,20 @@ public final class BacterialIncubatorBlockEntity extends BaseContainerBlockEntit
         }
     }
 
-    private static boolean isValidGene(AdnGeneData gene) {
+    private static boolean isValidGene(DnaGeneData gene) {
         return gene != null && !gene.broken() && !gene.stats().isEmpty();
     }
 
-    public static int energyPerTick(AdnGeneData gene) {
+    public static int energyPerTick(DnaGeneData gene) {
         return BASE_ENERGY_PER_TICK + gene.stats().size() * ENERGY_PER_STAT;
     }
 
-    private AdnGeneData getInputGeneData() {
+    private DnaGeneData getInputGeneData() {
         ItemStack input = this.getItem(GENE_SLOT);
-        if (!input.is(ModItems.ADN_GENE.get())) {
+        if (!input.is(ModItems.DNA_GENE.get())) {
             return null;
         }
-        return input.get(ModDataComponents.ADN_GENE_DATA.get());
+        return input.get(ModDataComponents.DNA_GENE_DATA.get());
     }
 
     private static ItemStack createVector(MutationPayloadData payload) {
@@ -247,7 +247,7 @@ public final class BacterialIncubatorBlockEntity extends BaseContainerBlockEntit
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return switch (slot) {
-            case GENE_SLOT -> stack.is(ModItems.ADN_GENE.get()) && isValidGene(stack.get(ModDataComponents.ADN_GENE_DATA.get()));
+            case GENE_SLOT -> stack.is(ModItems.DNA_GENE.get()) && isValidGene(stack.get(ModDataComponents.DNA_GENE_DATA.get()));
             case NUTRIENT_SLOT -> stack.is(ModItems.NUTRIENT_GEL.get());
             default -> false;
         };

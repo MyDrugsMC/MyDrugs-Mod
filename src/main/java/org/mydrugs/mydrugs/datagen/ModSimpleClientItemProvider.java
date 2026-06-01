@@ -42,8 +42,8 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "cannabis_seeds",
                 "caffeine_bar",
                 "catalyst_bed",
-                "cigaret",
-                "cigaret_filter",
+                "cigarette",
+                "cigarette_filter",
                 "coal_dust",
                 "coca_leaf",
                 "coca_paste",
@@ -79,7 +79,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "filter_upgrade",
                 "flour",
                 "fluid_filter",
-                "full_ammoniac_bottle",
+                "full_ammonia_bottle",
                 "fungal_culture",
                 "fungal_fiber",
                 "glass_tube",
@@ -184,9 +184,9 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
         futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "mydrugs:item/inner_demon_remains"));
         futures.add(saveFlatItem(cachedOutput, "progression_guide", "mydrugs:item/progression_guide"));
-        futures.add(saveFlatItem(cachedOutput, "adn_scraper", "mydrugs:item/adn_scraper"));
-        futures.add(saveFlatItem(cachedOutput, "adn_scrap", "mydrugs:item/adn_scrap"));
-        futures.add(saveFlatItem(cachedOutput, "adn_gene", "mydrugs:item/adn_gene"));
+        futures.add(saveFlatItem(cachedOutput, "dna_scraper", "mydrugs:item/dna_scraper"));
+        futures.add(saveFlatItem(cachedOutput, "dna_scrap", "mydrugs:item/dna_scrap"));
+        futures.add(saveFlatItem(cachedOutput, "dna_gene", "mydrugs:item/dna_gene"));
         futures.add(saveFlatItem(cachedOutput, "mutation_vector", "mydrugs:item/mutation_vector"));
         futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "mydrugs:item/mutagenic_blood_vial"));
         futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "mydrugs:item/nutrient_gel"));

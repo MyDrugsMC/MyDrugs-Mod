@@ -45,8 +45,8 @@ public class ModBlockTypes {
     public static final Supplier<MapCodec<GeneExtractorBlock>> GENE_EXTRACTOR_CODEC =
             BLOCK_TYPES.register("gene_extractor", () -> Block.simpleCodec(GeneExtractorBlock::new));
 
-    public static final Supplier<MapCodec<KrisprKas9CombinatorBlock>> CRISPR_CAS9_COMBINATOR_CODEC =
-            BLOCK_TYPES.register("crispr_cas9_combinator", () -> Block.simpleCodec(KrisprKas9CombinatorBlock::new));
+    public static final Supplier<MapCodec<CrisprCas9CombinatorBlock>> CRISPR_CAS9_COMBINATOR_CODEC =
+            BLOCK_TYPES.register("crispr_cas9_combinator", () -> Block.simpleCodec(CrisprCas9CombinatorBlock::new));
 
     public static final Supplier<MapCodec<BacterialIncubatorBlock>> BACTERIAL_INCUBATOR_CODEC =
             BLOCK_TYPES.register("bacterial_incubator", () -> Block.simpleCodec(BacterialIncubatorBlock::new));

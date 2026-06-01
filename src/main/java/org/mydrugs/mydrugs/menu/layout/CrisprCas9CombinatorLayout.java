@@ -1,6 +1,6 @@
 package org.mydrugs.mydrugs.menu.layout;
 
-public final class KrisprKas9CombinatorLayout {
+public final class CrisprCas9CombinatorLayout {
     public static final int GUI_WIDTH = 176;
     public static final int MACHINE_PANEL_X = 8;
     public static final int MACHINE_PANEL_Y = 16;
@@ -26,6 +26,6 @@ public final class KrisprKas9CombinatorLayout {
     public static final int PLAYER_INV_Y = LayoutMath.inventoryY(MACHINE_PANEL_Y, MACHINE_PANEL_H);
     public static final int GUI_HEIGHT = LayoutMath.guiHeight(MACHINE_PANEL_Y, MACHINE_PANEL_H);
 
-    private KrisprKas9CombinatorLayout() {
+    private CrisprCas9CombinatorLayout() {
     }
 }

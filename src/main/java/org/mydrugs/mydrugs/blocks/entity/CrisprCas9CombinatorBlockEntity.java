@@ -20,12 +20,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.items.data.AdnGeneData;
+import org.mydrugs.mydrugs.items.data.DnaGeneData;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.items.data.MutationStatValue;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
-import org.mydrugs.mydrugs.menu.KrisprKas9CombinatorMenu;
+import org.mydrugs.mydrugs.menu.CrisprCas9CombinatorMenu;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.CRC32;
 
-public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEntity implements MachineStatusProvider {
+public final class CrisprCas9CombinatorBlockEntity extends BaseContainerBlockEntity implements MachineStatusProvider {
     public static final int INPUT_A_SLOT = 0;
     public static final int INPUT_B_SLOT = 1;
     public static final int OUTPUT_SLOT = 2;
@@ -82,15 +82,15 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
 
         @Override
         public int getCount() {
-            return KrisprKas9CombinatorMenu.DATA_COUNT;
+            return CrisprCas9CombinatorMenu.DATA_COUNT;
         }
     };
 
-    public KrisprKas9CombinatorBlockEntity(BlockPos pos, BlockState state) {
+    public CrisprCas9CombinatorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CRISPR_CAS9_COMBINATOR.get(), pos, state);
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, KrisprKas9CombinatorBlockEntity be) {
+    public static void tick(Level level, BlockPos pos, BlockState state, CrisprCas9CombinatorBlockEntity be) {
         if (!(level instanceof ServerLevel)) {
             return;
         }
@@ -98,8 +98,8 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
         boolean changed = false;
         be.maxProgress = OPERATION_TICKS;
 
-        AdnGeneData first = be.getGene(INPUT_A_SLOT);
-        AdnGeneData second = be.getGene(INPUT_B_SLOT);
+        DnaGeneData first = be.getGene(INPUT_A_SLOT);
+        DnaGeneData second = be.getGene(INPUT_B_SLOT);
         if (!be.isUsableInput(first) || !be.isUsableInput(second)) {
             changed |= be.setSameSourceBlocked(false);
             changed |= be.setMachineStatus(MachineStatus.MISSING_INPUT_ITEM);
@@ -181,15 +181,15 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
         }
     }
 
-    private AdnGeneData getGene(int slot) {
+    private DnaGeneData getGene(int slot) {
         ItemStack stack = this.getItem(slot);
-        if (!stack.is(ModItems.ADN_GENE.get())) {
+        if (!stack.is(ModItems.DNA_GENE.get())) {
             return null;
         }
-        return stack.get(ModDataComponents.ADN_GENE_DATA.get());
+        return stack.get(ModDataComponents.DNA_GENE_DATA.get());
     }
 
-    private boolean isUsableInput(AdnGeneData data) {
+    private boolean isUsableInput(DnaGeneData data) {
         return data != null && !data.broken() && !data.stats().isEmpty();
     }
 
@@ -251,7 +251,7 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
 
     @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new KrisprKas9CombinatorMenu(
+        return new CrisprCas9CombinatorMenu(
                 containerId,
                 inventory,
                 this,
@@ -281,8 +281,8 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return (slot == INPUT_A_SLOT || slot == INPUT_B_SLOT)
-                && stack.is(ModItems.ADN_GENE.get())
-                && stack.get(ModDataComponents.ADN_GENE_DATA.get()) != null;
+                && stack.is(ModItems.DNA_GENE.get())
+                && stack.get(ModDataComponents.DNA_GENE_DATA.get()) != null;
     }
 
     @Override
@@ -330,7 +330,7 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
             String signature,
             String inputKey
     ) {
-        static CombinationPlan create(AdnGeneData first, AdnGeneData second) {
+        static CombinationPlan create(DnaGeneData first, DnaGeneData second) {
             boolean blocked = hasSourceOverlap(first.sourceUuids(), second.sourceUuids());
             SourceBundle sources = SourceBundle.merge(first, second);
             List<MutationStatValue> mergedStats = mergeStats(first.stats(), second.stats());
@@ -353,8 +353,8 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
         }
 
         ItemStack successOutput() {
-            ItemStack stack = new ItemStack(ModItems.ADN_GENE.get());
-            stack.set(ModDataComponents.ADN_GENE_DATA.get(), new AdnGeneData(
+            ItemStack stack = new ItemStack(ModItems.DNA_GENE.get());
+            stack.set(ModDataComponents.DNA_GENE_DATA.get(), new DnaGeneData(
                     this.sourceUuids,
                     this.sourceEntityTypes,
                     this.sourceNames,
@@ -366,8 +366,8 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
         }
 
         ItemStack brokenOutput() {
-            ItemStack stack = new ItemStack(ModItems.ADN_GENE.get());
-            stack.set(ModDataComponents.ADN_GENE_DATA.get(), new AdnGeneData(
+            ItemStack stack = new ItemStack(ModItems.DNA_GENE.get());
+            stack.set(ModDataComponents.DNA_GENE_DATA.get(), new DnaGeneData(
                     this.sourceUuids,
                     this.sourceEntityTypes,
                     this.sourceNames,
@@ -422,7 +422,7 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
     }
 
     private record SourceBundle(List<String> sourceUuids, List<String> sourceEntityTypes, List<String> sourceNames) {
-        static SourceBundle merge(AdnGeneData first, AdnGeneData second) {
+        static SourceBundle merge(DnaGeneData first, DnaGeneData second) {
             LinkedHashMap<String, SourceEntry> entries = new LinkedHashMap<>();
             add(entries, first);
             add(entries, second);
@@ -438,7 +438,7 @@ public final class KrisprKas9CombinatorBlockEntity extends BaseContainerBlockEnt
             return new SourceBundle(uuids, types, names);
         }
 
-        private static void add(LinkedHashMap<String, SourceEntry> entries, AdnGeneData data) {
+        private static void add(LinkedHashMap<String, SourceEntry> entries, DnaGeneData data) {
             for (int i = 0; i < data.sourceUuids().size(); i++) {
                 String uuid = data.sourceUuids().get(i);
                 String type = i < data.sourceEntityTypes().size() ? data.sourceEntityTypes().get(i) : "";
