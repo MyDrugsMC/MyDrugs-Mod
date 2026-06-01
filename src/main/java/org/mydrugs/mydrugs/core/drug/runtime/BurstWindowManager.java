@@ -71,6 +71,10 @@ public final class BurstWindowManager {
         DrugEffectRuntimeManager.drainEffect(player, EffectType.BURST_WINDOW, 1);
     }
 
+    public static boolean hasActiveWindow(ServerPlayer player) {
+        return player != null && ACTIVE.containsKey(player.getUUID());
+    }
+
     public static void cleanup(ServerPlayer player) {
         if (player == null) return;
         ACTIVE.remove(player.getUUID());

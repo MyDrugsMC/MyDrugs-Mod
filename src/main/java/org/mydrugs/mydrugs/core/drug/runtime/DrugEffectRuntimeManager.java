@@ -337,6 +337,9 @@ public final class DrugEffectRuntimeManager {
     public static void tickServer(ServerPlayer player) {
         UUID id = player.getUUID();
         EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(id);
+        if (effects == null && canSkipInactiveTick(player, id)) {
+            return;
+        }
         boolean dirty = false;
 
         if (effects != null) {
@@ -382,6 +385,17 @@ public final class DrugEffectRuntimeManager {
         if (forceSync || player.level().getGameTime() % 100L == 0L) {
             syncIfChanged(player, effects, forceSync);
         }
+    }
+
+    private static boolean canSkipInactiveTick(ServerPlayer player, UUID id) {
+        return !DIRTY_PLAYERS.contains(id)
+                && !VOMIT_COOLDOWNS.containsKey(id)
+                && !LAST_MOVEMENT_MULTIPLIER.containsKey(id)
+                && !LAST_MINING_MULTIPLIER.containsKey(id)
+                && !LAST_ATTACK_SPEED_MULTIPLIER.containsKey(id)
+                && !LAST_HP_DECREASE_HEARTS.containsKey(id)
+                && !BurstWindowManager.hasActiveWindow(player)
+                && player.level().getGameTime() % 100L != 0L;
     }
 
     public static float getMiningSpeedMultiplier(ServerPlayer player) {

@@ -70,17 +70,14 @@ public final class RecoveryRoomManager {
     }
 
     public static Optional<RecoveryRoomReport> getBestRoom(Level level, LivingEntity entity) {
+        if (entity instanceof ServerPlayer player) {
+            return getBestRoom(player);
+        }
         return getBestRoom(level, entity.blockPosition());
     }
 
     public static Optional<RecoveryRoomReport> getBestRoom(ServerPlayer player) {
-        Optional<RecoveryRoomReport> report = getBestRoom(player.level(), player.blockPosition());
-        report.ifPresent(found -> {
-            if (found.tier() == RecoveryRoomTier.SANCTUARY && PsycheMapMilestones.sanctuary(player)) {
-                player.displayClientMessage(Component.translatable("recovery.mydrugs.room.sanctuary_memory"), true);
-            }
-        });
-        return report;
+        return PlayerRecoveryEnvironmentCache.snapshot(player).recoveryRoomOptional();
     }
 
     public static Optional<RecoveryRoomReport> getBestRoom(Level level, BlockPos playerPos) {
@@ -196,7 +193,7 @@ public final class RecoveryRoomManager {
         if (player.tickCount % AMBIENT_PARTICLE_SYNC_TICKS != 0) {
             return;
         }
-        RecoveryRoomReport report = getBestRoom(player).orElse(null);
+        RecoveryRoomReport report = PlayerRecoveryEnvironmentCache.snapshot(player).recoveryRoom();
         if (!isValidRecoveryRoom(report)) {
             return;
         }
@@ -204,6 +201,7 @@ public final class RecoveryRoomManager {
     }
 
     public static void invalidate(Level level, BlockPos anchorPos) {
+        PlayerRecoveryEnvironmentCache.invalidateLevel(level);
         Map<BlockPos, CachedReport> levelCache = CACHE.get(level);
         if (levelCache != null) {
             levelCache.remove(anchorPos.immutable());
@@ -211,12 +209,19 @@ public final class RecoveryRoomManager {
     }
 
     public static void invalidateAround(Level level, BlockPos changedPos) {
+        PlayerRecoveryEnvironmentCache.invalidateLevel(level);
         Map<BlockPos, CachedReport> levelCache = CACHE.get(level);
         if (levelCache == null || levelCache.isEmpty()) {
             return;
         }
         int radius = scanRadius() + 2;
         levelCache.keySet().removeIf(anchor -> anchor.distManhattan(changedPos) <= radius * 3);
+    }
+
+    static void notifyRoomSeen(ServerPlayer player, RecoveryRoomReport report) {
+        if (report != null && report.tier() == RecoveryRoomTier.SANCTUARY && PsycheMapMilestones.sanctuary(player)) {
+            player.displayClientMessage(Component.translatable("recovery.mydrugs.room.sanctuary_memory"), true);
+        }
     }
 
     private static RecoveryRoomReport scanRoom(Level level, BlockPos anchorPos) {

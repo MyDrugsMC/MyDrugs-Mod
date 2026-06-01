@@ -75,6 +75,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
     public static final int FLUID_TANK_CAPACITY = 4000;
     public static final int MAX_HEAT = 1000;
     public static final int MAX_MANUAL_ENERGY = 200;
+    private static final int STATE_SYNC_INTERVAL_TICKS = 5;
 
     private static final int SECONDARY_FLUID_TANK = 0;
     private static final int OUTPUT_FLUID_TANK = 1;
@@ -246,18 +247,19 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         ChemicalReactorRecipe recipe = recipeHolder.map(RecipeHolder::value).orElse(null);
 
         changed |= be.refreshSecondaryInputMode(recipe);
-        changed |= be.processSecondaryInputTransfer();
-
-        recipeHolder = be.findMatchingRecipe();
-        recipe = recipeHolder.map(RecipeHolder::value).orElse(null);
-
-        changed |= be.refreshSecondaryInputMode(recipe);
+        boolean secondaryTransferChanged = be.processSecondaryInputTransfer();
+        changed |= secondaryTransferChanged;
+        if (secondaryTransferChanged) {
+            recipeHolder = be.findMatchingRecipe();
+            recipe = recipeHolder.map(RecipeHolder::value).orElse(null);
+            changed |= be.refreshSecondaryInputMode(recipe);
+        }
 
         changed |= be.processOutputTransferSlot();
 
-        boolean recipeCanRun = recipe != null && be.canOutput(recipe);
-        boolean poweredByEnergy = recipeCanRun && PsyCurrentMachines.tryUseCurrentTick(be);
-        changed |= be.handleFuel(recipeCanRun && !poweredByEnergy);
+        boolean canOutput = recipe != null && be.canOutput(recipe);
+        boolean poweredByEnergy = canOutput && PsyCurrentMachines.tryUseCurrentTick(be);
+        changed |= be.handleFuel(canOutput && !poweredByEnergy);
         changed |= be.updateHeat();
 
         if (recipe != null) {
@@ -268,7 +270,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 changed = true;
             }
 
-            if (be.canOutput(recipe) && (be.heat >= recipe.minHeat() || poweredByEnergy)) {
+            if (canOutput && (be.heat >= recipe.minHeat() || poweredByEnergy)) {
                 changed |= be.setMachineStatus(MachineStatus.RUNNING);
                 int speed = be.getProgressPerTick(recipe);
                 if (poweredByEnergy && be.heat < recipe.minHeat()) {
@@ -289,7 +291,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
 
                 be.active = true;
             } else {
-                changed |= be.setMachineStatus(be.canOutput(recipe) ? MachineStatus.NOT_ENOUGH_HEAT : MachineStatus.OUTPUT_TANK_FULL);
+                changed |= be.setMachineStatus(canOutput ? MachineStatus.NOT_ENOUGH_HEAT : MachineStatus.OUTPUT_TANK_FULL);
                 if (be.progress > 0) {
                     be.progress = Math.max(0, be.progress - 2);
                     changed = true;
@@ -320,7 +322,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         }
 
         if (changed) {
-            be.onContentsChanged();
+            be.syncState();
         }
     }
 
@@ -706,6 +708,10 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
 
     private void onContentsChanged() {
         MachineSync.syncAndInvalidateCaps(this);
+    }
+
+    private void syncState() {
+        MachineSync.syncIfDue(this, STATE_SYNC_INTERVAL_TICKS);
     }
 
     @Override

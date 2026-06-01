@@ -23,8 +23,13 @@ import org.mydrugs.mydrugs.addiction.util.AddictionMath;
 import org.mydrugs.mydrugs.mutation.MutationManager;
 import org.mydrugs.mydrugs.mutation.MutationStat;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 public final class SymptomManager {
     private static final ResourceLocation FATIGUE_SPEED_ID = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "withdrawal_fatigue_speed");
+    private static final double FATIGUE_EPSILON = 0.00001D;
+    private static final Map<ServerPlayer, Double> APPLIED_FATIGUE_SPEED = new WeakHashMap<>();
 
     private SymptomManager() {
     }
@@ -60,10 +65,6 @@ public final class SymptomManager {
         float mentalSeverity = severity * Math.max(0.0F, 1.0F - mentalStrength);
         float physicalSeverity = severity * Math.max(0.0F, 1.0F - withdrawalResilience);
 
-        if (moveSpeed != null) {
-            moveSpeed.removeModifier(FATIGUE_SPEED_ID);
-        }
-
         if (physicalSeverity >= SymptomThresholds.FRAGILITY && maxHealth != null) {
             float healthPoints = (float) Math.floor(2.0 + AddictionMath.mapRange(physicalSeverity, 0.35F, 1.0F, 0.0F, 6.0F));
             float hpDecrease = (healthPoints / 2.0F) * Math.max(0.0F, 1.0F - healthStability);
@@ -72,10 +73,36 @@ public final class SymptomManager {
             }
         }
 
-        if (physicalSeverity >= SymptomThresholds.FATIGUE && moveSpeed != null) {
-            double amount = -AddictionMath.mapRange(physicalSeverity, 0.30F, 1.0F, 0.05F, 0.20F);
-            moveSpeed.addPermanentModifier(new AttributeModifier(FATIGUE_SPEED_ID, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        if (moveSpeed != null) {
+            double amount = physicalSeverity >= SymptomThresholds.FATIGUE
+                    ? -AddictionMath.mapRange(physicalSeverity, 0.30F, 1.0F, 0.05F, 0.20F)
+                    : 0.0D;
+            updateFatigueSpeedModifier(player, moveSpeed, amount);
         }
+    }
+
+    private static void updateFatigueSpeedModifier(ServerPlayer player, AttributeInstance moveSpeed, double amount) {
+        Double previous = APPLIED_FATIGUE_SPEED.get(player);
+        AttributeModifier existing = moveSpeed.getModifier(FATIGUE_SPEED_ID);
+        if (amount == 0.0D) {
+            if (previous != null || existing != null) {
+                moveSpeed.removeModifier(FATIGUE_SPEED_ID);
+                APPLIED_FATIGUE_SPEED.remove(player);
+            }
+            return;
+        }
+        if (previous != null && Math.abs(previous - amount) <= FATIGUE_EPSILON && existing != null) {
+            return;
+        }
+        if (existing != null) {
+            moveSpeed.removeModifier(FATIGUE_SPEED_ID);
+        }
+        moveSpeed.addPermanentModifier(new AttributeModifier(
+                FATIGUE_SPEED_ID,
+                amount,
+                AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+        ));
+        APPLIED_FATIGUE_SPEED.put(player, amount);
     }
 
     public static AddictionClientSnapshotPayload buildSnapshot(ServerPlayer player,

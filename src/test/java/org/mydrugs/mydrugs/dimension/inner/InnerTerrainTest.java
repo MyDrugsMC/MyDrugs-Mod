@@ -124,6 +124,17 @@ class InnerTerrainTest {
     }
 
     @Test
+    void pathStrengthIsZeroOutsideMaximumSpokeWander() {
+        long seed = InnerTerrain.seedForSlot(CENTER_X, CENTER_Z);
+        double distance = 640.0D;
+        for (DrugId drug : CuratedDrugChain.ORDER) {
+            double angle = InnerRegionMap.angleFor(drug) + InnerTerrain.spokeExclusionEnvelopeForTest() + 0.001D;
+            assertEquals(0.0D, InnerTerrain.pathStrengthForTest(seed, distance, angle, drug), 0.0D,
+                    "path strength must skip columns outside the spoke envelope for " + drug);
+        }
+    }
+
+    @Test
     void featureSamplerIsDeterministic() {
         long seed = InnerTerrain.seedForSlot(CENTER_X, CENTER_Z);
         InnerFeatureSample a = InnerFeatureSampler.sample(
@@ -295,8 +306,10 @@ class InnerTerrainTest {
         assertEquals(List.of(
                 "lake_details",
                 "lake_scenes",
+                "rivers",
                 "coast_drama",
                 "spikes",
+                "talus",
                 "hero_features",
                 "grove_trees",
                 "path_scenes",

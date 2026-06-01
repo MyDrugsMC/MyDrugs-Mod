@@ -53,6 +53,7 @@ public final class InnerDimensionSystem {
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         data.clearOverlayMarkers(island.owner());
+        InnerOverlayQueue.invalidateDecorated(island.owner());
         restoreSemanticMarkers(data, island);
         return InnerOverlayQueue.enqueueOwnerOverlayRefresh(island);
     }
@@ -66,6 +67,7 @@ public final class InnerDimensionSystem {
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         data.clearOverlayMarkers(island.owner());
+        InnerOverlayQueue.invalidateDecorated(island.owner());
         restoreSemanticMarkers(data, island);
         return InnerOverlayQueue.enqueueOwnerFullRecreate(island);
     }
@@ -79,6 +81,7 @@ public final class InnerDimensionSystem {
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         data.clearOverlayMarkers(island.owner());
+        InnerOverlayQueue.invalidateDecorated(island.owner());
         restoreSemanticMarkers(data, island);
         return InnerBurstRegenerator.recreateOwnerNow(level, island);
     }

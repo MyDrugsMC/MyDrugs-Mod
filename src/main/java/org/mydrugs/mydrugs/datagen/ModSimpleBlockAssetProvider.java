@@ -7,6 +7,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.dimension.InnerBlockIds;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -53,38 +54,16 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlockWithTexture(futures, cachedOutput, "therapist_desk", MyDrugs.MODID + ":block/therapist_desk");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "disc_scriber", MyDrugs.MODID + ":block/disc_scriber");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_jukebox", MyDrugs.MODID + ":block/recovery_jukebox");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "lucid_echo_node", "minecraft:block/amethyst_block");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "bitter_echo_node", "minecraft:block/tuff");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "calming_echo_node", "minecraft:block/moss_block");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "pressed_calm_node", "minecraft:block/calcite");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "fermented_memory_node", "minecraft:block/deepslate");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "redline_crystal_node", "minecraft:block/redstone_block");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "dream_residue_geode", "minecraft:block/sculk");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "overdrive_slag", "minecraft:block/blackstone");
-        saveCubeAllBlockWithTexture(futures, cachedOutput, "mycelial_insight_node", "minecraft:block/mycelium_top");
-        saveCrossPlantBlock(futures, cachedOutput, "breath_grass", MyDrugs.MODID + ":block/coffee_stage1");
-        saveCrossPlantBlock(futures, cachedOutput, "calming_fern", MyDrugs.MODID + ":block/cannabis_stage2");
-        saveCrossPlantBlock(futures, cachedOutput, "memory_reeds", MyDrugs.MODID + ":block/rye_stage3");
-        saveCrossPlantBlock(futures, cachedOutput, "redline_thorn", MyDrugs.MODID + ":block/coca_stage3");
-        saveCrossPlantBlock(futures, cachedOutput, "mycelial_root", MyDrugs.MODID + ":block/magic_mushroom");
-        saveCrossPlantBlock(futures, cachedOutput, "lucid_clover", MyDrugs.MODID + ":block/coffee_stage2");
-        saveCrossPlantBlock(futures, cachedOutput, "ash_grass", MyDrugs.MODID + ":block/tobacco_stage2");
-        saveCrossPlantBlock(futures, cachedOutput, "moss_breath_carpet", MyDrugs.MODID + ":block/cannabis_stage1");
-        saveCrossPlantBlock(futures, cachedOutput, "quartz_needlegrass", MyDrugs.MODID + ":block/coca_stage2");
-        saveCrossPlantBlock(futures, cachedOutput, "mycelial_threads", MyDrugs.MODID + ":block/magic_mushroom");
-        saveCrossPlantBlock(futures, cachedOutput, "dream_orchid", MyDrugs.MODID + ":block/third_eye_petal");
-        saveCrossPlantBlock(futures, cachedOutput, "spore_bloom", MyDrugs.MODID + ":block/magic_mushroom");
-        saveCrossPlantBlock(futures, cachedOutput, "bitter_sprout", MyDrugs.MODID + ":block/tobacco_stage1");
-        saveCrossPlantBlock(futures, cachedOutput, "redline_spark_bloom", MyDrugs.MODID + ":block/coca_stage3");
-        saveCrossPlantBlock(futures, cachedOutput, "calming_bush", MyDrugs.MODID + ":block/cannabis_stage3");
-        saveCrossPlantBlock(futures, cachedOutput, "memory_sedge", MyDrugs.MODID + ":block/rye_stage2");
-        saveCrossPlantBlock(futures, cachedOutput, "redline_bramble", MyDrugs.MODID + ":block/coca_stage4");
-        saveCrossPlantBlock(futures, cachedOutput, "crystal_shrub", MyDrugs.MODID + ":block/third_eye_petal");
-        saveCrossPlantBlock(futures, cachedOutput, "fermented_shrub", MyDrugs.MODID + ":block/malt_stage3");
-        saveCrossPlantBlock(futures, cachedOutput, "mud_reeds", MyDrugs.MODID + ":block/rye_stage4");
-        saveCrossPlantBlock(futures, cachedOutput, "memory_lotus", MyDrugs.MODID + ":block/rye_stage1");
-        saveCrossPlantBlock(futures, cachedOutput, "breath_lily", MyDrugs.MODID + ":block/coffee_stage1");
-        saveCrossPlantBlock(futures, cachedOutput, "prism_lotus", MyDrugs.MODID + ":block/third_eye_petal");
+        // Inner-dimension nodes & symbolic plants now use their OWN textures (mydrugs:block/<id>)
+        // instead of borrowing vanilla / other-plant textures. Missing PNGs are reported by
+        // InnerBlockTextureReportTest so they can be drawn. Driven from the shared id lists so the
+        // datagen and the test never drift.
+        for (String node : InnerBlockIds.NODE_BLOCKS) {
+            saveCubeAllBlock(futures, cachedOutput, node);
+        }
+        for (String plant : InnerBlockIds.SYMBOLIC_PLANTS) {
+            saveCrossPlantBlock(futures, cachedOutput, plant, MyDrugs.MODID + ":block/" + plant);
+        }
 
         saveHorizontalBlockState(futures, cachedOutput, "advanced_furnace");
         saveHorizontalBlockState(futures, cachedOutput, "sieve");

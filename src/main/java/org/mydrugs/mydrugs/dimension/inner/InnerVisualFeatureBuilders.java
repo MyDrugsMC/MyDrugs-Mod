@@ -10,8 +10,10 @@ public final class InnerVisualFeatureBuilders {
     private static final List<String> BUILDER_ORDER = List.of(
             "lake_details",
             "lake_scenes",
+            "rivers",
             "coast_drama",
             "spikes",
+            "talus",
             "hero_features",
             "grove_trees",
             "path_scenes",
@@ -27,8 +29,10 @@ public final class InnerVisualFeatureBuilders {
     public static void placeInitialFeatures(ChunkAccess chunk, InnerChunkSampleCache cache) {
         InnerLakeBuilder.placeInitialLakeDetails(chunk, cache);
         InnerLakeSceneBuilder.placeInitialLakeScenes(chunk, cache);
+        InnerRiverBuilder.placeInitialRivers(chunk, cache);
         InnerCoastDramaBuilder.placeInitialCoastDrama(chunk, cache);
         InnerSpikeBuilder.placeInitialSpikes(chunk, cache);
+        InnerTalusBuilder.placeInitialTalus(chunk, cache);
         InnerHeroFeatureBuilder.placeInitialHeroFeatures(chunk, cache);
         InnerTreeBuilder.placeInitialTrees(chunk, cache);
         InnerPathSceneBuilder.placeInitialPathScenes(chunk, cache);
@@ -46,8 +50,10 @@ public final class InnerVisualFeatureBuilders {
     ) {
         InnerLakeBuilder.placeOverlayLakeDetails(level, chunkPos, cache, count);
         InnerLakeSceneBuilder.placeOverlayLakeScenes(level, chunkPos, cache, count);
+        InnerRiverBuilder.placeOverlayRivers(level, chunkPos, cache, count);
         InnerCoastDramaBuilder.placeOverlayCoastDrama(level, chunkPos, cache, count);
         InnerSpikeBuilder.placeOverlaySpikes(level, chunkPos, cache, count);
+        InnerTalusBuilder.placeOverlayTalus(level, chunkPos, cache, count);
         InnerHeroFeatureBuilder.placeOverlayHeroFeatures(level, chunkPos, cache, count);
         InnerTreeBuilder.placeOverlayTrees(level, chunkPos, cache, count);
         InnerPathSceneBuilder.placeOverlayPathScenes(level, chunkPos, cache, count);

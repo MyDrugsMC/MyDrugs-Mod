@@ -13,6 +13,11 @@ public final class InnerTerrain {
     private static final long WARP_SALT_Z = 0x9E77_C4A1L;
     private static final long ACCENT_SALT = 0x00AC_CE57L;
 
+    // Spoke wandering: the corridor's angular offset noise + amplitude (radians) + half-width.
+    private static final long SPOKE_SALT = 0x53_504F_4B45L;
+    private static final double SPOKE_WANDER = 0.16D;
+    private static final double SPOKE_TOLERANCE = 0.030D;
+
     // Optional per-pass Sample memoization for single-threaded server placement passes.
     private static final ThreadLocal<java.util.Map<Long, Sample>> PASS_CACHE = new ThreadLocal<>();
 
@@ -56,9 +61,16 @@ public final class InnerTerrain {
     private static Sample computeSample(int centerX, int centerZ, int worldX, int worldZ) {
         long seed = seedForSlot(centerX, centerZ);
 
-        // Warp before polar math so distance and angle features inherit organic wandering.
-        double warpX = InnerNoise.fbm(seed + WARP_SALT_X, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE;
-        double warpZ = InnerNoise.fbm(seed + WARP_SALT_Z, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE;
+        // Warp before polar math so distance and angle features inherit organic wandering — but
+        // mask the warp to zero near the centre so it can never deform the central platform into a
+        // lopsided disc. The mask ramps from 0 at CORE_RADIUS to full one-and-a-half radii out.
+        double rawDx = worldX - centerX;
+        double rawDz = worldZ - centerZ;
+        double unwarpedDistance = Math.sqrt(rawDx * rawDx + rawDz * rawDz);
+        double warpMask = InnerNoise.clamp01(
+                (unwarpedDistance - InnerDimensionConstants.CORE_RADIUS) / (InnerDimensionConstants.CORE_RADIUS * 1.5D));
+        double warpX = InnerNoise.fbm(seed + WARP_SALT_X, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE * warpMask;
+        double warpZ = InnerNoise.fbm(seed + WARP_SALT_Z, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE * warpMask;
         double sampleX = worldX + warpX;
         double sampleZ = worldZ + warpZ;
 
@@ -97,7 +109,7 @@ public final class InnerTerrain {
         double scarStrength = scarStrength(seed, sampleX, sampleZ, distance) * scarCarve;
         density -= scarStrength * 78.0D;
 
-        double pathStrength = pathStrength(distance, angle, drugId);
+        double pathStrength = pathStrength(seed, distance, angle, drugId);
         if (pathStrength > 0.0D) {
             density += pathStrength * 84.0D;
         }
@@ -119,9 +131,12 @@ public final class InnerTerrain {
         double secondarySilhouette = silhouette(secondaryProfile.drugId(), seed, worldX, worldZ);
         double localSilhouette = InnerNoise.lerp(primarySilhouette, secondarySilhouette, blendW);
         double cliffStrength = InnerNoise.clamp01(slope * 0.55D + cliffBreak / 72.0D);
-        double baseHeight = shaped * (20.0D + silhouetteScale * 10.0D);
+        // Verticality where it's earned: amplify height on genuinely steep columns so dramatic zones
+        // get dramatic, while flats (low cliffStrength -> ~1.0) stay calm rather than globally noisy.
+        double verticality = 1.0D + cliffStrength * 0.9D;
+        double baseHeight = shaped * (20.0D + silhouetteScale * 10.0D) * verticality;
         double detail = InnerNoise.ridged(seed + 31L, worldX, worldZ, 72.0D, 3)
-                * (3.0D + ridgeScale * 7.0D) * (0.25D + 0.75D * slope);
+                * (3.0D + ridgeScale * 7.0D) * (0.25D + 0.75D * slope) * verticality;
         double topYd = InnerDimensionConstants.BASE_Y + baseHeight + detail + localSilhouette + heightBias;
         int naturalTopY = (int) Math.round(topYd);
         int topY = naturalTopY;
@@ -132,11 +147,20 @@ public final class InnerTerrain {
         if (satelliteLand && !mainLand) {
             topY = satellite.topY();
         }
+        double rimEnd = InnerDimensionConstants.CORE_RADIUS + 48.0D;
         if (distance < InnerDimensionConstants.CORE_RADIUS) {
+            // Flat sanctuary clearing — keep usable flat ground + path semantics for the builder.
             topY = InnerDimensionConstants.BASE_Y + 5;
             path = true;
             pathStrength = Math.max(pathStrength, 1.0D);
             scarStrength = 0.0D;
+        } else if (distance < rimEnd && !path && !(satelliteLand && !mainLand)) {
+            // Gentle rim: ease the flat core height out to natural terrain rather than a vertical
+            // cliff, so the central platform reads as a coherent place with an organic edge.
+            double t = smoothstep01((distance - InnerDimensionConstants.CORE_RADIUS) / (rimEnd - InnerDimensionConstants.CORE_RADIUS));
+            double coreFlatY = InnerDimensionConstants.BASE_Y + 5;
+            topY = (int) Math.round(InnerNoise.lerp(coreFlatY, (double) naturalTopY, t));
+            scarStrength = scarStrength * t; // scars fade in across the rim, never abut the clearing
         }
 
         InnerFeatureSample features = InnerFeatureSampler.sample(
@@ -239,6 +263,26 @@ public final class InnerTerrain {
                 && transitionScatter(sample, worldX, worldZ, 0.18D + sample.transitionStrength() * 0.18D)) {
             return InnerTransitionPalette.surfaceAccent(sample);
         }
+        // Shape- and moisture-aware surface so terrain form is legible. Runs only at the very
+        // surface, after the more specific path/scar/shore/transition cases above, and keeps the
+        // per-drug palette as the base (deep/subsurface are the region's own rock/soil tints).
+        if (y == sample.topY()) {
+            if (sample.cliffStrength() > 0.55D || sample.slopeHint() > 0.62D) {
+                // Steep faces expose strata/rock instead of topsoil.
+                return profile.deepBlock();
+            }
+            if (sample.topY() >= InnerDimensionConstants.BASE_Y + 30
+                    && sample.wetlandStrength() < 0.20D
+                    && sample.shoreStrength() < 0.20D) {
+                // Bare, lighter cap on the highest dry peaks.
+                return profile.subsurfaceBlock();
+            }
+            if (sample.wetlandStrength() > 0.35D) {
+                // Lush low ground biases toward the region accent (mossy/verdant tint).
+                return profile.accentBlock();
+            }
+        }
+
         // Scatter accent blocks through the surface band to break up flat single-material areas.
         if (y == sample.topY() || y >= sample.topY() - sample.surfaceDepth()) {
             boolean nearTop = y >= sample.topY() - 1;
@@ -313,6 +357,12 @@ public final class InnerTerrain {
         };
     }
 
+    /** Smoothstep over [0,1] with clamping — used to ease the core platform out to natural terrain. */
+    private static double smoothstep01(double x) {
+        double t = InnerNoise.clamp01(x);
+        return t * t * (3.0D - 2.0D * t);
+    }
+
     /** Compresses mid elevations into plateaus while preserving valley and cliff extremes. */
     private static double elevationSpline(double n) {
         double clamped = Math.max(-1.0D, Math.min(1.0D, n));
@@ -346,24 +396,42 @@ public final class InnerTerrain {
         return InnerNoise.clamp01((combined - threshold) / (1.0D - threshold));
     }
 
-    private static double pathStrength(double distance, double angle, DrugId drugId) {
+    private static double pathStrength(long seed, double distance, double angle, DrugId drugId) {
         if (distance < InnerDimensionConstants.CORE_RADIUS) {
             return 1.0D;
         }
-        double centerRing = ringStrength(distance, InnerDimensionConstants.CENTER_RING_RADIUS, 9.0D);
-        double midRing = ringStrength(distance, InnerDimensionConstants.MID_RING_RADIUS, 8.0D);
-        double outerRing = ringStrength(distance, InnerDimensionConstants.OUTER_RING_RADIUS, 7.0D);
-        double radial = 0.0D;
+        // A single wandering spoke per region — no concentric ring roads. The corridor snakes via a
+        // low-frequency, distance-varying angular offset, but the wander tapers to zero at the
+        // shrine radius so the raised route always reconnects to the exact landmark (reachability),
+        // and is zero at the centre.
         double regionAngle = InnerRegionMap.angleFor(drugId);
-        double angular = InnerRegionMap.angularDistance(angle, regionAngle);
-        if (angular < 0.024D && distance > 78.0D && distance < 1170.0D) {
-            radial = 1.0D - angular / 0.024D;
+        double rawAngular = InnerRegionMap.angularDistance(angle, regionAngle);
+        if (rawAngular > spokeExclusionEnvelope()) {
+            return 0.0D;
         }
-        return Math.max(Math.max(centerRing, midRing), Math.max(outerRing, radial));
+        double landmarkRadius = InnerRegionMap.landmarkRadiusFor(drugId);
+        double progress = InnerNoise.clamp01(distance / landmarkRadius);
+        double taper = Math.sin(Math.PI * progress);
+        double wander = InnerNoise.fbm(seed + SPOKE_SALT, distance, 0.0D, 220.0D, 3) * SPOKE_WANDER * taper;
+        double target = regionAngle + wander;
+        double angular = InnerRegionMap.angularDistance(angle, target);
+        if (angular < SPOKE_TOLERANCE && distance > 78.0D && distance < 1170.0D) {
+            // Feathered edges (smoothstep) so the corridor isn't laser-cut.
+            return smoothstep01(1.0D - angular / SPOKE_TOLERANCE);
+        }
+        return 0.0D;
     }
 
-    private static double ringStrength(double distance, double ringRadius, double halfWidth) {
-        return InnerNoise.clamp01(1.0D - Math.abs(distance - ringRadius) / halfWidth);
+    static double pathStrengthForTest(long seed, double distance, double angle, DrugId drugId) {
+        return pathStrength(seed, distance, angle, drugId);
+    }
+
+    static double spokeExclusionEnvelopeForTest() {
+        return spokeExclusionEnvelope();
+    }
+
+    private static double spokeExclusionEnvelope() {
+        return SPOKE_TOLERANCE + SPOKE_WANDER;
     }
 
     private static Satellite satellite(long seed, int centerX, int centerZ, double worldX, double worldZ) {
@@ -386,19 +454,28 @@ public final class InnerTerrain {
 
     private static SatelliteCenter[] satelliteCenters(long seed, int centerX, int centerZ) {
         return SATELLITE_CENTERS.computeIfAbsent(seed, s -> {
-            SatelliteCenter[] arr = new SatelliteCenter[9];
+            // Variable count and heavy per-index jitter so satellites never form a visible ring.
+            int count = 6 + (int) Math.floor(unit(InnerNoise.value(s + 89L, 1, 1)) * 6.0D); // 6..11
+            SatelliteCenter[] arr = new SatelliteCenter[count];
             for (int i = 0; i < arr.length; i++) {
-                double angle = (i + 0.35D) / 9.0D * Math.PI * 2.0D;
-                double radius = 1320.0D + InnerNoise.value(s + 91L, i, 0) * 150.0D;
+                // Uniform slot plus jitter up to a full slot width, so the angular spacing scatters.
+                double slot = (i + 0.5D) / count * Math.PI * 2.0D;
+                double angle = slot + InnerNoise.value(s + 95L, i, 7) * (Math.PI / count);
+                double radius = 1180.0D + unit(InnerNoise.value(s + 91L, i, 0)) * 360.0D; // 1180..1540
                 int sx = centerX + (int) Math.round(Math.cos(angle) * radius);
                 int sz = centerZ + (int) Math.round(Math.sin(angle) * radius);
-                double size = 82.0D + InnerNoise.value(s + 93L, i, 0) * 36.0D;
-                int topY = InnerDimensionConstants.BASE_Y + 22
-                        + (int) Math.round(InnerNoise.value(s + 97L, i, 0) * 16.0D);
+                double size = 64.0D + unit(InnerNoise.value(s + 93L, i, 0)) * 72.0D; // 64..136
+                int topY = InnerDimensionConstants.BASE_Y + 18
+                        + (int) Math.round(unit(InnerNoise.value(s + 97L, i, 0)) * 26.0D);
                 arr[i] = new SatelliteCenter(sx, sz, size, topY);
             }
             return arr;
         });
+    }
+
+    /** Maps a roughly [-1,1] noise value into [0,1]. */
+    private static double unit(double signed) {
+        return InnerNoise.clamp01((signed + 1.0D) * 0.5D);
     }
 
     private record SatelliteCenter(int x, int z, double size, int topY) {

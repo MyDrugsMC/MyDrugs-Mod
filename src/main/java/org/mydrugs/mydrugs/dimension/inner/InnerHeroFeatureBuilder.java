@@ -9,6 +9,9 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerHeroFeatureBuilder {
+    // Demoted from 420: hero set-pieces are rarer now so the world reads as natural, not staged.
+    private static final long HERO_BASE_WEIGHT = 170L;
+
     private InnerHeroFeatureBuilder() {
     }
 
@@ -59,10 +62,17 @@ public final class InnerHeroFeatureBuilder {
                         || (scene.preserveOpenView() && scene.type() != InnerSceneType.HERO_TREE_GROVE)) {
                     continue;
                 }
+                // Bias hero set-pieces off the routes so they feel stumbled-upon, not staged along
+                // the way to a shrine.
+                if (sample.path()
+                        || sample.pathStrength() > 0.25D
+                        || scene.type() == InnerSceneType.LANDMARK_APPROACH) {
+                    continue;
+                }
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x7EC1_11ADL
                         ^ (long) worldZ * 0x45D9_F3B1L);
-                if ((hash & 4095L) >= 420L * scene.heroFeatureMultiplier()) {
+                if ((hash & 4095L) >= HERO_BASE_WEIGHT * scene.heroFeatureMultiplier()) {
                     continue;
                 }
                 buildHero(worldX, sample.topY() + 1, worldZ, sample.chooseFeatureDrug(hash), hash, setter);

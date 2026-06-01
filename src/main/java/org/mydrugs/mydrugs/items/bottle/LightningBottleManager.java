@@ -21,6 +21,9 @@ import java.util.UUID;
 public final class LightningBottleManager {
     private static final float STRIKE_CHANCE_PER_TICK = 0.05F;
     private static final long COOLDOWN_TICKS = 20L;
+    private static final long CHECK_INTERVAL_TICKS = 5L;
+    private static final float STRIKE_CHANCE_PER_CHECK =
+            1.0F - (float) Math.pow(1.0F - STRIKE_CHANCE_PER_TICK, CHECK_INTERVAL_TICKS);
 
     private static final Map<UUID, Long> COOLDOWNS = new HashMap<>();
 
@@ -29,18 +32,18 @@ public final class LightningBottleManager {
 
     public static void tick(ServerPlayer player) {
         if (player.isSpectator()) return;
+        InteractionHand hand = findThunderBottleHand(player);
+        if (hand == null) return;
         ServerLevel level = player.level();
-        if (!level.isThundering()) return;
         long now = level.getGameTime();
+        if ((now + player.getId()) % CHECK_INTERVAL_TICKS != 0L) return;
+        if (!level.isThundering()) return;
         Long last = COOLDOWNS.get(player.getUUID());
         if (last != null && now - last < COOLDOWN_TICKS) return;
         BlockPos head = player.blockPosition().above();
         if (!level.canSeeSky(head)) return;
 
-        if (level.random.nextFloat() >= STRIKE_CHANCE_PER_TICK) return;
-
-        InteractionHand hand = findThunderBottleHand(player);
-        if (hand == null) return;
+        if (level.random.nextFloat() >= STRIKE_CHANCE_PER_CHECK) return;
 
         // Strike lightning at the player
         LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);

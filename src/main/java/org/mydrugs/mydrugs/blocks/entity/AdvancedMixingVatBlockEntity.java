@@ -41,6 +41,7 @@ import org.mydrugs.mydrugs.machine.transfer.GasTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.machine.transfer.TransferLockSuppressor;
 import org.mydrugs.mydrugs.menu.AdvancedMixingVatMenu;
+import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipeInput;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatFluidStack;
@@ -52,6 +53,7 @@ import java.util.Optional;
 
 public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements net.minecraft.world.MenuProvider, MachineStatusProvider {
     public static final int RECIPE_ITEM_SLOT_COUNT = 4;
+    private static final int STATE_SYNC_INTERVAL_TICKS = 5;
 
     public static final int SLOT_RECIPE_0 = 0;
     public static final int SLOT_RECIPE_1 = 1;
@@ -200,8 +202,6 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                 be.outputTank
         );
 
-        // Keep your current recipe logic here unchanged.
-        // ---------------------------------------------
         Optional<ResolvedRecipe> match = be.findMatchingRecipe();
 
         if (match.isEmpty()) {
@@ -213,7 +213,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             }
 
             if (changed) {
-                be.sync();
+                be.syncState();
             }
             return;
         }
@@ -229,7 +229,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             }
 
             if (changed) {
-                be.sync();
+                be.syncState();
             }
             return;
         }
@@ -247,16 +247,15 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         changed = true;
 
         if (be.progress >= be.maxProgress) {
-            Optional<ResolvedRecipe> verify = be.findMatchingRecipe();
-            if (verify.isPresent() && be.canAcceptOutput(verify.get().result())) {
-                be.finishResolvedRecipe(verify.get());
+            if (be.canAcceptOutput(recipe.result())) {
+                be.finishResolvedRecipe(recipe);
             }
             be.progress = 0;
             changed = true;
         }
 
         if (changed) {
-            be.sync();
+            be.syncState();
         }
     }
 
@@ -463,6 +462,10 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         MachineSync.sync(this);
     }
 
+    private void syncState() {
+        MachineSync.syncIfDue(this, STATE_SYNC_INTERVAL_TICKS);
+    }
+
     public ItemStacksResourceHandler getMenuItemHandler() {
         return this.itemHandler;
     }
@@ -594,11 +597,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             return Optional.empty();
         }
 
-        for (RecipeHolder<MixingVatRecipe> holder : serverLevel.recipeAccess().getRecipes()
-                .stream()
-                .filter(pred -> pred.value() instanceof MixingVatRecipe)
-                .map(pred -> (RecipeHolder<MixingVatRecipe>) pred)
-                .toList()) {
+        for (RecipeHolder<MixingVatRecipe> holder : serverLevel.recipeAccess()
+                .recipeMap()
+                .byType(ModRecipeTypes.MIXING_VAT.get())) {
             MixingVatRecipe recipe = holder.value();
 
             if (recipe.resultFluid().isEmpty()) {
@@ -738,11 +739,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                 {c, b, a}
         };
 
-        for (RecipeHolder<AdvancedMixingVatRecipe> holder : serverLevel.recipeAccess().getRecipes()
-                .stream()
-                .filter(pred -> pred.value() instanceof AdvancedMixingVatRecipe)
-                .map(pred -> (RecipeHolder<AdvancedMixingVatRecipe>) pred)
-                .toList()) {
+        for (RecipeHolder<AdvancedMixingVatRecipe> holder : serverLevel.recipeAccess()
+                .recipeMap()
+                .byType(ModRecipeTypes.ADVANCED_MIXING_VAT.get())) {
             AdvancedMixingVatRecipe recipe = holder.value();
 
             for (FluidStack[] permutation : permutations) {

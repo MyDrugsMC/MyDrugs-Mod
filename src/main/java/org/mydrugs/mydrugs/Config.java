@@ -272,6 +272,9 @@ public class Config {
         public final ModConfigSpec.DoubleValue overdoseThresholdMultiplier;
         public final ModConfigSpec.DoubleValue safeZoneRecoveryMultiplier;
         public final ModConfigSpec.IntValue recoveryRoomScanRadius;
+        public final ModConfigSpec.IntValue recoveryEnvironmentCacheTicks;
+        public final ModConfigSpec.IntValue socialReliefCacheTicks;
+        public final ModConfigSpec.IntValue headphonesInventoryCacheTicks;
         public final ModConfigSpec.IntValue recoveryRoomMaxVolume;
         public final ModConfigSpec.IntValue recoveryRoomFragileThreshold;
         public final ModConfigSpec.IntValue recoveryRoomRestingThreshold;
@@ -287,6 +290,7 @@ public class Config {
         public final ModConfigSpec.BooleanValue allowDreamResidueAsEngineFuel;
         public final ModConfigSpec.BooleanValue allowDebugActionPayloads;
         public final ModConfigSpec.BooleanValue enablePipeDebugCounters;
+        public final ModConfigSpec.IntValue pipeTickInterval;
 
         private Server(ModConfigSpec.Builder builder) {
             builder.push("gameplay");
@@ -306,6 +310,16 @@ public class Config {
             overdoseThresholdMultiplier = builder.defineInRange("overdoseThresholdMultiplier", 1.0D, 0.1D, 100.0D);
             safeZoneRecoveryMultiplier = builder.defineInRange("safeZoneRecoveryMultiplier", 1.0D, 0.0D, 100.0D);
             recoveryRoomScanRadius = builder.defineInRange("recoveryRoomScanRadius", 12, 4, 24);
+            recoveryEnvironmentCacheTicks = builder
+                    .comment("Server ticks to reuse a player's recovery environment scan while they stand still.",
+                            "This throttles the expensive recovery-room anchor cube scan; movement or dimension changes still refresh sooner.")
+                    .defineInRange("recoveryEnvironmentCacheTicks", 20, 1, 100);
+            socialReliefCacheTicks = builder
+                    .comment("Server ticks to reuse nearby companion/entity counts for passive recovery calculations.")
+                    .defineInRange("socialReliefCacheTicks", 20, 1, 100);
+            headphonesInventoryCacheTicks = builder
+                    .comment("Server ticks to reuse recovery inventory checks such as headphones/diary/food presence.")
+                    .defineInRange("headphonesInventoryCacheTicks", 20, 1, 100);
             recoveryRoomMaxVolume = builder.defineInRange("recoveryRoomMaxVolume", 220, 48, 512);
             recoveryRoomFragileThreshold = builder.defineInRange("recoveryRoomFragileThreshold", 25, 1, 100);
             recoveryRoomRestingThreshold = builder.defineInRange("recoveryRoomRestingThreshold", 45, 1, 100);
@@ -346,6 +360,9 @@ public class Config {
             enablePipeDebugCounters = builder
                     .comment("Log pipe network transfer counters once per minute. Intended for development and server diagnostics.")
                     .define("enablePipeDebugCounters", false);
+            pipeTickInterval = builder
+                    .comment("Server tick interval for pipe transfer work. Transfer amounts are scaled by this interval to preserve approximate throughput.")
+                    .defineInRange("pipeTickInterval", 4, 1, 20);
             builder.pop();
         }
     }

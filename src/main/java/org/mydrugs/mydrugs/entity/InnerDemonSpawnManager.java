@@ -32,8 +32,11 @@ public final class InnerDemonSpawnManager {
     // dimension (distinct from the bad-trip path above). Per-player cooldown in ticks; entries are
     // dropped on overworld return and cleared on server stop (see clearInnerAmbientState).
     private static final Map<UUID, Integer> INNER_AMBIENT_COOLDOWN = new ConcurrentHashMap<>();
+    private static final Map<UUID, DemonCountCache> DEMON_COUNT_CACHE = new ConcurrentHashMap<>();
     private static final int INNER_AMBIENT_GRACE_TICKS = 20 * 30;
     private static final double INNER_AMBIENT_DANGER_GATE = 0.45D;
+    private static final int DEMON_COUNT_CACHE_TICKS = 10;
+    private static final double DEMON_COUNT_MOVE_REFRESH_DISTANCE_SQR = 64.0D;
 
     private InnerDemonSpawnManager() {
     }
@@ -49,12 +52,14 @@ public final class InnerDemonSpawnManager {
     public static void clearInnerAmbient(ServerPlayer player) {
         if (player != null) {
             INNER_AMBIENT_COOLDOWN.remove(player.getUUID());
+            DEMON_COUNT_CACHE.remove(player.getUUID());
         }
     }
 
     /** Drop all ambient cooldown state. Call on server stop to avoid leaking across world loads. */
     public static void clearInnerAmbientState() {
         INNER_AMBIENT_COOLDOWN.clear();
+        DEMON_COUNT_CACHE.clear();
     }
 
     /**
@@ -91,16 +96,18 @@ public final class InnerDemonSpawnManager {
         if (danger < INNER_AMBIENT_DANGER_GATE) {
             return;
         }
-        if (countBoundToPlayer(level, player) >= MAX_BOUND_TO_PLAYER || countNearby(level, player) >= MAX_NEARBY) {
-            return;
-        }
         float chance = (float) Mth.clamp((danger - INNER_AMBIENT_DANGER_GATE) * 0.6D, 0.0D, 0.5D);
         if (player.getRandom().nextFloat() >= chance) {
+            return;
+        }
+        DemonCounts counts = demonCounts(level, player);
+        if (counts.boundToPlayer() >= MAX_BOUND_TO_PLAYER || counts.nearby() >= MAX_NEARBY) {
             return;
         }
         BlockPos spawnPos = findSpawnPos(level, player);
         if (spawnPos != null) {
             spawn(level, player, spawnPos, false, false);
+            DEMON_COUNT_CACHE.remove(player.getUUID());
         }
     }
 
@@ -135,15 +142,16 @@ public final class InnerDemonSpawnManager {
             return;
         }
 
-        int boundCount = countBoundToPlayer(level, player);
-        int nearbyCount = countNearby(level, player);
-
         if (state.firstDemonSpawnDelay > 0) {
             state.firstDemonSpawnDelay--;
             if (state.firstDemonSpawnDelay <= 0) {
                 state.firstDemonSpawnDelay = -1;
+                DemonCounts counts = demonCounts(level, player);
+                int boundCount = counts.boundToPlayer();
+                int nearbyCount = counts.nearby();
                 if (boundCount < MAX_BOUND_TO_PLAYER && nearbyCount < MAX_NEARBY) {
                     spawnForBadTrip(level, player);
+                    DEMON_COUNT_CACHE.remove(player.getUUID());
                     state.nextDemonSpawnAttempt = nextAttemptDelay(player, violent);
                     return;
                 }
@@ -163,6 +171,9 @@ public final class InnerDemonSpawnManager {
             return;
         }
 
+        DemonCounts counts = demonCounts(level, player);
+        int boundCount = counts.boundToPlayer();
+        int nearbyCount = counts.nearby();
         if (boundCount >= MAX_BOUND_TO_PLAYER || nearbyCount >= MAX_NEARBY) {
             return;
         }
@@ -172,6 +183,7 @@ public final class InnerDemonSpawnManager {
         for (int i = 0; i < allowed; i++) {
             spawnForBadTrip(level, player);
         }
+        DEMON_COUNT_CACHE.remove(player.getUUID());
     }
 
     public static boolean spawnDebug(ServerPlayer player, boolean droppable) {
@@ -254,6 +266,22 @@ public final class InnerDemonSpawnManager {
         return !fluid.is(FluidTags.LAVA);
     }
 
+    private static DemonCounts demonCounts(ServerLevel level, ServerPlayer player) {
+        UUID id = player.getUUID();
+        long now = level.getGameTime();
+        BlockPos pos = player.blockPosition();
+        DemonCountCache cached = DEMON_COUNT_CACHE.get(id);
+        if (cached != null && cached.validFor(level, pos, now)) {
+            return cached.counts;
+        }
+        DemonCounts counts = new DemonCounts(
+                countBoundToPlayer(level, player),
+                countNearby(level, player)
+        );
+        DEMON_COUNT_CACHE.put(id, new DemonCountCache(level.dimension(), pos.immutable(), now, counts));
+        return counts;
+    }
+
     private static int countBoundToPlayer(ServerLevel level, ServerPlayer player) {
         AABB area = new AABB(player.blockPosition()).inflate(96.0D);
         return level.getEntitiesOfClass(InnerDemonEntity.class, area, demon -> demon.isOwnedBy(player.getUUID())).size();
@@ -269,5 +297,21 @@ public final class InnerDemonSpawnManager {
         int min = violent ? 20 * 15 : 20 * 20;
         int random = violent ? 20 * 10 : 20 * 10;
         return min + player.getRandom().nextInt(random + 1);
+    }
+
+    private record DemonCounts(int boundToPlayer, int nearby) {
+    }
+
+    private record DemonCountCache(
+            net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension,
+            BlockPos pos,
+            long gameTime,
+            DemonCounts counts
+    ) {
+        boolean validFor(ServerLevel level, BlockPos currentPos, long now) {
+            return dimension.equals(level.dimension())
+                    && now - gameTime < DEMON_COUNT_CACHE_TICKS
+                    && pos.distSqr(currentPos) < DEMON_COUNT_MOVE_REFRESH_DISTANCE_SQR;
+        }
     }
 }

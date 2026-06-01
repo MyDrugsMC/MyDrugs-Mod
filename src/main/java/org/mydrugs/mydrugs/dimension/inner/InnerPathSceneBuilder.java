@@ -11,6 +11,10 @@ import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 
 final class InnerPathSceneBuilder {
+    // Demoted (was 0.10 / 0.08): keep the route legible but less manicured.
+    private static final double PATH_DETAIL_CHANCE = 0.07D;
+    private static final double PATH_CORE_BONUS_CHANCE = 0.05D;
+
     private InnerPathSceneBuilder() {
     }
 
@@ -94,9 +98,9 @@ final class InnerPathSceneBuilder {
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x4B1D_2271L
                         ^ (long) worldZ * 0x2925_39EFL);
-                double chance = 0.10D * scene.pathDetailMultiplier();
+                double chance = PATH_DETAIL_CHANCE * scene.pathDetailMultiplier();
                 if (sample.pathStrength() > 0.78D) {
-                    chance += 0.08D;
+                    chance += PATH_CORE_BONUS_CHANCE;
                 }
                 if ((hash & 1023L) < chance * 1024.0D && decorations < 10) {
                     decorateEdge(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, scene, hash, setter);

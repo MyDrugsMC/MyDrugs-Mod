@@ -8,6 +8,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
 final class InnerTransitionSceneBuilder {
+    // Demoted (was 0.24 / 0.32): the palette dither in stateFor now does most of the edge work.
+    private static final double TRANSITION_BASE_CHANCE = 0.10D;
+    private static final double TRANSITION_STRENGTH_CHANCE = 0.16D;
+
     private InnerTransitionSceneBuilder() {
     }
 
@@ -55,7 +59,9 @@ final class InnerTransitionSceneBuilder {
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x19D3_55A7L
                         ^ (long) worldZ * 0x68E7_1D31L);
-                if ((hash & 1023L) > (0.24D + sample.transitionStrength() * 0.32D) * 1024.0D) {
+                // Demoted: region edges are handled mostly by the dithered palette blend in
+                // InnerTerrain.stateFor; this standalone cluster is now a rare accent on top.
+                if ((hash & 1023L) > (TRANSITION_BASE_CHANCE + sample.transitionStrength() * TRANSITION_STRENGTH_CHANCE) * 1024.0D) {
                     continue;
                 }
                 buildTransitionCluster(worldX, worldZ, sample, hash, setter);

@@ -52,6 +52,9 @@ public final class HeadphonesItem extends Item {
     }
 
     public static void tickPendingClick(ServerPlayer player) {
+        if (PENDING_CLICKS.isEmpty()) {
+            return;
+        }
         PendingClick pending = PENDING_CLICKS.get(player.getUUID());
         if (pending == null || player.level().getGameTime() < pending.deadlineTick()) {
             return;

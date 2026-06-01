@@ -39,4 +39,14 @@ class InnerOverlayQueueDedupTest {
     void destructiveAndOverlayQueuesStaySeparate() {
         assertTrue(InnerOverlayQueue.destructiveQueueIsSeparateFromOverlayQueueForTest());
     }
+
+    @Test
+    void decoratedLoadGuardSkipsAndInvalidates() {
+        assertTrue(InnerOverlayQueue.decoratedLoadGuardSkipsAndInvalidatesForTest());
+    }
+
+    @Test
+    void decoratedLoadGuardIsBounded() {
+        assertTrue(InnerOverlayQueue.decoratedLoadGuardIsBoundedForTest());
+    }
 }

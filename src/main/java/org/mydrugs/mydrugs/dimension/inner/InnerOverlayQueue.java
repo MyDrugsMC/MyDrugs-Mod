@@ -28,6 +28,8 @@ public final class InnerOverlayQueue {
     private static final Map<UUID, QueueState> OVERLAY_QUEUES = new LinkedHashMap<>();
     private static final Map<UUID, QueueState> RECREATE_QUEUES = new LinkedHashMap<>();
     private static final Map<UUID, InnerGenerationMetrics> LAST_METRICS = new LinkedHashMap<>();
+    private static final int DECORATED_CHUNK_CAP_PER_OWNER = 8_192;
+    private static final Map<UUID, LinkedHashMap<Long, Boolean>> DECORATED_CHUNKS = new LinkedHashMap<>();
 
     private InnerOverlayQueue() {
     }
@@ -86,6 +88,7 @@ public final class InnerOverlayQueue {
         if (island == null || island.owner() == null) {
             return InnerRefreshJob.empty();
         }
+        invalidateDecorated(island.owner());
         ChunkCollector chunks = new ChunkCollector();
         addRecreateChunks(chunks, island);
         boolean replaced = RECREATE_QUEUES.put(island.owner(), new QueueState(chunks.chunks(), chunks.keys(), QueueMode.FULL_RECREATE)) != null;
@@ -100,9 +103,18 @@ public final class InnerOverlayQueue {
         if (island == null || island.owner() == null || chunkPos == null) {
             return;
         }
+        if (!shouldQueueLoadedChunk(island.owner(), chunkKey(chunkPos))) {
+            return;
+        }
         ChunkCollector chunks = new ChunkCollector();
         chunks.add(chunkPos);
         appendQueue(island.owner(), chunks);
+    }
+
+    public static void invalidateDecorated(UUID owner) {
+        if (owner != null) {
+            DECORATED_CHUNKS.remove(owner);
+        }
     }
 
     /**
@@ -115,6 +127,7 @@ public final class InnerOverlayQueue {
         OVERLAY_QUEUES.clear();
         RECREATE_QUEUES.clear();
         LAST_METRICS.clear();
+        DECORATED_CHUNKS.clear();
         org.mydrugs.mydrugs.entity.InnerDemonSpawnManager.clearInnerAmbientState();
     }
 
@@ -228,8 +241,14 @@ public final class InnerOverlayQueue {
                     : chunksLeftThisTick;
             while (queueBudget > 0 && !state.chunks.isEmpty()) {
                 ChunkPos chunkPos = state.pollNext();
-                level.getChunk(chunkPos.x, chunkPos.z);
+                if (!level.hasChunk(chunkPos.x, chunkPos.z)) {
+                    state.defer(chunkPos);
+                    chunksLeftThisTick--;
+                    queueBudget--;
+                    continue;
+                }
                 InnerPlacement.PlacementCount count = placeChunk(level, island, chunkPos, state.mode);
+                markDecorated(entry.getKey(), chunkPos);
                 state.processedChunks++;
                 state.placedBlocks += count.placed();
                 state.skippedBlocks += count.skipped();
@@ -424,6 +443,67 @@ public final class InnerOverlayQueue {
         }
     }
 
+    static boolean decoratedLoadGuardSkipsAndInvalidatesForTest() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-00000000dec0");
+        long key = chunkKey(4, -7);
+        try {
+            invalidateDecorated(owner);
+            boolean initiallyAllowed = shouldQueueLoadedChunk(owner, key);
+            markDecorated(owner, key);
+            boolean skippedAfterMark = !shouldQueueLoadedChunk(owner, key);
+            invalidateDecorated(owner);
+            boolean allowedAfterInvalidate = shouldQueueLoadedChunk(owner, key);
+            return initiallyAllowed && skippedAfterMark && allowedAfterInvalidate;
+        } finally {
+            invalidateDecorated(owner);
+        }
+    }
+
+    static boolean decoratedLoadGuardIsBoundedForTest() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-00000000dec1");
+        try {
+            invalidateDecorated(owner);
+            for (int i = 0; i <= DECORATED_CHUNK_CAP_PER_OWNER; i++) {
+                markDecorated(owner, chunkKey(i, -i));
+            }
+            LinkedHashMap<Long, Boolean> decorated = DECORATED_CHUNKS.get(owner);
+            return decorated != null
+                    && decorated.size() == DECORATED_CHUNK_CAP_PER_OWNER
+                    && !isDecorated(owner, chunkKey(0, 0))
+                    && isDecorated(owner, chunkKey(DECORATED_CHUNK_CAP_PER_OWNER, -DECORATED_CHUNK_CAP_PER_OWNER));
+        } finally {
+            invalidateDecorated(owner);
+        }
+    }
+
+    private static boolean shouldQueueLoadedChunk(UUID owner, long key) {
+        return !isDecorated(owner, key);
+    }
+
+    private static boolean isDecorated(UUID owner, long key) {
+        LinkedHashMap<Long, Boolean> chunks = DECORATED_CHUNKS.get(owner);
+        return chunks != null && Boolean.TRUE.equals(chunks.get(key));
+    }
+
+    private static void markDecorated(UUID owner, ChunkPos chunkPos) {
+        markDecorated(owner, chunkKey(chunkPos));
+    }
+
+    private static void markDecorated(UUID owner, long key) {
+        if (owner != null) {
+            decoratedChunks(owner).put(key, Boolean.TRUE);
+        }
+    }
+
+    private static LinkedHashMap<Long, Boolean> decoratedChunks(UUID owner) {
+        return DECORATED_CHUNKS.computeIfAbsent(owner, ignored -> new LinkedHashMap<>(16, 0.75F, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Long, Boolean> eldest) {
+                return size() > DECORATED_CHUNK_CAP_PER_OWNER;
+            }
+        });
+    }
+
     private static long chunkKey(ChunkPos chunkPos) {
         return chunkKey(chunkPos.x, chunkPos.z);
     }
@@ -512,6 +592,12 @@ public final class InnerOverlayQueue {
             ChunkPos chunkPos = chunks.removeFirst();
             queued.remove(chunkKey(chunkPos));
             return chunkPos;
+        }
+
+        void defer(ChunkPos chunkPos) {
+            if (queued.add(chunkKey(chunkPos))) {
+                chunks.addLast(chunkPos);
+            }
         }
 
         int remaining() {

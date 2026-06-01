@@ -21,13 +21,13 @@ public final class ItemPipeNetworkLogic {
     private ItemPipeNetworkLogic() {
     }
 
-    public static void tick(ServerLevel level, PipeNetworkManager manager) {
+    public static void tick(ServerLevel level, PipeNetworkManager manager, int intervalTicks) {
         for (PipeNetwork network : manager.networks(PipeResourceKind.ITEM).values()) {
-            tickNetwork(level, network);
+            tickNetwork(level, network, intervalTicks);
         }
     }
 
-    private static void tickNetwork(ServerLevel level, PipeNetwork network) {
+    private static void tickNetwork(ServerLevel level, PipeNetwork network, int intervalTicks) {
         long gameTime = level.getGameTime();
         PipeNetworkDiagnostics.networkTicked(PipeResourceKind.ITEM, network.inputs().size() + network.outputs().size());
         Set<BlockPos> usedSourceStorages = new HashSet<>();
@@ -61,7 +61,8 @@ public final class ItemPipeNetworkLogic {
             }
 
             ResourceHandler<ItemResource> sourceHandler = network.itemHandler(level, source);
-            if (sourceHandler != null && tryMoveFromSource(level, network, source, sourceHandler, routes, tier.itemAmount())) {
+            int amount = Math.max(tier.itemAmount(), tier.itemAmount() * Math.max(1, intervalTicks));
+            if (sourceHandler != null && tryMoveFromSource(level, network, source, sourceHandler, routes, amount)) {
                 network.setLastItemTransferTick(source, gameTime);
             }
         }

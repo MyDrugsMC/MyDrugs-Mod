@@ -9,6 +9,7 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
@@ -115,7 +116,7 @@ public final class ItemEffectHandler {
     public static void tickHeadphones(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
-        if (!hasItem(player.getInventory(), ModItems.HEADPHONES.get())) {
+        if (!PlayerRecoveryEnvironmentCache.snapshot(player).hasHeadphones()) {
             if (stats.temporaryEffects.headphonesEnabled || stats.temporaryEffects.headphonesUntil > 0L) {
                 stats.temporaryEffects.headphonesEnabled = false;
                 stats.temporaryEffects.headphonesUntil = 0L;

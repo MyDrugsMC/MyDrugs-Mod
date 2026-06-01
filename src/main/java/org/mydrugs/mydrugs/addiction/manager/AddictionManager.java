@@ -26,9 +26,10 @@ import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.addiction.progression.RelapseManager;
 import org.mydrugs.mydrugs.addiction.withdrawal.WithdrawalManager;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.PlayerEnvironmentSnapshot;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
-import org.mydrugs.mydrugs.recovery.SocialReliefManager;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressDamageManager;
@@ -154,12 +155,10 @@ public final class AddictionManager {
         ItemEffectHandler.tickHeadphones(player);
 
         boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < AddictionConstants.COMBAT_DETECTION_TICKS;
-        int companions = SocialReliefManager.countCompanions(player, AddictionConstants.COMPANION_DETECTION_RADIUS);
-        RecoveryRoomReport recoveryRoom = RecoveryRoomManager.getBestRoom(player).orElse(null);
-        boolean inSafeZone = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom);
-        if (!inSafeZone) {
-            inSafeZone = SafeZoneManager.isInSafeZone(player);
-        }
+        PlayerEnvironmentSnapshot environment = PlayerRecoveryEnvironmentCache.snapshot(player);
+        int companions = environment.companionCount();
+        RecoveryRoomReport recoveryRoom = environment.recoveryRoom();
+        boolean inSafeZone = environment.inSafeZone();
         if (inSafeZone && !stats.wasInSafeZoneLastTick) {
             AdvancementEventHooks.recoveryAction(player, "safe_zone");
         }
@@ -229,7 +228,7 @@ public final class AddictionManager {
         SymptomManager.applyServerSymptoms(player, globalSeverity);
         DoseManager.tickOverdoseTimer(player, stats);
 
-        WithdrawalHintManager.tick(player, globalSeverity, inSafeZone, companions);
+        WithdrawalHintManager.tick(player, globalSeverity, inSafeZone, companions, environment);
 
         if (inSafeZone
                 && globalSeverity > AddictionConstants.SAFE_ZONE_RECOVERY_THRESHOLD
@@ -253,8 +252,7 @@ public final class AddictionManager {
     }
 
     private static boolean isPsychedelicSafeSetting(ServerPlayer player) {
-        RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
-        return RecoveryRoomManager.isValidRecoveryRoom(room) || SafeZoneManager.isInSafeZone(player);
+        return SafeZoneManager.isInSafeZone(player);
     }
 
     public static float getGlobalSeverity(ServerPlayer player) {

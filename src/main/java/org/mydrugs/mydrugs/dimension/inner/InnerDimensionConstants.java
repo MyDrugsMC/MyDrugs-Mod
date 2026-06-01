@@ -26,9 +26,9 @@ public final class InnerDimensionConstants {
      */
     public static final long BASE_SEED = 0x4D59445255475321L;
 
-    public static final int CENTER_RING_RADIUS = 96;
+    // Concentric ring "roads" were removed (they read as a drawn diagram). MID_RING_RADIUS is kept
+    // only as a distance landmark still referenced by InnerPathSceneBuilder for a path waypoint.
     public static final int MID_RING_RADIUS = 420;
-    public static final int OUTER_RING_RADIUS = 930;
     public static final int LANDMARK_BASE_RADIUS = 520;
     public static final int LANDMARK_RADIUS_STEP = 58;
 

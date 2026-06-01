@@ -83,6 +83,13 @@ public final class InnerRegionMap {
         return (index + 0.5D) / ORDER.size() * TWO_PI;
     }
 
+    /** Radial distance from the slot centre at which a drug's landmark sits. */
+    public static int landmarkRadiusFor(DrugId drugId) {
+        int index = Math.max(0, ORDER.indexOf(drugId));
+        return InnerDimensionConstants.LANDMARK_BASE_RADIUS
+                + InnerDimensionConstants.LANDMARK_RADIUS_STEP * index;
+    }
+
     public static BlockPos landmarkFor(int centerX, int centerZ, DrugId drugId) {
         int index = Math.max(0, ORDER.indexOf(drugId));
         double angle = angleFor(drugId);

@@ -10,6 +10,11 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 
 final class InnerCoastDramaBuilder {
+    // Demoted coast-drama density (was 0.11 + intensity*0.10 / 0.24 satellite).
+    private static final double COAST_BASE_CHANCE = 0.05D;
+    private static final double COAST_INTENSITY_CHANCE = 0.05D;
+    private static final double SATELLITE_CROWN_CHANCE = 0.12D;
+
     private InnerCoastDramaBuilder() {
     }
 
@@ -58,7 +63,11 @@ final class InnerCoastDramaBuilder {
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x59BD_31C3L
                         ^ (long) worldZ * 0x33C7_513FL);
-                double chance = sample.satellite() ? 0.24D : 0.11D + scene.intensity() * 0.10D;
+                // Demoted: manufactured coastlines are the least natural feature, so lean on the
+                // domain warp + coastWarp/cliffBreak in computeSample for coastline interest instead.
+                double chance = sample.satellite()
+                        ? SATELLITE_CROWN_CHANCE
+                        : COAST_BASE_CHANCE + scene.intensity() * COAST_INTENSITY_CHANCE;
                 if ((hash & 1023L) >= chance * 1024.0D) {
                     continue;
                 }

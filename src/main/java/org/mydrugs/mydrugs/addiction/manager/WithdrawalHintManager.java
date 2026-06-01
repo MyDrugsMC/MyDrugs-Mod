@@ -1,16 +1,14 @@
 package org.mydrugs.mydrugs.addiction.manager;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.recovery.PlayerEnvironmentSnapshot;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 
 public final class WithdrawalHintManager {
     private static final String[] SAFE_ZONE_HINTS = {
@@ -79,6 +77,16 @@ public final class WithdrawalHintManager {
     }
 
     public static void tick(ServerPlayer player, float globalSeverity, boolean inSafeZone, int companions) {
+        tick(player, globalSeverity, inSafeZone, companions, PlayerRecoveryEnvironmentCache.snapshot(player));
+    }
+
+    public static void tick(
+            ServerPlayer player,
+            float globalSeverity,
+            boolean inSafeZone,
+            int companions,
+            PlayerEnvironmentSnapshot environment
+    ) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         long now = player.level().getGameTime();
 
@@ -114,9 +122,9 @@ public final class WithdrawalHintManager {
         boolean hungry = foodLevel <= 6;
         boolean lowHealth = healthRatio <= 0.50F;
         boolean severe = pressure >= 0.60F;
-        boolean hasFood = hasEdibleFood(player);
-        boolean hasDiary = hasItem(player, ModItems.PERSONAL_DIARY.get());
-        boolean hasHeadphones = hasItem(player, ModItems.HEADPHONES.get());
+        boolean hasFood = environment.hasEdibleFood();
+        boolean hasDiary = environment.hasDiary();
+        boolean hasHeadphones = environment.hasHeadphones();
         boolean diaryActive = stats.temporaryEffects.hasCalmRelief(now);
         boolean headphonesActive = stats.temporaryEffects.hasHeadphones(now);
         boolean night = isNight(player);
@@ -249,25 +257,6 @@ public final class WithdrawalHintManager {
     private static float computeHintPressure(PlayerAddictionStats stats, float globalSeverity) {
         float meterPressure = Mth.clamp(stats.getMaxWithdrawalMeter() / 100.0F, 0.0F, 1.0F);
         return Math.max(globalSeverity, meterPressure);
-    }
-
-    private static boolean hasEdibleFood(ServerPlayer player) {
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (!stack.isEmpty() && stack.has(DataComponents.FOOD)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean hasItem(ServerPlayer player, Item item) {
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            if (player.getInventory().getItem(i).is(item)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean isNight(ServerPlayer player) {
