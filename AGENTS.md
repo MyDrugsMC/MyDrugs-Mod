@@ -19,6 +19,10 @@ Canonical docs, read only when relevant:
 
 When docs clearly define intent, prefer them over generated files or scattered legacy code.
 
+## Documentation rule
+
+Each topic has exactly one canonical doc — see the `docs/00_README_FOR_AGENTS.md` map. Do not restate canonical content in other docs; link to it. New duplication is tech debt.
+
 ## Core invariants
 
 Prioritize:
