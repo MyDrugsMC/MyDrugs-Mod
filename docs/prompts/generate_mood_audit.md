@@ -4,8 +4,8 @@ You are reviewing whether the codebase and docs preserve the intended mood of `m
 
 Read:
 
-- `docs/GAME_MOOD_BIBLE.md`
-- `docs/GAMEPLAY_CONTRACTS.md`
+- `docs/VISION.md`
+- `docs/GAMEPLAY_DESIGN.md`
 - `docs/DRUG_SYSTEM.md`
 - `docs/MACHINES_PIPES_AND_RECIPES.md`
 - `docs/RESOURCES_AND_DATAGEN.md`

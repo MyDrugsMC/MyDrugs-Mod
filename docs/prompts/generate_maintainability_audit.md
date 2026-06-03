@@ -7,8 +7,8 @@ Read:
 - `AGENTS.md`
 - `docs/CODEBASE_MAP.md`
 - `docs/ARCHITECTURE.md`
-- `docs/GAME_MOOD_BIBLE.md`
-- `docs/GAMEPLAY_CONTRACTS.md`
+- `docs/VISION.md`
+- `docs/GAMEPLAY_DESIGN.md`
 - all relevant scan files
 
 Generate or update:

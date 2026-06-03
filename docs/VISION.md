@@ -29,3 +29,48 @@ The fantasy is not “realistic drug manufacturing.” The fantasy is: strange s
 - Unreadable random punishment.
 - Client-authoritative gameplay.
 - Huge context-heavy docs that agents cannot follow.
+
+## Emotional palette
+
+- Temptation.
+- Unease.
+- Power with consequences.
+- Ritual certainty.
+- Industrial occultism.
+- Fragile recovery.
+- Strange discovery.
+- Survival pressure.
+
+## What the mod should never feel like
+
+- A meme drug mod.
+- A real-world drug tutorial.
+- A generic tech mod.
+- A pure power fantasy without consequence.
+- A punishment simulator without agency.
+- A medical simulator.
+
+## Fantasy by pillar
+
+- **Power fantasy** — power should feel tempting, useful, and risky.
+- **Horror fantasy** — horror should come from instability, mutation, perception shifts, dependence, withdrawal, and the feeling that power has a cost.
+- **Recovery fantasy** — recovery should feel like a meaningful arc, not a simple stat reset.
+- **Ritual fantasy** — rituals should feel symbolic, strange, and gameplay-focused. They must not provide real-world procedural chemistry or drug preparation.
+- **Machine fantasy** — machines should feel dangerous, occult-industrial, and connected to the mod identity.
+- **Exploration fantasy** — exploration should feel strange, risky, and rewarding.
+
+## Humor boundaries
+
+Humor may exist, but addiction, withdrawal, overdose-like risk, and recovery should not be treated as throwaway jokes.
+
+## Realism boundaries
+
+Use abstraction and fictionalization. Avoid real-world synthesis, preparation, extraction, purification, dosing, or optimization.
+
+## Accessibility boundaries
+
+Respect client accessibility toggles such as reduced motion. Reduced motion should reduce aggressive visual motion without disabling gameplay.
+
+## Drug identities and feedback
+
+Canonical drug identities and risk language, and the effect-feedback readability rule, live in `docs/GAMEPLAY_DESIGN.md`. Do not restate them here.
