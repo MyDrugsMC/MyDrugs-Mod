@@ -1,6 +1,8 @@
+> Snapshot generated from `scan/` and source review on 2026-06-03. Point-in-time report, not a contract. If this disagrees with source, source wins.
+
 # Technical Debt Register
 
-See `docs/MAINTAINABILITY_AUDIT.md` for full evidence and reasoning on each item.
+See `docs/audits/MAINTAINABILITY_AUDIT.md` for full evidence and reasoning on each item.
 
 Priority scale: **P0** = correctness/server safety · **P1** = architecture boundary · **P2** = duplication
 **P3** = datagen/resource complexity · **P4** = package clarity · **P5** = performance · **P6** = mood/design

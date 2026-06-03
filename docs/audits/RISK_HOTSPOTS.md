@@ -1,3 +1,5 @@
+> Snapshot generated from `scan/` and source review on 2026-06-03. Point-in-time report, not a contract. If this disagrees with source, source wins.
+
 # Risk Hotspots
 
 Agents should treat code in this file with extra caution. Each section lists confirmed or

@@ -16,9 +16,7 @@ Goal: keep the project buildable and agent-safe.
 
 Goal: make early progression readable and fun.
 
-- Coffee as early productivity.
-- Tobacco as steadiness/precision.
-- Cannabis/hash as calm/stability.
+- Canonical drug identities and risk language: see `docs/GAMEPLAY_DESIGN.md`. Do not restate them here.
 - First useful ritual-drug recipes.
 - Clear guide/tooltip/HUD feedback.
 - Avoid forcing addiction for progression.

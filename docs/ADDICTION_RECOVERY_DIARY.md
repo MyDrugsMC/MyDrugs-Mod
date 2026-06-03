@@ -1,5 +1,7 @@
 # Addiction, Recovery, and Diary
 
+> STATUS: stub being filled from source. Do not treat sections marked TODO as authoritative.
+
 ## Purpose
 
 Explain addiction, tolerance, withdrawal, recovery, and diary as related but separate domains.
