@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.mydrugs.mydrugs.items.data.ComponentCodecs;
 
 public record PersonalMusicDiscData(
         String trackId,
@@ -13,29 +14,33 @@ public record PersonalMusicDiscData(
         int durationMs,
         boolean liked
 ) {
+    public static final int MAX_TRACK_ID_LENGTH = 256;
+    public static final int MAX_TEXT_LENGTH = 256;
+    public static final int MAX_DURATION_MS = 24 * 60 * 60 * 1000; // 24h sanity ceiling
+
     public static final PersonalMusicDiscData EMPTY = new PersonalMusicDiscData("", "", "", 0, false);
 
     public static final Codec<PersonalMusicDiscData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.optionalFieldOf("track_id", "").forGetter(PersonalMusicDiscData::trackId),
-            Codec.STRING.optionalFieldOf("title", "").forGetter(PersonalMusicDiscData::title),
-            Codec.STRING.optionalFieldOf("artist", "").forGetter(PersonalMusicDiscData::artist),
-            Codec.INT.optionalFieldOf("duration_ms", 0).forGetter(PersonalMusicDiscData::durationMs),
+            ComponentCodecs.boundedString(MAX_TRACK_ID_LENGTH).optionalFieldOf("track_id", "").forGetter(PersonalMusicDiscData::trackId),
+            ComponentCodecs.boundedString(MAX_TEXT_LENGTH).optionalFieldOf("title", "").forGetter(PersonalMusicDiscData::title),
+            ComponentCodecs.boundedString(MAX_TEXT_LENGTH).optionalFieldOf("artist", "").forGetter(PersonalMusicDiscData::artist),
+            ComponentCodecs.clampedInt(0, MAX_DURATION_MS).optionalFieldOf("duration_ms", 0).forGetter(PersonalMusicDiscData::durationMs),
             Codec.BOOL.optionalFieldOf("liked", false).forGetter(PersonalMusicDiscData::liked)
     ).apply(instance, PersonalMusicDiscData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PersonalMusicDiscData> STREAM_CODEC = StreamCodec.of(
             (buf, data) -> {
-                ByteBufCodecs.STRING_UTF8.encode(buf, data.trackId());
-                ByteBufCodecs.STRING_UTF8.encode(buf, data.title());
-                ByteBufCodecs.STRING_UTF8.encode(buf, data.artist());
-                ByteBufCodecs.VAR_INT.encode(buf, data.durationMs());
+                ComponentCodecs.boundedStringStream(MAX_TRACK_ID_LENGTH).encode(buf, data.trackId());
+                ComponentCodecs.boundedStringStream(MAX_TEXT_LENGTH).encode(buf, data.title());
+                ComponentCodecs.boundedStringStream(MAX_TEXT_LENGTH).encode(buf, data.artist());
+                ComponentCodecs.clampedVarInt(0, MAX_DURATION_MS).encode(buf, data.durationMs());
                 ByteBufCodecs.BOOL.encode(buf, data.liked());
             },
             buf -> new PersonalMusicDiscData(
-                    ByteBufCodecs.STRING_UTF8.decode(buf),
-                    ByteBufCodecs.STRING_UTF8.decode(buf),
-                    ByteBufCodecs.STRING_UTF8.decode(buf),
-                    ByteBufCodecs.VAR_INT.decode(buf),
+                    ComponentCodecs.boundedStringStream(MAX_TRACK_ID_LENGTH).decode(buf),
+                    ComponentCodecs.boundedStringStream(MAX_TEXT_LENGTH).decode(buf),
+                    ComponentCodecs.boundedStringStream(MAX_TEXT_LENGTH).decode(buf),
+                    ComponentCodecs.clampedVarInt(0, MAX_DURATION_MS).decode(buf),
                     ByteBufCodecs.BOOL.decode(buf)
             )
     );

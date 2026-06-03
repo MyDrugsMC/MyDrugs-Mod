@@ -19,7 +19,7 @@ public class ModBlockTypes {
             BLOCK_TYPES.register("distiller", () -> Block.simpleCodec(DistillerBlock::new));
 
     public static final Supplier<MapCodec<SieveBlock>> SIEVE_CODEC =
-            BLOCK_TYPES.register("dryer", () -> Block.simpleCodec(SieveBlock::new));
+            BLOCK_TYPES.register("sieve", () -> Block.simpleCodec(SieveBlock::new));
 
     public static final Supplier<MapCodec<FluidFiltererBlock>> FLUID_FILTERER_CODEC =
             BLOCK_TYPES.register("fluid_filterer", () -> Block.simpleCodec(FluidFiltererBlock::new));

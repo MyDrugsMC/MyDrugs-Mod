@@ -10,7 +10,6 @@ import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
@@ -41,6 +40,5 @@ public final class FoodRecoveryEvents {
         // Tiny resilience gain
         ResilienceManager.add(stats, 0.001F);
         RecoveryProgressManager.onProductiveAction(player, ActionKind.FOOD, Math.max(1, food.nutrition()) * 0.10F);
-        AddictionRecoveryFeedback.sendForAction(player, ActionKind.FOOD);
     }
 }

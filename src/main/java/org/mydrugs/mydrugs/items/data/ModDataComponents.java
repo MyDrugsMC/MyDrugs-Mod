@@ -70,16 +70,18 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType(
                     "blood_amount",
                     builder -> builder
-                            .persistent(Codec.intRange(0, 100))
-                            .networkSynchronized(ByteBufCodecs.VAR_INT)
+                            .persistent(ComponentCodecs.intRange(0, 100))
+                            // Match the persistent [0, 100] range on the network path too.
+                            .networkSynchronized(ComponentCodecs.checkedVarInt(0, 100))
             );
 
     public static final Supplier<DataComponentType<Float>> PURITY =
             DATA_COMPONENTS.registerComponentType(
                     "purity",
                     builder -> builder
-                            .persistent(Codec.floatRange(0.0F, 1.0F))
-                            .networkSynchronized(ByteBufCodecs.FLOAT)
+                            .persistent(ComponentCodecs.floatRange(0.0F, 1.0F))
+                            // Match the persistent [0, 1] range on the network path too.
+                            .networkSynchronized(ComponentCodecs.checkedFloat(0.0F, 1.0F))
             );
 
     public static final Supplier<DataComponentType<BottleFluidContent>> BOTTLE_CONTENT =

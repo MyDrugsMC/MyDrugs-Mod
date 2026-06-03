@@ -13,6 +13,8 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
     public long thoughtSuppressionUntil;
     public long sleepBonusUntil;
     public long preparedTeaUntil;
+    public long recoveryMomentumUntil;
+    public int recoveryMomentumCharges;
 
     @Override
     public void serialize(ValueOutput output) {
@@ -22,6 +24,8 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         output.putLong("thought_suppression_until", thoughtSuppressionUntil);
         output.putLong("sleep_bonus_until", sleepBonusUntil);
         output.putLong("prepared_tea_until", preparedTeaUntil);
+        output.putLong("recovery_momentum_until", recoveryMomentumUntil);
+        output.putInt("recovery_momentum_charges", recoveryMomentumCharges);
         output.putBoolean("headphones_enabled", headphonesEnabled);
         output.putInt("headphones_track_nonce", headphonesTrackNonce);
     }
@@ -34,6 +38,8 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         thoughtSuppressionUntil = input.getLongOr("thought_suppression_until", 0L);
         sleepBonusUntil = input.getLongOr("sleep_bonus_until", 0L);
         preparedTeaUntil = input.getLongOr("prepared_tea_until", 0L);
+        recoveryMomentumUntil = input.getLongOr("recovery_momentum_until", 0L);
+        recoveryMomentumCharges = input.getIntOr("recovery_momentum_charges", 0);
         headphonesEnabled = input.getBooleanOr("headphones_enabled", false);
         headphonesTrackNonce = input.getIntOr("headphones_track_nonce", 0);
     }
@@ -46,6 +52,8 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         copy.thoughtSuppressionUntil = thoughtSuppressionUntil;
         copy.sleepBonusUntil = sleepBonusUntil;
         copy.preparedTeaUntil = preparedTeaUntil;
+        copy.recoveryMomentumUntil = recoveryMomentumUntil;
+        copy.recoveryMomentumCharges = recoveryMomentumCharges;
         copy.headphonesEnabled = headphonesEnabled;
         copy.headphonesTrackNonce = headphonesTrackNonce;
         return copy;
@@ -77,5 +85,9 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
 
     public boolean hasPreparedTea(long gameTime) {
         return preparedTeaUntil > gameTime;
+    }
+
+    public boolean hasRecoveryMomentum(long gameTime) {
+        return recoveryMomentumUntil > gameTime && recoveryMomentumCharges > 0;
     }
 }

@@ -33,7 +33,6 @@ public final class ModDataGenerators {
         event.createProvider(ModVanillaRecipeJsonProvider::new);
         event.createProvider(ModVanillaRecipeSnapshotProvider::new);
         event.createProvider(ModFluidBlockStateProvider::new);
-        event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModPsyAnvilRecipeProvider::new);
         event.createProvider(ModPsyMixerRecipeProvider::new);
         event.createProvider(ModPsychotropeDistilleryRecipeProvider::new);
@@ -44,6 +43,9 @@ public final class ModDataGenerators {
                 true,
                 new ModFluidTagProvider(output, lookupProvider)
         );
+
+        event.getGenerator().addProvider(true, new ModBlockTagsProvider(output, lookupProvider));
+        event.getGenerator().addProvider(true, new ModItemTagsProvider(output, lookupProvider));
 
         RegistrySetBuilder builder = new RegistrySetBuilder()
                 .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)

@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.pipe.filter;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -100,7 +101,8 @@ public record PipeFilterConfig(PipeResourceKind kind, PipeFilterMode mode, List<
     private static void encode(RegistryFriendlyByteBuf buf, PipeFilterConfig config) {
         PipeResourceKind.STREAM_CODEC.encode(buf, config.kind());
         PipeFilterMode.STREAM_CODEC.encode(buf, config.mode());
-        ByteBufCodecs.VAR_INT.encode(buf, Math.min(MAX_ENTRIES, config.entries().size()));
+        // The canonical constructor already caps entries at MAX_ENTRIES, so this count matches the loop.
+        ByteBufCodecs.VAR_INT.encode(buf, config.entries().size());
         for (ResourceLocation entry : config.entries()) {
             ResourceLocation.STREAM_CODEC.encode(buf, entry);
         }
@@ -109,7 +111,12 @@ public record PipeFilterConfig(PipeResourceKind kind, PipeFilterMode mode, List<
     private static PipeFilterConfig decode(RegistryFriendlyByteBuf buf) {
         PipeResourceKind kind = PipeResourceKind.STREAM_CODEC.decode(buf);
         PipeFilterMode mode = PipeFilterMode.STREAM_CODEC.decode(buf);
-        int count = Math.clamp(ByteBufCodecs.VAR_INT.decode(buf), 0, MAX_ENTRIES);
+        int count = ByteBufCodecs.VAR_INT.decode(buf);
+        // Reject hostile/out-of-range counts up front rather than clamping; clamping would read fewer
+        // entries than were written and leave unread element bytes in the buffer (desync/corruption).
+        if (count < 0 || count > MAX_ENTRIES) {
+            throw new DecoderException("PipeFilterConfig entry count out of range [0, " + MAX_ENTRIES + "]: " + count);
+        }
         List<ResourceLocation> entries = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             entries.add(ResourceLocation.STREAM_CODEC.decode(buf));

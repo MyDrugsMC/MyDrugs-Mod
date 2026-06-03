@@ -16,22 +16,26 @@ public record DnaGeneData(
         boolean broken,
         List<MutationStatValue> stats
 ) {
+    public static final int MAX_SOURCES = 64;
+    public static final int MAX_STATS = 64;
+    public static final int MAX_STRING_LENGTH = 256;
+
     public static final Codec<DnaGeneData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.listOf().fieldOf("source_uuids").forGetter(DnaGeneData::sourceUuids),
-            Codec.STRING.listOf().fieldOf("source_entity_types").forGetter(DnaGeneData::sourceEntityTypes),
-            Codec.STRING.listOf().fieldOf("source_names").forGetter(DnaGeneData::sourceNames),
-            Codec.STRING.fieldOf("genetic_signature").forGetter(DnaGeneData::geneticSignature),
+            ComponentCodecs.boundedList(ComponentCodecs.boundedString(MAX_STRING_LENGTH), MAX_SOURCES).fieldOf("source_uuids").forGetter(DnaGeneData::sourceUuids),
+            ComponentCodecs.boundedList(ComponentCodecs.boundedString(MAX_STRING_LENGTH), MAX_SOURCES).fieldOf("source_entity_types").forGetter(DnaGeneData::sourceEntityTypes),
+            ComponentCodecs.boundedList(ComponentCodecs.boundedString(MAX_STRING_LENGTH), MAX_SOURCES).fieldOf("source_names").forGetter(DnaGeneData::sourceNames),
+            ComponentCodecs.boundedString(MAX_STRING_LENGTH).fieldOf("genetic_signature").forGetter(DnaGeneData::geneticSignature),
             Codec.BOOL.fieldOf("broken").forGetter(DnaGeneData::broken),
-            MutationStatValue.CODEC.listOf().fieldOf("stats").forGetter(DnaGeneData::stats)
+            ComponentCodecs.boundedList(MutationStatValue.CODEC, MAX_STATS).fieldOf("stats").forGetter(DnaGeneData::stats)
     ).apply(instance, DnaGeneData::new));
 
     public static final StreamCodec<ByteBuf, DnaGeneData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), DnaGeneData::sourceUuids,
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), DnaGeneData::sourceEntityTypes,
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), DnaGeneData::sourceNames,
-            ByteBufCodecs.STRING_UTF8, DnaGeneData::geneticSignature,
+            ComponentCodecs.boundedListStream(ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MAX_SOURCES), DnaGeneData::sourceUuids,
+            ComponentCodecs.boundedListStream(ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MAX_SOURCES), DnaGeneData::sourceEntityTypes,
+            ComponentCodecs.boundedListStream(ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MAX_SOURCES), DnaGeneData::sourceNames,
+            ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), DnaGeneData::geneticSignature,
             ByteBufCodecs.BOOL, DnaGeneData::broken,
-            MutationStatValue.STREAM_CODEC.apply(ByteBufCodecs.list()), DnaGeneData::stats,
+            ComponentCodecs.boundedListStream(MutationStatValue.STREAM_CODEC, MAX_STATS), DnaGeneData::stats,
             DnaGeneData::new
     );
 

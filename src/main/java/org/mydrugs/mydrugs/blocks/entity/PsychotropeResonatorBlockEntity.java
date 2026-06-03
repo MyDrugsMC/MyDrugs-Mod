@@ -48,6 +48,9 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.RecoverySessionAction;
+import org.mydrugs.mydrugs.recovery.RecoverySessionManager;
+import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -471,7 +474,11 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
 
         if (RECOVERY_RESONANCE_RITUAL.equals(ritual)) {
             this.getItem(SLOT_MATERIAL).shrink(1);
-            RecoveryProgressManager.applyRecoveryResonance(player, RecoveryRoomManager.getBestRoom(player).orElse(null));
+            RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+            RecoveryProgressManager.applyRecoveryResonance(player, room);
+            if (RecoveryRoomManager.isValidRecoveryRoom(room) && room.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) {
+                RecoverySessionManager.onReflectionAction(player, RecoverySessionAction.ALCOVE);
+            }
             IntegrationDiary.recoveryResonance(player);
             setState(InnerDimensionService.canOpen(player) ? ResonatorState.DIMENSION_READY : ResonatorState.COOLDOWN);
             setMachineStatus(MachineStatus.PAUSED);

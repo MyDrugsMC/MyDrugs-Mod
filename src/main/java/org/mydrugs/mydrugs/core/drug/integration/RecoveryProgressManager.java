@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.RecoverySessionManager;
 import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 
 import java.util.Map;
@@ -84,13 +85,24 @@ public final class RecoveryProgressManager {
             return;
         }
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        if (stats.perDrug.isEmpty()) {
-            return;
-        }
 
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         float roomMultiplier = RecoveryRoomManager.addictionRecoveryMultiplier(room);
+        boolean recoveryMomentumApplied = consumeRecoveryMomentum(player, stats, kind);
+        float momentumMultiplier = recoveryMomentumApplied ? 1.12F : 1.0F;
+
+        if (stats.perDrug.isEmpty()) {
+            if (shouldSendReliefFallback(kind)) {
+                AddictionRecoveryFeedback.sendForAction(player, kind);
+            }
+            RecoverySessionManager.onProductiveAction(player, kind);
+            return;
+        }
+
         boolean applied = false;
+        float totalAddictionReduced = 0.0F;
+        float maxRecoveryProgressAdded = 0.0F;
+        float bestRecoveryProgressPercent = 0.0F;
 
         for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.perDrug.entrySet()) {
             DrugId drug = entry.getKey();
@@ -99,18 +111,31 @@ public final class RecoveryProgressManager {
                 continue;
             }
 
-            float effectiveWeight = effectiveWeight(kind, weight, roomMultiplier, worksTowardNextDrug(player, drug));
+            float effectiveWeight = effectiveWeight(kind, weight, roomMultiplier, worksTowardNextDrug(player, drug))
+                    * momentumMultiplier;
             RecoveryDelta delta = applyRecoveryAction(drug, d, kind, effectiveWeight);
             if (delta.addictionReduced() > 0.0F || delta.recoveryProgressAdded() > 0.0F) {
                 applied = true;
+                totalAddictionReduced += delta.addictionReduced();
+                maxRecoveryProgressAdded = Math.max(maxRecoveryProgressAdded, delta.recoveryProgressAdded());
+                bestRecoveryProgressPercent = Math.max(bestRecoveryProgressPercent, recoveryProgressPercent(drug, d));
             }
 
             IntegrationService.markEligible(player, drug);
         }
 
-        if (applied) {
+        if (maxRecoveryProgressAdded > 0.0F && showsActionFeedback(kind)) {
+            AddictionRecoveryFeedback.sendProgressDetail(player, kind, Math.round(bestRecoveryProgressPercent));
+        } else if ((applied && totalAddictionReduced > 0.0F && showsActionFeedback(kind))
+                || shouldSendReliefFallback(kind)) {
             AddictionRecoveryFeedback.sendForAction(player, kind);
         }
+
+        if (isNearPassiveCap(player, stats, kind)) {
+            AddictionRecoveryFeedback.sendPassiveCap(player);
+        }
+
+        RecoverySessionManager.onProductiveAction(player, kind);
     }
 
     /**
@@ -251,6 +276,78 @@ public final class RecoveryProgressManager {
             weight += 0.05F;
         }
         return Math.min(0.75F, weight);
+    }
+
+    private static boolean consumeRecoveryMomentum(ServerPlayer player, PlayerAddictionStats stats, ActionKind kind) {
+        if (!qualifiesForRecoveryMomentum(kind)) {
+            return false;
+        }
+        long now = player.level().getGameTime();
+        if (!stats.temporaryEffects.hasRecoveryMomentum(now)) {
+            return false;
+        }
+        stats.temporaryEffects.recoveryMomentumCharges = Math.max(0, stats.temporaryEffects.recoveryMomentumCharges - 1);
+        if (stats.temporaryEffects.recoveryMomentumCharges <= 0) {
+            stats.temporaryEffects.recoveryMomentumUntil = 0L;
+        }
+        AddictionRecoveryFeedback.sendRecoveryMomentumUsed(player);
+        return true;
+    }
+
+    private static boolean qualifiesForRecoveryMomentum(ActionKind kind) {
+        return kind != null && (kind.nextStageWork() || kind == ActionKind.PET_CARE);
+    }
+
+    private static boolean showsActionFeedback(ActionKind kind) {
+        return kind != ActionKind.MUSIC_SUPPORT
+                && kind != ActionKind.RECOVERY_ROOM_SUPPORT
+                && kind != ActionKind.PASSIVE_COMPANION
+                && kind != ActionKind.RECOVERY_RESONANCE;
+    }
+
+    private static boolean shouldSendReliefFallback(ActionKind kind) {
+        return switch (kind) {
+            case FOOD, SLEEP_REST, DIARY_WRITTEN, THERAPY_SESSION, HERBAL_TEA,
+                    CALMING_MIXTURE, SLEEPING_AID, PET_CARE -> true;
+            case ORE_MINED, CROP_TENDED, MACHINE_OUTPUT, DISTILLERY_CYCLE, PSY_MIXER_SUCCESS,
+                    MUSIC_SUPPORT, RECOVERY_ROOM_SUPPORT, PASSIVE_COMPANION, RECOVERY_RESONANCE -> false;
+        };
+    }
+
+    private static boolean isNearPassiveCap(ServerPlayer player, PlayerAddictionStats stats, ActionKind kind) {
+        if (kind != ActionKind.MUSIC_SUPPORT
+                && kind != ActionKind.RECOVERY_ROOM_SUPPORT
+                && kind != ActionKind.PASSIVE_COMPANION) {
+            return false;
+        }
+
+        long now = player.level().getGameTime();
+        float cap = kind.progressCap();
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.perDrug.entrySet()) {
+            DrugId drug = entry.getKey();
+            DrugAddictionStats drugStats = entry.getValue();
+            IntegrationRequirementProfile profile = IntegrationRequirements.profile(drug);
+            if (profile == null || !profile.requiresRecoveryProgress() || drugStats.isIntegrated()) {
+                continue;
+            }
+            float required = Math.max(0.01F, profile.requiredRecoveryProgress());
+            float nearCap = Math.min(required, cap) - 0.02F;
+            if (drugStats.recoveryProgress >= nearCap
+                    && drugStats.recoveryProgress < required
+                    && !IntegrationService.evaluate(stats, drug, now).eligible()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static float recoveryProgressPercent(DrugId drug, DrugAddictionStats stats) {
+        IntegrationRequirementProfile profile = IntegrationRequirements.profile(drug);
+        float required = profile == null ? 1.0F : profile.requiredRecoveryProgress();
+        if (required <= 0.0F || profile != null && !profile.requiresRecoveryProgress()) {
+            return 100.0F;
+        }
+        return Math.max(0.0F, Math.min(100.0F, stats.recoveryProgress / required * 100.0F));
     }
 
     private static boolean hasEarnedMemory(ServerPlayer player) {

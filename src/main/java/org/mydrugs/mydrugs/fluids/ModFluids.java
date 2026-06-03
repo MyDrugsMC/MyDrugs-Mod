@@ -194,7 +194,7 @@ public final class ModFluids {
     }
 
     private static FluidEntry register(FluidSpec def) {
-        FluidEntry entry = new FluidEntry(def.name(), def.tint());
+        FluidEntry entry = new FluidEntry(def);
 
         entry.setType(FLUID_TYPES.register(
                 def.name() + "_type",

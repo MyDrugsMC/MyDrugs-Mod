@@ -244,6 +244,17 @@ public class GlassBottleItem extends Item {
 
         tooltipAdder.accept(Component.translatable("tooltip.mydrugs.bottle.amount", content.amountMb(), CAPACITY_MB));
 
+        org.mydrugs.mydrugs.fluids.FluidEntry entry = ModFluids.ALL.get(content.fluidId().getPath());
+        if (entry != null && content.fluidId().getNamespace().equals(MyDrugs.MODID)) {
+            org.mydrugs.mydrugs.fluids.FluidSpec spec = entry.spec();
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.fluid.hazard",
+                    Component.translatable(spec.hazard().translationKey())).withStyle(spec.hazard().color()));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.fluid.role",
+                    Component.translatable(spec.role().translationKey())).withStyle(ChatFormatting.DARK_GRAY));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.fluid.phase",
+                    Component.translatable(spec.phase().translationKey())).withStyle(ChatFormatting.DARK_GRAY));
+        }
+
         DrugModel drug = getBottleDrug(stack);
         if (drug != null) {
             DrugTooltipBuilder.append(stack, List.of(drug), strategy, flag, tooltipAdder);

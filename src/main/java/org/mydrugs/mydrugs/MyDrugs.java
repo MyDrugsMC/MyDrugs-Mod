@@ -1,11 +1,7 @@
 package org.mydrugs.mydrugs;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -15,9 +11,9 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.advancement.ModCriteriaTriggers;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.blocks.ModBlockTypes;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.crops.ModCrops;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -26,6 +22,7 @@ import org.mydrugs.mydrugs.core.drug.use.DrugUseService;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.fluids.ModFluids;
 import org.mydrugs.mydrugs.menu.ModMenus;
+import org.mydrugs.mydrugs.recipes.ModRecipeDisplays;
 import org.mydrugs.mydrugs.recipes.ModRecipeSerializers;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
@@ -35,14 +32,15 @@ import org.mydrugs.mydrugs.entity.ModEntities;
 import org.mydrugs.mydrugs.dimension.inner.worldgen.ModInnerWorldgen;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 import org.mydrugs.mydrugs.worldgen.ModBiomeModifierSerializers;
+import org.mydrugs.mydrugs.worldgen.ModPoiTypes;
+import org.mydrugs.mydrugs.worldgen.ModVillagerProfessions;
 import org.mydrugs.mydrugs.worldgen.WorldgenConfig;
 import org.mydrugs.mydrugs.worldgen.biomes.ModRegions;
 import org.mydrugs.mydrugs.worldgen.biomes.ModSurfaceRules;
+import org.mydrugs.mydrugs.items.ModCreativeTabs;
 import org.slf4j.Logger;
 import terrablender.api.Regions;
 import terrablender.api.SurfaceRuleManager;
-
-import java.util.function.Supplier;
 
 @Mod(MyDrugs.MODID)
 public class MyDrugs {
@@ -51,27 +49,6 @@ public class MyDrugs {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final DrugUseService DRUG_USE_SERVICE = new DrugUseService();
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MyDrugs.MODID);
-
-    public static final Supplier<CreativeModeTab> MYDRUGS_TAB = CREATIVE_MODE_TABS.register("main", () ->
-            CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.mydrugs.main"))
-                    .icon(() -> new ItemStack(ModItems.TOBACCO_LEAF.get()))
-                    .displayItems((params, output) -> {
-                        for (var holder : ModItems.ITEMS.getEntries()) {
-                            output.accept(holder.get());
-                        }
-                        for (var holder : ModBlocks.ITEMS.getEntries()) {
-                            output.accept(holder.get());
-                        }
-                        for (var holder : ModCrops.ITEMS.getEntries()) {
-                            output.accept(holder.get());
-                        }
-                    })
-                    .build()
-    );
-
     public MyDrugs(IEventBus modEventBus, ModContainer modContainer) {
         NeoForgeMod.enableMilkFluid();
 
@@ -79,10 +56,12 @@ public class MyDrugs {
         modEventBus.addListener(ModEntityAttributes::register);
         NeoForge.EVENT_BUS.register(this);
         ModBlocks.register(modEventBus);
+        ModBlockTypes.BLOCK_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
+        ModRecipeDisplays.RECIPE_DISPLAYS.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
@@ -93,7 +72,9 @@ public class MyDrugs {
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModBiomeModifierSerializers.register(modEventBus);
         ModInnerWorldgen.register(modEventBus);
-        CREATIVE_MODE_TABS.register(modEventBus);
+        ModPoiTypes.register(modEventBus);
+        ModVillagerProfessions.register(modEventBus);
+        ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModCriteriaTriggers.register(modEventBus);
         ModAttachments.register(modEventBus);
         ModCrops.register(modEventBus);
@@ -107,6 +88,12 @@ public class MyDrugs {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            for (String issue : org.mydrugs.mydrugs.recipes.ModRecipeContent.validateAll()) {
+                LOGGER.warn("[recipe-content] {}", issue);
+            }
+            for (String issue : org.mydrugs.mydrugs.blocks.ModMachineContent.validateAll()) {
+                LOGGER.warn("[machine-content] {}", issue);
+            }
             WorldgenConfig.logPsychedelicBiomeConfigWarnings(LOGGER);
             if (WorldgenConfig.terraBlenderOverworldEnabled()) {
                 Regions.register(new ModRegions(
@@ -130,5 +117,9 @@ public class MyDrugs {
 
     public static Logger getLOGGER() {
         return LOGGER;
+    }
+
+    public static ResourceLocation rl(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

@@ -1,66 +1,44 @@
-# Development Setup
-
-This project is a Minecraft NeoForge mod for Minecraft 1.21.10.
+# Setup
 
 ## Requirements
 
-- Java 21
-- The Gradle wrapper from this repository
-- Network access to Maven Central, NeoForge, TerraBlender, JEI, and any configured repositories when dependencies are not cached
+- Java 21.
+- Gradle wrapper from the repository.
+- Internet access for dependency resolution when caches are cold.
+
+## Project versions
+
+From `gradle.properties`:
+
+- Minecraft: `1.21.10`
+- NeoForge: `21.10.64`
+- Parchment Minecraft: `1.21.10`
+- Parchment mappings: `2025.10.12`
+- JEI: `26.2.0.30`
+- TerraBlender: `1.21.10-21.10.0.0`
 
 ## Common commands
 
-Linux/macOS:
-
 ```bash
 ./gradlew compileJava
-./gradlew build
+./gradlew test
+./gradlew validateCodeContracts
+./gradlew validateResources
 ./gradlew runData
+./gradlew build
+./gradlew runClient
+./gradlew runServer
 ```
 
-Windows PowerShell:
+## GitHub Packages credentials
 
-```powershell
-.\gradlew.bat compileJava
-.\gradlew.bat build
-.\gradlew.bat runData
-```
+`build.gradle` can read optional GitHub Packages credentials from:
 
-Generated data is written to:
+- Gradle properties: `gpr.user` / `gpr.key` in untracked local Gradle properties;
+- environment variables: `GITHUB_ACTOR` / `GITHUB_TOKEN`.
 
-```text
-src/generated/resources
-```
+Do not commit credentials.
 
-## Editing the in-game guide
+## Wrapper note
 
-Edit:
-
-```text
-docs/progression_guide_pages.md
-```
-
-Then run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\sync_progression_guide.ps1
-```
-
-Validate progression content:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\validate_progression_content.ps1
-```
-
-More details are in `GUIDE_AUTHORING.md`.
-
-## Credentials
-
-Do not commit package credentials.
-
-If GitHub Packages credentials are needed, provide them with either:
-
-- environment variables: `GITHUB_ACTOR` and `GITHUB_TOKEN`;
-- an untracked local Gradle properties file containing `gpr.user` and `gpr.key`.
-
-Committed `gradle.properties` must not contain real tokens.
+The validator expects `gradlew` to use LF line endings. Keep `.gitattributes` stable.

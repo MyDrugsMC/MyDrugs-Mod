@@ -1,38 +1,54 @@
-# MyDrugs Documentation
+# MyDrugs Docs — Agent-Ready Index
 
-This folder contains the project documents that should guide development. Keep it small and useful: if a document does not help design, build, test, or review the mod, merge it into another file or delete it.
+This folder is optimized for AI coding agents and human reviewers. It intentionally favors short, stable contracts over long brainstorming notes.
 
-## Start here
+Project constants:
 
-1. `VISION.md` — the current healing/integration vision for the mod.
-2. `STORYLINE.md` — the narrative spine: discovery → control → temptation → recovery → integration → freedom.
-3. `ROADMAP.md` — milestones and the recommended order of work.
-4. `GAMEPLAY_DESIGN.md` — gameplay pillars, substance identities, recovery rules, and endgame direction.
-5. `RECOVERY_AND_INTEGRATION_DESIGN.md` — recovery, diary, therapy-like actions, diet, exercise, psychedelics, and ketamine-like endgame integration.
-6. `PSYCHOTROPE_RESONATOR_DESIGN.md` — replacement direction for the old Psychotrope Generator.
-7. `DIMENSION_AND_BOSS_DESIGN.md` — Inner Dimension, mobs, biomes, Mystical Ores, boss, and positive ending.
-8. `FEATURE_TEMPLATE.md` — format for new features before they become GitHub issues or AI prompts.
-9. `AI_WORKFLOW.md` — how to use Codex/Claude without losing control of the project.
-10. `TESTING.md` — minimum checks before calling something done.
+- Mod ID: `mydrugs`
+- Minecraft: `1.21.10`
+- NeoForge: `21.10.64`
+- Java: `21`
+- Build plugin: `net.neoforged.moddev`
+- Main package: `org.mydrugs.mydrugs`
 
-## Technical references
+## How agents should use these docs
 
-- `ARCHITECTURE.md` — compact overview of the main systems and where changes should plug in.
-- `SETUP.md` — development setup and common commands.
-- `GUIDE_AUTHORING.md` — how to edit and regenerate the in-game field guide.
-- `progression_guide_pages.md` — source content for the in-game guide. Do not delete unless the sync script is changed.
-- `WORLDGEN_CONFIG.md` — worldgen and dimension configuration notes.
+Do **not** read the whole folder by default. Pick the smallest document set for the task.
 
-## Project management
+| Task type | Read first | Then read if needed |
+|---|---|---|
+| Any code change | `CODEBASE_MAP.md`, `AI_WORKFLOW.md`, `TESTING.md` | `ARCHITECTURE.md` |
+| Drug behavior, dose, effects, addiction | `DRUG_SYSTEM.md` | `GAMEPLAY_DESIGN.md`, `RECOVERY_AND_INTEGRATION_DESIGN.md` |
+| Client visuals, HUD, screens, shaders | `CLIENT_SERVER_SAFETY.md` | `NETWORKING.md`, `GAMEPLAY_DESIGN.md` |
+| Payloads, menus, server requests | `NETWORKING.md` | `CLIENT_SERVER_SAFETY.md`, `TESTING.md` |
+| Machines, recipes, pipes, menus | `MACHINES_PIPES_AND_RECIPES.md` | `RESOURCES_AND_DATAGEN.md` |
+| JSON, lang, models, loot, tags, generated resources | `RESOURCES_AND_DATAGEN.md` | `GUIDE_AUTHORING.md` |
+| Worldgen, Inner dimension, TerraBlender | `WORLDGEN_AND_DIMENSION.md` | `GAMEPLAY_DESIGN.md` |
+| Recovery, diary, integration, late-game healing | `RECOVERY_AND_INTEGRATION_DESIGN.md` | `STORYLINE.md`, `VISION.md` |
+| New feature planning | `FEATURE_TEMPLATE.md` | Relevant domain doc |
+| Project direction | `VISION.md`, `ROADMAP.md`, `BACKLOG.md` | `STORYLINE.md` |
+| Content safety | `SAFETY_AND_CONTENT_POLICY.md` | Relevant design doc |
 
-- `BACKLOG.md` — curated high-level backlog. Use Trello for raw ideas and GitHub Issues for ready-to-build work.
-- `CONTRIBUTING.md` — contribution, asset, safety, and PR expectations.
+## Hard project rules
 
-## Documentation rules
+1. Preserve dedicated-server safety.
+2. Keep gameplay server-authoritative.
+3. Keep common/server/client separation strict.
+4. Route normal drug consumption through `core/drug/use/DrugUseService`.
+5. Keep datagen/resource changes consistent.
+6. Use localization for player-facing text.
+7. Avoid real-world drug synthesis, preparation, extraction, dosing, or medical instruction.
+8. Preserve existing registry IDs and save/network formats unless explicitly approved.
+9. Prefer small, reviewable changes over broad rewrites.
 
-- Prefer one clear document over many scattered notes.
-- Keep TODOs in `BACKLOG.md`, not spread across random files.
-- Keep implementation details in `ARCHITECTURE.md` only if they help future work.
-- If a file becomes a one-off note after a feature is finished, merge the useful parts and remove the file.
-- Avoid real-world drug synthesis details. Keep descriptions fictional, gameplay-oriented, and Minecraft-like.
-- Recovery and psychedelic systems should be evidence-inspired but must not make medical claims or give real-world instructions.
+## Guide file note
+
+`progression_guide_pages.md` was copied byte-for-byte from the uploaded docs because the guide is user-edited. SHA-256 of the preserved guide content:
+
+```text
+503321a8153bb81e09cd75ffaee4239cb753918b024ff3233bed82d20aa5a1e9
+```
+
+## Files intentionally removed from the old docs folder
+
+The previous folder contained large one-off notes and reports that are poor default agent context, including balancing dumps, old implementation plans, and narrow feature brainstorms. Their durable decisions were merged into the domain docs here. Raw ideation should live outside startup docs or in an issue tracker.

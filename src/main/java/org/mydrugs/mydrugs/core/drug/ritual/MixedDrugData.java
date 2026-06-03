@@ -8,6 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.items.data.ComponentCodecs;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,15 +37,20 @@ public record MixedDrugData(
                     DrugId::serializedName
             );
 
+    public static final int MAX_NAME_LENGTH = 256;
+    public static final int MAX_ID_LENGTH = 256;
+    public static final int MAX_SIGNATURE_LENGTH = 2048;
+    public static final int MAX_EFFECTS = 64;
+
     public static final Codec<MixedDrugData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("formula_id").forGetter(MixedDrugData::formulaId),
-            Codec.STRING.fieldOf("display_name").forGetter(MixedDrugData::displayName),
+            ComponentCodecs.boundedString(MAX_ID_LENGTH).fieldOf("formula_id").forGetter(MixedDrugData::formulaId),
+            ComponentCodecs.boundedString(MAX_NAME_LENGTH).fieldOf("display_name").forGetter(MixedDrugData::displayName),
             Codec.STRING.xmap(UUID::fromString, UUID::toString).fieldOf("author_uuid").forGetter(MixedDrugData::authorUuid),
-            Codec.STRING.fieldOf("author_name").forGetter(MixedDrugData::authorName),
+            ComponentCodecs.boundedString(MAX_NAME_LENGTH).fieldOf("author_name").forGetter(MixedDrugData::authorName),
             DRUG_ID_CODEC.fieldOf("base_drug").forGetter(MixedDrugData::baseDrug),
-            RitualDrugEffectData.CODEC.listOf().fieldOf("base_effects_snapshot").forGetter(MixedDrugData::baseEffectsSnapshot),
-            RitualDrugEffectData.CODEC.listOf().fieldOf("added_effects").forGetter(MixedDrugData::addedEffects),
-            Codec.STRING.fieldOf("canonical_signature").forGetter(MixedDrugData::canonicalSignature),
+            ComponentCodecs.boundedList(RitualDrugEffectData.CODEC, MAX_EFFECTS).fieldOf("base_effects_snapshot").forGetter(MixedDrugData::baseEffectsSnapshot),
+            ComponentCodecs.boundedList(RitualDrugEffectData.CODEC, MAX_EFFECTS).fieldOf("added_effects").forGetter(MixedDrugData::addedEffects),
+            ComponentCodecs.boundedString(MAX_SIGNATURE_LENGTH).fieldOf("canonical_signature").forGetter(MixedDrugData::canonicalSignature),
             PsyMixerRitualQuality.CODEC.optionalFieldOf("quality", PsyMixerRitualQuality.BASE).forGetter(MixedDrugData::quality)
     ).apply(instance, MixedDrugData::new));
 
@@ -94,27 +100,27 @@ public record MixedDrugData(
     }
 
     private static void encode(ByteBuf buf, MixedDrugData data) {
-        ByteBufCodecs.STRING_UTF8.encode(buf, data.formulaId);
-        ByteBufCodecs.STRING_UTF8.encode(buf, data.displayName);
+        ComponentCodecs.boundedStringStream(MAX_ID_LENGTH).encode(buf, data.formulaId);
+        ComponentCodecs.boundedStringStream(MAX_NAME_LENGTH).encode(buf, data.displayName);
         ByteBufCodecs.STRING_UTF8.encode(buf, data.authorUuid.toString());
-        ByteBufCodecs.STRING_UTF8.encode(buf, data.authorName);
+        ComponentCodecs.boundedStringStream(MAX_NAME_LENGTH).encode(buf, data.authorName);
         DRUG_ID_STREAM_CODEC.encode(buf, data.baseDrug);
-        RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, data.baseEffectsSnapshot);
-        RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, data.addedEffects);
-        ByteBufCodecs.STRING_UTF8.encode(buf, data.canonicalSignature);
+        ComponentCodecs.boundedListStream(RitualDrugEffectData.STREAM_CODEC, MAX_EFFECTS).encode(buf, data.baseEffectsSnapshot);
+        ComponentCodecs.boundedListStream(RitualDrugEffectData.STREAM_CODEC, MAX_EFFECTS).encode(buf, data.addedEffects);
+        ComponentCodecs.boundedStringStream(MAX_SIGNATURE_LENGTH).encode(buf, data.canonicalSignature);
         PsyMixerRitualQuality.STREAM_CODEC.encode(buf, data.quality);
     }
 
     private static MixedDrugData decode(ByteBuf buf) {
         return new MixedDrugData(
-                ByteBufCodecs.STRING_UTF8.decode(buf),
-                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ComponentCodecs.boundedStringStream(MAX_ID_LENGTH).decode(buf),
+                ComponentCodecs.boundedStringStream(MAX_NAME_LENGTH).decode(buf),
                 UUID.fromString(ByteBufCodecs.STRING_UTF8.decode(buf)),
-                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ComponentCodecs.boundedStringStream(MAX_NAME_LENGTH).decode(buf),
                 DRUG_ID_STREAM_CODEC.decode(buf),
-                RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
-                RitualDrugEffectData.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
-                ByteBufCodecs.STRING_UTF8.decode(buf),
+                ComponentCodecs.boundedListStream(RitualDrugEffectData.STREAM_CODEC, MAX_EFFECTS).decode(buf),
+                ComponentCodecs.boundedListStream(RitualDrugEffectData.STREAM_CODEC, MAX_EFFECTS).decode(buf),
+                ComponentCodecs.boundedStringStream(MAX_SIGNATURE_LENGTH).decode(buf),
                 PsyMixerRitualQuality.STREAM_CODEC.decode(buf)
         );
     }

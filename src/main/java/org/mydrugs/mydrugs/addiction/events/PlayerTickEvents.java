@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.items.bottle.LightningBottleManager;
 import org.mydrugs.mydrugs.mutation.MutationManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoverySessionManager;
 import org.mydrugs.mydrugs.recovery.item.HeadphonesItem;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
@@ -35,6 +36,8 @@ public final class PlayerTickEvents {
             LightningBottleManager.tick(player);
             Profiler.get().popPush("headphones");
             HeadphonesItem.tickPendingClick(player);
+            Profiler.get().popPush("recovery_session");
+            RecoverySessionManager.tick(player);
             Profiler.get().popPush("recovery_room_particles");
             RecoveryRoomManager.tickPlayerParticles(player);
             Profiler.get().popPush("mutation");

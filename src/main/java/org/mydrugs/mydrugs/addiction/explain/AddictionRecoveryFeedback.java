@@ -10,6 +10,8 @@ import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionK
 public final class AddictionRecoveryFeedback {
     private static final long ACTIVE_FEEDBACK_COOLDOWN_TICKS = 35L;
     private static final long ROOM_FEEDBACK_COOLDOWN_TICKS = 600L;
+    private static final long MOMENTUM_FEEDBACK_COOLDOWN_TICKS = 120L;
+    private static final long PASSIVE_CAP_FEEDBACK_COOLDOWN_TICKS = 1200L;
 
     private AddictionRecoveryFeedback() {
     }
@@ -19,6 +21,16 @@ public final class AddictionRecoveryFeedback {
         if (key != null) {
             send(player, key, ACTIVE_FEEDBACK_COOLDOWN_TICKS);
         }
+    }
+
+    public static void sendProgressDetail(ServerPlayer player, ActionKind kind, int integrationPercent) {
+        Component action = Component.translatable(actionLabelKey(kind));
+        Component message = Component.translatable(
+                "message.mydrugs.recovery_feedback.progress_detail",
+                action,
+                Math.max(0, Math.min(100, integrationPercent))
+        );
+        send(player, "message.mydrugs.recovery_feedback.progress_detail", message, ACTIVE_FEEDBACK_COOLDOWN_TICKS, false);
     }
 
     public static void sendHeadphones(ServerPlayer player) {
@@ -40,11 +52,41 @@ public final class AddictionRecoveryFeedback {
         send(player, "message.mydrugs.recovery_feedback.antidote", ACTIVE_FEEDBACK_COOLDOWN_TICKS, true);
     }
 
+    public static void sendRecoveryMomentumUsed(ServerPlayer player) {
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        long now = player.level().getGameTime();
+        if (now - stats.lastRecoveryMomentumFeedbackTick < MOMENTUM_FEEDBACK_COOLDOWN_TICKS) {
+            return;
+        }
+        stats.lastRecoveryMomentumFeedbackTick = now;
+        player.displayClientMessage(Component.translatable("message.mydrugs.recovery_momentum.used"), true);
+    }
+
+    public static void sendPassiveCap(ServerPlayer player) {
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        long now = player.level().getGameTime();
+        if (now - stats.lastPassiveCapFeedbackTick < PASSIVE_CAP_FEEDBACK_COOLDOWN_TICKS) {
+            return;
+        }
+        stats.lastPassiveCapFeedbackTick = now;
+        player.displayClientMessage(Component.translatable("message.mydrugs.recovery_feedback.passive_cap"), true);
+    }
+
     private static boolean send(ServerPlayer player, String key, long cooldownTicks) {
         return send(player, key, cooldownTicks, false);
     }
 
     private static boolean send(ServerPlayer player, String key, long cooldownTicks, boolean force) {
+        return send(player, key, Component.translatable(key), cooldownTicks, force);
+    }
+
+    private static boolean send(
+            ServerPlayer player,
+            String key,
+            Component message,
+            long cooldownTicks,
+            boolean force
+    ) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         if (!force && !shouldShow(player, stats)) {
             return false;
@@ -57,7 +99,7 @@ public final class AddictionRecoveryFeedback {
 
         stats.lastRecoveryFeedbackTick = now;
         stats.lastRecoveryFeedbackKey = key;
-        player.displayClientMessage(Component.translatable(key), true);
+        player.displayClientMessage(message, true);
         return true;
     }
 
@@ -86,5 +128,12 @@ public final class AddictionRecoveryFeedback {
                     "message.mydrugs.recovery_feedback.recovery_plus";
             case MUSIC_SUPPORT, RECOVERY_ROOM_SUPPORT, PASSIVE_COMPANION, RECOVERY_RESONANCE -> null;
         };
+    }
+
+    private static String actionLabelKey(ActionKind kind) {
+        if (kind == null) {
+            return "message.mydrugs.recovery_action.unknown";
+        }
+        return "message.mydrugs.recovery_action." + kind.name().toLowerCase(java.util.Locale.ROOT);
     }
 }

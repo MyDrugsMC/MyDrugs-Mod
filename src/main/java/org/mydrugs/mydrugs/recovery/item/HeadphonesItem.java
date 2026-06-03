@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class HeadphonesItem extends Item {
-    private static final long DOUBLE_CLICK_TICKS = 5L;
+    private static final long DOUBLE_CLICK_TICKS = 10L;
     private static final Map<UUID, PendingClick> PENDING_CLICKS = new HashMap<>();
 
     public HeadphonesItem(Properties properties) {
