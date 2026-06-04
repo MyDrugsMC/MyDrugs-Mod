@@ -1,0 +1,236 @@
+import groovy.json.JsonSlurper
+import org.gradle.api.GradleException
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+
+tasks.register('validateCodeContracts') {
+    group = 'verification'
+    description = 'Validates MyDrugs source contracts that guard progression, pipes, distiller statuses, localization, and server safety.'
+
+    def projectDirFile = layout.projectDirectory.asFile
+    def projectDirPath = projectDirFile.toPath()
+    def javaSources = fileTree('src/main/java') {
+        include '**/*.java'
+    }
+    def langFile = layout.projectDirectory.file('src/main/resources/assets/mydrugs/lang/en_us.json').asFile
+    def gradlewFile = layout.projectDirectory.file('gradlew').asFile
+
+    inputs.files(javaSources)
+    inputs.file(langFile)
+    inputs.file(gradlewFile)
+
+    doLast {
+        def errors = []
+        Closure<String> rel = { File file -> projectDirPath.relativize(file.toPath()).toString().replace('\\', '/') }
+        Closure<String> text = { String path -> new File(projectDirFile, path).getText(StandardCharsets.UTF_8.name()) }
+
+        if (gradlewFile.exists()) {
+            byte[] gradlewBytes = Files.readAllBytes(gradlewFile.toPath())
+            for (int i = 0; i < gradlewBytes.length - 1; i++) {
+                if (gradlewBytes[i] == (byte) '\r' && gradlewBytes[i + 1] == (byte) '\n') {
+                    errors.add('gradlew must use LF line endings; .gitattributes keeps it stable for Unix-like CI runners.')
+                    break
+                }
+            }
+        }
+
+        def rawLang = langFile.getText(StandardCharsets.UTF_8.name())
+        def duplicateKeys = [] as Set
+        def seenKeys = [] as Set
+        (rawLang =~ /"((?:\\.|[^"\\])+)"\s*:/).each { match ->
+            String key = match[1].toString()
+            if (!seenKeys.add(key)) {
+                duplicateKeys.add(key)
+            }
+        }
+        duplicateKeys.sort().each { key -> errors.add("Duplicate en_us lang key: ${key}") }
+
+        def langJson = new JsonSlurper().parse(langFile)
+        def langKeys = langJson instanceof Map ? langJson.keySet().collect { it.toString() } as Set : [] as Set
+
+        def machineStatusText = text('src/main/java/org/mydrugs/mydrugs/machine/MachineStatus.java')
+        def enumBody = (machineStatusText =~ /(?s)enum\s+MachineStatus\s*\{(.*?);/)[0][1].toString()
+        enumBody.split(',').collect { it.trim() }.findAll { it ==~ /[A-Z0-9_]+/ }.each { status ->
+            String key = "machine_status.mydrugs.${status.toLowerCase(Locale.ROOT)}"
+            if (!langKeys.contains(key)) {
+                errors.add("MachineStatus has no en_us translation: ${key}")
+            }
+        }
+
+        def staticTranslationKeys = [] as Set
+        javaSources.files.findAll { it.exists() }.each { file ->
+            String source = file.getText(StandardCharsets.UTF_8.name())
+            (source =~ /Component\.translatable\("([^"]+)"/).each { match ->
+                String key = match[1].toString()
+                if (!key.endsWith('.') && !key.contains('%')) {
+                    staticTranslationKeys.add(key)
+                }
+            }
+        }
+        staticTranslationKeys.sort().each { key ->
+            if (!langKeys.contains(key)) {
+                errors.add("Static Component.translatable key is missing from en_us.json: ${key}")
+            }
+        }
+
+        javaSources.files.findAll { it.exists() }.each { file ->
+            String path = rel(file)
+            String normalized = '/' + path
+            List<String> segments = path.split('/') as List<String>
+            boolean clientPackage = segments.contains('client')
+            String source = file.getText(StandardCharsets.UTF_8.name())
+            if (!clientPackage && (source.contains('import net.minecraft.client.')
+                    || source.contains('import net.neoforged.neoforge.client.')
+                    || source.contains('import org.mydrugs.mydrugs.client.'))) {
+                errors.add("Common/server source imports client-only code: ${path}")
+            }
+
+            if (clientPackage && source.contains('@EventBusSubscriber')) {
+                (source =~ /@EventBusSubscriber\(([^)]*)\)/).each { match ->
+                    String args = match[1].toString()
+                    if (!args.contains('value = Dist.CLIENT')) {
+                        errors.add("Client EventBusSubscriber must specify value = Dist.CLIENT: ${path}")
+                    }
+                }
+            }
+        }
+
+        def gateText = text('src/main/java/org/mydrugs/mydrugs/progression/DrugProgressionGate.java')
+        if (!gateText.contains('case HASH -> new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID, PsyKnowledgeKey.STEEL_PLATING)')) {
+            errors.add('DrugProgressionGate must explicitly grant both CANNABINOID and STEEL_PLATING for HASH.')
+        }
+        if (!gateText.contains('evaluateKnownKnowledge')) {
+            errors.add('DrugProgressionGate must expose evaluateKnownKnowledge for progression contract checks.')
+        }
+
+        def drugUseServiceText = text('src/main/java/org/mydrugs/mydrugs/core/drug/use/DrugUseService.java')
+        if (drugUseServiceText.contains('DrugId.HASH') || drugUseServiceText.contains('PsyKnowledgeKey.STEEL_PLATING')) {
+            errors.add('DrugUseService must not contain hidden HASH/STEEL_PLATING progression side effects.')
+        }
+
+        def drugUseResultText = text('src/main/java/org/mydrugs/mydrugs/core/drug/use/DrugUseResult.java')
+        if (!drugUseResultText.contains('List<PsyKnowledgeKey> grantedKnowledge')) {
+            errors.add('DrugUseResult must expose all granted knowledge keys as a list.')
+        }
+
+        def distillerText = text('src/main/java/org/mydrugs/mydrugs/blocks/entity/DistillerBlockEntity.java')
+        if (distillerText.contains('boolean canCraft')) {
+            errors.add('DistillerBlockEntity must use a rich craft/status result, not boolean canCraft.')
+        }
+        ['MISSING_INPUT_FLUID', 'NO_MATCHING_RECIPE', 'INSUFFICIENT_INPUT_FLUID', 'OUTPUT_TANK_A_FULL', 'OUTPUT_TANK_B_FULL', 'INVALID_RECIPE_OUTPUT', 'PAUSED', 'RUNNING'].each { status ->
+            if (!distillerText.contains("MachineStatus.${status}")) {
+                errors.add("DistillerBlockEntity no longer reports required status: ${status}")
+            }
+        }
+
+        def itemPipeText = text('src/main/java/org/mydrugs/mydrugs/pipe/network/ItemPipeNetworkLogic.java')
+        def fluidPipeText = text('src/main/java/org/mydrugs/mydrugs/pipe/network/FluidPipeNetworkLogic.java')
+        def gasPipeText = text('src/main/java/org/mydrugs/mydrugs/pipe/network/GasPipeNetworkLogic.java')
+        [ItemPipeNetworkLogic: itemPipeText, FluidPipeNetworkLogic: fluidPipeText, GasPipeNetworkLogic: gasPipeText].each { name, source ->
+            if (!source.contains('seenTargets') || !source.contains('IdentityHashMap')) {
+                errors.add("${name} must deduplicate transfer candidates by target and handler identity.")
+            }
+            if (!source.contains('isEndpointLoaded')) {
+                errors.add("${name} must skip unloaded source/target endpoints.")
+            }
+            if (!source.contains('PipeNetworkDiagnostics')) {
+                errors.add("${name} must report pipe diagnostics counters behind config.")
+            }
+        }
+        if (!gasPipeText.contains('refundToSource') || !gasPipeText.contains('sourceHandler.drain(sourceTank, allocation.amount(), false)')) {
+            errors.add('GasPipeNetworkLogic must drain per allocation and refund exactly when non-transactional insertion changes.')
+        }
+        if (text('src/main/java/org/mydrugs/mydrugs/pipe/network/PipeRouteCache.java').contains('.stream()')) {
+            errors.add('PipeRouteCache must avoid stream-heavy route filtering in the tick path.')
+        }
+        if (!text('src/main/java/org/mydrugs/mydrugs/pipe/network/PipeNetworkManager.java').contains('rebuildDirty(kind)')) {
+            errors.add('PipeNetworkManager must keep rebuilds dirty-driven instead of scanning every tick.')
+        }
+
+        // --- Drug consumption architecture: only DrugUseService may drive normal consumption ---
+        javaSources.files.findAll { it.exists() }.each { file ->
+            String path = rel(file)
+            if (path.endsWith('core/drug/use/DrugUseService.java')) {
+                return
+            }
+            String source = file.getText(StandardCharsets.UTF_8.name())
+            if (source.contains('AddictionManager.consume(')) {
+                errors.add("Normal drug consumption must go through DrugUseService; AddictionManager.consume called in: ${path}")
+            }
+            if (source.contains('DrugKnowledge.markConsumed(')) {
+                errors.add("Normal drug consumption must go through DrugUseService; DrugKnowledge.markConsumed called in: ${path}")
+            }
+        }
+
+        // --- DrugEffectRuntimeManager lifecycle hardening ---
+        def runtimeText = text('src/main/java/org/mydrugs/mydrugs/core/drug/runtime/DrugEffectRuntimeManager.java')
+        ['onPlayerLogin', 'onPlayerLogout', 'onPlayerClone', 'onDimensionChange', 'onServerStop',
+         'clearAll', 'clearEffects', 'saveToPersistentState', 'loadFromPersistentState'].each { method ->
+            if (!runtimeText.contains(method)) {
+                errors.add("DrugEffectRuntimeManager must expose lifecycle API: ${method}")
+            }
+        }
+        if (!runtimeText.contains('ModAttachments.PLAYER_DRUG_EFFECTS')) {
+            errors.add('DrugEffectRuntimeManager must back active effects with persistent attachment state, not static maps alone.')
+        }
+        if (!runtimeText.contains('enum ClearReason')) {
+            errors.add('DrugEffectRuntimeManager must define ClearReason for explicit clear semantics.')
+        }
+
+        def effectsAttachmentText = text('src/main/java/org/mydrugs/mydrugs/core/drug/runtime/PlayerDrugEffectsAttachment.java')
+        if (!effectsAttachmentText.contains('serializedName')) {
+            errors.add('PlayerDrugEffectsAttachment must persist effects by stable serialized name, never enum ordinal.')
+        }
+
+        def lifecycleEventsText = text('src/main/java/org/mydrugs/mydrugs/addiction/events/DrugEffectLifecycleEvents.java')
+        ['PlayerLoggedInEvent', 'PlayerLoggedOutEvent', 'PlayerEvent.Clone',
+         'PlayerChangedDimensionEvent', 'ServerStoppingEvent'].each { hook ->
+            if (!lifecycleEventsText.contains(hook)) {
+                errors.add("DrugEffectLifecycleEvents must subscribe to ${hook} to drive runtime lifecycle.")
+            }
+        }
+
+        // --- External tool safety: no silent / mutable / self-updating downloads ---
+        javaSources.files.findAll { it.exists() }.each { file ->
+            String path = rel(file)
+            String source = file.getText(StandardCharsets.UTF_8.name())
+            if (source.contains('releases/latest/download') || source.contains('/releases/latest/')) {
+                errors.add("Mutable 'latest' download URL must not be used: ${path}")
+            }
+            if (source.contains('yt-dlp -U') || source.contains('"--update"') || source.contains("'-U'")) {
+                errors.add("External tools must never be self-updated by the mod: ${path}")
+            }
+        }
+
+        def audioLibrariesText = text('src/main/java/org/mydrugs/mydrugs/client/recovery/music/AudioLibraries.java')
+        if (audioLibrariesText.contains('java.net.http') || audioLibrariesText.contains('HttpClient')) {
+            errors.add('AudioLibraries must not perform downloads; it resolves tools through ExternalToolManager only.')
+        }
+
+        def toolDownloaderText = text('src/main/java/org/mydrugs/mydrugs/client/recovery/music/tools/ExternalToolDownloader.java')
+        if (!toolDownloaderText.contains('MessageDigest') || !toolDownloaderText.contains('SHA-256')) {
+            errors.add('ExternalToolDownloader must verify a SHA-256 digest before installing a tool.')
+        }
+        if (!toolDownloaderText.contains('equalsIgnoreCase(entry.sha256())')) {
+            errors.add('ExternalToolDownloader must compare the downloaded digest against the pinned SHA-256.')
+        }
+
+        ['client/recovery/music/tools/ExternalToolManifest.java',
+         'client/recovery/music/tools/ExternalToolManager.java',
+         'client/recovery/disclaimer/DisclaimerScreen.java',
+         'client/recovery/disclaimer/FirstWorldDisclaimerHandler.java'].each { relPath ->
+            if (!new File(projectDirFile, 'src/main/java/org/mydrugs/mydrugs/' + relPath).exists()) {
+                errors.add("Required external-tool / disclaimer source is missing: ${relPath}")
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            throw new GradleException("Code contract validation failed:\n - " + errors.sort().join('\n - '))
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('validateCodeContracts')
+}
