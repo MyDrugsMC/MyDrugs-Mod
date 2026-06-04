@@ -1,0 +1,13 @@
+{
+  "type": "mydrugs:btx_fractionation",
+  "input": {
+    "fluid": "mydrugs:btx_mix",
+    "amount": 1000
+  },
+  "outputs": [
+    { "fluid": "mydrugs:benzene", "amount": 350 },
+    { "fluid": "mydrugs:toluene", "amount": 300 },
+    { "fluid": "mydrugs:xylene",  "amount": 350 }
+  ],
+  "process_time": 300
+}

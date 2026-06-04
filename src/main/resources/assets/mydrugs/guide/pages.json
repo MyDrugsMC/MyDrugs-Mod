@@ -76,9 +76,24 @@
     ]
   },
   {
+    "title": "Five Pillars",
+    "elements": [
+      { "type": "text", "text": "OVERVIEW" },
+      { "type": "text", "text": "The mod is five overlapping pillars. Every chapter from here on touches one or more of them — the tag at the top of each page tells you which." },
+      { "type": "text", "text": "Production is what you grow, distill, press and circuit together: crops, fluids, gases, machines, Psy Current. It is the base layer everything else sits on." },
+      { "type": "text", "text": "Risk is the cost of using what you make: addiction, withdrawal, overdose, bad trips, infection. The diary tracks it, the machines hint at it, the world reacts to it." },
+      { "type": "text", "text": "Recovery is how you climb back: diary work, safe rooms, sleep, social relief, therapist visits, sanctuary modules. It runs alongside everything, not after." },
+      { "type": "text", "text": "Integration is the permanent lesson kept from each curated drug. Where mutations can erode, integration stays — one trait per drug, earned by surviving, recovering, and resonating it through." },
+      { "type": "text", "text": "Inner Dimension is what the route opens into: a small world that grows as you integrate, where the late game answers the question the early game asked." },
+      { "type": "text", "text": "The goal is not stronger consumption but freedom from compulsive use. You don\u0027t keep the drug, you keep the lesson." },
+      { "type": "tip", "text": "If a chapter feels off-route, check its pillars. A page tagged Recovery during a Production chapter is reminding you the two are not separate." }
+    ]
+  },
+  {
     "title": "The Route",
     "elements": [
       { "type": "text", "text": "OVERVIEW" },
+      { "type": "text", "text": "Pillars: Production · Risk · Recovery · Integration · Inner Dimension" },
       { "type": "text", "text": "This is the whole game on one page. Each arrow is roughly one chapter." },
       { "type": "text", "text": "Grass and ferns → crops → coffee kit → coffee → tobacco → Psy Receptacle → Psy Anvil → iron mesh → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom." },
       { "type": "text", "text": "Recovery runs alongside ALL of it, not after." },
@@ -170,6 +185,7 @@
     "title": "Tobacco",
     "elements": [
       { "type": "text", "text": "MAIN QUEST + RECOVERY — Chapter 2" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "text", "text": "Tobacco is the second gate — and the first thing that bites back." },
       { "type": "item", "text": "mydrugs:tobacco_leaf" },
       { "type": "item", "text": "mydrugs:dried_tobacco_leaf" },
@@ -204,6 +220,7 @@
     "title": "Cannabis",
     "elements": [
       { "type": "text", "text": "MAIN QUEST — Chapter 4" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "item", "text": "mydrugs:cannabis_leaf" },
       { "type": "item", "text": "mydrugs:cured_cannabis_leaf" },
       { "type": "item", "text": "mydrugs:dried_cannabis_leaf" },
@@ -220,6 +237,7 @@
     "title": "Copper Workshop",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens the fluid era." },
       { "type": "item", "text": "mydrugs:copper_plate" },
       { "type": "item", "text": "mydrugs:copper_strapping" },
@@ -235,6 +253,7 @@
     "title": "Fermentation",
     "elements": [
       { "type": "text", "text": "MAIN QUEST — Chapter 5" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "item", "text": "mydrugs:rye" },
       { "type": "item", "text": "mydrugs:malt" },
       { "type": "item", "text": "mydrugs:malt_powder" },
@@ -252,6 +271,7 @@
     "title": "Heavy Iron",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Fermented Knowledge unlocks heavy iron on the Psy Anvil — the metal that builds machines." },
       { "type": "item", "text": "mydrugs:heavy_iron" },
       { "type": "item", "text": "mydrugs:heavy_iron_plate" },
@@ -266,6 +286,7 @@
     "title": "Hash and Steel",
     "elements": [
       { "type": "text", "text": "MAIN QUEST — Chapter 6" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "This is where your hoarded resin pays off." },
       { "type": "item", "text": "mydrugs:stomp_crafter" },
       { "type": "item", "text": "mydrugs:cannabis_resin" },
@@ -303,6 +324,7 @@
     "title": "Machine Handbook",
     "elements": [
       { "type": "text", "text": "MACHINE REFERENCE" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression." },
       { "type": "text", "text": "Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker." },
       { "type": "link", "text": "Hand Processing / Early Processing", "target": "Machine Handbook - Early Processing" },
@@ -317,6 +339,7 @@
     "title": "Machine Handbook - Early Processing",
     "elements": [
       { "type": "text", "text": "HAND PROCESSING / EARLY PROCESSING" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Early machines turn hand work into reliable preparation. They usually handle items, manual action, time, drying, batch containers, or small liquid steps." },
       { "type": "text", "text": "Common blockers are simple: wrong form of input, missing player action, missing container, no room for output, or a block that is waiting for time instead of power." },
       { "type": "item", "text": "mydrugs:manual_coffee_pulper" },
@@ -390,6 +413,7 @@
     "title": "Machine Handbook - Crude Machine Era",
     "elements": [
       { "type": "text", "text": "CRUDE MACHINE ERA" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Crude machines are the first factory layer. They introduce heat, tanks, side transfer, filters and split outputs, but most of the work is still close to a single block." },
       { "type": "text", "text": "Common blockers include no heat, no valid fluid, wrong container, output tank full, missing filter, and side rules that prevent transfer." },
       { "type": "item", "text": "mydrugs:advanced_furnace" },
@@ -455,6 +479,7 @@
     "title": "Machine Handbook - Chemical Machine Era",
     "elements": [
       { "type": "text", "text": "CHEMICAL MACHINE ERA" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Chemical machines handle mixed item, fluid and gas routes. They are more sensitive to storage type, gas tanks, catalysts and multi-output buffers than the early factory machines." },
       { "type": "text", "text": "Common blockers include missing gas, missing catalyst, not enough energy, output gas tank full, no matching recipe, or a full secondary output that blocks the whole batch." },
       { "type": "item", "text": "mydrugs:biochemical_reactor" },
@@ -560,6 +585,7 @@
     "title": "Machine Handbook - Psy Current Era",
     "elements": [
       { "type": "text", "text": "PSY CURRENT ERA" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Psy Current machines turn psychotrope extracts into abstract machine power. This is factory support, not ritual integration." },
       { "type": "text", "text": "Watch for fuel validity, nearby targets, current buffers, strain and overload cooldowns. JEI explains fuel compatibility; the machine screen explains current status." },
       { "type": "item", "text": "mydrugs:psychotrope_distillery" },
@@ -585,6 +611,7 @@
     "title": "Machine Handbook - Ritual and Integration Era",
     "elements": [
       { "type": "text", "text": "RITUAL / INTEGRATION ERA" },
+      { "type": "text", "text": "Pillars: Production · Integration" },
       { "type": "text", "text": "Ritual and integration machines read progression, diary, recovery, multiblock shape and body-state context. Their blockers are often about meaning, not just empty slots." },
       { "type": "text", "text": "Common blockers include missing knowledge, invalid structure, missing diary context, missing recovery context, wrong ritual material, dirty tools, or output blocked." },
       { "type": "item", "text": "mydrugs:psy_anvil" },
@@ -657,6 +684,7 @@
     "title": "Support Materials",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "The boring stockpile that stops you mid-recipe later. Build a chest for it." },
       { "type": "item", "text": "mydrugs:plant_biomass" },
       { "type": "item", "text": "mydrugs:coal_dust" },
@@ -697,6 +725,7 @@
     "title": "Pipes and Transfer",
     "elements": [
       { "type": "text", "text": "UTILITY" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "When carrying buckets gets old, automate." },
       { "type": "item", "text": "mydrugs:basic_item_pipe" },
       { "type": "item", "text": "mydrugs:basic_fluid_pipe" },
@@ -715,6 +744,7 @@
     "title": "Coca",
     "elements": [
       { "type": "text", "text": "MAIN QUEST — Chapter 8" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "text", "text": "The first hard drug. It needs a machine line and it does not forgive sloppy recovery." },
       { "type": "item", "text": "mydrugs:coca_leaf" },
       { "type": "item", "text": "mydrugs:dried_coca_leaf" },
@@ -734,6 +764,7 @@
     "title": "Alcohol Distillation",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "text", "text": "Coca and lab chemistry both run on absolute ethanol. Make it before chapter 8." },
       { "type": "item", "text": "mydrugs:low_wines_bucket" },
       { "type": "item", "text": "mydrugs:raw_alcohol_bucket" },
@@ -749,6 +780,7 @@
     "title": "Cocaine and Crack",
     "elements": [
       { "type": "text", "text": "SIDE — RISK ROUTE" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "item", "text": "mydrugs:cocaine_powder" },
       { "type": "item", "text": "mydrugs:cupboard_piece" },
       { "type": "item", "text": "mydrugs:crack_plate" },
@@ -762,6 +794,7 @@
     "title": "Stimulant Tech",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "item", "text": "mydrugs:insulated_wire" },
       { "type": "item", "text": "mydrugs:control_circuit" },
       { "type": "item", "text": "mydrugs:electric_motor" },
@@ -777,6 +810,7 @@
     "title": "Lab Chemistry",
     "elements": [
       { "type": "text", "text": "SUPPORT — Chapter 9" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "The late game splits every recipe into three streams: items, fluids and gases. Each is a separate input." },
       { "type": "item", "text": "mydrugs:gas_tank" },
       { "type": "item", "text": "mydrugs:gas_pump" },
@@ -794,6 +828,7 @@
     "title": "Acids and Reagents",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "item", "text": "mydrugs:hydrochloric_acid_bucket" },
       { "type": "item", "text": "mydrugs:sulfuric_acid_bucket" },
       { "type": "item", "text": "mydrugs:acylating_agent_bucket" },
@@ -811,6 +846,7 @@
     "title": "LSD",
     "elements": [
       { "type": "text", "text": "MAIN QUEST — Chapter 10" },
+      { "type": "text", "text": "Pillars: Production · Risk · Integration" },
       { "type": "item", "text": "mydrugs:growth_chamber" },
       { "type": "item", "text": "mydrugs:biochemical_reactor" },
       { "type": "item", "text": "mydrugs:fungal_culture" },
@@ -835,6 +871,7 @@
     "title": "Advanced Circuits",
     "elements": [
       { "type": "text", "text": "SUPPORT" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "item", "text": "mydrugs:advanced_control_circuit" },
       { "type": "item", "text": "mydrugs:reaction_core" },
       { "type": "item", "text": "mydrugs:catalyst_bed" },
@@ -896,6 +933,7 @@
     "title": "Mushrooms",
     "elements": [
       { "type": "text", "text": "MAIN QUEST + EXPLORATION — Chapter 12" },
+      { "type": "text", "text": "Pillars: Production · Integration · Inner Dimension" },
       { "type": "item", "text": "mydrugs:magic_mushroom" },
       { "type": "item", "text": "mydrugs:magic_mushroom_powder" },
       { "type": "item", "text": "mydrugs:mycelial_resonator" },
@@ -913,6 +951,7 @@
     "title": "Psy Mixer",
     "elements": [
       { "type": "text", "text": "RITUAL" },
+      { "type": "text", "text": "Pillars: Production · Integration" },
       { "type": "text", "text": "The Psy Mixer is the mod\u0027s sandbox. It blends a base drug with a material, a vessel and your knowledge into something new." },
       { "type": "item", "text": "mydrugs:woven_vine_frame" },
       { "type": "item", "text": "mydrugs:ritual_bark" },
@@ -934,6 +973,7 @@
     "title": "Starter Mixes",
     "elements": [
       { "type": "text", "text": "RITUAL — gentle" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "text", "text": "Begin with the calm drugs. These themes are reliable:" },
       { "type": "text", "text": "Coffee + sugar / redstone / cocoa / bitter nut → work speed, mining speed. Tobacco + aloe / quartz / copper → precision, less tremor. Weed + moss carpet / calming spores / glowstone / phantom membrane → stress relief, glow, stability. Hash + calming spores / ghast tear / phantom membrane → stronger calm and recovery pressure relief. Alcohol + ghast tear / broken courage / inner demon remains / iron → stress and damage resistance." },
       { "type": "item", "text": "mydrugs:mixed_coffee_drug" },
@@ -948,6 +988,7 @@
     "title": "Strong Mixes",
     "elements": [
       { "type": "text", "text": "RITUAL — high power, high cost" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "text", "text": "The stimulant and psychedelic mixes are where the real power is — and the real danger." },
       { "type": "text", "text": "Cocaine + redstone / blaze powder / rabbit foot / charged sinew → speed, adrenaline, dash. Crack + gunpowder / echo shard / fractured impulse → burst windows, dash power. Meth + diamond / netherite scrap / charged core → mining, work speed and overdrive, but worse tremors. LSD + lapis / diamond / ender pearl / third eye petal → ore aura, fortune, multiblock vision. Mushrooms + amethyst / glow berries / dreamcap spores → ore aura, gamma, bad-trip resistance." },
       { "type": "item", "text": "mydrugs:mixed_cocaine_drug" },
@@ -962,6 +1003,7 @@
     "title": "Psychotrope Resonator",
     "elements": [
       { "type": "text", "text": "ENDGAME — DREAM AND INTEGRATION" },
+      { "type": "text", "text": "Pillars: Integration · Inner Dimension" },
       { "type": "item", "text": "mydrugs:psychotrope_lens" },
       { "type": "item", "text": "mydrugs:resonance_lens" },
       { "type": "item", "text": "mydrugs:psychotrope_resonator" },
@@ -1037,9 +1079,29 @@
     ]
   },
   {
+    "title": "Integrated Traits",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — REFERENCE" },
+      { "type": "text", "text": "Pillars: Integration" },
+      { "type": "text", "text": "Each curated drug, once you have survived it, recovered from it, and resonated it through the Psychotrope Resonator, leaves a single permanent trait behind. The trait is not the drug. It is the part of the drug your body learned to keep without paying its price." },
+      { "type": "text", "text": "Mutations can erode. Integrated traits do not. One trait per curated drug." },
+      { "type": "text", "text": "Clear Focus — Coffee. The hand learned speed before the mind learned rest." },
+      { "type": "text", "text": "Steady Hands — Tobacco. Steadiness became a ritual before it became a choice." },
+      { "type": "text", "text": "Even Keel — Weed. Calm is not absence. It is something I can build." },
+      { "type": "text", "text": "Fine Motor — Hash. Still hands can shape small things without needing hunger." },
+      { "type": "text", "text": "Hardened — Alcohol. Borrowed courage left a bruise. Kept courage stands cleaner." },
+      { "type": "text", "text": "Quickstep — Cocaine. Speed taught the body a route. Recovery decides where it leads." },
+      { "type": "text", "text": "Richer Seams — LSD. Five doors opened. None swallowed me." },
+      { "type": "text", "text": "Overdrive Memory — Meth. The overdrive became memory instead of command." },
+      { "type": "text", "text": "Structural Sense — Mushrooms. The structure was never outside me alone." },
+      { "type": "goal", "text": "Treat each drug as a lesson to keep, not a habit to defend. Integration is the proof you kept it." }
+    ]
+  },
+  {
     "title": "Psy Current",
     "elements": [
       { "type": "text", "text": "SUPPORT - EXTRACTION POWER" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "item", "text": "mydrugs:psychotrope_distillery" },
       { "type": "item", "text": "mydrugs:distillate_engine" },
       { "type": "item", "text": "mydrugs:lucid_extract" },
@@ -1060,6 +1122,7 @@
     "title": "Bottles and Syringes",
     "elements": [
       { "type": "text", "text": "UTILITY + MUTATION PREP" },
+      { "type": "text", "text": "Pillars: Production" },
       { "type": "item", "text": "mydrugs:glass_bottle" },
       { "type": "item", "text": "mydrugs:lsd_drop" },
       { "type": "item", "text": "mydrugs:syringe" },
@@ -1084,6 +1147,7 @@
       { "type": "text", "text": "The route still uses DNA items internally: scrape DNA → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time." },
       { "type": "text", "text": "Read it as Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover." },
       { "type": "text", "text": "Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience." },
+      { "type": "text", "text": "A mutation makes you harder to break, but infection or time can take it from you. Integration changes what breaks you, and once kept it stays." },
       { "type": "goal", "text": "Use body adaptation to support recovery and safe exploration, not to avoid healing forever." }
     ]
   },
@@ -1091,6 +1155,7 @@
     "title": "Somatic Machines",
     "elements": [
       { "type": "text", "text": "ENDGAME BODY" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "item", "text": "mydrugs:gene_extractor" },
       { "type": "item", "text": "mydrugs:crispr_cas9_combinator" },
       { "type": "item", "text": "mydrugs:bacterial_incubator" },
@@ -1105,6 +1170,7 @@
     "title": "Adaptation Patterns",
     "elements": [
       { "type": "text", "text": "ENDGAME — reference" },
+      { "type": "text", "text": "Pillars: Risk · Recovery" },
       { "type": "text", "text": "A few patterns that hold together well:" },
       { "type": "text", "text": "Clear Mind — Mental Strength, Visual Accuracy, Withdrawal Resilience. Durable Body — Health Stability, Metabolic Control, Infection Resistance. Ritualist — Ritual Neural Sync, Stability, Visual Accuracy. Safe Chemist — Infection Resistance, Health Stability, Stability. Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance. Dimension Walker — Withdrawal Resilience, Mental Strength, Stability, Metabolic Control." },
       { "type": "text", "text": "A balanced pattern supports freedom better than one enormous stat." },
@@ -1115,6 +1181,7 @@
     "title": "The Diary",
     "elements": [
       { "type": "text", "text": "RECOVERY — CENTRAL SYSTEM" },
+      { "type": "text", "text": "Pillars: Recovery · Integration" },
       { "type": "item", "text": "mydrugs:personal_diary" },
       { "type": "text", "text": "The Personal Diary is the single most useful thing you own. It is not a wiki checklist. It is your inner compass." },
       { "type": "text", "text": "Open it to read your addiction, stress, withdrawal, symptoms and tolerance — and the diary writes its own entries as you play, flagging first-time use, recovery needs, and what to do next." },
@@ -1128,6 +1195,7 @@
     "title": "The Psyche Map",
     "elements": [
       { "type": "text", "text": "ORIENTATION" },
+      { "type": "text", "text": "Pillars: Recovery · Integration" },
       { "type": "text", "text": "Inside the Personal Diary is the Psyche Map — a zoomable map of everything you have done." },
       { "type": "text", "text": "It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first adaptation, first bad trip, first recovery room, first integrated fragment, first Resonator use, and more. Locked nodes stay hidden until you reach them." },
       { "type": "text", "text": "Read the map as a constellation, not a checklist:" },
@@ -1139,6 +1207,7 @@
     "title": "Recovery Basics",
     "elements": [
       { "type": "text", "text": "RECOVERY" },
+      { "type": "text", "text": "Pillars: Recovery" },
       { "type": "text", "text": "Recovery is not an endgame chore. Coffee, tobacco, cannabis, alcohol and stimulants can all build pressure — start managing it now." },
       { "type": "item", "text": "mydrugs:headphones" },
       { "type": "item", "text": "mydrugs:herbal_tea" },
@@ -1158,6 +1227,7 @@
     "title": "Recovery Sanctuary",
     "elements": [
       { "type": "text", "text": "RECOVERY" },
+      { "type": "text", "text": "Pillars: Recovery" },
       { "type": "text", "text": "A recovery room is the strongest healing tool in the mod — passive, permanent, and built from blocks." },
       { "type": "item", "text": "mydrugs:recovery_anchor" },
       { "type": "item", "text": "mydrugs:therapist_desk" },
@@ -1178,6 +1248,7 @@
     "title": "Bad Trips and Integration",
     "elements": [
       { "type": "text", "text": "RECOVERY — INTENSITY" },
+      { "type": "text", "text": "Pillars: Risk · Recovery · Integration" },
       { "type": "text", "text": "Push a psychedelic or stimulant too hard and you can trigger a bad trip. A mild one is stress and bad symptoms. A strong one may externalize psychological fragments." },
       { "type": "item", "text": "mydrugs:inner_demon_remains" },
       { "type": "item", "text": "mydrugs:integration_core" },
@@ -1193,6 +1264,7 @@
     "title": "Drug Analyzer",
     "elements": [
       { "type": "text", "text": "UTILITY" },
+      { "type": "text", "text": "Pillars: Production · Risk" },
       { "type": "item", "text": "mydrugs:drug_analyzer" },
       { "type": "text", "text": "Not sure what something does? Put it in the Drug Analyzer." },
       { "type": "text", "text": "Drop any drug — base, processed or a Psy Mixer creation — into its slot and it reports the effects and composition that drug will apply to you." },

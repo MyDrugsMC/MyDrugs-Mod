@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -42,25 +43,31 @@ import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.transfer.FluidTransferUtil;
 import org.mydrugs.mydrugs.machine.transfer.LockedTransferSlots;
 import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
+import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
+import org.mydrugs.mydrugs.recipes.btx_fractionation.BTXFractionationRecipe;
+import org.mydrugs.mydrugs.recipes.btx_fractionation.BTXFractionationRecipeInput;
+import org.mydrugs.mydrugs.recipes.chemical_reactor.FluidRequirement;
+
+import java.util.List;
+import java.util.Optional;
 
 public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity implements BTXFractionationTowerMenu.BTXFractionationTowerButtonHandler {
     public static final int FLUID_CAPACITY = 4000;
-    public static final int INPUT_PER_BATCH = 1000;
-    public static final int BENZENE_PER_BATCH = 350;
-    public static final int TOLUENE_PER_BATCH = 300;
-    public static final int XYLENE_PER_BATCH = 350;
-    public static final int BASE_TICKS = 300;
+    /** Fallback process time when no recipe is loaded yet; the JSON recipe overrides this. */
+    private static final int FALLBACK_PROCESS_TICKS = 300;
 
     private static final ResourceLocation BTX_MIX_ID = ModFluids.rl("btx_mix");
 
     private final LockedTransferSlots fluidTransferLocks = new LockedTransferSlots(1);
+    // BTX Mix is currently the only declared input fluid; if future recipes add new input fluids,
+    // extend this filter to consult the recipe manager when the tank has a level reference.
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync, BTXFractionationTowerBlockEntity::isBTXMixFluidStack);
     private final StoredFluidTank benzeneTank = new StoredFluidTank(FLUID_CAPACITY, this::sync, stack -> isFluidStack(stack, ModFluids.BENZENE));
     private final StoredFluidTank tolueneTank = new StoredFluidTank(FLUID_CAPACITY, this::sync, stack -> isFluidStack(stack, ModFluids.TOLUENE));
     private final StoredFluidTank xyleneTank = new StoredFluidTank(FLUID_CAPACITY, this::sync, stack -> isFluidStack(stack, ModFluids.XYLENE));
     private NonNullList<ItemStack> items = NonNullList.withSize(BTXFractionationTowerMenu.MACHINE_SLOT_COUNT, ItemStack.EMPTY);
     private int progress = 0;
-    private int maxProgress = BASE_TICKS;
+    private int maxProgress = FALLBACK_PROCESS_TICKS;
 
     private int burnTimeRemaining = 0;
     private int burnTimeTotal = 0;
@@ -150,9 +157,10 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
             changed = true;
         }
 
-        be.maxProgress = BASE_TICKS;
+        BTXFractionationRecipe recipe = be.findMatchingRecipe((ServerLevel) level).orElse(null);
+        be.maxProgress = recipe == null ? FALLBACK_PROCESS_TICKS : recipe.processTime();
 
-        if (!be.canCraft()) {
+        if (recipe == null || !be.canCraft(recipe)) {
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -174,7 +182,7 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft();
+                be.craft(recipe);
                 be.progress = 0;
                 changed = true;
             }
@@ -183,13 +191,6 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
         if (changed) {
             be.sync();
         }
-    }
-
-    private static FluidStack toFluidStack(FluidEntry entry, int amount) {
-        if (amount <= 0) {
-            return FluidStack.EMPTY;
-        }
-        return new FluidStack(entry.source().get(), amount);
     }
 
     public static boolean isBTXMixFluidStack(FluidStack stack) {
@@ -224,36 +225,58 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
                 && stack.getBurnTime(null, level.fuelValues()) > 0;
     }
 
-    private boolean canCraft() {
-        ResourceLocation inputFluidId = this.inputTank.getFluidId();
-        if (!BTX_MIX_ID.equals(inputFluidId)) {
-            return false;
+    private Optional<BTXFractionationRecipe> findMatchingRecipe(ServerLevel level) {
+        if (this.inputTank.getFluid().isEmpty()) {
+            return Optional.empty();
         }
-
-        if (this.inputTank.getAmount() < INPUT_PER_BATCH) {
-            return false;
-        }
-
-        FluidStack benzene = toFluidStack(ModFluids.BENZENE, BENZENE_PER_BATCH);
-        if (benzene.isEmpty() || this.benzeneTank.getAddableAmount(benzene) < benzene.getAmount()) {
-            return false;
-        }
-
-        FluidStack toluene = toFluidStack(ModFluids.TOLUENE, TOLUENE_PER_BATCH);
-        if (toluene.isEmpty() || this.tolueneTank.getAddableAmount(toluene) < toluene.getAmount()) {
-            return false;
-        }
-
-        FluidStack xylene = toFluidStack(ModFluids.XYLENE, XYLENE_PER_BATCH);
-        return !xylene.isEmpty() && this.xyleneTank.getAddableAmount(xylene) >= xylene.getAmount();
+        BTXFractionationRecipeInput input = new BTXFractionationRecipeInput(this.inputTank.getFluid().copy());
+        return level.recipeAccess().getRecipeFor(
+                ModRecipeTypes.BTX_FRACTIONATION.get(),
+                input,
+                level
+        ).map(RecipeHolder::value);
     }
 
-    private void craft() {
-        this.inputTank.extract(INPUT_PER_BATCH, false);
-        this.benzeneTank.insert(toFluidStack(ModFluids.BENZENE, BENZENE_PER_BATCH), false);
-        this.tolueneTank.insert(toFluidStack(ModFluids.TOLUENE, TOLUENE_PER_BATCH), false);
-        this.xyleneTank.insert(toFluidStack(ModFluids.XYLENE, XYLENE_PER_BATCH), false);
+    private boolean canCraft(BTXFractionationRecipe recipe) {
+        if (this.inputTank.getAmount() < recipe.input().amount()) {
+            return false;
+        }
+        for (FluidRequirement output : recipe.outputs()) {
+            StoredFluidTank tank = outputTankFor(output.fluidId());
+            if (tank == null) {
+                return false;
+            }
+            FluidStack stack = new FluidStack(BuiltInRegistries.FLUID.getValue(output.fluidId()), output.amount());
+            if (stack.isEmpty() || tank.getAddableAmount(stack) < output.amount()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void craft(BTXFractionationRecipe recipe) {
+        this.inputTank.extract(recipe.input().amount(), false);
+        for (FluidRequirement output : recipe.outputs()) {
+            StoredFluidTank tank = outputTankFor(output.fluidId());
+            if (tank == null) {
+                continue;
+            }
+            tank.insert(new FluidStack(BuiltInRegistries.FLUID.getValue(output.fluidId()), output.amount()), false);
+        }
         org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+    }
+
+    private @Nullable StoredFluidTank outputTankFor(ResourceLocation fluidId) {
+        if (ModFluids.rl(ModFluids.BENZENE.name()).equals(fluidId)) {
+            return this.benzeneTank;
+        }
+        if (ModFluids.rl(ModFluids.TOLUENE.name()).equals(fluidId)) {
+            return this.tolueneTank;
+        }
+        if (ModFluids.rl(ModFluids.XYLENE.name()).equals(fluidId)) {
+            return this.xyleneTank;
+        }
+        return null;
     }
 
     private boolean tryConsumeFuel() {
@@ -410,7 +433,7 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
         this.xyleneTank.load(input, "XyleneFluid");
 
         this.progress = input.getIntOr("Progress", 0);
-        this.maxProgress = input.getIntOr("MaxProgress", BASE_TICKS);
+        this.maxProgress = input.getIntOr("MaxProgress", FALLBACK_PROCESS_TICKS);
         this.burnTimeRemaining = input.getIntOr("BurnTimeRemaining", 0);
         this.burnTimeTotal = input.getIntOr("BurnTimeTotal", 0);
 

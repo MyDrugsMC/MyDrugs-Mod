@@ -50,7 +50,6 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "coca_seeds",
                 "cocaine_powder",
                 "cocaine_plate",
-                "cocaine_shard",
                 "condenser_coil",
                 "control_circuit",
                 "copper_plate",

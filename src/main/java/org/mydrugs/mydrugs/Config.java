@@ -121,7 +121,7 @@ public class Config {
                     .comment("Client visual particle density multiplier for MyDrugs effects.")
                     .defineInRange("particleDensityMultiplier", 1.0D, 0.0D, 1.0D);
             dimensionFogIntensity = builder
-                    .comment("Future dimension fog presentation intensity. Kept client-only for pack defaults.")
+                    .comment("Dimension fog presentation intensity. Client-only.")
                     .defineInRange("dimensionFogIntensity", 1.0D, 0.0D, 1.0D);
             oreAuraIntensity = builder
                     .comment("Ore aura presentation intensity. 0 hides the client aura only; server mining effects are unchanged.")
@@ -175,10 +175,10 @@ public class Config {
                     .comment("Soften sudden MyDrugs audio spikes where client-side control is possible.")
                     .define("disableSuddenLoudSounds", false);
             screamerVolumeCap = builder
-                    .comment("Maximum volume cap for future screamer audio. 0 is silent, 1 is default cap.")
+                    .comment("Maximum volume cap for screamer audio. 0 is silent, 1 is default cap.")
                     .defineInRange("screamerVolumeCap", 1.0D, 0.0D, 1.0D);
             muteScreamers = builder
-                    .comment("Mute future screamer audio and use text/HUD alternatives.")
+                    .comment("Mute screamer audio and use text/HUD alternatives.")
                     .define("muteScreamers", false);
             builder.pop();
 
@@ -391,7 +391,6 @@ public class Config {
         public final ModConfigSpec.BooleanValue enableSulfurOre;
         public final ModConfigSpec.BooleanValue enablePlatinumOre;
         public final ModConfigSpec.BooleanValue enableAluminiumOre;
-        public final ModConfigSpec.BooleanValue enableMethOre;
         public final ModConfigSpec.BooleanValue enablePetroleumLakes;
         public final ModConfigSpec.IntValue sulfurVeinSize;
         public final ModConfigSpec.IntValue sulfurVeinsPerChunk;
@@ -456,7 +455,7 @@ public class Config {
                     .comment("Enable MyDrugs overworld biome injection through TerraBlender.")
                     .define("enableOverworldBiomes", true);
             enableSkyIslandDimension = builder
-                    .comment("Future dimension switch. No dimension is registered yet; this is reserved for pack defaults.")
+                    .comment("Sky Island dimension switch. The Sky Island dimension is not registered yet; this is reserved for pack defaults. The Inner Dimension is shipped separately and is not controlled by this flag.")
                     .define("enableSkyIslandDimension", false);
             warnWorldgenConfigChangedAfterWorldgen = builder
                     .comment("Log warnings when invasive worldgen options are disabled after worlds already exist.")
@@ -501,9 +500,6 @@ public class Config {
             phosphateVeinsPerChunk = builder.defineInRange("phosphateVeinsPerChunk", 6, 0, 128);
             phosphateMinHeight = builder.defineInRange("phosphateMinHeight", -32, -128, 320);
             phosphateMaxHeight = builder.defineInRange("phosphateMaxHeight", 64, -128, 320);
-            enableMethOre = builder
-                    .comment("Reserved for legacy/future meth ore packs. The base mod currently does not generate meth ore.")
-                    .define("enableMethOre", false);
             enablePetroleumLakes = builder
                     .comment("Enable desert petroleum lake biome modifier. Disable for less invasive overworld fluid generation.")
                     .define("enablePetroleumLakes", true);

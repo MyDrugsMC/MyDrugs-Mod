@@ -10,6 +10,7 @@ import org.mydrugs.mydrugs.recipes.advanced_furnace.AdvancedFurnaceRecipe;
 import org.mydrugs.mydrugs.recipes.advanced_mixing_vat.AdvancedMixingVatRecipe;
 import org.mydrugs.mydrugs.recipes.aromatic_extractor.AromaticExtractorRecipe;
 import org.mydrugs.mydrugs.recipes.biochemical_reactor.BiochemicalReactorRecipe;
+import org.mydrugs.mydrugs.recipes.btx_fractionation.BTXFractionationRecipe;
 import org.mydrugs.mydrugs.recipes.catalytic_reformer.CatalyticReformerRecipe;
 import org.mydrugs.mydrugs.recipes.centrifuge.CentrifugeRecipe;
 import org.mydrugs.mydrugs.recipes.electrolyzer.ElectrolyzerRecipe;
@@ -87,6 +88,9 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<ChemicalReactorRecipe>> CHEMICAL_REACTOR =
             RECIPE_TYPES.register("chemical_reactor", RecipeType::simple);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BTXFractionationRecipe>> BTX_FRACTIONATION =
+            RECIPE_TYPES.register("btx_fractionation", RecipeType::simple);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<GasifierRecipe>> GASIFIER =
             RECIPE_TYPES.register("gasifier", RecipeType::simple);
