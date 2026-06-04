@@ -1,3 +1,5 @@
+> Snapshot generated from `scan/` and source review on 2026-06-03. Point-in-time report, not a contract. If this disagrees with source, source wins.
+
 # Mood Audit
 
 Generated from: `GAME_MOOD_BIBLE.md`, `GAMEPLAY_CONTRACTS.md`, `DRUG_SYSTEM.md`,

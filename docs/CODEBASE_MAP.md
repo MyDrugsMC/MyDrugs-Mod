@@ -152,17 +152,7 @@ These descriptor tables are validated at startup by `commonSetup`.
 
 Drug identity quick map:
 
-| Drug | Gameplay identity |
-|---|---|
-| Coffee | Work, energy, early productivity |
-| Tobacco | Focus, precision, ritual steadiness |
-| Cannabis | Calm, stability, lowered threat perception |
-| Cocaine / Stimulants | Overclock, dash, adrenaline |
-| Crack | Short burst, high risk |
-| Meth | Late-game overclock |
-| Psychedelics | Altered perception, ritual certainty |
-| Alcohol | Courage, resistance, chaos |
-| Opioids | Deferred |
+Canonical drug identities and risk language: see `docs/GAMEPLAY_DESIGN.md`. Do not restate them here.
 
 ---
 

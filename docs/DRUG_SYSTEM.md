@@ -65,15 +65,7 @@ Persistent and network codecs must have matching bounds.
 
 ## Drug identity map
 
-- Coffee: work, energy, early productivity.
-- Tobacco: focus, precision, ritual steadiness.
-- Cannabis/hash: calm, stability, lowered threat perception, ritual stability.
-- Cocaine/stimulants: short overclock, dash/adrenaline, readable crash/risk.
-- Crack: violent short burst, high risk.
-- Meth: late-game overclock, high consequence.
-- Psychedelics: altered perception, ritual certainty, ore/structure perception, recovery/integration hooks.
-- Alcohol: courage/resistance/chaos.
-- Opioids: deferred; do not expand until core loop is stable unless explicitly requested.
+Canonical drug identities and risk language: see `docs/GAMEPLAY_DESIGN.md`. Do not restate them here.
 
 ## Forbidden patterns
 

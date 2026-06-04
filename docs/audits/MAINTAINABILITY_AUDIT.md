@@ -1,3 +1,5 @@
+> Snapshot generated from `scan/` and source review on 2026-06-03. Point-in-time report, not a contract. If this disagrees with source, source wins.
+
 # Maintainability Audit
 
 Generated from: `scan/client_server_violations.md`, `scan/component_literal_report.md`,
@@ -458,8 +460,8 @@ No code change needed for the first step.
 
 **Problem:**
 `docs/ADDICTION_RECOVERY_DIARY.md`, `docs/GAMEPLAY_CONTRACTS.md` (addiction section),
-`docs/MAINTAINABILITY_AUDIT.md` (prior version), `docs/RISK_HOTSPOTS.md`, and
-`docs/TECH_DEBT_REGISTER.md` were listed in `00_README_FOR_AGENTS.md` as the first files to read,
+`docs/audits/MAINTAINABILITY_AUDIT.md` (prior version), `docs/audits/RISK_HOTSPOTS.md`, and
+`docs/audits/TECH_DEBT_REGISTER.md` were listed in `00_README_FOR_AGENTS.md` as the first files to read,
 but were empty or stub-filled. Agents reading them get no guidance and must re-derive context from
 source.
 

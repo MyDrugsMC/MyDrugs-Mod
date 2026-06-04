@@ -68,6 +68,15 @@ Invisible power is bad design unless mystery is the explicit point and the guide
 - Machines should support the fantasy without turning into real-world procedural chemistry.
 - Balance constants should be explained by player experience, not arbitrary realism.
 
+## Balance-change protocol
+
+- Do not change design or balance during maintainability work unless explicitly asked.
+- When proposing balance changes, mark them as design recommendations rather than bug fixes.
+
+## Progression guide
+
+Progression changes should update the guide source manually or via the established guide generation process. Do not rewrite `docs/progression_guide_pages.md` unless explicitly asked.
+
 ## Anti-goals
 
 - No moral panic tone.
