@@ -98,7 +98,7 @@ public class RolledSmokedItem extends DrugItem {
         }
 
         if (!level.isClientSide() && !creative && livingEntity instanceof Player player) {
-            ItemStack filterStack = new ItemStack(ModItems.CIGARET_FILTER.get());
+            ItemStack filterStack = new ItemStack(ModItems.CIGARETTE_FILTER.get());
 
             if (!player.getInventory().add(filterStack)) {
                 player.drop(filterStack, false);

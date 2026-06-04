@@ -42,8 +42,8 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "cannabis_seeds",
                 "caffeine_bar",
                 "catalyst_bed",
-                "cigaret",
-                "cigaret_filter",
+                "cigarette",
+                "cigarette_filter",
                 "coal_dust",
                 "coca_leaf",
                 "coca_paste",
@@ -57,6 +57,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "copper_tube",
                 "crack_plate",
                 "crack_shard",
+                "crude_reactant_cake",
                 "cup",
                 "cupboard_piece",
                 "cured_cannabis_leaf",
@@ -68,6 +69,8 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "energy_upgrade",
                 "ergot",
                 "ergotamine",
+                "ephedra_cuttings",
+                "ephedra_extract",
                 "fast_fluid_pipe",
                 "fast_gas_pipe",
                 "fast_item_pipe",
@@ -75,7 +78,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "filter_upgrade",
                 "flour",
                 "fluid_filter",
-                "full_ammoniac_bottle",
+                "full_ammonia_bottle",
                 "fungal_culture",
                 "fungal_fiber",
                 "glass_tube",
@@ -129,10 +132,12 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "psychotrope_lens",
                 "pump_head",
                 "raw_aluminium",
+                "raw_phosphorus",
                 "raw_platinum",
                 "raw_rubber",
                 "raw_thick_glass",
                 "reaction_core",
+                "reactive_phosphorus",
                 "refractory_brick",
                 "refractory_mix",
                 "reinforced_casing",
@@ -149,6 +154,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "steel_ingot",
                 "steel_plate",
                 "stone_hammer",
+                "spent_plant_pulp",
                 "sulfur_powder",
                 "tank_wall",
                 "thick_glass",
@@ -177,9 +183,9 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
         futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "mydrugs:item/inner_demon_remains"));
         futures.add(saveFlatItem(cachedOutput, "progression_guide", "mydrugs:item/progression_guide"));
-        futures.add(saveFlatItem(cachedOutput, "adn_scraper", "mydrugs:item/adn_scraper"));
-        futures.add(saveFlatItem(cachedOutput, "adn_scrap", "mydrugs:item/adn_scrap"));
-        futures.add(saveFlatItem(cachedOutput, "adn_gene", "mydrugs:item/adn_gene"));
+        futures.add(saveFlatItem(cachedOutput, "dna_scraper", "mydrugs:item/dna_scraper"));
+        futures.add(saveFlatItem(cachedOutput, "dna_scrap", "mydrugs:item/dna_scrap"));
+        futures.add(saveFlatItem(cachedOutput, "dna_gene", "mydrugs:item/dna_gene"));
         futures.add(saveFlatItem(cachedOutput, "mutation_vector", "mydrugs:item/mutation_vector"));
         futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "mydrugs:item/mutagenic_blood_vial"));
         futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "mydrugs:item/nutrient_gel"));
@@ -202,6 +208,11 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "strain_vent", "mydrugs:item/strain_vent"));
         futures.add(saveFlatItem(cachedOutput, "resonance_lens", "mydrugs:item/resonance_lens"));
         futures.add(saveFlatItem(cachedOutput, "integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "basic_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "advanced_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "refined_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "pristine_integration_core", "mydrugs:item/integration_core"));
+        futures.add(saveFlatItem(cachedOutput, "prime_integration_core", "mydrugs:item/integration_core"));
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

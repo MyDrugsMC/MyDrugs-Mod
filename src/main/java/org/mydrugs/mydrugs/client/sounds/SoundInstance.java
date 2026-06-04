@@ -85,7 +85,7 @@ public class SoundInstance extends AbstractTickableSoundInstance {
     }
 
     public void refreshDuration(int durationTicks, int fadeTicksLeft, int fadeDurationTicks, float baseVolume) {
-        this.ticksLeft = Math.max(this.ticksLeft, durationTicks);
+        this.ticksLeft = Math.max(0, durationTicks);
         this.baseVolume = Math.max(0.0F, Math.min(1.0F, baseVolume));
         if (fadeTicksLeft > 0 && fadeDurationTicks > 0) {
             this.fadeTicksLeft = Math.min(fadeTicksLeft, this.ticksLeft);

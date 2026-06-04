@@ -132,11 +132,12 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     public boolean hasFilter(Direction side) {
-        return this.sideConfigs.get(side).filter() != null;
+        PipeFilterConfig filter = this.sideConfigs.get(side).filter();
+        return filter != null && !filter.isNoop();
     }
 
-    public void applyFilter(Direction side, PipeFilterConfig filter) {
-        this.sideConfigs.get(side).setFilter(filter);
+    public void applyFilter(Direction side, @Nullable PipeFilterConfig filter) {
+        this.sideConfigs.get(side).setFilter(filter == null || filter.isNoop() ? null : filter);
         this.onConfigurationChanged(PipeNetworkDirtyReason.FILTER_CHANGED);
     }
 

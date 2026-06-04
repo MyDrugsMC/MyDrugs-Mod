@@ -8,8 +8,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 import java.util.function.Supplier;
 
 public final class FluidEntry {
-    private final String name;
-    private final int tint;
+    private final FluidSpec spec;
 
     private Supplier<FluidType> type;
     private Supplier<FlowingFluid> source;
@@ -17,17 +16,21 @@ public final class FluidEntry {
     private Supplier<LiquidBlock> block;
     private Supplier<Item> bucket;
 
-    public FluidEntry(String name, int tint) {
-        this.name = name;
-        this.tint = tint;
+    public FluidEntry(FluidSpec spec) {
+        this.spec = spec;
+    }
+
+    /** The original specification this entry was built from. */
+    public FluidSpec spec() {
+        return spec;
     }
 
     public String name() {
-        return name;
+        return spec.name();
     }
 
     public int tint() {
-        return tint;
+        return spec.tint();
     }
 
     public Supplier<FluidType> type() {

@@ -155,10 +155,10 @@ public final class ModBlockEntities {
                             ModBlocks.GENE_EXTRACTOR.get()
                     ));
 
-    public static final Supplier<BlockEntityType<KrisprKas9CombinatorBlockEntity>> CRISPR_CAS9_COMBINATOR =
+    public static final Supplier<BlockEntityType<CrisprCas9CombinatorBlockEntity>> CRISPR_CAS9_COMBINATOR =
             BLOCK_ENTITY_TYPES.register("crispr_cas9_combinator",
                     () -> new BlockEntityType<>(
-                            KrisprKas9CombinatorBlockEntity::new,
+                            CrisprCas9CombinatorBlockEntity::new,
                             false,
                             ModBlocks.CRISPR_CAS9_COMBINATOR.get()
                     ));

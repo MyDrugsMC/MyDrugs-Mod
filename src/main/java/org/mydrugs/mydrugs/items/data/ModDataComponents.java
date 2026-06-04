@@ -42,20 +42,20 @@ public class ModDataComponents {
                             .networkSynchronized(BloodSample.STREAM_CODEC)
             );
 
-    public static final Supplier<DataComponentType<AdnScrapData>> ADN_SCRAP_DATA =
+    public static final Supplier<DataComponentType<DnaScrapData>> DNA_SCRAP_DATA =
             DATA_COMPONENTS.registerComponentType(
-                    "adn_scrap_data",
+                    "dna_scrap_data",
                     builder -> builder
-                            .persistent(AdnScrapData.CODEC)
-                            .networkSynchronized(AdnScrapData.STREAM_CODEC)
+                            .persistent(DnaScrapData.CODEC)
+                            .networkSynchronized(DnaScrapData.STREAM_CODEC)
             );
 
-    public static final Supplier<DataComponentType<AdnGeneData>> ADN_GENE_DATA =
+    public static final Supplier<DataComponentType<DnaGeneData>> DNA_GENE_DATA =
             DATA_COMPONENTS.registerComponentType(
-                    "adn_gene_data",
+                    "dna_gene_data",
                     builder -> builder
-                            .persistent(AdnGeneData.CODEC)
-                            .networkSynchronized(AdnGeneData.STREAM_CODEC)
+                            .persistent(DnaGeneData.CODEC)
+                            .networkSynchronized(DnaGeneData.STREAM_CODEC)
             );
 
     public static final Supplier<DataComponentType<MutationPayloadData>> MUTATION_PAYLOAD =
@@ -70,16 +70,18 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType(
                     "blood_amount",
                     builder -> builder
-                            .persistent(Codec.intRange(0, 100))
-                            .networkSynchronized(ByteBufCodecs.VAR_INT)
+                            .persistent(ComponentCodecs.intRange(0, 100))
+                            // Match the persistent [0, 100] range on the network path too.
+                            .networkSynchronized(ComponentCodecs.checkedVarInt(0, 100))
             );
 
     public static final Supplier<DataComponentType<Float>> PURITY =
             DATA_COMPONENTS.registerComponentType(
                     "purity",
                     builder -> builder
-                            .persistent(Codec.floatRange(0.0F, 1.0F))
-                            .networkSynchronized(ByteBufCodecs.FLOAT)
+                            .persistent(ComponentCodecs.floatRange(0.0F, 1.0F))
+                            // Match the persistent [0, 1] range on the network path too.
+                            .networkSynchronized(ComponentCodecs.checkedFloat(0.0F, 1.0F))
             );
 
     public static final Supplier<DataComponentType<BottleFluidContent>> BOTTLE_CONTENT =
@@ -118,7 +120,10 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<PipeFilterConfig>> PIPE_FILTER_CONFIG =
             DATA_COMPONENTS.registerComponentType(
                     "pipe_filter_config",
-                    builder -> builder.persistent(PipeFilterConfig.CODEC).cacheEncoding()
+                    builder -> builder
+                            .persistent(PipeFilterConfig.CODEC)
+                            .networkSynchronized(PipeFilterConfig.STREAM_CODEC)
+                            .cacheEncoding()
             );
 
     public static final Supplier<DataComponentType<MixedDrugData>> MIXED_DRUG_DATA =

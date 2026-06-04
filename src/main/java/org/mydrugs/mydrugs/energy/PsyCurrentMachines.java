@@ -5,10 +5,12 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
+import org.mydrugs.mydrugs.machine.MachineSync;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /** Helper for machines drawing Psy Current from their upgrade buffer each tick. */
 public final class PsyCurrentMachines {
@@ -16,8 +18,10 @@ public final class PsyCurrentMachines {
     private static final int CONSUMING_AURA_INTERVAL = 30;
     /** Tick gate between starved sputters. */
     private static final int STARVED_AURA_INTERVAL = 80;
+    private static final int CURRENT_SYNC_INTERVAL = 20;
     private static final int CONSUMING_DUST_COLOR = 0x8E7CFF;
     private static final int FULL_DUST_COLOR = 0xCFC7FF;
+    private static final Map<BlockEntity, AuraState> LAST_POWER_STATE = new WeakHashMap<>();
 
     private PsyCurrentMachines() {
     }
@@ -41,15 +45,25 @@ public final class PsyCurrentMachines {
     private static boolean tryUseCurrentTick(BlockEntity blockEntity, MachineEnergyAttachment attachment) {
         int amount = PsyCurrentConstants.DEFAULT_MACHINE_CURRENT_PER_TICK;
         if (attachment.storage().extract(amount, true) < amount) {
+            syncPowerState(blockEntity, AuraState.STARVED);
             emitStateAura(blockEntity, attachment, AuraState.STARVED);
             return false;
         }
 
         attachment.storage().extract(amount, false);
         AdvancementEventHooks.psychotropePoweredMachine(blockEntity);
-        sync(blockEntity);
+        syncPowerState(blockEntity, AuraState.CONSUMING);
         emitStateAura(blockEntity, attachment, AuraState.CONSUMING);
         return true;
+    }
+
+    private static void syncPowerState(BlockEntity blockEntity, AuraState state) {
+        AuraState previous = LAST_POWER_STATE.put(blockEntity, state);
+        if (previous != state) {
+            MachineSync.sync(blockEntity);
+        } else if (state == AuraState.CONSUMING) {
+            MachineSync.syncIfDue(blockEntity, CURRENT_SYNC_INTERVAL);
+        }
     }
 
     /**
@@ -105,10 +119,6 @@ public final class PsyCurrentMachines {
     }
 
     public static void sync(BlockEntity blockEntity) {
-        blockEntity.setChanged();
-        if (blockEntity.getLevel() != null && !blockEntity.getLevel().isClientSide()) {
-            BlockState state = blockEntity.getBlockState();
-            blockEntity.getLevel().sendBlockUpdated(blockEntity.getBlockPos(), state, state, Block.UPDATE_CLIENTS);
-        }
+        MachineSync.sync(blockEntity);
     }
 }

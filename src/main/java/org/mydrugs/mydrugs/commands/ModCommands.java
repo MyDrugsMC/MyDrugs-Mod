@@ -8,8 +8,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,18 +21,28 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
+import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
+import org.mydrugs.mydrugs.dimension.InnerDimensions;
+import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
+import org.mydrugs.mydrugs.dimension.inner.InnerGenerationMetrics;
+import org.mydrugs.mydrugs.dimension.inner.InnerLocation;
+import org.mydrugs.mydrugs.dimension.inner.InnerRefreshJob;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class ModCommands {
+    static final int INNER_DIMENSION_ADMIN_PERMISSION_LEVEL = 2;
+    static final String BURST_RECREATE_CONFIRM_LITERAL = "confirm";
+
     private ModCommands() {
     }
 
@@ -85,6 +97,7 @@ public final class ModCommands {
                 Commands.literal("mydugs")
                         .then(debugCommand())
         );
+        event.getDispatcher().register(innerDimensionCommand());
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> debugCommand() {
@@ -121,6 +134,7 @@ public final class ModCommands {
                         )
                 )
                 .then(Commands.literal("integrate")
+                        .requires(source -> source.hasPermission(2))
                         .then(Commands.argument("drug", StringArgumentType.word())
                                 .suggests((context, builder) -> suggestIntegratableDrugs(builder))
                                 .executes(context -> integrateDrug(
@@ -128,17 +142,181 @@ public final class ModCommands {
                                         StringArgumentType.getString(context, "drug")
                                 ))
                         )
+                )
+                .then(Commands.literal("refresh_inner_dimension")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(context -> refreshInnerDimension(context.getSource()))
                 );
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> innerDimensionCommand() {
+        return Commands.literal("innerdim")
+                .requires(source -> source.hasPermission(INNER_DIMENSION_ADMIN_PERMISSION_LEVEL))
+                .then(Commands.literal("status")
+                        .executes(context -> innerDimensionStatus(context.getSource()))
+                )
+                .then(Commands.literal("metrics")
+                        .executes(context -> innerDimensionMetrics(context.getSource()))
+                )
+                .then(Commands.literal("refresh_owner")
+                        .executes(context -> innerDimensionRefreshOwner(context.getSource()))
+                )
+                .then(Commands.literal("burst_recreate")
+                        .then(Commands.literal(BURST_RECREATE_CONFIRM_LITERAL)
+                                .executes(context -> innerDimensionBurstRecreate(context.getSource()))
+                        )
+                )
+                .then(Commands.literal("queue_status")
+                        .executes(context -> innerDimensionQueueStatus(context.getSource()))
+                )
+                .then(Commands.literal("cancel_refresh")
+                        .executes(context -> innerDimensionCancelRefresh(context.getSource()))
+                )
+                .then(Commands.literal("locate_landmark")
+                        .then(Commands.argument("drug", StringArgumentType.word())
+                                .suggests((context, builder) -> suggestCuratedDrugs(builder))
+                                .executes(context -> innerDimensionLocateLandmark(
+                                        context.getSource(),
+                                        StringArgumentType.getString(context, "drug")
+                                ))
+                        )
+                );
+    }
+
+    private static int innerDimensionStatus(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        source.sendSuccess(() -> Component.literal(InnerDimensionSystem.debugStatus(
+                innerLevel,
+                island,
+                player.blockPosition()
+        )), false);
+        return 1;
+    }
+
+    private static int innerDimensionMetrics(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        source.sendSuccess(() -> Component.literal(InnerDimensionSystem.lastMetricsFor(player.getUUID())), false);
+        return 1;
+    }
+
+    private static int innerDimensionRefreshOwner(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerRefreshJob job = InnerDimensionSystem.recreateOwnerDebug(innerLevel, island);
+        source.sendSuccess(() -> Component.literal("Queued destructive Inner Dimension owner recreate: chunks="
+                + job.enqueuedChunks() + ", replaced_existing_queue=" + job.replacedExistingQueue() + "."), true);
+        return Math.max(1, job.enqueuedChunks());
+    }
+
+    private static int innerDimensionBurstRecreate(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerGenerationMetrics metrics = InnerDimensionSystem.burstRecreateOwnerDebug(innerLevel, island);
+        source.sendSuccess(() -> Component.literal("Destructive Inner Dimension burst recreate completed. "
+                + metrics.toDebugString()
+                + ". This did not preserve player builds inside the generated island radius."), true);
+        return Math.max(1, metrics.processedChunks());
+    }
+
+    private static int innerDimensionQueueStatus(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        source.sendSuccess(() -> Component.literal(InnerDimensionSystem.queueStatus(player.getUUID())), false);
+        return 1;
+    }
+
+    private static int innerDimensionCancelRefresh(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        boolean cancelled = InnerDimensionSystem.cancelRefresh(player.getUUID());
+        source.sendSuccess(() -> Component.literal(cancelled
+                ? "Cancelled Inner Dimension overlay refresh queue."
+                : "No Inner Dimension overlay refresh queue was active."), true);
+        return cancelled ? 1 : 0;
+    }
+
+    private static int innerDimensionLocateLandmark(CommandSourceStack source, String drugName) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        DrugId drugId = DrugId.bySerializedNameOrNull(drugName);
+        if (drugId == null || !CuratedDrugChain.ORDER.contains(drugId)) {
+            source.sendFailure(Component.literal("No curated Inner Dimension region named '" + drugName + "'."));
+            return 0;
+        }
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData.IslandState island = InnerDimensionSavedData.get(innerLevel).getOrCreateIsland(player.getUUID());
+        InnerLocation location = InnerDimensionSystem.locateLandmark(island, drugId);
+        BlockPos pos = location.pos();
+        source.sendSuccess(() -> Component.literal("Inner Dimension " + drugId.serializedName() + " "
+                + location.kind() + ": " + pos.getX() + " " + pos.getY() + " " + pos.getZ()), false);
+        return 1;
+    }
+
+    private static ServerLevel innerLevelOrNull(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = player.level().getServer().getLevel(InnerDimensions.INNER_LEVEL);
+        if (innerLevel == null) {
+            source.sendFailure(Component.literal("Inner Dimension level is not available."));
+        }
+        return innerLevel;
+    }
+
+    private static CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestCuratedDrugs(
+            SuggestionsBuilder builder
+    ) {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        for (DrugId drugId : CuratedDrugChain.ORDER) {
+            String name = drugId.serializedName();
+            if (name.startsWith(remaining)) {
+                builder.suggest(name);
+            }
+        }
+        return builder.buildFuture();
+    }
+
+    private static int refreshInnerDimension(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = player.level().getServer().getLevel(InnerDimensions.INNER_LEVEL);
+        if (innerLevel == null) {
+            source.sendFailure(Component.literal("Inner Dimension level is not available."));
+            return 0;
+        }
+
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerRefreshJob job = InnerDimensionSystem.recreateOwnerDebug(innerLevel, island);
+        source.sendSuccess(
+                () -> Component.literal("Queued destructive Inner Dimension recreate from saved integrations (chunks="
+                        + job.enqueuedChunks() + ", replaced_existing_queue=" + job.replacedExistingQueue() + ")."),
+                true
+        );
+        return Math.max(1, job.enqueuedChunks());
     }
 
     private static int integrateDrug(CommandSourceStack source, String drugName) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         DrugId drugId = DrugId.bySerializedNameOrNull(drugName);
-        if (drugId == null || !IntegrationService.integrate(player, drugId)) {
+        if (drugId == null || !IntegrationService.forceIntegrateUnsafe(player, drugId)) {
             source.sendFailure(Component.literal("No integratable drug named '" + drugName + "'."));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("Integrated " + drugId.serializedName() + "."), false);
+        source.sendSuccess(() -> Component.literal("Force-integrated " + drugId.serializedName() + "."), false);
         return 1;
     }
 
@@ -251,5 +429,10 @@ public final class ModCommands {
         }
 
         return builder.buildFuture();
+    }
+
+    static boolean burstRecreateRequiresConfirmForTest() {
+        return "confirm".equals(BURST_RECREATE_CONFIRM_LITERAL)
+                && INNER_DIMENSION_ADMIN_PERMISSION_LEVEL >= 2;
     }
 }

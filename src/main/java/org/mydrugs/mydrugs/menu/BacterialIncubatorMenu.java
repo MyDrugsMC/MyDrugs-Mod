@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.entity.BacterialIncubatorBlockEntity;
 import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.items.data.AdnGeneData;
+import org.mydrugs.mydrugs.items.data.DnaGeneData;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.menu.layout.BacterialIncubatorLayout;
 
@@ -72,10 +72,10 @@ public class BacterialIncubatorMenu extends AbstractMachineMenu {
     }
 
     private static boolean isValidGeneStack(ItemStack stack) {
-        if (!stack.is(ModItems.ADN_GENE.get())) {
+        if (!stack.is(ModItems.DNA_GENE.get())) {
             return false;
         }
-        AdnGeneData data = stack.get(ModDataComponents.ADN_GENE_DATA.get());
+        DnaGeneData data = stack.get(ModDataComponents.DNA_GENE_DATA.get());
         return data != null && !data.broken() && !data.stats().isEmpty();
     }
 

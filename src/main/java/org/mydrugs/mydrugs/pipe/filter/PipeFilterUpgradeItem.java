@@ -36,7 +36,7 @@ public class PipeFilterUpgradeItem extends Item {
         }
 
         if (!level.isClientSide()) {
-            openFilterMenu(player);
+            openFilterMenu(player, hand);
         }
 
         return InteractionResult.SUCCESS;
@@ -49,7 +49,7 @@ public class PipeFilterUpgradeItem extends Item {
         if (!(blockEntity instanceof PipeBlockEntity pipe)) {
             if (player != null && player.isSecondaryUseActive()) {
                 if (!context.getLevel().isClientSide()) {
-                    openFilterMenu(player);
+                    openFilterMenu(player, context.getHand());
                 }
                 return InteractionResult.SUCCESS;
             }
@@ -57,26 +57,47 @@ public class PipeFilterUpgradeItem extends Item {
         }
 
         ItemStack stack = context.getItemInHand();
-        PipeFilterConfig filter = stack.get(ModDataComponents.PIPE_FILTER_CONFIG.get());
-        if (filter == null || filter.kind() != pipe.kind()) {
-            filter = PipeFilterConfig.empty(pipe.kind());
-        }
+        PipeFilterConfig filter = stack.getOrDefault(ModDataComponents.PIPE_FILTER_CONFIG.get(), defaultConfig()).pruneInvalidEntries();
 
         Direction side = PipeSideSelector.selectSide(context);
 
         if (!context.getLevel().isClientSide()) {
+            if (filter.kind() != pipe.kind()) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable(
+                                    "message.mydrugs.pipe_filter.incompatible_kind",
+                                    Component.translatable("pipe.mydrugs.kind." + filter.kind().serializedName()),
+                                    Component.translatable("pipe.mydrugs.kind." + pipe.kind().serializedName())
+                            ),
+                            true
+                    );
+                }
+                return InteractionResult.SUCCESS;
+            }
+
             pipe.applyFilter(side, filter);
             if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable(
-                                "message.mydrugs.pipe_filter.applied",
-                                Component.translatable("direction.mydrugs." + side.getSerializedName()),
-                                Component.translatable("pipe.mydrugs.kind." + filter.kind().serializedName()),
-                                Component.translatable("pipe.mydrugs.filter_mode." + filter.mode().serializedName()),
-                                filter.entries().size()
-                        ),
-                        true
-                );
+                if (filter.isNoop()) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable(
+                                    "message.mydrugs.pipe_filter.cleared",
+                                    Component.translatable("direction.mydrugs." + side.getSerializedName())
+                            ),
+                            true
+                    );
+                } else {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable(
+                                    "message.mydrugs.pipe_filter.applied",
+                                    Component.translatable("direction.mydrugs." + side.getSerializedName()),
+                                    Component.translatable("pipe.mydrugs.kind." + filter.kind().serializedName()),
+                                    Component.translatable("pipe.mydrugs.filter_mode." + filter.mode().serializedName()),
+                                    filter.entries().size()
+                            ),
+                            true
+                    );
+                }
             }
         }
 
@@ -92,23 +113,28 @@ public class PipeFilterUpgradeItem extends Item {
             TooltipFlag flag
     ) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
-        PipeFilterConfig filter = stack.getOrDefault(ModDataComponents.PIPE_FILTER_CONFIG.get(), defaultConfig());
+        PipeFilterConfig filter = stack.getOrDefault(ModDataComponents.PIPE_FILTER_CONFIG.get(), defaultConfig()).pruneInvalidEntries();
         tooltipAdder.accept(Component.translatable("tooltip.mydrugs.pipe_filter.kind",
                 Component.translatable("pipe.mydrugs.kind." + filter.kind().serializedName())).withStyle(ChatFormatting.GRAY));
         tooltipAdder.accept(Component.translatable("tooltip.mydrugs.pipe_filter.mode",
                 Component.translatable("pipe.mydrugs.filter_mode." + filter.mode().serializedName())).withStyle(ChatFormatting.GRAY));
         tooltipAdder.accept(Component.translatable("tooltip.mydrugs.pipe_filter.entries", filter.entries().size()).withStyle(ChatFormatting.DARK_GRAY));
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.pipe_filter.open_help").withStyle(ChatFormatting.DARK_GRAY));
     }
 
     public static PipeFilterConfig defaultConfig() {
         return PipeFilterConfig.empty(PipeResourceKind.ITEM);
     }
 
-    private static void openFilterMenu(Player player) {
+    private static void openFilterMenu(Player player, InteractionHand hand) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
         MenuProvider provider = new SimpleMenuProvider(
-                (containerId, playerInventory, p) -> new PipeFilterMenu(containerId, playerInventory),
+                (containerId, playerInventory, p) -> new PipeFilterMenu(containerId, playerInventory, hand),
                 Component.translatable("menu.mydrugs.pipe_filter")
         );
-        player.openMenu(provider);
+        serverPlayer.openMenu(provider, buf -> buf.writeBoolean(hand == InteractionHand.OFF_HAND));
     }
 }

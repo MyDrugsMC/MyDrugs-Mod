@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class DrugAddictionStats implements ValueIOSerializable {
+    public static final int INTEGRATION_STAGE_NONE = 0;
+    public static final int INTEGRATION_STAGE_ELIGIBLE = 1;
+    public static final int INTEGRATION_STAGE_INTEGRATED = 2;
+
     public float addictionValue;
     public float baseWithdrawalMeter;
     public float tolerance;
@@ -19,11 +23,15 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     public float peakHistoricalAddiction;
     public float lifetimeDoseConsumed;
 
-    // Integration arc (Phase A). 0 = none, 1 = eligible (reckoning), 2 = integrated.
+    // Integration arc. Eligibility follows reckoning/recovery; it is not the reckoning itself.
     public int integrationStage;
     public float recoveryProgress;
     public long integratedAtGameTime = -1L;
     public int cleanIntegrationDoseStreak;
+    public int cleanPsychedelicReflectionCount;
+    public int cleanPsychedelicSafeUseCount;
+    public long lastPsychedelicReflectionUseTime;
+    public long lastBadTripGameTime = -1L;
 
     public final List<DoseContribution> doseContributions = new ArrayList<>();
     public DoseState lastDoseState = DoseState.NORMAL;
@@ -37,7 +45,7 @@ public final class DrugAddictionStats implements ValueIOSerializable {
     }
 
     public boolean isIntegrated() {
-        return integrationStage == 2;
+        return integrationStage == INTEGRATION_STAGE_INTEGRATED;
     }
 
     public boolean isEmpty() {
@@ -48,6 +56,8 @@ public final class DrugAddictionStats implements ValueIOSerializable {
                 && peakHistoricalAddiction <= 0.0001F
                 && lifetimeDoseConsumed <= 0.0001F
                 && cleanIntegrationDoseStreak <= 0
+                && cleanPsychedelicReflectionCount <= 0
+                && cleanPsychedelicSafeUseCount <= 0
                 && doseContributions.isEmpty();
     }
 
@@ -64,6 +74,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         output.putFloat("recovery_progress", recoveryProgress);
         output.putLong("integrated_at_game_time", integratedAtGameTime);
         output.putInt("clean_integration_dose_streak", cleanIntegrationDoseStreak);
+        output.putInt("clean_psychedelic_reflection_count", cleanPsychedelicReflectionCount);
+        output.putInt("clean_psychedelic_safe_use_count", cleanPsychedelicSafeUseCount);
+        output.putLong("last_psychedelic_reflection_use_time", lastPsychedelicReflectionUseTime);
+        output.putLong("last_bad_trip_game_time", lastBadTripGameTime);
         output.putString("last_dose_state", lastDoseState.name());
 
         ValueOutput contribs = output.child("dose_contributions");
@@ -90,6 +104,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         recoveryProgress = input.getFloatOr("recovery_progress", 0.0F);
         integratedAtGameTime = input.getLongOr("integrated_at_game_time", -1L);
         cleanIntegrationDoseStreak = input.getIntOr("clean_integration_dose_streak", 0);
+        cleanPsychedelicReflectionCount = input.getIntOr("clean_psychedelic_reflection_count", 0);
+        cleanPsychedelicSafeUseCount = input.getIntOr("clean_psychedelic_safe_use_count", 0);
+        lastPsychedelicReflectionUseTime = input.getLongOr("last_psychedelic_reflection_use_time", 0L);
+        lastBadTripGameTime = input.getLongOr("last_bad_trip_game_time", -1L);
 
         String stateName = input.getStringOr("last_dose_state", "NORMAL");
         try {
@@ -125,6 +143,10 @@ public final class DrugAddictionStats implements ValueIOSerializable {
         copy.recoveryProgress = recoveryProgress;
         copy.integratedAtGameTime = integratedAtGameTime;
         copy.cleanIntegrationDoseStreak = cleanIntegrationDoseStreak;
+        copy.cleanPsychedelicReflectionCount = cleanPsychedelicReflectionCount;
+        copy.cleanPsychedelicSafeUseCount = cleanPsychedelicSafeUseCount;
+        copy.lastPsychedelicReflectionUseTime = lastPsychedelicReflectionUseTime;
+        copy.lastBadTripGameTime = lastBadTripGameTime;
         copy.lastDoseState = lastDoseState;
         for (DoseContribution c : doseContributions) {
             copy.doseContributions.add(new DoseContribution(c.amount, c.ticksRemaining, c.totalDuration));

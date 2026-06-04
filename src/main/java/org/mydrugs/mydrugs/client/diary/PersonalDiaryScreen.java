@@ -21,6 +21,9 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.effect.EffectPolarity;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.addiction.data.WithdrawalPhase;
+import org.mydrugs.mydrugs.addiction.explain.AddictionDangerReason;
+import org.mydrugs.mydrugs.addiction.explain.AddictionSuggestedAction;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.client.effects.hud.HudSymptomIcons;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
@@ -518,6 +521,10 @@ public final class PersonalDiaryScreen extends Screen {
 
         lines.add(DiaryLine.spacer());
         lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.body_state")));
+        lines.addAll(wrapToLines(bodyStateSummary(s)));
+        lines.add(DiaryLine.text("Main risk: " + mainRiskLabel(s)));
+        lines.add(DiaryLine.text("Next: " + suggestedActionLabel(s)));
+        lines.add(DiaryLine.spacer());
         lines.add(DiaryLine.text(stressLine(s.stress())));
         lines.add(DiaryLine.text(withdrawalLine(s.globalSeverity())));
         lines.add(DiaryLine.spacer());
@@ -612,6 +619,7 @@ public final class PersonalDiaryScreen extends Screen {
                     lines.add(DiaryLine.indented(wl.text));
                 }
             }
+            lines.add(DiaryLine.indented(toleranceLine(d.tolerance())));
         }
         if (!any) {
             lines.addAll(wrapToLines(Component.translatable("screen.mydrugs.diary.no_life_stats").getString()));
@@ -648,6 +656,14 @@ public final class PersonalDiaryScreen extends Screen {
             lines.add(DiaryLine.text(statusLine(p.cleanDoseStreakMet(),
                     tr("screen.mydrugs.diary.integration.clean_doses",
                             p.cleanDoseStreak(), p.cleanDoseStreakRequired()))));
+            lines.add(DiaryLine.text(statusLine(p.cleanSpacingReady(), spacingDiaryLine(p))));
+            lines.add(DiaryLine.text(statusLine(p.psychedelicReflectionMet(),
+                    tr("screen.mydrugs.diary.integration.reflection",
+                            p.psychedelicReflections(), p.psychedelicReflectionsRequired()))));
+            lines.add(DiaryLine.text(statusLine(p.safePsychedelicUseMet(),
+                    tr("screen.mydrugs.diary.integration.safe_use",
+                            p.safePsychedelicUses(), p.safePsychedelicUsesRequired()))));
+            lines.add(DiaryLine.text(statusLine(p.noRecentBadTripMet(), badTripDiaryLine(p))));
         } else {
             lines.add(DiaryLine.text(statusLine(p.peakMet(),
                     tr("screen.mydrugs.diary.integration.peak",
@@ -668,7 +684,8 @@ public final class PersonalDiaryScreen extends Screen {
                 statusLine(p.materialInInventory(), tr("screen.mydrugs.diary.integration.material",
                         itemName(p.materialItemId())))));
         lines.add(DiaryLine.withIcon(stackForItemId("mydrugs:integration_core"),
-                statusLine(p.integrationCoreInInventory(), tr("screen.mydrugs.diary.integration.core"))));
+                statusLine(p.coreSufficient(), tr("screen.mydrugs.diary.integration.core_tier",
+                        coreTierName(p.requiredCoreTierId()), coreTierName(p.bestCoreTierId())))));
         lines.add(DiaryLine.text(statusLine(!p.alreadyIntegrated(), tr("screen.mydrugs.diary.integration.not_integrated"))));
         if (p.alreadyIntegrated()) {
             lines.add(DiaryLine.text(statusLine(true, tr("screen.mydrugs.diary.integration.integrated"))));
@@ -853,7 +870,122 @@ public final class PersonalDiaryScreen extends Screen {
         return stack.isEmpty() ? "-" : stack.getHoverName().getString();
     }
 
+    private String coreTierName(String tierId) {
+        if (tierId == null || tierId.isBlank()) {
+            return tr("screen.mydrugs.diary.integration.core_none");
+        }
+        return tr("integration.mydrugs.core_tier." + tierId);
+    }
+
+    private String spacingDiaryLine(DiaryIntegrationProgressDto p) {
+        if (p.cleanSpacingRemainingTicks() <= 0) {
+            return tr("screen.mydrugs.diary.integration.spacing_ready");
+        }
+        return tr("screen.mydrugs.diary.integration.spacing_wait", formatDuration(p.cleanSpacingRemainingTicks()));
+    }
+
+    private String badTripDiaryLine(DiaryIntegrationProgressDto p) {
+        if (p.recentBadTripRemainingTicks() <= 0) {
+            return tr("screen.mydrugs.diary.integration.bad_trip_clear");
+        }
+        return tr("screen.mydrugs.diary.integration.bad_trip_wait", formatDuration(p.recentBadTripRemainingTicks()));
+    }
+
     // ----------------------- Helpers (formatting) -----------------------
+    private String bodyStateSummary(DiaryPlayerStateDto s) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Now: WD ")
+                .append(compactBand(s.globalSeverity()))
+                .append(' ')
+                .append(withdrawalArrow(s))
+                .append(" | ST ")
+                .append(compactBand(s.stress()))
+                .append(' ')
+                .append(AddictionClientState.trendArrowForStress());
+
+        String dose = compactDose(s.doseState());
+        if (!dose.isBlank()) {
+            builder.append(" | ").append(dose);
+        }
+
+        String chips = compactRecoveryChips(s.recoveryFlags());
+        if (!chips.isBlank()) {
+            builder.append(" | ").append(chips);
+        }
+        return builder.toString();
+    }
+
+    private String compactBand(float value) {
+        if (value >= 0.70F) return "High";
+        if (value >= 0.35F) return "Med";
+        if (value >= 0.10F) return "Low";
+        return "None";
+    }
+
+    private String withdrawalArrow(DiaryPlayerStateDto s) {
+        WithdrawalPhase phase = WithdrawalPhase.byNetworkId(s.withdrawalPhase());
+        return switch (phase) {
+            case RISING -> "↑";
+            case EASING, SETTLING -> "↓";
+            case PEAK -> "→";
+            case NONE -> AddictionClientState.trendArrowForWithdrawal();
+        };
+    }
+
+    private String compactDose(String state) {
+        return switch (state) {
+            case "HIGH", "DRUNK" -> "Dose H";
+            case "VERY_HIGH", "VERY_DRUNK" -> "Dose VH";
+            case "OVERDOSE", "ETHYLIC_COMA" -> "Dose OD";
+            default -> "";
+        };
+    }
+
+    private String compactRecoveryChips(int flags) {
+        List<String> chips = new ArrayList<>();
+        if ((flags & AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE) != 0) chips.add("+Room");
+        if ((flags & AddictionClientSnapshotPayload.RECOVERY_DIARY) != 0) chips.add("+Diary");
+        if ((flags & AddictionClientSnapshotPayload.RECOVERY_HEADPHONES) != 0) chips.add("+Music");
+        if ((flags & AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA) != 0) chips.add("+Tea");
+        if ((flags & AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS) != 0) chips.add("+Sleep");
+        if ((flags & AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE) != 0) chips.add("+Calm");
+        return String.join(" ", chips);
+    }
+
+    private String mainRiskLabel(DiaryPlayerStateDto s) {
+        return switch (AddictionDangerReason.byNetworkId(s.primaryDangerReason())) {
+            case OVERDOSE -> "overdose";
+            case BAD_TRIP -> "bad trip";
+            case VERY_HIGH_DOSE, HIGH_DOSE -> "dose too high";
+            case HUNGER -> "hunger";
+            case LOW_HEALTH -> "low health";
+            case WITHDRAWAL_PEAK -> "withdrawal peak";
+            case HIGH_STRESS -> "high stress";
+            case SLEEP_BLOCKED -> "sleep blocked";
+            case ISOLATION -> "isolation";
+            case UNSAFE_PLACE -> "unsafe place";
+            case NONE -> "none";
+        };
+    }
+
+    private String suggestedActionLabel(DiaryPlayerStateDto s) {
+        return switch (AddictionSuggestedAction.byNetworkId(s.suggestedAction())) {
+            case USE_ANTIDOTE -> "use antidote";
+            case STOP_DOSING -> "stop dosing";
+            case EAT -> "eat";
+            case HEAL -> "heal";
+            case GET_SAFE -> "get safe";
+            case STAY_SAFE -> "stay safe";
+            case WRITE_DIARY -> "write";
+            case USE_HEADPHONES -> "music";
+            case DRINK_TEA -> "drink tea";
+            case SLEEP_LATER -> "sleep later";
+            case WAIT -> "wait";
+            case GROUND -> "ground";
+            case NONE -> "keep steady";
+        };
+    }
+
     private void appendFeelingReasonSections(List<DiaryLine> lines, DiaryPlayerStateDto s) {
         List<DiaryLine> good = new ArrayList<>();
         List<DiaryLine> bad = new ArrayList<>();
@@ -883,22 +1015,22 @@ public final class PersonalDiaryScreen extends Screen {
 
     private void appendRecoveryGoodReasons(List<DiaryLine> good, DiaryPlayerStateDto s) {
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_DIARY) != 0) {
-            addWrappedReason(good, "Diary calm: writing things down is helping me stabilize.");
+            addWrappedReason(good, "+Diary: writing anchored me.");
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_HEADPHONES) != 0) {
-            addWrappedReason(good, "Headphones: sound is keeping the pressure lower.");
+            addWrappedReason(good, "+Music: rhythm is lowering pressure.");
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE) != 0) {
-            addWrappedReason(good, "Calming mixture: my body is settling down.");
+            addWrappedReason(good, "+Calm: my body is settling.");
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS) != 0) {
-            addWrappedReason(good, "Sleep bonus: rest is still protecting me.");
+            addWrappedReason(good, "+Sleep: rest is still helping.");
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA) != 0) {
-            addWrappedReason(good, "Prepared tea: stress is rising more slowly for a while.");
+            addWrappedReason(good, "+Tea: stress is rising more slowly.");
         }
         if ((s.recoveryFlags() & AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE) != 0) {
-            addWrappedReason(good, "Safe zone: this place makes recovery easier.");
+            addWrappedReason(good, "+Room: this place makes recovery easier.");
         }
     }
 
@@ -907,20 +1039,24 @@ public final class PersonalDiaryScreen extends Screen {
     }
 
     private void appendBadStateReasons(List<DiaryLine> bad, DiaryPlayerStateDto s) {
+        AddictionDangerReason reason = AddictionDangerReason.byNetworkId(s.primaryDangerReason());
+        if (reason != AddictionDangerReason.NONE) {
+            addWrappedReason(bad, "Main risk: " + mainRiskLabel(s) + ". Next: " + suggestedActionLabel(s) + ".");
+        }
         if (s.globalSeverity() > 0.15F) {
-            addWrappedReason(bad, "Withdrawal: " + formatPercent(s.globalSeverity()) + " - the lack is still pulling at me.");
+            addWrappedReason(bad, "WD: " + formatPercent(s.globalSeverity()) + AddictionClientState.trendArrowForWithdrawal() + " - recovery pressure is active.");
         }
         if (s.badTripActive()) {
-            addWrappedReason(bad, "Bad trip: " + formatPercent(s.badTripSeverity()) + " - my thoughts are turning against me.");
+            addWrappedReason(bad, "BT: " + formatPercent(s.badTripSeverity()) + AddictionClientState.trendArrowForBadTrip() + " - ground and get safe.");
         }
         if (s.overdoseTimerTicks() > 0) {
-            addWrappedReason(bad, "Overdose danger: " + ((s.overdoseTimerTicks() + 19) / 20) + "s left.");
+            addWrappedReason(bad, "OD: " + ((s.overdoseTimerTicks() + 19) / 20) + "s - " + suggestedActionLabel(s) + ".");
         }
         if (s.sleepBlocked()) {
-            addWrappedReason(bad, "Insomnia: I cannot sleep even when I need to.");
+            addWrappedReason(bad, "Sleep blocked: calm first.");
         }
         if (!s.doseState().isEmpty() && !"NORMAL".equals(s.doseState())) {
-            addWrappedReason(bad, "Dose load: " + prettyDose(s.doseState()) + " - my body is carrying too much.");
+            addWrappedReason(bad, compactDose(s.doseState()) + ": wait before pushing further.");
         }
     }
 
@@ -980,6 +1116,15 @@ public final class PersonalDiaryScreen extends Screen {
         return String.format(Locale.ROOT, "%.1f", value);
     }
 
+    private String formatDuration(int ticks) {
+        int seconds = Math.max(1, (ticks + 19) / 20);
+        if (seconds < 90) {
+            return seconds + "s";
+        }
+        int minutes = Math.max(1, (seconds + 59) / 60);
+        return minutes + "m";
+    }
+
     private String stressLine(float stress) {
         int pct = Math.round(stress * 100.0F);
         String tail;
@@ -1030,6 +1175,16 @@ public final class PersonalDiaryScreen extends Screen {
             case "ETHYLIC_COMA" -> "Ethylic coma";
             default -> "Normal";
         };
+    }
+
+    private String toleranceLine(float tolerance) {
+        if (tolerance >= 0.60F) {
+            return "Tolerance: high - weaker effect, risk remains";
+        }
+        if (tolerance >= 0.25F) {
+            return "Tolerance: medium";
+        }
+        return "Tolerance: low";
     }
 
     private String prettyRecipeId(String full) {

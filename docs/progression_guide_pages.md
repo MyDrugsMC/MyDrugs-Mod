@@ -40,25 +40,44 @@ JEI has exact recipes. Machine screens explain immediate refusals. Advancements 
 
 @link How To Read This|Page labels
 @link The Route|Everything in one page
-@link Knowledge Spine|The nine unlocks
+@link Knowledge Spine|The knowledge gates
 @link First Crops|Seeds and wild finds
 @link Coffee|Ch.1 — Caffeine
+@link Tools and Resin|Early workshop
 @link Tobacco|Ch.2 — Nicotinic
 @link Anvil and Sieve|Ch.3 — Tools
 @link Cannabis|Ch.4 — Cannabinoid
+@link Copper Workshop|Copper and vats
 @link Fermentation|Ch.5 — Fermented
+@link Heavy Iron|Heavy machine metal
 @link Hash and Steel|Ch.6 — Steel Plating
 @link Machine Era|Ch.7 — Machines
 @link Machine Handbook|Machine reference
+@link Support Materials|Stockpile
+@link World Materials|Ores and wild materials
+@link Pipes and Transfer|Automation
 @link Coca|Ch.8 — Stimulant
+@link Alcohol Distillation|Absolute ethanol
+@link Cocaine and Crack|Risk route
+@link Stimulant Tech|Circuits
 @link Lab Chemistry|Ch.9 — Gases
+@link Acids and Reagents|Lab stockpile
 @link LSD|Ch.10 — Lysergic
+@link Advanced Circuits|High-tier parts
+@link Petroleum|Industrial fluids
 @link Meth|Ch.11 — Overclocked
 @link Mushrooms|Ch.12 — Mycelial
 @link Psy Mixer|Rituals
+@link Starter Mixes|Gentle mixes
+@link Strong Mixes|Dangerous mixes
 @link Psy Current|Extraction power
 @link Psychotrope Resonator|Dream and integration
+@link Integrated Traits|What integration keeps
+@link Inner Dimension|Your symbolic island
+@link Bottles and Syringes|Containers and body tools
 @link Somatic Adaptation|Endgame body
+@link Somatic Machines|Adaptation machines
+@link Adaptation Patterns|Adaptation reference
 ***
 @link The Diary|Read yourself
 @link The Psyche Map|See your progress
@@ -109,50 +128,47 @@ Pillars: Production · Risk · Recovery · Integration · Inner Dimension
 
 This is the whole game on one page. Each arrow is roughly one chapter.
 
-Seeds → coffee → tobacco → Psy Anvil → sieve → cannabis → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
+Grass and ferns → crops → coffee kit → coffee → tobacco → Psy Receptacle → Psy Anvil → iron mesh → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
 
 Recovery runs alongside ALL of it, not after.
 
-The machine route teaches control. The stimulant route tempts overclocking. LSD and mushrooms open a different route: insight, recovery, and integration.
+The machine route teaches control. The stimulant route tempts overclocking. LSD and mushrooms open a different route: insight, recovery, integration, and the Inner Dimension.
 
-> [WARN] Hash sits after Fermented Knowledge — the stomp crafter that presses it needs heavy iron first.
+> [WARN] Hash is a knowledge milestone tied to cannabis, but the physical hash route waits until after Fermented Knowledge because the stomp crafter needs heavy iron.
 
 > [GOAL] Use the guide for the route. Use the diary to understand whether the route is helping you or trapping you.
 
-@link Knowledge Spine|The nine unlocks
+@link Knowledge Spine|The knowledge gates
 ---
-
 # Knowledge Spine
 
 MAIN QUEST
 
-Pillars: Production
+Knowledge is permanent. It usually comes from consuming the finished form of a drug, but the physical crafting route and the knowledge chain are not always the same thing.
 
-Knowledge is permanent. You earn each one by consuming a drug in its finished form — and each gate needs the one before it.
-
-1. Coffee → Caffeine
+1. Coffee cup → Caffeine
 2. Processed tobacco → Nicotinic
 3. Processed cannabis → Cannabinoid
-4. Fermented mash → Fermented
-5. Hash → Steel Plating
-6. Cocaine powder → Stimulant
+4. Fermented mash or another alcohol dose → Fermented
+5. Hash piece → Steel Plating
+6. Cocaine powder, rail, or crack → Stimulant
 7. LSD Drop → Lysergic
-8. Meth powder (smoked) → Overclocked
+8. Meth powder, smoked → Overclocked
 9. Magic mushroom → Mycelial
 
-> [WARN] Consume something too early and you still get the effects and the addiction — but no knowledge. The dose is wasted.
+Cannabis needs Nicotinic before it can teach Cannabinoid. Alcohol needs Cannabinoid before it can teach Fermented. Cocaine and crack need Fermented before Stimulant. LSD needs Stimulant. Meth needs Lysergic. Mushrooms can be eaten early, but Mycelial Knowledge waits until Overclocked.
 
-> [GOAL] Never rush a gate. Unlock the one before it first.
+Hash is special: it can teach Steel Plating, but you cannot practically make it until after Fermented unlocks heavy iron and the stomp crafter.
 
+> [WARN] Consume something too early and you may still get the effects and the addiction — but no knowledge. The dose is wasted, except mushrooms, which simply defer their real lesson.
+
+> [GOAL] Before a major dose, check whether the previous knowledge gate is actually open.
 ---
-
 # First Crops
 
 MAIN QUEST + EXPLORATION
 
-Pillars: Production
-
-Everything starts in the grass. Break grass, tall grass, ferns and large ferns by hand — no shears — and seeds will drop.
+Everything starts in the grass. Break grass, tall grass, ferns and large ferns by hand — no shears — and mod seeds can drop.
 
 @item mydrugs:coffee_seeds
 @item mydrugs:tobacco_seeds
@@ -160,54 +176,61 @@ Everything starts in the grass. Break grass, tall grass, ferns and large ferns b
 @item mydrugs:coca_seeds
 @item mydrugs:rye_seeds
 @item mydrugs:malt_seeds
+@item mydrugs:aloe_vera_seeds
 
-Plant all six. Keep the rows separate so you never confuse a harvest.
+Plant all of them. Keep the rows separate so you never confuse a harvest.
 
-While you explore, pocket the wild finds too — they matter later.
+Poppies can become poppy seeds for the optional opium crop, but that branch is not part of the main knowledge spine.
+
+@item mydrugs:opium_poppy_seeds
+
+While you explore, pocket wild finds too. Some are recovery materials, some are ritual materials, and some only matter much later.
 
 @item mydrugs:aloe_vera
 @item mydrugs:bitter_nut
+@item mydrugs:lavender
+@item mydrugs:valerian_root
+@item mydrugs:ephedra_cuttings
 @item mydrugs:third_eye_petal
 @item mydrugs:magic_mushroom
 
-> [GOAL] Get a farm running before you touch any processing.
+> [GOAL] Get a farm running before you touch repeated processing.
 
+> [TIP] Magic mushrooms can appear early, but Mycelial Knowledge is late. Save some instead of eating every find.
 ---
-
 # Coffee
 
 MAIN QUEST — Chapter 1
 
-Pillars: Production · Risk
-
-Your first drug, and the gentlest. It teaches you the whole pattern: harvest, process, refine, consume.
+Your first drug, and the gentlest. It teaches the whole pattern: harvest, process, refine, consume.
 
 @item mydrugs:coffee_cherries
 @item mydrugs:manual_coffee_pulper
 @item mydrugs:wet_coffee_bean
+@item mydrugs:coffee_drying_mat
 @item mydrugs:coffee_bean
 @item mydrugs:coffee_powder
 @item mydrugs:clay_vat
 @item mydrugs:cup
 @item mydrugs:coffee_cup
 
-Pulp the cherries, dry the wet beans, grind them to powder, brew it in a heated clay vat with water, fill a cup, drink.
+Harvest cherries. Use the Manual Coffee Pulper to turn cherries into wet beans and biomass. Dry the wet beans on the coffee drying mat or drying rack. Grind the dry beans into powder.
 
-That first sip grants Caffeine Knowledge — and hands you the Psy Receptacle, the heart of every tool ahead.
+Put water in a clay vat, heat it, add enough coffee powder for the water batch, then fill a cup and drink.
+
+That first cup grants Caffeine Knowledge — and hands you the Psy Receptacle, the heart of every tool ahead.
+
+> [WARN] Coffee still needs workshop pieces. If you have cherries but cannot finish the drink, build the drying and grinding setup first.
 
 > [GOAL] Drink a coffee. Guard the Psy Receptacle with your life.
 
 @link Tools and Resin|Build your kit
-
 ---
-
 # Tools and Resin
 
 SUPPORT
 
-Pillars: Production
-
-Before tobacco, you need a workshop.
+Before tobacco becomes reliable, build a small workshop.
 
 @item mydrugs:resin
 @item mydrugs:treated_planks
@@ -218,14 +241,12 @@ Before tobacco, you need a workshop.
 
 Strike strippable logs with an axe, over and over, until ordinary resin falls. Resin plus planks gives treated planks.
 
-Build the drying rack, grinding bowl and grinding tool. These three process nearly every early crop.
+Build the drying rack, grinding bowl and grinding tool. These three process nearly every early crop. The portable grinder is the comfort upgrade once repeated grinding becomes annoying.
 
 > [WARN] Ordinary resin is NOT cannabis resin. Different thing, different page.
 
-> [GOAL] Drying and grinding ready before you cut tobacco.
-
+> [GOAL] Drying and grinding ready before you cut tobacco, cannabis or coca in bulk.
 ---
-
 # Tobacco
 
 MAIN QUEST + RECOVERY — Chapter 2
@@ -239,9 +260,9 @@ Tobacco is the second gate — and the first thing that bites back.
 @item mydrugs:tobacco_handful
 @item mydrugs:bang
 @item mydrugs:roller
-@item mydrugs:cigaret
+@item mydrugs:cigarette
 
-Dry the leaves, grind them into handfuls, then smoke them raw or roll a proper cigarette.
+Dry the leaves, grind them into handfuls, then smoke them raw with a bang or roll a proper cigarette.
 
 Processed tobacco grants Nicotinic Knowledge.
 
@@ -250,16 +271,12 @@ Processed tobacco grants Nicotinic Knowledge.
 > [GOAL] Get Nicotinic Knowledge — then read the recovery pages before your next smoke.
 
 @link Recovery Basics|Get ahead of it
-
 ---
-
 # Anvil and Sieve
 
 MAIN QUEST + SUPPORT — Chapter 3
 
-Pillars: Production
-
-Two knowledges in your head means the Psy Anvil will finally listen to you.
+With Caffeine and Nicotinic in your head, the Psy Anvil becomes useful.
 
 @item mydrugs:psy_receptacle
 @item mydrugs:psy_anvil
@@ -273,8 +290,8 @@ The anvil unlocks new recipes with every knowledge you gain. If it refuses you, 
 
 > [GOAL] Forge iron mesh and build the sieve.
 
+> [TIP] The Psy Anvil is a progression tool, not a normal crafting table. JEI shows recipes, but the anvil status tells you why a locked recipe is refusing.
 ---
-
 # Cannabis
 
 MAIN QUEST — Chapter 4
@@ -286,6 +303,7 @@ Pillars: Production · Risk
 @item mydrugs:dried_cannabis_leaf
 @item mydrugs:cannabis_resin
 @item mydrugs:cannabis_powder
+@item mydrugs:joint
 
 Dry cannabis leaves into cured leaves. Run cured leaves through the sieve. Grind dried leaf into powder.
 
@@ -294,7 +312,6 @@ Smoke or roll the powder for Cannabinoid Knowledge.
 > [WARN] Sieve BEFORE you grind — sieving is where cannabis resin comes from, and every scrap of resin becomes hash later. Throw none away.
 
 > [GOAL] Unlock Cannabinoid Knowledge. Hoard the resin.
-
 ---
 
 # Copper Workshop
@@ -310,7 +327,6 @@ Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens
 @item mydrugs:copper_tube
 @item mydrugs:wooden_frame
 @item mydrugs:mixing_vat
-@item mydrugs:mixing_spatula
 
 Shape copper parts and assemble the mixing vat. From here, recipes start dealing in fluids, not just items.
 
@@ -319,7 +335,6 @@ Shape copper parts and assemble the mixing vat. From here, recipes start dealing
 > [GOAL] Build a mixing vat.
 
 ---
-
 # Fermentation
 
 MAIN QUEST — Chapter 5
@@ -334,12 +349,13 @@ Pillars: Production
 @item mydrugs:fermented_mash_bucket
 @item mydrugs:glass_bottle
 
-In the mixing vat: mash, then sweet mash, then fermented mash. JEI has the exact fluid amounts.
+In the mixing vat: make mash, convert it into sweet mash, then ferment it with wild yeast. JEI has the exact fluid amounts.
 
 Bottle the fermented mash in a MyDrugs glass bottle and drink it for Fermented Knowledge.
 
-> [GOAL] Unlock Fermented Knowledge.
+Fermented Knowledge also awards a small starter supply of insulated wire. Save it; repeatable wire production comes later with Stimulant Knowledge.
 
+> [GOAL] Unlock Fermented Knowledge and keep the first wires safe.
 ---
 
 # Heavy Iron
@@ -361,7 +377,6 @@ Heavy iron becomes frames, casings, the stomp crafter, and the first real machin
 > [GOAL] Forge enough heavy iron for the stomp crafter and a stock of machine parts.
 
 ---
-
 # Hash and Steel
 
 MAIN QUEST — Chapter 6
@@ -374,25 +389,24 @@ This is where your hoarded resin pays off.
 @item mydrugs:cannabis_resin
 @item mydrugs:hash_brick
 @item mydrugs:hash_piece
+@item mydrugs:coal_dust
 @item mydrugs:steel_blend
 @item mydrugs:steel_ingot
 @item mydrugs:steel_plate
 
 Press saved resin in the stomp crafter into hash bricks, split bricks into pieces, and smoke a piece.
 
-Hash grants Steel Plating Knowledge — then forge steel and steel plates on the Psy Anvil.
+Hash grants Steel Plating Knowledge. Then press iron and coal dust into steel blend, cook it in the advanced furnace, and shape steel plates on the Psy Anvil.
+
+> [WARN] Hash feels like a cannabis milestone, but it is physically a post-fermentation milestone because the stomp crafter needs heavy iron.
 
 > [GOAL] Unlock Steel Plating Knowledge and step into the machine era.
-
 ---
-
 # Machine Era
 
 SUPPORT — Chapter 7
 
-Pillars: Production
-
-Steel means machines. From here you stop doing things by hand.
+Steel means machines. From here you stop doing everything by hand.
 
 @item mydrugs:advanced_furnace
 @item mydrugs:distiller
@@ -405,10 +419,11 @@ Build machines as JEI and the advancements call for them. Every machine GUI tell
 
 Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, output full, bad side config, missing knowledge.
 
-> [TIP] A machine that "does nothing" is almost always telling you why. Read its screen first.
+> [TIP] A machine that “does nothing” is almost always telling you why. Read its screen first.
 
 > [GOAL] Furnace, distiller, centrifuge, filterer, tray and advanced vat — all built.
 
+@link Machine Handbook|Read machine roles
 ---
 
 # Machine Handbook
@@ -992,7 +1007,7 @@ Automation: Keep the output clear so later adaptation machines can consume the i
 See also: Somatic Machines, Somatic Adaptation.
 
 @item mydrugs:crispr_cas9_combinator
-## CRISPR-CAS9 Combinator
+## CRISPR-Cas9 Combinator
 
 Era: Ritual / Integration Era.
 
@@ -1054,7 +1069,6 @@ See also: Bottles and Syringes, Recovery Basics.
 @link Machine Handbook|Back to handbook intro
 
 ---
-
 # Support Materials
 
 SUPPORT
@@ -1067,37 +1081,40 @@ The boring stockpile that stops you mid-recipe later. Build a chest for it.
 @item mydrugs:coal_dust
 @item mydrugs:activated_coal
 @item mydrugs:rubber
+@item mydrugs:raw_thick_glass
 @item mydrugs:thick_glass
 @item mydrugs:glass_tube
 @item mydrugs:tight_seal
 @item mydrugs:fluid_filter
 @item mydrugs:refractory_brick
+@item mydrugs:distillation_coil
+@item mydrugs:resonance_lens
 
-Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, copper tube and steel plate spare.
+Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, copper tube, steel plate and thick glass spare.
 
-> [GOAL] Stock up before coca and lab chemistry, not during.
+Later, the Psychotrope Distillery and Resonator also lean on distillation coils and resonance lenses. Treat them as late support materials, not decoration.
 
+> [GOAL] Stock up before coca, lab chemistry and integration work, not during.
 ---
-
 # World Materials
 
 EXPLORATION
 
-Pillars: Production
-
-Late chemistry runs on things you have to go and dig for.
+Late chemistry runs on things you have to go and dig for or find in the world.
 
 @item mydrugs:aluminium_ore
 @item mydrugs:platinum_ore
 @item mydrugs:sulfur_ore
+@item mydrugs:phosphate_ore
 @item mydrugs:sulfur_powder
 @item mydrugs:salt_powder
+@item mydrugs:raw_phosphorus
 @item mydrugs:petroleum_bucket
+@item mydrugs:ephedra_cuttings
 
-Mine sulfur, aluminium and platinum. Find salt in ocean terrain. Mark every desert petroleum pocket on your map.
+Mine sulfur, aluminium, platinum and phosphate. Find salt in ocean terrain. Mark every desert petroleum pocket on your map. Collect ephedra when you find it; it belongs to the late meth branch.
 
 > [GOAL] Gather these before the deep lab routes — they gate everything past coca.
-
 ---
 
 # Pipes and Transfer
@@ -1116,6 +1133,12 @@ When carrying buckets gets old, automate.
 @item mydrugs:machine_transfer_upgrade
 
 Match the pipe to the cargo — items, fluids and gases each need their own. Use the wrench to set machine sides, and filters when only one resource should move down a line.
+
+Set a Pipe Filter Upgrade to Item, Fluid or Gas before applying it. The filter kind must match the pipe kind.
+
+To move only X: set the mode to Allowlist, add X as a sample, then apply the filter to the relevant pipe side. To block Y: set the mode to Blocklist, add Y as a sample, then apply it to the side.
+
+Route fluids and gases separately: configure a fluid filter with a bucket or fluid container, and configure a gas filter with a gas tank. Apply each one to the matching pipe type.
 
 > [TIP] Line stopped? Check, in order: output space, tank type, pipe direction, side config, filter, energy.
 
@@ -1148,7 +1171,6 @@ Cocaine powder grants Stimulant Knowledge.
 @link Alcohol Distillation|You need ethanol first
 
 ---
-
 # Alcohol Distillation
 
 SUPPORT
@@ -1161,11 +1183,13 @@ Coca and lab chemistry both run on absolute ethanol. Make it before chapter 8.
 @item mydrugs:raw_alcohol_bucket
 @item mydrugs:ethanol_bucket
 @item mydrugs:absolute_ethanol_bucket
+@item mydrugs:distiller
 
-Distill fermented mash up the chain: low wines → raw alcohol → ethanol. Mix ethanol with salt powder for absolute ethanol.
+Distill fermented mash up the chain: fermented mash → low wines → raw alcohol → ethanol. Mix ethanol with salt powder for absolute ethanol.
+
+> [WARN] Coca stalls immediately if you try to run it on normal ethanol. The route wants absolute ethanol.
 
 > [GOAL] Keep a steady supply of absolute ethanol.
-
 ---
 
 # Cocaine and Crack
@@ -1186,7 +1210,6 @@ Crack is the harder smoking branch. Follow JEI for the advanced vat and tray ste
 > [WARN] Crack is the most punishing thing in the early-to-mid game. Recovery room ready, or don't.
 
 ---
-
 # Stimulant Tech
 
 SUPPORT
@@ -1200,12 +1223,12 @@ Pillars: Production
 @item mydrugs:condenser_coil
 @item mydrugs:electrode_pair
 
-Stimulant Knowledge unlocks repeatable insulated wire — and wire becomes control circuits and powered machine parts.
+Fermented Knowledge gives a few starter wires, but Stimulant Knowledge unlocks repeatable insulated wire.
+
+Wire becomes control circuits and powered machine parts. If your machine route suddenly asks for motors, coils or electrodes, this is the page you were supposed to reach.
 
 > [GOAL] Build control circuits and start automating in earnest.
-
 ---
-
 # Lab Chemistry
 
 SUPPORT — Chapter 9
@@ -1220,13 +1243,14 @@ The late game splits every recipe into three streams: items, fluids and gases. E
 @item mydrugs:chemical_reactor
 @item mydrugs:gasifier
 @item mydrugs:electrolyzer
+@item mydrugs:advanced_mixing_vat
 
-Build gas storage, both pumps, the chemical reactor, the gasifier and the electrolyzer.
+Build gas storage, both pumps, the chemical reactor, the gasifier, the electrolyzer and the advanced mixing vat.
+
+Gas recipes are unforgiving. If a recipe looks correct and still refuses, check the cargo type: a fluid pipe cannot move a gas, and a gas tank full of the wrong gas blocks the route just as hard as an empty tank.
 
 > [GOAL] Gas and chemical handling online before LSD and meth.
-
 ---
-
 # Acids and Reagents
 
 SUPPORT
@@ -1239,13 +1263,15 @@ Pillars: Production
 @item mydrugs:amino_acid_bucket
 @item mydrugs:tryptophan
 @item mydrugs:diethylamine_bucket
+@item mydrugs:ammonia_bucket
 
-JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammoniac.
+JEI shows how to brew acids and reagents from brine, gases, biomass, malt, water, ethanol and ammonia.
 
-> [TIP] When an LSD recipe is blocked, the missing piece is almost always a gas or an acid.
+For LSD, keep hydrochloric acid, sulfuric acid, acylating agent, tryptophan and diethylamine ready. Tryptophan comes from filtering amino acid. Diethylamine uses absolute ethanol and ammonia.
 
-> [GOAL] Stock hydrochloric and sulfuric acid, acylating agent, tryptophan and diethylamine.
+> [TIP] When an LSD recipe is blocked, the missing piece is almost always a gas, an acid, or the wrong tank type.
 
+> [GOAL] Build a reagent shelf before you start the LSD chain.
 ---
 # LSD
 
@@ -1258,17 +1284,23 @@ Pillars: Production · Risk · Integration
 @item mydrugs:fungal_culture
 @item mydrugs:infected_rye
 @item mydrugs:ergot
+@item mydrugs:ergotamine_bucket
 @item mydrugs:lysergic_acid_bucket
+@item mydrugs:activated_lysergic_acid_bucket
 @item mydrugs:lsd_bucket
 @item mydrugs:lsd_drop
 
-Grow fungal culture, infect rye, harvest ergot, run it through the biochemical and chemical routes into LSD fluid.
+Grow fungal culture, infect rye, harvest ergot, then run ergot with tryptophan through the biochemical route into ergotamine.
 
-Drop cardboard pieces, use a bottle of LSD fluid on them, and you get LSD Drops.
+Turn ergotamine, hydrochloric acid and water into lysergic acid. Activate it with acylating agent. Mix activated lysergic acid with diethylamine to make LSD fluid.
+
+Drop cardboard pieces on the ground, hold a glass bottle containing LSD fluid, and use the bottle on the cardboard. Each drop consumes a tiny amount of LSD fluid and creates LSD Drops.
 
 An LSD Drop grants Lysergic Knowledge.
 
-LSD is not just a stronger buff. It is the first door into insight systems: dream state, deeper diary entries, Psychotrope Resonator work, and later the Inner Dimension.
+LSD is not just a stronger buff. It is the first door into insight systems: dream residue, deeper diary entries, Psychotrope Resonator work, and later the Inner Dimension.
+
+For integration, LSD needs clean spaced use, a diary reflection after a clean experience, safe setting or recovery-room context, and no recent bad trip.
 
 > [TIP] The trip is not the healing. What you do before and after it matters.
 
@@ -1294,13 +1326,11 @@ Lysergic Knowledge unlocks advanced circuits and the high-tier machine parts the
 > [GOAL] Advanced circuits done before petroleum and meth.
 
 ---
-
 # Petroleum
 
 SUPPORT
 
-Pillars: Production
-
+@item mydrugs:petroleum_bucket
 @item mydrugs:naphtha_bucket
 @item mydrugs:reformate_bucket
 @item mydrugs:btx_mix_bucket
@@ -1310,27 +1340,36 @@ Pillars: Production
 @item mydrugs:aromatic_extractor
 @item mydrugs:btx_fractionation_tower
 
-Build the cracker, reformer, extractor and BTX tower, then refine petroleum into benzene and propylene.
+Build the cracker, reformer, extractor and BTX tower, then refine petroleum into the aromatic streams that later feed meth chemistry.
+
+Benzene is the important checkpoint. If you have the machines but no benzene, follow the petroleum and BTX recipes in JEI until every output tank has somewhere to go.
 
 > [GOAL] Produce the aromatics that feed late meth chemistry.
-
 ---
 # Meth
 
 MAIN QUEST — Chapter 11
 
-Pillars: Production · Risk
+The longest chain in the mod. There is no single shortcut — this is the payoff for the machine route, but not the end of the story.
 
-The longest chain in the mod. There is no shortcut — this is the payoff for the machine route, but not the end of the story.
-
+@item mydrugs:reduction_still
+@item mydrugs:ephedra_cuttings
+@item mydrugs:ephedra_extract
+@item mydrugs:raw_phosphorus
+@item mydrugs:reactive_phosphorus
 @item mydrugs:methylamine_bucket
 @item mydrugs:acetone_bucket
+@item mydrugs:chloroacetone_bucket
 @item mydrugs:phenylacetone_bucket
 @item mydrugs:methamphetamine_bucket
 @item mydrugs:meth_shard
 @item mydrugs:meth_powder
 
-High-tier machines, gases, reactors, aromatics and evaporation all feed in. Grind meth shards into meth powder.
+High-tier machines, gases, reactors, aromatics and evaporation all feed in.
+
+The clean industrial path makes methylamine and phenylacetone, combines them in the catalytic reformer, evaporates methamphetamine into shards, then grinds shards into meth powder.
+
+The rough plant path uses the reduction still for ephedra extract, raw phosphorus cooked into reactive phosphorus, hydrochloric acid, and the crude slurry branch if JEI exposes all required inputs in your build.
 
 Smoke meth powder for Overclocked Knowledge.
 
@@ -1354,18 +1393,20 @@ Pillars: Production · Integration · Inner Dimension
 @item mydrugs:magic_mushroom_powder
 @item mydrugs:mycelial_resonator
 @item mydrugs:shroom_harvester
+@item mydrugs:vanilla_biome_finder
 
 You can find magic mushrooms early — but Mycelial Knowledge only opens after Overclocked.
 
-Psychedelic Mushroom Valley now generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. The Vanilla Biome Finder intentionally tracks only vanilla biomes; it will not point at the valley.
+Psychedelic Mushroom Valley generates as its own rare biome by default. Ordinary Mushroom Fields remain vanilla unless the legacy replacement config is enabled. The Vanilla Biome Finder intentionally tracks only vanilla biomes; it will not point at the valley.
 
-Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes.
+Once Overclocked, eat a magic mushroom for Mycelial Knowledge. Mushroom powder feeds the last recipes and Psy Mixer work.
 
 Mushrooms are not only a late material. They are part of the healing route: mycelial insight, safe setting, integration, and the Inner Dimension.
 
+For integration, mushrooms follow the psychedelic route: clean spaced use, reflection afterward, safe setting or recovery-room context, and enough time since any bad trip.
+
 > [GOAL] Hunt down psychedelic terrain, unlock Mycelial Knowledge, and prepare for Resonator work.
 ---
-
 # Psy Mixer
 
 RITUAL
@@ -1374,20 +1415,25 @@ Pillars: Production · Integration
 
 The Psy Mixer is the mod's sandbox. It blends a base drug with a material, a vessel and your knowledge into something new.
 
+@item mydrugs:woven_vine_frame
+@item mydrugs:ritual_bark
+@item mydrugs:charcoal_glyph_block
 @item mydrugs:painted_clay_bowl
+@item mydrugs:hanging_vine_bundle
+@item mydrugs:mycelial_padding
 @item mydrugs:psychotropic_pigment
 @item mydrugs:ritual_resin
 @item mydrugs:ritual_threads
 @item mydrugs:unstable_residue
 
+The structure matters, the offerings matter, and the ritual performance matters. The common vessel is the painted clay bowl. Psychotropic pigment acts as catalyst. Ritual resin often stabilizes stronger mixes.
+
 Get the formula wrong and the ritual fails — leaving unstable residue behind. JEI has the exact requirements.
 
-> [TIP] Rituals aren't on the main spine. But they make your work, exploration and risk management dramatically stronger.
+> [TIP] Rituals are not on the main spine. But they make your work, exploration and risk management dramatically stronger.
 
 @link Starter Mixes|Safe rituals to try first
-
 ---
-
 # Starter Mixes
 
 RITUAL — gentle
@@ -1398,17 +1444,18 @@ Begin with the calm drugs. These themes are reliable:
 
 Coffee + sugar / redstone / cocoa / bitter nut → work speed, mining speed.
 Tobacco + aloe / quartz / copper → precision, less tremor.
-Weed or hash + moss / calming spores / ghast tear → stress relief, stability.
-Alcohol + ghast tear / broken courage → stress and damage resistance.
+Weed + moss carpet / calming spores / glowstone / phantom membrane → stress relief, glow, stability.
+Hash + calming spores / ghast tear / phantom membrane → stronger calm and recovery pressure relief.
+Alcohol + ghast tear / broken courage / inner demon remains / iron → stress and damage resistance.
 
-@item mydrugs:brightened_cannabis_powder
-@item mydrugs:soothing_tobacco_blend
+@item mydrugs:mixed_coffee_drug
+@item mydrugs:mixed_tobacco_drug
+@item mydrugs:mixed_weed_drug
+@item mydrugs:mixed_hash_drug
 @item mydrugs:defiant_spirit_bottle
 
 > [GOAL] Master tobacco, coffee, weed and hash mixes before touching the hard ones.
-
 ---
-
 # Strong Mixes
 
 RITUAL — high power, high cost
@@ -1417,14 +1464,19 @@ Pillars: Production · Risk
 
 The stimulant and psychedelic mixes are where the real power is — and the real danger.
 
-Cocaine + redstone / blaze powder / rabbit foot → speed, adrenaline, dash.
+Cocaine + redstone / blaze powder / rabbit foot / charged sinew → speed, adrenaline, dash.
 Crack + gunpowder / echo shard / fractured impulse → burst windows, dash power.
-Meth + diamond / netherite scrap → mining and work speed, but worse tremors.
-LSD + lapis / diamond / ender pearl → ore aura, fortune, multiblock vision.
-Mushrooms + amethyst / glow berries → ore aura, gamma, bad-trip resistance.
+Meth + diamond / netherite scrap / charged core → mining, work speed and overdrive, but worse tremors.
+LSD + lapis / diamond / ender pearl / third eye petal → ore aura, fortune, multiblock vision.
+Mushrooms + amethyst / glow berries / dreamcap spores → ore aura, gamma, bad-trip resistance.
+
+@item mydrugs:mixed_cocaine_drug
+@item mydrugs:mixed_crack_drug
+@item mydrugs:mixed_meth_drug
+@item mydrugs:mixed_lsd_drug
+@item mydrugs:mixed_mushrooms_drug
 
 > [WARN] A strong mix is not a safe mix. Watch stress, symptoms, addiction and overdose the whole time.
-
 ---
 # Psychotrope Resonator
 
@@ -1433,20 +1485,94 @@ ENDGAME — DREAM AND INTEGRATION
 Pillars: Integration · Inner Dimension
 
 @item mydrugs:psychotrope_lens
+@item mydrugs:resonance_lens
 @item mydrugs:psychotrope_resonator
 @item mydrugs:dream_residue
+@item mydrugs:calming_resin
+@item mydrugs:mycelial_insight
 @item mydrugs:integration_core
-@item mydrugs:energy_upgrade
-@item mydrugs:automation_upgrade
+@item mydrugs:basic_integration_core
+@item mydrugs:advanced_integration_core
+@item mydrugs:refined_integration_core
+@item mydrugs:pristine_integration_core
+@item mydrugs:prime_integration_core
 
-Build lens → dream residue → resonator. This route has been reframed from Psychotrope Generator into Psychotrope Resonator.
+Build lenses, distill dream materials, then build the Resonator.
 
-The Resonator is not a hungry machine. It stabilizes dream states, converts insight into integration, opens the Inner Dimension, and crafts endgame recovery tools.
+The Resonator has three jobs:
 
-> [WARN] If the Resonator becomes a constant chore, it is failing its purpose. It should help you integrate, not demand attention forever.
+Dream Alignment uses Dream Residue and diary context to prepare the Inner Dimension route.
+Recovery Resonance uses Calming Resin, diary context and a valid recovery room to push recovery progress.
+Integration uses the right integration material, the right core tier, diary context, a valid recovery room, and a body state that proves you survived the drug instead of still being ruled by it.
 
-> [GOAL] Build the Resonator after LSD and use it to turn experiences into something lasting.
+The material in the Resonator selects the drug. Dream Residue means LSD, Mycelial Insight means mushrooms, Lucid Extract means coffee, and so on. If the material is unknown, the Resonator will say that instead of blaming some other drug.
+
+Integration materials come from the Psychotrope Distillery: coffee gives Lucid Extract, tobacco gives Bitter Residue, weed gives Calming Resin, hash gives Pressed Calm, alcohol gives Fermented Memory, cocaine gives Redline Fuel, LSD gives Dream Residue, meth gives Overdrive Fuel, and mushrooms give Mycelial Insight.
+
+Core tiers matter: Crude for coffee, Basic for tobacco and weed, Advanced for hash and alcohol, Refined for cocaine, Pristine for LSD and meth, Prime for mushrooms.
+
+The first Crude Integration Core is a recovery-readiness reward. Coffee must be through its recovery loop, not merely addictive enough.
+
+> [WARN] The Resonator is not a hungry machine. If it refuses, read the checklist: missing diary, room, core tier, material, recovery progress, low-addiction state, clean streak, reflection, safe setting, recent bad trip, or knowledge.
+
+> [GOAL] Use the Resonator to turn experiences into integrated traits and unlock the Inner Dimension path.
+
+@link Integrated Traits|What integration keeps
+@link Inner Dimension|How the inner world grows
 ---
+# Integrated Traits
+
+ENDGAME — INTEGRATION
+
+@item mydrugs:integration_core
+@item mydrugs:basic_integration_core
+@item mydrugs:advanced_integration_core
+@item mydrugs:refined_integration_core
+@item mydrugs:pristine_integration_core
+@item mydrugs:prime_integration_core
+@item mydrugs:personal_diary
+
+Integration does not erase what happened. It separates a useful trait from the loop that used to control it.
+
+Coffee becomes Clear Focus. Tobacco becomes Steady Hands. Cannabis becomes Even Keel. Hash becomes Fine Motor. Alcohol becomes Hardened. Cocaine becomes Quickstep. LSD becomes Richer Seams. Meth becomes Overdrive Memory. Mushrooms become Structural Sense.
+
+For addictive drugs, the Resonator asks for evidence: knowledge, enough history, peak addiction reached, enough lifetime doses, current addiction lowered below the drug's maximum, recovery progress complete, diary context, a valid recovery room, the right material, and the right core tier.
+
+For LSD and mushrooms, integration does not use addiction recovery. It asks for five clean spaced experiences, at least one diary reflection after a clean experience, at least one clean experience in safe setting or recovery-room context, no recent bad trip, diary context, the right material, and the right core tier.
+
+> [WARN] Integrated does not mean consequence-free. The trait is understood, but addiction, tolerance, withdrawal, stress, and bad-trip pressure may still need care.
+
+> [GOAL] Integrate all nine curated drugs, then use the Inner Dimension to see what changed.
+---
+# Inner Dimension
+
+ENDGAME — INNER WORLD
+
+@item mydrugs:psychotrope_resonator
+@item mydrugs:personal_diary
+@item mydrugs:dream_residue
+@item mydrugs:lucid_echo_node
+@item mydrugs:bitter_echo_node
+@item mydrugs:calming_echo_node
+@item mydrugs:pressed_calm_node
+@item mydrugs:fermented_memory_node
+@item mydrugs:redline_crystal_node
+@item mydrugs:dream_residue_geode
+@item mydrugs:overdrive_slag
+@item mydrugs:mycelial_insight_node
+@item mydrugs:breath_grass
+@item mydrugs:calming_fern
+@item mydrugs:memory_reeds
+@item mydrugs:redline_thorn
+@item mydrugs:mycelial_root
+
+The Inner Dimension opens only after Dream Alignment and at least one integration. It begins almost empty on purpose: there is not much inner ground until you have actually integrated something.
+
+Every curated integration grows a symbolic zone in a different direction. Coffee gives a beginning. Tobacco gives tension. Weed gives softness. Hash gives gesture. Alcohol gives memory. Cocaine gives acceleration. LSD gives perception. Meth gives the machine that will not stop. Mushrooms reveal the roots underneath.
+
+The center is the Self Anchor. It evolves as integrations accumulate, from a bare amethyst marker into a ritual center and, after all nine integrations, a placeholder route toward the Spiral Court.
+
+Echo nodes are finite symbolic resources, not normal ores. They can help with integration materials and resonator-era work, but they do not replace the production chain and they never drop raw drugs.
 
 # Integrated Traits
 
@@ -1492,16 +1618,19 @@ Pillars: Production
 @item mydrugs:redline_fuel
 @item mydrugs:overdrive_fuel
 @item mydrugs:unstable_essence
+@item mydrugs:current_regulator
+@item mydrugs:strain_vent
 
-The Psychotrope Distillery turns substance products into industrial extracts. The Distillate Engine burns those extracts into Psy Current for machine automation.
+The Psychotrope Distillery turns substance products into industrial extracts. The Distillate Engine burns compatible extracts into Psy Current for nearby machine automation.
 
-Dream Residue and Mycelial Insight are different. They belong to the Resonator, not the engine.
+Psy Current is factory support, not healing. It powers compatible machines and can build strain if pushed too hard.
+
+Dream Residue, Mycelial Insight, Pressed Calm and Fermented Memory are integration materials first. Do not confuse factory fuel with integration work.
 
 > [WARN] Redline and Overdrive produce stronger current but add engine strain. Overload cools down; it is not an explosion.
 
 > [GOAL] Use extraction for factory power. Use integration for freedom.
 ---
-
 # Bottles and Syringes
 
 UTILITY + MUTATION PREP
@@ -1509,6 +1638,7 @@ UTILITY + MUTATION PREP
 Pillars: Production
 
 @item mydrugs:glass_bottle
+@item mydrugs:lsd_drop
 @item mydrugs:syringe
 @item mydrugs:blood_bucket
 @item mydrugs:autoclave
@@ -1519,24 +1649,21 @@ Bottles hold valid mod fluids and turn LSD fluid into Drops.
 Syringes draw blood and inject mutation payloads — but a dirty syringe causes infection. Run empty dirty syringes through the autoclave before any blood or mutation work.
 
 > [WARN] A dirty injection is rejected AND starts an infection. Sterilise first, every time.
-
 ---
 # Somatic Adaptation
 
 ENDGAME BODY
 
-Pillars: Risk · Recovery
-
-@item mydrugs:adn_scraper
-@item mydrugs:adn_scrap
-@item mydrugs:adn_gene
+@item mydrugs:dna_scraper
+@item mydrugs:dna_scrap
+@item mydrugs:dna_gene
 @item mydrugs:mutation_vector
 @item mydrugs:mutagenic_blood_vial
 @item mydrugs:syringe
 
-The current route still uses ADN items internally: scrape ADN → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
+The route still uses DNA items internally: scrape DNA → extract genes → combine genes → incubate a vector → infuse it with blood → load a sterile syringe → inject → assimilate over time.
 
-These adaptations let your body regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover.
+Read it as Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover.
 
 Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience.
 
@@ -1556,10 +1683,10 @@ Pillars: Production · Risk
 @item mydrugs:hemogenic_infuser
 @item mydrugs:autoclave
 
-These machines are still implemented as ADN tools, but their player-facing direction should move toward body regulation and somatic adaptation.
+These machines turn body material into adaptation payloads.
 
-Gene Extractor — ADN Scrap into single-stat imprints.
-CRISPR-CAS9 — combines compatible body imprints.
+Gene Extractor — DNA Scrap into single-stat imprints.
+CRISPR-Cas9 — combines compatible body imprints.
 Bacterial Incubator — imprint into an adaptation vector.
 Hemogenic Infuser — vector plus blood into an adaptation vial.
 Autoclave — sterilises dirty empty syringes.
@@ -1579,8 +1706,11 @@ Durable Body — Health Stability, Metabolic Control, Infection Resistance.
 Ritualist — Ritual Neural Sync, Stability, Visual Accuracy.
 Safe Chemist — Infection Resistance, Health Stability, Stability.
 Overclocker — Metabolic Control, Pleasure Sensitivity, Addiction Resistance.
+Dimension Walker — Withdrawal Resilience, Mental Strength, Stability, Metabolic Control.
 
-> [TIP] A balanced pattern supports freedom better than one enormous stat.
+A balanced pattern supports freedom better than one enormous stat.
+
+> [TIP] Build for resilience, grounding, safe trips, withdrawal recovery, and dimension traversal — not only raw numbers.
 ---
 # The Diary
 
@@ -1612,11 +1742,11 @@ Inside the Personal Diary is the Psyche Map — a zoomable map of everything you
 
 It plots every knowledge you have unlocked and every milestone you have hit: first ritual, first adaptation, first bad trip, first recovery room, first integrated fragment, first Resonator use, and more. Locked nodes stay hidden until you reach them.
 
-The map plots that story:
+Read the map as a constellation, not a checklist:
 
 Discovery → control → temptation → recovery → psychedelic opening → integration → Inner Dimension → boss → freedom.
 
-> [TIP] If you ever feel lost in the mid game, open the diary first, then read the map as a constellation of what you have already lived through.
+> [TIP] If you ever feel lost in the mid game, open the diary first, then read the map as proof of what you have already lived through.
 ---
 # Recovery Basics
 
@@ -1631,10 +1761,13 @@ Recovery is not an endgame chore. Coffee, tobacco, cannabis, alcohol and stimula
 @item mydrugs:calming_mixture
 @item mydrugs:sleeping_aid
 @item mydrugs:overdose_antidote
+@item mydrugs:personal_diary
 
-Headphones steady you while carried. Tea and calming mixture cut stress and withdrawal. Sleeping aid restores blocked sleep. The antidote pulls you back from an overdose.
+Headphones steady you while carried. Tea and calming mixture cut stress and withdrawal. Sleeping aid restores blocked sleep. The antidote pulls you back from an overdose. The diary tells you which pressure is actually rising.
 
-Recovery takes several paths: diary work, safe rooms, sleep, social relief, therapist visits, psychedelics with integration, and endgame integration.
+Recovery grows through repeated safe action: sleep, food, sanctuary time, therapy-like actions, diary work, music, calm rooms, and later Resonator integration.
+
+When a drug's recovery progress is full but current addiction is still too high, active recovery still matters. Keep doing recovery work until the diary and Resonator show the current addiction threshold is met.
 
 > [GOAL] Carry at least one recovery option before any repeated use.
 
@@ -1651,16 +1784,20 @@ A recovery room is the strongest healing tool in the mod — passive, permanent,
 
 @item mydrugs:recovery_anchor
 @item mydrugs:therapist_desk
+@item mydrugs:disc_scriber
+@item mydrugs:blank_music_disc
+@item mydrugs:personal_music_disc
+@item mydrugs:recovery_jukebox
 
 Place a Recovery Anchor inside an enclosed room with a door. The anchor scans the space and scores it on light, beds, decoration, seating and music. The score sets a tier:
 
-Fragile → Resting → Safe → Sanctuary.
+Fragile Room → Resting Room → Safe Room → Sanctuary.
 
 Higher tiers speed up withdrawal, tolerance and addiction recovery, lower your baseline stress, and blunt bad trips.
 
-Sanctuary building now works like a second base. A factory produces more; a Sanctuary helps you become stable enough to handle more. Modules such as a resting place, diary desk, music corner, plant corner, tea kitchen, memory wall, and integration alcove add modest recovery support without erasing consequence.
+Sanctuary modules turn the room from a box into a practice: resting place, diary desk, music corner, plant corner, tea kitchen, memory wall, and integration alcove. Duplicate copies do not stack into stronger effects; the goal is a complete room, not a pile of the same block.
 
-The anchor and diary can show which modules are active. Duplicate copies do not stack into stronger effects; the goal is a complete room, not a pile of the same block.
+The anchor and diary can show which modules are active and which ideas are missing.
 
 > [TIP] The anchor tells you exactly what to add. Follow its hints up to Sanctuary.
 
@@ -1675,14 +1812,18 @@ Pillars: Risk · Recovery · Integration
 Push a psychedelic or stimulant too hard and you can trigger a bad trip. A mild one is stress and bad symptoms. A strong one may externalize psychological fragments.
 
 @item mydrugs:inner_demon_remains
+@item mydrugs:integration_core
+@item mydrugs:dream_residue
 
-Inner Demons are being reframed as symbolic inner fragments: panic, craving, shame, avoidance, or the loop. They should be dangerous, but not proof that the mod is evil or anti-healing.
+Inner Demons are symbolic inner fragments: panic, craving, shame, avoidance, or the loop. They are dangerous, but not proof that the mod is evil or anti-healing.
 
-A bad trip should be recoverable and meaningful. Safe setting, recovery room, diary work, and integration should all help.
+A bad trip should be recoverable and meaningful. Safe setting, recovery room, diary work, and integration all help.
 
-> [TIP] A Sanctuary-tier recovery room should strongly reduce dangerous bad-trip outcomes.
+For LSD and mushrooms, a recent bad trip blocks integration until it has settled. A clean streak is not enough by itself; reflect afterward and use safe setting.
 
-> [WARN] Cut the bad trip at the source: lower stress, get to your recovery room, wait it out, and write/integrate afterward. Don't keep dosing.
+> [TIP] A Sanctuary-tier recovery room strongly reduces dangerous bad-trip outcomes.
+
+> [WARN] Cut the bad trip at the source: lower stress, get to your recovery room, wait it out, and write or integrate afterward. Do not keep dosing.
 ---
 
 # Drug Analyzer
@@ -1700,67 +1841,64 @@ Drop any drug — base, processed or a Psy Mixer creation — into its slot and 
 > [TIP] Use it on every ritual result before you consume one. A mix that looked clever can carry effects you did not intend.
 
 ---
-
 # Recovering Lost Progression Items
 
 RECOVERY
 
-Pillars: Recovery
-
-Lost your Psy Receptacle to lava, a death, or a storage mistake? It is not gone for good. The Psy Mixer can rebind a new one — and the same ritual can re-make Centrifuge Wires if your industrial chain ever stalls.
+Lost your Psy Receptacle to lava, a death, or a storage mistake? It is not gone for good. The Psy Mixer can rebind a new one — and the same recovery logic can remake starter wires or a crude integration core.
 
 @item mydrugs:psy_receptacle
 @item mydrugs:insulated_wire
+@item mydrugs:integration_core
 @item mydrugs:painted_clay_bowl
 
 Build a Psy Mixer as normal, then load its five bowls with a recovery offering instead of a recipe.
 
 To rebind a Psy Receptacle: one drug and four vines — one item per bowl.
 
-To re-make Centrifuge Wires: one drug and four copper ingots — one item per bowl.
+To re-make starter wires: one drug and four copper ingots — one item per bowl.
 
-Activate it. This ritual takes everything: it drains your experience — up to 30 levels — and consumes every offering, win or lose.
+To re-make a crude Integration Core: one drug and four valid seed-source items — one item per bowl. This route only matters after you have already received your first integration core.
 
-Your success chance is your experience plus the drug you offered. Experience alone reaches half the odds at 30 levels; the drug supplies the rest. Coffee barely helps, meth nearly guarantees it. A 30-level offering carried by meth never fails.
+Activate it. This ritual takes everything: it drains your experience — up to 30 levels by default — and consumes every offering, win or lose.
+
+Your success chance is your experience plus the drug you offered. Experience alone reaches half the odds at 30 levels; the drug supplies the rest. Coffee barely helps, meth adds the strongest bonus.
 
 > [WARN] Failure keeps nothing. Your levels and items are gone, the glass shatters, and the gods stay silent. Bring real experience and a strong drug, or do not bring the offering at all.
 
-> [GOAL] Rebind what you lost — then never store it loose again.
+> [GOAL] Rebuild what you lost — then never store it loose again.
 
 > [TIP] On a server, an operator can also run /mydrugs recover and /mydrugs progression diagnose. The ritual is the survival route; the commands exist for bugs and admins.
-
 ---
-
 # When You Are Stuck
 
 HELP
 
-Pillars: Recovery
-
-Start with the diary, then work down this list. One of these is always the answer.
+Start with the diary, then work down this list. One of these is almost always the answer.
 
 1. Open the diary. It knows your current body state, recent blockers, and next thread.
-2. Check your latest knowledge - is the gate even open?
+2. Check your latest knowledge — is the gate even open?
 3. Check the advancement's parent.
 4. Check the JEI category for the exact recipe.
-5. Read the machine or Psy Anvil status text. It explains itself.
+5. Read the machine, Psy Anvil, Psy Mixer or Resonator status text. It explains itself.
 6. Check slots, fluids, gases, heat, energy, output space, side config, pipes, filters.
 7. Check the consumption FORM.
 
-Common form traps: fresh leaves rarely unlock knowledge. Meth shards must become powder. LSD fluid must become Drops. Coca works as powder or rail.
+Common form traps: fresh leaves rarely unlock knowledge. Meth shards must become powder. LSD fluid must become Drops. Coca works as powder or rail. Mushrooms can be eaten early, but the real knowledge waits until Overclocked.
+
+Common route trap: hash is listed as an integration/knowledge milestone near cannabis, but the practical hash craft waits until after Fermented Knowledge, heavy iron and the stomp crafter.
 
 Lost a progression-critical item entirely? It can be rebuilt — do not start a new world.
 
 > [GOAL] When truly lost, open the diary first. Then return to the last knowledge you unlocked and follow its chapter.
 
 @link Recovering Lost Progression Items|Rebuild a lost key item
-
 ---
 # The Whole Route
 
 @title One Last Look
 
-Grass → crops → coffee → tobacco → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum → meth → mushrooms → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
+Grass and ferns → crops → coffee kit → coffee → tobacco → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
 
 Running underneath it all: recovery early, JEI for ingredients, machine screens for problems, the diary for yourself, the Psy Mixer for power, and the Resonator for integration.
 

@@ -11,6 +11,9 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.registry.MachineSpec;
+import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
+import org.mydrugs.mydrugs.dimension.block.RedlineThornBlock;
+import org.mydrugs.mydrugs.dimension.block.SymbolicPlantBlock;
 import org.mydrugs.mydrugs.energy.MachineUpgradeBlockItem;
 import org.mydrugs.mydrugs.recovery.block.ModRecoveryBlocks;
 import org.mydrugs.mydrugs.recovery.block.DiscScriberBlock;
@@ -163,6 +166,35 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> PSYCHOTROPE_RESONATOR_ITEM =
             registerMachineBlockItem("psychotrope_resonator", PSYCHOTROPE_RESONATOR);
 
+    public static final DeferredBlock<Block> LUCID_ECHO_NODE = ModInnerDimensionBlocks.LUCID_ECHO_NODE;
+    public static final DeferredItem<BlockItem> LUCID_ECHO_NODE_ITEM = ModInnerDimensionBlocks.LUCID_ECHO_NODE_ITEM;
+    public static final DeferredBlock<Block> BITTER_ECHO_NODE = ModInnerDimensionBlocks.BITTER_ECHO_NODE;
+    public static final DeferredItem<BlockItem> BITTER_ECHO_NODE_ITEM = ModInnerDimensionBlocks.BITTER_ECHO_NODE_ITEM;
+    public static final DeferredBlock<Block> CALMING_ECHO_NODE = ModInnerDimensionBlocks.CALMING_ECHO_NODE;
+    public static final DeferredItem<BlockItem> CALMING_ECHO_NODE_ITEM = ModInnerDimensionBlocks.CALMING_ECHO_NODE_ITEM;
+    public static final DeferredBlock<Block> PRESSED_CALM_NODE = ModInnerDimensionBlocks.PRESSED_CALM_NODE;
+    public static final DeferredItem<BlockItem> PRESSED_CALM_NODE_ITEM = ModInnerDimensionBlocks.PRESSED_CALM_NODE_ITEM;
+    public static final DeferredBlock<Block> FERMENTED_MEMORY_NODE = ModInnerDimensionBlocks.FERMENTED_MEMORY_NODE;
+    public static final DeferredItem<BlockItem> FERMENTED_MEMORY_NODE_ITEM = ModInnerDimensionBlocks.FERMENTED_MEMORY_NODE_ITEM;
+    public static final DeferredBlock<Block> REDLINE_CRYSTAL_NODE = ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE;
+    public static final DeferredItem<BlockItem> REDLINE_CRYSTAL_NODE_ITEM = ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE_ITEM;
+    public static final DeferredBlock<Block> DREAM_RESIDUE_GEODE = ModInnerDimensionBlocks.DREAM_RESIDUE_GEODE;
+    public static final DeferredItem<BlockItem> DREAM_RESIDUE_GEODE_ITEM = ModInnerDimensionBlocks.DREAM_RESIDUE_GEODE_ITEM;
+    public static final DeferredBlock<Block> OVERDRIVE_SLAG = ModInnerDimensionBlocks.OVERDRIVE_SLAG;
+    public static final DeferredItem<BlockItem> OVERDRIVE_SLAG_ITEM = ModInnerDimensionBlocks.OVERDRIVE_SLAG_ITEM;
+    public static final DeferredBlock<Block> MYCELIAL_INSIGHT_NODE = ModInnerDimensionBlocks.MYCELIAL_INSIGHT_NODE;
+    public static final DeferredItem<BlockItem> MYCELIAL_INSIGHT_NODE_ITEM = ModInnerDimensionBlocks.MYCELIAL_INSIGHT_NODE_ITEM;
+    public static final DeferredBlock<SymbolicPlantBlock> BREATH_GRASS = ModInnerDimensionBlocks.BREATH_GRASS;
+    public static final DeferredItem<BlockItem> BREATH_GRASS_ITEM = ModInnerDimensionBlocks.BREATH_GRASS_ITEM;
+    public static final DeferredBlock<SymbolicPlantBlock> CALMING_FERN = ModInnerDimensionBlocks.CALMING_FERN;
+    public static final DeferredItem<BlockItem> CALMING_FERN_ITEM = ModInnerDimensionBlocks.CALMING_FERN_ITEM;
+    public static final DeferredBlock<SymbolicPlantBlock> MEMORY_REEDS = ModInnerDimensionBlocks.MEMORY_REEDS;
+    public static final DeferredItem<BlockItem> MEMORY_REEDS_ITEM = ModInnerDimensionBlocks.MEMORY_REEDS_ITEM;
+    public static final DeferredBlock<RedlineThornBlock> REDLINE_THORN = ModInnerDimensionBlocks.REDLINE_THORN;
+    public static final DeferredItem<BlockItem> REDLINE_THORN_ITEM = ModInnerDimensionBlocks.REDLINE_THORN_ITEM;
+    public static final DeferredBlock<SymbolicPlantBlock> MYCELIAL_ROOT = ModInnerDimensionBlocks.MYCELIAL_ROOT;
+    public static final DeferredItem<BlockItem> MYCELIAL_ROOT_ITEM = ModInnerDimensionBlocks.MYCELIAL_ROOT_ITEM;
+
     public static final DeferredBlock<Block> MIXING_VAT = BLOCKS.registerBlock(
             "mixing_vat",
             MixingVatBlock::new,
@@ -269,9 +301,9 @@ public class ModBlocks {
 
     public static final DeferredItem<BlockItem> GENE_EXTRACTOR_ITEM = registerMachineBlockItem("gene_extractor", GENE_EXTRACTOR);
 
-    public static final DeferredBlock<KrisprKas9CombinatorBlock> CRISPR_CAS9_COMBINATOR = BLOCKS.registerBlock(
+    public static final DeferredBlock<CrisprCas9CombinatorBlock> CRISPR_CAS9_COMBINATOR = BLOCKS.registerBlock(
             "crispr_cas9_combinator",
-            KrisprKas9CombinatorBlock::new,
+            CrisprCas9CombinatorBlock::new,
             props -> props
                     .strength(4.0F)
                     .requiresCorrectToolForDrops()

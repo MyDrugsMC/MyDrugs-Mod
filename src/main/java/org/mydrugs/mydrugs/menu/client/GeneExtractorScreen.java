@@ -53,7 +53,7 @@ public final class GeneExtractorScreen extends AbstractMachineScreen<GeneExtract
     @Override
     protected List<TransferHighlight> transferPortHighlights(String portIdPath) {
         return switch (portIdPath) {
-            case "adn_input" -> List.of(slotHighlight(GeneExtractorLayout.INPUT_SLOT_X, GeneExtractorLayout.INPUT_SLOT_Y));
+            case "dna_input" -> List.of(slotHighlight(GeneExtractorLayout.INPUT_SLOT_X, GeneExtractorLayout.INPUT_SLOT_Y));
             case "gene_output_a", "gene_output_b", "gene_output_c" -> List.of(
                     slotHighlight(GeneExtractorLayout.OUTPUT_A_SLOT_X, GeneExtractorLayout.OUTPUT_A_SLOT_Y),
                     slotHighlight(GeneExtractorLayout.OUTPUT_B_SLOT_X, GeneExtractorLayout.OUTPUT_B_SLOT_Y),

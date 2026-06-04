@@ -37,6 +37,30 @@ class ResonatorFailureMappingTest {
     }
 
     @Test
+    void psychedelicReflectionLowMapsToReflectionFailure() {
+        EligibilityResult result = new EligibilityResult(false, true, true, true, true, true,
+                false, true, true, false);
+        assertEquals(PsychotropeResonatorFailureReason.PSYCHEDELIC_REFLECTION_INCOMPLETE,
+                PsychotropeResonatorFailureReason.firstEligibilityFailure(result));
+    }
+
+    @Test
+    void psychedelicSafeUseLowMapsToSafeSettingFailure() {
+        EligibilityResult result = new EligibilityResult(false, true, true, true, true, true,
+                true, false, true, false);
+        assertEquals(PsychotropeResonatorFailureReason.PSYCHEDELIC_SAFE_SETTING_INCOMPLETE,
+                PsychotropeResonatorFailureReason.firstEligibilityFailure(result));
+    }
+
+    @Test
+    void recentBadTripMapsToRecentBadTripFailure() {
+        EligibilityResult result = new EligibilityResult(false, true, true, true, true, true,
+                true, true, false, false);
+        assertEquals(PsychotropeResonatorFailureReason.RECENT_BAD_TRIP,
+                PsychotropeResonatorFailureReason.firstEligibilityFailure(result));
+    }
+
+    @Test
     void peakLowMapsToPeakTooLow() {
         EligibilityResult result = new EligibilityResult(false, false, true, true, true, true, false);
         assertEquals(PsychotropeResonatorFailureReason.PEAK_TOO_LOW,

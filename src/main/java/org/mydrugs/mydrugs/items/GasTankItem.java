@@ -64,6 +64,19 @@ public class GasTankItem extends BlockItem {
                         GasTankItemHandler.CAPACITY
                 ).withStyle(ChatFormatting.DARK_GRAY)
         );
+
+        if (gas != null) {
+            tooltipAdder.accept(
+                    Component.translatable("tooltip.mydrugs.gas.hazard",
+                            Component.translatable(gas.hazard().translationKey()))
+                            .withStyle(gas.hazard().color())
+            );
+            if (gas.flammable()) {
+                tooltipAdder.accept(
+                        Component.translatable("tooltip.mydrugs.gas.flammable").withStyle(ChatFormatting.GOLD)
+                );
+            }
+        }
     }
 
     @Override

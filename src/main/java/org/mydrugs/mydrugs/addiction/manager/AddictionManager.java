@@ -18,6 +18,7 @@ import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationConstants;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
@@ -26,9 +27,10 @@ import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.addiction.progression.RelapseManager;
 import org.mydrugs.mydrugs.addiction.withdrawal.WithdrawalManager;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.PlayerEnvironmentSnapshot;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
-import org.mydrugs.mydrugs.recovery.SocialReliefManager;
 import org.mydrugs.mydrugs.addiction.manager.state.ResilienceManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressDamageManager;
@@ -135,10 +137,8 @@ public final class AddictionManager {
                     prevLastUseTime,
                     IntegrationConstants.MIN_CLEAN_STREAK_SPACING_TICKS
             );
-            // Psychedelics never enter RecoveryProgressManager's reckoning (no recovery progress
-            // requirement), so onProductiveAction would never promote them. Stage them here so the
-            // diary beat + chat notification fire once they meet the streak threshold.
-            IntegrationService.markEligible(player, model.getId());
+            boolean safeSetting = !playerStats.badTrip.active && isPsychedelicSafeSetting(player);
+            IntegrationService.onCleanPsychedelicUseContext(drugStats, safeSetting);
         }
 
         StressManager.reduceStress(playerStats, AddictionConstants.STRESS_RELIEF_ON_CONSUME);
@@ -156,14 +156,14 @@ public final class AddictionManager {
         ItemEffectHandler.tickHeadphones(player);
 
         boolean inCombat = player.tickCount - player.getLastHurtByMobTimestamp() < AddictionConstants.COMBAT_DETECTION_TICKS;
-        int companions = SocialReliefManager.countCompanions(player, AddictionConstants.COMPANION_DETECTION_RADIUS);
-        RecoveryRoomReport recoveryRoom = RecoveryRoomManager.getBestRoom(player).orElse(null);
-        boolean inSafeZone = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoom);
-        if (!inSafeZone) {
-            inSafeZone = SafeZoneManager.isInSafeZone(player);
-        }
-        if (inSafeZone && !stats.wasInSafeZoneLastTick) {
+        PlayerEnvironmentSnapshot environment = PlayerRecoveryEnvironmentCache.snapshot(player);
+        int companions = environment.companionCount();
+        RecoveryRoomReport recoveryRoom = environment.recoveryRoom();
+        boolean inSafeZone = environment.inSafeZone();
+        boolean enteredSafeZone = inSafeZone && !stats.wasInSafeZoneLastTick;
+        if (enteredSafeZone) {
             AdvancementEventHooks.recoveryAction(player, "safe_zone");
+            AddictionRecoveryFeedback.sendRoomSupport(player);
         }
         stats.wasInSafeZoneLastTick = inSafeZone;
         long gameTime = player.level().getGameTime();
@@ -193,7 +193,11 @@ public final class AddictionManager {
                     recoveryRoom == null && inSafeZone
             ) * RecoveryRoomManager.addictionRecoveryMultiplier(recoveryRoom) / 20.0F;
 
+            float addictionBeforeDecay = drugStats.addictionValue;
             drugStats.addictionValue = Math.max(0.0F, drugStats.addictionValue - addictionRecovery);
+            if (drugStats.addictionValue < addictionBeforeDecay) {
+                IntegrationService.afterDrugStatsUpdated(player, drugId);
+            }
             RelapseManager.decay(drugStats);
 
             DoseManager.tickDrug(player, stats, drugId);
@@ -227,7 +231,7 @@ public final class AddictionManager {
         SymptomManager.applyServerSymptoms(player, globalSeverity);
         DoseManager.tickOverdoseTimer(player, stats);
 
-        WithdrawalHintManager.tick(player, globalSeverity, inSafeZone, companions);
+        WithdrawalHintManager.tick(player, globalSeverity, inSafeZone, companions, environment);
 
         if (inSafeZone
                 && globalSeverity > AddictionConstants.SAFE_ZONE_RECOVERY_THRESHOLD
@@ -248,6 +252,10 @@ public final class AddictionManager {
             doses[category.networkId()] = stats.getCategoryCurrentDose(category);
         }
         PacketDistributor.sendToPlayer(player, new DoseSyncPayload(doses));
+    }
+
+    private static boolean isPsychedelicSafeSetting(ServerPlayer player) {
+        return SafeZoneManager.isInSafeZone(player);
     }
 
     public static float getGlobalSeverity(ServerPlayer player) {

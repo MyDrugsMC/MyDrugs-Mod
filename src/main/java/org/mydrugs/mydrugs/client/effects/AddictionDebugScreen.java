@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.addiction.network.AddictionDebugActionPayload;
 import org.mydrugs.mydrugs.addiction.network.AddictionDebugOpenPayload;
+import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 
 import java.util.List;
 
@@ -244,8 +245,8 @@ public final class AddictionDebugScreen extends Screen {
     private String integrationLine(AddictionDebugOpenPayload.DrugStatsRow row) {
         String trait = row.integratedTraitId().isBlank() ? "none" : row.integratedTraitId();
         String state = switch (row.integrationStage()) {
-            case 1 -> "eligible";
-            case 2 -> "integrated";
+            case DrugAddictionStats.INTEGRATION_STAGE_ELIGIBLE -> "eligible";
+            case DrugAddictionStats.INTEGRATION_STAGE_INTEGRATED -> "integrated";
             default -> row.integrationEligible() ? "ready" : "none";
         };
         String unlocked = row.integratedTraitUnlocked() ? " unlocked" : "";
@@ -257,10 +258,10 @@ public final class AddictionDebugScreen extends Screen {
     }
 
     private int integrationColor(AddictionDebugOpenPayload.DrugStatsRow row) {
-        if (row.integratedTraitUnlocked() || row.integrationStage() == 2) {
+        if (row.integratedTraitUnlocked() || row.integrationStage() == DrugAddictionStats.INTEGRATION_STAGE_INTEGRATED) {
             return 0xFF8FE6D1;
         }
-        if (row.integrationEligible() || row.integrationStage() == 1) {
+        if (row.integrationEligible() || row.integrationStage() == DrugAddictionStats.INTEGRATION_STAGE_ELIGIBLE) {
             return 0xFFFFD37A;
         }
         if (row.recoveryProgress() > 0.0F || row.lifetimeDoseConsumed() > 0.0F) {

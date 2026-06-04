@@ -48,6 +48,14 @@ public class ClientModEvents {
     }
 
     @SubscribeEvent
+    public static void registerDimensionEffects(RegisterDimensionSpecialEffectsEvent event) {
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "inner"),
+                new org.mydrugs.mydrugs.client.InnerDimensionEffects()
+        );
+    }
+
+    @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.BANG_CONTAINER.get(), SingleSlotMenuScreen::new);
         event.register(ModMenus.ADVANCED_FURNACE.get(), AdvancedFurnaceScreen::new);
@@ -65,7 +73,7 @@ public class ClientModEvents {
         event.register(ModMenus.ELECTROLYZER.get(), ElectrolyzerScreen::new);
         event.register(ModMenus.GROWTH_CHAMBER.get(), GrowthChamberScreen::new);
         event.register(ModMenus.GENE_EXTRACTOR.get(), GeneExtractorScreen::new);
-        event.register(ModMenus.CRISPR_CAS9_COMBINATOR.get(), KrisprKas9CombinatorScreen::new);
+        event.register(ModMenus.CRISPR_CAS9_COMBINATOR.get(), CrisprCas9CombinatorScreen::new);
         event.register(ModMenus.BACTERIAL_INCUBATOR.get(), BacterialIncubatorScreen::new);
         event.register(ModMenus.HEMOGENIC_INFUSER.get(), HemogenicInfuserScreen::new);
         event.register(ModMenus.AUTOCLAVE.get(), AutoclaveScreen::new);

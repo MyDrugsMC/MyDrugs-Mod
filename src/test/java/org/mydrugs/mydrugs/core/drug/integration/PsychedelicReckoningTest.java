@@ -46,12 +46,16 @@ class PsychedelicReckoningTest {
     }
 
     @Test
-    void cleanStreakAtThresholdMakesPsychedelicsEligible() {
-        // Sanity check that the eligibility evaluator IS reachable for psychedelics on streak
-        // alone -- this is what the AddictionManager staging hook relies on.
+    void cleanStreakNeedsReflectionAndSafeUseBeforeEligibility() {
+        // Psychedelics still avoid normal addiction recovery, but the streak alone is no longer
+        // enough: at least one reflection and one safe-setting experience must be recorded too.
         var stats = new org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats();
         DrugAddictionStats lsd = stats.getOrCreateDrugStats(DrugId.LSD);
         lsd.cleanIntegrationDoseStreak = 5;
+        assertFalse(IntegrationService.evaluate(stats, DrugId.LSD).eligible());
+
+        lsd.cleanPsychedelicReflectionCount = 1;
+        lsd.cleanPsychedelicSafeUseCount = 1;
         assertTrue(IntegrationService.evaluate(stats, DrugId.LSD).eligible());
     }
 }

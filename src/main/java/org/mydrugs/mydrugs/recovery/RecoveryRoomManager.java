@@ -40,7 +40,14 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
+import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
 import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 import org.mydrugs.mydrugs.recovery.block.RecoveryJukeboxBlockEntity;
@@ -70,17 +77,14 @@ public final class RecoveryRoomManager {
     }
 
     public static Optional<RecoveryRoomReport> getBestRoom(Level level, LivingEntity entity) {
+        if (entity instanceof ServerPlayer player) {
+            return getBestRoom(player);
+        }
         return getBestRoom(level, entity.blockPosition());
     }
 
     public static Optional<RecoveryRoomReport> getBestRoom(ServerPlayer player) {
-        Optional<RecoveryRoomReport> report = getBestRoom(player.level(), player.blockPosition());
-        report.ifPresent(found -> {
-            if (found.tier() == RecoveryRoomTier.SANCTUARY && PsycheMapMilestones.sanctuary(player)) {
-                player.displayClientMessage(Component.translatable("recovery.mydrugs.room.sanctuary_memory"), true);
-            }
-        });
-        return report;
+        return PlayerRecoveryEnvironmentCache.snapshot(player).recoveryRoomOptional();
     }
 
     public static Optional<RecoveryRoomReport> getBestRoom(Level level, BlockPos playerPos) {
@@ -174,13 +178,13 @@ public final class RecoveryRoomManager {
         return isValidRecoveryRoom(report) && report.tier() == RecoveryRoomTier.SANCTUARY;
     }
 
-    public static void inspectAnchor(ServerPlayer player, BlockPos anchorPos, boolean highlight) {
+    public static void inspectAnchor(ServerPlayer player, BlockPos anchorPos, boolean detailed) {
         invalidate(player.level(), anchorPos);
         RecoveryRoomReport report = getRoom(player.level(), anchorPos).withPlayerInside(
                 getRoom(player.level(), anchorPos).contains(player.blockPosition())
         );
-        sendReportMessages(player, report, true);
-        sendParticles(player, report, highlight);
+        sendReportMessages(player, report, detailed);
+        sendParticles(player, report, detailed);
     }
 
     public static void onAnchorPlaced(ServerPlayer player, BlockPos anchorPos) {
@@ -196,7 +200,7 @@ public final class RecoveryRoomManager {
         if (player.tickCount % AMBIENT_PARTICLE_SYNC_TICKS != 0) {
             return;
         }
-        RecoveryRoomReport report = getBestRoom(player).orElse(null);
+        RecoveryRoomReport report = PlayerRecoveryEnvironmentCache.snapshot(player).recoveryRoom();
         if (!isValidRecoveryRoom(report)) {
             return;
         }
@@ -204,6 +208,7 @@ public final class RecoveryRoomManager {
     }
 
     public static void invalidate(Level level, BlockPos anchorPos) {
+        PlayerRecoveryEnvironmentCache.invalidateLevel(level);
         Map<BlockPos, CachedReport> levelCache = CACHE.get(level);
         if (levelCache != null) {
             levelCache.remove(anchorPos.immutable());
@@ -211,12 +216,19 @@ public final class RecoveryRoomManager {
     }
 
     public static void invalidateAround(Level level, BlockPos changedPos) {
+        PlayerRecoveryEnvironmentCache.invalidateLevel(level);
         Map<BlockPos, CachedReport> levelCache = CACHE.get(level);
         if (levelCache == null || levelCache.isEmpty()) {
             return;
         }
         int radius = scanRadius() + 2;
         levelCache.keySet().removeIf(anchor -> anchor.distManhattan(changedPos) <= radius * 3);
+    }
+
+    static void notifyRoomSeen(ServerPlayer player, RecoveryRoomReport report) {
+        if (report != null && report.tier() == RecoveryRoomTier.SANCTUARY && PsycheMapMilestones.sanctuary(player)) {
+            player.displayClientMessage(Component.translatable("recovery.mydrugs.room.sanctuary_memory"), true);
+        }
     }
 
     private static RecoveryRoomReport scanRoom(Level level, BlockPos anchorPos) {
@@ -683,6 +695,86 @@ public final class RecoveryRoomManager {
         }
     }
 
+    public static RecoveryRoomTier nextTier(RecoveryRoomReport report) {
+        int score = report == null ? 0 : report.score();
+        for (RecoveryRoomTier tier : RecoveryRoomTier.values()) {
+            if (tier.minScore() > score) {
+                return tier;
+            }
+        }
+        return RecoveryRoomTier.SANCTUARY;
+    }
+
+    public static int pointsToNextTier(RecoveryRoomReport report) {
+        if (report == null) {
+            return RecoveryRoomTier.FRAGILE_ROOM.minScore();
+        }
+        RecoveryRoomTier next = nextTier(report);
+        return Math.max(0, next.minScore() - report.score());
+    }
+
+    public static String bestNextStepKey(RecoveryRoomReport report) {
+        if (report == null) {
+            return "recovery.mydrugs.room.invalid";
+        }
+        if (!report.valid()) {
+            if (report.volume() < MIN_VALID_VOLUME || report.floorArea() < 8 || report.averageHeight() < 2.5F) {
+                return "recovery.mydrugs.room.too_small";
+            }
+            if (report.volume() > SOFT_MAX_VOLUME || report.floorArea() > 55 || report.averageHeight() > 7.0F) {
+                return "recovery.mydrugs.room.too_large";
+            }
+            if (!report.enclosedEnough()) {
+                return "recovery.mydrugs.room.too_exposed";
+            }
+            if (!report.hasDoor()) {
+                return "recovery.mydrugs.room.needs_door";
+            }
+        }
+        if (report.dangerPenalty() > 0) {
+            return "recovery.mydrugs.room.too_dangerous";
+        }
+
+        RecoveryRoomScore score = report.scoreBreakdown();
+        CategoryChoice best = new CategoryChoice("recovery.mydrugs.room.polish_complete", 0);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_size", score.size(), 20);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_enclosure", score.enclosure(), 15);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.needs_door", score.door(), 10);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.needs_bed", score.bed(), 12);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_lighting", score.lighting(), 12);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_carpets", score.floorComfort(), 10);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_plants", score.plants(), 8);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_books", score.books(), 8);
+        best = chooseCategoryGap(best, "recovery.mydrugs.room.polish_music", score.music(), 15);
+        if (best.missing() > 0) {
+            return best.key();
+        }
+        if (!report.sanctuarySuggestionKeys().isEmpty()) {
+            return report.sanctuarySuggestionKeys().getFirst();
+        }
+        return "recovery.mydrugs.room.polish_complete";
+    }
+
+    public static String categoryRating(int points, int maxPoints) {
+        if (maxPoints <= 0) {
+            return "recovery.mydrugs.room.rating.missing";
+        }
+        float ratio = Math.max(0.0F, Math.min(1.0F, points / (float) maxPoints));
+        if (ratio >= 1.0F) {
+            return "recovery.mydrugs.room.rating.complete";
+        }
+        if (ratio >= 0.75F) {
+            return "recovery.mydrugs.room.rating.strong";
+        }
+        if (ratio >= 0.45F) {
+            return "recovery.mydrugs.room.rating.steady";
+        }
+        if (ratio > 0.0F) {
+            return "recovery.mydrugs.room.rating.weak";
+        }
+        return "recovery.mydrugs.room.rating.missing";
+    }
+
     private static void sendReportMessages(ServerPlayer player, RecoveryRoomReport report, boolean detailed) {
         if (!report.valid()) {
             player.displayClientMessage(Component.translatable("recovery.mydrugs.room.invalid").withStyle(ChatFormatting.YELLOW), true);
@@ -694,13 +786,34 @@ public final class RecoveryRoomManager {
                 Math.round(report.comfort01() * 100.0F)
         ).withStyle(report.valid() ? ChatFormatting.AQUA : ChatFormatting.YELLOW));
 
-        if (detailed && !report.goodKeys().isEmpty()) {
-            player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.good", joinTranslated(report.goodKeys()))
-                    .withStyle(ChatFormatting.GREEN));
-        }
-        if (detailed && !report.sanctuaryModules().isEmpty()) {
-            player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.modules", joinTranslated(report.activeSanctuaryModuleKeys()))
+        int pointsToNext = pointsToNextTier(report);
+        if (pointsToNext > 0) {
+            player.sendSystemMessage(Component.translatable(
+                    "recovery.mydrugs.room.next_threshold",
+                    Component.translatable(nextTier(report).translationKey()),
+                    pointsToNext
+            ).withStyle(ChatFormatting.AQUA));
+        } else {
+            player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.next_threshold.complete")
                     .withStyle(ChatFormatting.AQUA));
+        }
+
+        player.sendSystemMessage(Component.translatable(
+                "recovery.mydrugs.room.best_next",
+                Component.translatable(bestNextStepKey(report))
+        ).withStyle(ChatFormatting.GOLD));
+
+        player.sendSystemMessage(Component.translatable(
+                "recovery.mydrugs.room.music_status",
+                Component.translatable(musicStatusKey(report))
+        ).withStyle(report.hasActiveMusic() ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+
+        if (!report.sanctuaryModules().isEmpty()) {
+            player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.modules", joinComponents(moduleStatusComponents(player, report)))
+                    .withStyle(ChatFormatting.AQUA));
+        }
+        if (detailed) {
+            sendCategoryReadout(player, report);
         }
         if (detailed && !report.sanctuarySuggestionKeys().isEmpty()) {
             player.sendSystemMessage(Component.translatable("recovery.mydrugs.room.module_suggestions", joinTranslated(report.sanctuarySuggestionKeys()))
@@ -712,6 +825,107 @@ public final class RecoveryRoomManager {
         }
     }
 
+    private static CategoryChoice chooseCategoryGap(CategoryChoice best, String key, int current, int max) {
+        int missing = Math.max(0, max - current);
+        return missing > best.missing() ? new CategoryChoice(key, missing) : best;
+    }
+
+    private static void sendCategoryReadout(ServerPlayer player, RecoveryRoomReport report) {
+        RecoveryRoomScore score = report.scoreBreakdown();
+        sendCategoryLine(player, "recovery.mydrugs.room.category.size", score.size(), 20);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.enclosure", score.enclosure(), 15);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.door", score.door(), 10);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.bed", score.bed(), 12);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.lighting", score.lighting(), 12);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.floor_comfort", score.floorComfort(), 10);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.plants", score.plants(), 8);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.books", score.books(), 8);
+        sendCategoryLine(player, "recovery.mydrugs.room.category.music", score.music(), 15);
+        player.sendSystemMessage(Component.translatable(
+                "recovery.mydrugs.room.category_line.danger",
+                Component.translatable("recovery.mydrugs.room.category.danger"),
+                Component.translatable(dangerRating(report.dangerPenalty())),
+                report.dangerPenalty()
+        ).withStyle(report.dangerPenalty() > 0 ? ChatFormatting.RED : ChatFormatting.GREEN));
+    }
+
+    private static void sendCategoryLine(ServerPlayer player, String labelKey, int points, int maxPoints) {
+        player.sendSystemMessage(Component.translatable(
+                "recovery.mydrugs.room.category_line",
+                Component.translatable(labelKey),
+                Component.translatable(categoryRating(points, maxPoints)),
+                points,
+                maxPoints
+        ).withStyle(points >= maxPoints ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+    }
+
+    private static String dangerRating(int dangerPenalty) {
+        if (dangerPenalty <= 0) {
+            return "recovery.mydrugs.room.danger.clear";
+        }
+        if (dangerPenalty <= 8) {
+            return "recovery.mydrugs.room.danger.watch";
+        }
+        return "recovery.mydrugs.room.danger.unsafe";
+    }
+
+    private static String musicStatusKey(RecoveryRoomReport report) {
+        if (report.hasActiveMusic()) {
+            return "recovery.mydrugs.room.music_status.active";
+        }
+        if (report.hasMusic()) {
+            return "recovery.mydrugs.room.music_status.present_inactive";
+        }
+        return "recovery.mydrugs.room.music_status.none";
+    }
+
+    private static List<Component> moduleStatusComponents(ServerPlayer player, RecoveryRoomReport report) {
+        List<Component> components = new ArrayList<>();
+        for (SanctuaryModule module : SanctuaryModule.values()) {
+            if (!report.hasModule(module)) {
+                continue;
+            }
+            if (module == SanctuaryModule.MEMORY_WALL) {
+                String key = hasEarnedMemory(player)
+                        ? "recovery.mydrugs.room.module_status.memory_wall.active"
+                        : "recovery.mydrugs.room.module_status.memory_wall.present_empty";
+                components.add(Component.translatable(key));
+            } else if (module == SanctuaryModule.INTEGRATION_ALCOVE) {
+                components.add(Component.translatable(integrationAlcoveStatusKey(player)));
+            } else {
+                components.add(Component.translatable(module.translationKey()));
+            }
+        }
+        return components;
+    }
+
+    private static String integrationAlcoveStatusKey(ServerPlayer player) {
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        long now = player.level().getGameTime();
+        for (DrugId drugId : stats.getTrackedDrugIds()) {
+            if (IntegrationService.evaluate(stats, drugId, now).eligible()) {
+                return "recovery.mydrugs.room.module_status.integration_alcove.ready";
+            }
+        }
+        for (DrugId drugId : stats.getTrackedDrugIds()) {
+            DrugAddictionStats drugStats = stats.getDrugStats(drugId);
+            IntegrationRequirementProfile profile = IntegrationRequirements.profile(drugId);
+            if (drugStats == null || profile == null || !profile.requiresRecoveryProgress() || drugStats.isIntegrated()) {
+                continue;
+            }
+            float required = Math.max(0.01F, profile.requiredRecoveryProgress());
+            if (drugStats.recoveryProgress >= required * 0.75F && drugStats.recoveryProgress < required) {
+                return "recovery.mydrugs.room.module_status.integration_alcove.waiting";
+            }
+        }
+        return "recovery.mydrugs.room.module_status.integration_alcove.dormant";
+    }
+
+    private static boolean hasEarnedMemory(ServerPlayer player) {
+        return !player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get()).getNodes().isEmpty()
+                || !player.getData(ModAttachments.PLAYER_INTEGRATION.get()).isEmpty();
+    }
+
     private static Component joinTranslated(List<String> keys) {
         Component result = Component.empty();
         for (int i = 0; i < keys.size(); i++) {
@@ -719,6 +933,17 @@ public final class RecoveryRoomManager {
                 result = result.copy().append(Component.literal(", "));
             }
             result = result.copy().append(Component.translatable(keys.get(i)));
+        }
+        return result;
+    }
+
+    private static Component joinComponents(List<Component> components) {
+        Component result = Component.empty();
+        for (int i = 0; i < components.size(); i++) {
+            if (i > 0) {
+                result = result.copy().append(Component.literal(", "));
+            }
+            result = result.copy().append(components.get(i));
         }
         return result;
     }
@@ -1055,6 +1280,9 @@ public final class RecoveryRoomManager {
     }
 
     private record CachedReport(long gameTime, RecoveryRoomReport report) {
+    }
+
+    private record CategoryChoice(String key, int missing) {
     }
 
     private record FloodResult(List<BlockPos> interior, Set<BlockPos> interiorSet, boolean overflowed) {

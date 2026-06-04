@@ -2,7 +2,7 @@
   "type": "mydrugs:advanced_mixing_vat",
   "fluid_inputs": [
     {
-      "fluid": "mydrugs:ammoniac",
+      "fluid": "mydrugs:ammonia",
       "amount": 750
     },
     {

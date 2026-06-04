@@ -20,18 +20,18 @@ public final class StimulantDashManager {
     private StimulantDashManager() {
     }
 
-    public static boolean tryDash(ServerPlayer player, float requestedForward, float requestedStrafe) {
+    public static DashResult tryDash(ServerPlayer player, float requestedForward, float requestedStrafe) {
         float stimulant = stimulantIntensity(player);
         float dashPower = DrugEffectRuntimeManager.getServerIntensity(player, EffectType.DASH_POWER);
         if (stimulant + dashPower <= 0.08F) {
-            return false;
+            return DashResult.NO_STIMULANT_EFFECT;
         }
 
         long gameTime = player.level().getGameTime();
         int cooldownTicks = cooldownTicks(stimulant + dashPower * 0.6F);
         long lastDash = COOLDOWNS.getOrDefault(player.getUUID(), (long) -cooldownTicks);
         if (gameTime - lastDash < cooldownTicks) {
-            return false;
+            return DashResult.COOLDOWN;
         }
 
         Vec3 direction = movementDirection(player, requestedForward, requestedStrafe);
@@ -39,7 +39,7 @@ public final class StimulantDashManager {
             direction = player.getLookAngle();
             direction = new Vec3(direction.x, 0.0D, direction.z);
             if (direction.lengthSqr() < 0.001D) {
-                return false;
+                return DashResult.INVALID_DIRECTION_STATE;
             }
             direction = direction.normalize();
         }
@@ -74,7 +74,7 @@ public final class StimulantDashManager {
             );
         }
         player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.55F, 1.35F);
-        return true;
+        return DashResult.SUCCESS;
     }
 
     private static float stimulantIntensity(ServerPlayer player) {
@@ -103,5 +103,12 @@ public final class StimulantDashManager {
         double x = input.x * cos - input.z * sin;
         double z = input.z * cos + input.x * sin;
         return new Vec3(x, 0.0D, z).normalize();
+    }
+
+    public enum DashResult {
+        SUCCESS,
+        NO_STIMULANT_EFFECT,
+        COOLDOWN,
+        INVALID_DIRECTION_STATE
     }
 }

@@ -12,21 +12,22 @@ import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.data.DrugAddictionStats;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
-import org.mydrugs.mydrugs.addiction.data.TemporaryRecoveryEffects;
+import org.mydrugs.mydrugs.addiction.explain.AddictionStateExplainer;
 import org.mydrugs.mydrugs.core.drug.dose.DoseState;
 import org.mydrugs.mydrugs.core.drug.ritual.DrugPatentSavedData;
 import org.mydrugs.mydrugs.core.drug.ritual.MixedDrugData;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
-import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.PlayerEnvironmentSnapshot;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
-import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
@@ -109,25 +110,38 @@ public final class DiarySnapshotBuilder {
         // Player state DTO
         DrugId dominantDrug = findDominantDrug(stats);
         DrugCategory dominantCategory = dominantDrug == null ? null : DrugRegistry.getCategory(dominantDrug);
-        DrugAddictionStats dominantStats = dominantDrug == null ? null : stats.getDrugStats(dominantDrug);
-        DoseState dose = dominantStats == null ? DoseState.NORMAL : dominantStats.lastDoseState;
+        PlayerEnvironmentSnapshot environment = PlayerRecoveryEnvironmentCache.snapshot(player);
 
         float globalSeverity = AddictionManager.getGlobalSeverity(player);
         int symptomFlags = SymptomManager.buildFlags(globalSeverity) | BadTripManager.symptomFlags(stats);
-        int recoveryFlags = buildRecoveryFlags(player, stats);
+        AddictionStateExplainer.Explanation explanation = AddictionStateExplainer.explain(
+                player,
+                stats,
+                globalSeverity,
+                environment.inSafeZone(),
+                environment
+        );
+        int recoveryFlags = explanation.recoveryFlags();
+        DoseState dose = explanation.dominantDoseState();
+        DrugCategory displayedCategory = dominantCategory == null ? explanation.dominantDoseCategory() : dominantCategory;
 
         DiaryPlayerStateDto state = new DiaryPlayerStateDto(
                 stats.stressLevel,
                 globalSeverity,
                 dominantDrug == null ? "" : dominantDrug.serializedName(),
-                dominantCategory == null ? "" : dominantCategory.name(),
+                displayedCategory == null ? "" : displayedCategory.name(),
                 dose == null ? "NORMAL" : dose.name(),
                 stats.badTrip.active,
                 stats.badTrip.severity,
                 Math.max(0, stats.overdoseDeathTimer),
                 symptomFlags,
                 recoveryFlags,
-                stats.sleepBlockedUntil > gameTime
+                stats.sleepBlockedUntil > gameTime,
+                explanation.primaryDangerReasonId(),
+                explanation.suggestedActionId(),
+                explanation.withdrawalPhaseId(),
+                explanation.dominantTolerance(),
+                explanation.dominantDose()
         );
 
         PlayerPsycheMapAttachment psycheMap = player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get());
@@ -166,7 +180,8 @@ public final class DiarySnapshotBuilder {
         List<DiaryIntegrationProgressDto> out = new ArrayList<>();
         boolean diaryContext = !diary.getEntries().isEmpty();
         boolean recoveryRoom = RecoveryRoomManager.isValidRecoveryRoom(recoveryRoomReport);
-        boolean hasCore = hasInventoryItem(player, ModItems.INTEGRATION_CORE.get());
+        IntegrationCoreTier bestCore = bestAvailableCoreTier(player);
+        long gameTime = player.level().getGameTime();
 
         for (DrugId drug : CuratedDrugChain.ORDER) {
             PsyKnowledgeKey key = CuratedDrugChain.stageKnowledge(drug);
@@ -188,9 +203,16 @@ public final class DiarySnapshotBuilder {
             if (profile == null) {
                 continue;
             }
-            IntegrationService.EligibilityResult eligibility = IntegrationService.evaluate(stats, drug);
+            IntegrationService.EligibilityResult eligibility = IntegrationService.evaluate(stats, drug, gameTime);
             IntegratedTrait trait = IntegratedTrait.bySource(drug);
             String materialId = IntegrationMaterials.itemIdFor(drug);
+            IntegrationCoreTier requiredCore = IntegrationCoreTier.requiredFor(drug);
+            boolean coreSufficient = bestCore != null && bestCore.satisfies(requiredCore);
+            long badTripRemaining = IntegrationService.recentBadTripRemainingTicks(ds, profile, gameTime);
+            long spacingRemaining = profile.usesCleanDoseStreak()
+                    && ds.cleanIntegrationDoseStreak < profile.requiredCleanDoseStreak()
+                    ? IntegrationService.cleanDoseSpacingRemainingTicks(ds, gameTime)
+                    : 0L;
             out.add(new DiaryIntegrationProgressDto(
                     drug.serializedName(),
                     trait == null ? "" : trait.translationKey(),
@@ -207,8 +229,15 @@ public final class DiarySnapshotBuilder {
                     diaryContext,
                     recoveryRoom,
                     hasInventoryItemId(player, materialId),
-                    hasCore,
+                    bestCore != null,
+                    coreSufficient,
+                    eligibility.psychedelicReflectionMet(),
+                    eligibility.safePsychedelicUseMet(),
+                    eligibility.noRecentBadTripMet(),
+                    spacingRemaining <= 0L,
                     eligibility.alreadyIntegrated(),
+                    requiredCore == null ? "" : requiredCore.id(),
+                    bestCore == null ? "" : bestCore.id(),
                     ds.peakHistoricalAddiction,
                     profile.requiredPeakExposure(),
                     ds.addictionValue,
@@ -218,7 +247,13 @@ public final class DiarySnapshotBuilder {
                     ds.lifetimeDoseConsumed,
                     profile.requiredLifetimeDose(),
                     ds.cleanIntegrationDoseStreak,
-                    profile.requiredCleanDoseStreak()
+                    profile.requiredCleanDoseStreak(),
+                    ds.cleanPsychedelicReflectionCount,
+                    profile.requiredPsychedelicReflections(),
+                    ds.cleanPsychedelicSafeUseCount,
+                    profile.requiredSafePsychedelicUses(),
+                    cappedInt(badTripRemaining),
+                    cappedInt(spacingRemaining)
             ));
         }
         return out;
@@ -319,6 +354,23 @@ public final class DiarySnapshotBuilder {
     }
 
     @Nullable
+    private static IntegrationCoreTier bestAvailableCoreTier(ServerPlayer player) {
+        IntegrationCoreTier best = null;
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            IntegrationCoreTier tier = IntegrationCoreTier.ofStack(inv.getItem(i));
+            if (tier != null && (best == null || tier.rank() > best.rank())) {
+                best = tier;
+            }
+        }
+        return best;
+    }
+
+    private static int cappedInt(long value) {
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, value));
+    }
+
+    @Nullable
     private static DrugId findDominantDrug(PlayerAddictionStats stats) {
         DrugId best = null;
         float bestScore = -1.0F;
@@ -334,18 +386,4 @@ public final class DiarySnapshotBuilder {
         return best;
     }
 
-    private static int buildRecoveryFlags(ServerPlayer player, PlayerAddictionStats stats) {
-        TemporaryRecoveryEffects te = stats.temporaryEffects;
-        long now = player.level().getGameTime();
-        int flags = 0;
-        if (te.hasDiaryCalm(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_DIARY;
-        if (te.hasHeadphones(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_HEADPHONES;
-        if (te.hasCalmingMixture(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_CALMING_MIXTURE;
-        if (te.hasSleepBonus(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_SLEEP_BONUS;
-        if (te.hasPreparedTea(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_PREPARED_TEA;
-        if (SafeZoneManager.isInSafeZone(player)) {
-            flags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
-        }
-        return flags;
-    }
 }

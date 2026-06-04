@@ -93,4 +93,13 @@ public enum IntegrationCoreTier {
         }
         return null;
     }
+
+    public static @Nullable IntegrationCoreTier byRank(int rank) {
+        for (IntegrationCoreTier tier : values()) {
+            if (tier.rank == rank) {
+                return tier;
+            }
+        }
+        return null;
+    }
 }

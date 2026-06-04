@@ -38,10 +38,14 @@ class CleanStreakSpacingTest {
     void underSpacedDoseResetsToZero() {
         DrugAddictionStats stats = new DrugAddictionStats();
         stats.cleanIntegrationDoseStreak = 4;
+        stats.cleanPsychedelicReflectionCount = 1;
+        stats.cleanPsychedelicSafeUseCount = 1;
         long prev = 50_000L;
         long current = prev + SPACING - 1; // 1 tick under the gate
         IntegrationService.onCleanStreakUse(stats, current, prev, SPACING);
         assertEquals(0, stats.cleanIntegrationDoseStreak);
+        assertEquals(0, stats.cleanPsychedelicReflectionCount);
+        assertEquals(0, stats.cleanPsychedelicSafeUseCount);
     }
 
     @Test

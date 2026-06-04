@@ -11,24 +11,11 @@ public enum DrugId {
     METH,
     COCAINE,
     CRACK,
-    MDMA,
     LSD,
     MUSHROOMS,
-    SALVIA,
-    DMT,
-    HEROIN,
-    MORPHINE,
-    FENTANYL,
-    OPIUM,
-    KETAMINE,
-    PCP,
-    DXM,
     ALCOHOL,
-    BENZODIAZEPINE,
-    BARBITURATE,
     TOBACCO,
-    COFFEE,
-    NITROUS_OXIDE;
+    COFFEE;
 
     public String serializedName() {
         return name().toLowerCase(Locale.ROOT);
@@ -41,24 +28,11 @@ public enum DrugId {
             case METH -> 3;
             case COCAINE -> 4;
             case CRACK -> 5;
-            case MDMA -> 6;
             case LSD -> 7;
             case MUSHROOMS -> 8;
-            case SALVIA -> 9;
-            case DMT -> 10;
-            case HEROIN -> 11;
-            case MORPHINE -> 12;
-            case FENTANYL -> 13;
-            case OPIUM -> 14;
-            case KETAMINE -> 15;
-            case PCP -> 16;
-            case DXM -> 17;
             case ALCOHOL -> 18;
-            case BENZODIAZEPINE -> 19;
-            case BARBITURATE -> 20;
             case TOBACCO -> 21;
             case COFFEE -> 22;
-            case NITROUS_OXIDE -> 23;
         };
     }
 

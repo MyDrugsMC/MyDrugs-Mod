@@ -32,7 +32,11 @@ public final class ModGases {
                 ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, spec.path()),
                 spec.tint(),
                 spec.toxic(),
-                spec.flammable()
+                spec.flammable(),
+                spec.hazard(),
+                spec.pipeTransportable(),
+                spec.tankStorable(),
+                spec.containmentTier()
         );
         BY_ID.put(gas.id(), gas);
         SYNC_ORDER.add(gas);

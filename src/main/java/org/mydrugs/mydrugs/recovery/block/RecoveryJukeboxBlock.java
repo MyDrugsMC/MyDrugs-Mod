@@ -20,6 +20,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
+import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.RecoverySessionAction;
+import org.mydrugs.mydrugs.recovery.RecoverySessionManager;
 import org.mydrugs.mydrugs.recovery.item.PersonalMusicDiscItem;
 
 public final class RecoveryJukeboxBlock extends BaseEntityBlock {
@@ -71,16 +75,31 @@ public final class RecoveryJukeboxBlock extends BaseEntityBlock {
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
-        if (personalDisc && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(Component.translatable("message.mydrugs.music.jukebox_started"), true);
+        if (player instanceof ServerPlayer serverPlayer) {
+            if (personalDisc) {
+                serverPlayer.displayClientMessage(Component.translatable("message.mydrugs.music.jukebox_started_personal"), true);
+                RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(serverPlayer).orElse(null);
+                if (RecoveryRoomManager.isValidRecoveryRoom(room)) {
+                    RecoverySessionManager.onGroundingAction(serverPlayer, RecoverySessionAction.MUSIC);
+                }
+            } else {
+                serverPlayer.displayClientMessage(Component.translatable("message.mydrugs.music.jukebox_started_vanilla"), true);
+            }
         }
         return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!(level.getBlockEntity(pos) instanceof RecoveryJukeboxBlockEntity jukebox) || jukebox.isEmpty()) {
+        if (!(level.getBlockEntity(pos) instanceof RecoveryJukeboxBlockEntity jukebox)) {
             return InteractionResult.PASS;
+        }
+        if (jukebox.isEmpty()) {
+            if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.displayClientMessage(Component.translatable("message.mydrugs.music.jukebox_empty"), true);
+                return InteractionResult.SUCCESS_SERVER;
+            }
+            return InteractionResult.SUCCESS;
         }
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;

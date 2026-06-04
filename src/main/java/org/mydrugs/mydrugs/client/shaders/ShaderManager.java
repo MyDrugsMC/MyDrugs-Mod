@@ -22,7 +22,9 @@ import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.core.drug.dose.DosePath;
 import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +50,15 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         }
         WithdrawalTunnelShader.INSTANCE.buildPipeline();
         event.registerPipeline(WithdrawalTunnelShader.INSTANCE.getRenderPipeline());
+
+        // Inner Dimension atmosphere post-pass (Phase 2). Degrade gracefully: if the pipeline
+        // fails to build we log and skip it rather than letting the whole registration throw.
+        try {
+            InnerAtmosphereShader.INSTANCE.buildPipeline();
+            event.registerPipeline(InnerAtmosphereShader.INSTANCE.getRenderPipeline());
+        } catch (RuntimeException e) {
+            MyDrugs.getLOGGER().error("Failed to build inner_atmosphere post pipeline; disabling it", e);
+        }
     }
 
     @SubscribeEvent
@@ -103,6 +114,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
     private final Map<EffectType, Float> directBaseStrengths = new HashMap<>();
     private final Map<EffectType, Integer> directFadeTicks = new HashMap<>();
     private final Map<EffectType, Integer> directFadeDurations = new HashMap<>();
+    private final Set<EffectType> syncOwnedDirectEffects = new HashSet<>();
     private final Map<EffectType, Float> doseStrengths = new HashMap<>();
     private final Map<EffectType, Float> continuousStrengths = new HashMap<>();
     private boolean categoryMapBuilt = false;
@@ -194,6 +206,49 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         rebuildActiveShaders();
     }
 
+    public void reconcileDirectEffects(Collection<DrugEffectSyncPayload.Entry> entries) {
+        Set<EffectType> synced = new HashSet<>();
+        if (!Config.CLIENT.psychedelicShadersEnabled()) {
+            clearSyncedDirectEffects();
+            return;
+        }
+
+        for (DrugEffectSyncPayload.Entry entry : entries) {
+            if (entry.type() == null || entry.type().getCategory() != EffectCategory.SHADER) {
+                continue;
+            }
+            float effectiveIntensity = entry.effectiveIntensity();
+            if (entry.remainingTicks() <= 0 || effectiveIntensity <= 0.0F) {
+                continue;
+            }
+
+            synced.add(entry.type());
+            syncOwnedDirectEffects.add(entry.type());
+            int duration = Config.CLIENT.reducedMotionMode.get()
+                    ? Math.max(1, entry.remainingTicks() / 2)
+                    : entry.remainingTicks();
+            int fadeTicks = entry.fadeTicksRemaining();
+            int fadeDuration = entry.fadeDurationTicks();
+            if (Config.CLIENT.reducedMotionMode.get()) {
+                fadeTicks = Math.max(0, fadeTicks / 2);
+                fadeDuration = Math.max(0, fadeDuration / 2);
+            }
+            addDirect(duration, entry.type(), effectiveIntensity, fadeTicks, fadeDuration);
+        }
+
+        boolean changed = false;
+        for (EffectType type : new HashSet<>(syncOwnedDirectEffects)) {
+            if (!synced.contains(type)) {
+                removeDirect(type);
+                syncOwnedDirectEffects.remove(type);
+                changed = true;
+            }
+        }
+        if (changed) {
+            rebuildActiveShaders();
+        }
+    }
+
     public void setContinuous(EffectType type, float intensity) {
         if (type == null) {
             return;
@@ -224,10 +279,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
 
     @Override
     public void remove(EffectType type) {
-        directDurations.remove(type);
-        directBaseStrengths.remove(type);
-        directFadeTicks.remove(type);
-        directFadeDurations.remove(type);
+        removeDirect(type);
         doseStrengths.remove(type);
         continuousStrengths.remove(type);
         rebuildActiveShaders();
@@ -239,6 +291,7 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
         directBaseStrengths.clear();
         directFadeTicks.clear();
         directFadeDurations.clear();
+        syncOwnedDirectEffects.clear();
         doseStrengths.clear();
         continuousStrengths.clear();
         super.clearActive();
@@ -316,5 +369,24 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
             return base;
         }
         return base * Math.clamp(fade / (float) fadeDuration, 0.0F, 1.0F);
+    }
+
+    private void clearSyncedDirectEffects() {
+        if (syncOwnedDirectEffects.isEmpty()) {
+            return;
+        }
+        for (EffectType type : new HashSet<>(syncOwnedDirectEffects)) {
+            removeDirect(type);
+        }
+        syncOwnedDirectEffects.clear();
+        rebuildActiveShaders();
+    }
+
+    private void removeDirect(EffectType type) {
+        directDurations.remove(type);
+        directBaseStrengths.remove(type);
+        directFadeTicks.remove(type);
+        directFadeDurations.remove(type);
+        syncOwnedDirectEffects.remove(type);
     }
 }

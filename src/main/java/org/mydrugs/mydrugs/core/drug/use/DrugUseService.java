@@ -15,8 +15,10 @@ import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.effect.DrugEffect;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.addiction.manager.AddictionManager;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCueKind;
 import org.mydrugs.mydrugs.core.drug.runtime.DrugEffectRuntimeManager;
 import org.mydrugs.mydrugs.core.drug.strategy.ConsumptionStrategy;
+import org.mydrugs.mydrugs.core.drug.strategy.RouteEffectProfile;
 import org.mydrugs.mydrugs.core.drug.strategy.SmokingStrategy;
 import org.mydrugs.mydrugs.diary.DiaryBlockerTypes;
 import org.mydrugs.mydrugs.diary.PlayerDiaryAttachment;
@@ -87,6 +89,7 @@ public final class DrugUseService {
         );
 
         applyEffects(use, purityMods);
+        cueRouteUse(use);
         applySmokingVisual(use);
         applyContaminantSymptom(use, purityMods);
         AddictionManager.consume(use);
@@ -116,6 +119,9 @@ public final class DrugUseService {
     }
 
     private void applyEffects(ResolvedDrugUse use, MethPurityModifiers purityMods) {
+        RouteEffectProfile profile = use.strategy() != null
+                ? use.strategy().routeEffectProfile()
+                : RouteEffectProfile.immediate();
         for (DrugEffect effect : use.model().getDrugEffects()) {
             int duration = use.strategy() != null
                     ? use.strategy().getNewDuration(effect)
@@ -127,8 +133,21 @@ public final class DrugUseService {
             duration = Math.max(1, Math.round(duration * purityMods.durationMul()));
             intensity *= purityMods.intensityMul();
 
-            DrugEffectRuntimeManager.addEffect(use.player(), effect.getEffectType(), intensity, duration);
+            DrugEffectRuntimeManager.addEffect(use.player(), effect.getEffectType(), intensity, duration, profile, 1.0F);
         }
+    }
+
+    private void cueRouteUse(ResolvedDrugUse use) {
+        if (use.model().getDrugEffects().isEmpty()) {
+            return;
+        }
+        DrugEffect first = use.model().getDrugEffects().getFirst();
+        DrugEffectRuntimeManager.sendCue(
+                use.player(),
+                first.getEffectType(),
+                DrugEffectCueKind.ROUTE_CONSUMED,
+                Math.max(0.25F, first.getBaseIntensity())
+        );
     }
 
     private void applyContaminantSymptom(ResolvedDrugUse use, MethPurityModifiers purityMods) {

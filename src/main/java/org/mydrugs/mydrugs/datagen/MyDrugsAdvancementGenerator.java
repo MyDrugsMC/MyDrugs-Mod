@@ -43,7 +43,7 @@ public final class MyDrugsAdvancementGenerator {
                 recipes("personal_diary", "headphones"),
                 item("personal_diary"), item("headphones"), item("herbal_tea"), item("calming_mixture"));
         inventoryAny("onboarding/first_consumable", "onboarding/first_processing_station", item("joint"), recipes("roller", "bang", "glass_bottle"),
-                item("joint"), item("cigaret"), item("hash_piece"), item("cannabis_powder"), item("tobacco_handful"), item("magic_mushroom"));
+                item("joint"), item("cigarette"), item("hash_piece"), item("cannabis_powder"), item("tobacco_handful"), item("magic_mushroom"));
     }
 
     private void agriculture() {
@@ -77,7 +77,7 @@ public final class MyDrugsAdvancementGenerator {
         placedAny("processing/craft_evaporation_tray", "processing/craft_clay_vat", item("evaporation_tray"), recipes("evaporation_tray"), block("evaporation_tray"));
         machine("processing/evaporate_first_output", "processing/craft_evaporation_tray", item("salt_powder"), "evaporation_tray");
         inventoryAny("processing/craft_roller", "onboarding/first_consumable", item("roller"), recipes("roller"), item("roller"));
-        inventory("processing/roll_first_item", "processing/craft_roller", item("joint"), item("joint"), item("cigaret"));
+        inventory("processing/roll_first_item", "processing/craft_roller", item("joint"), item("joint"), item("cigarette"));
         inventoryAny("processing/craft_bang", "processing/roll_first_item", item("bang"), recipes("bang"), item("bang"));
         inventory("processing/craft_syringe", "processing/craft_bang", item("syringe"), item("syringe"));
         inventoryAny("processing/fill_glass_bottle", "processing/craft_evaporation_tray", item("glass_bottle"), recipes("glass_bottle"), item("glass_bottle"));

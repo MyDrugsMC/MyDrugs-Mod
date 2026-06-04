@@ -77,6 +77,8 @@ public class Config {
         public final ModConfigSpec.BooleanValue showActiveEffectExplanations;
         public final ModConfigSpec.BooleanValue showMachineMoodStatusText;
         public final ModConfigSpec.BooleanValue showGeneratorCravingsAsText;
+        public final ModConfigSpec.BooleanValue innerPostProcessing;
+        public final ModConfigSpec.DoubleValue innerAmbientVolume;
 
         private Client(ModConfigSpec.Builder builder) {
             builder.push("accessibility");
@@ -212,6 +214,17 @@ public class Config {
                     .comment("Show psychotrope generator cravings as text instead of audio-only cues where supported.")
                     .define("showGeneratorCravingsAsText", true);
             builder.pop();
+
+            builder.push("inner_dimension");
+            innerPostProcessing = builder
+                    .comment("Enable the Inner Dimension atmospheric post-processing pass (bloom / god-rays / vignette).",
+                            "Client-only and forced off under reduced motion. Disable if the post pass misbehaves on your GPU.")
+                    .define("innerPostProcessing", true);
+            innerAmbientVolume = builder
+                    .comment("Master volume for the Inner Dimension ambient soundscape (region drones, heartbeat bed, one-shots).",
+                            "0 disables the soundscape entirely.")
+                    .defineInRange("innerAmbientVolume", 1.0D, 0.0D, 1.0D);
+            builder.pop();
             builder.pop();
         }
 
@@ -259,6 +272,9 @@ public class Config {
         public final ModConfigSpec.DoubleValue overdoseThresholdMultiplier;
         public final ModConfigSpec.DoubleValue safeZoneRecoveryMultiplier;
         public final ModConfigSpec.IntValue recoveryRoomScanRadius;
+        public final ModConfigSpec.IntValue recoveryEnvironmentCacheTicks;
+        public final ModConfigSpec.IntValue socialReliefCacheTicks;
+        public final ModConfigSpec.IntValue headphonesInventoryCacheTicks;
         public final ModConfigSpec.IntValue recoveryRoomMaxVolume;
         public final ModConfigSpec.IntValue recoveryRoomFragileThreshold;
         public final ModConfigSpec.IntValue recoveryRoomRestingThreshold;
@@ -274,6 +290,7 @@ public class Config {
         public final ModConfigSpec.BooleanValue allowDreamResidueAsEngineFuel;
         public final ModConfigSpec.BooleanValue allowDebugActionPayloads;
         public final ModConfigSpec.BooleanValue enablePipeDebugCounters;
+        public final ModConfigSpec.IntValue pipeTickInterval;
 
         private Server(ModConfigSpec.Builder builder) {
             builder.push("gameplay");
@@ -293,6 +310,16 @@ public class Config {
             overdoseThresholdMultiplier = builder.defineInRange("overdoseThresholdMultiplier", 1.0D, 0.1D, 100.0D);
             safeZoneRecoveryMultiplier = builder.defineInRange("safeZoneRecoveryMultiplier", 1.0D, 0.0D, 100.0D);
             recoveryRoomScanRadius = builder.defineInRange("recoveryRoomScanRadius", 12, 4, 24);
+            recoveryEnvironmentCacheTicks = builder
+                    .comment("Server ticks to reuse a player's recovery environment scan while they stand still.",
+                            "This throttles the expensive recovery-room anchor cube scan; movement or dimension changes still refresh sooner.")
+                    .defineInRange("recoveryEnvironmentCacheTicks", 20, 1, 100);
+            socialReliefCacheTicks = builder
+                    .comment("Server ticks to reuse nearby companion/entity counts for passive recovery calculations.")
+                    .defineInRange("socialReliefCacheTicks", 20, 1, 100);
+            headphonesInventoryCacheTicks = builder
+                    .comment("Server ticks to reuse recovery inventory checks such as headphones/diary/food presence.")
+                    .defineInRange("headphonesInventoryCacheTicks", 20, 1, 100);
             recoveryRoomMaxVolume = builder.defineInRange("recoveryRoomMaxVolume", 220, 48, 512);
             recoveryRoomFragileThreshold = builder.defineInRange("recoveryRoomFragileThreshold", 25, 1, 100);
             recoveryRoomRestingThreshold = builder.defineInRange("recoveryRoomRestingThreshold", 45, 1, 100);
@@ -300,7 +327,7 @@ public class Config {
             recoveryRoomSanctuaryThreshold = builder.defineInRange("recoveryRoomSanctuaryThreshold", 85, 1, 100);
             therapyCooldownMultiplier = builder.defineInRange("therapyCooldownMultiplier", 1.0D, 0.0D, 100.0D);
             allowClientInputFailHudOnly = builder
-                    .comment("Allow clients to replace the input-fail disruption with a HUD warning. Default false for multiplayer fairness.")
+                    .comment("Deprecated compatibility toggle. Server-side input-fail balance is always authoritative; clients may only reduce local presentation.")
                     .define("allowClientInputFailHudOnly", false);
             builder.pop();
 
@@ -333,6 +360,9 @@ public class Config {
             enablePipeDebugCounters = builder
                     .comment("Log pipe network transfer counters once per minute. Intended for development and server diagnostics.")
                     .define("enablePipeDebugCounters", false);
+            pipeTickInterval = builder
+                    .comment("Server tick interval for pipe transfer work. Transfer amounts are scaled by this interval to preserve approximate throughput.")
+                    .defineInRange("pipeTickInterval", 4, 1, 20);
             builder.pop();
         }
     }
@@ -414,6 +444,7 @@ public class Config {
         public final ModConfigSpec.DoubleValue skyIslandMobSpawnMultiplier;
         public final ModConfigSpec.IntValue fallingSafetyGraceTicks;
         public final ModConfigSpec.BooleanValue returnAnchorRequired;
+        public final ModConfigSpec.BooleanValue enableInnerDimensionDebugLogging;
 
         private Worldgen(ModConfigSpec.Builder builder) {
             builder.push("worldgen");
@@ -515,6 +546,12 @@ public class Config {
             skyIslandMobSpawnMultiplier = builder.defineInRange("mobSpawnMultiplier", 1.0D, 0.0D, 20.0D);
             fallingSafetyGraceTicks = builder.defineInRange("fallingSafetyGraceTicks", 100, 0, 20 * 60);
             returnAnchorRequired = builder.define("returnAnchorRequired", true);
+            builder.pop();
+
+            builder.push("inner_dimension");
+            enableInnerDimensionDebugLogging = builder
+                    .comment("Log verbose Inner Dimension overlay queue diagnostics.")
+                    .define("enableInnerDimensionDebugLogging", false);
             builder.pop();
             builder.pop();
         }

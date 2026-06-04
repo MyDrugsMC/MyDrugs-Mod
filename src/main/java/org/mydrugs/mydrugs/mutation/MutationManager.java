@@ -12,14 +12,17 @@ import org.mydrugs.mydrugs.items.data.MutationPayloadData;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class MutationManager {
     private static final int SYNC_INTERVAL_TICKS = 100;
     private static final int INFECTION_EFFECT_REFRESH_TICKS = 100;
     private static final int INFECTION_EFFECT_DURATION_TICKS = 20 * 6;
     private static final int INFECTION_ONSET_EFFECT_DURATION_TICKS = 20 * 8;
+    private static final Map<ServerPlayer, MutationValueSnapshot> VALUE_CACHE = new WeakHashMap<>();
 
     private MutationManager() {
     }
@@ -28,13 +31,7 @@ public final class MutationManager {
         if (player == null || stat == null) {
             return 0.0F;
         }
-        PlayerMutationsAttachment attachment = player.getData(ModAttachments.PLAYER_MUTATIONS.get());
-        for (ActiveMutationStat active : attachment.activeStats()) {
-            if (stat.serializedName().equals(active.statId())) {
-                return Math.clamp(active.currentValue(), 0.0F, 1.0F);
-            }
-        }
-        return 0.0F;
+        return snapshot(player).value(stat);
     }
 
     public static float scaleNegative(ServerPlayer player, MutationStat stat, float value) {
@@ -60,6 +57,7 @@ public final class MutationManager {
         PlayerMutationsAttachment attachment = player.getData(ModAttachments.PLAYER_MUTATIONS.get());
         float geneticStability = getValue(player, MutationStat.GENETIC_STABILITY);
         attachment.injectPayload(payload, geneticStability);
+        invalidateValueCache(player);
         player.displayClientMessage(Component.translatable("message.mydrugs.mutation.injection_started").withStyle(ChatFormatting.LIGHT_PURPLE), true);
         float rejection = payload.rejectionRisk() * Math.max(0.10F, 1.0F - geneticStability * 0.50F);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, Math.min(0.6F, 0.15F + rejection), 20 * 8);
@@ -76,6 +74,7 @@ public final class MutationManager {
     public static void startInfection(ServerPlayer player, float severity) {
         PlayerMutationsAttachment attachment = player.getData(ModAttachments.PLAYER_MUTATIONS.get());
         attachment.infection().start(severity);
+        invalidateValueCache(player);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CUSTOM_NAUSEA, 0.35F, INFECTION_ONSET_EFFECT_DURATION_TICKS);
         DrugEffectRuntimeManager.addEffect(player, EffectType.CONFUSION, 0.25F, INFECTION_ONSET_EFFECT_DURATION_TICKS);
         org.mydrugs.mydrugs.psyche.PsycheMapMilestones.infection(player);
@@ -83,6 +82,7 @@ public final class MutationManager {
 
     public static void cureInfection(ServerPlayer player, float strength) {
         player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection().cure(strength);
+        invalidateValueCache(player);
     }
 
     public static void clearInfection(ServerPlayer player) {
@@ -91,6 +91,7 @@ public final class MutationManager {
         }
 
         player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection().clear();
+        invalidateValueCache(player);
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -98,7 +99,10 @@ public final class MutationManager {
 
         float geneticStability = getValue(player, MutationStat.GENETIC_STABILITY);
         float assimilationSpeed = 1.0F + geneticStability * 0.35F;
-        attachment.tickAssimilation(assimilationSpeed);
+        boolean changed = attachment.tickAssimilation(assimilationSpeed);
+        if (changed) {
+            invalidateValueCache(player);
+        }
 
         List<String> completed = attachment.drainCompletedAssimilations();
         if (!completed.isEmpty()) {
@@ -204,7 +208,9 @@ public final class MutationManager {
                 player.hurt(ModDamageTypes.mutationInfection(player.level()), scaled);
             }
             if (!player.isAlive()) {
-                attachment.clearMutations();
+                if (attachment.clearMutations()) {
+                    invalidateValueCache(player);
+                }
                 infection.clear();
                 return;
             }
@@ -214,15 +220,50 @@ public final class MutationManager {
         if (stage >= 3 && infection.ticks() % 200 == 0) {
             float baseDecay = stage == 3 ? 0.03F : 0.10F;
             float decay = baseDecay * Math.max(0.20F, 1.0F - mutationLossResist);
-            attachment.decayMutations(decay);
+            if (attachment.decayMutations(decay)) {
+                invalidateValueCache(player);
+            }
         }
 
         if (stage >= 4 && infection.ticks() % 400 == 0) {
-            attachment.clearMutations();
+            if (attachment.clearMutations()) {
+                invalidateValueCache(player);
+            }
             if (player.getHealth() <= 4.0F) {
                 player.hurt(ModDamageTypes.mutationInfection(player.level()), 20.0F);
                 infection.clear();
             }
+        }
+    }
+
+    private static MutationValueSnapshot snapshot(ServerPlayer player) {
+        long gameTime = player.level().getGameTime();
+        MutationValueSnapshot cached = VALUE_CACHE.get(player);
+        if (cached != null && cached.gameTime == gameTime) {
+            return cached;
+        }
+        EnumMap<MutationStat, Float> values = new EnumMap<>(MutationStat.class);
+        PlayerMutationsAttachment attachment = player.getData(ModAttachments.PLAYER_MUTATIONS.get());
+        for (ActiveMutationStat active : attachment.activeStats()) {
+            MutationStat stat = MutationStat.bySerializedNameOrNull(active.statId());
+            if (stat != null) {
+                values.put(stat, Math.clamp(active.currentValue(), 0.0F, 1.0F));
+            }
+        }
+        MutationValueSnapshot snapshot = new MutationValueSnapshot(gameTime, values);
+        VALUE_CACHE.put(player, snapshot);
+        return snapshot;
+    }
+
+    private static void invalidateValueCache(ServerPlayer player) {
+        if (player != null) {
+            VALUE_CACHE.remove(player);
+        }
+    }
+
+    private record MutationValueSnapshot(long gameTime, EnumMap<MutationStat, Float> values) {
+        float value(MutationStat stat) {
+            return values.getOrDefault(stat, 0.0F);
         }
     }
 }

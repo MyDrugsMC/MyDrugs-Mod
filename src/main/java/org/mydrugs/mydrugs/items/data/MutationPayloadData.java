@@ -17,22 +17,26 @@ public record MutationPayloadData(
         float assimilationDifficulty,
         float rejectionRisk
 ) {
+    public static final int MAX_SOURCES = 64;
+    public static final int MAX_STATS = 64;
+    public static final int MAX_STRING_LENGTH = 256;
+
     public static final Codec<MutationPayloadData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.listOf().fieldOf("source_uuids").forGetter(MutationPayloadData::sourceUuids),
-            Codec.STRING.listOf().fieldOf("source_entity_types").forGetter(MutationPayloadData::sourceEntityTypes),
-            Codec.STRING.listOf().fieldOf("source_names").forGetter(MutationPayloadData::sourceNames),
-            Codec.STRING.fieldOf("genetic_signature").forGetter(MutationPayloadData::geneticSignature),
-            MutationStatValue.CODEC.listOf().fieldOf("stats").forGetter(MutationPayloadData::stats),
+            ComponentCodecs.boundedList(ComponentCodecs.boundedString(MAX_STRING_LENGTH), MAX_SOURCES).fieldOf("source_uuids").forGetter(MutationPayloadData::sourceUuids),
+            ComponentCodecs.boundedList(ComponentCodecs.boundedString(MAX_STRING_LENGTH), MAX_SOURCES).fieldOf("source_entity_types").forGetter(MutationPayloadData::sourceEntityTypes),
+            ComponentCodecs.boundedList(ComponentCodecs.boundedString(MAX_STRING_LENGTH), MAX_SOURCES).fieldOf("source_names").forGetter(MutationPayloadData::sourceNames),
+            ComponentCodecs.boundedString(MAX_STRING_LENGTH).fieldOf("genetic_signature").forGetter(MutationPayloadData::geneticSignature),
+            ComponentCodecs.boundedList(MutationStatValue.CODEC, MAX_STATS).fieldOf("stats").forGetter(MutationPayloadData::stats),
             Codec.FLOAT.fieldOf("assimilation_difficulty").forGetter(MutationPayloadData::assimilationDifficulty),
             Codec.FLOAT.fieldOf("rejection_risk").forGetter(MutationPayloadData::rejectionRisk)
     ).apply(instance, MutationPayloadData::new));
 
     public static final StreamCodec<ByteBuf, MutationPayloadData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), MutationPayloadData::sourceUuids,
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), MutationPayloadData::sourceEntityTypes,
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), MutationPayloadData::sourceNames,
-            ByteBufCodecs.STRING_UTF8, MutationPayloadData::geneticSignature,
-            MutationStatValue.STREAM_CODEC.apply(ByteBufCodecs.list()), MutationPayloadData::stats,
+            ComponentCodecs.boundedListStream(ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MAX_SOURCES), MutationPayloadData::sourceUuids,
+            ComponentCodecs.boundedListStream(ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MAX_SOURCES), MutationPayloadData::sourceEntityTypes,
+            ComponentCodecs.boundedListStream(ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MAX_SOURCES), MutationPayloadData::sourceNames,
+            ComponentCodecs.boundedStringStream(MAX_STRING_LENGTH), MutationPayloadData::geneticSignature,
+            ComponentCodecs.boundedListStream(MutationStatValue.STREAM_CODEC, MAX_STATS), MutationPayloadData::stats,
             ByteBufCodecs.FLOAT, MutationPayloadData::assimilationDifficulty,
             ByteBufCodecs.FLOAT, MutationPayloadData::rejectionRisk,
             MutationPayloadData::new
@@ -47,7 +51,7 @@ public record MutationPayloadData(
         rejectionRisk = Math.clamp(rejectionRisk, 0.02F, 0.35F);
     }
 
-    public static MutationPayloadData fromGene(AdnGeneData gene) {
+    public static MutationPayloadData fromGene(DnaGeneData gene) {
         List<MutationStatValue> stats = gene.stats();
         float avg = 0.0F;
         float max = 0.0F;

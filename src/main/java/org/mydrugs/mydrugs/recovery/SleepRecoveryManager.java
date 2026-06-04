@@ -54,5 +54,6 @@ public final class SleepRecoveryManager {
             ResilienceManager.add(stats, 0.0015F);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.SLEEP_REST, restModule ? 1.15F : 1.0F);
+        RecoverySessionManager.onReflectionAction(player, RecoverySessionAction.SLEEP);
     }
 }

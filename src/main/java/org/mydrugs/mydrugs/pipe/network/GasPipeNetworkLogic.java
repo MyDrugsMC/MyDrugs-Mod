@@ -20,13 +20,13 @@ public final class GasPipeNetworkLogic {
     private GasPipeNetworkLogic() {
     }
 
-    public static void tick(ServerLevel level, PipeNetworkManager manager) {
+    public static void tick(ServerLevel level, PipeNetworkManager manager, int intervalTicks) {
         for (PipeNetwork network : manager.networks(PipeResourceKind.GAS).values()) {
-            tickNetwork(level, network);
+            tickNetwork(level, network, intervalTicks);
         }
     }
 
-    private static void tickNetwork(ServerLevel level, PipeNetwork network) {
+    private static void tickNetwork(ServerLevel level, PipeNetwork network, int intervalTicks) {
         PipeNetworkDiagnostics.networkTicked(PipeResourceKind.GAS, network.inputs().size() + network.outputs().size());
         if (network.outputs().isEmpty()) {
             return;
@@ -47,7 +47,7 @@ public final class GasPipeNetworkLogic {
                 continue;
             }
 
-            long amount = resolveTier(level, source).gasAmountPerTick();
+            long amount = resolveTier(level, source).gasAmountPerTick() * Math.max(1L, intervalTicks);
             if (amount > 0 && tryMoveFromSource(level, network, source, sourceHandler, amount)) {
                 int nextRotation = (network.gasOutputRotation(source) + 1) % Math.max(1, network.outputCandidates(source).size());
                 network.setGasOutputRotation(source, nextRotation);

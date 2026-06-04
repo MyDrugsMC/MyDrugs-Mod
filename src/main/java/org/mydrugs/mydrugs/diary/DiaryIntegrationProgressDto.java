@@ -17,7 +17,14 @@ public record DiaryIntegrationProgressDto(
         boolean recoveryRoom,
         boolean materialInInventory,
         boolean integrationCoreInInventory,
+        boolean coreSufficient,
+        boolean psychedelicReflectionMet,
+        boolean safePsychedelicUseMet,
+        boolean noRecentBadTripMet,
+        boolean cleanSpacingReady,
         boolean alreadyIntegrated,
+        String requiredCoreTierId,
+        String bestCoreTierId,
         float peakCurrent,
         float peakRequired,
         float addictionCurrent,
@@ -27,6 +34,12 @@ public record DiaryIntegrationProgressDto(
         float lifetimeDose,
         float lifetimeDoseRequired,
         int cleanDoseStreak,
-        int cleanDoseStreakRequired
+        int cleanDoseStreakRequired,
+        int psychedelicReflections,
+        int psychedelicReflectionsRequired,
+        int safePsychedelicUses,
+        int safePsychedelicUsesRequired,
+        int recentBadTripRemainingTicks,
+        int cleanSpacingRemainingTicks
 ) {
 }

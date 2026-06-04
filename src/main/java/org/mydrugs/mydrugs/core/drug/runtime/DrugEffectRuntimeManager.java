@@ -19,7 +19,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
+import org.mydrugs.mydrugs.core.drug.strategy.RouteEffectProfile;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCueKind;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectCuePayload;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
@@ -154,6 +157,7 @@ public final class DrugEffectRuntimeManager {
         LAST_SYNC_SIGNATURE.clear();
         LAST_ADRENALINE_TRIGGER.clear();
         DIRTY_PLAYERS.clear();
+        ServerInputDisruptionManager.clearAll();
     }
 
     /**
@@ -169,6 +173,7 @@ public final class DrugEffectRuntimeManager {
         removeAttackSpeedAttribute(player);
         removeHpDecreaseAttribute(player);
         BurstWindowManager.cleanup(player);
+        ServerInputDisruptionManager.cleanup(player);
         forgetPlayer(player.getUUID());
         if (reason.resyncsClient()) {
             forceSyncNow(player);
@@ -192,8 +197,19 @@ public final class DrugEffectRuntimeManager {
                         effect.type().serializedName(),
                         effect.baseIntensity(),
                         effect.activeTicks(),
+                        effect.ageTicks(),
+                        effect.baselineDurationTicks(),
                         effect.fadeTicksRemaining(),
-                        effect.fadeDurationTicks()
+                        effect.fadeDurationTicks(),
+                        effect.profile().onsetTicks(),
+                        effect.profile().peakTicks(),
+                        effect.profile().comedownTicks(),
+                        effect.profile().intensityMultiplier(),
+                        effect.profile().durationMultiplier(),
+                        effect.profile().doseMultiplier(),
+                        effect.profile().riskMultiplier(),
+                        effect.riskPressure(),
+                        effect.overlappingDoses()
                 ));
             }
         }
@@ -226,8 +242,26 @@ public final class DrugEffectRuntimeManager {
             if (intensity <= 0.0F || (active <= 0 && fade <= 0)) {
                 continue;
             }
+            RouteEffectProfile profile = new RouteEffectProfile(
+                    stored.onsetTicks(),
+                    stored.peakTicks(),
+                    stored.comedownTicks(),
+                    stored.routeIntensityMultiplier(),
+                    stored.routeDurationMultiplier(),
+                    stored.routeDoseMultiplier(),
+                    stored.routeRiskMultiplier()
+            );
             ActiveDrugEffect effect = ActiveDrugEffect.restore(
-                    type, intensity, active, fade, Math.max(0, stored.fadeDurationTicks()));
+                    type,
+                    intensity,
+                    active,
+                    stored.ageTicks(),
+                    stored.baselineDurationTicks(),
+                    fade,
+                    Math.max(0, stored.fadeDurationTicks()),
+                    profile,
+                    stored.riskPressure(),
+                    stored.overlappingDoses());
             if (effect.isExpired()) {
                 continue;
             }
@@ -235,7 +269,7 @@ public final class DrugEffectRuntimeManager {
             if (existing == null) {
                 effects.put(type, effect);
             } else {
-                existing.merge(effect.baseIntensity(), effect.remainingTicks());
+                existing.merge(effect.baseIntensity(), effect.activeTicks(), effect.profile(), type.isHarmful(), effect.profile().riskMultiplier());
             }
         }
         if (!effects.isEmpty()) {
@@ -293,20 +327,36 @@ public final class DrugEffectRuntimeManager {
     }
 
     public static void addEffect(ServerPlayer player, EffectType rawType, float intensity, int duration) {
+        addEffect(player, rawType, intensity, duration, RouteEffectProfile.immediate(), 1.0F);
+    }
+
+    public static void addEffect(ServerPlayer player, EffectType rawType, float intensity, int duration,
+                                 RouteEffectProfile profile, float riskMultiplier) {
         if (player == null || rawType == null || duration <= 0 || intensity <= 0.0F) {
             return;
         }
 
         EffectType type = normalize(rawType);
+        RouteEffectProfile safeProfile = profile == null ? RouteEffectProfile.immediate() : profile;
         if (isPositiveEffect(type)) {
             intensity = MutationManager.boostPositive(player, MutationStat.PLEASURE_SENSITIVITY, intensity, 0.50F);
         }
         EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.computeIfAbsent(player.getUUID(), ignored -> new EnumMap<>(EffectType.class));
         ActiveDrugEffect existing = effects.get(type);
         if (existing == null) {
-            effects.put(type, new ActiveDrugEffect(type, intensity, duration));
+            ActiveDrugEffect added = new ActiveDrugEffect(type, intensity, duration, safeProfile);
+            effects.put(type, added);
+            sendCue(player, type, DrugEffectCueKind.EFFECT_STARTED, added.intensity());
         } else {
-            existing.merge(intensity, duration);
+            ActiveDrugEffect.MergeResult result = existing.merge(
+                    intensity,
+                    duration,
+                    safeProfile,
+                    type.isHarmful(),
+                    riskMultiplier * safeProfile.riskMultiplier());
+            sendCue(player, type, result.overstacked()
+                    ? DrugEffectCueKind.EFFECT_OVERSTACKED
+                    : DrugEffectCueKind.EFFECT_REFRESHED, result.newIntensity());
         }
         DIRTY_PLAYERS.add(player.getUUID());
         applyMovementAttribute(player, effects);
@@ -337,19 +387,27 @@ public final class DrugEffectRuntimeManager {
     public static void tickServer(ServerPlayer player) {
         UUID id = player.getUUID();
         EnumMap<EffectType, ActiveDrugEffect> effects = ACTIVE.get(id);
+        if (effects == null && canSkipInactiveTick(player, id)) {
+            return;
+        }
         boolean dirty = false;
 
         if (effects != null) {
             Iterator<Map.Entry<EffectType, ActiveDrugEffect>> iterator = effects.entrySet().iterator();
             while (iterator.hasNext()) {
                 ActiveDrugEffect effect = iterator.next().getValue();
-                boolean wasFading = effect.isFading();
-                if (effect.tick()) {
+                ActiveDrugEffect.TickResult tickResult = effect.tick();
+                if (tickResult.expired()) {
                     iterator.remove();
+                    sendCue(player, effect.type(), DrugEffectCueKind.EFFECT_EXPIRED, 0.0F);
                     dirty = true;
-                } else if (!wasFading && effect.isFading()) {
-                    dirty = true;
-                } else if (effect.isFading() && effect.fadeTicksRemaining() % 10 == 0) {
+                } else if (tickResult.phaseChanged() || tickResult.fadeStarted()
+                        || (effect.isFading() && effect.fadeTicksRemaining() % 10 == 0)) {
+                    if (tickResult.currentPhase() == ActiveDrugEffect.Phase.PEAK) {
+                        sendCue(player, effect.type(), DrugEffectCueKind.EFFECT_PEAKED, effect.intensity());
+                    } else if (tickResult.currentPhase() == ActiveDrugEffect.Phase.COMEDOWN || tickResult.fadeStarted()) {
+                        sendCue(player, effect.type(), DrugEffectCueKind.EFFECT_COMEDOWN, effect.intensity());
+                    }
                     dirty = true;
                 }
             }
@@ -361,6 +419,7 @@ public final class DrugEffectRuntimeManager {
             maybeVomit(player, effects);
             applyStressRelief(player, effects);
             BurstWindowManager.tick(player);
+            ServerInputDisruptionManager.tick(player, intensity(effects, EffectType.INPUT_FAIL));
 
             if (effects.isEmpty()) {
                 ACTIVE.remove(id);
@@ -372,6 +431,7 @@ public final class DrugEffectRuntimeManager {
             removeAttackSpeedAttribute(player);
             removeHpDecreaseAttribute(player);
             BurstWindowManager.cleanup(player);
+            ServerInputDisruptionManager.cleanup(player);
         }
 
         if (VOMIT_COOLDOWNS.computeIfPresent(id, (ignored, value) -> value > 0 ? value - 1 : null) != null) {
@@ -382,6 +442,17 @@ public final class DrugEffectRuntimeManager {
         if (forceSync || player.level().getGameTime() % 100L == 0L) {
             syncIfChanged(player, effects, forceSync);
         }
+    }
+
+    private static boolean canSkipInactiveTick(ServerPlayer player, UUID id) {
+        return !DIRTY_PLAYERS.contains(id)
+                && !VOMIT_COOLDOWNS.containsKey(id)
+                && !LAST_MOVEMENT_MULTIPLIER.containsKey(id)
+                && !LAST_MINING_MULTIPLIER.containsKey(id)
+                && !LAST_ATTACK_SPEED_MULTIPLIER.containsKey(id)
+                && !LAST_HP_DECREASE_HEARTS.containsKey(id)
+                && !BurstWindowManager.hasActiveWindow(player)
+                && player.level().getGameTime() % 100L != 0L;
     }
 
     public static float getMiningSpeedMultiplier(ServerPlayer player) {
@@ -681,12 +752,14 @@ public final class DrugEffectRuntimeManager {
 
         int hash = 1;
         for (ActiveDrugEffect effect : effects.values()) {
-            if (effect.remainingTicks() <= 0 || effect.intensity() <= 0.0F) {
+            if (effect.remainingTicks() <= 0 || effect.baseIntensity() <= 0.0F) {
                 continue;
             }
             hash = 31 * hash + effect.type().serializedName().hashCode();
             hash = 31 * hash + Math.round(effect.intensity() * 100.0F);
             hash = 31 * hash + Math.max(1, effect.remainingTicks() / 20);
+            hash = 31 * hash + Math.max(0, effect.ageTicks() / 20);
+            hash = 31 * hash + effect.phase().name().hashCode();
             hash = 31 * hash + Math.max(0, effect.fadeTicksRemaining() / 10);
         }
         return hash;
@@ -696,17 +769,35 @@ public final class DrugEffectRuntimeManager {
         List<DrugEffectSyncPayload.Entry> entries = new ArrayList<>();
         if (effects != null) {
             for (ActiveDrugEffect effect : effects.values()) {
-                if (effect.remainingTicks() > 0 && effect.intensity() > 0.0F) {
+                if (effect.remainingTicks() > 0 && effect.baseIntensity() > 0.0F) {
                     entries.add(new DrugEffectSyncPayload.Entry(
                             effect.type(),
                             effect.baseIntensity(),
+                            effect.riskPressure(),
                             effect.remainingTicks(),
+                            effect.activeTicks(),
+                            effect.ageTicks(),
+                            effect.baselineDurationTicks(),
                             effect.fadeTicksRemaining(),
-                            effect.fadeDurationTicks()
+                            effect.fadeDurationTicks(),
+                            effect.profile().onsetTicks(),
+                            effect.profile().peakTicks(),
+                            effect.profile().comedownTicks(),
+                            effect.profile().intensityMultiplier(),
+                            effect.profile().durationMultiplier(),
+                            effect.profile().doseMultiplier(),
+                            effect.profile().riskMultiplier()
                     ));
                 }
             }
         }
         PacketDistributor.sendToPlayer(player, new DrugEffectSyncPayload(entries));
+    }
+
+    public static void sendCue(ServerPlayer player, EffectType type, DrugEffectCueKind kind, float intensity) {
+        if (player == null || type == null || kind == null) {
+            return;
+        }
+        PacketDistributor.sendToPlayer(player, new DrugEffectCuePayload(type, kind, Math.max(0.0F, intensity)));
     }
 }

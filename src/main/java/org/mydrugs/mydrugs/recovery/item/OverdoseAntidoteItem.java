@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemUseAnimation;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.DoseConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.core.drug.dose.DoseManager;
 
 /**
@@ -28,5 +29,6 @@ public final class OverdoseAntidoteItem extends AbstractRecoveryItem {
         // documented; do not move this behind DrugUseService.
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         DoseManager.applyAntidote(stats);
+        AddictionRecoveryFeedback.sendAntidote(player);
     }
 }

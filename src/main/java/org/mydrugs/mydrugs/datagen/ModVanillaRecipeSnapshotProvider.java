@@ -578,11 +578,11 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
-        writer.shapeless("cigaret_filter",
+        writer.shapeless("cigarette_filter",
                 new Object[]{
                         "mydrugs:cupboard_piece"
                 },
-                "mydrugs:cigaret_filter",
+                "mydrugs:cigarette_filter",
                 4
         );
 

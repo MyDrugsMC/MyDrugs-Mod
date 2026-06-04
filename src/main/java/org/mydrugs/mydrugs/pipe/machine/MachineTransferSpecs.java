@@ -12,7 +12,7 @@ import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.DistillateEngineBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.GeneExtractorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.HemogenicInfuserBlockEntity;
-import org.mydrugs.mydrugs.blocks.entity.KrisprKas9CombinatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.CrisprCas9CombinatorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeDistilleryBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
 import org.mydrugs.mydrugs.menu.AromaticExtractorMenu;
@@ -173,7 +173,7 @@ public final class MachineTransferSpecs {
         }
         if (type == ModBlockEntities.GENE_EXTRACTOR.get()) {
             return spec(
-                    itemIn("adn_input", 0, GeneExtractorBlockEntity.INPUT_SLOT, INPUT_DEFAULT),
+                    itemIn("dna_input", 0, GeneExtractorBlockEntity.INPUT_SLOT, INPUT_DEFAULT),
                     itemOut("gene_output_a", 1, GeneExtractorBlockEntity.OUTPUT_SLOT_A, OUTPUT_DEFAULT),
                     itemOut("gene_output_b", 2, GeneExtractorBlockEntity.OUTPUT_SLOT_B, OUTPUT_DEFAULT),
                     itemOut("gene_output_c", 3, GeneExtractorBlockEntity.OUTPUT_SLOT_C, OUTPUT_DEFAULT)
@@ -181,9 +181,9 @@ public final class MachineTransferSpecs {
         }
         if (type == ModBlockEntities.CRISPR_CAS9_COMBINATOR.get()) {
             return spec(
-                    itemIn("gene_input_a", 0, KrisprKas9CombinatorBlockEntity.INPUT_A_SLOT, INPUT_DEFAULT),
-                    itemIn("gene_input_b", 1, KrisprKas9CombinatorBlockEntity.INPUT_B_SLOT, SECONDARY_INPUT_DEFAULT),
-                    itemOut("gene_output", 2, KrisprKas9CombinatorBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
+                    itemIn("gene_input_a", 0, CrisprCas9CombinatorBlockEntity.INPUT_A_SLOT, INPUT_DEFAULT),
+                    itemIn("gene_input_b", 1, CrisprCas9CombinatorBlockEntity.INPUT_B_SLOT, SECONDARY_INPUT_DEFAULT),
+                    itemOut("gene_output", 2, CrisprCas9CombinatorBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
             );
         }
         if (type == ModBlockEntities.BACTERIAL_INCUBATOR.get()) {

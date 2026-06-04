@@ -8,6 +8,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
@@ -59,6 +60,7 @@ public final class ClientEventHandler {
             HeartbeatPulse.clear();
             FakeEntityRenderController.clear();
             VomitOverlayClientState.clear();
+            AddictionHudRenderer.clearPulses();
             BadTripScreamerOverlay.clear();
             BadTripSkyTint.clear();
             PsyMixerRitualClientState.clear();
@@ -67,6 +69,12 @@ public final class ClientEventHandler {
             CustomDiscPlaybackController.clear();
             org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.clear();
             org.mydrugs.mydrugs.client.PsyCurrentPulseClientState.clear();
+            org.mydrugs.mydrugs.client.InnerEntrySequence.clear();
+            org.mydrugs.mydrugs.client.InnerSkyClientState.clear();
+            org.mydrugs.mydrugs.client.InnerRegionCrossingController.clear();
+            org.mydrugs.mydrugs.client.InnerSoundscapeController.clear();
+            org.mydrugs.mydrugs.client.InnerPlayerResponseController.clear();
+            org.mydrugs.mydrugs.client.InnerAtmosphereClient.clear();
         }
 
         @SubscribeEvent
@@ -74,6 +82,7 @@ public final class ClientEventHandler {
             Minecraft mc = Minecraft.getInstance();
 
             AddictionClientState.tick();
+            AddictionHudRenderer.tick();
             ClientSoundController.tick();
             HeadphonesMusicController.tick();
             FakeEntityRenderController.tick();
@@ -84,12 +93,19 @@ public final class ClientEventHandler {
             VomitOverlayClientState.tick();
             BadTripScreamerOverlay.tick();
             BadTripSkyTint.tick();
+            org.mydrugs.mydrugs.client.InnerEntrySequence.tick(mc);
+            org.mydrugs.mydrugs.client.InnerSkyClientState.tick();
+            org.mydrugs.mydrugs.client.InnerRegionCrossingController.tick(mc);
+            org.mydrugs.mydrugs.client.InnerSoundscapeController.tick(mc);
+            org.mydrugs.mydrugs.client.InnerPlayerResponseController.tick(mc);
+            org.mydrugs.mydrugs.client.InnerAmbientParticleController.tick(mc);
             PsyMixerRitualClientState.tick();
             RecoveryRoomOverlay.tick();
             RecoveryRoomParticleClient.tick();
             CustomDiscPlaybackController.tick();
 
             WithdrawalTunnelShader.INSTANCE.tick(mc);
+            org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.tick(mc);
             ClientInputInterceptor.tick(mc);
             ClientGammaController.tick(mc);
         }
@@ -98,6 +114,13 @@ public final class ClientEventHandler {
         @SubscribeEvent
         public static void onMovementInput(net.neoforged.neoforge.client.event.MovementInputUpdateEvent event) {
             ClientInputInterceptor.applyToInput(event.getInput(), event.getEntity().tickCount);
+        }
+
+        @SubscribeEvent
+        public static void onScreenMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
+            if (AddictionHudRenderer.mouseScrolled(event.getMouseX(), event.getMouseY(), event.getScrollDeltaY())) {
+                event.setCanceled(true);
+            }
         }
 
         @SubscribeEvent
@@ -114,6 +137,11 @@ public final class ClientEventHandler {
                 WithdrawalTunnelShader.INSTANCE.render(mc);
             }
 
+            if (org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.shouldRender()) {
+                org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.render(mc);
+            }
+
+            org.mydrugs.mydrugs.client.InnerRegionCrossingController.render(event.getGuiGraphics());
             FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
             VomitOverlayClientState.render(event.getGuiGraphics());
             BadTripScreamerOverlay.render(event.getGuiGraphics());
@@ -121,6 +149,8 @@ public final class ClientEventHandler {
             BiomeFinderCompassOverlay.render(event.getGuiGraphics());
             PsyMixerRitualOverlay.render(event.getGuiGraphics());
             RecoveryRoomOverlay.render(event.getGuiGraphics());
+            // Entry veil last so it covers the HUD as the world resolves.
+            org.mydrugs.mydrugs.client.InnerEntrySequence.render(event.getGuiGraphics());
         }
 
         @SubscribeEvent

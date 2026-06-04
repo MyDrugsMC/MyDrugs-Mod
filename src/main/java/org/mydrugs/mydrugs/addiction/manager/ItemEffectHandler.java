@@ -8,12 +8,17 @@ import org.mydrugs.mydrugs.core.drug.DrugCategory;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
+import org.mydrugs.mydrugs.addiction.explain.AddictionRecoveryFeedback;
 import org.mydrugs.mydrugs.recovery.SafeZoneManager;
+import org.mydrugs.mydrugs.recovery.PlayerRecoveryEnvironmentCache;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.RecoverySessionAction;
+import org.mydrugs.mydrugs.recovery.RecoverySessionManager;
 import org.mydrugs.mydrugs.addiction.manager.state.StressManager;
 import org.mydrugs.mydrugs.addiction.manager.state.SymptomManager;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager.ActionKind;
 import org.mydrugs.mydrugs.items.ModItems;
@@ -38,6 +43,8 @@ public final class ItemEffectHandler {
             StressManager.reduce(stats, 0.015F);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.DIARY_WRITTEN, diaryDesk ? 1.15F : 1.0F);
+        RecoverySessionManager.onReflectionAction(player, RecoverySessionAction.DIARY);
+        IntegrationService.onReflectionAction(player);
         syncClientHud(player);
     }
 
@@ -71,6 +78,11 @@ public final class ItemEffectHandler {
 
         syncHeadphones(player);
         syncClientHud(player);
+        if (stats.temporaryEffects.headphonesEnabled) {
+            if (!RecoverySessionManager.onGroundingAction(player, RecoverySessionAction.HEADPHONES)) {
+                AddictionRecoveryFeedback.sendHeadphones(player);
+            }
+        }
         return stats.temporaryEffects.headphonesEnabled;
     }
 
@@ -107,13 +119,18 @@ public final class ItemEffectHandler {
                 : 0L;
         syncHeadphones(player);
         syncClientHud(player);
+        if (playing) {
+            if (!RecoverySessionManager.onGroundingAction(player, RecoverySessionAction.HEADPHONES)) {
+                AddictionRecoveryFeedback.sendHeadphones(player);
+            }
+        }
         return playing;
     }
 
     public static void tickHeadphones(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
-        if (!hasItem(player.getInventory(), ModItems.HEADPHONES.get())) {
+        if (!PlayerRecoveryEnvironmentCache.snapshot(player).hasHeadphones()) {
             if (stats.temporaryEffects.headphonesEnabled || stats.temporaryEffects.headphonesUntil > 0L) {
                 stats.temporaryEffects.headphonesEnabled = false;
                 stats.temporaryEffects.headphonesUntil = 0L;
@@ -171,6 +188,18 @@ public final class ItemEffectHandler {
             stats.temporaryEffects.preparedTeaUntil = Math.max(stats.temporaryEffects.preparedTeaUntil, preparedUntil);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.HERBAL_TEA, itemMultiplier);
+        RecoverySessionAction sessionAction = teaKitchen
+                ? RecoverySessionAction.PREPARED_TEA
+                : RecoverySessionAction.TEA;
+        if (teaKitchen && !RecoverySessionManager.onGroundingAction(player, sessionAction)) {
+            RecoverySessionManager.sendContextualMessage(
+                    player,
+                    RecoverySessionAction.PREPARED_TEA.messageKey(),
+                    20L * 60L
+            );
+        } else if (!teaKitchen) {
+            RecoverySessionManager.onGroundingAction(player, sessionAction);
+        }
         syncClientHud(player);
     }
 
@@ -178,6 +207,7 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         float itemMultiplier = recoveryItemMultiplier(room);
+        boolean teaKitchen = hasModule(room, SanctuaryModule.TEA_KITCHEN);
         StressManager.reduce(stats, AddictionConstants.RELIEF_CALMING_MIXTURE * itemMultiplier * 2.5F);
 
         for (DrugCategory category : DrugCategory.values()) {
@@ -187,6 +217,18 @@ public final class ItemEffectHandler {
         stats.temporaryEffects.calmingMixtureUntil = player.level().getGameTime() + Math.round(20L * 60L * itemMultiplier);
         stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 180L * itemMultiplier);
         RecoveryProgressManager.onProductiveAction(player, ActionKind.CALMING_MIXTURE, itemMultiplier);
+        RecoverySessionAction sessionAction = teaKitchen
+                ? RecoverySessionAction.PREPARED_TEA
+                : RecoverySessionAction.TEA;
+        if (teaKitchen && !RecoverySessionManager.onGroundingAction(player, sessionAction)) {
+            RecoverySessionManager.sendContextualMessage(
+                    player,
+                    RecoverySessionAction.PREPARED_TEA.messageKey(),
+                    20L * 60L
+            );
+        } else if (!teaKitchen) {
+            RecoverySessionManager.onGroundingAction(player, sessionAction);
+        }
         syncClientHud(player);
     }
 

@@ -31,6 +31,7 @@ import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTiers;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
+import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
 import org.mydrugs.mydrugs.diary.DiaryEntry;
@@ -47,6 +48,9 @@ import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
+import org.mydrugs.mydrugs.recovery.RecoverySessionAction;
+import org.mydrugs.mydrugs.recovery.RecoverySessionManager;
+import org.mydrugs.mydrugs.recovery.SanctuaryModule;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -67,6 +71,10 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     public static final int CHECK_DIARY = 1 << 7;
     public static final int CHECK_ROOM = 1 << 8;
     public static final int CHECK_NOT_INTEGRATED = 1 << 9;
+    public static final int CHECK_REFLECTION = 1 << 10;
+    public static final int CHECK_SAFE_PSYCH_USE = 1 << 11;
+    public static final int CHECK_NO_RECENT_BAD_TRIP = 1 << 12;
+    public static final int CHECK_SPACING = 1 << 13;
 
     private static final ResourceLocation DREAM_ALIGNMENT_RITUAL =
             ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, "dream_alignment");
@@ -92,6 +100,24 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     private PsychotropeResonatorFailureReason lastFailureReason = PsychotropeResonatorFailureReason.NONE;
     private @Nullable DrugId lastCandidateDrug;
     private int lastChecklistMask;
+    private int lastPeakCurrentTenth;
+    private int lastPeakRequiredTenth;
+    private int lastAddictionCurrentTenth;
+    private int lastAddictionMaxTenth;
+    private int lastRecoveryCurrentPercent;
+    private int lastRecoveryRequiredPercent;
+    private int lastLifetimeDoseTenth;
+    private int lastLifetimeDoseRequiredTenth;
+    private int lastCleanDoseStreak;
+    private int lastCleanDoseStreakRequired;
+    private int lastPsychedelicReflections;
+    private int lastPsychedelicReflectionsRequired;
+    private int lastSafePsychedelicUses;
+    private int lastSafePsychedelicUsesRequired;
+    private int lastCleanSpacingRemainingTicks;
+    private int lastRecentBadTripRemainingTicks;
+    private int lastRequiredCoreRank = -1;
+    private int lastSlottedCoreRank = -1;
     private ResonatorState state = ResonatorState.IDLE;
     private MachineStatus machineStatus = MachineStatus.IDLE;
 
@@ -110,6 +136,24 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
                 case 8 -> lastCandidateDrug == null ? 0 : lastCandidateDrug.networkId();
                 case 9 -> lastChecklistMask;
                 case 10 -> viewerCanOpenDimension() ? 1 : 0;
+                case 11 -> lastPeakCurrentTenth;
+                case 12 -> lastPeakRequiredTenth;
+                case 13 -> lastAddictionCurrentTenth;
+                case 14 -> lastAddictionMaxTenth;
+                case 15 -> lastRecoveryCurrentPercent;
+                case 16 -> lastRecoveryRequiredPercent;
+                case 17 -> lastLifetimeDoseTenth;
+                case 18 -> lastLifetimeDoseRequiredTenth;
+                case 19 -> lastCleanDoseStreak;
+                case 20 -> lastCleanDoseStreakRequired;
+                case 21 -> lastPsychedelicReflections;
+                case 22 -> lastPsychedelicReflectionsRequired;
+                case 23 -> lastSafePsychedelicUses;
+                case 24 -> lastSafePsychedelicUsesRequired;
+                case 25 -> lastCleanSpacingRemainingTicks;
+                case 26 -> lastRecentBadTripRemainingTicks;
+                case 27 -> lastRequiredCoreRank;
+                case 28 -> lastSlottedCoreRank;
                 default -> 0;
             };
         }
@@ -127,6 +171,24 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
                 case 7 -> lastFailureReason = PsychotropeResonatorFailureReason.byNetworkId(value);
                 case 8 -> lastCandidateDrug = DrugId.byNetworkId(value);
                 case 9 -> lastChecklistMask = value;
+                case 11 -> lastPeakCurrentTenth = value;
+                case 12 -> lastPeakRequiredTenth = value;
+                case 13 -> lastAddictionCurrentTenth = value;
+                case 14 -> lastAddictionMaxTenth = value;
+                case 15 -> lastRecoveryCurrentPercent = value;
+                case 16 -> lastRecoveryRequiredPercent = value;
+                case 17 -> lastLifetimeDoseTenth = value;
+                case 18 -> lastLifetimeDoseRequiredTenth = value;
+                case 19 -> lastCleanDoseStreak = value;
+                case 20 -> lastCleanDoseStreakRequired = value;
+                case 21 -> lastPsychedelicReflections = value;
+                case 22 -> lastPsychedelicReflectionsRequired = value;
+                case 23 -> lastSafePsychedelicUses = value;
+                case 24 -> lastSafePsychedelicUsesRequired = value;
+                case 25 -> lastCleanSpacingRemainingTicks = value;
+                case 26 -> lastRecentBadTripRemainingTicks = value;
+                case 27 -> lastRequiredCoreRank = value;
+                case 28 -> lastSlottedCoreRank = value;
                 default -> {
                 }
             }
@@ -300,7 +362,7 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return switch (slot) {
-            case SLOT_MATERIAL -> isIntegrationMaterial(stack);
+            case SLOT_MATERIAL -> !stack.isEmpty();
             case SLOT_INTEGRATION_CORE -> isIntegrationCore(stack);
             case SLOT_DIARY -> isDiary(stack);
             default -> false;
@@ -379,9 +441,12 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         this.activeIntegrationDrug = drug;
         this.progress = 0;
         this.maxProgress = ticks;
-        this.lastFailureReason = PsychotropeResonatorFailureReason.NONE;
-        this.lastCandidateDrug = drug;
-        this.lastChecklistMask = drug == null ? 0 : buildChecklist(player, drug);
+        if (drug == null) {
+            applyChecklistSnapshot(ChecklistSnapshot.empty(PsychotropeResonatorFailureReason.NONE));
+        } else {
+            applyChecklistSnapshot(buildChecklistSnapshot(player, drug, PsychotropeResonatorFailureReason.NONE,
+                    buildChecklist(player, drug)));
+        }
         setState(activeState);
         setMachineStatus(MachineStatus.RUNNING);
         sync();
@@ -409,7 +474,11 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
 
         if (RECOVERY_RESONANCE_RITUAL.equals(ritual)) {
             this.getItem(SLOT_MATERIAL).shrink(1);
-            RecoveryProgressManager.applyRecoveryResonance(player, RecoveryRoomManager.getBestRoom(player).orElse(null));
+            RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
+            RecoveryProgressManager.applyRecoveryResonance(player, room);
+            if (RecoveryRoomManager.isValidRecoveryRoom(room) && room.hasModule(SanctuaryModule.INTEGRATION_ALCOVE)) {
+                RecoverySessionManager.onReflectionAction(player, RecoverySessionAction.ALCOVE);
+            }
             IntegrationDiary.recoveryResonance(player);
             setState(InnerDimensionService.canOpen(player) ? ResonatorState.DIMENSION_READY : ResonatorState.COOLDOWN);
             setMachineStatus(MachineStatus.PAUSED);
@@ -422,15 +491,24 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
             // so reaching this branch with a failing candidate would require a state change racing
             // through completion. Re-validate here for a granular PsychotropeResonatorFailureReason regardless.
             IntegrationCandidate candidate = validateIntegrationCandidate(player, drug);
-            if (candidate.ok() && IntegrationService.integrate(player, drug)) {
+            IntegrationService.IntegrationAttemptResult attempt = candidate.ok()
+                    ? IntegrationService.tryIntegrate(player, drug)
+                    : null;
+            if (candidate.ok() && attempt != null && attempt.success()) {
                 this.getItem(SLOT_MATERIAL).shrink(1);
                 this.getItem(SLOT_INTEGRATION_CORE).shrink(1);
                 InnerDimensionService.onIntegration(player, drug);
-                writeDiary(player, "resonator_integration", "It is mine now, clean. Not a hunger. Not a shortcut. A shape I survived.", drug);
+                writeDiary(player, "resonator_integration",
+                        "The trait is integrated. The body still remembers, and recovery continues.", drug);
                 setState(InnerDimensionService.canOpen(player) ? ResonatorState.DIMENSION_READY : ResonatorState.COOLDOWN);
                 setMachineStatus(MachineStatus.PAUSED);
             } else {
-                PsychotropeResonatorFailureReason reason = candidate.ok() ? PsychotropeResonatorFailureReason.INTEGRATION_LOST : candidate.reason();
+                PsychotropeResonatorFailureReason reason = candidate.ok()
+                        ? PsychotropeResonatorFailureReason.firstEligibilityFailure(attempt == null ? null : attempt.eligibility())
+                        : candidate.reason();
+                if (reason == null) {
+                    reason = PsychotropeResonatorFailureReason.INTEGRATION_LOST;
+                }
                 MachineStatus status = candidate.ok() ? MachineStatus.NO_MATCHING_RECIPE : candidate.status();
                 fail(player, status, reason, candidate.drug(), candidate.checklistMask());
             }
@@ -459,14 +537,13 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
             DrugId drug = this.activeIntegrationDrug;
             if (drug == null) {
                 setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
+                applyChecklistSnapshot(ChecklistSnapshot.empty(PsychotropeResonatorFailureReason.NO_ELIGIBLE_DRUG));
                 return false;
             }
             IntegrationCandidate candidate = validateIntegrationCandidate(player, drug);
+            applyChecklistSnapshot(buildChecklistSnapshot(player, candidate.drug(), candidate.reason(), candidate.checklistMask()));
             if (!candidate.ok()) {
                 setMachineStatus(candidate.status());
-                this.lastFailureReason = candidate.reason();
-                this.lastCandidateDrug = candidate.drug();
-                this.lastChecklistMask = candidate.checklistMask();
             }
             return candidate.ok();
         }
@@ -504,19 +581,17 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     }
 
     private IntegrationCandidate findIntegrationCandidate(ServerPlayer player) {
-        IntegrationCandidate bestFailure = null;
-        for (DrugId drug : CuratedDrugChain.ORDER) {
-            IntegrationCandidate candidate = validateIntegrationCandidate(player, drug);
-            if (candidate.ok()) {
-                return candidate;
-            }
-            if (bestFailure == null && isRelevantCandidate(player, drug)) {
-                bestFailure = candidate;
-            }
+        ItemStack material = this.getItem(SLOT_MATERIAL);
+        if (material.isEmpty()) {
+            return IntegrationCandidate.fail(null, MachineStatus.MISSING_INPUT_ITEM,
+                    PsychotropeResonatorFailureReason.INSERT_INTEGRATION_MATERIAL, 0);
         }
-        return bestFailure != null
-                ? bestFailure
-                : IntegrationCandidate.fail(null, MachineStatus.NO_MATCHING_RECIPE, PsychotropeResonatorFailureReason.NO_ELIGIBLE_DRUG, 0);
+        DrugId drug = IntegrationMaterials.drugFor(material);
+        if (drug == null) {
+            return IntegrationCandidate.fail(null, MachineStatus.MISSING_INPUT_ITEM,
+                    PsychotropeResonatorFailureReason.UNKNOWN_INTEGRATION_MATERIAL, 0);
+        }
+        return validateIntegrationCandidate(player, drug);
     }
 
     private IntegrationCandidate validateIntegrationCandidate(ServerPlayer player, DrugId drug) {
@@ -529,17 +604,17 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
             return IntegrationCandidate.fail(drug, MachineStatus.BLOCKED, PsychotropeResonatorFailureReason.MISSING_DRUG_KNOWLEDGE, checklist);
         }
         IntegrationService.EligibilityResult eligibility =
-                IntegrationService.evaluate(player.getData(ModAttachments.PLAYER_ADDICTION.get()), drug);
+                IntegrationService.evaluate(player.getData(ModAttachments.PLAYER_ADDICTION.get()), drug, player.level().getGameTime());
         PsychotropeResonatorFailureReason eligibilityFault =
                 PsychotropeResonatorFailureReason.firstEligibilityFailure(eligibility);
         if (eligibilityFault != null) {
             return IntegrationCandidate.fail(drug, MachineStatus.NO_MATCHING_RECIPE, eligibilityFault, checklist);
         }
-        if (!coreSatisfies(this.getItem(SLOT_INTEGRATION_CORE), IntegrationCoreTier.requiredFor(drug))) {
-            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_CATALYST, PsychotropeResonatorFailureReason.MISSING_CORE, checklist);
-        }
         if (!hasMaterialForDrug(drug)) {
             return IntegrationCandidate.fail(drug, MachineStatus.MISSING_INPUT_ITEM, PsychotropeResonatorFailureReason.MISSING_MATERIAL, checklist);
+        }
+        if (!coreSatisfies(this.getItem(SLOT_INTEGRATION_CORE), IntegrationCoreTier.requiredFor(drug))) {
+            return IntegrationCandidate.fail(drug, MachineStatus.MISSING_CATALYST, PsychotropeResonatorFailureReason.MISSING_CORE, checklist);
         }
         if (!hasDiaryContext(player)) {
             return IntegrationCandidate.fail(drug, MachineStatus.MISSING_DIARY_CONTEXT, PsychotropeResonatorFailureReason.MISSING_DIARY, checklist);
@@ -560,9 +635,21 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
             mask |= CHECK_KNOWLEDGE;
         }
         IntegrationService.EligibilityResult eligibility =
-                IntegrationService.evaluate(player.getData(ModAttachments.PLAYER_ADDICTION.get()), drug);
+                IntegrationService.evaluate(player.getData(ModAttachments.PLAYER_ADDICTION.get()), drug, player.level().getGameTime());
         if (eligibility.peakMet() && eligibility.cleanDoseStreakMet()) {
             mask |= CHECK_REQUIREMENT;
+        }
+        if (eligibility.psychedelicReflectionMet()) {
+            mask |= CHECK_REFLECTION;
+        }
+        if (eligibility.safePsychedelicUseMet()) {
+            mask |= CHECK_SAFE_PSYCH_USE;
+        }
+        if (eligibility.noRecentBadTripMet()) {
+            mask |= CHECK_NO_RECENT_BAD_TRIP;
+        }
+        if (spacingConditionMet(player, drug)) {
+            mask |= CHECK_SPACING;
         }
         if (eligibility.lowAddictionMet()) {
             mask |= CHECK_LOW_ADDICTION;
@@ -591,18 +678,6 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         return mask;
     }
 
-    private boolean isRelevantCandidate(ServerPlayer player, DrugId drug) {
-        if (hasKnowledgeForDrug(player, drug)) {
-            return true;
-        }
-        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        DrugAddictionStats d = stats.getDrugStats(drug);
-        return d != null && (d.lifetimeDoseConsumed > 0.0F
-                || d.peakHistoricalAddiction > 0.0F
-                || d.cleanIntegrationDoseStreak > 0
-                || d.addictionValue > 0.0F);
-    }
-
     private boolean hasLysergicKnowledge(ServerPlayer player) {
         return PsyKnowledgeManager.has(player, PsyKnowledgeKey.LYSERGIC);
     }
@@ -625,6 +700,144 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         return room.isPresent() && RecoveryRoomManager.isValidRecoveryRoom(room.get());
     }
 
+    private boolean spacingConditionMet(ServerPlayer player, DrugId drug) {
+        IntegrationRequirementProfile profile = IntegrationService.profile(drug);
+        if (profile == null || !profile.usesCleanDoseStreak()) {
+            return true;
+        }
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        DrugAddictionStats drugStats = stats.getDrugStats(drug);
+        if (drugStats == null || drugStats.cleanIntegrationDoseStreak >= profile.requiredCleanDoseStreak()) {
+            return true;
+        }
+        return IntegrationService.cleanDoseSpacingRemainingTicks(drugStats, player.level().getGameTime()) <= 0L;
+    }
+
+    private boolean refreshPreview(ServerPlayer player) {
+        ItemStack material = this.getItem(SLOT_MATERIAL);
+        if (material.isEmpty()) {
+            return applyChecklistSnapshot(ChecklistSnapshot.empty(
+                    PsychotropeResonatorFailureReason.INSERT_INTEGRATION_MATERIAL));
+        }
+        DrugId drug = IntegrationMaterials.drugFor(material);
+        if (drug == null) {
+            return applyChecklistSnapshot(ChecklistSnapshot.empty(
+                    PsychotropeResonatorFailureReason.UNKNOWN_INTEGRATION_MATERIAL));
+        }
+        IntegrationCandidate candidate = validateIntegrationCandidate(player, drug);
+        return applyChecklistSnapshot(buildChecklistSnapshot(player, drug,
+                candidate.ok() ? PsychotropeResonatorFailureReason.NONE : candidate.reason(),
+                candidate.checklistMask()));
+    }
+
+    private ChecklistSnapshot buildChecklistSnapshot(ServerPlayer player,
+                                                     @Nullable DrugId drug,
+                                                     PsychotropeResonatorFailureReason reason,
+                                                     int checklistMask) {
+        if (drug == null) {
+            return ChecklistSnapshot.empty(reason);
+        }
+
+        IntegrationRequirementProfile profile = IntegrationService.profile(drug);
+        PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
+        DrugAddictionStats drugStats = stats.getDrugStats(drug);
+        if (drugStats == null) {
+            drugStats = new DrugAddictionStats();
+        }
+        long now = player.level().getGameTime();
+        IntegrationCoreTier requiredCore = IntegrationCoreTier.requiredFor(drug);
+        IntegrationCoreTier slottedCore = IntegrationCoreTier.ofStack(this.getItem(SLOT_INTEGRATION_CORE));
+        long spacingRemaining = profile == null || !profile.usesCleanDoseStreak()
+                || drugStats.cleanIntegrationDoseStreak >= profile.requiredCleanDoseStreak()
+                ? 0L
+                : IntegrationService.cleanDoseSpacingRemainingTicks(drugStats, now);
+        long badTripRemaining = IntegrationService.recentBadTripRemainingTicks(drugStats, profile, now);
+
+        return new ChecklistSnapshot(
+                drug,
+                reason == null ? PsychotropeResonatorFailureReason.NONE : reason,
+                checklistMask,
+                tenth(drugStats.peakHistoricalAddiction),
+                tenth(profile == null ? 0.0F : profile.requiredPeakExposure()),
+                tenth(drugStats.addictionValue),
+                tenth(profile == null ? 0.0F : profile.maxCurrentAddiction()),
+                percent(drugStats.recoveryProgress),
+                percent(profile == null ? 0.0F : profile.requiredRecoveryProgress()),
+                tenth(drugStats.lifetimeDoseConsumed),
+                tenth(profile == null ? 0.0F : profile.requiredLifetimeDose()),
+                drugStats.cleanIntegrationDoseStreak,
+                profile == null ? 0 : profile.requiredCleanDoseStreak(),
+                drugStats.cleanPsychedelicReflectionCount,
+                profile == null ? 0 : profile.requiredPsychedelicReflections(),
+                drugStats.cleanPsychedelicSafeUseCount,
+                profile == null ? 0 : profile.requiredSafePsychedelicUses(),
+                cappedInt(spacingRemaining),
+                cappedInt(badTripRemaining),
+                requiredCore == null ? -1 : requiredCore.rank(),
+                slottedCore == null ? -1 : slottedCore.rank()
+        );
+    }
+
+    private boolean applyChecklistSnapshot(ChecklistSnapshot snapshot) {
+        ChecklistSnapshot safe = snapshot == null ? ChecklistSnapshot.empty(PsychotropeResonatorFailureReason.NONE) : snapshot;
+        boolean changed = this.lastCandidateDrug != safe.drug
+                || this.lastFailureReason != safe.reason
+                || this.lastChecklistMask != safe.mask
+                || this.lastPeakCurrentTenth != safe.peakCurrentTenth
+                || this.lastPeakRequiredTenth != safe.peakRequiredTenth
+                || this.lastAddictionCurrentTenth != safe.addictionCurrentTenth
+                || this.lastAddictionMaxTenth != safe.addictionMaxTenth
+                || this.lastRecoveryCurrentPercent != safe.recoveryCurrentPercent
+                || this.lastRecoveryRequiredPercent != safe.recoveryRequiredPercent
+                || this.lastLifetimeDoseTenth != safe.lifetimeDoseTenth
+                || this.lastLifetimeDoseRequiredTenth != safe.lifetimeDoseRequiredTenth
+                || this.lastCleanDoseStreak != safe.cleanDoseStreak
+                || this.lastCleanDoseStreakRequired != safe.cleanDoseStreakRequired
+                || this.lastPsychedelicReflections != safe.psychedelicReflections
+                || this.lastPsychedelicReflectionsRequired != safe.psychedelicReflectionsRequired
+                || this.lastSafePsychedelicUses != safe.safePsychedelicUses
+                || this.lastSafePsychedelicUsesRequired != safe.safePsychedelicUsesRequired
+                || this.lastCleanSpacingRemainingTicks != safe.cleanSpacingRemainingTicks
+                || this.lastRecentBadTripRemainingTicks != safe.recentBadTripRemainingTicks
+                || this.lastRequiredCoreRank != safe.requiredCoreRank
+                || this.lastSlottedCoreRank != safe.slottedCoreRank;
+
+        this.lastCandidateDrug = safe.drug;
+        this.lastFailureReason = safe.reason;
+        this.lastChecklistMask = safe.mask;
+        this.lastPeakCurrentTenth = safe.peakCurrentTenth;
+        this.lastPeakRequiredTenth = safe.peakRequiredTenth;
+        this.lastAddictionCurrentTenth = safe.addictionCurrentTenth;
+        this.lastAddictionMaxTenth = safe.addictionMaxTenth;
+        this.lastRecoveryCurrentPercent = safe.recoveryCurrentPercent;
+        this.lastRecoveryRequiredPercent = safe.recoveryRequiredPercent;
+        this.lastLifetimeDoseTenth = safe.lifetimeDoseTenth;
+        this.lastLifetimeDoseRequiredTenth = safe.lifetimeDoseRequiredTenth;
+        this.lastCleanDoseStreak = safe.cleanDoseStreak;
+        this.lastCleanDoseStreakRequired = safe.cleanDoseStreakRequired;
+        this.lastPsychedelicReflections = safe.psychedelicReflections;
+        this.lastPsychedelicReflectionsRequired = safe.psychedelicReflectionsRequired;
+        this.lastSafePsychedelicUses = safe.safePsychedelicUses;
+        this.lastSafePsychedelicUsesRequired = safe.safePsychedelicUsesRequired;
+        this.lastCleanSpacingRemainingTicks = safe.cleanSpacingRemainingTicks;
+        this.lastRecentBadTripRemainingTicks = safe.recentBadTripRemainingTicks;
+        this.lastRequiredCoreRank = safe.requiredCoreRank;
+        this.lastSlottedCoreRank = safe.slottedCoreRank;
+        return changed;
+    }
+
+    private static int tenth(float value) {
+        return Math.round(Math.max(0.0F, value) * 10.0F);
+    }
+
+    private static int percent(float value) {
+        return Math.round(Math.max(0.0F, value) * 100.0F);
+    }
+
+    private static int cappedInt(long value) {
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, value));
+    }
+
     private @Nullable ServerPlayer resolveActivePlayer(ServerLevel level) {
         return this.activePlayer == null ? null : level.getServer().getPlayerList().getPlayer(this.activePlayer);
     }
@@ -642,6 +855,10 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         ResonatorState next = this.viewerCanOpenDimension() ? ResonatorState.DIMENSION_READY : ResonatorState.IDLE;
         boolean changed = setState(next);
         changed |= setMachineStatus(MachineStatus.IDLE);
+        ServerPlayer viewer = resolveViewer();
+        if (viewer != null) {
+            changed |= refreshPreview(viewer);
+        }
         return changed;
     }
 
@@ -663,9 +880,8 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
     private void fail(ServerPlayer player, MachineStatus status, PsychotropeResonatorFailureReason reason, @Nullable DrugId drug, int checklistMask) {
         setState(status == MachineStatus.INVALID_MULTIBLOCK ? ResonatorState.INVALID_STRUCTURE : ResonatorState.BLOCKED);
         setMachineStatus(status);
-        this.lastFailureReason = reason == null ? PsychotropeResonatorFailureReason.NONE : reason;
-        this.lastCandidateDrug = drug;
-        this.lastChecklistMask = checklistMask;
+        applyChecklistSnapshot(buildChecklistSnapshot(player, drug,
+                reason == null ? PsychotropeResonatorFailureReason.NONE : reason, checklistMask));
         player.displayClientMessage(Component.translatable(this.lastFailureReason.translationKey()).withStyle(ChatFormatting.DARK_PURPLE), true);
         sync();
     }
@@ -774,6 +990,36 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
                 }
             }
             return IDLE;
+        }
+    }
+
+    private record ChecklistSnapshot(
+            @Nullable DrugId drug,
+            PsychotropeResonatorFailureReason reason,
+            int mask,
+            int peakCurrentTenth,
+            int peakRequiredTenth,
+            int addictionCurrentTenth,
+            int addictionMaxTenth,
+            int recoveryCurrentPercent,
+            int recoveryRequiredPercent,
+            int lifetimeDoseTenth,
+            int lifetimeDoseRequiredTenth,
+            int cleanDoseStreak,
+            int cleanDoseStreakRequired,
+            int psychedelicReflections,
+            int psychedelicReflectionsRequired,
+            int safePsychedelicUses,
+            int safePsychedelicUsesRequired,
+            int cleanSpacingRemainingTicks,
+            int recentBadTripRemainingTicks,
+            int requiredCoreRank,
+            int slottedCoreRank
+    ) {
+        static ChecklistSnapshot empty(PsychotropeResonatorFailureReason reason) {
+            return new ChecklistSnapshot(null,
+                    reason == null ? PsychotropeResonatorFailureReason.NONE : reason,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1);
         }
     }
 

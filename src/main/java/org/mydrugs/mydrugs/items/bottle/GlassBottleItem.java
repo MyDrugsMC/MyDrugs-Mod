@@ -46,7 +46,7 @@ public class GlassBottleItem extends Item {
     public static final int CAPACITY_MB = 250;
 
     private static final int COMPOSTER_FILL_AMOUNT_MB = 5;
-    private static final ResourceLocation AMMONIAC_ID = ModFluids.rl("ammoniac");
+    private static final ResourceLocation AMMONIA_ID = ModFluids.rl("ammonia");
 
     private static final ConsumptionStrategy strategy = new EatingStrategy();
 
@@ -207,12 +207,12 @@ public class GlassBottleItem extends Item {
             return InteractionResult.PASS;
         }
 
-        if (!canAcceptFluid(stack, AMMONIAC_ID, COMPOSTER_FILL_AMOUNT_MB)) {
+        if (!canAcceptFluid(stack, AMMONIA_ID, COMPOSTER_FILL_AMOUNT_MB)) {
             return InteractionResult.FAIL;
         }
 
         if (!level.isClientSide()) {
-            fill(stack, AMMONIAC_ID, COMPOSTER_FILL_AMOUNT_MB);
+            fill(stack, AMMONIA_ID, COMPOSTER_FILL_AMOUNT_MB);
             level.setBlock(pos, state.setValue(ComposterBlock.LEVEL, 0), Block.UPDATE_ALL);
         }
 
@@ -243,6 +243,17 @@ public class GlassBottleItem extends Item {
         }
 
         tooltipAdder.accept(Component.translatable("tooltip.mydrugs.bottle.amount", content.amountMb(), CAPACITY_MB));
+
+        org.mydrugs.mydrugs.fluids.FluidEntry entry = ModFluids.ALL.get(content.fluidId().getPath());
+        if (entry != null && content.fluidId().getNamespace().equals(MyDrugs.MODID)) {
+            org.mydrugs.mydrugs.fluids.FluidSpec spec = entry.spec();
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.fluid.hazard",
+                    Component.translatable(spec.hazard().translationKey())).withStyle(spec.hazard().color()));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.fluid.role",
+                    Component.translatable(spec.role().translationKey())).withStyle(ChatFormatting.DARK_GRAY));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.fluid.phase",
+                    Component.translatable(spec.phase().translationKey())).withStyle(ChatFormatting.DARK_GRAY));
+        }
 
         DrugModel drug = getBottleDrug(stack);
         if (drug != null) {

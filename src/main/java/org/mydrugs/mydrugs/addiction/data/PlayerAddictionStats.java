@@ -10,6 +10,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
+import org.mydrugs.mydrugs.recovery.RecoverySessionState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +25,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public float resilience;
     public float stressLevel;
     public TemporaryRecoveryEffects temporaryEffects = new TemporaryRecoveryEffects();
+    public RecoverySessionState recoverySession = new RecoverySessionState();
     public final BadTripState badTrip = new BadTripState();
 
     public long lastTherapyDay = -1L;
@@ -51,6 +53,13 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
     public long lastHeadphonesHintTick = 0L;
     public long lastDrugHintTick = 0L;
     public long lastBadTripResilienceGameTime = 0L;
+    public long lastOverdoseHintTick = -100000L;
+    public long lastBadTripGroundingTick = -100000L;
+    public long lastRecoveryFeedbackTick = -100000L;
+    public long lastRoomFeedbackTick = -100000L;
+    public long lastRecoveryMomentumFeedbackTick = -100000L;
+    public long lastPassiveCapFeedbackTick = -100000L;
+    public String lastRecoveryFeedbackKey = "";
 
     public int overdoseDeathTimer = -1;
     public float overdoseProtectionAccumulator = 0.0F;
@@ -294,6 +303,7 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         }
 
         temporaryEffects = other.temporaryEffects.copy();
+        recoverySession = wasDeath ? new RecoverySessionState() : other.recoverySession.copy();
         lastTherapyDay = other.lastTherapyDay;
         sleepBlockedUntil = other.sleepBlockedUntil;
         lastBadTripResilienceGameTime = other.lastBadTripResilienceGameTime;
@@ -325,6 +335,9 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
         ValueOutput effects = output.child("temporary_effects");
         temporaryEffects.serialize(effects);
 
+        ValueOutput session = output.child("recovery_session");
+        recoverySession.serialize(session);
+
         ValueOutput drugs = output.child("drug_stats");
         drugs.putInt("count", perDrug.size());
 
@@ -350,6 +363,9 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
 
         temporaryEffects = new TemporaryRecoveryEffects();
         temporaryEffects.deserialize(input.childOrEmpty("temporary_effects"));
+
+        recoverySession = new RecoverySessionState();
+        recoverySession.deserialize(input.childOrEmpty("recovery_session"));
 
         perDrug.clear();
         ValueInput drugs = input.childOrEmpty("drug_stats");

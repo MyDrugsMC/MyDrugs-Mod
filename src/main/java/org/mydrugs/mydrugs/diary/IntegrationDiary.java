@@ -25,13 +25,13 @@ public final class IntegrationDiary {
     public static void integrated(ServerPlayer player, DrugId drug) {
         append(player, drug, "integration.integrated",
                 "I integrated " + drugName(drug) + " today. The craving is not gone, but it is no longer in charge. " +
-                        "Something it gave me, the part that was useful, is mine to keep now. Cleanly.");
+                        "Something it gave me, the part that was useful, is mine to keep now. The body still remembers.");
     }
 
     public static void firstIntegrationCore(ServerPlayer player) {
         append(player, DrugId.COFFEE, "integration.core_first",
-                "Coffee pushed me to the edge of useful speed, then made me account for it. " +
-                        "The core it left behind feels like a way to bind recovery into something permanent.");
+                "Coffee pushed me to the edge of useful speed, then recovery made me account for it. " +
+                        "The core it left behind feels like a way to bind readiness into something permanent.");
     }
 
     public static void dreamAligned(ServerPlayer player) {

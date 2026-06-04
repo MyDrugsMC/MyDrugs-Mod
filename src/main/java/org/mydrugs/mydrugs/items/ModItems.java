@@ -102,11 +102,11 @@ public class ModItems {
 
     public static final DeferredItem<Item> SYRINGE = ModMutationItems.SYRINGE;
 
-    public static final DeferredItem<Item> ADN_SCRAPER = ModMutationItems.ADN_SCRAPER;
+    public static final DeferredItem<Item> DNA_SCRAPER = ModMutationItems.DNA_SCRAPER;
 
-    public static final DeferredItem<Item> ADN_SCRAP = ModMutationItems.ADN_SCRAP;
+    public static final DeferredItem<Item> DNA_SCRAP = ModMutationItems.DNA_SCRAP;
 
-    public static final DeferredItem<Item> ADN_GENE = ModMutationItems.ADN_GENE;
+    public static final DeferredItem<Item> DNA_GENE = ModMutationItems.DNA_GENE;
 
     public static final DeferredItem<Item> MUTATION_VECTOR = ModMutationItems.MUTATION_VECTOR;
 
@@ -141,8 +141,8 @@ public class ModItems {
     public static final DeferredItem<Item> IRON_MESH =
             ITEMS.registerSimpleItem("iron_mesh");
 
-    public static final DeferredItem<Item> CIGARET_FILTER =
-            ITEMS.registerSimpleItem("cigaret_filter");
+    public static final DeferredItem<Item> CIGARETTE_FILTER =
+            ITEMS.registerSimpleItem("cigarette_filter");
 
     public static final DeferredItem<Item> COCAINE_POWDER =
             ITEMS.registerItem("cocaine_powder", prop -> new CocainePowderItem(prop, DrugId.COCAINE, new SniffingStrategy()));
@@ -225,7 +225,7 @@ public class ModItems {
             ITEMS.registerItem("drug_analyzer", DrugAnalyzerItem::new);
 
     public static final DeferredItem<Item> CIGARETTE =
-            ITEMS.registerItem("cigaret",
+            ITEMS.registerItem("cigarette",
                     prop -> new CigaretteItem(prop, DrugId.TOBACCO, new SmokingStrategy(false, true)));
 
     public static final DeferredItem<Item> JOINT =

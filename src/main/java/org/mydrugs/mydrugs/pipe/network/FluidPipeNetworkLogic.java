@@ -21,13 +21,13 @@ public final class FluidPipeNetworkLogic {
     private FluidPipeNetworkLogic() {
     }
 
-    public static void tick(ServerLevel level, PipeNetworkManager manager) {
+    public static void tick(ServerLevel level, PipeNetworkManager manager, int intervalTicks) {
         for (PipeNetwork network : manager.networks(PipeResourceKind.FLUID).values()) {
-            tickNetwork(level, network);
+            tickNetwork(level, network, intervalTicks);
         }
     }
 
-    private static void tickNetwork(ServerLevel level, PipeNetwork network) {
+    private static void tickNetwork(ServerLevel level, PipeNetwork network, int intervalTicks) {
         PipeNetworkDiagnostics.networkTicked(PipeResourceKind.FLUID, network.inputs().size() + network.outputs().size());
         if (network.outputs().isEmpty()) {
             return;
@@ -48,7 +48,7 @@ public final class FluidPipeNetworkLogic {
                 continue;
             }
 
-            int amount = resolveTier(level, source).fluidAmountPerTick();
+            int amount = resolveTier(level, source).fluidAmountPerTick() * Math.max(1, intervalTicks);
             if (amount > 0 && tryMoveFromSource(level, network, source, sourceHandler, amount)) {
                 int nextRotation = (network.fluidOutputRotation(source) + 1) % Math.max(1, network.outputCandidates(source).size());
                 network.setFluidOutputRotation(source, nextRotation);

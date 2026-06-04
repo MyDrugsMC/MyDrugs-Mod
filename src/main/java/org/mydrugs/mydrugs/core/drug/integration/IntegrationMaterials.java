@@ -48,6 +48,18 @@ public final class IntegrationMaterials {
         return item != null && stack.is(item);
     }
 
+    public static @Nullable DrugId drugFor(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return null;
+        }
+        for (Map.Entry<DrugId, Supplier<? extends Item>> entry : MATERIALS.entrySet()) {
+            if (stack.is(entry.getValue().get())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     public static boolean isIntegrationMaterial(ItemStack stack) {
         if (stack.isEmpty()) {
             return false;

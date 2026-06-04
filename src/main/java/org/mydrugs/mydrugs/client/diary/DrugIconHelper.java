@@ -22,7 +22,7 @@ public final class DrugIconHelper {
             case TOBACCO -> safeStack(ModItems.TOBACCO_LEAF);
             case COFFEE -> new ItemStack(Items.COCOA_BEANS);
             case ALCOHOL -> new ItemStack(Items.POTION);
-            case COCAINE -> safeStack(ModItems.METH_POWDER); // closest cocaine-ish placeholder
+            case COCAINE -> safeStack(ModItems.COCAINE_POWDER);
             case CRACK -> safeStack(ModItems.METH_POWDER);
             case METH -> safeStack(ModItems.METH_SHARD);
             case LSD -> safeStack(ModItems.LSD_DROP);

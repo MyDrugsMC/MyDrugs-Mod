@@ -41,6 +41,15 @@ public final class IntegrationConstants {
      */
     public static final long MIN_CLEAN_STREAK_SPACING_TICKS = 12_000L;
 
+    /**
+     * Reflection must happen close enough to a psychedelic use to count as integrating that
+     * experience, not as unrelated journaling days later.
+     */
+    public static final long PSYCHEDELIC_REFLECTION_WINDOW_TICKS = 24_000L;
+
+    /** A recent bad trip blocks psychedelic integration until the player has had time to settle. */
+    public static final long PSYCHEDELIC_BAD_TRIP_BLOCK_TICKS = 24_000L;
+
     private IntegrationConstants() {
     }
 }

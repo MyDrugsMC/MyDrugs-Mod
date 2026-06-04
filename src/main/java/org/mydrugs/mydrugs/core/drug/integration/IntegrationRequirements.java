@@ -22,11 +22,13 @@ public final class IntegrationRequirements {
         put(new IntegrationRequirementProfile(DrugId.COCAINE, IntegrationRequirementType.ADDICTION_RECOVERY,
                 60.0F, 8.0F, 20.0F, 1.0F, 0, true));
         put(new IntegrationRequirementProfile(DrugId.LSD, IntegrationRequirementType.CLEAN_PSYCHEDELIC_STREAK,
-                0.0F, 0.0F, 0.0F, 0.0F, 5, false));
+                0.0F, 0.0F, 0.0F, 0.0F, 5, false,
+                1, 1, IntegrationConstants.PSYCHEDELIC_BAD_TRIP_BLOCK_TICKS));
         put(new IntegrationRequirementProfile(DrugId.METH, IntegrationRequirementType.ADDICTION_RECOVERY,
                 60.0F, 8.0F, 18.0F, 1.0F, 0, true));
         put(new IntegrationRequirementProfile(DrugId.MUSHROOMS, IntegrationRequirementType.CLEAN_PSYCHEDELIC_STREAK,
-                0.0F, 0.0F, 0.0F, 0.0F, 5, false));
+                0.0F, 0.0F, 0.0F, 0.0F, 5, false,
+                1, 1, IntegrationConstants.PSYCHEDELIC_BAD_TRIP_BLOCK_TICKS));
     }
 
     private IntegrationRequirements() {

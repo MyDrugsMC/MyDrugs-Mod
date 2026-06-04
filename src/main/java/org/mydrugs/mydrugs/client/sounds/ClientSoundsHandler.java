@@ -8,16 +8,22 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
+import org.mydrugs.mydrugs.core.drug.effect.EffectCategory;
 import org.mydrugs.mydrugs.sounds.ModSounds;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ClientSoundsHandler {
     private static final Map<SoundEvent, SoundInstance> ACTIVE = new HashMap<>();
     private static final Map<SoundEvent, PendingSound> TO_START = new HashMap<>();
+    private static final Set<SoundEvent> SYNC_OWNED = new HashSet<>();
 
     private ClientSoundsHandler() {
     }
@@ -64,6 +70,43 @@ public final class ClientSoundsHandler {
 
     public static void clear() {
         stopAll(Minecraft.getInstance());
+    }
+
+    public static void reconcileEffects(Collection<DrugEffectSyncPayload.Entry> entries) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!Config.CLIENT.enableDrugSounds.get()) {
+            stopAll(mc);
+            return;
+        }
+
+        Set<SoundEvent> synced = new HashSet<>();
+        for (DrugEffectSyncPayload.Entry entry : entries) {
+            if (entry.type() == null) {
+                continue;
+            }
+            EffectCategory category = entry.type().getCategory();
+            if (category != EffectCategory.SOUND && category != EffectCategory.SOUND_EFFECT) {
+                continue;
+            }
+            SoundEvent sound = ModSounds.fromEffectType(entry.type());
+            if (sound == null || entry.remainingTicks() <= 0 || entry.effectiveIntensity() <= 0.0F) {
+                continue;
+            }
+            synced.add(sound);
+            SYNC_OWNED.add(sound);
+            setToStart(sound, entry.remainingTicks(), entry.fadeTicksRemaining(), entry.fadeDurationTicks());
+        }
+
+        for (SoundEvent sound : new HashSet<>(SYNC_OWNED)) {
+            if (!synced.contains(sound)) {
+                SoundInstance instance = ACTIVE.remove(sound);
+                if (instance != null) {
+                    mc.getSoundManager().stop(instance);
+                }
+                TO_START.remove(sound);
+                SYNC_OWNED.remove(sound);
+            }
+        }
     }
 
     private static void startPending(Minecraft mc) {
@@ -117,6 +160,7 @@ public final class ClientSoundsHandler {
 
         ACTIVE.clear();
         TO_START.clear();
+        SYNC_OWNED.clear();
     }
 
     private static float volumeFor(SoundEvent soundEvent) {
