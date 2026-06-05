@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:machines/centrifuge",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:centrifuge" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.centrifuge.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:centrifuge" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.centrifuge.title" }
+  }
+}

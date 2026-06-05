@@ -85,6 +85,7 @@ final class SteamCrackerRecipeCategory extends AbstractNiceRecipeCategory<SteamC
                 0,
                 jeiString("screen.mydrugs.jei.time_ticks", recipe.baseTicks())
         );
+        drawPolishFooter(graphics, recipe);
     }
 
     private static MachineGuiRenderer.TankFill mixedTank(Optional<SteamCrackerFluidStack> fluid, Optional<SteamCrackerGasStack> gas) {
@@ -102,7 +103,7 @@ final class SteamCrackerRecipeCategory extends AbstractNiceRecipeCategory<SteamC
     @Override
     public List<Component> getTooltipStrings(SteamCrackerRecipe recipe, IRecipeSlotsView slots, double mouseX, double mouseY) {
         if (isHoveringBox(SteamCrackerLayout.PROGRESS_X, SteamCrackerLayout.PROGRESS_Y, SteamCrackerLayout.PROGRESS_W, SteamCrackerLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Cracking time", recipe.baseTicks(), recipe.baseTicks(), "ticks");
+            return appendPolishTooltip(recipe, amountTooltip("Cracking time", recipe.baseTicks(), recipe.baseTicks(), "ticks"));
         }
         return List.of();
     }

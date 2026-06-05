@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
@@ -30,9 +31,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.blocks.BiochemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.machine.MachineCompletionHelper;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.MachineSync;
@@ -131,7 +134,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
 
         Optional<RecipeHolder<BiochemicalReactorRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
         if (recipeHolder.isEmpty()) {
-            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
+            changed |= be.setMachineStatus(be.hasAnyRecipeInput() ? MachineStatus.NO_MATCHING_RECIPE : MachineStatus.IDLE);
             if (be.progressUnits != 0) {
                 be.progressUnits = 0;
                 changed = true;
@@ -169,7 +172,7 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         }
 
         if (be.progressUnits >= be.maxProgressUnits) {
-            be.finishRecipe(recipe);
+            be.finishRecipe(recipeHolder.get());
             be.progressUnits = 0;
             changed = true;
         }
@@ -296,14 +299,29 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         return MachineStatus.OUTPUT_TANK_FULL;
     }
 
-    private void finishRecipe(BiochemicalReactorRecipe recipe) {
+    private boolean hasAnyRecipeInput() {
+        return !this.getItem(SLOT_ERGOT).isEmpty() || !this.getItem(SLOT_TRYPTOPHAN).isEmpty();
+    }
+
+    private void finishRecipe(RecipeHolder<BiochemicalReactorRecipe> holder) {
+        BiochemicalReactorRecipe recipe = holder.value();
         this.removeItem(SLOT_ERGOT, recipe.ergot().count());
         this.removeItem(SLOT_TRYPTOPHAN, recipe.tryptophan().count());
 
+        Optional<ResourceLocation> resultFluid = Optional.empty();
         Fluid fluid = BuiltInRegistries.FLUID.getValue(recipe.fluidOutput().fluidId());
         if (fluid != null && fluid != Fluids.EMPTY) {
             this.outputTank.insert(new FluidStack(fluid, recipe.fluidOutput().amount()), false);
+            resultFluid = MachineCompletionHelper.fluidId(fluid);
         }
+        AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                resultFluid,
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     public void addManualEnergy(int amount) {

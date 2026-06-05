@@ -132,7 +132,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity implement
                 changed = true;
 
                 if (be.growthProgress >= be.growthMaxProgress) {
-                    be.craftStage1(recipe);
+                    be.craftStage1(stage1Holder.get());
                     be.growthProgress = 0;
                     changed = true;
                 }
@@ -170,7 +170,7 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity implement
                 changed = true;
 
                 if (be.matureProgress >= be.matureMaxProgress) {
-                    be.craftStage2(recipe);
+                    be.craftStage2(stage2Holder.get());
                     be.matureProgress = 0;
                     changed = true;
                 }
@@ -287,19 +287,35 @@ public class GrowthChamberBlockEntity extends BaseContainerBlockEntity implement
         return current.getCount() + result.getCount() <= current.getMaxStackSize();
     }
 
-    private void craftStage1(GrowthChamberRecipe recipe) {
+    private void craftStage1(RecipeHolder<GrowthChamberRecipe> holder) {
+        GrowthChamberRecipe recipe = holder.value();
         removeItems(INPUT_SLOT, recipe.input().count());
         removeItems(BIOMASS_SLOT, recipe.biomassInput().count());
 
         this.waterTank.extract(recipe.water(), false);
         addResult(MIDDLE_SLOT, recipe.middleResult());
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(recipe.middleResult().toStack()),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
-    private void craftStage2(GrowthChamberRecipe recipe) {
+    private void craftStage2(RecipeHolder<GrowthChamberRecipe> holder) {
+        GrowthChamberRecipe recipe = holder.value();
         removeItems(MIDDLE_SLOT, recipe.middleResult().count());
         addResult(FINAL_SLOT, recipe.finalResult());
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(recipe.finalResult().toStack()),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private void removeItems(int slot, int count) {

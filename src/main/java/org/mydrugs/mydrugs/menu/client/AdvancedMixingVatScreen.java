@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.AdvancedMixingVatBlockEntity;
+import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.menu.AdvancedMixingVatMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.AdvancedMixingVatLayout;
@@ -39,6 +40,16 @@ public class AdvancedMixingVatScreen extends AbstractMachineScreen<AdvancedMixin
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawAdvancedMixingVatLabels(this, graphics, this.font, this.title, null);
+    }
+
+    @Override
+    protected List<Component> machineStatusDetailLines(MachineStatus status) {
+        return switch (status) {
+            case IDLE -> List.of(Component.translatable("machine_status_detail.mydrugs.advanced_mixing_vat.idle"));
+            case NO_MATCHING_RECIPE -> List.of(Component.translatable("machine_status_detail.mydrugs.advanced_mixing_vat.no_matching_recipe"));
+            case OUTPUT_TANK_FULL -> List.of(Component.translatable("machine_status_detail.mydrugs.advanced_mixing_vat.output_tank_full"));
+            default -> super.machineStatusDetailLines(status);
+        };
     }
 
     @Override

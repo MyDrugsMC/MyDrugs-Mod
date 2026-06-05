@@ -662,7 +662,8 @@ public class MixingVatBlockEntity extends BlockEntity {
         return false;
     }
 
-    private void craft(MixingVatRecipe recipe) {
+    private void craft(RecipeHolder<MixingVatRecipe> holder) {
+        MixingVatRecipe recipe = holder.value();
         for (var ingredient : recipe.requiredItems()) {
             consumeOneMatchingItem(ingredient);
         }
@@ -681,7 +682,14 @@ public class MixingVatBlockEntity extends BlockEntity {
             resultFluidId = null;
             resultFluidAmount = 0;
         }
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(recipe.resultItem()),
+                recipe.resultFluid().map(MixingVatFluidStack::fluid),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     public boolean stirOnce() {
@@ -712,7 +720,7 @@ public class MixingVatBlockEntity extends BlockEntity {
         stirAnimationTicks = STIR_ANIMATION_TICKS;
 
         if (currentStirs >= requiredStirs) {
-            craft(recipe);
+            craft(recipeHolder.get());
             currentStirs = 0;
             requiredStirs = 0;
         }

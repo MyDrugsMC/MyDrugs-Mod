@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:machines/btx_fractionation_tower",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:btx_fractionation_tower" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.btx_fractionation_tower.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:btx_fractionation_tower" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.btx_fractionation_tower.title" }
+  }
+}

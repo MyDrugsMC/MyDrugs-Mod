@@ -206,7 +206,7 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                be.craft(recipeHolder.get());
                 be.progress = 0;
                 if (be.refreshOutputModes(recipe)) {
                     changed = true;
@@ -451,7 +451,8 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
         }
     }
 
-    private void craft(ElectrolyzerRecipe recipe) {
+    private void craft(RecipeHolder<ElectrolyzerRecipe> holder) {
+        ElectrolyzerRecipe recipe = holder.value();
         this.inputTank.extract(recipe.inputFluid().amount(), false);
 
         recipe.outputFluid1().ifPresent(output -> insertFluidOutput(output, this.output1Tank));
@@ -462,7 +463,14 @@ public class ElectrolyzerBlockEntity extends BaseContainerBlockEntity implements
 
         recipe.outputFluid3().ifPresent(output -> insertFluidOutput(output, this.output3Tank));
         recipe.outputGas3().ifPresent(output -> insertGasOutput(output, this.output3GasTank));
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                recipe.outputFluid1().map(ElectrolyzerFluidStack::fluid),
+                recipe.outputGas1().map(output -> output.gas().toString()),
+                Optional.empty()
+        );
     }
 
     private boolean tryConsumeFuel() {

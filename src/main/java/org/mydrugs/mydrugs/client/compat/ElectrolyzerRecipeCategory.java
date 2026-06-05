@@ -85,6 +85,7 @@ final class ElectrolyzerRecipeCategory extends AbstractNiceRecipeCategory<Electr
                 false
         );
         MachineGuiRenderer.drawElectrolyzerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle());
+        drawPolishFooter(g, recipe);
     }
 
     private MachineGuiRenderer.TankFill electrolyzerOutput(Object fluidOutput, Object gasOutput) {
@@ -110,13 +111,13 @@ final class ElectrolyzerRecipeCategory extends AbstractNiceRecipeCategory<Electr
         } else if (isHoveringBox(ElectrolyzerLayout.INPUT_TANK_X, ElectrolyzerLayout.INPUT_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H, mouseX, mouseY)) {
             return fluidTankTooltip("Input tank", recipe.inputFluid().fluid(), recipe.inputFluid().amount(), ElectrolyzerBlockEntity.FLUID_CAPACITY);
         } else if (isHoveringBox(ElectrolyzerLayout.OUTPUT_1_TANK_X, ElectrolyzerLayout.OUTPUT_1_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H, mouseX, mouseY)) {
-            return electrolyzerOutputTooltip(1, recipe.outputFluid1().orElse(null), recipe.outputGas1().orElse(null));
+            return appendPolishTooltip(recipe, electrolyzerOutputTooltip(1, recipe.outputFluid1().orElse(null), recipe.outputGas1().orElse(null)));
         } else if (isHoveringBox(ElectrolyzerLayout.OUTPUT_2_TANK_X, ElectrolyzerLayout.OUTPUT_2_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H, mouseX, mouseY)) {
-            return electrolyzerOutputTooltip(2, recipe.outputFluid2().orElse(null), recipe.outputGas2().orElse(null));
+            return appendPolishTooltip(recipe, electrolyzerOutputTooltip(2, recipe.outputFluid2().orElse(null), recipe.outputGas2().orElse(null)));
         } else if (isHoveringBox(ElectrolyzerLayout.OUTPUT_3_TANK_X, ElectrolyzerLayout.OUTPUT_3_TANK_Y, ElectrolyzerLayout.TANK_W, ElectrolyzerLayout.TANK_H, mouseX, mouseY)) {
-            return electrolyzerOutputTooltip(3, recipe.outputFluid3().orElse(null), recipe.outputGas3().orElse(null));
+            return appendPolishTooltip(recipe, electrolyzerOutputTooltip(3, recipe.outputFluid3().orElse(null), recipe.outputGas3().orElse(null)));
         } else if (isHoveringBox(ElectrolyzerLayout.PROGRESS_X, ElectrolyzerLayout.PROGRESS_Y, ElectrolyzerLayout.PROGRESS_W, ElectrolyzerLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Electrolyzer progress", 0, recipe.baseTicks());
+            return appendPolishTooltip(recipe, amountTooltip("Electrolyzer progress", 0, recipe.baseTicks()));
         } else if (isHoveringBox(ElectrolyzerLayout.FUEL_BAR_X, ElectrolyzerLayout.FUEL_BAR_Y, ElectrolyzerLayout.FUEL_BAR_W, ElectrolyzerLayout.FUEL_BAR_H, mouseX, mouseY)) {
             return amountTooltip("Fuel burn time", 0, recipe.baseTicks(), "ticks");
         }

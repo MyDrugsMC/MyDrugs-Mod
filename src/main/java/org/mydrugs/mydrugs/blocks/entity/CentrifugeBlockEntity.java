@@ -179,7 +179,7 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                be.craft(recipeHolder.get());
                 be.progress = 0;
                 changed = true;
             }
@@ -261,7 +261,8 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
         }).orElse(true);
     }
 
-    private void craft(CentrifugeRecipe recipe) {
+    private void craft(RecipeHolder<CentrifugeRecipe> holder) {
+        CentrifugeRecipe recipe = holder.value();
         this.inputTank.extract(recipe.input().amount(), false);
 
         FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
@@ -275,7 +276,14 @@ public class CentrifugeBlockEntity extends BaseContainerBlockEntity implements C
                 this.outputBTank.insert(outputB, false);
             }
         });
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                Optional.of(recipe.output1().fluid()),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private boolean tryConsumeFuel() {

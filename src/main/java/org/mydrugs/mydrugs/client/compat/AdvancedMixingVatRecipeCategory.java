@@ -128,6 +128,7 @@ final class AdvancedMixingVatRecipeCategory extends AbstractNiceRecipeCategory<A
                 false
         );
         MachineGuiRenderer.drawAdvancedMixingVatLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), jeiString("screen.mydrugs.jei.no_heat_time", recipe.processingTime()));
+        drawPolishFooter(g, recipe);
     }
 
     private MachineGuiRenderer.TankFill advancedVatTank(List<?> fluidInputs, int index) {
@@ -156,14 +157,17 @@ final class AdvancedMixingVatRecipeCategory extends AbstractNiceRecipeCategory<A
             long amount = recipe.gasInput() == null ? 0L : recipe.gasInput().amount();
             return amountTooltip("Gas Input", amount, AdvancedMixingVatBlockEntity.GAS_TANK_CAPACITY, "units");
         } else if (isHoveringBox(AdvancedMixingVatLayout.OUTPUT_X, AdvancedMixingVatLayout.TANK_Y, AdvancedMixingVatLayout.TANK_W, AdvancedMixingVatLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip(
+            return appendPolishTooltip(recipe, fluidTankTooltip(
                     "Fluid Output",
                     JeiCompatUtil.idOf(recipe.output(), "fluid", "fluidId"),
                     JeiCompatUtil.intOf(recipe.output(), "amount"),
                     AdvancedMixingVatBlockEntity.OUTPUT_TANK_CAPACITY
-            );
+            ));
         } else if (isHoveringBox(AdvancedMixingVatLayout.PROGRESS_X, AdvancedMixingVatLayout.PROGRESS_Y, AdvancedMixingVatLayout.PROGRESS_W, AdvancedMixingVatLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Mixing Progress", 0, recipe.processingTime());
+            return appendPolishTooltip(recipe, tooltip(
+                    ui("Mixing Progress"),
+                    Component.translatable("screen.mydrugs.jei.time_ticks", recipe.processingTime())
+            ));
         }
 
         return List.of();

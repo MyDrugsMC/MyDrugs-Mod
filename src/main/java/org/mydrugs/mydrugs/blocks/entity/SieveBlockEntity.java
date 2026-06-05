@@ -142,7 +142,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         }
 
         if (be.progress >= be.maxProgress) {
-            be.craft(recipe);
+            be.craft(match.get());
             be.shakeProgressBuffer = 0.0F;
             be.idleTicks = 0;
         }
@@ -257,7 +257,8 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         }
     }
 
-    private void craft(SieveRecipe recipe) {
+    private void craft(RecipeHolder<SieveRecipe> holder) {
+        SieveRecipe recipe = holder.value();
         this.removeItem(SLOT_INPUT, 1);
         this.insertToSlot(SLOT_RESULT, recipe.result().copy());
 
@@ -266,7 +267,14 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         }
 
         this.progress = 0;
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(recipe.result()),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
         this.markDirtyAndSync();
     }
 

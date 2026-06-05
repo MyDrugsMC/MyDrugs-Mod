@@ -191,7 +191,7 @@ public class AromaticExtractorBlockEntity extends BaseContainerBlockEntity imple
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                be.craft(recipeHolder.get());
                 be.progress = 0;
                 changed = true;
             }
@@ -294,7 +294,8 @@ public class AromaticExtractorBlockEntity extends BaseContainerBlockEntity imple
         return !outputB.isEmpty() && this.outputBTank.getAddableAmount(outputB) >= outputB.getAmount();
     }
 
-    private void craft(AromaticExtractorRecipe recipe) {
+    private void craft(RecipeHolder<AromaticExtractorRecipe> holder) {
+        AromaticExtractorRecipe recipe = holder.value();
         this.inputTank.extract(recipe.input().amount(), false);
 
         FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
@@ -306,7 +307,14 @@ public class AromaticExtractorBlockEntity extends BaseContainerBlockEntity imple
         if (!outputB.isEmpty()) {
             this.outputBTank.insert(outputB, false);
         }
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                Optional.of(recipe.output1().fluid()),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private boolean tryConsumeFuel() {

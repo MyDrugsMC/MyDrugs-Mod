@@ -89,6 +89,7 @@ final class FluidFiltererRecipeCategory extends AbstractNiceRecipeCategory<Fluid
                 false
         );
         MachineGuiRenderer.drawFluidFiltererLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), jeiString("screen.mydrugs.jei.filterer_footer", recipe.clicksRequired(), recipe.hungerPerTick()));
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -105,18 +106,18 @@ final class FluidFiltererRecipeCategory extends AbstractNiceRecipeCategory<Fluid
                     FluidFiltererMenu.TANK_CAPACITY
             );
         } else if (isHoveringBox(FluidFiltererLayout.OUTPUT_A_TANK_X, FluidFiltererLayout.OUTPUT_A_TANK_Y, FluidFiltererLayout.TANK_W, FluidFiltererLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip(
+            return appendPolishTooltip(recipe, fluidTankTooltip(
                     "Output tank",
                     JeiCompatUtil.idOf(recipe.output1(), "fluid", "fluidId"),
                     JeiCompatUtil.intOf(recipe.output1(), "amount"),
                     FluidFiltererMenu.TANK_CAPACITY
-            );
+            ));
         } else if (isHoveringBox(FluidFiltererLayout.INPUT_SLOT_X, FluidFiltererLayout.INPUT_SLOT_Y, 18, 18, mouseX, mouseY)) {
             return tooltip("Input fluid container");
         } else if (isHoveringBox(FluidFiltererLayout.OUTPUT_A_SLOT_X, FluidFiltererLayout.OUTPUT_A_SLOT_Y, 18, 18, mouseX, mouseY)) {
             return tooltip("Output container");
         } else if (isHoveringBox(FluidFiltererLayout.PROGRESS_X, FluidFiltererLayout.PROGRESS_Y, FluidFiltererLayout.PROGRESS_W, FluidFiltererLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Filtering progress", 0, recipe.clicksRequired());
+            return appendPolishTooltip(recipe, amountTooltip("Filtering progress", 0, recipe.clicksRequired()));
         } else if (isHoveringBox(FluidFiltererLayout.RUN_BUTTON_X, FluidFiltererLayout.RUN_BUTTON_Y, FluidFiltererLayout.RUN_BUTTON_W, FluidFiltererLayout.RUN_BUTTON_H, mouseX, mouseY)) {
             return tooltip("Hold to filter");
         } else if (isHoveringBox(FluidFiltererLayout.FILTER_SLOT_X, FluidFiltererLayout.FILTER_SLOT_Y, 18, 18, mouseX, mouseY)) {

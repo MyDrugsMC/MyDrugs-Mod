@@ -1,0 +1,54 @@
+{
+  "recipes": [
+    {
+      "recipe": "mydrugs:chemical_reactor/methanol",
+      "role": "SUPPORT_REAGENT",
+      "lane": "CHEMICAL_GAS_FLUID",
+      "chapter": "Lab Chemistry",
+      "guide_page": "Acids and Reagents",
+      "used_next": ["Advanced Mixing Vat", "late stimulant route"],
+      "hint": "recipe_hint.mydrugs.methanol",
+      "complexity": 2
+    },
+    {
+      "recipe": "mydrugs:chemical_reactor/sulfur_trioxide",
+      "role": "SUPPORT_REAGENT",
+      "lane": "CHEMICAL_GAS_FLUID",
+      "chapter": "Lab Chemistry",
+      "guide_page": "Acids and Reagents",
+      "used_next": ["Sulfuric acid"],
+      "hint": "recipe_hint.mydrugs.sulfur_trioxide",
+      "complexity": 2
+    },
+    {
+      "recipe": "mydrugs:distiller/naphtha",
+      "role": "MAIN_PATH",
+      "lane": "INDUSTRIAL_PETROLEUM",
+      "chapter": "Petroleum",
+      "guide_page": "Petroleum",
+      "used_next": ["Steam Cracker", "Catalytic Reformer"],
+      "hint": "recipe_hint.mydrugs.naphtha",
+      "complexity": 2
+    },
+    {
+      "recipe": "mydrugs:steam_cracker/btx_mix",
+      "role": "SUPPORT_REAGENT",
+      "lane": "INDUSTRIAL_PETROLEUM",
+      "chapter": "Petroleum",
+      "guide_page": "Petroleum",
+      "used_next": ["BTX Fractionation Tower"],
+      "hint": "recipe_hint.mydrugs.btx_mix",
+      "complexity": 3
+    },
+    {
+      "recipe": "mydrugs:advanced_mixing_vat/late_stimulant_intermediate",
+      "role": "MAIN_PATH",
+      "lane": "CHEMICAL_GAS_FLUID",
+      "chapter": "Lab Chemistry",
+      "guide_page": "Lab Chemistry",
+      "used_next": ["Late stimulant route"],
+      "hint": "recipe_hint.mydrugs.late_stimulant_intermediate",
+      "complexity": 4
+    }
+  ]
+}

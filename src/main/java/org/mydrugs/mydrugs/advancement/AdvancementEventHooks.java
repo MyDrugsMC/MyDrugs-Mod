@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.mydrugs.mydrugs.machine.MachineFeedback;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.psyche.PsycheMapMilestones;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
@@ -48,27 +49,21 @@ public final class AdvancementEventHooks {
     }
 
     public static void machineRecipeCompleted(BlockEntity blockEntity) {
-        if (!(blockEntity.getLevel() instanceof ServerLevel level)) {
-            return;
-        }
-
-        ResourceLocation machine = BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock());
-        MachineRecipeCompletedTrigger.Event event = new MachineRecipeCompletedTrigger.Event(
-                machine,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
-        );
-        ActionKind action = machineRecoveryAction(machine);
-        forNearbyPlayers(level, blockEntity.getBlockPos(), player -> {
-            ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event);
-            RecoveryProgressManager.onProductiveAction(player, action, 1.0F);
-        });
+        machineRecipeCompleted(blockEntity, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     public static void machineRecipeCompleted(BlockEntity blockEntity, Optional<ResourceLocation> recipe, Optional<ResourceLocation> resultItem) {
+        machineRecipeCompleted(blockEntity, recipe, resultItem, Optional.empty(), Optional.empty(), Optional.empty());
+    }
+
+    public static void machineRecipeCompleted(
+            BlockEntity blockEntity,
+            Optional<ResourceLocation> recipe,
+            Optional<ResourceLocation> resultItem,
+            Optional<ResourceLocation> resultFluid,
+            Optional<String> resultGas,
+            Optional<String> tier
+    ) {
         if (!(blockEntity.getLevel() instanceof ServerLevel level)) {
             return;
         }
@@ -78,15 +73,16 @@ public final class AdvancementEventHooks {
                 machine,
                 recipe,
                 resultItem,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+                resultFluid,
+                resultGas,
+                tier
         );
         ActionKind action = machineRecoveryAction(machine);
         forNearbyPlayers(level, blockEntity.getBlockPos(), player -> {
             ModCriteriaTriggers.MACHINE_RECIPE_COMPLETED.get().trigger(player, event);
             RecoveryProgressManager.onProductiveAction(player, action, 1.0F);
         });
+        MachineFeedback.recipeCompleted(level, blockEntity.getBlockPos());
     }
 
     public static void psychotropeEvent(ServerLevel level, BlockPos pos, String event, String drug, int amount, int threshold) {

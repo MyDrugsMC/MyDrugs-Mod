@@ -1,0 +1,92 @@
+{
+  "_comment": "Stable public registry IDs. Tests fail if a tracked ID disappears from the registration sources. New IDs are allowed; intentional removals require editing this file. fluid_types entries track the base fluid name (the *_type id is derived from it).",
+  "block_types": [
+    "advanced_furnace", "distiller", "sieve", "fluid_filterer", "evaporation_tray",
+    "centrifuge", "btx_fractionation_tower", "aromatic_extractor", "electrolyzer",
+    "growth_chamber", "gene_extractor", "crispr_cas9_combinator", "bacterial_incubator",
+    "hemogenic_infuser", "autoclave", "catalytic_reformer", "steam_cracker"
+  ],
+  "blocks": [
+    "sieve", "advanced_furnace", "distiller", "mixing_vat", "fluid_filterer",
+    "evaporation_tray", "centrifuge", "growth_chamber", "gasifier", "chemical_reactor",
+    "advanced_mixing_vat", "catalytic_reformer", "steam_cracker", "psychotrope_distillery",
+    "psy_anvil", "drying_rack", "coffee_drying_mat", "clay_vat", "manual_coffee_pulper",
+    "reduction_still", "grinding_bowl", "stomp_crafter", "gas_tank", "gas_pump", "fluid_pump",
+    "sulfur_ore", "deepslate_sulfur_ore", "platinum_ore", "deepslate_platinum_ore",
+    "aluminium_ore", "deepslate_aluminium_ore", "phosphate_ore", "deepslate_phosphate_ore",
+    "platinum_block", "raw_platinum_block", "aluminium_block", "raw_aluminium_block", "salt_block"
+  ],
+  "items": [
+    "tobacco_leaf", "progression_guide", "drug_analyzer", "glass_bottle", "gas_tank",
+    "platinum_ingot", "aluminium_ingot", "raw_platinum", "raw_aluminium", "raw_phosphorus",
+    "sulfur_powder", "salt_powder", "personal_diary", "headphones", "personal_music_disc",
+    "blank_music_disc", "syringe", "dna_scrap", "dna_gene", "mutation_vector", "pipe_wrench",
+    "pipe_filter_upgrade", "machine_transfer_upgrade", "energy_upgrade", "automation_upgrade",
+    "fluid_filter", "integration_core", "coffee_cup", "caffeine_bar", "cigarette", "joint", "roller"
+  ],
+  "block_entities": [
+    "grinding_bowl", "stomp_crafter", "advanced_furnace", "distiller", "psychotrope_distillery",
+    "distillate_engine", "psychotrope_resonator", "mixing_vat", "sieve", "fluid_filterer",
+    "evaporation_tray", "centrifuge", "btx_fractionation_tower", "aromatic_extractor", "electrolyzer",
+    "growth_chamber", "gene_extractor", "crispr_cas9_combinator", "bacterial_incubator",
+    "hemogenic_infuser", "autoclave", "biochemical_reactor", "gas_tank", "gas_pump", "fluid_pump",
+    "gasifier", "chemical_reactor", "advanced_mixing_vat", "manual_coffee_pulper", "reduction_still",
+    "coffee_drying_mat", "drying_rack", "clay_vat", "psy_anvil", "catalytic_reformer", "steam_cracker",
+    "formed_psy_mixer_core", "formed_psy_mixer_part", "pipes", "recovery_jukebox"
+  ],
+  "menus": [
+    "bang_container", "advanced_furnace", "distiller", "psychotrope_distillery", "distillate_engine",
+    "psychotrope_resonator", "sieve", "roller", "manual_coffee_pulper", "reduction_still",
+    "fluid_filterer", "centrifuge", "btx_fractionation_tower", "aromatic_extractor", "electrolyzer",
+    "growth_chamber", "gene_extractor", "crispr_cas9_combinator", "bacterial_incubator",
+    "hemogenic_infuser", "autoclave", "biochemical_reactor", "gasifier", "chemical_reactor",
+    "advanced_mixing_vat", "catalytic_reformer", "steam_cracker", "psy_mixer", "pipe_filter",
+    "machine_transfer_config"
+  ],
+  "recipe_types": [
+    "grinding", "coffee_pulping", "reduction_still", "stomp_crafting", "advanced_furnace",
+    "mixing_vat", "distiller", "psychotrope_distillery", "drying", "sieving", "fluid_filtering",
+    "evaporation_tray", "centrifuge", "electrolyzer", "growth_chamber", "biochemical_reactor",
+    "chemical_reactor", "gasifier", "advanced_mixing_vat", "catalytic_reformer", "steam_cracker",
+    "aromatic_extractor", "psy_anvil", "psy_mixer"
+  ],
+  "recipe_serializers": [
+    "grinding", "coffee_pulping", "reduction_still", "stomp_crafting", "advanced_furnace",
+    "mixing_vat", "distiller", "psychotrope_distillery", "drying", "sieving", "fluid_filtering",
+    "evaporation_tray", "centrifuge", "electrolyzer", "growth_chamber", "biochemical_reactor",
+    "chemical_reactor", "gasifier", "advanced_mixing_vat", "catalytic_reformer", "steam_cracker",
+    "aromatic_extractor", "psy_anvil", "psy_mixer"
+  ],
+  "recipe_displays": [
+    "distiller"
+  ],
+  "data_components": [
+    "filled", "sterile", "blood_sample", "dna_scrap_data", "dna_gene_data", "mutation_payload",
+    "blood_amount", "purity", "bottle_content", "rolled_content", "gas_tank_contents",
+    "biome_finder_target", "pipe_filter_config", "mixed_drug_data", "personal_music_disc"
+  ],
+  "fluids": [
+    "starch_mash", "vodka", "ammonia", "blood", "lsd", "coffee", "herbal_tea", "ethanol",
+    "methanol", "sulfuric_acid", "hydrochloric_acid", "benzene", "toluene", "xylene", "acetone",
+    "phenol", "methamphetamine", "crude_meth_slurry"
+  ],
+  "fluid_types": [
+    "starch_mash", "vodka", "ammonia", "blood", "lsd", "coffee", "ethanol", "methamphetamine"
+  ],
+  "entity_types": [
+    "inner_demon", "shroom_defender", "stoned_cow", "stoned_mooshroom"
+  ],
+  "sound_events": [
+    "heartbeat", "single_heartbeat", "smoke", "intrusive_whisper", "hallucination_cue", "write"
+  ],
+  "creative_tabs": [
+    "main", "machines", "materials", "plants", "fluids_and_gases", "recovery_and_psyche",
+    "food_and_consumables"
+  ],
+  "poi_types": [
+    "therapist"
+  ],
+  "villager_professions": [
+    "therapist"
+  ]
+}

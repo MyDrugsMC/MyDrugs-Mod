@@ -17,6 +17,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.mydrugs.mydrugs.menu.AbstractMachineMenu;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusHints;
 import org.mydrugs.mydrugs.menu.client.util.AbstractMachineDrawMethods;
 import org.mydrugs.mydrugs.menu.client.util.MachineStatusRenderer;
 import org.mydrugs.mydrugs.menu.layout.StandardInventoryLayout;
@@ -265,8 +267,21 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
 
     private void renderSharedMachineStatus(GuiGraphics graphics) {
         if (this.menu instanceof AbstractMachineMenu machineMenu) {
-            MachineStatusRenderer.render(graphics, this.font, this.leftPos + 8, this.topPos - 18, Math.max(40, this.imageWidth - 16), machineMenu.syncedMachineStatus());
+            MachineStatus status = machineMenu.syncedMachineStatus();
+            MachineStatusRenderer.render(
+                    graphics,
+                    this.font,
+                    this.leftPos + 8,
+                    this.topPos - 18,
+                    Math.max(40, this.imageWidth - 16),
+                    status,
+                    machineStatusDetailLines(status)
+            );
         }
+    }
+
+    protected List<Component> machineStatusDetailLines(MachineStatus status) {
+        return MachineStatusHints.generic(status);
     }
 
     protected void pressMenuButton(int buttonId) {

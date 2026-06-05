@@ -103,6 +103,7 @@ final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<C
                 false
         );
         MachineGuiRenderer.drawCatalyticReformerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), jeiString("screen.mydrugs.jei.time_ticks", recipe.baseTicks()));
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -122,15 +123,15 @@ final class CatalyticReformerRecipeCategory extends AbstractNiceRecipeCategory<C
         } else if (isHoveringBox(CatalyticReformerLayout.INPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H, mouseX, mouseY)) {
             return catalyticTankTooltip("Input", 2, recipe.inputFluid2().orElse(null), recipe.inputGas2().orElse(null));
         } else if (isHoveringBox(CatalyticReformerLayout.OUTPUT_1_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H, mouseX, mouseY)) {
-            return catalyticTankTooltip("Output", 1, recipe.outputFluid1().orElse(null), recipe.outputGas1().orElse(null));
+            return appendPolishTooltip(recipe, catalyticTankTooltip("Output", 1, recipe.outputFluid1().orElse(null), recipe.outputGas1().orElse(null)));
         } else if (isHoveringBox(CatalyticReformerLayout.OUTPUT_2_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H, mouseX, mouseY)) {
-            return catalyticTankTooltip("Output", 2, recipe.outputFluid2().orElse(null), recipe.outputGas2().orElse(null));
+            return appendPolishTooltip(recipe, catalyticTankTooltip("Output", 2, recipe.outputFluid2().orElse(null), recipe.outputGas2().orElse(null)));
         } else if (isHoveringBox(CatalyticReformerLayout.OUTPUT_3_TANK_X, CatalyticReformerLayout.TANK_Y, CatalyticReformerLayout.TANK_W, CatalyticReformerLayout.TANK_H, mouseX, mouseY)) {
-            return catalyticTankTooltip("Output", 3, recipe.outputFluid3().orElse(null), recipe.outputGas3().orElse(null));
+            return appendPolishTooltip(recipe, catalyticTankTooltip("Output", 3, recipe.outputFluid3().orElse(null), recipe.outputGas3().orElse(null)));
         } else if (isHoveringBox(CatalyticReformerLayout.CATALYST_SLOT_X, CatalyticReformerLayout.CATALYST_SLOT_Y, 18, 18, mouseX, mouseY)) {
             return tooltip("Catalyst slot");
         } else if (isHoveringBox(CatalyticReformerLayout.PROGRESS_X, CatalyticReformerLayout.PROGRESS_Y, CatalyticReformerLayout.PROGRESS_W, CatalyticReformerLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Catalytic reforming progress", 0, recipe.baseTicks());
+            return appendPolishTooltip(recipe, amountTooltip("Catalytic reforming progress", 0, recipe.baseTicks()));
         }
         return List.of();
     }

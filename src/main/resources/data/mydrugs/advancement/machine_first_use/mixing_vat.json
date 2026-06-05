@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:machines/mixing_vat",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:mixing_vat" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.mixing_vat.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:mixing_vat" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.mixing_vat.title" }
+  }
+}

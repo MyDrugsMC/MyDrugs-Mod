@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +31,9 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.AdvancedMixingVatBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.gas.*;
+import org.mydrugs.mydrugs.machine.MachineCompletionHelper;
 import org.mydrugs.mydrugs.machine.MachineStorage;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
@@ -205,7 +208,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         Optional<ResolvedRecipe> match = be.findMatchingRecipe();
 
         if (match.isEmpty()) {
-            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
+            changed |= be.setMachineStatus(be.hasAnyRecipeInput() ? MachineStatus.NO_MATCHING_RECIPE : MachineStatus.IDLE);
             if (be.progress != 0 || be.hasRecipe) {
                 be.progress = 0;
                 be.hasRecipe = false;
@@ -265,6 +268,14 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         } else {
             finishMixingVatRecipe(recipe.mixingRecipe(), recipe.mixingFluidAssignment(), recipe.result());
         }
+        AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                recipe.id(),
+                Optional.empty(),
+                MachineCompletionHelper.fluidId(recipe.result()),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private void finishAdvancedRecipe(AdvancedMixingVatRecipe recipe, FluidStack result) {
@@ -586,7 +597,8 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
     private Optional<ResolvedRecipe> findMatchingRecipe() {
         Optional<RecipeHolder<AdvancedMixingVatRecipe>> advanced = findMatchingAdvancedRecipe();
         if (advanced.isPresent()) {
-            return Optional.of(ResolvedRecipe.advanced(advanced.get().value()));
+            RecipeHolder<AdvancedMixingVatRecipe> holder = advanced.get();
+            return Optional.of(ResolvedRecipe.advanced(holder.id().location(), holder.value()));
         }
 
         return findMatchingMixingVatRecipe();
@@ -624,10 +636,22 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                 continue;
             }
 
-            return Optional.of(ResolvedRecipe.mixing(recipe, fluidAssignment, result));
+            return Optional.of(ResolvedRecipe.mixing(holder.id().location(), recipe, fluidAssignment, result));
         }
 
         return Optional.empty();
+    }
+
+    private boolean hasAnyRecipeInput() {
+        for (int i = 0; i < RECIPE_ITEM_SLOT_COUNT; i++) {
+            if (!this.itemStacks.get(i).isEmpty()) {
+                return true;
+            }
+        }
+        return !this.inputAStacks.get(0).isEmpty()
+                || !this.inputBStacks.get(0).isEmpty()
+                || !this.inputCStacks.get(0).isEmpty()
+                || !this.gasTank.getGasInTank(0).isEmpty();
     }
 
     private FluidStack toNeoFluidStack(MixingVatFluidStack stack) {
@@ -825,16 +849,19 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
         @Nullable
         private final int[] mixingFluidAssignment;
 
+        private final ResourceLocation id;
         private final FluidStack result;
         private final int processingTime;
 
         private ResolvedRecipe(
+                ResourceLocation id,
                 @Nullable AdvancedMixingVatRecipe advancedRecipe,
                 @Nullable MixingVatRecipe mixingRecipe,
                 @Nullable int[] mixingFluidAssignment,
                 FluidStack result,
                 int processingTime
         ) {
+            this.id = id;
             this.advancedRecipe = advancedRecipe;
             this.mixingRecipe = mixingRecipe;
             this.mixingFluidAssignment = mixingFluidAssignment;
@@ -842,8 +869,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             this.processingTime = processingTime;
         }
 
-        public static ResolvedRecipe advanced(AdvancedMixingVatRecipe recipe) {
+        public static ResolvedRecipe advanced(ResourceLocation id, AdvancedMixingVatRecipe recipe) {
             return new ResolvedRecipe(
+                    id,
                     recipe,
                     null,
                     null,
@@ -852,8 +880,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
             );
         }
 
-        public static ResolvedRecipe mixing(MixingVatRecipe recipe, int[] fluidAssignment, FluidStack result) {
+        public static ResolvedRecipe mixing(ResourceLocation id, MixingVatRecipe recipe, int[] fluidAssignment, FluidStack result) {
             return new ResolvedRecipe(
+                    id,
                     null,
                     recipe,
                     fluidAssignment,
@@ -880,6 +909,10 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         public FluidStack result() {
             return this.result;
+        }
+
+        public Optional<ResourceLocation> id() {
+            return Optional.of(this.id);
         }
 
         public int processingTime() {

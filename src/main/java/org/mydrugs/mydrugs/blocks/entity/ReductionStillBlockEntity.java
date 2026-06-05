@@ -120,7 +120,7 @@ public class ReductionStillBlockEntity extends BlockEntity implements Container,
         be.status = Status.WORKING;
         be.progress = Math.min(be.progress + 1, be.maxProgress);
         if (be.progress >= be.maxProgress) {
-            be.craft(recipe);
+            be.craft(match.get());
         }
         if (level.getGameTime() % 4L == 0L) {
             be.markDirtyAndSync();
@@ -178,7 +178,8 @@ public class ReductionStillBlockEntity extends BlockEntity implements Container,
         }
     }
 
-    private void craft(ReductionStillRecipe recipe) {
+    private void craft(RecipeHolder<ReductionStillRecipe> holder) {
+        ReductionStillRecipe recipe = holder.value();
         items.get(SLOT_CUTTINGS).shrink(recipe.cuttingsPerBatch());
         ItemStack solvent = items.get(SLOT_SOLVENT);
         if (isWaterBucket(solvent)) {
@@ -189,7 +190,14 @@ public class ReductionStillBlockEntity extends BlockEntity implements Container,
         insertOutput(SLOT_EXTRACT_OUTPUT, recipe.extractResult().copy());
         insertOutput(SLOT_PULP_OUTPUT, recipe.pulpResult().copy());
         progress = 0;
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(recipe.extractResult()),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     public ContainerData getData() {

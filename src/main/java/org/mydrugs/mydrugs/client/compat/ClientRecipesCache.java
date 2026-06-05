@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.client.compat;
 
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,7 +34,10 @@ import org.mydrugs.mydrugs.recipes.steam_cracker.SteamCrackerRecipe;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCraftingRecipe;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class ClientRecipesCache {
@@ -62,6 +66,7 @@ public final class ClientRecipesCache {
     private static final List<AromaticExtractorRecipe> AROMATIC_EXTRACTOR_RECIPES = new ArrayList<>();
     private static final List<PsyAnvilRecipe> PSY_ANVIL_RECIPES = new ArrayList<>();
     private static final List<PsyMixerRecipe> PSY_MIXER_RECIPES = new ArrayList<>();
+    private static final Map<Object, ResourceLocation> RECIPE_IDS = new IdentityHashMap<>();
 
 
     public static List<AdvancedFurnaceRecipe> getAdvancedFurnaceRecipes() {
@@ -164,6 +169,10 @@ public final class ClientRecipesCache {
         return List.copyOf(PSY_MIXER_RECIPES);
     }
 
+    public static Optional<ResourceLocation> getRecipeId(Object recipe) {
+        return Optional.ofNullable(RECIPE_IDS.get(recipe));
+    }
+
     @SubscribeEvent
     public static void onRecipesReceived(RecipesReceivedEvent event) {
         ADVANCED_FURNACE_RECIPES.clear();
@@ -191,6 +200,7 @@ public final class ClientRecipesCache {
         AROMATIC_EXTRACTOR_RECIPES.clear();
         PSY_ANVIL_RECIPES.clear();
         PSY_MIXER_RECIPES.clear();
+        RECIPE_IDS.clear();
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.ADVANCED_FURNACE.get())
@@ -201,6 +211,7 @@ public final class ClientRecipesCache {
         event.getRecipeMap()
                 .byType(ModRecipeTypes.ADVANCED_MIXING_VAT.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(ADVANCED_MIXING_VAT_RECIPES::add);
 
@@ -213,30 +224,35 @@ public final class ClientRecipesCache {
         event.getRecipeMap()
                 .byType(ModRecipeTypes.CENTRIFUGE.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(CENTRIFUGE_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.ELECTROLYZER.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(ELECTROLYZER_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.CHEMICAL_REACTOR.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(CHEMICAL_REACTOR_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.BTX_FRACTIONATION.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(BTX_FRACTIONATION_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.DISTILLER.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(DISTILLER_RECIPES::add);
 
@@ -273,12 +289,14 @@ public final class ClientRecipesCache {
         event.getRecipeMap()
                 .byType(ModRecipeTypes.FLUID_FILTERING.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(FLUID_FILTERER_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.GASIFIER.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(GASIFIER_RECIPES::add);
 
@@ -315,18 +333,21 @@ public final class ClientRecipesCache {
         event.getRecipeMap()
                 .byType(ModRecipeTypes.CATALYTIC_REFORMER.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(CATALYTIC_REFORMER_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.STEAM_CRACKER.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(STEAM_CRACKER_RECIPES::add);
 
         event.getRecipeMap()
                 .byType(ModRecipeTypes.AROMATIC_EXTRACTOR.get())
                 .stream()
+                .peek(ClientRecipesCache::remember)
                 .map(RecipeHolder::value)
                 .forEach(AROMATIC_EXTRACTOR_RECIPES::add);
 
@@ -372,5 +393,10 @@ public final class ClientRecipesCache {
         AROMATIC_EXTRACTOR_RECIPES.clear();
         PSY_ANVIL_RECIPES.clear();
         PSY_MIXER_RECIPES.clear();
+        RECIPE_IDS.clear();
+    }
+
+    private static void remember(RecipeHolder<?> holder) {
+        RECIPE_IDS.put(holder.value(), holder.id().location());
     }
 }

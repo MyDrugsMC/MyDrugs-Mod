@@ -121,7 +121,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
                     be,
                     recipe.cookTime(),
                     () -> be.canCraft(recipe),
-                    () -> be.craft(recipe)
+                    () -> be.craft(advancedRecipe.get())
             );
 
             if (changed) {
@@ -279,6 +279,7 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
 
         return Optional.of(new VanillaRecipeMatch(
                 inputSlot,
+                holder.get().id().location(),
                 result.copy(),
                 boostedVanillaCookTime(holder.get().value().cookingTime())
         ));
@@ -296,7 +297,8 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         return this.findVanillaOutputSlot(match.result()) != -1;
     }
 
-    private void craft(AdvancedFurnaceRecipe recipe) {
+    private void craft(RecipeHolder<AdvancedFurnaceRecipe> holder) {
+        AdvancedFurnaceRecipe recipe = holder.value();
         this.removeItem(INPUT_A_SLOT, 1);
 
         if (recipe.inputB().isPresent()) {
@@ -310,7 +312,14 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         if (!recipeFluid.isEmpty()) {
             this.outputTank.insert(recipeFluid, false);
         }
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(recipe.resultA()),
+                recipe.fluidOutput(),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private void craft(VanillaRecipeMatch match) {
@@ -321,7 +330,14 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
 
         this.removeItem(match.inputSlot(), 1);
         this.insertItem(outputSlot, match.result());
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(match.recipeId()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(match.result()),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private int findVanillaOutputSlot(ItemStack result) {
@@ -426,6 +442,6 @@ public class AdvancedFurnaceBlockEntity extends BaseContainerBlockEntity {
         return new StoredFluidTankResourceHandler(this, outputTank);
     }
 
-    private record VanillaRecipeMatch(int inputSlot, ItemStack result, int cookTime) {
+    private record VanillaRecipeMatch(int inputSlot, ResourceLocation recipeId, ItemStack result, int cookTime) {
     }
 }

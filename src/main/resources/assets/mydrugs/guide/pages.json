@@ -31,6 +31,7 @@
       { "type": "link", "text": "Ch.6 — Steel Plating", "target": "Hash and Steel" },
       { "type": "link", "text": "Ch.7 — Machines", "target": "Machine Era" },
       { "type": "link", "text": "Machine reference", "target": "Machine Handbook" },
+      { "type": "link", "text": "Machine lanes", "target": "Machine Lanes" },
       { "type": "link", "text": "Stockpile", "target": "Support Materials" },
       { "type": "link", "text": "Ores and wild materials", "target": "World Materials" },
       { "type": "link", "text": "Automation", "target": "Pipes and Transfer" },
@@ -327,12 +328,33 @@
       { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression." },
       { "type": "text", "text": "Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker." },
+      { "type": "link", "text": "Machine lanes overview", "target": "Machine Lanes" },
       { "type": "link", "text": "Hand Processing / Early Processing", "target": "Machine Handbook - Early Processing" },
       { "type": "link", "text": "Crude Machine Era", "target": "Machine Handbook - Crude Machine Era" },
       { "type": "link", "text": "Chemical Machine Era", "target": "Machine Handbook - Chemical Machine Era" },
       { "type": "link", "text": "Psy Current Era", "target": "Machine Handbook - Psy Current Era" },
       { "type": "link", "text": "Ritual / Integration Era", "target": "Machine Handbook - Ritual and Integration Era" },
       { "type": "tip", "text": "The handbook stays conceptual. It names roles, cargo types, blockers and automation habits without replacing JEI." }
+    ]
+  },
+  {
+    "title": "Machine Lanes",
+    "elements": [
+      { "type": "title", "text": "Machine Lanes" },
+      { "type": "text", "text": "Machine progression is easier to read as lanes. Each lane solves a different production problem, appears at a different chapter, and blocks in a different way." },
+      { "type": "heading", "text": "Early Processing" },
+      { "type": "text", "text": "Drying Rack, Grinding Bowl, Sieve, Stomp Crafter and Evaporation Tray turn raw finds into stable early materials. This lane appears before and during the first steel steps. Use JEI for exact item forms. Expect time, manual action, container and output-slot blockers." },
+      { "type": "heading", "text": "Crude Fluids" },
+      { "type": "text", "text": "Mixing Vat, Advanced Furnace, Distiller, Fluid Filterer and Centrifuge introduce tanks, filters, heat and split outputs. This lane appears when buckets and simple machines start carrying progression. Use JEI to check fluid amounts and output containers. Expect missing fluid, wrong container, full tank and filter blockers." },
+      { "type": "heading", "text": "Chemical Gas/Fluid" },
+      { "type": "text", "text": "Gasifier, Electrolyzer, Chemical Reactor, Biochemical Reactor and Advanced Mixing Vat combine gas, fluid, heat, manual work and current support. This lane appears around lab chemistry. Use JEI to match primary gas, secondary input and output mode. Expect missing gas, insufficient heat, wrong storage type and no-matching-recipe blockers." },
+      { "type": "heading", "text": "Industrial Petroleum" },
+      { "type": "text", "text": "Steam Cracker, Aromatic Extractor, BTX Fractionation Tower and Catalytic Reformer split industrial streams into later support materials. This lane appears after advanced circuits and petroleum collection. Use JEI to follow each fraction into the next machine. Expect full paired tanks, catalyst context and throughput blockers." },
+      { "type": "heading", "text": "Psy / Ritual / Integration" },
+      { "type": "text", "text": "Psy Anvil, Psy Mixer, Psychotrope Distillery and Psychotrope Resonator turn knowledge, symbolic inputs and psychotrope current into progression support. This lane appears once the route is about state, recovery and integration as much as factory work. Use JEI for accepted inputs and the diary for personal context. Expect knowledge, structure, recovery, current and context blockers." },
+      { "type": "link", "text": "Back to machine handbook", "target": "Machine Handbook" },
+      { "type": "link", "text": "Chemical details", "target": "Lab Chemistry" },
+      { "type": "link", "text": "Industrial details", "target": "Petroleum" }
     ]
   },
   {
@@ -812,6 +834,7 @@
       { "type": "text", "text": "SUPPORT — Chapter 9" },
       { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "The late game splits every recipe into three streams: items, fluids and gases. Each is a separate input." },
+      { "type": "text", "text": "This is the Chemical Gas/Fluid lane. Check machine screens for mode and blocker status, then use JEI for the exact recipe." },
       { "type": "item", "text": "mydrugs:gas_tank" },
       { "type": "item", "text": "mydrugs:gas_pump" },
       { "type": "item", "text": "mydrugs:fluid_pump" },
@@ -897,6 +920,7 @@
       { "type": "item", "text": "mydrugs:aromatic_extractor" },
       { "type": "item", "text": "mydrugs:btx_fractionation_tower" },
       { "type": "text", "text": "Build the cracker, reformer, extractor and BTX tower, then refine petroleum into the aromatic streams that later feed meth chemistry." },
+      { "type": "text", "text": "This is the Industrial Petroleum lane. Treat each output as a future input, and use JEI metadata to see what each intermediate feeds next." },
       { "type": "text", "text": "Benzene is the important checkpoint. If you have the machines but no benzene, follow the petroleum and BTX recipes in JEI until every output tank has somewhere to go." },
       { "type": "goal", "text": "Produce the aromatics that feed late meth chemistry." }
     ]

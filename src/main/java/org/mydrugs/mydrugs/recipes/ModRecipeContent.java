@@ -66,6 +66,7 @@ public final class ModRecipeContent {
             of("growth_chamber", ModRecipeTypes.GROWTH_CHAMBER, ModRecipeSerializers.GROWTH_CHAMBER),
             of("biochemical_reactor", ModRecipeTypes.BIOCHEMICAL_REACTOR, ModRecipeSerializers.BIOCHEMICAL_REACTOR),
             of("chemical_reactor", ModRecipeTypes.CHEMICAL_REACTOR, ModRecipeSerializers.CHEMICAL_REACTOR),
+            of("btx_fractionation", ModRecipeTypes.BTX_FRACTIONATION, ModRecipeSerializers.BTX_FRACTIONATION),
             of("gasifier", ModRecipeTypes.GASIFIER, ModRecipeSerializers.GASIFIER),
             of("advanced_mixing_vat", ModRecipeTypes.ADVANCED_MIXING_VAT, ModRecipeSerializers.ADVANCED_MIXING_VAT),
             of("catalytic_reformer", ModRecipeTypes.CATALYTIC_REFORMER, ModRecipeSerializers.CATALYTIC_REFORMER),

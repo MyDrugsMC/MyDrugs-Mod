@@ -92,6 +92,7 @@ final class ChemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<Che
                 getTitle(),
                 jeiString("screen.mydrugs.jei.heat_time", recipe.minHeat(), recipe.processTime())
         );
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -110,11 +111,15 @@ final class ChemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<Che
             return fluidTankTooltip("Secondary input fluid", Fluids.EMPTY, 0, ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY);
         } else if (isHoveringBox(ChemicalReactorLayout.OUTPUT_TANK_X, ChemicalReactorLayout.OUTPUT_TANK_Y, ChemicalReactorLayout.TANK_W, ChemicalReactorLayout.TANK_H, mouseX, mouseY)) {
             if ("fluid".equals(JeiCompatUtil.serializedName(recipe.outputKind()))) {
-                return fluidTankTooltip("Output fluid", recipe.outputId(), recipe.outputAmount(), ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY);
+                return appendPolishTooltip(recipe, fluidTankTooltip("Output fluid", recipe.outputId(), recipe.outputAmount(), ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY));
             }
-            return gasTankTooltip("Output gas", recipe.outputId(), recipe.outputAmount(), ChemicalReactorBlockEntity.GAS_TANK_CAPACITY);
+            return appendPolishTooltip(recipe, gasTankTooltip("Output gas", recipe.outputId(), recipe.outputAmount(), ChemicalReactorBlockEntity.GAS_TANK_CAPACITY));
         } else if (isHoveringBox(ChemicalReactorLayout.PROGRESS_X, ChemicalReactorLayout.PROGRESS_Y, ChemicalReactorLayout.PROGRESS_W, ChemicalReactorLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Progress", 0, recipe.processTime());
+            return appendPolishTooltip(recipe, tooltip(
+                    ui("Progress"),
+                    Component.translatable("screen.mydrugs.jei.time_ticks", recipe.processTime()),
+                    Component.translatable("screen.mydrugs.jei.heat_requirement", recipe.minHeat())
+            ));
         } else if (isHoveringBox(ChemicalReactorLayout.HEAT_BAR_X, ChemicalReactorLayout.HEAT_BAR_Y, ChemicalReactorLayout.HEAT_BAR_W, ChemicalReactorLayout.HEAT_BAR_H, mouseX, mouseY)) {
             return amountTooltip("Heat", recipe.minHeat(), ChemicalReactorBlockEntity.MAX_HEAT);
         } else if (isHoveringBox(ChemicalReactorLayout.FUEL_BAR_X, ChemicalReactorLayout.FUEL_BAR_Y, ChemicalReactorLayout.FUEL_BAR_W, ChemicalReactorLayout.FUEL_BAR_H, mouseX, mouseY)) {

@@ -4,10 +4,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
+import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.menu.ChemicalReactorMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.ChemicalReactorLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactorMenu> {
@@ -65,6 +67,49 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawChemicalReactorLabels(this, graphics, this.font, this.title, null);
+        graphics.drawString(
+                this.font,
+                Component.translatable("screen.mydrugs.chemical_reactor.secondary_mode", this.menu.isSecondaryFluidMode()
+                        ? Component.translatable("screen.mydrugs.ui.fluid")
+                        : Component.translatable("screen.mydrugs.ui.gas")),
+                ChemicalReactorLayout.SECONDARY_TANK_X - 8,
+                ChemicalReactorLayout.SECONDARY_TANK_Y - 12,
+                0xFFBFC7BF,
+                false
+        );
+        graphics.drawString(
+                this.font,
+                Component.translatable("screen.mydrugs.chemical_reactor.output_mode", this.menu.isOutputFluidMode()
+                        ? Component.translatable("screen.mydrugs.ui.fluid")
+                        : Component.translatable("screen.mydrugs.ui.gas")),
+                ChemicalReactorLayout.OUTPUT_TANK_X - 6,
+                ChemicalReactorLayout.OUTPUT_TANK_Y - 12,
+                0xFFBFC7BF,
+                false
+        );
+    }
+
+    @Override
+    protected List<Component> machineStatusDetailLines(MachineStatus status) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable("machine_status_detail.mydrugs.chemical_reactor.secondary_mode", this.menu.isSecondaryFluidMode()
+                ? Component.translatable("screen.mydrugs.ui.fluid")
+                : Component.translatable("screen.mydrugs.ui.gas")));
+        lines.add(Component.translatable("machine_status_detail.mydrugs.chemical_reactor.output_mode", this.menu.isOutputFluidMode()
+                ? Component.translatable("screen.mydrugs.ui.fluid")
+                : Component.translatable("screen.mydrugs.ui.gas")));
+
+        switch (status) {
+            case NO_MATCHING_RECIPE -> lines.add(Component.translatable("machine_status_detail.mydrugs.chemical_reactor.no_matching_recipe"));
+            case NOT_ENOUGH_HEAT -> lines.add(Component.translatable("machine_status_detail.mydrugs.chemical_reactor.not_enough_heat", this.menu.getHeat(), this.menu.getMaxHeat()));
+            case OUTPUT_TANK_FULL, OUTPUT_GAS_TANK_FULL -> lines.add(Component.translatable("machine_status_detail.mydrugs.chemical_reactor.output_blocked"));
+            default -> {
+                if (status != MachineStatus.RUNNING) {
+                    lines.addAll(super.machineStatusDetailLines(status));
+                }
+            }
+        }
+        return lines;
     }
 
     @Override
@@ -116,7 +161,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.translatable("screen.mydrugs.ui.secondary_input_fluid"),
+                        Component.translatable("screen.mydrugs.ui.secondary_fluid_input"),
                         Component.literal(getFluidName(this.menu.getSecondaryFluid())),
                         Component.literal(this.menu.getSecondaryFluidAmount() + " / " + ChemicalReactorBlockEntity.FLUID_TANK_CAPACITY + " mB")
                 );
@@ -125,7 +170,7 @@ public class ChemicalReactorScreen extends AbstractMachineScreen<ChemicalReactor
                         graphics,
                         mouseX,
                         mouseY,
-                        Component.translatable("screen.mydrugs.ui.secondary_input_gas"),
+                        Component.translatable("screen.mydrugs.ui.secondary_gas_input"),
                         Component.literal(this.menu.getSecondaryGasName()),
                         Component.literal(this.menu.getSecondaryGasAmount() + " / " + ChemicalReactorBlockEntity.GAS_TANK_CAPACITY)
                 );

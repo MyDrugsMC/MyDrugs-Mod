@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:machines/electrolyzer",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:electrolyzer" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.electrolyzer.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:electrolyzer" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.electrolyzer.title" }
+  }
+}

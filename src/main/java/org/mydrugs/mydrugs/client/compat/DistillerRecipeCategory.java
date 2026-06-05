@@ -71,6 +71,7 @@ final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<Distiller
                 false
         );
         MachineGuiRenderer.drawDistillerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle());
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -84,13 +85,13 @@ final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<Distiller
         } else if (isHoveringBox(DistillerLayout.INPUT_TANK_X, DistillerLayout.INPUT_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, mouseX, mouseY)) {
             return fluidTankTooltip("Input tank", recipe.input().fluid(), recipe.input().amount(), DistillerMenu.TANK_CAPACITY);
         } else if (isHoveringBox(DistillerLayout.OUTPUT_A_TANK_X, DistillerLayout.OUTPUT_A_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Output tank A", recipe.output1().fluid(), recipe.output1().amount(), DistillerMenu.TANK_CAPACITY);
+            return appendPolishTooltip(recipe, fluidTankTooltip("Output tank A", recipe.output1().fluid(), recipe.output1().amount(), DistillerMenu.TANK_CAPACITY));
         } else if (isHoveringBox(DistillerLayout.OUTPUT_B_TANK_X, DistillerLayout.OUTPUT_B_TANK_Y, DistillerLayout.TANK_W, DistillerLayout.TANK_H, mouseX, mouseY)) {
-            return recipe.output2()
+            return appendPolishTooltip(recipe, recipe.output2()
                     .map(output -> fluidTankTooltip("Output tank B", output.fluid(), output.amount(), DistillerMenu.TANK_CAPACITY))
-                    .orElseGet(() -> fluidTankTooltip("Output tank B", Fluids.EMPTY, 0, DistillerMenu.TANK_CAPACITY));
+                    .orElseGet(() -> fluidTankTooltip("Output tank B", Fluids.EMPTY, 0, DistillerMenu.TANK_CAPACITY)));
         } else if (isHoveringBox(DistillerLayout.PROGRESS_X, DistillerLayout.PROGRESS_Y, DistillerLayout.PROGRESS_W, DistillerLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Distillation progress", 0, recipe.baseTicks());
+            return appendPolishTooltip(recipe, amountTooltip("Distillation progress", 0, recipe.baseTicks()));
         } else if (isHoveringBox(DistillerLayout.RUN_BUTTON_X, DistillerLayout.RUN_BUTTON_Y, DistillerLayout.RUN_BUTTON_SIZE, DistillerLayout.RUN_BUTTON_SIZE, mouseX, mouseY)) {
             return tooltip("Run distiller", "More than 5 CPS increases speed");
         }

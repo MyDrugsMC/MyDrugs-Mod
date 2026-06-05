@@ -157,7 +157,8 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
             changed = true;
         }
 
-        BTXFractionationRecipe recipe = be.findMatchingRecipe((ServerLevel) level).orElse(null);
+        Optional<RecipeHolder<BTXFractionationRecipe>> recipeHolder = be.findMatchingRecipe((ServerLevel) level);
+        BTXFractionationRecipe recipe = recipeHolder.map(RecipeHolder::value).orElse(null);
         be.maxProgress = recipe == null ? FALLBACK_PROCESS_TICKS : recipe.processTime();
 
         if (recipe == null || !be.canCraft(recipe)) {
@@ -182,7 +183,7 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                be.craft(recipeHolder.get());
                 be.progress = 0;
                 changed = true;
             }
@@ -225,7 +226,7 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
                 && stack.getBurnTime(null, level.fuelValues()) > 0;
     }
 
-    private Optional<BTXFractionationRecipe> findMatchingRecipe(ServerLevel level) {
+    private Optional<RecipeHolder<BTXFractionationRecipe>> findMatchingRecipe(ServerLevel level) {
         if (this.inputTank.getFluid().isEmpty()) {
             return Optional.empty();
         }
@@ -234,7 +235,7 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
                 ModRecipeTypes.BTX_FRACTIONATION.get(),
                 input,
                 level
-        ).map(RecipeHolder::value);
+        );
     }
 
     private boolean canCraft(BTXFractionationRecipe recipe) {
@@ -254,7 +255,8 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
         return true;
     }
 
-    private void craft(BTXFractionationRecipe recipe) {
+    private void craft(RecipeHolder<BTXFractionationRecipe> holder) {
+        BTXFractionationRecipe recipe = holder.value();
         this.inputTank.extract(recipe.input().amount(), false);
         for (FluidRequirement output : recipe.outputs()) {
             StoredFluidTank tank = outputTankFor(output.fluidId());
@@ -263,7 +265,17 @@ public class BTXFractionationTowerBlockEntity extends BaseContainerBlockEntity i
             }
             tank.insert(new FluidStack(BuiltInRegistries.FLUID.getValue(output.fluidId()), output.amount()), false);
         }
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        Optional<ResourceLocation> resultFluid = recipe.outputs().isEmpty()
+                ? Optional.empty()
+                : Optional.of(recipe.outputs().getFirst().fluidId());
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                resultFluid,
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private @Nullable StoredFluidTank outputTankFor(ResourceLocation fluidId) {

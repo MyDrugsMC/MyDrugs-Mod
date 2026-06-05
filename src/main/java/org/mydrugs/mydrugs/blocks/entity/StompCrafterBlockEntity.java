@@ -5,6 +5,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -22,6 +23,7 @@ import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCrafterRecipeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StompCrafterBlockEntity extends BlockEntity {
     private static final int MAX_SLOTS = 32;
@@ -117,9 +119,26 @@ public class StompCrafterBlockEntity extends BlockEntity {
                     result
             );
 
-            org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+            org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                    this,
+                    recipeId(match),
+                    org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(result),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty()
+            );
             clearCrafter();
         }
+    }
+
+    private static Optional<ResourceLocation> recipeId(StompCrafterRecipeResolver.ProcessMatch match) {
+        if (match instanceof StompCrafterRecipeResolver.GrindingMatch grinding) {
+            return Optional.of(grinding.holder().id().location());
+        }
+        if (match instanceof StompCrafterRecipeResolver.StompMatch stomp) {
+            return Optional.of(stomp.holder().id().location());
+        }
+        return Optional.empty();
     }
 
     public void clearCrafter() {

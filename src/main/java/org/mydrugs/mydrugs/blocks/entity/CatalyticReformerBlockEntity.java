@@ -214,7 +214,7 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
         changed = true;
 
         if (be.progress >= be.maxProgress) {
-            be.craft(recipe);
+            be.craft(recipeHolder.get());
             be.progress = 0;
             be.refreshModes(null);
             changed = true;
@@ -536,7 +536,8 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
         }
     }
 
-    private void craft(CatalyticReformerRecipe recipe) {
+    private void craft(RecipeHolder<CatalyticReformerRecipe> holder) {
+        CatalyticReformerRecipe recipe = holder.value();
         recipe.inputFluid1().ifPresent(req -> this.input1FluidTank.extract(req.amount(), false));
         recipe.inputGas1().ifPresent(req -> this.input1GasTank.drain(req.amount(), false));
 
@@ -559,7 +560,14 @@ public class CatalyticReformerBlockEntity extends BaseContainerBlockEntity imple
 
         recipe.outputFluid3().ifPresent(output -> insertFluidOutput(output, this.output3FluidTank));
         recipe.outputGas3().ifPresent(output -> insertGasOutput(output, this.output3GasTank));
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                recipe.outputFluid1().map(CatalyticReformerFluidStack::fluid),
+                recipe.outputGas1().map(output -> output.gas().toString()),
+                Optional.empty()
+        );
     }
 
     private void sync() {

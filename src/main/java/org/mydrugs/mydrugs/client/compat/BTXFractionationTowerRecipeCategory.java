@@ -99,6 +99,7 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
                 false
         );
         MachineGuiRenderer.drawBTXFractionationTowerLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), jeiString("screen.mydrugs.jei.fuel_time", recipe.processTime()));
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -118,13 +119,13 @@ final class BTXFractionationTowerRecipeCategory extends AbstractNiceRecipeCatego
         } else if (isHoveringBox(BTXFractionationTowerLayout.INPUT_TANK_X, BTXFractionationTowerLayout.INPUT_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
             return fluidTankTooltip("BTX Mix input tank", recipe.input().fluidId(), recipe.input().amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
         } else if (benzene != null && isHoveringBox(BTXFractionationTowerLayout.BENZENE_TANK_X, BTXFractionationTowerLayout.BENZENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Benzene output tank", benzene.fluidId(), benzene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+            return appendPolishTooltip(recipe, fluidTankTooltip("Benzene output tank", benzene.fluidId(), benzene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY));
         } else if (toluene != null && isHoveringBox(BTXFractionationTowerLayout.TOLUENE_TANK_X, BTXFractionationTowerLayout.TOLUENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Toluene output tank", toluene.fluidId(), toluene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+            return appendPolishTooltip(recipe, fluidTankTooltip("Toluene output tank", toluene.fluidId(), toluene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY));
         } else if (xylene != null && isHoveringBox(BTXFractionationTowerLayout.XYLENE_TANK_X, BTXFractionationTowerLayout.XYLENE_TANK_Y, BTXFractionationTowerLayout.TANK_W, BTXFractionationTowerLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Xylene output tank", xylene.fluidId(), xylene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY);
+            return appendPolishTooltip(recipe, fluidTankTooltip("Xylene output tank", xylene.fluidId(), xylene.amount(), BTXFractionationTowerMenu.TANK_CAPACITY));
         } else if (isHoveringBox(BTXFractionationTowerLayout.PROGRESS_X, BTXFractionationTowerLayout.PROGRESS_Y, BTXFractionationTowerLayout.PROGRESS_W, BTXFractionationTowerLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Fractionation progress", 0, recipe.processTime());
+            return appendPolishTooltip(recipe, amountTooltip("Fractionation progress", 0, recipe.processTime()));
         } else if (isHoveringBox(BTXFractionationTowerLayout.FUEL_BAR_X, BTXFractionationTowerLayout.FUEL_BAR_Y, BTXFractionationTowerLayout.FUEL_BAR_W, BTXFractionationTowerLayout.FUEL_BAR_H, mouseX, mouseY)) {
             return amountTooltip("Fuel burn time", 0, recipe.processTime(), "ticks");
         }

@@ -52,14 +52,15 @@ final class GasifierRecipeCategory extends AbstractNiceRecipeCategory<GasifierRe
                 false
         );
         MachineGuiRenderer.drawGasifierLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle(), null, 0, jeiString("screen.mydrugs.jei.time_ticks", recipe.processTime()));
+        drawPolishFooter(g, recipe);
     }
 
     @Override
     public List<Component> getTooltipStrings(GasifierRecipe recipe, IRecipeSlotsView slots, double mouseX, double mouseY) {
         if (isHoveringBox(GasifierLayout.OUTPUT_TANK_X, GasifierLayout.OUTPUT_TANK_Y, GasifierLayout.TANK_W, GasifierLayout.TANK_H, mouseX, mouseY)) {
-            return gasTankTooltip("Output gas tank", recipe.gasOutput(), recipe.gasAmount(), GasifierMenu.TANK_CAPACITY, "mB");
+            return appendPolishTooltip(recipe, gasTankTooltip("Output gas tank", recipe.gasOutput(), recipe.gasAmount(), GasifierMenu.TANK_CAPACITY, "mB"));
         } else if (isHoveringBox(GasifierLayout.PROGRESS_X, GasifierLayout.PROGRESS_Y, GasifierLayout.PROGRESS_W, GasifierLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Gasification progress", 0, recipe.processTime());
+            return appendPolishTooltip(recipe, amountTooltip("Gasification progress", 0, recipe.processTime()));
         } else if (isHoveringBox(GasifierLayout.FUEL_BAR_X, GasifierLayout.FUEL_BAR_Y, GasifierLayout.FUEL_BAR_W, GasifierLayout.FUEL_BAR_H, mouseX, mouseY)) {
             return tooltip("Fuel burn", "Idle", "0 / " + recipe.processTime() + " ticks");
         } else if (isHoveringBox(GasifierLayout.FUEL_SLOT_X, GasifierLayout.FUEL_SLOT_Y, 18, 18, mouseX, mouseY)) {

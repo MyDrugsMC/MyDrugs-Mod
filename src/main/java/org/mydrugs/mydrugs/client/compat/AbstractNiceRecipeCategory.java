@@ -21,9 +21,13 @@ import org.mydrugs.mydrugs.client.compat.gas.GasJeiTypes;
 import org.mydrugs.mydrugs.client.compat.gas.GasJeiUtil;
 import org.mydrugs.mydrugs.menu.client.util.AbstractMachineDrawMethods;
 import org.mydrugs.mydrugs.menu.layout.LayoutMath;
+import org.mydrugs.mydrugs.recipes.polish.RecipePolishIndex;
+import org.mydrugs.mydrugs.recipes.polish.RecipePolishMetadata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public abstract class AbstractNiceRecipeCategory<T> implements AbstractMachineDrawMethods, IRecipeCategory<T> {
     protected static final int SLOT = 18;
@@ -190,6 +194,43 @@ public abstract class AbstractNiceRecipeCategory<T> implements AbstractMachineDr
                 ui(title),
                 Component.translatable("screen.mydrugs.ui.amount_unit", amount, capacity, unit)
         );
+    }
+
+    protected Optional<RecipePolishMetadata> polishMetadata(T recipe) {
+        return ClientRecipesCache.getRecipeId(recipe).flatMap(RecipePolishIndex::find);
+    }
+
+    protected void drawPolishFooter(GuiGraphics g, T recipe) {
+        polishMetadata(recipe).ifPresent(metadata -> {
+            var font = Minecraft.getInstance().font;
+            String role = Component.translatable(metadata.role().translationKey()).getString();
+            String lane = Component.translatable(metadata.lane().translationKey()).getString();
+            String footer = role + " | " + lane;
+            String clipped = font.plainSubstrByWidth(footer, width - 10);
+            g.drawString(font, clipped, 5, height - 10, 0xFFDDBF63, false);
+        });
+    }
+
+    protected List<Component> appendPolishTooltip(T recipe, List<Component> base) {
+        Optional<RecipePolishMetadata> optional = polishMetadata(recipe);
+        if (optional.isEmpty()) {
+            return base;
+        }
+
+        RecipePolishMetadata metadata = optional.get();
+        List<Component> lines = new ArrayList<>(base);
+        lines.add(Component.translatable("screen.mydrugs.jei.role", Component.translatable(metadata.role().translationKey())));
+        lines.add(Component.translatable("screen.mydrugs.jei.lane", Component.translatable(metadata.lane().translationKey())));
+        if (!metadata.usedNext().isEmpty()) {
+            lines.add(Component.translatable("screen.mydrugs.jei.used_next", String.join(" / ", metadata.usedNext())));
+        }
+        if (!metadata.guidePage().isBlank()) {
+            lines.add(Component.translatable("screen.mydrugs.jei.guide_page", metadata.guidePage()));
+        }
+        if (metadata.hintKey() != null && !metadata.hintKey().isBlank()) {
+            lines.add(Component.translatable(metadata.hintKey()));
+        }
+        return lines;
     }
 
     protected Component fluidName(Fluid fluid) {

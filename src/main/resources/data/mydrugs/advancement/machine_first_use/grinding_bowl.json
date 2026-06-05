@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:processing/craft_grinding_bowl",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:grinding_bowl" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.grinding_bowl.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:grinding_bowl" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.grinding_bowl.title" }
+  }
+}

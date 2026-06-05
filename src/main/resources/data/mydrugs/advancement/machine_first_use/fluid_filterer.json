@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:machines/fluid_filterer",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:fluid_filterer" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.fluid_filterer.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:fluid_filterer" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.fluid_filterer.title" }
+  }
+}

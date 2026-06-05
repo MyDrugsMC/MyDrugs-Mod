@@ -201,7 +201,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             changed = true;
 
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                be.craft(recipe, craftCheck.recipeId());
                 be.progress = 0;
                 changed = true;
             }
@@ -307,13 +307,13 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return true;
     }
 
-    private record CraftCheckResult(@Nullable DistillerRecipe recipe, MachineStatus status) {
-        static CraftCheckResult craftable(DistillerRecipe recipe) {
-            return new CraftCheckResult(recipe, MachineStatus.RUNNING);
+    private record CraftCheckResult(@Nullable DistillerRecipe recipe, Optional<ResourceLocation> recipeId, MachineStatus status) {
+        static CraftCheckResult craftable(RecipeHolder<DistillerRecipe> holder) {
+            return new CraftCheckResult(holder.value(), Optional.of(holder.id().location()), MachineStatus.RUNNING);
         }
 
-        static CraftCheckResult blocked(@Nullable DistillerRecipe recipe, MachineStatus status) {
-            return new CraftCheckResult(recipe, status);
+        static CraftCheckResult blocked(@Nullable DistillerRecipe recipe, Optional<ResourceLocation> recipeId, MachineStatus status) {
+            return new CraftCheckResult(recipe, recipeId, status);
         }
 
         boolean craftable() {
@@ -489,20 +489,22 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     private CraftCheckResult checkCraft(ServerLevel level) {
         ResourceLocation inputFluidId = getFluidId(this.inputTank);
         if (inputFluidId == null || this.inputTank.isEmpty()) {
-            return CraftCheckResult.blocked(null, MachineStatus.MISSING_INPUT_FLUID);
+            return CraftCheckResult.blocked(null, Optional.empty(), MachineStatus.MISSING_INPUT_FLUID);
         }
 
         Optional<RecipeHolder<DistillerRecipe>> recipeHolder = this.findRecipeByFluid(level, inputFluidId);
         if (recipeHolder.isEmpty()) {
-            return CraftCheckResult.blocked(null, MachineStatus.NO_MATCHING_RECIPE);
+            return CraftCheckResult.blocked(null, Optional.empty(), MachineStatus.NO_MATCHING_RECIPE);
         }
 
-        DistillerRecipe recipe = recipeHolder.get().value();
+        RecipeHolder<DistillerRecipe> holder = recipeHolder.get();
+        DistillerRecipe recipe = holder.value();
+        Optional<ResourceLocation> recipeId = Optional.of(holder.id().location());
         if (this.inputTank.getAmount() < recipe.input().amount()) {
-            return CraftCheckResult.blocked(recipe, MachineStatus.INSUFFICIENT_INPUT_FLUID);
+            return CraftCheckResult.blocked(recipe, recipeId, MachineStatus.INSUFFICIENT_INPUT_FLUID);
         }
 
-        return this.checkOutputs(recipe);
+        return this.checkOutputs(holder);
     }
 
     private Optional<RecipeHolder<DistillerRecipe>> findRecipeByFluid(ServerLevel level, ResourceLocation inputFluidId) {
@@ -515,38 +517,40 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         return Optional.empty();
     }
 
-    private CraftCheckResult checkOutputs(DistillerRecipe recipe) {
+    private CraftCheckResult checkOutputs(RecipeHolder<DistillerRecipe> holder) {
+        DistillerRecipe recipe = holder.value();
+        Optional<ResourceLocation> recipeId = Optional.of(holder.id().location());
         ResourceLocation inputFluidId = getFluidId(this.inputTank);
         if (inputFluidId == null) {
-            return CraftCheckResult.blocked(recipe, MachineStatus.MISSING_INPUT_FLUID);
+            return CraftCheckResult.blocked(recipe, recipeId, MachineStatus.MISSING_INPUT_FLUID);
         }
 
         if (!recipe.input().fluid().equals(inputFluidId)) {
-            return CraftCheckResult.blocked(null, MachineStatus.NO_MATCHING_RECIPE);
+            return CraftCheckResult.blocked(null, Optional.empty(), MachineStatus.NO_MATCHING_RECIPE);
         }
 
         FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
         if (outputA.isEmpty() || this.outputATank.getAddableAmount(outputA) < outputA.getAmount()) {
             return outputA.isEmpty()
-                    ? CraftCheckResult.blocked(recipe, MachineStatus.INVALID_RECIPE_OUTPUT)
-                    : CraftCheckResult.blocked(recipe, MachineStatus.OUTPUT_TANK_A_FULL);
+                    ? CraftCheckResult.blocked(recipe, recipeId, MachineStatus.INVALID_RECIPE_OUTPUT)
+                    : CraftCheckResult.blocked(recipe, recipeId, MachineStatus.OUTPUT_TANK_A_FULL);
         }
 
         if (recipe.output2().isPresent()) {
             DistillerFluidStack output = recipe.output2().get();
             FluidStack outputB = toFluidStack(output.fluid(), output.amount());
             if (outputB.isEmpty()) {
-                return CraftCheckResult.blocked(recipe, MachineStatus.INVALID_RECIPE_OUTPUT);
+                return CraftCheckResult.blocked(recipe, recipeId, MachineStatus.INVALID_RECIPE_OUTPUT);
             }
             if (this.outputBTank.getAddableAmount(outputB) < outputB.getAmount()) {
-                return CraftCheckResult.blocked(recipe, MachineStatus.OUTPUT_TANK_B_FULL);
+                return CraftCheckResult.blocked(recipe, recipeId, MachineStatus.OUTPUT_TANK_B_FULL);
             }
         }
 
-        return CraftCheckResult.craftable(recipe);
+        return CraftCheckResult.craftable(holder);
     }
 
-    private void craft(DistillerRecipe recipe) {
+    private void craft(DistillerRecipe recipe, Optional<ResourceLocation> recipeId) {
         this.inputTank.extract(recipe.input().amount(), false);
 
         FluidStack outputA = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
@@ -560,7 +564,14 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 this.outputBTank.insert(outputB, false);
             }
         });
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                recipeId,
+                Optional.empty(),
+                Optional.of(recipe.output1().fluid()),
+                Optional.empty(),
+                Optional.empty()
+        );
     }
 
     private void refreshClickStats(long now) {

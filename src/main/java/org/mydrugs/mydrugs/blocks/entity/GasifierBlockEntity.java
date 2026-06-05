@@ -41,6 +41,7 @@ import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.gasifier.GasifierRecipe;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class GasifierBlockEntity extends BlockEntity implements Container, MenuProvider, MachineStatusProvider {
     public static final int SLOT_INPUT = 0;
@@ -162,7 +163,7 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
                 dirty = true;
 
                 if (this.progress >= this.maxProgress) {
-                    this.craft(recipe);
+                    this.craft(holder);
                     this.progress = 0;
                     dirty = true;
                     sync = true;
@@ -216,7 +217,8 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         ) == recipe.gasAmount();
     }
 
-    private void craft(GasifierRecipe recipe) {
+    private void craft(RecipeHolder<GasifierRecipe> holder) {
+        GasifierRecipe recipe = holder.value();
         ItemStack input = this.items.get(SLOT_INPUT);
         if (input.isEmpty() || recipe.gas() == null) {
             return;
@@ -231,7 +233,14 @@ public class GasifierBlockEntity extends BlockEntity implements Container, MenuP
         if (input.isEmpty()) {
             this.items.set(SLOT_INPUT, ItemStack.EMPTY);
         }
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(recipe.gas().id().toString()),
+                Optional.empty()
+        );
     }
 
     private boolean consumeFuel() {

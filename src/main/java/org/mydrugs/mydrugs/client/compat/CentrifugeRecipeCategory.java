@@ -68,6 +68,7 @@ final class CentrifugeRecipeCategory extends AbstractNiceRecipeCategory<Centrifu
                 false
         );
         MachineGuiRenderer.drawCentrifugeLabels(this, g, net.minecraft.client.Minecraft.getInstance().font, getTitle());
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -81,13 +82,13 @@ final class CentrifugeRecipeCategory extends AbstractNiceRecipeCategory<Centrifu
         } else if (isHoveringBox(CentrifugeLayout.INPUT_TANK_X, CentrifugeLayout.INPUT_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, mouseX, mouseY)) {
             return fluidTankTooltip("Input tank", recipe.input().fluid(), recipe.input().amount(), CentrifugeBlockEntity.FLUID_CAPACITY);
         } else if (isHoveringBox(CentrifugeLayout.OUTPUT_A_TANK_X, CentrifugeLayout.OUTPUT_A_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip("Output tank A", recipe.output1().fluid(), recipe.output1().amount(), CentrifugeBlockEntity.FLUID_CAPACITY);
+            return appendPolishTooltip(recipe, fluidTankTooltip("Output tank A", recipe.output1().fluid(), recipe.output1().amount(), CentrifugeBlockEntity.FLUID_CAPACITY));
         } else if (isHoveringBox(CentrifugeLayout.OUTPUT_B_TANK_X, CentrifugeLayout.OUTPUT_B_TANK_Y, CentrifugeLayout.TANK_W, CentrifugeLayout.TANK_H, mouseX, mouseY)) {
-            return recipe.output2()
+            return appendPolishTooltip(recipe, recipe.output2()
                     .map(output -> fluidTankTooltip("Output tank B", output.fluid(), output.amount(), CentrifugeBlockEntity.FLUID_CAPACITY))
-                    .orElseGet(() -> fluidTankTooltip("Output tank B", Fluids.EMPTY, 0, CentrifugeBlockEntity.FLUID_CAPACITY));
+                    .orElseGet(() -> fluidTankTooltip("Output tank B", Fluids.EMPTY, 0, CentrifugeBlockEntity.FLUID_CAPACITY)));
         } else if (isHoveringBox(CentrifugeLayout.PROGRESS_X, CentrifugeLayout.PROGRESS_Y, CentrifugeLayout.PROGRESS_W, CentrifugeLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Centrifuge progress", 0, recipe.baseTicks());
+            return appendPolishTooltip(recipe, amountTooltip("Centrifuge progress", 0, recipe.baseTicks()));
         } else if (isHoveringBox(CentrifugeLayout.FUEL_BAR_X, CentrifugeLayout.FUEL_BAR_Y, CentrifugeLayout.FUEL_BAR_W, CentrifugeLayout.FUEL_BAR_H, mouseX, mouseY)) {
             return amountTooltip("Fuel burn time", 0, recipe.baseTicks(), "ticks");
         }

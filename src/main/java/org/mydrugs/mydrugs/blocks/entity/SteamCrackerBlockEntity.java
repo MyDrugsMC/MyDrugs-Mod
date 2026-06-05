@@ -202,7 +202,7 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
             be.progress++;
             changed = true;
             if (be.progress >= be.maxProgress) {
-                be.craft(recipe);
+                be.craft(recipeHolder.get());
                 be.progress = 0;
                 be.refreshModes(recipe);
                 changed = true;
@@ -400,14 +400,22 @@ public class SteamCrackerBlockEntity extends BaseContainerBlockEntity implements
                 .orElseGet(() -> canAcceptGasOutput(gas.orElseThrow(), fluidTank, gasTank));
     }
 
-    private void craft(SteamCrackerRecipe recipe) {
+    private void craft(RecipeHolder<SteamCrackerRecipe> holder) {
+        SteamCrackerRecipe recipe = holder.value();
         recipe.inputFluid().ifPresent(input -> this.inputFluidTank.extract(input.amount(), false));
         recipe.inputGas().ifPresent(input -> this.inputGasTank.drain(input.amount(), false));
         insertOutput(recipe.outputFluid1(), recipe.outputGas1(), this.output1FluidTank, this.output1GasTank);
         insertOutput(recipe.outputFluid2(), recipe.outputGas2(), this.output2FluidTank, this.output2GasTank);
         insertOutput(recipe.outputFluid3(), recipe.outputGas3(), this.output3FluidTank, this.output3GasTank);
         insertOutput(recipe.outputFluid4(), recipe.outputGas4(), this.output4FluidTank, this.output4GasTank);
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                recipe.outputFluid1().map(SteamCrackerFluidStack::fluid),
+                recipe.outputGas1().map(output -> output.gas().toString()),
+                Optional.empty()
+        );
     }
 
     private void insertOutput(Optional<SteamCrackerFluidStack> fluid, Optional<SteamCrackerGasStack> gas, StoredFluidTank fluidTank, GasTank gasTank) {

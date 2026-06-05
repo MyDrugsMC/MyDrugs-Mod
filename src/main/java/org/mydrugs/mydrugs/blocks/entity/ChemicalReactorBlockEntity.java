@@ -37,11 +37,13 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.blocks.ChemicalReactorBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.MachineCompletionHelper;
 import org.mydrugs.mydrugs.machine.MachineStorage;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
@@ -285,13 +287,13 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
 
                 if (be.progress >= be.maxProgress) {
                     be.progress = 0;
-                    be.processRecipe(recipe);
+                    be.processRecipe(recipeHolder.get());
                     changed = true;
                 }
 
                 be.active = true;
             } else {
-                changed |= be.setMachineStatus(canOutput ? MachineStatus.NOT_ENOUGH_HEAT : MachineStatus.OUTPUT_TANK_FULL);
+                changed |= be.setMachineStatus(canOutput ? MachineStatus.NOT_ENOUGH_HEAT : be.outputBlockedStatus(recipe));
                 if (be.progress > 0) {
                     be.progress = Math.max(0, be.progress - 2);
                     changed = true;
@@ -299,7 +301,7 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
                 be.active = false;
             }
         } else {
-            changed |= be.setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
+            changed |= be.setMachineStatus(be.hasAnyRecipeInput() ? MachineStatus.NO_MATCHING_RECIPE : MachineStatus.IDLE);
             changed |= be.refreshSecondaryInputMode(null);
             changed |= be.setOutputFluidMode(be.outputFluidTank.getAmount() > 0);
 
@@ -606,6 +608,16 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         return existing.is(outputFluid) && existing.getAmount() + recipe.outputAmount() <= FLUID_TANK_CAPACITY;
     }
 
+    private MachineStatus outputBlockedStatus(ChemicalReactorRecipe recipe) {
+        return recipe.outputKind() == ReactorOutputKind.GAS ? MachineStatus.OUTPUT_GAS_TANK_FULL : MachineStatus.OUTPUT_TANK_FULL;
+    }
+
+    private boolean hasAnyRecipeInput() {
+        return !this.primaryGasTank.getGasInTank(0).isEmpty()
+                || !this.secondaryGasTank.getGasInTank(0).isEmpty()
+                || !this.fluidStacks.get(SECONDARY_FLUID_TANK).isEmpty();
+    }
+
     private int getProgressPerTick(ChemicalReactorRecipe recipe) {
         int progressPerTick = 1;
 
@@ -628,26 +640,40 @@ public class ChemicalReactorBlockEntity extends net.minecraft.world.level.block.
         return progressPerTick;
     }
 
-    private void processRecipe(ChemicalReactorRecipe recipe) {
+    private void processRecipe(RecipeHolder<ChemicalReactorRecipe> holder) {
+        ChemicalReactorRecipe recipe = holder.value();
         this.primaryGasTank.drain(recipe.primaryGas().amount(), false);
         recipe.secondaryGas().ifPresent(req -> this.secondaryGasTank.drain(req.amount(), false));
         recipe.secondaryFluid().ifPresent(req -> this.secondaryFluidTank.extract(req.amount(), false));
 
+        Optional<ResourceLocation> resultFluid = Optional.empty();
+        Optional<String> resultGas = Optional.empty();
         if (recipe.outputKind() == ReactorOutputKind.GAS) {
             GasType outputType = ModGases.get(recipe.outputId());
             if (outputType != null) {
                 this.gasOutputTank.fill(GasStack.of(outputType, recipe.outputAmount()), false);
+                resultGas = MachineCompletionHelper.gasId(outputType);
             }
         } else {
             Fluid output = BuiltInRegistries.FLUID.getValue(recipe.outputId());
             if (output != Fluids.EMPTY) {
                 this.outputFluidTank.insert(new FluidStack(output, recipe.outputAmount()), false);
+                resultFluid = MachineCompletionHelper.fluidId(output);
             }
         }
 
         if (recipe.heatDrain() > 0) {
             this.heat = Math.max(0, this.heat - recipe.heatDrain());
         }
+
+        AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                Optional.empty(),
+                resultFluid,
+                resultGas,
+                Optional.empty()
+        );
     }
 
     public void addManualEnergy(int amount) {

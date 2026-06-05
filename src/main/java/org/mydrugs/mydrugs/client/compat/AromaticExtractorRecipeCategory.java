@@ -72,6 +72,7 @@ public class AromaticExtractorRecipeCategory extends AbstractNiceRecipeCategory<
                 ),
                 false
         );
+        drawPolishFooter(g, recipe);
     }
 
     @Override
@@ -101,21 +102,21 @@ public class AromaticExtractorRecipeCategory extends AbstractNiceRecipeCategory<
                     Component.translatable("screen.mydrugs.ui.amount_unit", recipe.catalyst().amount(), AromaticExtractorMenu.CATALYST_TANK_CAPACITY, "mB")
             );
         } else if (isHoveringBox(AromaticExtractorLayout.OUTPUT_A_TANK_X, AromaticExtractorLayout.OUTPUT_A_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip(
+            return appendPolishTooltip(recipe, fluidTankTooltip(
                     "Output A Tank",
                     recipe.output1().fluid(),
                     recipe.output1().amount(),
                     AromaticExtractorBlockEntity.OUTPUT_CAPACITY
-            );
+            ));
         } else if (isHoveringBox(AromaticExtractorLayout.OUTPUT_B_TANK_X, AromaticExtractorLayout.OUTPUT_B_TANK_Y, AromaticExtractorLayout.TANK_W, AromaticExtractorLayout.TANK_H, mouseX, mouseY)) {
-            return fluidTankTooltip(
+            return appendPolishTooltip(recipe, fluidTankTooltip(
                     "Output B Tank",
                     recipe.output2().fluid(),
                     recipe.output2().amount(),
                     AromaticExtractorBlockEntity.OUTPUT_CAPACITY
-            );
+            ));
         } else if (isHoveringBox(AromaticExtractorLayout.PROGRESS_X, AromaticExtractorLayout.PROGRESS_Y, AromaticExtractorLayout.PROGRESS_W, AromaticExtractorLayout.PROGRESS_H, mouseX, mouseY)) {
-            return amountTooltip("Extraction progress", 0, recipe.baseTicks());
+            return appendPolishTooltip(recipe, amountTooltip("Extraction progress", 0, recipe.baseTicks()));
         } else if (isHoveringBox(AromaticExtractorLayout.FUEL_BAR_X, AromaticExtractorLayout.FUEL_BAR_Y, AromaticExtractorLayout.FUEL_BAR_W, AromaticExtractorLayout.FUEL_BAR_H, mouseX, mouseY)) {
             return amountTooltip("Fuel burn time", 0, recipe.baseTicks());
         }

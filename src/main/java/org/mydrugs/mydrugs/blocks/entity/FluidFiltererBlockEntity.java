@@ -35,11 +35,15 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
+import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
+import org.mydrugs.mydrugs.machine.MachineCompletionHelper;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.machine.fluid.StoredFluidTank;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
@@ -53,7 +57,7 @@ import org.mydrugs.mydrugs.recipes.filterer.FluidFiltererRecipeInput;
 
 import java.util.Optional;
 
-public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implements FluidFiltererMenu.FluidFiltererButtonHandler {
+public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implements FluidFiltererMenu.FluidFiltererButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
     private final LockedTransferSlots inputTransferLocks = new LockedTransferSlots(1);
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
@@ -63,6 +67,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
     private int maxProgress = 0;
     private boolean buttonHeld = false;
     private float manualSpeedMultiplier = 1.0F;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -128,7 +133,8 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         Optional<RecipeHolder<FluidFiltererRecipe>> recipeHolder = be.getCurrentRecipe(serverLevel);
 
         if (recipeHolder.isPresent()) {
-            FluidFiltererRecipe recipe = recipeHolder.get().value();
+            RecipeHolder<FluidFiltererRecipe> holder = recipeHolder.get();
+            FluidFiltererRecipe recipe = holder.value();
             int required = Math.max(1, recipe.clicksRequired());
 
             if (be.maxProgress != required) {
@@ -137,20 +143,26 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
             }
 
             if (!be.canCraft(recipe)) {
+                changed |= be.setMachineStatus(be.blockedStatus(recipe));
                 if (be.progress != 0) {
                     be.progress = 0;
                     changed = true;
                 }
             } else if (be.buttonHeld) {
-                if (be.advanceFiltering(recipe, null, be.manualSpeedMultiplier)) {
+                changed |= be.setMachineStatus(MachineStatus.RUNNING);
+                if (be.advanceFiltering(holder, null, be.manualSpeedMultiplier)) {
                     changed = true;
                 }
             } else if (PsyCurrentMachines.tryUseAutomationCurrentTick(be)) {
-                if (be.advanceFiltering(recipe, null, 1.0F)) {
+                changed |= be.setMachineStatus(MachineStatus.RUNNING);
+                if (be.advanceFiltering(holder, null, 1.0F)) {
                     changed = true;
                 }
+            } else {
+                changed |= be.setMachineStatus(MachineStatus.PAUSED);
             }
         } else {
+            changed |= be.setMachineStatus(be.inputTank.isEmpty() ? MachineStatus.IDLE : MachineStatus.NO_MATCHING_RECIPE);
             if (be.progress != 0) {
                 be.progress = 0;
                 changed = true;
@@ -330,11 +342,12 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         };
     }
 
-    private boolean advanceFiltering(FluidFiltererRecipe recipe, @Nullable Player player) {
-        return advanceFiltering(recipe, player, 1.0F);
+    private boolean advanceFiltering(RecipeHolder<FluidFiltererRecipe> holder, @Nullable Player player) {
+        return advanceFiltering(holder, player, 1.0F);
     }
 
-    private boolean advanceFiltering(FluidFiltererRecipe recipe, @Nullable Player player, float speedMultiplier) {
+    private boolean advanceFiltering(RecipeHolder<FluidFiltererRecipe> holder, @Nullable Player player, float speedMultiplier) {
+        FluidFiltererRecipe recipe = holder.value();
         this.maxProgress = Math.max(1, recipe.clicksRequired());
 
         if (!canCraft(recipe)) {
@@ -365,7 +378,7 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         this.progress += Math.max(1, Math.round(Math.max(0.25F, speedMultiplier)));
 
         if (this.progress >= this.maxProgress) {
-            craft(recipe);
+            craft(holder);
             this.progress = 0;
         }
 
@@ -595,6 +608,27 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         return canStoreResidue(recipe.outputItem());
     }
 
+    private MachineStatus blockedStatus(FluidFiltererRecipe recipe) {
+        if (this.inputTank.isEmpty() || this.inputTank.getFluidId() == null || this.inputTank.getAmount() < recipe.input().amount()) {
+            return MachineStatus.MISSING_INPUT_FLUID;
+        }
+
+        if (!hasUsableFilter()) {
+            return MachineStatus.MISSING_CATALYST;
+        }
+
+        if (recipe.output2().isPresent()) {
+            return MachineStatus.INVALID_RECIPE_OUTPUT;
+        }
+
+        FluidStack output = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
+        if (output.isEmpty() || this.outputTank.getAddableAmount(output) < output.getAmount()) {
+            return MachineStatus.OUTPUT_TANK_FULL;
+        }
+
+        return canStoreResidue(recipe.outputItem()) ? MachineStatus.PAUSED : MachineStatus.OUTPUT_SLOT_FULL;
+    }
+
     private boolean canStoreResidue(Optional<FluidFiltererItemResult> optionalResult) {
         if (optionalResult.isEmpty()) {
             return true;
@@ -638,7 +672,8 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         this.setChanged();
     }
 
-    private void craft(FluidFiltererRecipe recipe) {
+    private void craft(RecipeHolder<FluidFiltererRecipe> holder) {
+        FluidFiltererRecipe recipe = holder.value();
         this.inputTank.extract(recipe.input().amount(), false);
 
         FluidStack output = toFluidStack(recipe.output1().fluid(), recipe.output1().amount());
@@ -647,6 +682,27 @@ public class FluidFiltererBlockEntity extends BaseContainerBlockEntity implement
         }
 
         addResidue(recipe.outputItem());
+        AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                recipe.outputItem().flatMap(result -> MachineCompletionHelper.itemId(result.createStack())),
+                MachineCompletionHelper.fluidId(output),
+                Optional.empty(),
+                Optional.empty()
+        );
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+        this.machineStatus = status;
+        return true;
     }
 
     private void sync() {

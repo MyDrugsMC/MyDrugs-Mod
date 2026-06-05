@@ -1,0 +1,18 @@
+{
+  "parent": "mydrugs:machines/steam_cracker",
+  "criteria": {
+    "event": {
+      "conditions": { "machine": "mydrugs:steam_cracker" },
+      "trigger": "mydrugs:machine_recipe_completed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": { "translate": "advancement.mydrugs.machine_first_use.steam_cracker.description" },
+    "frame": "task",
+    "hidden": false,
+    "icon": { "id": "mydrugs:steam_cracker" },
+    "show_toast": true,
+    "title": { "translate": "advancement.mydrugs.machine_first_use.steam_cracker.title" }
+  }
+}

@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.menu.client;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.menu.BiochemicalReactorMenu;
 import org.mydrugs.mydrugs.menu.client.util.MachineGuiRenderer;
 import org.mydrugs.mydrugs.menu.layout.BiochemicalReactorLayout;
@@ -60,6 +61,18 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
                 this.title,
                 this.menu.isWorking() ? "Processing" : "Idle"
         );
+    }
+
+    @Override
+    protected List<Component> machineStatusDetailLines(MachineStatus status) {
+        return switch (status) {
+            case IDLE -> List.of(Component.translatable("machine_status_detail.mydrugs.biochemical_reactor.idle"));
+            case MISSING_INPUT_ITEM, NO_MATCHING_RECIPE -> List.of(Component.translatable("machine_status_detail.mydrugs.biochemical_reactor.missing_inputs"));
+            case OUTPUT_TANK_FULL -> List.of(Component.translatable("machine_status_detail.mydrugs.biochemical_reactor.output_blocked"));
+            case NOT_ENOUGH_HEAT -> List.of(Component.translatable("machine_status_detail.mydrugs.biochemical_reactor.heat_or_work"));
+            case RUNNING -> List.of(Component.translatable("machine_status_detail.mydrugs.biochemical_reactor.running"));
+            default -> super.machineStatusDetailLines(status);
+        };
     }
 
     @Override

@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.FluidFiltererMenu;
 import org.mydrugs.mydrugs.menu.client.util.DrugBonusClientText;
@@ -79,6 +80,21 @@ public class FluidFiltererScreen extends AbstractMachineScreen<FluidFiltererMenu
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         MachineGuiRenderer.drawFluidFiltererLabels(this, graphics, this.font, this.title, null);
         DrugBonusClientText.drawManualWorkBonus(graphics, this.font, -leftPos + 5, 12, ManualMachineType.FLUID_FILTERER);
+    }
+
+    @Override
+    protected List<Component> machineStatusDetailLines(MachineStatus status) {
+        return switch (status) {
+            case IDLE -> List.of(Component.translatable("machine_status_detail.mydrugs.fluid_filterer.idle"));
+            case MISSING_CATALYST, MISSING_INPUT_ITEM -> List.of(Component.translatable("machine_status_detail.mydrugs.fluid_filterer.missing_filter"));
+            case MISSING_INPUT_FLUID -> List.of(Component.translatable("machine_status_detail.mydrugs.fluid_filterer.missing_input"));
+            case OUTPUT_TANK_FULL, OUTPUT_SLOT_FULL -> List.of(Component.translatable("machine_status_detail.mydrugs.fluid_filterer.output_blocked"));
+            case RUNNING -> List.of(this.menu.isButtonHeld()
+                    ? Component.translatable("machine_status_detail.mydrugs.fluid_filterer.held")
+                    : Component.translatable("machine_status_detail.mydrugs.fluid_filterer.ready"));
+            case NO_MATCHING_RECIPE -> List.of(Component.translatable("machine_status_detail.mydrugs.fluid_filterer.no_matching_recipe"));
+            default -> super.machineStatusDetailLines(status);
+        };
     }
 
     @Override

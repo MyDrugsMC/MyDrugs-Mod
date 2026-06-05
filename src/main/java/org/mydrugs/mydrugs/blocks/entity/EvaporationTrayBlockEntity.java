@@ -94,7 +94,7 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         be.progress++;
 
         if (be.progress >= be.maxProgress) {
-            be.craft(recipe);
+            be.craft(recipeHolder.get());
         } else {
             be.setChanged();
         }
@@ -271,7 +271,8 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         }
     }
 
-    private void craft(EvaporationTrayRecipe recipe) {
+    private void craft(RecipeHolder<EvaporationTrayRecipe> holder) {
+        EvaporationTrayRecipe recipe = holder.value();
         consumeInputFluid(recipe.inputAmount());
 
         ItemStack result = recipe.result().copy();
@@ -288,7 +289,14 @@ public class EvaporationTrayBlockEntity extends BlockEntity {
         }
 
         resetProgress();
-        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(this);
+        org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                this,
+                Optional.of(holder.id().location()),
+                org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(result),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
         notifyUpdate();
     }
 
