@@ -49,7 +49,10 @@ public final class PersonalMusicDiscItem extends Item {
         if (flag.isAdvanced() && data.trackId() != null && !data.trackId().isBlank()) {
             tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.track_id", shorten(data.trackId())).withStyle(ChatFormatting.DARK_GRAY));
         }
-        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.personal_disc.requires_local_track").withStyle(ChatFormatting.YELLOW));
+        tooltipAdder.accept(Component.translatable(data.serverHosted()
+                        ? "tooltip.mydrugs.personal_disc.shared_server_track"
+                        : "tooltip.mydrugs.personal_disc.legacy_local_track")
+                .withStyle(data.serverHosted() ? ChatFormatting.AQUA : ChatFormatting.YELLOW));
     }
 
     private static String clean(String value, String fallback) {

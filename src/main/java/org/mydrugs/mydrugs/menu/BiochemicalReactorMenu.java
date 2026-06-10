@@ -66,7 +66,7 @@ public class BiochemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return BiochemicalReactorBlockEntity.isErgot(stack);
+                return BiochemicalReactorBlockEntity.isPrimaryInput(stack);
             }
         });
 
@@ -78,7 +78,7 @@ public class BiochemicalReactorMenu extends AbstractMachineMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return BiochemicalReactorBlockEntity.isTryptophan(stack);
+                return BiochemicalReactorBlockEntity.isSecondaryInput(stack);
             }
         });
 
@@ -229,14 +229,14 @@ public class BiochemicalReactorMenu extends AbstractMachineMenu {
                     return ItemStack.EMPTY;
                 }
             } else if (quickMovedSlotIndex < HOTBAR_END) {
-                if (BiochemicalReactorBlockEntity.isErgot(rawStack)) {
+                if (BiochemicalReactorBlockEntity.isPrimaryInput(rawStack)) {
                     if (!this.moveItemStackTo(rawStack,
                             BiochemicalReactorBlockEntity.SLOT_ERGOT,
                             BiochemicalReactorBlockEntity.SLOT_ERGOT + 1,
                             false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (BiochemicalReactorBlockEntity.isTryptophan(rawStack)) {
+                } else if (BiochemicalReactorBlockEntity.isSecondaryInput(rawStack)) {
                     if (!this.moveItemStackTo(rawStack,
                             BiochemicalReactorBlockEntity.SLOT_TRYPTOPHAN,
                             BiochemicalReactorBlockEntity.SLOT_TRYPTOPHAN + 1,

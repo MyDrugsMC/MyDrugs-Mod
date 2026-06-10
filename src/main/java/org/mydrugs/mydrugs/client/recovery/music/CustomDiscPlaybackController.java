@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.nio.file.Path;
 
 public final class CustomDiscPlaybackController {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -24,6 +25,7 @@ public final class CustomDiscPlaybackController {
     private static final Map<BlockPos, Session> SESSIONS = new HashMap<>();
     private static final Map<BlockPos, Long> GENERATIONS = new HashMap<>();
     private static final Set<String> MISSING_NOTICES = new HashSet<>();
+    private static final Map<String, PersonalDiscPlaybackPayload> PENDING_SHARED = new HashMap<>();
     private static long nextGeneration;
 
     private CustomDiscPlaybackController() {
@@ -63,6 +65,7 @@ public final class CustomDiscPlaybackController {
         SESSIONS.clear();
         GENERATIONS.clear();
         MISSING_NOTICES.clear();
+        PENDING_SHARED.clear();
     }
 
     private static void start(PersonalDiscPlaybackPayload payload) {
@@ -74,12 +77,16 @@ public final class CustomDiscPlaybackController {
         }
 
         stop(sessionPos);
+        if (payload.serverHosted()) {
+            startShared(payload);
+            return;
+        }
         Optional<MusicTrack> track = MusicLibrary.get().find(payload.trackId());
         if (track.isEmpty() || !track.get().isPlayable() || !track.get().isOgg()) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null && MISSING_NOTICES.add(missingNoticeKey(payload.pos(), payload.trackId()))) {
                 String title = payload.title() == null || payload.title().isBlank() ? payload.trackId() : payload.title();
-                mc.player.displayClientMessage(Component.translatable("message.mydrugs.music.missing_local_track", title), true);
+                mc.player.displayClientMessage(Component.translatable("message.mydrugs.music.legacy_missing_local_track", title), true);
             }
             return;
         }
@@ -94,6 +101,52 @@ public final class CustomDiscPlaybackController {
             return;
         }
 
+        startSession(payload, sessionPos, stream, access);
+    }
+
+    private static void startShared(PersonalDiscPlaybackPayload payload) {
+        if (payload.audioHash() == null || payload.audioHash().isBlank()
+                || payload.serverTrackId() == null || payload.serverTrackId().isBlank()) {
+            notifyPlayer("message.mydrugs.music.shared.unavailable");
+            return;
+        }
+        if (SharedMusicTransferClient.hasVerifiedCache(payload.audioHash())) {
+            startSharedFromCache(payload, SharedMusicTransferClient.cachedTrack(payload.audioHash()));
+            return;
+        }
+        PENDING_SHARED.put(payload.audioHash(), payload);
+        notifyPlayer("message.mydrugs.music.shared.buffering");
+        SharedMusicTransferClient.requestTrack(payload.serverTrackId(), payload.audioHash());
+    }
+
+    public static void onSharedTrackReady(String audioHash, Path path) {
+        PersonalDiscPlaybackPayload payload = PENDING_SHARED.remove(audioHash);
+        if (payload != null) {
+            startSharedFromCache(payload, path);
+        }
+    }
+
+    private static void startSharedFromCache(PersonalDiscPlaybackPayload payload, Path path) {
+        MusicTrack track = new MusicTrack();
+        track.id = payload.serverTrackId();
+        track.title = payload.title();
+        track.artist = payload.artist();
+        track.durationMs = payload.durationMs();
+        track.sourceType = MusicTrack.SourceType.LOCAL_FILE;
+        track.localPath = path.toString();
+        try {
+            AudioStream stream = AudioDecoder.openTrack(track);
+            ChannelAccess access = CustomMusicPlayer.resolveChannelAccess();
+            startSession(payload, payload.pos().immutable(), stream, access);
+            notifyPlayer("message.mydrugs.music.shared.playing");
+        } catch (Exception ex) {
+            LOGGER.warn("Unable to open cached shared personal disc track");
+            notifyPlayer("message.mydrugs.music.shared.download_failed");
+        }
+    }
+
+    private static void startSession(PersonalDiscPlaybackPayload payload, BlockPos sessionPos,
+                                     AudioStream stream, ChannelAccess access) {
         long generation = ++nextGeneration;
         GENERATIONS.put(sessionPos, generation);
         access.createHandle(Library.Pool.STREAMING).thenAcceptAsync(handle -> {
@@ -127,9 +180,17 @@ public final class CustomDiscPlaybackController {
         }, runnable -> Minecraft.getInstance().execute(runnable));
     }
 
+    private static void notifyPlayer(String key) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.player.displayClientMessage(Component.translatable(key), true);
+        }
+    }
+
     private static void stop(BlockPos pos) {
         BlockPos sessionPos = pos.immutable();
         GENERATIONS.remove(sessionPos);
+        PENDING_SHARED.entrySet().removeIf(entry -> entry.getValue().pos().equals(sessionPos));
         MISSING_NOTICES.removeIf(key -> key.startsWith(sessionPos.asLong() + "|"));
         Session old = SESSIONS.remove(sessionPos);
         if (old != null) {

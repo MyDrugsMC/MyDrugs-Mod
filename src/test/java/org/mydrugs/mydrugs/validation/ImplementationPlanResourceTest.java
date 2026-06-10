@@ -33,12 +33,15 @@ class ImplementationPlanResourceTest {
     @Test
     void distilleryIsRegisteredInJeiWithRecipesAndCatalyst() throws IOException {
         String jei = read("src/main/java/org/mydrugs/mydrugs/client/compat/JEIModPlugin.java");
+        String descriptors = read("src/main/java/org/mydrugs/mydrugs/client/compat/JeiCategoryDescriptors.java");
         String cache = read("src/main/java/org/mydrugs/mydrugs/client/compat/ClientRecipesCache.java");
         String category = read("src/main/java/org/mydrugs/mydrugs/client/compat/PsychotropeDistilleryRecipeCategory.java");
 
-        assertTrue(jei.contains("new PsychotropeDistilleryRecipeCategory"));
-        assertTrue(jei.contains("addRecipes(PsychotropeDistilleryRecipeCategory.TYPE"));
-        assertTrue(jei.contains("registerFieldCatalyst(registration, PsychotropeDistilleryRecipeCategory.TYPE"));
+        assertTrue(jei.contains("JeiCategoryDescriptors.ALL"));
+        assertTrue(descriptors.contains("\"psychotrope_distillery\""));
+        assertTrue(descriptors.contains("PsychotropeDistilleryRecipeCategory::new"));
+        assertTrue(descriptors.contains("\"getPsychotropeDistilleryRecipes\""));
+        assertTrue(descriptors.contains("\"PSYCHOTROPE_DISTILLERY_ITEM\""));
         assertTrue(cache.contains("ModRecipeTypes.PSYCHOTROPE_DISTILLERY"));
         assertTrue(category.contains("MachineGuiRenderer.drawPsychotropeDistillery"));
     }
@@ -72,7 +75,7 @@ class ImplementationPlanResourceTest {
     @Test
     void registeredRecipeTypesHaveJeiOrGuideCoverageForNewSystems() throws IOException {
         String recipeTypes = read("src/main/java/org/mydrugs/mydrugs/recipes/ModRecipeTypes.java");
-        String jei = read("src/main/java/org/mydrugs/mydrugs/client/compat/JEIModPlugin.java");
+        String jei = read("src/main/java/org/mydrugs/mydrugs/client/compat/JeiCategoryDescriptors.java");
         String guide = read("src/main/resources/assets/mydrugs/guide/pages.json");
 
         assertTrue(recipeTypes.contains("PSYCHOTROPE_DISTILLERY"));

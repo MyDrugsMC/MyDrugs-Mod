@@ -59,7 +59,9 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
                 graphics,
                 this.font,
                 this.title,
-                this.menu.isWorking() ? "Processing" : "Idle"
+                Component.translatable(this.menu.isWorking()
+                        ? "screen.mydrugs.ui.processing"
+                        : "screen.mydrugs.ui.idle")
         );
     }
 
@@ -147,11 +149,11 @@ public class BiochemicalReactorScreen extends AbstractMachineScreen<BiochemicalR
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.translatable("screen.mydrugs.ui.ergot"),
-                    Component.translatable("screen.mydrugs.ui.more_ergot_in_this_slot_increases_speed")
+                    Component.translatable("screen.mydrugs.ui.culture"),
+                    Component.translatable("screen.mydrugs.ui.more_primary_input_increases_speed")
             );
         } else if (isHoveringBox(BiochemicalReactorLayout.TRYPTOPHAN_SLOT_X, BiochemicalReactorLayout.TRYPTOPHAN_SLOT_Y, 18, 18, mouseX, mouseY)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.tryptophan"));
+            renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.substrate"));
         } else if (isHoveringBox(BiochemicalReactorLayout.CHARCOAL_SLOT_X, BiochemicalReactorLayout.CHARCOAL_SLOT_Y, 18, 18, mouseX, mouseY)) {
             renderTooltipLines(
                     graphics,

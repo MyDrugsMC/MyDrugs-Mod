@@ -56,6 +56,80 @@ public final class PsyMixerEffectService {
         }
     }
 
+    public static void playJudgementFeedback(
+            ServerLevel level,
+            BlockPos pos,
+            PsyMixerRitualJudgement judgement,
+            int streak
+    ) {
+        SoundEvent sound = switch (judgement) {
+            case PERFECT, GREAT, GOOD -> SoundEvents.AMETHYST_BLOCK_CHIME;
+            case NEAR -> SoundEvents.NOTE_BLOCK_CHIME.value();
+            case MISS -> SoundEvents.AMETHYST_BLOCK_BREAK;
+            default -> null;
+        };
+        if (sound == null) return;
+        float pitch = switch (judgement) {
+            case PERFECT -> 1.65F;
+            case GREAT -> 1.35F;
+            case GOOD -> 1.10F;
+            case NEAR -> 0.80F;
+            case MISS -> 0.60F;
+            default -> 1.0F;
+        };
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 0.30F, pitch + Math.min(0.25F, streak * 0.02F));
+        level.sendParticles(
+                judgement.isHit() ? ParticleTypes.END_ROD : ParticleTypes.SMOKE,
+                pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                judgement == PsyMixerRitualJudgement.PERFECT ? 12 : 4,
+                0.2, 0.2, 0.2, 0.02
+        );
+    }
+
+    public static void playMissReasonFeedback(
+            ServerLevel level,
+            BlockPos pos,
+            PsyMixerRitualMissReason reason
+    ) {
+        if (reason == PsyMixerRitualMissReason.NONE) return;
+        level.playSound(null, pos, SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.BLOCKS, 0.22F,
+                reason == PsyMixerRitualMissReason.TOO_EARLY ? 0.75F : 0.60F);
+        level.sendParticles(ParticleTypes.SMOKE,
+                pos.getX() + 0.5, pos.getY() + 0.9, pos.getZ() + 0.5,
+                3, 0.18, 0.12, 0.18, 0.01);
+    }
+
+    public static void spawnActionProgressParticles(
+            ServerLevel level,
+            BlockPos pos,
+            PsyMixerRitualAction action
+    ) {
+        var particle = switch (action) {
+            case WALK_RING, STAND_STILL -> ParticleTypes.WITCH;
+            case LOOK_AT_CORE, REOPEN_GUI -> ParticleTypes.PORTAL;
+            case TIMING_RING, JUMP, RIGHT_CLICK_AIR -> ParticleTypes.ELECTRIC_SPARK;
+            default -> ParticleTypes.END_ROD;
+        };
+        level.sendParticles(particle, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                6, 0.25, 0.25, 0.25, 0.02);
+    }
+
+    public static void spawnFamilyMotifParticles(
+            ServerLevel level,
+            BlockPos pos,
+            PsyMixerRitualProfiles.Motif motif
+    ) {
+        var particle = switch (motif) {
+            case CIRCULAR, DENSE_CIRCULAR, MYCELIAL -> ParticleTypes.WITCH;
+            case PERCEPTUAL -> ParticleTypes.REVERSE_PORTAL;
+            case UNSTABLE -> ParticleTypes.SPLASH;
+            case KINETIC, VOLATILE, OVERCLOCKED -> ParticleTypes.ELECTRIC_SPARK;
+            case BREATH -> ParticleTypes.CLOUD;
+        };
+        level.sendParticles(particle, pos.getX() + 0.5, pos.getY() + 1.1, pos.getZ() + 0.5,
+                8, 0.35, 0.25, 0.35, 0.03);
+    }
+
     public static void spawnCompletionBurst(
             ServerLevel level,
             BlockPos pos,

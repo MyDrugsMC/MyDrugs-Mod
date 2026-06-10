@@ -189,6 +189,10 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "mutation_vector", "mydrugs:item/mutation_vector"));
         futures.add(saveFlatItem(cachedOutput, "mutagenic_blood_vial", "mydrugs:item/mutagenic_blood_vial"));
         futures.add(saveFlatItem(cachedOutput, "nutrient_gel", "mydrugs:item/nutrient_gel"));
+        futures.add(saveFlatItem(cachedOutput, "antibiotic_crystals", "mydrugs:item/nutrient_gel"));
+        futures.add(saveFlatItem(cachedOutput, "antibiotic_dose", "mydrugs:item/calming_mixture"));
+        futures.add(saveFlatItem(cachedOutput, "crude_antibiotic_vial", "mydrugs:item/mutagenic_blood_vial"));
+        futures.add(saveFlatItem(cachedOutput, "sterile_antibiotic_vial", "mydrugs:item/mutagenic_blood_vial"));
 
         // Phase D extracts / materials / components.
         futures.add(saveFlatItem(cachedOutput, "lucid_extract", "mydrugs:item/lucid_extract"));
@@ -206,7 +210,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "distillation_coil", "mydrugs:item/distillation_coil"));
         futures.add(saveFlatItem(cachedOutput, "current_regulator", "mydrugs:item/current_regulator"));
         futures.add(saveFlatItem(cachedOutput, "strain_vent", "mydrugs:item/strain_vent"));
-        futures.add(saveFlatItem(cachedOutput, "resonance_lens", "mydrugs:item/resonance_lens"));
+        futures.add(saveFlatItem(cachedOutput, "resonance_lens", "mydrugs:item/psychotrope_lens"));
         futures.add(saveFlatItem(cachedOutput, "integration_core", "mydrugs:item/integration_core"));
         futures.add(saveFlatItem(cachedOutput, "basic_integration_core", "mydrugs:item/integration_core"));
         futures.add(saveFlatItem(cachedOutput, "advanced_integration_core", "mydrugs:item/integration_core"));
@@ -227,7 +231,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
         clientItemRoot.add("model", clientItemModel);
 
         Path clientItemPath = this.itemClientPathProvider.json(id);
-        CompletableFuture<?> clientItemFuture = DataProvider.saveStable(cachedOutput, clientItemRoot, clientItemPath);
+        CompletableFuture<?> clientItemFuture = DatagenOutputGuard.saveStable("ModSimpleClientItemProvider", cachedOutput, clientItemRoot, clientItemPath);
 
         JsonObject itemModelRoot = new JsonObject();
         JsonObject textures = new JsonObject();
@@ -236,7 +240,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
         itemModelRoot.add("textures", textures);
 
         Path itemModelPath = this.itemModelPathProvider.json(id);
-        CompletableFuture<?> itemModelFuture = DataProvider.saveStable(cachedOutput, itemModelRoot, itemModelPath);
+        CompletableFuture<?> itemModelFuture = DatagenOutputGuard.saveStable("ModSimpleClientItemProvider", cachedOutput, itemModelRoot, itemModelPath);
 
         return CompletableFuture.allOf(clientItemFuture, itemModelFuture);
     }

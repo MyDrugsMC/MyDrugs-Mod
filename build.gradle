@@ -49,6 +49,43 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+tasks.register('resourceValidationTest', Test) {
+    group = 'verification'
+    description = 'Runs the bootstrap-free datagen and generated-resource contract tests.'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/audit/*ResourceValidationTest.class'
+    include '**/audit/ResourceContractValidationTest.class'
+    include '**/audit/DatagenProviderContractValidationTest.class'
+    include '**/audit/ResourceAuditManifestTest.class'
+}
+
+tasks.register('resourceAuditManifest', JavaExec) {
+    group = 'verification'
+    description = 'Writes the deterministic resource contract report under build/reports.'
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.mydrugs.mydrugs.audit.ResourceAuditManifestWriter'
+    args layout.buildDirectory.file('reports/mydrugs/resource_audit_manifest.json').get().asFile.absolutePath
+}
+
+tasks.register('updateResourceAuditManifest', JavaExec) {
+    group = 'verification'
+    description = 'Intentionally updates the committed resource audit and known texture debt snapshots.'
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.mydrugs.mydrugs.audit.ResourceAuditManifestWriter'
+    args layout.buildDirectory.file('reports/mydrugs/resource_audit_manifest.json').get().asFile.absolutePath,
+            layout.projectDirectory.file('src/test/resources/mydrugs/resource_audit_manifest.json').asFile.absolutePath,
+            layout.projectDirectory.file('src/test/resources/mydrugs/known_missing_textures.txt').asFile.absolutePath
+}
+
+tasks.named('validateResources') {
+    dependsOn tasks.named('resourceValidationTest')
+    finalizedBy tasks.named('resourceAuditManifest')
+}
+
 neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version

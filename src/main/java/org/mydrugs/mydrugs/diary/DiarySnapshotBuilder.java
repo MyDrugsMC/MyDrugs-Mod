@@ -33,7 +33,7 @@ import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.progression.PsyMixerMasteryAttachment;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeKey;
 import org.mydrugs.mydrugs.progression.PsyKnowledgeManager;
-import org.mydrugs.mydrugs.psyche.PlayerPsycheMapAttachment;
+import org.mydrugs.mydrugs.psyche.PsycheMapManager;
 import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
@@ -103,7 +103,12 @@ public final class DiarySnapshotBuilder {
                     formulaMasteryName(rl, patents),
                     comp, fail,
                     mastery.getSpeedMultiplier(rl),
-                    mastery.getInstabilityReduction(rl)
+                    mastery.getInstabilityReduction(rl),
+                    mastery.getRemovedActionCount(rl),
+                    mastery.getTimingWindowBonus(rl),
+                    mastery.getActionTimeoutBonus(rl),
+                    masteryRankKey(comp),
+                    masteryNextBenefitKey(comp)
             ));
         }
 
@@ -144,13 +149,7 @@ public final class DiarySnapshotBuilder {
                 explanation.dominantDose()
         );
 
-        PlayerPsycheMapAttachment psycheMap = player.getData(ModAttachments.PLAYER_PSYCHE_MAP.get());
-        List<PsycheMapNodeDto> psycheNodes = new ArrayList<>();
-        for (PlayerPsycheMapAttachment.Node n : psycheMap.getNodes()) {
-            psycheNodes.add(new PsycheMapNodeDto(
-                    n.nodeId, n.unlockedAtGameTime, n.unlockedDay, n.trigger, n.dominantDrugId
-            ));
-        }
+        List<PsycheMapNodeDto> psycheNodes = PsycheMapManager.snapshot(player);
 
         RecoveryRoomReport recoveryRoom = RecoveryRoomManager.getBestRoom(player).orElse(null);
         DiaryClaritySnapshot clarity = DiaryClarityService.build(player, diary, state, psycheNodes);
@@ -169,6 +168,20 @@ public final class DiarySnapshotBuilder {
                 buildSanctuaryModuleKeys(recoveryRoom),
                 buildSanctuarySuggestionKeys(recoveryRoom)
         );
+    }
+
+    private static String masteryRankKey(int completed) {
+        if (completed >= 30) return "diary.mydrugs.mastery.rank.body";
+        if (completed >= 20) return "diary.mydrugs.mastery.rank.mastered";
+        if (completed >= 10) return "diary.mydrugs.mastery.rank.internalized";
+        if (completed >= 3) return "diary.mydrugs.mastery.rank.practiced";
+        return "diary.mydrugs.mastery.rank.unfamiliar";
+    }
+
+    private static String masteryNextBenefitKey(int completed) {
+        if (completed < 18) return "diary.mydrugs.mastery.next.timing";
+        if (completed < 20) return "diary.mydrugs.mastery.next.timeout";
+        return "diary.mydrugs.mastery.next.complete";
     }
 
     private static List<DiaryIntegrationProgressDto> buildIntegrationProgress(

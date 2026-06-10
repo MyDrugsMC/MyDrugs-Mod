@@ -28,6 +28,14 @@ public final class ModMutationItems {
             ));
     public static final DeferredItem<Item> NUTRIENT_GEL =
             ModItems.ITEMS.registerSimpleItem("nutrient_gel");
+    public static final DeferredItem<Item> ANTIBIOTIC_CRYSTALS =
+            ModItems.ITEMS.registerSimpleItem("antibiotic_crystals");
+    public static final DeferredItem<Item> ANTIBIOTIC_DOSE =
+            ModItems.ITEMS.registerItem("antibiotic_dose", AntibioticDoseItem::new);
+    public static final DeferredItem<Item> CRUDE_ANTIBIOTIC_VIAL =
+            ModItems.ITEMS.registerItem("crude_antibiotic_vial", props -> new AntibioticVialItem(props, false));
+    public static final DeferredItem<Item> STERILE_ANTIBIOTIC_VIAL =
+            ModItems.ITEMS.registerItem("sterile_antibiotic_vial", props -> new AntibioticVialItem(props, true));
 
     private ModMutationItems() {
     }

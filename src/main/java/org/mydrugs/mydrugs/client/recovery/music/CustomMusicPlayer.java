@@ -265,10 +265,12 @@ public final class CustomMusicPlayer {
     }
 
     public void next() {
+        MusicLibrary.get().markTouched(currentTrack, false);
         MusicLibrary.get().nextAfter(currentTrack, false).ifPresent(this::play);
     }
 
     public void previous() {
+        MusicLibrary.get().markTouched(currentTrack, false);
         MusicLibrary.get().nextAfter(currentTrack, true).ifPresent(this::play);
     }
 
@@ -307,7 +309,7 @@ public final class CustomMusicPlayer {
             } else if (shuffle) {
                 MusicLibrary.get().random(t).ifPresent(this::play);
             } else {
-                next();
+                MusicLibrary.get().nextAfter(t, false).ifPresent(this::play);
             }
         }
         if (serverWantsPlayback && state == MusicPlaybackState.STOPPED) {

@@ -26,10 +26,10 @@ class MutationFragilityTest {
     }
 
     @Test
-    void lowOrEqualTierHitsDecayBorrowedStats() {
+    void equalOrHigherTierHitsDecayBorrowedStats() {
         assertTrue(MutationFragilityEvents.shouldDecayForHit(GeneticRarityTier.COMMON, GeneticRarityTier.COMMON));
-        assertTrue(MutationFragilityEvents.shouldDecayForHit(GeneticRarityTier.RARE, GeneticRarityTier.MYTHIC));
-        assertFalse(MutationFragilityEvents.shouldDecayForHit(GeneticRarityTier.MYTHIC, GeneticRarityTier.RARE));
+        assertFalse(MutationFragilityEvents.shouldDecayForHit(GeneticRarityTier.RARE, GeneticRarityTier.MYTHIC));
+        assertTrue(MutationFragilityEvents.shouldDecayForHit(GeneticRarityTier.MYTHIC, GeneticRarityTier.RARE));
     }
 
     @Test

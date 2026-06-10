@@ -12,13 +12,16 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.psyche.PsycheMapNodeCatalog;
 import org.mydrugs.mydrugs.psyche.PsycheMapNodeDto;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,6 +57,7 @@ public final class MindMapPage {
 
     private final List<Node> nodes = new ArrayList<>();
     private final Set<String> unlocked = new HashSet<>();
+    private final Map<String, PsycheMapNodeDto> stateByNodeId = new HashMap<>();
     private final int totalCount;
     private final int unlockedCount;
 
@@ -62,12 +66,15 @@ public final class MindMapPage {
     private float panX, panY;
     private float zoom = 1.0F;
     private boolean dragging;
+    private String focusedNodeId = "";
+    private int focusPulseTicks;
 
     public MindMapPage(List<PsycheMapNodeDto> snapshotNodes,
                        int contentLeft, int contentTop, int contentRight, int contentBottom) {
         setBounds(contentLeft, contentTop, contentRight, contentBottom);
         for (PsycheMapNodeDto n : snapshotNodes) {
             unlocked.add(n.nodeId());
+            stateByNodeId.put(n.nodeId(), n);
         }
         for (PsycheMapNodeCatalog.Entry e : PsycheMapNodeCatalog.all()) {
             boolean isUnlocked = unlocked.contains(e.nodeId);
@@ -75,9 +82,9 @@ public final class MindMapPage {
                     MemoryStoragePaths.memoryDir(e.nodeId).resolve("frame_00.png")
             );
             if (e.hiddenUntilUnlocked && !isUnlocked) {
-                nodes.add(new Node(e, false, true, false));
+                nodes.add(new Node(e, null, false, true, false));
             } else {
-                nodes.add(new Node(e, isUnlocked, false, hasMem));
+                nodes.add(new Node(e, stateByNodeId.get(e.nodeId), isUnlocked, false, hasMem));
             }
         }
         this.totalCount = nodes.size();
@@ -123,6 +130,22 @@ public final class MindMapPage {
         this.zoom = 1.0F;
     }
 
+    public boolean focusNode(String nodeId) {
+        if (nodeId == null || nodeId.isBlank()) {
+            return false;
+        }
+        for (Node node : nodes) {
+            if (node.entry.nodeId.equals(nodeId) && node.unlocked) {
+                panX = -node.entry.x;
+                panY = -node.entry.y;
+                focusedNodeId = nodeId;
+                focusPulseTicks = Config.CLIENT.reducedMotionMode.get() ? 10 : 50;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean keyPressed(int key) {
         if (key == InputConstants.KEY_R) {
             recenter();
@@ -136,10 +159,13 @@ public final class MindMapPage {
         if (!inside(mouseX, mouseY)) return false;
         Node hit = pick(mouseX, mouseY);
         if (hit != null && hit.unlocked) {
-            String title = Component.translatable(hit.entry.titleKey).getString();
             String caption = Component.translatable(hit.entry.captionKey).getString();
             Minecraft.getInstance().setScreen(
-                    new MemoryPlaybackScreen(hit.entry.nodeId, Component.literal(title), caption)
+                    new MemoryPlaybackScreen(
+                            hit.entry.nodeId,
+                            Component.translatable(hit.entry.titleKey),
+                            caption
+                    )
             );
             return true;
         }
@@ -225,6 +251,9 @@ public final class MindMapPage {
 
         renderCounter(g, font);
         renderHover(g, font, mouseX, mouseY);
+        if (focusPulseTicks > 0) {
+            focusPulseTicks--;
+        }
     }
 
     private void renderBackground(GuiGraphics g) {
@@ -300,6 +329,10 @@ public final class MindMapPage {
 
             int outer = n.unlocked ? UNLOCKED_OUTER : LOCKED_OUTER;
             int inner = n.unlocked ? UNLOCKED_INNER : LOCKED_INNER;
+            if (focusPulseTicks > 0 && n.entry.nodeId.equals(focusedNodeId)) {
+                int pulse = Config.CLIENT.reducedMotionMode.get() ? 3 : 3 + (focusPulseTicks / 5) % 3;
+                drawOutline(g, sx - r - pulse, sy - r - pulse, sx + r + pulse, sy + r + pulse, 0xFFFFF2A8);
+            }
             if (n.unlocked) {
                 // soft halo
                 g.fill(sx - r - 2, sy - r - 2, sx + r + 2, sy + r + 2, GLOW_HALO);
@@ -323,6 +356,13 @@ public final class MindMapPage {
                 g.drawString(font, label, sx - lw / 2, sy + r + 2, 0xFF2A1B0E, false);
             }
         }
+    }
+
+    private static void drawOutline(GuiGraphics g, int left, int top, int right, int bottom, int color) {
+        g.fill(left, top, right, top + 1, color);
+        g.fill(left, bottom - 1, right, bottom, color);
+        g.fill(left, top, left + 1, bottom, color);
+        g.fill(right - 1, top, right, bottom, color);
     }
 
     private void renderCounter(GuiGraphics g, Font font) {
@@ -372,8 +412,29 @@ public final class MindMapPage {
 
         int titleW = font.width(title);
         List<String> lines = wrappedLines(font, caption, 140);
+        if (hovered.unlocked && hovered.entry.isIntegrationNode()) {
+            String integratedDrugId = hovered.state == null || hovered.state.dominantDrugId().isBlank()
+                    ? hovered.entry.integrationDrugId.serializedName()
+                    : hovered.state.dominantDrugId();
+            lines.addAll(wrappedLines(
+                    font,
+                    Component.translatable(
+                            "screen.mydrugs.diary.mind_map.unlocked_by",
+                            Component.translatable("drug.mydrugs." + integratedDrugId)
+                    ).getString(),
+                    140
+            ));
+            lines.addAll(wrappedLines(
+                    font,
+                    Component.translatable(
+                            "screen.mydrugs.diary.mind_map.knowledge_link",
+                            Component.translatable(hovered.entry.knowledgeTranslationKey())
+                    ).getString(),
+                    140
+            ));
+        }
         int captionLines = lines.size();
-        int textWidth = Math.max(titleW, Math.min(140, font.width(caption)));
+        int textWidth = Math.max(titleW, 140);
         int boxW = Math.max(previewW, textWidth) + 12;
         int boxH = (previewH > 0 ? previewH + 4 : 0) + 12 + 10 * (captionLines + 1);
 
@@ -456,11 +517,14 @@ public final class MindMapPage {
 
     private static final class Node {
         final PsycheMapNodeCatalog.Entry entry;
+        final PsycheMapNodeDto state;
         final boolean unlocked;
         final boolean hidden;
         final boolean hasMemory;
-        Node(PsycheMapNodeCatalog.Entry entry, boolean unlocked, boolean hidden, boolean hasMemory) {
+        Node(PsycheMapNodeCatalog.Entry entry, PsycheMapNodeDto state,
+             boolean unlocked, boolean hidden, boolean hasMemory) {
             this.entry = entry;
+            this.state = state;
             this.unlocked = unlocked;
             this.hidden = hidden;
             this.hasMemory = hasMemory;

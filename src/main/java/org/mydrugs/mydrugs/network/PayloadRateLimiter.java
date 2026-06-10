@@ -46,7 +46,12 @@ public final class PayloadRateLimiter {
         // Psy mixer rhythm input — sacred altar, not a drum kit.
         PSY_MIXER_RITUAL_INPUT(150L),
         // Disc scriber writes items; keep it comfortably below click-spam rates.
-        SCRIBE_PERSONAL_DISC(500L);
+        SCRIBE_PERSONAL_DISC(500L),
+        SERVER_MUSIC_UPLOAD_START(1_000L),
+        SERVER_MUSIC_UPLOAD_CHUNK(1L),
+        SERVER_MUSIC_UPLOAD_FINISH(500L),
+        SERVER_MUSIC_DOWNLOAD_REQUEST(2_000L),
+        PERSONAL_DIARY_SUBMIT(500L);
 
         final long minIntervalMs;
 

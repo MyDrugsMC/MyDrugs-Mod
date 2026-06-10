@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 
 public record PsyMixerRitualSyncPayload(
@@ -23,6 +24,7 @@ public record PsyMixerRitualSyncPayload(
         int mistakes,
         int maxMistakes,
         PsyMixerRitualJudgement lastJudgement,
+        PsyMixerRitualMissReason lastMissReason,
         int feedbackTicks,
         int ritualTick,
         int ritualMaxTime,
@@ -30,6 +32,7 @@ public record PsyMixerRitualSyncPayload(
         int actionTimeout,
         float targetPhase,
         float timingWindow,
+        float actionProgress,
         boolean completionAnimation,
         int completionTick,
         int completionDuration,
@@ -56,6 +59,7 @@ public record PsyMixerRitualSyncPayload(
         ByteBufCodecs.VAR_INT.encode(buf, payload.mistakes);
         ByteBufCodecs.VAR_INT.encode(buf, payload.maxMistakes);
         ByteBufCodecs.VAR_INT.encode(buf, payload.lastJudgement.id());
+        PsyMixerRitualMissReason.STREAM_CODEC.encode(buf, payload.lastMissReason);
         ByteBufCodecs.VAR_INT.encode(buf, payload.feedbackTicks);
         ByteBufCodecs.VAR_INT.encode(buf, payload.ritualTick);
         ByteBufCodecs.VAR_INT.encode(buf, payload.ritualMaxTime);
@@ -63,6 +67,7 @@ public record PsyMixerRitualSyncPayload(
         ByteBufCodecs.VAR_INT.encode(buf, payload.actionTimeout);
         ByteBufCodecs.FLOAT.encode(buf, payload.targetPhase);
         ByteBufCodecs.FLOAT.encode(buf, payload.timingWindow);
+        ByteBufCodecs.FLOAT.encode(buf, payload.actionProgress);
         ByteBufCodecs.BOOL.encode(buf, payload.completionAnimation);
         ByteBufCodecs.VAR_INT.encode(buf, payload.completionTick);
         ByteBufCodecs.VAR_INT.encode(buf, payload.completionDuration);
@@ -82,11 +87,13 @@ public record PsyMixerRitualSyncPayload(
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 PsyMixerRitualJudgement.byId(ByteBufCodecs.VAR_INT.decode(buf)),
+                PsyMixerRitualMissReason.STREAM_CODEC.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
                 ByteBufCodecs.VAR_INT.decode(buf),
+                ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.FLOAT.decode(buf),
                 ByteBufCodecs.BOOL.decode(buf),

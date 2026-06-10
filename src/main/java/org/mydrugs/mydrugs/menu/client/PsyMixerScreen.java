@@ -14,6 +14,8 @@ import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualProfiles;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.client.compat.ClientRecipesCache;
 import org.mydrugs.mydrugs.core.drug.DrugId;
@@ -25,6 +27,7 @@ import org.mydrugs.mydrugs.network.PsyMixerStartRitualPayload;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
 
 import java.util.Optional;
+import java.util.List;
 
 public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> {
     private static final int OUTER = 0xFF12070A;
@@ -185,8 +188,34 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 //        y += 10;
         Component actions = !hasPotentialActionRitual(recipe)
                 ? Component.translatable("screen.mydrugs.psy_mixer.no_ritual_required")
-                : Component.literal(recipe.availableRitualActions().stream().map(PsyMixerRitualAction::serializedName).limit(4).reduce((a, b) -> a + ", " + b).orElse(""));
+                : actionSummary(recipe);
         graphics.drawString(font, actions, layout.sideX, y, MUTED, false);
+        y += 10;
+        int patternY = y;
+        RitualBaseDrugResolver.resolve(menu.getSlot(PsyMixerMultiblock.SLOT_BASE).getItem()).ifPresent(drug ->
+                graphics.drawString(font, Component.translatable(
+                        "screen.mydrugs.psy_mixer.ritual_pattern",
+                        Component.translatable(PsyMixerRitualProfiles.forDrug(drug).motif().translationKey())
+                ), layout.sideX, patternY, MUTED, false));
+    }
+
+    private Component actionSummary(PsyMixerRecipe recipe) {
+        List<PsyMixerRitualAction> configured = recipe.availableRitualActions();
+        List<PsyMixerRitualAction> actions = RitualBaseDrugResolver.resolve(menu.getSlot(PsyMixerMultiblock.SLOT_BASE).getItem())
+                .filter(drug -> configured.isEmpty() || PsyMixerRitualProfiles.isLegacyGenericPool(configured))
+                .map(drug -> PsyMixerRitualProfiles.forDrug(drug).weightedActions().stream().distinct().toList())
+                .orElse(configured.stream().distinct().toList());
+        Component labels = Component.empty();
+        int shown = Math.min(4, actions.size());
+        for (int i = 0; i < shown; i++) {
+            if (i > 0) labels = labels.copy().append(Component.literal(", "));
+            labels = labels.copy().append(Component.translatable(actions.get(i).labelKey()));
+        }
+        if (actions.size() > shown) {
+            labels = labels.copy().append(Component.translatable(
+                    "screen.mydrugs.psy_mixer.actions_more", actions.size() - shown));
+        }
+        return Component.translatable("screen.mydrugs.psy_mixer.possible_gestures", labels);
     }
 
     private boolean hasPotentialActionRitual(PsyMixerRecipe recipe) {
@@ -201,7 +230,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
 
     private static int baseDrugActionCount(DrugId drugId) {
         return switch (drugId) {
-            case TOBACCO, WEED, HASH -> 1;
+            case COFFEE, TOBACCO, WEED, HASH -> 1;
             case ALCOHOL, COCAINE, CRACK -> 2;
             case LSD, METH -> 3;
             case MUSHROOMS -> 4;
@@ -225,42 +254,47 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         drawBonusSlotLine(graphics, y + 40, "screen.mydrugs.psy_mixer.stabilizer", PsyMixerMultiblock.SLOT_STABILIZER);
     }
 
-    private enum BonusSlotState { ACTIVE, MISSING, INVALID, OPTIONAL }
+    private enum BonusSlotState { REQUIRED_MISSING, OPTIONAL_EMPTY, VALID, INVALID }
 
     private BonusSlotState getBonusSlotState(int slot) {
-        var recipes = ClientRecipesCache.getPsyMixerRecipes();
         ItemStack itemInSlot = menu.getSlot(slot).getItem();
-
-        boolean anySupports = recipes.stream().anyMatch(recipe -> switch (slot) {
-            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.supportsCatalyst();
-            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.supportsStabilizer();
-            case PsyMixerMultiblock.SLOT_VESSEL -> recipe.supportsVessel();
+        Optional<PsyMixerRecipe> recipe = recipeForRequiredInputs();
+        boolean supports = recipe.map(value -> switch (slot) {
+            case PsyMixerMultiblock.SLOT_CATALYST -> value.supportsCatalyst();
+            case PsyMixerMultiblock.SLOT_STABILIZER -> value.supportsStabilizer();
+            case PsyMixerMultiblock.SLOT_VESSEL -> value.supportsVessel();
             default -> false;
-        });
+        }).orElse(false);
 
-        if (!anySupports) {
-            return itemInSlot.isEmpty() ? BonusSlotState.OPTIONAL : BonusSlotState.INVALID;
-        }
-        if (itemInSlot.isEmpty()) return BonusSlotState.MISSING;
+        if (itemInSlot.isEmpty()) return BonusSlotState.OPTIONAL_EMPTY;
+        if (!supports) return BonusSlotState.INVALID;
 
-        boolean isValid = recipes.stream().anyMatch(recipe -> switch (slot) {
-            case PsyMixerMultiblock.SLOT_CATALYST -> recipe.effectiveCatalyst().test(itemInSlot);
-            case PsyMixerMultiblock.SLOT_STABILIZER -> recipe.effectiveStabilizer().test(itemInSlot);
-            case PsyMixerMultiblock.SLOT_VESSEL -> recipe.effectiveVessel().test(itemInSlot);
+        boolean isValid = recipe.map(value -> switch (slot) {
+            case PsyMixerMultiblock.SLOT_CATALYST -> value.effectiveCatalyst().test(itemInSlot);
+            case PsyMixerMultiblock.SLOT_STABILIZER -> value.effectiveStabilizer().test(itemInSlot);
+            case PsyMixerMultiblock.SLOT_VESSEL -> value.effectiveVessel().test(itemInSlot);
             default -> false;
-        });
-        return isValid ? BonusSlotState.ACTIVE : BonusSlotState.INVALID;
+        }).orElse(false);
+        return isValid ? BonusSlotState.VALID : BonusSlotState.INVALID;
     }
 
     private void drawBonusSlotLine(GuiGraphics graphics, int y, String labelKey, int slot) {
         BonusSlotState state = getBonusSlotState(slot);
-        int color;
-        Component stateText;
+        int color = MUTED;
+        Component stateText = Component.translatable("screen.mydrugs.psy_mixer.optional_short");
         switch (state) {
-            case ACTIVE -> { color = GOOD; stateText = Component.translatable("screen.mydrugs.psy_mixer.bonus_active"); }
-            case MISSING -> { color = WARN; stateText = Component.translatable("screen.mydrugs.psy_mixer.missing"); }
-            case INVALID -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.invalid"); }
-            default -> { color = MUTED; stateText = Component.translatable("screen.mydrugs.psy_mixer.optional_short"); }
+            case VALID -> {
+                color = GOOD;
+                stateText = Component.translatable(switch (slot) {
+                    case PsyMixerMultiblock.SLOT_CATALYST -> "screen.mydrugs.psy_mixer.optional.catalyst";
+                    case PsyMixerMultiblock.SLOT_STABILIZER -> "screen.mydrugs.psy_mixer.optional.stabilizer";
+                    case PsyMixerMultiblock.SLOT_VESSEL -> "screen.mydrugs.psy_mixer.optional.vessel";
+                    default -> "screen.mydrugs.psy_mixer.bonus_active";
+                });
+            }
+            case REQUIRED_MISSING -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.missing"); }
+            case INVALID -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.optional.invalid"); }
+            case OPTIONAL_EMPTY -> { color = MUTED; stateText = Component.translatable("screen.mydrugs.psy_mixer.optional_short"); }
         }
         Component label = Component.translatable("screen.mydrugs.psy_mixer.checkline", Component.translatable(labelKey), stateText);
         graphics.drawString(font, label, layout.sideX, y, color, false);
@@ -281,9 +315,25 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         y += 12;
         graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.mistakes", menu.getMistakes(), menu.getMaxMistakes()), layout.sideX, y, menu.getMistakes() > 0 ? WARN : GOOD, false);
         y += 12;
+        if (!menu.isRunning()) {
+            currentRecipe().ifPresent(recipe -> {
+                float multiplier = 1.0F;
+                if (recipe.hasValidCatalyst(menu.getSlot(PsyMixerMultiblock.SLOT_CATALYST).getItem())) multiplier += 0.20F;
+                if (recipe.hasValidStabilizer(menu.getSlot(PsyMixerMultiblock.SLOT_STABILIZER).getItem())) multiplier += 0.10F;
+                if (recipe.hasValidVessel(menu.getSlot(PsyMixerMultiblock.SLOT_VESSEL).getItem())) multiplier += 0.10F;
+                graphics.drawString(font, Component.translatable(
+                        "screen.mydrugs.psy_mixer.score_multiplier", Math.round(multiplier * 100.0F)
+                ), layout.sideX, layout.bonusY, TEXT, false);
+                graphics.drawString(font, Component.translatable(
+                        "screen.mydrugs.psy_mixer.quality_effects",
+                        PsyMixerRitualQuality.MASTERWORK.positivePercent(),
+                        PsyMixerRitualQuality.MASTERWORK.negativePercent()
+                ), layout.sideX, layout.bonusY + 10, MUTED, false);
+            });
+        }
         if (menu.isRunning()) {
             int progressWidth = menu.getActionTimeout() > 0
-                    ? Mth.clamp((int) (((float) menu.getActionTick() / menu.getActionTimeout()) * layout.meterWidth), 0, layout.meterWidth)
+                    ? Mth.clamp((int) (menu.getActionProgress() * layout.meterWidth), 0, layout.meterWidth)
                     : 0;
             drawMeter(graphics, y, "screen.mydrugs.psy_mixer.progress", progressWidth, 0xFFAA66CC);
         }
@@ -306,11 +356,16 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         }
 
         PsyMixerRitualJudgement judgement = menu.getLastJudgement();
-        boolean showJudgement = menu.getFeedbackTicks() > 0 && judgement != PsyMixerRitualJudgement.NONE;
-        Component cue = showJudgement
+        PsyMixerRitualMissReason missReason = menu.getLastMissReason();
+        boolean showFeedback = menu.getFeedbackTicks() > 0;
+        Component cue = showFeedback && missReason != PsyMixerRitualMissReason.NONE
+                ? Component.translatable(missReason.screenKey())
+                : showFeedback && judgement != PsyMixerRitualJudgement.NONE
                 ? Component.translatable(judgement.screenKey())
                 : Component.translatable(menu.getCurrentAction().promptKey());
-        int color = showJudgement ? judgementColor(judgement) : isInTimingWindow() ? GOOD : WARN;
+        int color = showFeedback && missReason != PsyMixerRitualMissReason.NONE
+                ? BAD
+                : showFeedback ? judgementColor(judgement) : isInTimingWindow() ? GOOD : WARN;
         drawCentered(graphics, cue, layout.ritualCenterX, layout.ritualCueY, color);
 
         Component hits = Component.translatable(
@@ -419,8 +474,17 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
                 .findFirst();
     }
 
+    private Optional<PsyMixerRecipe> recipeForRequiredInputs() {
+        ItemStack base = menu.getSlot(PsyMixerMultiblock.SLOT_BASE).getItem();
+        ItemStack material = menu.getSlot(PsyMixerMultiblock.SLOT_MATERIAL).getItem();
+        return ClientRecipesCache.getPsyMixerRecipes().stream()
+                .filter(recipe -> !base.isEmpty() && recipe.base().test(base))
+                .filter(recipe -> !material.isEmpty() && recipe.material().test(material))
+                .findFirst();
+    }
+
     private Component qualityRange() {
-        return Component.literal("Crude / Base / Perfect / Masterwork");
+        return Component.translatable("screen.mydrugs.psy_mixer.quality_hint");
     }
 
     private int qualityColor(PsyMixerRitualQuality quality) {

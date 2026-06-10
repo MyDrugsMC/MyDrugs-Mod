@@ -5,12 +5,14 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
+import org.mydrugs.mydrugs.client.recovery.music.tools.MyDrugsClientConfig;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -31,6 +33,15 @@ import java.nio.file.Path;
  */
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
 public final class MemoryCaptureClient {
+    public enum State {
+        IDLE,
+        STARTING,
+        CAPTURING,
+        SAVED,
+        DISABLED,
+        FAILED
+    }
+
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final int FRAME_COUNT = 10;
     public static final int TICKS_BETWEEN_FRAMES = 10; // 2 FPS at 20 ticks/sec
@@ -43,11 +54,24 @@ public final class MemoryCaptureClient {
     private static Path captureDir;
     private static int frameIndex;
     private static int tickCounter;
+    private static volatile State state = State.IDLE;
+    private static volatile String currentNodeId = "";
+    private static volatile int framesAttempted;
+    private static volatile int framesCompleted;
+    private static volatile int framesWritten;
+    private static volatile String lastMessageKey = "";
 
     private MemoryCaptureClient() {
     }
 
     public static synchronized void start(StartMemoryCapturePayload payload) {
+        if (!MyDrugsClientConfig.get().isMemoryCaptureEnabled()) {
+            pending = null;
+            captureDir = null;
+            currentNodeId = payload.nodeId();
+            setState(State.DISABLED, "screen.mydrugs.memory.capture.disabled");
+            return;
+        }
         // Setup directory + manifest on IO pool so we don't block the network/render thread.
         try {
             final Path dir = MemoryStoragePaths.memoryDir(payload.nodeId());
@@ -55,18 +79,26 @@ public final class MemoryCaptureClient {
             captureDir = dir;
             frameIndex = 0;
             tickCounter = 0;
+            currentNodeId = payload.nodeId();
+            framesAttempted = 0;
+            framesCompleted = 0;
+            framesWritten = 0;
+            setState(State.STARTING, "screen.mydrugs.memory.capture.started");
             Util.ioPool().execute(() -> {
                 try {
                     Files.createDirectories(dir);
                     writeManifest(dir, payload);
+                    state = State.CAPTURING;
                 } catch (Throwable t) {
                     LOGGER.warn("Failed to initialize memory capture dir for {}: {}", payload.nodeId(), t.toString());
+                    failCapture();
                 }
             });
         } catch (Throwable t) {
             LOGGER.warn("Failed to start memory capture for {}: {}", payload.nodeId(), t.toString());
             pending = null;
             captureDir = null;
+            failCapture();
         }
     }
 
@@ -90,9 +122,11 @@ public final class MemoryCaptureClient {
     private static void captureFrame() {
         final int index = frameIndex++;
         final Path dir = captureDir;
+        framesAttempted++;
         try {
             Minecraft mc = Minecraft.getInstance();
             if (mc.getMainRenderTarget() == null) {
+                markFrameFinished(false);
                 return;
             }
             // takeScreenshot triggers GPU readback; the consumer fires when pixels are ready.
@@ -102,6 +136,7 @@ public final class MemoryCaptureClient {
             });
         } catch (Throwable t) {
             LOGGER.warn("Memory frame {} capture failed: {}", index, t.toString());
+            markFrameFinished(false);
         }
     }
 
@@ -111,10 +146,13 @@ public final class MemoryCaptureClient {
             scaled = downscaleAndDesaturate(rawImage, MAX_FRAME_W, MAX_FRAME_H, SATURATION);
             Path file = dir.resolve(String.format("frame_%02d.png", index));
             scaled.writeToFile(file.toFile());
+            markFrameFinished(true);
         } catch (IOException e) {
             LOGGER.warn("Failed to write memory frame {}: {}", index, e.toString());
+            markFrameFinished(false);
         } catch (Throwable t) {
             LOGGER.warn("Memory frame {} processing failed: {}", index, t.toString());
+            markFrameFinished(false);
         } finally {
             try {
                 if (scaled != null) scaled.close();
@@ -165,22 +203,67 @@ public final class MemoryCaptureClient {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }
 
-    private static void writeManifest(Path dir, StartMemoryCapturePayload payload) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("  \"nodeId\": ").append(json(payload.nodeId())).append(",\n");
-            sb.append("  \"titleKey\": ").append(json(payload.titleKey())).append(",\n");
-            sb.append("  \"mood\": ").append(json(payload.mood())).append(",\n");
-            sb.append("  \"gameTime\": ").append(payload.gameTime()).append(",\n");
-            sb.append("  \"dominantDrugId\": ").append(json(payload.dominantDrugId())).append(",\n");
-            sb.append("  \"frames\": ").append(FRAME_COUNT).append(",\n");
-            sb.append("  \"fps\": 2\n");
-            sb.append("}\n");
-            Files.write(dir.resolve("manifest.json"), sb.toString().getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            LOGGER.warn("Failed to write memory manifest: {}", e.toString());
+    private static void writeManifest(Path dir, StartMemoryCapturePayload payload) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append("  \"nodeId\": ").append(json(payload.nodeId())).append(",\n");
+        sb.append("  \"titleKey\": ").append(json(payload.titleKey())).append(",\n");
+        sb.append("  \"mood\": ").append(json(payload.mood())).append(",\n");
+        sb.append("  \"gameTime\": ").append(payload.gameTime()).append(",\n");
+        sb.append("  \"dominantDrugId\": ").append(json(payload.dominantDrugId())).append(",\n");
+        sb.append("  \"frames\": ").append(FRAME_COUNT).append(",\n");
+        sb.append("  \"fps\": 2\n");
+        sb.append("}\n");
+        Files.write(dir.resolve("manifest.json"), sb.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static synchronized void markFrameFinished(boolean written) {
+        framesCompleted++;
+        if (written) {
+            framesWritten++;
         }
+        if (framesCompleted >= FRAME_COUNT && framesWritten >= Math.max(1, FRAME_COUNT / 2)) {
+            setState(State.SAVED, "screen.mydrugs.memory.capture.saved");
+        } else if (framesCompleted >= FRAME_COUNT) {
+            failCapture();
+        }
+    }
+
+    private static synchronized void failCapture() {
+        pending = null;
+        captureDir = null;
+        setState(State.FAILED, "screen.mydrugs.memory.capture.failed");
+    }
+
+    private static void setState(State newState, String messageKey) {
+        state = newState;
+        lastMessageKey = messageKey;
+        Minecraft mc = Minecraft.getInstance();
+        mc.execute(() -> {
+            if (mc.player != null) {
+                mc.player.displayClientMessage(Component.translatable(messageKey), true);
+            }
+        });
+    }
+
+    public static State state() {
+        return state;
+    }
+
+    public static String currentNodeId() {
+        return currentNodeId;
+    }
+
+    public static int framesAttempted() {
+        return framesAttempted;
+    }
+
+    public static int framesWritten() {
+        return framesWritten;
+    }
+
+    public static String lastMessageKey() {
+        return lastMessageKey;
     }
 
     private static String json(String s) {

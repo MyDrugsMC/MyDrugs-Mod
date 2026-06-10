@@ -7,6 +7,9 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.lwjgl.glfw.GLFW;
+import org.mydrugs.mydrugs.Config;
+import org.mydrugs.mydrugs.client.accessibility.AccessibilityPresets;
+import org.mydrugs.mydrugs.client.accessibility.AccessibilityScreen;
 import org.mydrugs.mydrugs.client.recovery.music.NativeFileDialog;
 import org.mydrugs.mydrugs.client.recovery.music.tools.ExternalTool;
 import org.mydrugs.mydrugs.client.recovery.music.tools.ExternalToolDownloader;
@@ -94,9 +97,23 @@ public final class DisclaimerScreen extends Screen {
             rowY += TOOL_ROW_H;
         }
 
+        int footerX = panelLeft + PAD;
+        addRenderableWidget(Button.builder(
+                        Component.translatable("button.mydrugs.accessibility.open"),
+                        b -> minecraft.setScreen(new AccessibilityScreen(this)))
+                .bounds(footerX, height - FOOTER_H + 8, 100, 20)
+                .build());
+        footerX += 104;
+        addRenderableWidget(Button.builder(
+                        Component.translatable("button.mydrugs.accessibility.minimal_now"),
+                        b -> AccessibilityPresets.apply(Config.Client.PRESET_MINIMAL_EFFECTS))
+                .bounds(footerX, height - FOOTER_H + 8, 112, 20)
+                .build());
+        footerX += 116;
+
         acceptButton = Button.builder(
                         Component.translatable("button.mydrugs.disclaimer.accept"), b -> onAccept())
-                .bounds(panelRight - PAD - 196, height - FOOTER_H + 8, 196, 20)
+                .bounds(panelRight - PAD - 120, height - FOOTER_H + 8, 120, 20)
                 .build();
         addRenderableWidget(acceptButton);
 
@@ -107,7 +124,7 @@ public final class DisclaimerScreen extends Screen {
                                 FirstWorldDisclaimerHandler.resetAcknowledgementForNextJoin();
                                 b.active = false;
                             })
-                    .bounds(panelLeft + PAD, height - FOOTER_H + 8, 150, 20)
+                    .bounds(footerX, height - FOOTER_H + 8, 108, 20)
                     .build());
         }
 

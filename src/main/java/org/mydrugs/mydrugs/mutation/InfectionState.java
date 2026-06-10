@@ -30,13 +30,22 @@ public final class InfectionState {
     }
 
     public void cure(float strength) {
+        if (this.active && strength > 0.0F) {
+            clear();
+        }
+    }
+
+    public void treat(float severityReduction, int rollbackTicks) {
         if (!this.active) {
             return;
         }
-        this.severity = Math.max(0.0F, this.severity - Math.max(0.0F, strength));
+        this.severity = Math.max(0.0F, this.severity - Math.max(0.0F, severityReduction));
         if (this.severity <= 0.0F) {
             clear();
+            return;
         }
+        this.ticks = Math.max(1, this.ticks - Math.max(0, rollbackTicks));
+        this.lastMessageStage = Math.min(this.lastMessageStage, stage());
     }
 
     public void clear() {

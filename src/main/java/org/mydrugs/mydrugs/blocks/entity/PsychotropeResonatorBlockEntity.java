@@ -34,6 +34,7 @@ import org.mydrugs.mydrugs.core.drug.integration.IntegrationMaterials;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationService;
 import org.mydrugs.mydrugs.core.drug.integration.RecoveryProgressManager;
+import org.mydrugs.mydrugs.diary.DiaryBlockerRoutes;
 import org.mydrugs.mydrugs.diary.DiaryEntry;
 import org.mydrugs.mydrugs.diary.DiaryEntryType;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
@@ -374,6 +375,10 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         return this.machineStatus;
     }
 
+    public PsychotropeResonatorFailureReason getLastFailureReason() {
+        return this.lastFailureReason;
+    }
+
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -498,8 +503,18 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
                 this.getItem(SLOT_MATERIAL).shrink(1);
                 this.getItem(SLOT_INTEGRATION_CORE).shrink(1);
                 InnerDimensionService.onIntegration(player, drug);
-                writeDiary(player, "resonator_integration",
-                        "The trait is integrated. The body still remembers, and recovery continues.", drug);
+                IntegratedTrait trait = IntegratedTrait.bySource(drug);
+                if (trait != null) {
+                    player.displayClientMessage(Component.translatable(
+                            "message.mydrugs.resonator.trait_integrated",
+                            Component.translatable(trait.translationKey())), false);
+                    player.displayClientMessage(Component.translatable(trait.rewardKey()), false);
+                    writeDiary(player, "resonator_integration",
+                            Component.translatable("diary.mydrugs.integration.completed",
+                                    Component.translatable(trait.translationKey()),
+                                    Component.translatable("drug.mydrugs." + drug.serializedName()),
+                                    Component.translatable(trait.rewardKey())).getString(), drug);
+                }
                 setState(InnerDimensionService.canOpen(player) ? ResonatorState.DIMENSION_READY : ResonatorState.COOLDOWN);
                 setMachineStatus(MachineStatus.PAUSED);
             } else {
@@ -882,6 +897,11 @@ public final class PsychotropeResonatorBlockEntity extends BaseContainerBlockEnt
         setMachineStatus(status);
         applyChecklistSnapshot(buildChecklistSnapshot(player, drug,
                 reason == null ? PsychotropeResonatorFailureReason.NONE : reason, checklistMask));
+        DiaryBlockerRoutes.Route route = DiaryBlockerRoutes.fromSourceKey(this.lastFailureReason.translationKey());
+        if (route != null) {
+            player.getData(ModAttachments.PLAYER_DIARY.get())
+                    .recordBlocker(route.blockerType(), player.level().getGameTime());
+        }
         player.displayClientMessage(Component.translatable(this.lastFailureReason.translationKey()).withStyle(ChatFormatting.DARK_PURPLE), true);
         sync();
     }

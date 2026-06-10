@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:centrifuge",
+  "input": {
+    "fluid": "mydrugs:antibiotic_broth",
+    "amount": 1000
+  },
+  "output_1": {
+    "fluid": "mydrugs:antibiotic_extract",
+    "amount": 800
+  },
+  "output_2": {
+    "fluid": "mydrugs:waste_biomass",
+    "amount": 200
+  },
+  "base_ticks": 260
+}

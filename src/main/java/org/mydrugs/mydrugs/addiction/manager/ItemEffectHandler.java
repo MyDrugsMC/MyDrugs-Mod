@@ -36,8 +36,10 @@ public final class ItemEffectHandler {
         RecoveryRoomReport room = RecoveryRoomManager.getBestRoom(player).orElse(null);
         boolean diaryDesk = hasModule(room, SanctuaryModule.DIARY_DESK);
 
-        stats.temporaryEffects.diaryCalmUntil = now + (20L * (diaryDesk ? 120L : 90L));
-        stats.temporaryEffects.thoughtSuppressionUntil = now + (20L * (diaryDesk ? 90L : 60L));
+        stats.temporaryEffectsView().applyDiary(
+                now + (20L * (diaryDesk ? 120L : 90L)),
+                now + (20L * (diaryDesk ? 90L : 60L))
+        );
         StressManager.reduce(stats, AddictionConstants.RELIEF_DIARY);
         if (diaryDesk) {
             StressManager.reduce(stats, 0.015F);
@@ -50,10 +52,7 @@ public final class ItemEffectHandler {
 
     public static void applyHeadphones(ServerPlayer player, int durationTicks) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        stats.temporaryEffects.headphonesUntil = Math.max(
-                stats.temporaryEffects.headphonesUntil,
-                player.level().getGameTime() + durationTicks
-        );
+        stats.temporaryEffectsView().extendHeadphonesUntil(player.level().getGameTime() + durationTicks);
         syncClientHud(player);
     }
 
@@ -61,43 +60,37 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         if (!hasItem(player.getInventory(), ModItems.HEADPHONES.get())) {
-            stats.temporaryEffects.headphonesEnabled = false;
-            stats.temporaryEffects.headphonesUntil = 0L;
+            stats.temporaryEffectsView().disableHeadphones();
             syncHeadphones(player);
             syncClientHud(player);
             return false;
         }
 
-        stats.temporaryEffects.headphonesEnabled = !stats.temporaryEffects.headphonesEnabled;
-
-        if (stats.temporaryEffects.headphonesEnabled) {
-            stats.temporaryEffects.headphonesUntil = player.level().getGameTime() + HEADPHONES_REFRESH_TICKS;
-        } else {
-            stats.temporaryEffects.headphonesUntil = 0L;
-        }
+        boolean enabled = stats.temporaryEffectsView().toggleHeadphones(
+                player.level().getGameTime() + HEADPHONES_REFRESH_TICKS
+        );
 
         syncHeadphones(player);
         syncClientHud(player);
-        if (stats.temporaryEffects.headphonesEnabled) {
+        if (enabled) {
             if (!RecoverySessionManager.onGroundingAction(player, RecoverySessionAction.HEADPHONES)) {
                 AddictionRecoveryFeedback.sendHeadphones(player);
             }
         }
-        return stats.temporaryEffects.headphonesEnabled;
+        return enabled;
     }
 
     public static boolean cycleHeadphonesTrack(ServerPlayer player) {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         if (!hasItem(player.getInventory(), ModItems.HEADPHONES.get())) {
-            stats.temporaryEffects.headphonesEnabled = false;
-            stats.temporaryEffects.headphonesUntil = 0L;
+            stats.temporaryEffectsView().disableHeadphones();
             syncHeadphones(player);
             syncClientHud(player);
             return false;
         }
 
-        stats.temporaryEffects.headphonesTrackNonce++;
+        stats.temporaryEffectsView().advanceHeadphonesTrack();
         syncHeadphones(player);
         return true;
     }
@@ -106,17 +99,16 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         if (!hasItem(player.getInventory(), ModItems.HEADPHONES.get())) {
-            stats.temporaryEffects.headphonesEnabled = false;
-            stats.temporaryEffects.headphonesUntil = 0L;
+            stats.temporaryEffectsView().disableHeadphones();
             syncHeadphones(player);
             syncClientHud(player);
             return false;
         }
 
-        stats.temporaryEffects.headphonesEnabled = playing;
-        stats.temporaryEffects.headphonesUntil = playing
-                ? player.level().getGameTime() + HEADPHONES_REFRESH_TICKS
-                : 0L;
+        stats.temporaryEffectsView().setHeadphonesPlaying(
+                playing,
+                player.level().getGameTime() + HEADPHONES_REFRESH_TICKS
+        );
         syncHeadphones(player);
         syncClientHud(player);
         if (playing) {
@@ -131,17 +123,19 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         if (!PlayerRecoveryEnvironmentCache.snapshot(player).hasHeadphones()) {
-            if (stats.temporaryEffects.headphonesEnabled || stats.temporaryEffects.headphonesUntil > 0L) {
-                stats.temporaryEffects.headphonesEnabled = false;
-                stats.temporaryEffects.headphonesUntil = 0L;
+            if (stats.temporaryEffectsView().headphonesEnabled()
+                    || stats.temporaryEffectsView().headphonesUntil() > 0L) {
+                stats.temporaryEffectsView().disableHeadphones();
                 syncHeadphones(player);
                 syncClientHud(player);
             }
             return;
         }
 
-        if (stats.temporaryEffects.headphonesEnabled) {
-            stats.temporaryEffects.headphonesUntil = player.level().getGameTime() + HEADPHONES_REFRESH_TICKS;
+        if (stats.temporaryEffectsView().headphonesEnabled()) {
+            stats.temporaryEffectsView().extendHeadphonesUntil(
+                    player.level().getGameTime() + HEADPHONES_REFRESH_TICKS
+            );
         }
     }
     private static void syncHeadphones(ServerPlayer player) {
@@ -149,9 +143,9 @@ public final class ItemEffectHandler {
         PacketDistributor.sendToPlayer(
                 player,
                 new HeadphonesStatePayload(
-                        stats.temporaryEffects.headphonesEnabled,
+                        stats.temporaryEffectsView().headphonesEnabled(),
                         "",
-                        stats.temporaryEffects.headphonesTrackNonce,
+                        stats.temporaryEffectsView().headphonesTrackNonce(),
                         -1.0F,
                         false,
                         false
@@ -182,10 +176,12 @@ public final class ItemEffectHandler {
             stats.reduceWithdrawalInCategory(category, 10.0F * itemMultiplier);
         }
 
-        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 120L * itemMultiplier);
+        stats.temporaryEffectsView().setSleepBonusUntil(
+                player.level().getGameTime() + Math.round(20L * 120L * itemMultiplier)
+        );
         if (teaKitchen) {
             long preparedUntil = player.level().getGameTime() + 20L * 240L;
-            stats.temporaryEffects.preparedTeaUntil = Math.max(stats.temporaryEffects.preparedTeaUntil, preparedUntil);
+            stats.temporaryEffectsView().extendPreparedTeaUntil(preparedUntil);
         }
         RecoveryProgressManager.onProductiveAction(player, ActionKind.HERBAL_TEA, itemMultiplier);
         RecoverySessionAction sessionAction = teaKitchen
@@ -214,8 +210,12 @@ public final class ItemEffectHandler {
             stats.reduceWithdrawalInCategory(category, 30.0F * itemMultiplier);
         }
 
-        stats.temporaryEffects.calmingMixtureUntil = player.level().getGameTime() + Math.round(20L * 60L * itemMultiplier);
-        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + Math.round(20L * 180L * itemMultiplier);
+        stats.temporaryEffectsView().setCalmingMixtureUntil(
+                player.level().getGameTime() + Math.round(20L * 60L * itemMultiplier)
+        );
+        stats.temporaryEffectsView().setSleepBonusUntil(
+                player.level().getGameTime() + Math.round(20L * 180L * itemMultiplier)
+        );
         RecoveryProgressManager.onProductiveAction(player, ActionKind.CALMING_MIXTURE, itemMultiplier);
         RecoverySessionAction sessionAction = teaKitchen
                 ? RecoverySessionAction.PREPARED_TEA
@@ -236,7 +236,7 @@ public final class ItemEffectHandler {
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
 
         stats.sleepBlockedUntil = 0L;
-        stats.temporaryEffects.sleepBonusUntil = player.level().getGameTime() + 20L * 240L;
+        stats.temporaryEffectsView().setSleepBonusUntil(player.level().getGameTime() + 20L * 240L);
         StressManager.reduce(stats, AddictionConstants.RELIEF_SLEEPING_AID);
 
         stats.reduceWithdrawalInCategory(DrugCategory.SEDATIVE, 8.0F);

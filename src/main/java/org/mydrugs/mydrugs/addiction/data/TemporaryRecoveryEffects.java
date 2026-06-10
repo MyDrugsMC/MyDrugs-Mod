@@ -5,16 +5,16 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 public final class TemporaryRecoveryEffects implements ValueIOSerializable {
-    public long diaryCalmUntil;
-    public long calmingMixtureUntil;
-    public long headphonesUntil;
-    public boolean headphonesEnabled;
-    public int headphonesTrackNonce;
-    public long thoughtSuppressionUntil;
-    public long sleepBonusUntil;
-    public long preparedTeaUntil;
-    public long recoveryMomentumUntil;
-    public int recoveryMomentumCharges;
+    private long diaryCalmUntil;
+    private long calmingMixtureUntil;
+    private long headphonesUntil;
+    private boolean headphonesEnabled;
+    private int headphonesTrackNonce;
+    private long thoughtSuppressionUntil;
+    private long sleepBonusUntil;
+    private long preparedTeaUntil;
+    private long recoveryMomentumUntil;
+    private int recoveryMomentumCharges;
 
     @Override
     public void serialize(ValueOutput output) {
@@ -57,6 +57,75 @@ public final class TemporaryRecoveryEffects implements ValueIOSerializable {
         copy.headphonesEnabled = headphonesEnabled;
         copy.headphonesTrackNonce = headphonesTrackNonce;
         return copy;
+    }
+
+    public void applyDiary(long calmUntil, long suppressionUntil) {
+        diaryCalmUntil = calmUntil;
+        thoughtSuppressionUntil = suppressionUntil;
+    }
+
+    public void extendHeadphonesUntil(long until) {
+        headphonesUntil = Math.max(headphonesUntil, until);
+    }
+
+    public boolean toggleHeadphones(long refreshUntil) {
+        headphonesEnabled = !headphonesEnabled;
+        headphonesUntil = headphonesEnabled ? refreshUntil : 0L;
+        return headphonesEnabled;
+    }
+
+    public void setHeadphonesPlaying(boolean playing, long refreshUntil) {
+        headphonesEnabled = playing;
+        headphonesUntil = playing ? refreshUntil : 0L;
+    }
+
+    public void disableHeadphones() {
+        headphonesEnabled = false;
+        headphonesUntil = 0L;
+    }
+
+    public void advanceHeadphonesTrack() {
+        headphonesTrackNonce++;
+    }
+
+    public boolean headphonesEnabled() {
+        return headphonesEnabled;
+    }
+
+    public long headphonesUntil() {
+        return headphonesUntil;
+    }
+
+    public int headphonesTrackNonce() {
+        return headphonesTrackNonce;
+    }
+
+    public void setSleepBonusUntil(long until) {
+        sleepBonusUntil = until;
+    }
+
+    public void extendPreparedTeaUntil(long until) {
+        preparedTeaUntil = Math.max(preparedTeaUntil, until);
+    }
+
+    public void setCalmingMixtureUntil(long until) {
+        calmingMixtureUntil = until;
+    }
+
+    public void grantRecoveryMomentum(long until, int charges) {
+        recoveryMomentumUntil = Math.max(recoveryMomentumUntil, until);
+        recoveryMomentumCharges = Math.max(recoveryMomentumCharges, charges);
+    }
+
+    public boolean consumeRecoveryMomentum(long gameTime) {
+        if (!hasRecoveryMomentum(gameTime)) {
+            return false;
+        }
+        recoveryMomentumCharges = Math.max(0, recoveryMomentumCharges - 1);
+        if (recoveryMomentumCharges == 0) {
+            recoveryMomentumUntil = 0L;
+        }
+        return true;
     }
 
     public boolean hasDiaryCalm(long gameTime) {

@@ -66,7 +66,7 @@ final class BiochemicalReactorRecipeCategory extends AbstractNiceRecipeCategory<
                 this,
                 g,
                 getTitle(),
-                uiString("Processing"),
+                ui("Processing"),
                 jeiString("screen.mydrugs.jei.heat_time", recipe.minimumHeat(), recipe.processingTime())
         );
     }

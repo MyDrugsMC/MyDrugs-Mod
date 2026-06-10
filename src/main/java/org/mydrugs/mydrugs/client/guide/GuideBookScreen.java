@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
+import org.mydrugs.mydrugs.client.accessibility.AccessibilityScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,9 +77,18 @@ public final class GuideBookScreen extends Screen {
     private int contentBottom;
     private int lastMouseX;
     private int lastMouseY;
+    private final Screen parent;
+    private final String initialTarget;
+    private boolean initialTargetApplied;
 
     public GuideBookScreen() {
+        this(null, "");
+    }
+
+    public GuideBookScreen(Screen parent, String initialTarget) {
         super(Component.translatable("screen.mydrugs.guide.title"));
+        this.parent = parent;
+        this.initialTarget = initialTarget == null ? "" : initialTarget;
     }
 
     @Override
@@ -95,6 +105,10 @@ public final class GuideBookScreen extends Screen {
             this.pages = GuideLoader.load(Minecraft.getInstance().getResourceManager());
             rebuildPageLookup();
         }
+        if (!this.initialTargetApplied && !this.initialTarget.isBlank()) {
+            navigateTo(this.initialTarget);
+            this.initialTargetApplied = true;
+        }
 
         clampPage();
         clampScroll();
@@ -109,6 +123,11 @@ public final class GuideBookScreen extends Screen {
 
         addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.guide.menu"), button -> navigateTo(1))
                 .bounds(this.bookX + BOOK_W - BORDER_R + 16, btnY, 52, 15)
+                .build());
+        addRenderableWidget(Button.builder(
+                        Component.translatable("button.mydrugs.accessibility.open"),
+                        button -> minecraft.setScreen(new AccessibilityScreen(this)))
+                .bounds(this.bookX + BOOK_W - BORDER_R + 16, btnY + 19, 76, 15)
                 .build());
     }
 
@@ -219,6 +238,11 @@ public final class GuideBookScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen(this.parent);
     }
 
     @Override

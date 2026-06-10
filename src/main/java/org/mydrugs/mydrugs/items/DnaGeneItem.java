@@ -50,29 +50,17 @@ public final class DnaGeneItem extends Item {
                     ? Component.translatable("mutation.mydrugs.stat.unknown", statValue.statId())
                     : Component.translatable(stat.translationKey());
             int percent = Math.round(statValue.value() * 100.0F);
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_gene.stat", statName, percent).withStyle(valueColor(statValue.value())));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_gene.stat", statName, percent).withStyle(MutationTooltipColors.value(statValue.value())));
         }
 
-        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_gene.same_source_warning").withStyle(ChatFormatting.YELLOW));
+        tooltipAdder.accept(Component.translatable(
+                "tooltip.mydrugs.dna_gene.same_source_warning",
+                String.join(", ", data.sourceNames())
+        ).withStyle(ChatFormatting.YELLOW));
 
         if (flag.isAdvanced()) {
             tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_gene.source_uuids", String.join(", ", data.sourceUuids())).withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
-    private static ChatFormatting valueColor(float value) {
-        if (value < 0.20F) {
-            return ChatFormatting.DARK_GRAY;
-        }
-        if (value < 0.40F) {
-            return ChatFormatting.WHITE;
-        }
-        if (value < 0.60F) {
-            return ChatFormatting.GREEN;
-        }
-        if (value < 0.80F) {
-            return ChatFormatting.AQUA;
-        }
-        return ChatFormatting.LIGHT_PURPLE;
-    }
 }

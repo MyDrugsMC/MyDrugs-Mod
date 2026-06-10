@@ -32,10 +32,14 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
+import org.mydrugs.mydrugs.core.drug.dose.AbsorptionTimes;
 import org.mydrugs.mydrugs.core.drug.strategy.SniffingStrategy;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseResult;
 import org.mydrugs.mydrugs.core.drug.use.DrugUseSource;
 import org.mydrugs.mydrugs.items.ModItems;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class CocainePowderPileBlock extends Block {
     public enum Stage implements StringRepresentable {
@@ -54,6 +58,9 @@ public final class CocainePowderPileBlock extends Block {
     private static final VoxelShape PILE_SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 2.0D, 13.0D);
     private static final VoxelShape RAIL_SHAPE_NS = Block.box(7.0D, 0.0D, 2.0D, 9.0D, 1.0D, 14.0D);
     private static final VoxelShape RAIL_SHAPE_EW = Block.box(2.0D, 0.0D, 7.0D, 14.0D, 1.0D, 9.0D);
+    private static final SniffingStrategy SNIFFING_STRATEGY = new SniffingStrategy();
+    private static final int CONSUME_COOLDOWN_TICKS = AbsorptionTimes.forStrategy(SNIFFING_STRATEGY);
+    private static final Map<ServerPlayer, Long> LAST_CONSUME_TICKS = new WeakHashMap<>();
 
     public CocainePowderPileBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -151,19 +158,19 @@ public final class CocainePowderPileBlock extends Block {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.PASS;
         }
+        if (!tryBeginConsumption(serverPlayer, level.getGameTime())) {
+            return InteractionResult.SUCCESS;
+        }
         DrugModel model = DrugRegistry.getDrug(DrugId.COCAINE);
         if (model == null) {
             return InteractionResult.PASS;
         }
 
-        // TODO: Replace instant consumption with a client/server snorting animation.
-        // The server should only consume the rail once the animation completes.
-        startSnortingAnimation(serverPlayer, pos);
-
-        DrugUseResult result = MyDrugs.DRUG_USE_SERVICE.consume(serverPlayer, model, new SniffingStrategy(), DrugUseSource.ITEM);
+        DrugUseResult result = MyDrugs.DRUG_USE_SERVICE.consume(serverPlayer, model, SNIFFING_STRATEGY, DrugUseSource.ITEM);
         if (!result.consumed()) {
             return InteractionResult.SUCCESS;
         }
+        startSnortingAnimation(serverPlayer, pos);
         level.removeBlock(pos, false);
 
         level.playSound(null, pos, SoundEvents.PLAYER_BREATH, SoundSource.PLAYERS, 0.5F, 1.6F);
@@ -175,6 +182,18 @@ public final class CocainePowderPileBlock extends Block {
             );
         }
         return InteractionResult.SUCCESS;
+    }
+
+    private static boolean tryBeginConsumption(ServerPlayer player, long gameTime) {
+        Long lastConsumeTick = LAST_CONSUME_TICKS.get(player);
+        if (lastConsumeTick != null
+                && gameTime >= lastConsumeTick
+                && gameTime - lastConsumeTick < CONSUME_COOLDOWN_TICKS) {
+            return false;
+        }
+
+        LAST_CONSUME_TICKS.put(player, gameTime);
+        return true;
     }
 
     /**

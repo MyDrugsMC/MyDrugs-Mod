@@ -767,7 +767,7 @@ public final class MachineGuiRenderer {
             GuiGraphics graphics,
             Font font,
             Component title,
-            String status
+            Component status
     ) {
         graphics.drawCenteredString(
                 font,
@@ -778,7 +778,7 @@ public final class MachineGuiRenderer {
         );
         graphics.drawCenteredString(
                 font,
-                Component.literal(status),
+                status,
                 draw.labelX(BiochemicalReactorLayout.PROGRESS_X + BiochemicalReactorLayout.PROGRESS_W / 2),
                 draw.labelY(BiochemicalReactorLayout.PROGRESS_Y - 10),
                 0xFFB5BAC5
@@ -789,7 +789,7 @@ public final class MachineGuiRenderer {
             AbstractMachineDrawMethods draw,
             GuiGraphics graphics,
             Component title,
-            String status,
+            Component status,
             String footer
     ) {
         Font font = Minecraft.getInstance().font;

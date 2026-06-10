@@ -67,7 +67,7 @@ public final class DnaScrapItem extends Item {
                     ? Component.translatable("mutation.mydrugs.stat.unknown", statValue.statId())
                     : Component.translatable(stat.translationKey());
             int percent = Math.round(statValue.value() * 100.0F);
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_scrap.stat", statName, percent).withStyle(valueColor(statValue.value())));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_scrap.stat", statName, percent).withStyle(MutationTooltipColors.value(statValue.value())));
 
             if (flag.isAdvanced()) {
                 tooltipAdder.accept(Component.translatable(
@@ -76,6 +76,7 @@ public final class DnaScrapItem extends Item {
                 ).withStyle(ChatFormatting.DARK_GRAY));
             }
         }
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_scrap.extraction_randomness").withStyle(ChatFormatting.GRAY));
 
         if (flag.isAdvanced()) {
             tooltipAdder.accept(Component.translatable("tooltip.mydrugs.dna_scrap.source_uuid", data.sourceUuid()).withStyle(ChatFormatting.DARK_GRAY));
@@ -105,19 +106,4 @@ public final class DnaScrapItem extends Item {
         return type.getDescription();
     }
 
-    private static ChatFormatting valueColor(float value) {
-        if (value < 0.20F) {
-            return ChatFormatting.DARK_GRAY;
-        }
-        if (value < 0.40F) {
-            return ChatFormatting.WHITE;
-        }
-        if (value < 0.60F) {
-            return ChatFormatting.GREEN;
-        }
-        if (value < 0.80F) {
-            return ChatFormatting.AQUA;
-        }
-        return ChatFormatting.LIGHT_PURPLE;
-    }
 }

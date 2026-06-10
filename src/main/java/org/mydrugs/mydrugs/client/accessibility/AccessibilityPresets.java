@@ -25,9 +25,11 @@ public final class AccessibilityPresets {
                 c.dimensionFogIntensity, c.oreAuraIntensity, c.enableCameraShake, c.cameraShakeIntensity,
                 c.cameraSwayIntensity, c.fovPulseIntensity, c.disableForcedCameraMovement,
                 c.disableScreenRoll, c.reducedMotionMode, c.enableHallucinations, c.hallucinationIntensity,
+                c.hallucinationSilhouetteOnly, c.smoothHallucinationTransitions, c.hallucinationSpawnDistanceScale,
                 c.enableHeartbeatSounds, c.heartbeatVolume, c.enableDrugSounds, c.hallucinationSoundVolume,
                 c.machineBreathingVolume, c.badTripVoiceVolume, c.disableSuddenLoudSounds,
-                c.showAddictionHud, c.compactAddictionHud, c.enableBadTripScreamers, c.screamerIntensity,
+                c.showAddictionHud, c.compactAddictionHud, c.addictionHudAnchor, c.addictionHudScale,
+                c.addictionHudTextLabels, c.addictionHudSafeArea, c.enableBadTripScreamers, c.screamerIntensity,
                 c.screamerVolumeCap, c.muteScreamers, c.replaceInputFailWithHudWarningOnly,
                 c.showActiveEffectExplanations, c.showMachineMoodStatusText, c.showGeneratorCravingsAsText);
     }
@@ -71,6 +73,7 @@ public final class AccessibilityPresets {
         c.disableForcedCameraMovement.set(true);
         c.disableScreenRoll.set(true);
         c.reducedMotionMode.set(true);
+        c.smoothHallucinationTransitions.set(true);
         c.overlayIntensity.set(0.7D);
         c.blurIntensity.set(0.6D);
     }
@@ -86,6 +89,8 @@ public final class AccessibilityPresets {
         c.disableFullScreenFlashing.set(true);
         c.particleDensityMultiplier.set(0.5D);
         c.hallucinationIntensity.set(0.6D);
+        c.smoothHallucinationTransitions.set(true);
+        c.addictionHudScale.set(0.9D);
         c.cameraShakeIntensity.set(0.5D);
         c.heartbeatVolume.set(0.5D);
         c.badTripVoiceVolume.set(0.6D);
@@ -109,6 +114,8 @@ public final class AccessibilityPresets {
         c.oreAuraIntensity.set(0.3D);
         c.enableHallucinations.set(false);
         c.hallucinationIntensity.set(0.0D);
+        c.hallucinationSilhouetteOnly.set(true);
+        c.smoothHallucinationTransitions.set(true);
         c.enableCameraShake.set(false);
         c.cameraShakeIntensity.set(0.0D);
         c.cameraSwayIntensity.set(0.0D);
@@ -126,6 +133,7 @@ public final class AccessibilityPresets {
         c.enableBadTripScreamers.set(false);
         c.screamerIntensity.set(0.0D);
         c.compactAddictionHud.set(true);
+        c.addictionHudTextLabels.set(true);
         c.replaceInputFailWithHudWarningOnly.set(true);
         c.showActiveEffectExplanations.set(true);
         c.showMachineMoodStatusText.set(true);

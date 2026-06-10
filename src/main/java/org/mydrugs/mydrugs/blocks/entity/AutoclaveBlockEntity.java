@@ -19,8 +19,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
-import org.mydrugs.mydrugs.items.ModItems;
-import org.mydrugs.mydrugs.items.SyringeItem;
+import org.mydrugs.mydrugs.items.SterilizableItem;
 import org.mydrugs.mydrugs.machine.MachineStatus;
 import org.mydrugs.mydrugs.machine.MachineStatusProvider;
 import org.mydrugs.mydrugs.menu.AutoclaveMenu;
@@ -122,31 +121,33 @@ public final class AutoclaveBlockEntity extends BaseContainerBlockEntity impleme
 
     private static boolean isSterilizable(ItemStack stack) {
         return !stack.isEmpty()
-                && stack.is(ModItems.SYRINGE.get())
-                && SyringeItem.canSterilize(stack);
+                && stack.getItem() instanceof SterilizableItem sterilizable
+                && sterilizable.canBeSterilized(stack);
     }
 
     private boolean canAcceptOutput(ItemStack input) {
+        ItemStack sterilized = createSterilizedStack(input);
+        if (sterilized.isEmpty()) {
+            return false;
+        }
         ItemStack output = this.getItem(OUTPUT_SLOT);
         if (output.isEmpty()) {
             return true;
         }
-        return output.is(ModItems.SYRINGE.get())
+        return ItemStack.isSameItemSameComponents(output, sterilized)
                 && output.getCount() < output.getMaxStackSize()
-                && SyringeItem.isSterile(output)
-                && SyringeItem.isEmptySyringe(output);
+                && output.getCount() + sterilized.getCount() <= output.getMaxStackSize();
     }
 
     private void finishSterilization() {
         ItemStack input = this.getItem(INPUT_SLOT);
-        ItemStack sterilized = input.copyWithCount(1);
-        SyringeItem.markSterile(sterilized);
+        ItemStack sterilized = createSterilizedStack(input);
 
         ItemStack output = this.getItem(OUTPUT_SLOT);
         if (output.isEmpty()) {
             this.setItem(OUTPUT_SLOT, sterilized);
-        } else if (output.is(ModItems.SYRINGE.get()) && SyringeItem.isSterile(output) && SyringeItem.isEmptySyringe(output)) {
-            output.grow(1);
+        } else if (ItemStack.isSameItemSameComponents(output, sterilized)) {
+            output.grow(sterilized.getCount());
         } else {
             this.setItem(OUTPUT_SLOT, sterilized);
         }
@@ -155,6 +156,13 @@ public final class AutoclaveBlockEntity extends BaseContainerBlockEntity impleme
         if (input.isEmpty()) {
             this.setItem(INPUT_SLOT, ItemStack.EMPTY);
         }
+    }
+
+    private static ItemStack createSterilizedStack(ItemStack input) {
+        if (input.getItem() instanceof SterilizableItem sterilizable) {
+            return sterilizable.createSterilizedStack(input);
+        }
+        return ItemStack.EMPTY;
     }
 
     private boolean resetProgress() {

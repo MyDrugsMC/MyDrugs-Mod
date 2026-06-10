@@ -34,6 +34,14 @@ public class ModDataComponents {
                             .networkSynchronized(ByteBufCodecs.BOOL)
             );
 
+    public static final Supplier<DataComponentType<Boolean>> BIOLOGICALLY_CONTAMINATED =
+            DATA_COMPONENTS.registerComponentType(
+                    "biologically_contaminated",
+                    builder -> builder
+                            .persistent(Codec.BOOL)
+                            .networkSynchronized(ByteBufCodecs.BOOL)
+            );
+
     public static final Supplier<DataComponentType<BloodSample>> BLOOD_SAMPLE =
             DATA_COMPONENTS.registerComponentType(
                     "blood_sample",

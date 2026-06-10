@@ -233,7 +233,7 @@ public final class DiaryClarityService {
             case DiaryBlockerTypes.MUSHROOM_GATE -> "mushroom_gate";
             case DiaryBlockerTypes.MACHINE_GENERIC -> "machine_generic";
             case DiaryBlockerTypes.BODY_TOO_LOUD -> "body_too_loud";
-            default -> "knowledge_gate";
+            default -> DiaryBlockerRoutes.isRoutedType(type) ? "machine_generic" : "knowledge_gate";
         };
         DiarySpoilerLevel level = recent.count() >= 3 ? DiarySpoilerLevel.EXPLICIT : DiarySpoilerLevel.CLEAR;
         return new DiaryBlocker(
@@ -284,8 +284,21 @@ public final class DiaryClarityService {
         if (nodeId.endsWith(":lysergic")) return "LSD";
         if (nodeId.endsWith(":overclocked")) return "Meth";
         if (nodeId.endsWith(":mycelial")) return "Mushrooms";
-        if (nodeId.endsWith(":first_recovery_anchor") || nodeId.endsWith(":first_sanctuary")) return "Recovery Sanctuary";
-        if (nodeId.endsWith(":first_bad_trip") || nodeId.endsWith(":first_inner_demon")) return "Bad Trips and Integration";
+        if (nodeId.endsWith(":coffee")) return "Coffee";
+        if (nodeId.endsWith(":tobacco")) return "Tobacco";
+        if (nodeId.endsWith(":weed")) return "Cannabis";
+        if (nodeId.endsWith(":hash")) return "Hash and Steel";
+        if (nodeId.endsWith(":alcohol")) return "Fermentation";
+        if (nodeId.endsWith(":cocaine")) return "Coca";
+        if (nodeId.endsWith(":lsd")) return "LSD";
+        if (nodeId.endsWith(":meth")) return "Meth";
+        if (nodeId.endsWith(":mushrooms")) return "Mushrooms";
+        if (nodeId.endsWith(":first_recovery_anchor") || nodeId.endsWith(":first_sanctuary")) {
+            return "Recovery Sanctuary";
+        }
+        if (nodeId.endsWith(":first_bad_trip") || nodeId.endsWith(":first_inner_demon")) {
+            return "Bad Trips and Integration";
+        }
         if (nodeId.endsWith(":first_psy_mixer_ritual") || nodeId.endsWith(":first_ritual_success")
                 || nodeId.endsWith(":first_ritual_failure") || nodeId.endsWith(":first_named_formula")) {
             return "Psy Mixer";

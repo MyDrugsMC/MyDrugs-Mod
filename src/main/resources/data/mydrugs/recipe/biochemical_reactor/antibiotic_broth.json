@@ -1,0 +1,21 @@
+{
+  "type": "mydrugs:biochemical_reactor",
+  "ergot": {
+    "ingredient": "mydrugs:fungal_culture",
+    "count": 1
+  },
+  "tryptophan": {
+    "ingredient": "mydrugs:nutrient_gel",
+    "count": 2
+  },
+  "fluid_output": {
+    "fluid": "mydrugs:antibiotic_broth",
+    "amount": 1000
+  },
+  "processing_time": 420,
+  "minimum_heat": 35,
+  "ergot_speed_cap": 4,
+  "ergot_speed_per_item": 0.05,
+  "manual_boost_factor": 1.20,
+  "heat_bonus_factor": 1.20
+}

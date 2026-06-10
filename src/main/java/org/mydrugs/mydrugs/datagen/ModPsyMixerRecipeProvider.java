@@ -12,6 +12,8 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.effect.EffectType;
 import org.mydrugs.mydrugs.core.drug.ritual.RitualDrugEffectData;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualProfiles;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -208,7 +210,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
         json.add("effects", effects(effects));
         json.add("fallback_result", stack(fallbackResult));
         json.addProperty("ritual_time", ritualTime);
-        json.add("ritual_actions", ritualActions());
+        json.add("ritual_actions", ritualActions(baseDrug));
         json.addProperty("required_knowledge", requiredKnowledge(baseDrug));
         json.addProperty("required_drug", baseDrug.serializedName());
         if (requiredLifetimeDose > 0.0F) {
@@ -221,16 +223,11 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
         saveRecipe(futures, cachedOutput, "psy_mixer/" + name, json);
     }
 
-    private static JsonArray ritualActions() {
+    private static JsonArray ritualActions(DrugId baseDrug) {
         JsonArray array = new JsonArray();
-        array.add("sneak");
-        array.add("jump");
-        array.add("right_click_air");
-        array.add("walk_ring");
-        array.add("look_at_core");
-        array.add("timing_ring");
-        array.add("stand_still");
-        array.add("reopen_gui");
+        for (PsyMixerRitualAction action : PsyMixerRitualProfiles.forDrug(baseDrug).weightedActions()) {
+            array.add(action.serializedName());
+        }
         return array;
     }
 
@@ -310,7 +307,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
     private void saveRecipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, JsonObject json) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         Path path = this.recipePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, json, path));
+        futures.add(DatagenOutputGuard.saveStable("ModPsyMixerRecipeProvider", cachedOutput, json, path));
     }
 
     @Override

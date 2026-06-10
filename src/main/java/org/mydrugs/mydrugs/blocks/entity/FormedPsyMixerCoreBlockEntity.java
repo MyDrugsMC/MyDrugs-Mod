@@ -48,6 +48,7 @@ import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualScoring;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerStructureValidator;
@@ -111,6 +112,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     private double lastPlayerZ = Double.NaN;
     private float walkRingProgress = 0.0F;
     private int standStillTicks = 0;
+    private int standStillGraceTicks = 8;
+    private int lastMissReason = PsyMixerRitualMissReason.NONE.id();
 
     // PASS 2: rhythm timing
     private float timingWindow = 0.12F;
@@ -146,6 +149,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     public int getStreak() { return streak; }
     public int getLastJudgement() { return lastJudgement; }
     public int getFeedbackTicks() { return feedbackTicks; }
+    public int getLastMissReason() { return lastMissReason; }
     public float getLastAccuracy() { return lastAccuracy; }
     public int getCurrentActionIndex() { return currentActionIndex; }
     public int getActionTick() { return actionTick; }
@@ -166,6 +170,9 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
     }
     public int getActionCount() {
         return activeRitualActions.size();
+    }
+    public float getCurrentActionProgress() {
+        return currentActionProgress();
     }
 
     public void initFromActivation(Direction facing, List<SavedSlot> saved) {
@@ -237,7 +244,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         be.detectCurrentAction(serverLevel, player);
 
         if (be.actionTick >= be.actionTimeout) {
-            be.recordActionMiss();
+            be.recordActionMiss(be.timeoutReason());
             be.advanceAction(serverLevel, player, 0);
         }
 
@@ -351,7 +358,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
         ResourceLocation recipeId = holder.id().location();
 
-        float speedMul = mastery.getSpeedMultiplier(recipeId);
+        float speedMul = mastery.getSpeedMultiplier(formulaMasteryId);
         float manualDrugSpeed = ManualMachineSpeedHelper.getSpeedMultiplier(player, ManualMachineType.PSY_MIXER);
         float ritualZoneWidthBonus = ManualMachineSpeedHelper.getRitualZoneWidthBonus(player);
         float ritualZoneMotionScale = ManualMachineSpeedHelper.getRitualZoneMotionScale(player);
@@ -368,7 +375,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         this.ritualPlayer = player.getUUID();
         this.timingWindow = ManualMachineSpeedHelper.hasPsychedelicRitualInsight(player)
                 ? 1.0F
-                : Math.min(0.62F, 0.08F + mastery.getTimingWindowBonus(recipeId) + ritualZoneWidthBonus);
+                : Math.min(0.62F, 0.08F + mastery.getTimingWindowBonus(formulaMasteryId) + ritualZoneWidthBonus);
         this.zoneMotionScale = ritualZoneMotionScale;
         this.zoneSizeScale = ritualZoneMotionScale;
         this.goodHits = 0;
@@ -385,7 +392,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         this.qualityScore = 0;
         this.mistakes = 0;
         this.finalScoreMultiplier = PsyMixerRitualScoring.optionalScoreMultiplier(recipe, startInput);
-        this.actionTimeoutMultiplier = recipe.hasValidStabilizer(startInput.stabilizer()) ? 1.5F : 1.0F;
+        this.actionTimeoutMultiplier = (recipe.hasValidStabilizer(startInput.stabilizer()) ? 1.5F : 1.0F)
+                * (1.0F + mastery.getActionTimeoutBonus(formulaMasteryId));
         this.maxMistakes = Math.max(2, activeRitualActions.size() / 2 + 1);
         this.mistakeForgivenessRemaining = PsyMixerRitualScoring.computeMistakeForgiveness(player)
                 + (recipe.hasValidVessel(startInput.vessel()) ? 2 : 0);
@@ -395,6 +403,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         this.abandonTicks = 0;
         this.walkRingProgress = 0.0F;
         this.standStillTicks = 0;
+        this.standStillGraceTicks = 8;
+        this.lastMissReason = PsyMixerRitualMissReason.NONE.id();
         this.lastPlayerX = player.getX();
         this.lastPlayerZ = player.getZ();
         sendRandomMessage(player, START_MESSAGES);
@@ -522,6 +532,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             PsyMixerRitualQuality quality
     ) {
         ResourceLocation completedFormulaId = masteryKey(formula);
+        int optionalPercent = Math.round((finalScoreMultiplier - 1.0F) * 100.0F);
+        int usedMistakes = mistakes;
         consumeInputs(recipe, true);
 
         boolean completedOutput;
@@ -537,6 +549,18 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             mastery.incrementCompleted(completedFormulaId);
             if (completedOutput) {
                 sendRandomMessage(player, SUCCESS_MESSAGES);
+            }
+            player.displayClientMessage(Component.translatable(
+                    "message.mydrugs.psy_mixer.completion_breakdown",
+                    Component.translatable(quality.translationKey()),
+                    quality.positivePercent(),
+                    quality.negativePercent(),
+                    usedMistakes,
+                    optionalPercent
+            ), false);
+            if (quality == PsyMixerRitualQuality.MASTERWORK) {
+                player.displayClientMessage(Component.translatable(
+                        "message.mydrugs.psy_mixer.masterwork"), false);
             }
             RecoveryProgressManager.onProductiveAction(player, ActionKind.PSY_MIXER_SUCCESS,
                     quality == PsyMixerRitualQuality.MASTERWORK ? 1.5F : 1.0F);
@@ -664,7 +688,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
 
         if (action != PsyMixerRitualAction.NONE && action != current) {
-            recordActionMiss();
+            recordActionMiss(PsyMixerRitualMissReason.WRONG_ACTION);
             syncRitualState(player);
         }
     }
@@ -691,9 +715,11 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         lastAccuracy = result.accuracy();
 
         if (judgement == PsyMixerRitualJudgement.MISS) {
+            lastMissReason = timingMissReason(getServerPhase(), getCurrentTargetPhase()).id();
             recordMistake();
             streak = 0;
         } else if (judgement.isHit()) {
+            lastMissReason = PsyMixerRitualMissReason.NONE.id();
             goodHits++;
             streak++;
         } else {
@@ -701,14 +727,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         }
 
         sendRhythmMessage(player, judgement);
-        if (judgement.isHit()) {
-            level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.35F, 1.0F + Math.min(0.8F, streak * 0.06F));
-            level.sendParticles(ParticleTypes.END_ROD,
-                    worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
-                    4 + Math.min(8, streak), 0.2, 0.2, 0.2, 0.02);
-        } else {
-            level.playSound(null, worldPosition, judgement == PsyMixerRitualJudgement.NEAR ? SoundEvents.NOTE_BLOCK_CHIME.value() : SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.BLOCKS, 0.30F, judgement == PsyMixerRitualJudgement.NEAR ? 0.75F : 0.65F);
-        }
+        PsyMixerEffectService.playJudgementFeedback(level, worldPosition, judgement, streak);
 
         advanceAction(level, player, judgement.qualityPoints());
     }
@@ -744,12 +763,19 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
             case STAND_STILL -> {
                 double dx = player.getX() - lastPlayerX;
                 double dz = player.getZ() - lastPlayerZ;
-                if (Double.isNaN(lastPlayerX) || dx * dx + dz * dz <= 0.0009D) {
+                if (Double.isNaN(lastPlayerX) || dx * dx + dz * dz <= 0.0025D) {
                     standStillTicks++;
+                    standStillGraceTicks = Math.min(8, standStillGraceTicks + 1);
                 } else {
-                    recordActionMiss();
-                    advanceAction(level, player, 0);
-                    return;
+                    standStillGraceTicks--;
+                    standStillTicks = Math.max(0, standStillTicks - 2);
+                    lastMissReason = PsyMixerRitualMissReason.MOVED.id();
+                    feedbackTicks = PsyMixerRitualEngine.FEEDBACK_TICKS;
+                    if (standStillGraceTicks <= 0) {
+                        recordActionMiss(PsyMixerRitualMissReason.MOVED);
+                        advanceAction(level, player, 0);
+                        return;
+                    }
                 }
                 lastPlayerX = player.getX();
                 lastPlayerZ = player.getZ();
@@ -779,8 +805,13 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         double dz = player.getZ() - centerZ;
         double radiusSqr = dx * dx + dz * dz;
         if (radiusSqr < 3.0D || radiusSqr > 30.0D) {
+            lastMissReason = (radiusSqr < 3.0D
+                    ? PsyMixerRitualMissReason.TOO_CLOSE_TO_CORE
+                    : PsyMixerRitualMissReason.TOO_FAR_FROM_CORE).id();
+            feedbackTicks = 8;
             return;
         }
+        lastMissReason = PsyMixerRitualMissReason.NONE.id();
         if (!Double.isNaN(lastPlayerX)) {
             double moveX = player.getX() - lastPlayerX;
             double moveZ = player.getZ() - lastPlayerZ;
@@ -799,6 +830,8 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         actionTick = 0;
         walkRingProgress = 0.0F;
         standStillTicks = 0;
+        standStillGraceTicks = 8;
+        lastMissReason = PsyMixerRitualMissReason.NONE.id();
         lastPlayerX = player == null ? Double.NaN : player.getX();
         lastPlayerZ = player == null ? Double.NaN : player.getZ();
         currentQualityPreview = previewQuality().id();
@@ -806,9 +839,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
 
         if (player != null) {
             level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.28F, 1.15F);
-            level.sendParticles(ParticleTypes.END_ROD,
-                    worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5,
-                    6, 0.25, 0.25, 0.25, 0.02);
+            PsyMixerEffectService.spawnActionProgressParticles(level, worldPosition, currentAction());
         }
 
         if (currentActionIndex >= activeRitualActions.size()) {
@@ -825,10 +856,50 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         markDirtyAndSync();
     }
 
-    private void recordActionMiss() {
+    private void recordActionMiss(PsyMixerRitualMissReason reason) {
         recordMistake();
         lastJudgement = PsyMixerRitualJudgement.MISS.id();
+        lastMissReason = reason.id();
         feedbackTicks = PsyMixerRitualEngine.FEEDBACK_TICKS;
+        if (level instanceof ServerLevel serverLevel) {
+            PsyMixerEffectService.playMissReasonFeedback(serverLevel, worldPosition, reason);
+        }
+    }
+
+    private PsyMixerRitualMissReason timeoutReason() {
+        return switch (currentAction()) {
+            case WALK_RING -> PsyMixerRitualMissReason.NOT_ENOUGH_RING_PROGRESS;
+            case LOOK_AT_CORE -> PsyMixerRitualMissReason.LOOKED_AWAY;
+            case STAND_STILL -> standStillTicks > 0 ? PsyMixerRitualMissReason.MOVED : PsyMixerRitualMissReason.TIMEOUT;
+            case REOPEN_GUI -> PsyMixerRitualMissReason.GUI_NOT_REOPENED;
+            case HOLD_ITEM -> PsyMixerRitualMissReason.ITEM_NOT_HELD;
+            default -> PsyMixerRitualMissReason.TIMEOUT;
+        };
+    }
+
+    private static PsyMixerRitualMissReason timingMissReason(float phase, float firstTarget) {
+        float nearest = firstTarget;
+        float distance = Float.MAX_VALUE;
+        for (int i = 0; i < PsyMixerRitualEngine.GOLDEN_ZONE_COUNT; i++) {
+            float target = PsyMixerRitualEngine.goldenZonePhase(firstTarget, i);
+            float candidate = PsyMixerRitualEngine.wrappedDistance(phase, target);
+            if (candidate < distance) {
+                distance = candidate;
+                nearest = target;
+            }
+        }
+        float signed = phase - nearest;
+        if (signed > 0.5F) signed -= 1.0F;
+        if (signed < -0.5F) signed += 1.0F;
+        return signed < 0.0F ? PsyMixerRitualMissReason.TOO_EARLY : PsyMixerRitualMissReason.TOO_LATE;
+    }
+
+    private float currentActionProgress() {
+        return switch (currentAction()) {
+            case WALK_RING -> Math.min(1.0F, walkRingProgress / 3.2F);
+            case STAND_STILL -> Math.min(1.0F, standStillTicks / 35.0F);
+            default -> Math.min(1.0F, actionTick / (float) Math.max(1, actionTimeout));
+        };
     }
 
     private void recordMistake() {
@@ -908,6 +979,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
                 mistakes,
                 maxMistakes,
                 PsyMixerRitualJudgement.byId(lastJudgement),
+                PsyMixerRitualMissReason.byId(lastMissReason),
                 feedbackTicks,
                 progress,
                 ritualMaxTime,
@@ -915,6 +987,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
                 actionTimeout,
                 getCurrentTargetPhase(),
                 getCurrentTimingWindow(),
+                currentActionProgress(),
                 completionAnimation,
                 completionAnimationTick,
                 COMPLETION_ANIMATION_TICKS,
@@ -955,6 +1028,7 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
         zoneSizeScale = 1.0F;
         streak = 0;
         lastJudgement = PsyMixerRitualJudgement.NONE.id();
+        lastMissReason = PsyMixerRitualMissReason.NONE.id();
         feedbackTicks = 0;
         lastAccuracy = 0.0F;
         markDirtyAndSync();
@@ -979,11 +1053,13 @@ public final class FormedPsyMixerCoreBlockEntity extends BlockEntity implements 
                 0,
                 0,
                 PsyMixerRitualJudgement.NONE,
+                PsyMixerRitualMissReason.NONE,
                 0,
                 0,
                 1,
                 0,
                 1,
+                0.0F,
                 0.0F,
                 0.0F,
                 false,

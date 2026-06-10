@@ -22,7 +22,12 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cachedOutput) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         VanillaRecipeSnapshotWriter writer =
-                new VanillaRecipeSnapshotWriter(recipePathProvider, futures, cachedOutput);
+                new VanillaRecipeSnapshotWriter(
+                        recipePathProvider,
+                        futures,
+                        cachedOutput,
+                        "ModVanillaRecipeSnapshotProvider"
+                );
 
         /*
          * Progression design:
@@ -1500,7 +1505,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 key(
                         "A", "minecraft:amethyst_shard",
                         "B", "mydrugs:dream_residue",
-                        "C", "mydrugs:resonance_lens",
+                        "C", "mydrugs:psychotrope_lens",
                         "D", "mydrugs:psy_receptacle",
                         "E", "mydrugs:recovery_anchor",
                         "F", "mydrugs:personal_diary"

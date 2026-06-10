@@ -73,7 +73,7 @@ public final class MutationPayloadItem extends Item {
                     ? Component.translatable("mutation.mydrugs.stat.unknown", statValue.statId())
                     : Component.translatable(stat.translationKey());
             int percent = Math.round(statValue.value() * 100.0F);
-            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mutation_payload.stat", statName, percent).withStyle(valueColor(statValue.value())));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.mutation_payload.stat", statName, percent).withStyle(MutationTooltipColors.value(statValue.value())));
         }
 
         tooltipAdder.accept(Component.translatable(
@@ -83,7 +83,7 @@ public final class MutationPayloadItem extends Item {
         tooltipAdder.accept(Component.translatable(
                 "tooltip.mydrugs.mutation_payload.rejection_risk",
                 Math.round(payload.rejectionRisk() * 100.0F)
-        ).withStyle(ChatFormatting.RED));
+        ).withStyle(MutationTooltipColors.risk(payload.rejectionRisk())));
         tooltipAdder.accept(Component.translatable(this.footerTooltipKey).withStyle(ChatFormatting.GRAY));
 
         if (flag.isAdvanced()) {
@@ -91,19 +91,4 @@ public final class MutationPayloadItem extends Item {
         }
     }
 
-    private static ChatFormatting valueColor(float value) {
-        if (value < 0.20F) {
-            return ChatFormatting.DARK_GRAY;
-        }
-        if (value < 0.40F) {
-            return ChatFormatting.WHITE;
-        }
-        if (value < 0.60F) {
-            return ChatFormatting.GREEN;
-        }
-        if (value < 0.80F) {
-            return ChatFormatting.AQUA;
-        }
-        return ChatFormatting.LIGHT_PURPLE;
-    }
 }

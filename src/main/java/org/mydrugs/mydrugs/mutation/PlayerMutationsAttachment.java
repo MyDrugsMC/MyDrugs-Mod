@@ -100,6 +100,18 @@ public final class PlayerMutationsAttachment implements ValueIOSerializable {
         return completed;
     }
 
+    public float averageAssimilationProgress() {
+        float total = 0.0F;
+        int count = 0;
+        for (ActiveMutationStat stat : this.activeStats.values()) {
+            if (stat.currentValue() < stat.targetValue()) {
+                total += stat.assimilationProgress();
+                count++;
+            }
+        }
+        return count == 0 ? 1.0F : total / count;
+    }
+
     public Map<String, Float> snapshotCurrent() {
         Map<String, Float> snapshot = new LinkedHashMap<>();
         for (ActiveMutationStat stat : this.activeStats.values()) {

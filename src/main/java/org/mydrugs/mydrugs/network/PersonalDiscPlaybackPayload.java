@@ -16,7 +16,11 @@ public record PersonalDiscPlaybackPayload(
         String title,
         String artist,
         int durationMs,
-        long startedGameTime
+        long startedGameTime,
+        String serverTrackId,
+        String audioHash,
+        boolean serverHosted,
+        int fileSize
 ) implements CustomPacketPayload {
     private static final int MAX_TRACK_ID_LENGTH = 128;
     private static final int MAX_TITLE_LENGTH = 96;
@@ -73,6 +77,10 @@ public record PersonalDiscPlaybackPayload(
                 ByteBufCodecs.stringUtf8(MAX_ARTIST_LENGTH).encode(buf, payload.artist());
                 ByteBufCodecs.VAR_INT.encode(buf, payload.durationMs());
                 ByteBufCodecs.VAR_LONG.encode(buf, payload.startedGameTime());
+                ByteBufCodecs.stringUtf8(MAX_TRACK_ID_LENGTH).encode(buf, payload.serverTrackId());
+                ByteBufCodecs.stringUtf8(64).encode(buf, payload.audioHash());
+                ByteBufCodecs.BOOL.encode(buf, payload.serverHosted());
+                ByteBufCodecs.VAR_INT.encode(buf, payload.fileSize());
             },
             buf -> new PersonalDiscPlaybackPayload(
                     Action.byId(ByteBufCodecs.VAR_INT.decode(buf)),
@@ -82,12 +90,17 @@ public record PersonalDiscPlaybackPayload(
                     ByteBufCodecs.stringUtf8(MAX_TITLE_LENGTH).decode(buf),
                     ByteBufCodecs.stringUtf8(MAX_ARTIST_LENGTH).decode(buf),
                     ByteBufCodecs.VAR_INT.decode(buf),
-                    ByteBufCodecs.VAR_LONG.decode(buf)
+                    ByteBufCodecs.VAR_LONG.decode(buf),
+                    ByteBufCodecs.stringUtf8(MAX_TRACK_ID_LENGTH).decode(buf),
+                    ByteBufCodecs.stringUtf8(64).decode(buf),
+                    ByteBufCodecs.BOOL.decode(buf),
+                    ByteBufCodecs.VAR_INT.decode(buf)
             )
     );
 
     public static PersonalDiscPlaybackPayload stop(Source source, BlockPos pos) {
-        return new PersonalDiscPlaybackPayload(Action.STOP, source, pos, "", "", "", 0, 0L);
+        return new PersonalDiscPlaybackPayload(Action.STOP, source, pos, "", "", "", 0, 0L,
+                "", "", false, 0);
     }
 
     @Override

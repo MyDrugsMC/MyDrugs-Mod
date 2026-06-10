@@ -91,7 +91,7 @@ public final class RecoveryProgressManager {
         boolean recoveryMomentumApplied = consumeRecoveryMomentum(player, stats, kind);
         float momentumMultiplier = recoveryMomentumApplied ? 1.12F : 1.0F;
 
-        if (stats.perDrug.isEmpty()) {
+        if (!stats.hasTrackedDrugs()) {
             if (shouldSendReliefFallback(kind)) {
                 AddictionRecoveryFeedback.sendForAction(player, kind);
             }
@@ -104,7 +104,7 @@ public final class RecoveryProgressManager {
         float maxRecoveryProgressAdded = 0.0F;
         float bestRecoveryProgressPercent = 0.0F;
 
-        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.perDrug.entrySet()) {
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.getAllDrugStats().entrySet()) {
             DrugId drug = entry.getKey();
             DrugAddictionStats d = entry.getValue();
             if (!isInReckoning(drug, d)) {
@@ -195,11 +195,11 @@ public final class RecoveryProgressManager {
 
     public static void tickPassiveSupport(ServerPlayer player, PlayerAddictionStats stats,
                                           @Nullable RecoveryRoomReport room, int companions) {
-        if (player == null || stats == null || stats.perDrug.isEmpty()) {
+        if (player == null || stats == null || !stats.hasTrackedDrugs()) {
             return;
         }
         long now = player.level().getGameTime();
-        if (stats.temporaryEffects.hasHeadphones(now)) {
+        if (stats.temporaryEffectsView().hasHeadphones(now)) {
             onProductiveAction(player, ActionKind.MUSIC_SUPPORT, 0.35F);
         }
         if (RecoveryRoomManager.isValidRecoveryRoom(room)) {
@@ -220,7 +220,7 @@ public final class RecoveryProgressManager {
         }
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         float tierMultiplier = recoveryResonanceMultiplier(room);
-        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.perDrug.entrySet()) {
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.getAllDrugStats().entrySet()) {
             DrugId drug = entry.getKey();
             DrugAddictionStats d = entry.getValue();
             if (!isInReckoning(drug, d)) {
@@ -283,12 +283,8 @@ public final class RecoveryProgressManager {
             return false;
         }
         long now = player.level().getGameTime();
-        if (!stats.temporaryEffects.hasRecoveryMomentum(now)) {
+        if (!stats.temporaryEffectsView().consumeRecoveryMomentum(now)) {
             return false;
-        }
-        stats.temporaryEffects.recoveryMomentumCharges = Math.max(0, stats.temporaryEffects.recoveryMomentumCharges - 1);
-        if (stats.temporaryEffects.recoveryMomentumCharges <= 0) {
-            stats.temporaryEffects.recoveryMomentumUntil = 0L;
         }
         AddictionRecoveryFeedback.sendRecoveryMomentumUsed(player);
         return true;
@@ -323,7 +319,7 @@ public final class RecoveryProgressManager {
 
         long now = player.level().getGameTime();
         float cap = kind.progressCap();
-        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.perDrug.entrySet()) {
+        for (Map.Entry<DrugId, DrugAddictionStats> entry : stats.getAllDrugStats().entrySet()) {
             DrugId drug = entry.getKey();
             DrugAddictionStats drugStats = entry.getValue();
             IntegrationRequirementProfile profile = IntegrationRequirements.profile(drug);

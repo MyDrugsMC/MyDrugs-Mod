@@ -1,0 +1,17 @@
+{
+  "type": "mydrugs:fluid_filtering",
+  "input": {
+    "fluid": "mydrugs:antibiotic_extract",
+    "amount": 800
+  },
+  "output_1": {
+    "fluid": "mydrugs:wastewater",
+    "amount": 500
+  },
+  "output_item": {
+    "item": "mydrugs:antibiotic_crystals",
+    "count": 2
+  },
+  "clicks_required": 12,
+  "hunger_per_tick": 1
+}

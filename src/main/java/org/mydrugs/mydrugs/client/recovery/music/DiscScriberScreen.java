@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import org.mydrugs.mydrugs.network.ScribePersonalDiscPayload;
+import org.mydrugs.mydrugs.network.ScribePersonalDiscResultPayload;
 import org.mydrugs.mydrugs.recovery.item.ModRecoveryItems;
 
 import java.util.List;
@@ -48,6 +49,10 @@ public final class DiscScriberScreen extends Screen {
     private MusicTrack hoveredTrack;
     private MusicTrack selectedTrack;
     private Component status = Component.empty();
+    private boolean scribePending;
+    private boolean uploadPending;
+    private String readyServerTrackId = "";
+    private String readyAudioHash = "";
 
     public DiscScriberScreen(BlockPos scriberPos) {
         super(Component.translatable("screen.mydrugs.disc_scriber.title"));
@@ -107,6 +112,8 @@ public final class DiscScriberScreen extends Screen {
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClicked) {
         if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && hoveredTrack != null) {
             selectedTrack = hoveredTrack;
+            readyServerTrackId = "";
+            readyAudioHash = "";
             status = Component.empty();
             updateButtons();
             return true;
@@ -143,7 +150,11 @@ public final class DiscScriberScreen extends Screen {
         graphics.fill(listX, listY, listX + listW, listY + listH, 0xFF111A17);
 
         if (visible.isEmpty()) {
-            graphics.drawWordWrap(font, Component.translatable("screen.mydrugs.music.empty_help"), listX + 8, listY + 10, listW - 16, C_MUTED);
+            String query = search == null ? "" : search.getValue();
+            Component empty = MusicLibrary.get().tracks().isEmpty()
+                    ? Component.translatable("screen.mydrugs.music.empty_library")
+                    : Component.translatable("screen.mydrugs.music.no_search_results", query);
+            graphics.drawWordWrap(font, empty, listX + 8, listY + 10, listW - 16, C_MUTED);
             return;
         }
 
@@ -182,6 +193,10 @@ public final class DiscScriberScreen extends Screen {
         graphics.drawString(font, trim(selectedTrack.displayArtist(), 24), left + 92, y + 11, C_MUTED, false);
         String duration = selectedTrack.durationMs > 0 ? formatTime(selectedTrack.durationMs) : "--:--";
         graphics.drawString(font, duration, left + PANEL_W - font.width(duration) - 12, y, C_MUTED, false);
+        Component blocker = discScribeBlocker(selectedTrack);
+        if (blocker != null) {
+            graphics.drawString(font, blocker, left + 92, y + 22, C_BAD, false);
+        }
     }
 
     private void drawBlankDiscState(GuiGraphics graphics) {
@@ -202,21 +217,71 @@ public final class DiscScriberScreen extends Screen {
             status = Component.translatable("screen.mydrugs.disc_scriber.no_blank_disc");
             return;
         }
+        if (selectedTrack.sourceType == MusicTrack.SourceType.BUILT_IN) {
+            sendScribeRequest();
+            return;
+        }
+        if (readyServerTrackId.isBlank() || readyAudioHash.isBlank()) {
+            uploadPending = true;
+            status = Component.translatable("screen.mydrugs.disc_scriber.uploading");
+            SharedMusicTransferClient.upload(selectedTrack);
+            updateButtons();
+            return;
+        }
+        sendScribeRequest();
+    }
+
+    private void sendScribeRequest() {
+        if (selectedTrack == null) return;
+        boolean serverHosted = !readyServerTrackId.isBlank() && !readyAudioHash.isBlank();
         ClientPacketDistributor.sendToServer(new ScribePersonalDiscPayload(
                 scriberPos,
                 selectedTrack.id,
                 selectedTrack.title,
                 selectedTrack.artist,
                 (int) Math.min(Integer.MAX_VALUE, selectedTrack.durationMs),
-                selectedTrack.liked
+                selectedTrack.liked,
+                readyServerTrackId,
+                readyAudioHash,
+                serverHosted
         ));
-        status = Component.translatable("screen.mydrugs.disc_scriber.sent");
+        scribePending = true;
+        status = Component.translatable("screen.mydrugs.disc_scriber.scribing");
+        updateButtons();
+    }
+
+    public void handleUploadResult(org.mydrugs.mydrugs.network.ServerMusicUploadResultPayload result) {
+        uploadPending = false;
+        status = Component.translatable(result.messageKey());
+        if (result.success()) {
+            readyServerTrackId = result.serverTrackId();
+            readyAudioHash = result.audioHash();
+            sendScribeRequest();
+        } else {
+            updateButtons();
+        }
+    }
+
+    public void handleUploadProgress(int current, int total) {
+        status = Component.translatable("screen.mydrugs.disc_scriber.upload_progress", current, total);
+    }
+
+    public void handleScribeResult(ScribePersonalDiscResultPayload result) {
+        scribePending = false;
+        status = Component.translatable(result.messageKey());
+        updateButtons();
     }
 
     private void updateButtons() {
-        boolean canScribe = selectedTrack != null && playableForDisc(selectedTrack) && hasBlankDisc();
+        boolean canScribe = !scribePending && !uploadPending
+                && selectedTrack != null && playableForDisc(selectedTrack) && hasBlankDisc();
         if (scribeButton != null) {
             scribeButton.active = canScribe;
+            scribeButton.setMessage(Component.translatable(
+                    readyServerTrackId.isBlank() && selectedTrack != null
+                            && selectedTrack.sourceType != MusicTrack.SourceType.BUILT_IN
+                            ? "screen.mydrugs.disc_scriber.upload_and_scribe"
+                            : "screen.mydrugs.disc_scriber.scribe"));
         }
         if (editButton != null) {
             editButton.active = selectedTrack != null;
@@ -239,6 +304,18 @@ public final class DiscScriberScreen extends Screen {
 
     private static boolean playableForDisc(MusicTrack track) {
         return track != null && track.sourceType != MusicTrack.SourceType.BOOKMARK && track.isPlayable() && track.isOgg();
+    }
+
+    private Component discScribeBlocker(MusicTrack track) {
+        if (track == null) return Component.translatable("screen.mydrugs.music.no_track_selected");
+        if (track.sourceType == MusicTrack.SourceType.BOOKMARK) {
+            return Component.translatable("screen.mydrugs.disc_scriber.bookmark_blocked");
+        }
+        if (!track.isPlayable()) return Component.translatable("screen.mydrugs.disc_scriber.missing_local_file");
+        if (!track.isOgg()) return Component.translatable("screen.mydrugs.disc_scriber.needs_ogg");
+        if (uploadPending) return Component.translatable("screen.mydrugs.disc_scriber.uploading");
+        if (!hasBlankDisc()) return Component.translatable("screen.mydrugs.disc_scriber.no_blank_disc");
+        return null;
     }
 
     private static String trim(String value, int max) {

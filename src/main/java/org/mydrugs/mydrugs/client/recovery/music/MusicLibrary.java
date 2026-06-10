@@ -27,6 +27,15 @@ import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.resources.ResourceLocation;
 
 public final class MusicLibrary {
+    public enum SortMode {
+        ALL_ALPHA,
+        LIKED,
+        RECENT,
+        MOST_PLAYED,
+        IMPORTED,
+        BUILT_IN
+    }
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final MusicLibrary INSTANCE = new MusicLibrary();
 
@@ -48,17 +57,37 @@ public final class MusicLibrary {
     }
 
     public synchronized List<MusicTrack> sortedTracks(String search) {
+        return sortedTracks(search, SortMode.ALL_ALPHA);
+    }
+
+    public synchronized List<MusicTrack> sortedTracks(String search, SortMode mode) {
         ensureLoaded();
         String needle = search == null ? "" : search.toLowerCase(Locale.ROOT).trim();
+        SortMode safeMode = mode == null ? SortMode.ALL_ALPHA : mode;
+        Comparator<MusicTrack> alpha = Comparator
+                .comparing((MusicTrack track) -> safe(track.title), String.CASE_INSENSITIVE_ORDER)
+                .thenComparing((MusicTrack track) -> safe(track.artist), String.CASE_INSENSITIVE_ORDER)
+                .thenComparing((MusicTrack track) -> safe(track.id), String.CASE_INSENSITIVE_ORDER);
+        Comparator<MusicTrack> comparator = switch (safeMode) {
+            case RECENT -> Comparator.comparingLong((MusicTrack track) -> track.lastPlayedAt)
+                    .thenComparingLong(track -> track.addedAt).reversed().thenComparing(alpha);
+            case MOST_PLAYED -> Comparator.comparingInt((MusicTrack track) -> track.playCount)
+                    .thenComparingLong(track -> track.lastPlayedAt).reversed().thenComparing(alpha);
+            default -> alpha;
+        };
         return tracks.stream()
                 .filter(track -> needle.isEmpty()
                         || safe(track.title).toLowerCase(Locale.ROOT).contains(needle)
                         || safe(track.artist).toLowerCase(Locale.ROOT).contains(needle)
                         || safe(track.originalSource).toLowerCase(Locale.ROOT).contains(needle))
-                .sorted(Comparator
-                        .comparing((MusicTrack track) -> safe(track.title), String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing((MusicTrack track) -> safe(track.artist), String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing((MusicTrack track) -> safe(track.id), String.CASE_INSENSITIVE_ORDER))
+                .filter(track -> switch (safeMode) {
+                    case LIKED -> track.liked;
+                    case IMPORTED -> track.sourceType == MusicTrack.SourceType.LOCAL_FILE
+                            || track.sourceType == MusicTrack.SourceType.DIRECT_URL;
+                    case BUILT_IN -> track.sourceType == MusicTrack.SourceType.BUILT_IN;
+                    default -> true;
+                })
+                .sorted(comparator)
                 .toList();
     }
 
@@ -227,7 +256,8 @@ public final class MusicLibrary {
         }
         MusicTrack track = match.get();
         tracks.removeIf(t -> t.id.equals(id));
-        if (track.localPath != null && !track.localPath.isBlank()) {
+        if (track.sourceType != MusicTrack.SourceType.BUILT_IN
+                && track.localPath != null && !track.localPath.isBlank()) {
             try {
                 Files.deleteIfExists(Path.of(track.localPath));
             } catch (IOException ignored) {
@@ -343,13 +373,19 @@ public final class MusicLibrary {
     }
 
     public synchronized void markPlayed(MusicTrack track) {
+        markTouched(track, true);
+    }
+
+    public synchronized void markTouched(MusicTrack track, boolean incrementPlayCount) {
         ensureLoaded();
         if (track == null) {
             return;
         }
         find(track.id).ifPresent(stored -> {
             stored.lastPlayedAt = Instant.now().toEpochMilli();
-            stored.playCount++;
+            if (incrementPlayCount) {
+                stored.playCount++;
+            }
             save();
         });
     }

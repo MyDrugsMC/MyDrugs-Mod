@@ -10,6 +10,7 @@ import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.client.effects.HeartbeatPulse;
 import org.mydrugs.mydrugs.network.PsyMixerRitualActionPayload;
@@ -27,6 +28,7 @@ public final class PsyMixerRitualClientState {
     private static int mistakes;
     private static int maxMistakes;
     private static PsyMixerRitualJudgement lastJudgement = PsyMixerRitualJudgement.NONE;
+    private static PsyMixerRitualMissReason lastMissReason = PsyMixerRitualMissReason.NONE;
     private static int feedbackTicks;
     private static int ritualTick;
     private static int ritualMaxTime = 1;
@@ -34,6 +36,7 @@ public final class PsyMixerRitualClientState {
     private static int actionTimeout = 1;
     private static float targetPhase;
     private static float timingWindow;
+    private static float actionProgress;
     private static int badQualityHeartbeatCooldown;
     private static boolean completionAnimation;
     private static int completionTick;
@@ -59,6 +62,7 @@ public final class PsyMixerRitualClientState {
         mistakes = payload.mistakes();
         maxMistakes = payload.maxMistakes();
         lastJudgement = payload.lastJudgement();
+        lastMissReason = payload.lastMissReason();
         feedbackTicks = payload.feedbackTicks();
         ritualTick = payload.ritualTick();
         ritualMaxTime = Math.max(1, payload.ritualMaxTime());
@@ -66,6 +70,7 @@ public final class PsyMixerRitualClientState {
         actionTimeout = Math.max(1, payload.actionTimeout());
         targetPhase = payload.targetPhase();
         timingWindow = payload.timingWindow();
+        actionProgress = payload.actionProgress();
         completionAnimation = payload.completionAnimation();
         completionTick = Math.max(0, payload.completionTick());
         completionDuration = Math.max(1, payload.completionDuration());
@@ -112,6 +117,7 @@ public final class PsyMixerRitualClientState {
         mistakes = 0;
         maxMistakes = 0;
         lastJudgement = PsyMixerRitualJudgement.NONE;
+        lastMissReason = PsyMixerRitualMissReason.NONE;
         feedbackTicks = 0;
         ritualTick = 0;
         ritualMaxTime = 1;
@@ -119,6 +125,7 @@ public final class PsyMixerRitualClientState {
         actionTimeout = 1;
         targetPhase = 0.0F;
         timingWindow = 0.0F;
+        actionProgress = 0.0F;
         badQualityHeartbeatCooldown = 0;
         completionAnimation = false;
         completionTick = 0;
@@ -167,12 +174,18 @@ public final class PsyMixerRitualClientState {
         return lastJudgement;
     }
 
+    public static PsyMixerRitualMissReason lastMissReason() {
+        return lastMissReason;
+    }
+
     public static int feedbackTicks() {
         return feedbackTicks;
     }
 
     public static float actionProgress() {
-        return Math.min(1.0F, actionTick / (float) actionTimeout);
+        return actionProgress > 0.0F
+                ? Math.min(1.0F, actionProgress)
+                : Math.min(1.0F, actionTick / (float) actionTimeout);
     }
 
     public static float phase() {

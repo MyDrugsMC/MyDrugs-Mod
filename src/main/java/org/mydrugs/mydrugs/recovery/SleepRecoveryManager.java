@@ -28,7 +28,7 @@ public final class SleepRecoveryManager {
         }
 
         int delay = AddictionMath.computeInsomniaDelayTicks(severity);
-        if (stats.temporaryEffects.hasSleepBonus(player.level().getGameTime())) {
+        if (stats.temporaryEffectsView().hasSleepBonus(player.level().getGameTime())) {
             delay = 0;
         }
 

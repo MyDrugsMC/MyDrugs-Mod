@@ -56,7 +56,7 @@ public final class ModPsychotropeDistilleryRecipeProvider implements DataProvide
                 "mydrugs:calming_resin", "mydrugs:spent_filter", 3, 260);
 
         recipe(futures, cachedOutput, "fermented_memory_from_defiant_spirit",
-                "mydrugs:defiant_spirit_bottle", "mydrugs:resonance_lens",
+                "mydrugs:defiant_spirit_bottle", "mydrugs:psychotrope_lens",
                 "mydrugs:fermented_memory", "mydrugs:spent_filter", 2, 300);
 
         recipe(futures, cachedOutput, "redline_fuel_from_cocaine",
@@ -74,7 +74,7 @@ public final class ModPsychotropeDistilleryRecipeProvider implements DataProvide
                 "mydrugs:overdrive_fuel", "mydrugs:burnt_nerve_residue", 2, 340);
 
         recipe(futures, cachedOutput, "dream_residue_from_lsd",
-                "mydrugs:lsd_drop", "mydrugs:resonance_lens",
+                "mydrugs:lsd_drop", "mydrugs:psychotrope_lens",
                 "mydrugs:dream_residue", "mydrugs:bitter_residue", 2, 360);
         recipe(futures, cachedOutput, "mycelial_insight_from_mushroom",
                 "mydrugs:magic_mushroom_powder", "mydrugs:fungal_fiber",
@@ -128,7 +128,7 @@ public final class ModPsychotropeDistilleryRecipeProvider implements DataProvide
     private void saveRecipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, JsonObject json) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         Path path = this.recipePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, json, path));
+        futures.add(DatagenOutputGuard.saveStable("ModPsychotropeDistilleryRecipeProvider", cachedOutput, json, path));
     }
 
     @Override

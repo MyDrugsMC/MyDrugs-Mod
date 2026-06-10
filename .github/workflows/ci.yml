@@ -62,6 +62,9 @@ jobs:
       - name: runData
         run: ./gradlew --no-daemon --stacktrace runData
 
+      - name: test
+        run: ./gradlew --no-daemon --stacktrace test
+
       - name: validateResources
         run: ./gradlew --no-daemon --stacktrace validateResources
 

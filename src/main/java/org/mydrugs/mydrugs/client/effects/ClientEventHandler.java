@@ -12,11 +12,9 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
-import org.mydrugs.mydrugs.client.BiomeFinderCompassOverlay;
 import org.mydrugs.mydrugs.client.PsyBlueprintGhostRenderer;
 import org.mydrugs.mydrugs.client.PsyBlueprintPreviewClientState;
 import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
-import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualOverlay;
 import org.mydrugs.mydrugs.client.recovery.RecoveryRoomOverlay;
 import org.mydrugs.mydrugs.client.recovery.RecoveryRoomParticleClient;
 import org.mydrugs.mydrugs.client.recovery.music.CustomDiscPlaybackController;
@@ -24,7 +22,7 @@ import org.mydrugs.mydrugs.client.shaders.ShaderManager;
 import org.mydrugs.mydrugs.client.sounds.ClientSoundsHandler;
 import org.mydrugs.mydrugs.client.shaders.WithdrawalTunnelShader;
 import org.mydrugs.mydrugs.client.effects.hud.AddictionHudRenderer;
-import org.mydrugs.mydrugs.client.effects.render.FlexibleDrugVisualOverlay;
+import org.mydrugs.mydrugs.client.effects.render.ClientGuiOverlayManager;
 import org.mydrugs.mydrugs.client.effects.render.BadTripScreamerOverlay;
 import org.mydrugs.mydrugs.client.effects.render.BadTripSkyTint;
 import org.mydrugs.mydrugs.client.effects.render.VomitOverlayClientState;
@@ -131,26 +129,7 @@ public final class ClientEventHandler {
 
         @SubscribeEvent
         public static void onRenderGui(RenderGuiEvent.Post event) {
-            Minecraft mc = Minecraft.getInstance();
-
-            if (WithdrawalTunnelShader.INSTANCE.shouldRender()) {
-                WithdrawalTunnelShader.INSTANCE.render(mc);
-            }
-
-            if (org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.shouldRender()) {
-                org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.render(mc);
-            }
-
-            org.mydrugs.mydrugs.client.InnerRegionCrossingController.render(event.getGuiGraphics());
-            FlexibleDrugVisualOverlay.render(event.getGuiGraphics());
-            VomitOverlayClientState.render(event.getGuiGraphics());
-            BadTripScreamerOverlay.render(event.getGuiGraphics());
-            AddictionHudRenderer.render(event.getGuiGraphics());
-            BiomeFinderCompassOverlay.render(event.getGuiGraphics());
-            PsyMixerRitualOverlay.render(event.getGuiGraphics());
-            RecoveryRoomOverlay.render(event.getGuiGraphics());
-            // Entry veil last so it covers the HUD as the world resolves.
-            org.mydrugs.mydrugs.client.InnerEntrySequence.render(event.getGuiGraphics());
+            ClientGuiOverlayManager.render(event.getGuiGraphics());
         }
 
         @SubscribeEvent

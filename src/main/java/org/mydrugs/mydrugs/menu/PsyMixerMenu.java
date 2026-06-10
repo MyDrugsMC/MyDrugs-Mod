@@ -17,6 +17,7 @@ import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
@@ -59,7 +60,9 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     private static final int DATA_ACTION_TICK = 17;
     private static final int DATA_ACTION_TIMEOUT = 18;
     private static final int DATA_MAX_MISTAKES = 19;
-    private static final int DATA_COUNT = 20;
+    private static final int DATA_LAST_MISS_REASON = 20;
+    private static final int DATA_ACTION_PROGRESS = 21;
+    private static final int DATA_COUNT = 22;
     private static final int FLOAT_SCALE = 10_000;
 
     // Convenience constructor for client deserialization
@@ -205,6 +208,14 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
         return ritualData.get(DATA_FEEDBACK_TICKS);
     }
 
+    public PsyMixerRitualMissReason getLastMissReason() {
+        return PsyMixerRitualMissReason.byId(ritualData.get(DATA_LAST_MISS_REASON));
+    }
+
+    public float getActionProgress() {
+        return ritualData.get(DATA_ACTION_PROGRESS) / (float) FLOAT_SCALE;
+    }
+
     public float getLastAccuracy() {
         return ritualData.get(DATA_LAST_ACCURACY) / (float) FLOAT_SCALE;
     }
@@ -305,6 +316,8 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
                 case DATA_ACTION_TICK -> core.getActionTick();
                 case DATA_ACTION_TIMEOUT -> core.getActionTimeout();
                 case DATA_MAX_MISTAKES -> core.getMaxMistakes();
+                case DATA_LAST_MISS_REASON -> core.getLastMissReason();
+                case DATA_ACTION_PROGRESS -> Math.round(core.getCurrentActionProgress() * FLOAT_SCALE);
                 default -> 0;
             };
         }

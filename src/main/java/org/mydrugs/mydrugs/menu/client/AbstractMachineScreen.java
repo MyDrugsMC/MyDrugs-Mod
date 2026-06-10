@@ -605,7 +605,7 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
             GuiGraphics graphics,
             int mouseX,
             int mouseY,
-            String title,
+            Component title,
             int amount,
             int capacity,
             String unit
@@ -614,7 +614,7 @@ public abstract class AbstractMachineScreen<T extends AbstractContainerMenu>
                 graphics,
                 mouseX,
                 mouseY,
-                Component.literal(title),
+                title,
                 Component.literal(amount + " / " + capacity + " " + unit)
         );
     }

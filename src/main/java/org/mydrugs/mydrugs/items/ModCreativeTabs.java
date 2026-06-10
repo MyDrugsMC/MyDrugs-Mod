@@ -160,7 +160,6 @@ public final class ModCreativeTabs {
             ModItems.PSY_BLUEPRINT,
             ModItems.MYCELIAL_RESONATOR,
             ModItems.PSYCHOTROPE_LENS,
-            ModItems.RESONANCE_LENS,
             ModItems.STRAIN_VENT,
             ModItems.CURRENT_REGULATOR,
             ModItems.INTEGRATION_CORE,
@@ -358,6 +357,7 @@ public final class ModCreativeTabs {
 
     private static Set<Item> claimedItems() {
         Set<Item> claimed = Collections.newSetFromMap(new IdentityHashMap<>());
+        claimed.add(ModItems.RESONANCE_LENS.get()); // Compatibility-only registry ID; hide from curated tabs.
         List<List<DeferredItem<?>>> curated = List.of(
                 MAIN, MACHINES, PLANTS, FLUIDS_AND_GASES, RECOVERY_AND_PSYCHE, FOOD_AND_CONSUMABLES);
         for (List<DeferredItem<?>> list : curated) {

@@ -25,10 +25,13 @@ import org.mydrugs.mydrugs.addiction.network.DoseSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @EventBusSubscriber(modid = MyDrugs.MODID, value = Dist.CLIENT)
@@ -369,6 +372,42 @@ public final class ShaderManager extends ClientShaderManager<AnimatedShader> {
             return base;
         }
         return base * Math.clamp(fade / (float) fadeDuration, 0.0F, 1.0F);
+    }
+
+    public List<ActiveShaderInfo> activeShaderSummary() {
+        if (!Config.CLIENT.psychedelicShadersEnabled()) {
+            return List.of();
+        }
+        Set<EffectType> types = new HashSet<>();
+        types.addAll(directDurations.keySet());
+        types.addAll(doseStrengths.keySet());
+        types.addAll(continuousStrengths.keySet());
+
+        List<ActiveShaderInfo> result = new ArrayList<>();
+        float configScale = Config.CLIENT.shaderScale();
+        for (EffectType type : types) {
+            float direct = directStrength(type);
+            float dose = doseStrengths.getOrDefault(type, 0.0F);
+            float continuous = continuousStrengths.getOrDefault(type, 0.0F);
+            float strength = Math.max(Math.max(direct, dose), continuous) * configScale;
+            if (strength <= 0.002F) {
+                continue;
+            }
+            String source = direct >= dose && direct >= continuous ? "direct"
+                    : dose >= continuous ? "dose" : "continuous";
+            int remainingTicks = directDurations.getOrDefault(type,
+                    dose > 0.001F || continuous > 0.001F ? DOSE_SUSTAIN_TICKS : 0);
+            result.add(new ActiveShaderInfo(type, strength, remainingTicks, source));
+        }
+        result.sort(Comparator.comparingDouble(ActiveShaderInfo::strength).reversed());
+        return List.copyOf(result);
+    }
+
+    public Optional<ActiveShaderInfo> strongestActiveShader() {
+        return activeShaderSummary().stream().findFirst();
+    }
+
+    public record ActiveShaderInfo(EffectType type, float strength, int remainingTicks, String source) {
     }
 
     private void clearSyncedDirectEffects() {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,6 +39,14 @@ final class SourceIndex {
 
     static boolean containsLiteral(String haystack, String id) {
         return haystack.contains("\"" + id + "\"");
+    }
+
+    static List<Path> javaFiles() {
+        try (Stream<Path> paths = Files.walk(MAIN_JAVA)) {
+            return paths.filter(path -> path.toString().endsWith(".java")).sorted().toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static String readTree(Path root) {

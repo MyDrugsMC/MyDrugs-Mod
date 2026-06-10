@@ -71,7 +71,7 @@ public final class WithdrawalManager {
                 player.isSleeping(),
                 recoveryRoom == null && inSafeZone,
                 companions > 0,
-                playerStats.temporaryEffects.hasCalmRelief(now)
+                playerStats.temporaryEffectsView().hasCalmRelief(now)
         );
         recovery *= RecoveryRoomManager.withdrawalRecoveryMultiplier(recoveryRoom);
 

@@ -65,8 +65,16 @@ public enum PsyMixerRitualAction {
         return "ritual.mydrugs.action." + serializedName + ".prompt";
     }
 
+    public String labelKey() {
+        return "ritual.mydrugs.action." + serializedName + ".label";
+    }
+
     public String hintKey() {
         return "ritual.mydrugs.action." + serializedName + ".hint";
+    }
+
+    public String teachKey() {
+        return "ritual.mydrugs.action." + serializedName + ".teach";
     }
 
     public boolean isTimingRing() {

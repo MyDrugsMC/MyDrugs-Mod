@@ -32,7 +32,7 @@ public final class DiaryEntryGenerator {
         long day = PlayerDiaryAttachment.currentDay(gameTime);
 
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
-        TemporaryRecoveryEffects te = stats.temporaryEffects;
+        TemporaryRecoveryEffects te = stats.temporaryEffectsView();
 
         DrugId dominantDrug = findDominantDrug(stats);
         DrugCategory dominantCategory = dominantDrug == null ? null : DrugRegistry.getCategory(dominantDrug);

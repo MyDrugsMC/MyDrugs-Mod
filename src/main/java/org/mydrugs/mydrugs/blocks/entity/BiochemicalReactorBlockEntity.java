@@ -187,12 +187,12 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
         }
     }
 
-    public static boolean isErgot(ItemStack stack) {
-        return stack.is(ModItems.ERGOT.get());
+    public static boolean isPrimaryInput(ItemStack stack) {
+        return stack.is(ModItems.ERGOT.get()) || stack.is(ModItems.FUNGAL_CULTURE.get());
     }
 
-    public static boolean isTryptophan(ItemStack stack) {
-        return stack.is(ModItems.TRYPTOPHAN.get());
+    public static boolean isSecondaryInput(ItemStack stack) {
+        return stack.is(ModItems.TRYPTOPHAN.get()) || stack.is(ModItems.NUTRIENT_GEL.get());
     }
 
     public static boolean isCharcoal(ItemStack stack) {
@@ -424,8 +424,8 @@ public class BiochemicalReactorBlockEntity extends BaseContainerBlockEntity impl
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return switch (slot) {
-            case SLOT_ERGOT -> isErgot(stack);
-            case SLOT_TRYPTOPHAN -> isTryptophan(stack);
+            case SLOT_ERGOT -> isPrimaryInput(stack);
+            case SLOT_TRYPTOPHAN -> isSecondaryInput(stack);
             case SLOT_CHARCOAL -> isCharcoal(stack);
             case SLOT_OUTPUT_CONTAINER -> MachineItemUtil.isFluidContainer(stack);
             default -> false;

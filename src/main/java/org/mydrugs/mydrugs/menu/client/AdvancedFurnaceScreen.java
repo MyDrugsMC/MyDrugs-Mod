@@ -96,7 +96,7 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
                     graphics,
                     mouseX,
                     mouseY,
-                    "Progress",
+                    Component.translatable("screen.mydrugs.ui.progress"),
                     this.menu.getProgress(),
                     this.menu.getMaxProgress(),
                     "ticks"
@@ -115,7 +115,7 @@ public final class AdvancedFurnaceScreen extends AbstractMachineScreen<AdvancedF
                     graphics,
                     mouseX,
                     mouseY,
-                    "Burn",
+                    Component.translatable("screen.mydrugs.ui.burn"),
                     this.menu.getBurnTime(),
                     this.menu.getBurnDuration(),
                     "ticks"

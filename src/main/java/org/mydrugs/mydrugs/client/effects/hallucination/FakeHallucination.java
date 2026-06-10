@@ -36,11 +36,12 @@ public final class FakeHallucination {
         return gameTime >= expireAt;
     }
 
-    public float alpha(long gameTime) {
+    public float alpha(long gameTime, boolean smoothTransitions) {
         float now = (float) gameTime;
-
-        float fadeIn = Mth.clamp((now - spawnAt) / 8.0F, 0.0F, 1.0F);
-        float fadeOut = Mth.clamp((expireAt - now) / 10.0F, 0.0F, 1.0F);
+        float fadeInTicks = smoothTransitions ? 22.0F : 8.0F;
+        float fadeOutTicks = smoothTransitions ? 28.0F : 10.0F;
+        float fadeIn = Mth.clamp((now - spawnAt) / fadeInTicks, 0.0F, 1.0F);
+        float fadeOut = Mth.clamp((expireAt - now) / fadeOutTicks, 0.0F, 1.0F);
 
         return fadeIn * fadeOut;
     }

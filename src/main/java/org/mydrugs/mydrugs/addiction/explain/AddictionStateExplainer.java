@@ -65,7 +65,7 @@ public final class AddictionStateExplainer {
     }
 
     public static int recoveryFlags(PlayerAddictionStats stats, long now, boolean inSafeZone) {
-        TemporaryRecoveryEffects effects = stats.temporaryEffects;
+        TemporaryRecoveryEffects effects = stats.temporaryEffectsView();
         int flags = 0;
         if (inSafeZone) flags |= AddictionClientSnapshotPayload.RECOVERY_SAFE_ZONE;
         if (effects.hasDiaryCalm(now)) flags |= AddictionClientSnapshotPayload.RECOVERY_DIARY;
@@ -202,13 +202,13 @@ public final class AddictionStateExplainer {
                                                           long now) {
         boolean hasDiary = environment != null && environment.hasDiary();
         boolean hasHeadphones = environment != null && environment.hasHeadphones();
-        if (hasDiary && !stats.temporaryEffects.hasDiaryCalm(now)) {
+        if (hasDiary && !stats.temporaryEffectsView().hasDiaryCalm(now)) {
             return AddictionSuggestedAction.WRITE_DIARY;
         }
-        if (hasHeadphones && !stats.temporaryEffects.hasHeadphones(now)) {
+        if (hasHeadphones && !stats.temporaryEffectsView().hasHeadphones(now)) {
             return AddictionSuggestedAction.USE_HEADPHONES;
         }
-        if (hasInventoryItem(player, ModItems.HERBAL_TEA.get()) && !stats.temporaryEffects.hasPreparedTea(now)) {
+        if (hasInventoryItem(player, ModItems.HERBAL_TEA.get()) && !stats.temporaryEffectsView().hasPreparedTea(now)) {
             return AddictionSuggestedAction.DRINK_TEA;
         }
         return AddictionSuggestedAction.NONE;

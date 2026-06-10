@@ -26,7 +26,7 @@ final class SieveRecipeCategory extends AbstractNiceRecipeCategory<SieveRecipe> 
                 helper,
                 TYPE,
                 Component.translatable("block.mydrugs.sieve"),
-                JeiCompatUtil.iconFromField(helper, ModBlocks.class, "SIEVE", "SIEVING_TABLE"),
+                JeiCompatUtil.iconFromField(helper, ModBlocks.class, "SIEVE"),
                 SieveLayout.GUI_WIDTH,
                 MachineGuiRenderer.sieveHeight(false)
         );

@@ -22,12 +22,12 @@ public record PsyKnowledgeKey(ResourceLocation id) {
             CAFFEINE,
             NICOTINIC,
             CANNABINOID,
+            STEEL_PLATING,
             FERMENTED,
             STIMULANT,
             LYSERGIC,
             OVERCLOCKED,
-            MYCELIAL,
-            STEEL_PLATING
+            MYCELIAL
     );
 
     public PsyKnowledgeKey {

@@ -53,11 +53,16 @@ function Write-Utf8NoBom([string]$path, [string]$content) {
     [System.IO.File]::WriteAllText($path, $content, $enc)
 }
 
+function Read-Utf8Strict([string]$path) {
+    $enc = New-Object System.Text.UTF8Encoding($false, $true)
+    return [System.IO.File]::ReadAllText($path, $enc)
+}
+
 # ─── Parse markdown into a list of page hashtables ───────────────────────────
 
 function ConvertFrom-GuideMarkdown([string]$path) {
     if (-not (Test-Path $path)) { throw "Guide source not found: $path" }
-    $rawLines = Get-Content -LiteralPath $path -Encoding UTF8
+    $rawLines = (Read-Utf8Strict $path) -split "\r?\n"
 
     # --- working state (plain variables, no nested functions) ---
     $pages      = [System.Collections.Generic.List[hashtable]]::new()
@@ -274,7 +279,7 @@ function ConvertTo-GuideJson([System.Collections.Generic.List[hashtable]]$pages)
 function Remove-OldLangPageEntries([string]$langPath) {
     if (-not (Test-Path $langPath)) { return }
 
-    $raw     = Get-Content -LiteralPath $langPath -Raw -Encoding UTF8
+    $raw     = Read-Utf8Strict $langPath
     $pattern = '(?m)[ \t]*"book\.mydrugs\.progression_guide\.page\.\d+"[ \t]*:[ \t]*"(?:\\.|[^"\\])*"[ \t]*,?[ \t]*\r?\n?'
     $cleaned = [regex]::Replace($raw, $pattern, "")
 

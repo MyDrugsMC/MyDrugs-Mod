@@ -90,7 +90,6 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "hemogenic_infuser");
         saveHorizontalBlockState(futures, cachedOutput, "growth_chamber");
         saveHorizontalBlockState(futures, cachedOutput, "crispr_cas9_combinator");
-        saveHorizontalBlockState(futures, cachedOutput, "sieve");
         saveHorizontalBlockState(futures, cachedOutput, "steam_cracker");
         saveActiveHorizontalBlockState(futures, cachedOutput, "chemical_reactor", "active");
         saveActiveHorizontalBlockState(futures, cachedOutput, "biochemical_reactor", "lit");
@@ -124,25 +123,28 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveSimpleBlockState(futures, cachedOutput, "psy_anvil");
         saveVomitSplash(futures, cachedOutput);
 
+        saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_furnace");
         saveBlockItemViaBlockModel(futures, cachedOutput, "advanced_mixing_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "aromatic_extractor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "autoclave");
         saveBlockItemViaBlockModel(futures, cachedOutput, "bacterial_incubator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "biochemical_reactor");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "btx_fractionation_tower");
         saveBlockItemViaBlockModel(futures, cachedOutput, "catalytic_reformer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "centrifuge");
         saveBlockItemViaBlockModel(futures, cachedOutput, "chemical_reactor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "clay_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_distillery");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "distiller");
         saveBlockItemViaBlockModel(futures, cachedOutput, "distillate_engine");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_resonator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "drying_rack");
         saveBlockItemViaBlockModel(futures, cachedOutput, "reduction_still");
         saveBlockItemViaBlockModel(futures, cachedOutput, "electrolyzer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "evaporation_tray");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "fluid_filterer");
         saveBlockItemViaBlockModel(futures, cachedOutput, "fluid_pump");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gas_pump");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "gas_tank");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gasifier");
         saveBlockItemViaBlockModel(futures, cachedOutput, "gene_extractor");
         saveBlockItemViaBlockModel(futures, cachedOutput, "grinding_bowl");
@@ -150,20 +152,15 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "hemogenic_infuser");
         saveBlockItemViaBlockModel(futures, cachedOutput, "crispr_cas9_combinator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "magic_mushroom");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "mechanical_frame");
         saveBlockItemViaBlockModel(futures, cachedOutput, "mixing_vat");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_grass");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychedelic_mycelium");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psy_anvil");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "recovery_anchor");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "disc_scriber");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "recovery_jukebox");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "salt_block");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "sieve");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "steam_cracker");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_crafter");
         saveBlockItemViaBlockModel(futures, cachedOutput, "stomp_plate_block");
         saveBlockItemViaItemModel(futures, cachedOutput, "stomp_plate");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "sulfur_ore");
-        saveBlockItemViaBlockModel(futures, cachedOutput, "therapist_desk");
-        saveBlockItemViaItemModel(futures, cachedOutput, "treated_planks");
 
         saveTallCrop(futures, cachedOutput, "cannabis_crop", "cannabis_stage", 4);
         saveCrossCrop(futures, cachedOutput, "aloe_vera_crop", "aloe_vera_stage");
@@ -192,7 +189,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         variants.add("", defaultVariant);
         blockStateRoot.add("variants", variants);
         Path blockStatePath = this.blockStatePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, blockStateRoot, blockStatePath));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, blockStateRoot, blockStatePath));
 
         JsonObject modelRoot = new JsonObject();
         JsonObject textures = new JsonObject();
@@ -201,7 +198,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textures.addProperty("particle", blockModel);
         modelRoot.add("textures", textures);
         Path modelPath = this.blockModelPathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, modelPath));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, modelRoot, modelPath));
 
         JsonObject clientItemRoot = new JsonObject();
         JsonObject clientItemModel = new JsonObject();
@@ -209,7 +206,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         clientItemModel.addProperty("model", blockModel);
         clientItemRoot.add("model", clientItemModel);
         Path clientItemPath = this.itemClientPathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, clientItemRoot, clientItemPath));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, clientItemRoot, clientItemPath));
     }
 
     private void saveCubeAllBlockWithTexture(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String texture) {
@@ -222,7 +219,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         defaultVariant.addProperty("model", blockModel);
         variants.add("", defaultVariant);
         blockStateRoot.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, blockStateRoot, this.blockStatePathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, blockStateRoot, this.blockStatePathProvider.json(id)));
 
         JsonObject modelRoot = new JsonObject();
         JsonObject textures = new JsonObject();
@@ -230,11 +227,11 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textures.addProperty("all", texture);
         textures.addProperty("particle", texture);
         modelRoot.add("textures", textures);
-        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
 
         JsonObject itemModelRoot = new JsonObject();
         itemModelRoot.addProperty("parent", blockModel);
-        futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
 
         saveClientItemModel(futures, cachedOutput, id, MyDrugs.MODID + ":item/" + name);
     }
@@ -251,14 +248,14 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textures.addProperty("all", blockModel);
         textures.addProperty("particle", blockModel);
         modelRoot.add("textures", textures);
-        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
 
         JsonObject clientItemRoot = new JsonObject();
         JsonObject clientItemModel = new JsonObject();
         clientItemModel.addProperty("type", "minecraft:model");
         clientItemModel.addProperty("model", blockModel);
         clientItemRoot.add("model", clientItemModel);
-        futures.add(DataProvider.saveStable(cachedOutput, clientItemRoot, this.itemClientPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, clientItemRoot, this.itemClientPathProvider.json(id)));
     }
 
     private void saveHorizontalBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
@@ -270,7 +267,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         variants.add("facing=west", modelVariant(name, 270));
         variants.add("facing=east", modelVariant(name, 90));
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(id)));
     }
 
     /**
@@ -295,7 +292,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
             variants.add("facing=" + facing + ",half=upper", modelVariant("empty", yRot));
         }
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(id)));
     }
 
     private void saveSimpleBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
@@ -304,7 +301,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         JsonObject variants = new JsonObject();
         variants.add("", modelVariant(name, 0));
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(id)));
     }
 
     private void saveVomitSplash(List<CompletableFuture<?>> futures, CachedOutput cachedOutput) {
@@ -317,7 +314,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textures.addProperty("wool", MyDrugs.MODID + ":block/" + name);
         modelRoot.add("textures", textures);
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
-        futures.add(DataProvider.saveStable(cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, modelRoot, this.blockModelPathProvider.json(id)));
     }
 
     private void saveActiveHorizontalBlockState(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String property) {
@@ -333,7 +330,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         variants.add("facing=west," + property + "=true", modelVariant(name + "_on", 270));
         variants.add("facing=east," + property + "=true", modelVariant(name + "_on", 90));
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(id)));
     }
 
     private JsonObject modelVariant(String name, int y) {
@@ -350,7 +347,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textureNames.forEach((key, texture) -> textures.addProperty(key, MyDrugs.MODID + ":block/" + texture));
         root.add("textures", textures);
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
     private void saveCubeMachineModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String front, String side, String top, String bottom) {
@@ -369,7 +366,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textureNames.forEach((key, texture) -> textures.addProperty(key, MyDrugs.MODID + ":block/" + texture));
         root.add("textures", textures);
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
     private void saveBlockItemViaBlockModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
@@ -379,7 +376,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         JsonObject itemModelRoot = new JsonObject();
         itemModelRoot.addProperty("parent", MyDrugs.MODID + ":block/" + name);
         if (!"advanced_mixing_vat".equals(name)) {
-            futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+            futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
         }
     }
 
@@ -389,7 +386,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
 
         JsonObject itemModelRoot = new JsonObject();
         itemModelRoot.addProperty("parent", MyDrugs.MODID + ":block/" + name);
-        futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
     }
 
     private void saveCrossPlantBlock(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, String texture) {
@@ -398,7 +395,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         JsonObject variants = new JsonObject();
         variants.add("", modelVariant(name, 0));
         blockStateRoot.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, blockStateRoot, this.blockStatePathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, blockStateRoot, this.blockStatePathProvider.json(id)));
 
         JsonObject blockModelRoot = new JsonObject();
         JsonObject blockTextures = new JsonObject();
@@ -407,14 +404,14 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         blockTextures.addProperty("cross", texture);
         blockTextures.addProperty("particle", texture);
         blockModelRoot.add("textures", blockTextures);
-        futures.add(DataProvider.saveStable(cachedOutput, blockModelRoot, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, blockModelRoot, this.blockModelPathProvider.json(id)));
 
         JsonObject itemModelRoot = new JsonObject();
         JsonObject itemTextures = new JsonObject();
         itemModelRoot.addProperty("parent", "minecraft:item/generated");
         itemTextures.addProperty("layer0", texture);
         itemModelRoot.add("textures", itemTextures);
-        futures.add(DataProvider.saveStable(cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, itemModelRoot, this.itemModelPathProvider.json(id)));
         saveClientItemModel(futures, cachedOutput, id, MyDrugs.MODID + ":item/" + name);
     }
 
@@ -424,7 +421,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         clientItemModel.addProperty("type", "minecraft:model");
         clientItemModel.addProperty("model", model);
         clientItemRoot.add("model", clientItemModel);
-        futures.add(DataProvider.saveStable(cachedOutput, clientItemRoot, this.itemClientPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, clientItemRoot, this.itemClientPathProvider.json(id)));
     }
 
     private void saveCrop(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String modelPrefix) {
@@ -436,7 +433,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
             saveCropModel(futures, cachedOutput, modelPrefix + age);
         }
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
     }
 
     private void saveCropModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
@@ -447,7 +444,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         root.addProperty("render_type", "minecraft:cutout");
         textures.addProperty("crop", MyDrugs.MODID + ":block/" + name);
         root.add("textures", textures);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
     private void saveTallCrop(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String texturePrefix, int tallStartAge) {
@@ -468,7 +465,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
 
         saveEmptyBlockModel(futures, cachedOutput);
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
     }
 
     private void saveTallCropModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String modelName, String textureName, boolean upper) {
@@ -501,7 +498,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         ));
         root.add("elements", elements);
 
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
     private JsonObject tallCropPlane(JsonArray from, JsonArray to, String firstFace, String secondFace, int minV, int maxV) {
@@ -540,7 +537,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         JsonObject root = new JsonObject();
         root.addProperty("parent", "minecraft:block/block");
         root.add("elements", new JsonArray());
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
     private void saveCrossCrop(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String modelPrefix) {
@@ -556,7 +553,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
             saveCrossCropModel(futures, cachedOutput, modelPrefix + age, textureOverride);
         }
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
     }
 
     private void saveAge3CrossBlock(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String blockStateName, String modelPrefix) {
@@ -568,7 +565,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
             saveCrossCropModel(futures, cachedOutput, modelPrefix + age);
         }
         root.add("variants", variants);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockStatePathProvider.json(blockStateId)));
     }
 
     private void saveCrossCropModel(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name) {
@@ -585,7 +582,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         textures.addProperty("cross", texture);
         textures.addProperty("particle", texture);
         root.add("textures", textures);
-        futures.add(DataProvider.saveStable(cachedOutput, root, this.blockModelPathProvider.json(id)));
+        futures.add(DatagenOutputGuard.saveStable("ModSimpleBlockAssetProvider", cachedOutput, root, this.blockModelPathProvider.json(id)));
     }
 
     private Map<String, String> textures(String... keysAndNames) {

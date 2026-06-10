@@ -113,6 +113,10 @@ public class ModItems {
     public static final DeferredItem<Item> MUTAGENIC_BLOOD_VIAL = ModMutationItems.MUTAGENIC_BLOOD_VIAL;
 
     public static final DeferredItem<Item> NUTRIENT_GEL = ModMutationItems.NUTRIENT_GEL;
+    public static final DeferredItem<Item> ANTIBIOTIC_CRYSTALS = ModMutationItems.ANTIBIOTIC_CRYSTALS;
+    public static final DeferredItem<Item> ANTIBIOTIC_DOSE = ModMutationItems.ANTIBIOTIC_DOSE;
+    public static final DeferredItem<Item> CRUDE_ANTIBIOTIC_VIAL = ModMutationItems.CRUDE_ANTIBIOTIC_VIAL;
+    public static final DeferredItem<Item> STERILE_ANTIBIOTIC_VIAL = ModMutationItems.STERILE_ANTIBIOTIC_VIAL;
 
     public static final DeferredItem<Item> CURED_CANNABIS_LEAF =
             ITEMS.registerSimpleItem("cured_cannabis_leaf");
@@ -643,6 +647,7 @@ public class ModItems {
             ITEMS.registerItem("current_regulator", CurrentRegulatorItem::new);
     public static final DeferredItem<Item> STRAIN_VENT =
             ITEMS.registerSimpleItem("strain_vent");
+    // Legacy save compatibility only. New progression uses PSYCHOTROPE_LENS.
     public static final DeferredItem<Item> RESONANCE_LENS =
             ITEMS.registerSimpleItem("resonance_lens");
     public static final DeferredItem<Item> INTEGRATION_CORE =

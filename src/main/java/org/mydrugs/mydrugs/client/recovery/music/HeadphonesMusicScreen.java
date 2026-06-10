@@ -4,6 +4,7 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -14,10 +15,11 @@ import org.mydrugs.mydrugs.network.HeadphonesControlPayload;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.ArrayList;
 
 public final class HeadphonesMusicScreen extends Screen {
     private static final int PANEL_W = 360;
-    private static final int PANEL_H = 246;
+    private static final int PANEL_H = 272;
     private static final int ROW_H = 18;
 
     // Palette
@@ -54,6 +56,12 @@ public final class HeadphonesMusicScreen extends Screen {
     private int listY;
     private int listW;
     private int listH;
+    private MusicLibrary.SortMode sortMode = MusicLibrary.SortMode.ALL_ALPHA;
+    private final List<Button> filterButtons = new ArrayList<>();
+    private Component transientStatus = Component.empty();
+    private long transientStatusUntilTick;
+    private String pendingRemovalId = "";
+    private long pendingRemovalUntilTick;
 
     public HeadphonesMusicScreen() {
         super(Component.translatable("screen.mydrugs.music.title"));
@@ -72,21 +80,24 @@ public final class HeadphonesMusicScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("⏮"), button -> {
             CustomMusicPlayer.get().previous();
             sendControl(HeadphonesControlPayload.Action.PREVIOUS, "");
-        }).bounds(btnX, controlsY, 24, 20).build());
+        }).bounds(btnX, controlsY, 24, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.previous"))).build());
         btnX += 26;
 
         playPauseButton = Button.builder(playPauseLabel(), button -> {
             CustomMusicPlayer.get().toggle();
             sendControl(HeadphonesControlPayload.Action.TOGGLE_PLAY, "");
             button.setMessage(playPauseLabel());
-        }).bounds(btnX, controlsY, 28, 20).build();
+        }).bounds(btnX, controlsY, 28, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.play_pause"))).build();
         addRenderableWidget(playPauseButton);
         btnX += 30;
 
         addRenderableWidget(Button.builder(Component.literal("⏭"), button -> {
             CustomMusicPlayer.get().next();
             sendControl(HeadphonesControlPayload.Action.NEXT, "");
-        }).bounds(btnX, controlsY, 24, 20).build());
+        }).bounds(btnX, controlsY, 24, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.next"))).build());
         btnX += 28;
 
         likeButton = Button.builder(Component.literal("♡"), button -> {
@@ -96,38 +107,56 @@ public final class HeadphonesMusicScreen extends Screen {
                 sendControl(HeadphonesControlPayload.Action.LIKE_TRACK, track.id);
                 button.setMessage(likeLabel(track));
             }
-        }).bounds(btnX, controlsY, 22, 20).build();
+        }).bounds(btnX, controlsY, 22, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.like"))).build();
         addRenderableWidget(likeButton);
         btnX += 26;
 
         repeatButton = Button.builder(repeatLabel(), button -> {
             CustomMusicPlayer.get().setRepeat(!CustomMusicPlayer.get().repeat());
             button.setMessage(repeatLabel());
-        }).bounds(btnX, controlsY, 22, 20).build();
+        }).bounds(btnX, controlsY, 22, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.repeat"))).build();
         addRenderableWidget(repeatButton);
         btnX += 26;
 
         shuffleButton = Button.builder(shuffleLabel(), button -> {
             CustomMusicPlayer.get().setShuffle(!CustomMusicPlayer.get().shuffle());
             button.setMessage(shuffleLabel());
-        }).bounds(btnX, controlsY, 22, 20).build();
+        }).bounds(btnX, controlsY, 22, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.shuffle"))).build();
         addRenderableWidget(shuffleButton);
 
         // Volume buttons (right side of controls row)
         addRenderableWidget(Button.builder(Component.literal("−"), button -> {
-            CustomMusicPlayer.get().setVolume(CustomMusicPlayer.get().volume() - 0.05F);
-            sendControl(HeadphonesControlPayload.Action.SET_VOLUME, "");
-        }).bounds(left + PANEL_W - 60, controlsY, 18, 20).build());
+            changeVolume(-0.05F);
+        }).bounds(left + PANEL_W - 60, controlsY, 18, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.volume_down"))).build());
         addRenderableWidget(Button.builder(Component.literal("+"), button -> {
-            CustomMusicPlayer.get().setVolume(CustomMusicPlayer.get().volume() + 0.05F);
-            sendControl(HeadphonesControlPayload.Action.SET_VOLUME, "");
-        }).bounds(left + PANEL_W - 40, controlsY, 18, 20).build());
+            changeVolume(0.05F);
+        }).bounds(left + PANEL_W - 40, controlsY, 18, 20)
+                .tooltip(Tooltip.create(Component.translatable("screen.mydrugs.music.volume_up"))).build());
 
         // ---- Search ----
         search = new EditBox(font, left + 12, top + 104, PANEL_W - 24, 16, Component.translatable("screen.mydrugs.music.search"));
         search.setMaxLength(80);
         search.setHint(Component.translatable("screen.mydrugs.music.search"));
         addRenderableWidget(search);
+
+        filterButtons.clear();
+        int filterX = left + 12;
+        for (MusicLibrary.SortMode mode : MusicLibrary.SortMode.values()) {
+            int filterWidth = mode == MusicLibrary.SortMode.MOST_PLAYED ? 62 : 52;
+            Button filter = Button.builder(filterLabel(mode), ignored -> {
+                sortMode = mode;
+                scroll = 0;
+                updateFilterButtons();
+            }).bounds(filterX, top + 123, filterWidth, 18).build();
+            filterButtons.add(filter);
+            addRenderableWidget(filter);
+            filterX += filterWidth + 2;
+        }
+        updateFilterButtons();
 
         // ---- Footer ----
         int bottomY = top + PANEL_H - 26;
@@ -151,13 +180,26 @@ public final class HeadphonesMusicScreen extends Screen {
                         button -> {
                             MusicTrack target = effectiveActionTarget();
                             if (target == null) return;
+                            long now = clientTick();
+                            if (!target.id.equals(pendingRemovalId) || now > pendingRemovalUntilTick) {
+                                pendingRemovalId = target.id;
+                                pendingRemovalUntilTick = now + 100;
+                                button.setMessage(Component.translatable("screen.mydrugs.music.confirm_remove"));
+                                setTransient(Component.translatable("screen.mydrugs.music.confirm_remove"), 100);
+                                return;
+                            }
                             boolean wasPlaying = isCurrentlyPlaying(target);
-                            MusicLibrary.get().remove(target.id);
-                            if (wasPlaying) {
+                            MusicLibrary.ImportResult result = MusicLibrary.get().remove(target.id);
+                            if (result.success() && wasPlaying) {
                                 CustomMusicPlayer.get().stop();
                             }
-                            selectedTrack = null;
-                            selectedTrackId = "";
+                            if (result.success()) {
+                                selectedTrack = null;
+                                selectedTrackId = "";
+                            }
+                            pendingRemovalId = "";
+                            button.setMessage(Component.translatable("screen.mydrugs.music.remove"));
+                            setTransient(result.message(), 80);
                             updateActionButtons();
                         })
                 .bounds(left + 174, bottomY, 48, 20).build();
@@ -191,6 +233,18 @@ public final class HeadphonesMusicScreen extends Screen {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (!pendingRemovalId.isBlank() && clientTick() > pendingRemovalUntilTick) {
+            pendingRemovalId = "";
+            if (removeButton != null) {
+                removeButton.setMessage(Component.translatable("screen.mydrugs.music.remove"));
+            }
+            setTransient(Component.translatable("screen.mydrugs.music.remove_cancelled"), 40);
+        }
+    }
+
+    @Override
     public boolean keyPressed(KeyEvent event) {
         if (search != null && search.isFocused()) {
             return super.keyPressed(event);
@@ -215,13 +269,11 @@ public final class HeadphonesMusicScreen extends Screen {
                 return true;
             }
             case GLFW.GLFW_KEY_UP -> {
-                CustomMusicPlayer.get().setVolume(CustomMusicPlayer.get().volume() + 0.05F);
-                sendControl(HeadphonesControlPayload.Action.SET_VOLUME, "");
+                changeVolume(0.05F);
                 return true;
             }
             case GLFW.GLFW_KEY_DOWN -> {
-                CustomMusicPlayer.get().setVolume(CustomMusicPlayer.get().volume() - 0.05F);
-                sendControl(HeadphonesControlPayload.Action.SET_VOLUME, "");
+                changeVolume(-0.05F);
                 return true;
             }
             default -> {
@@ -338,14 +390,17 @@ public final class HeadphonesMusicScreen extends Screen {
         graphics.fill(artX, artY, artX + artSize, artY + artSize, 0xFF101816);
         graphics.fill(artX, artY, artX + artSize, artY + 1, C_LINE);
         graphics.fill(artX, artY + artSize - 1, artX + artSize, artY + artSize, C_LINE);
-        graphics.drawCenteredString(font, "♪", artX + artSize / 2, artY + (artSize - 8) / 2,
+        graphics.drawCenteredString(font, sourceLabel(current), artX + artSize / 2, artY + (artSize - 8) / 2,
                 CustomMusicPlayer.get().isPlaying() ? C_GOOD : C_MUTED);
 
         int textX = artX + artSize + 8;
         graphics.drawString(font, trim(titleText, 40), textX, cardY + 6, C_TEXT, false);
-        if (!artist.isBlank()) {
-            graphics.drawString(font, trim(artist, 40), textX, cardY + 18, C_MUTED, false);
+        String detail = (artist.isBlank() ? "" : artist + " | ") + playbackStateText().getString();
+        Component playerStatus = CustomMusicPlayer.get().status();
+        if (playerStatus != null && !playerStatus.getString().isBlank()) {
+            detail += ": " + playerStatus.getString();
         }
+        graphics.drawString(font, trim(detail, 48), textX, cardY + 18, playbackStateColor(), false);
     }
 
     private void drawProgress(GuiGraphics graphics) {
@@ -381,20 +436,23 @@ public final class HeadphonesMusicScreen extends Screen {
 
     private void drawTrackRows(GuiGraphics graphics, int mouseX, int mouseY) {
         hoveredTrack = null;
-        List<MusicTrack> visible = MusicLibrary.get().sortedTracks(search == null ? "" : search.getValue());
+        String query = search == null ? "" : search.getValue();
+        List<MusicTrack> visible = MusicLibrary.get().sortedTracks(query, sortMode);
         listX = left + 12;
-        listY = top + 124;
+        listY = top + 145;
         listW = PANEL_W - 24;
-        listH = PANEL_H - 158;
+        listH = PANEL_H - 181;
         graphics.fill(listX, listY, listX + listW, listY + listH, 0xFF111A17);
 
         if (visible.isEmpty()) {
-            graphics.drawWordWrap(font,
-                    Component.translatable("screen.mydrugs.music.empty_help"),
-                    listX + 8, listY + 10, listW - 16, C_MUTED);
-            graphics.drawWordWrap(font,
-                    Component.translatable("screen.mydrugs.music.supported_formats"),
-                    listX + 8, listY + 30, listW - 16, C_MUTED);
+            Component empty = MusicLibrary.get().tracks().isEmpty()
+                    ? Component.translatable("screen.mydrugs.music.empty_library")
+                    : Component.translatable("screen.mydrugs.music.no_search_results", query);
+            graphics.drawWordWrap(font, empty, listX + 8, listY + 10, listW - 16, C_MUTED);
+            if (MusicLibrary.get().tracks().isEmpty()) {
+                graphics.drawWordWrap(font, Component.translatable("screen.mydrugs.music.empty_help"),
+                        listX + 8, listY + 30, listW - 16, C_MUTED);
+            }
             return;
         }
 
@@ -477,6 +535,84 @@ public final class HeadphonesMusicScreen extends Screen {
         // ffmpeg status indicator
         boolean ff = AudioConverter.isFfmpegAvailable();
         graphics.drawString(font, "●", left + PANEL_W - 5, top + PANEL_H - 7, ff ? C_GOOD : C_WARN, false);
+        Component modes = Component.translatable("screen.mydrugs.music.modes",
+                CustomMusicPlayer.get().repeat()
+                        ? Component.translatable("screen.mydrugs.music.on").getString()
+                        : Component.translatable("screen.mydrugs.music.off").getString(),
+                CustomMusicPlayer.get().shuffle()
+                        ? Component.translatable("screen.mydrugs.music.on").getString()
+                        : Component.translatable("screen.mydrugs.music.off").getString());
+        graphics.drawString(font, modes, left + 12, volY - 14, C_MUTED, false);
+        if (transientStatus != null && !transientStatus.getString().isBlank()
+                && clientTick() <= transientStatusUntilTick) {
+            graphics.drawCenteredString(font, transientStatus, left + PANEL_W / 2, top + PANEL_H - 39, C_WARN);
+        }
+    }
+
+    private void changeVolume(float delta) {
+        CustomMusicPlayer.get().setVolume(CustomMusicPlayer.get().volume() + delta);
+        sendControl(HeadphonesControlPayload.Action.SET_VOLUME, "");
+        int percent = Math.round(CustomMusicPlayer.get().volume() * 100.0F);
+        Component message = percent == 0
+                ? Component.translatable("screen.mydrugs.music.volume_muted")
+                : percent == 100
+                ? Component.translatable("screen.mydrugs.music.volume_max")
+                : Component.translatable("screen.mydrugs.music.volume_feedback", percent);
+        setTransient(message, 40);
+    }
+
+    private void setTransient(Component message, int ticks) {
+        transientStatus = message;
+        transientStatusUntilTick = clientTick() + ticks;
+    }
+
+    private long clientTick() {
+        return minecraft == null || minecraft.player == null ? 0L : minecraft.player.tickCount;
+    }
+
+    private Component playbackStateText() {
+        return Component.translatable(switch (CustomMusicPlayer.get().state()) {
+            case PLAYING -> "screen.mydrugs.music.state.playing";
+            case PAUSED -> "screen.mydrugs.music.state.paused";
+            case STOPPED -> "screen.mydrugs.music.state.stopped";
+            case ERROR -> "screen.mydrugs.music.state.error";
+        });
+    }
+
+    private int playbackStateColor() {
+        return switch (CustomMusicPlayer.get().state()) {
+            case PLAYING -> C_GOOD;
+            case ERROR -> C_BAD;
+            case PAUSED, STOPPED -> C_MUTED;
+        };
+    }
+
+    private static String sourceLabel(MusicTrack track) {
+        if (track == null) return "-";
+        return switch (track.sourceType) {
+            case LOCAL_FILE -> "L";
+            case DIRECT_URL -> "URL";
+            case BUILT_IN -> "MC";
+            case BOOKMARK -> "BM";
+        };
+    }
+
+    private Component filterLabel(MusicLibrary.SortMode mode) {
+        return Component.translatable(switch (mode) {
+            case ALL_ALPHA -> "screen.mydrugs.music.filter.all";
+            case LIKED -> "screen.mydrugs.music.filter.liked";
+            case RECENT -> "screen.mydrugs.music.filter.recent";
+            case MOST_PLAYED -> "screen.mydrugs.music.filter.most_played";
+            case IMPORTED -> "screen.mydrugs.music.filter.imported";
+            case BUILT_IN -> "screen.mydrugs.music.filter.built_in";
+        });
+    }
+
+    private void updateFilterButtons() {
+        MusicLibrary.SortMode[] modes = MusicLibrary.SortMode.values();
+        for (int i = 0; i < filterButtons.size() && i < modes.length; i++) {
+            filterButtons.get(i).active = modes[i] != sortMode;
+        }
     }
 
     private Component playPauseLabel() {

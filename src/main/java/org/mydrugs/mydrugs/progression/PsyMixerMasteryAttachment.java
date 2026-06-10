@@ -38,11 +38,19 @@ public final class PsyMixerMasteryAttachment implements ValueIOSerializable {
     }
 
     public float getTimingWindowBonus(ResourceLocation recipeId) {
-        return 0.0F;
+        return Math.min(0.06F, (getCompleted(recipeId) / 3) * 0.01F);
+    }
+
+    public float getActionTimeoutBonus(ResourceLocation recipeId) {
+        return Math.min(0.20F, (getCompleted(recipeId) / 5) * 0.05F);
     }
 
     public int getRemovedActionCount(ResourceLocation formulaId) {
-        return Math.max(0, getCompleted(formulaId) / 10);
+        return Math.min(2, Math.max(0, getCompleted(formulaId) / 10));
+    }
+
+    public boolean shouldShowExplicitHints(ResourceLocation formulaId) {
+        return getFailed(formulaId) >= 3 && getCompleted(formulaId) < 3;
     }
 
     /** Read-only view of all completed-count entries, in insertion order. */

@@ -1,0 +1,16 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:antibiotic_crystals",
+  "item_2": "minecraft:honey_bottle",
+  "item_3": "mydrugs:aloe_vera",
+  "item_4": "minecraft:glass_bottle",
+  "fluid_input_1": {
+    "fluid": "minecraft:water",
+    "amount": 250
+  },
+  "result_item": {
+    "id": "mydrugs:antibiotic_dose",
+    "count": 1
+  },
+  "required_stirs": 4
+}

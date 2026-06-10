@@ -47,7 +47,7 @@ public class ModFluidBlockStateProvider implements DataProvider {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, entry.name());
         Path path = this.blockstatePathProvider.json(id);
 
-        return DataProvider.saveStable(cachedOutput, root, path);
+        return DatagenOutputGuard.saveStable("ModFluidBlockStateProvider", cachedOutput, root, path);
     }
 
     @Override

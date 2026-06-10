@@ -63,7 +63,7 @@ public class ModFluidClientItemProvider implements DataProvider {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, entry.name() + "_bucket");
         Path path = this.itemPathProvider.json(id);
 
-        return DataProvider.saveStable(cachedOutput, root, path);
+        return DatagenOutputGuard.saveStable("ModFluidClientItemProvider", cachedOutput, root, path);
     }
 
     @Override

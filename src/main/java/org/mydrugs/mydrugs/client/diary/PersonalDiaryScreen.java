@@ -2,6 +2,7 @@ package org.mydrugs.mydrugs.client.diary;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,18 +27,22 @@ import org.mydrugs.mydrugs.addiction.explain.AddictionDangerReason;
 import org.mydrugs.mydrugs.addiction.explain.AddictionSuggestedAction;
 import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.client.effects.hud.HudSymptomIcons;
+import org.mydrugs.mydrugs.client.guide.GuideBookScreen;
+import org.mydrugs.mydrugs.client.recovery.music.tools.MyDrugsClientConfig;
 import org.mydrugs.mydrugs.addiction.config.SymptomFlags;
 import org.mydrugs.mydrugs.diary.DiaryDrugStatDto;
 import org.mydrugs.mydrugs.diary.DiaryEntryDto;
 import org.mydrugs.mydrugs.diary.DiaryIntegrationProgressDto;
 import org.mydrugs.mydrugs.diary.DiaryMasteryStatDto;
 import org.mydrugs.mydrugs.diary.DiaryBlocker;
+import org.mydrugs.mydrugs.diary.DiaryBlockerRoutes;
 import org.mydrugs.mydrugs.diary.DiaryBreadcrumb;
 import org.mydrugs.mydrugs.diary.DiaryMemory;
 import org.mydrugs.mydrugs.diary.DiaryPlayerStateDto;
 import org.mydrugs.mydrugs.diary.DiaryWarning;
 import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.PersonalDiarySubmitResultPayload;
 import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
 
 import java.util.ArrayList;
@@ -91,13 +96,22 @@ public final class PersonalDiaryScreen extends Screen {
     private Button nextButton;
     private MultiLineEditBox editor;
     private Button doneButton;
+    private Button memoryCaptureButton;
+    private Button memoryPreviewButton;
+    private Button openMemoriesButton;
 
     private Component statusMessage;
     private long statusUntilTick;
+    private boolean submitPending;
+    private String pendingSubmittedText = "";
+    private long snapshotReceivedClientTick;
+    private int lastEffectiveCooldown;
 
     public PersonalDiaryScreen(PersonalDiarySnapshotPayload payload) {
         super(Component.translatable("screen.mydrugs.diary.title"));
         this.snapshot = payload;
+        this.snapshotReceivedClientTick = clientTick();
+        this.lastEffectiveCooldown = payload.cooldownTicksRemaining();
     }
 
     /**
@@ -106,12 +120,30 @@ public final class PersonalDiaryScreen extends Screen {
      */
     public void applySnapshot(PersonalDiarySnapshotPayload newSnapshot) {
         this.snapshot = newSnapshot;
+        this.snapshotReceivedClientTick = clientTick();
+        this.lastEffectiveCooldown = newSnapshot.cooldownTicksRemaining();
         rebuildPages();
         // Jump to today's page after a successful submit so the user sees the new entry.
         this.pageIndex = pages.size() - 1;
         this.scrollY = 0;
         refreshWidgets();
-        setStatus(Component.translatable("screen.mydrugs.diary.custom_entry").copy().withStyle(ChatFormatting.DARK_GREEN), 60);
+    }
+
+    public void handleSubmitResult(PersonalDiarySubmitResultPayload result) {
+        submitPending = false;
+        if (result.success()) {
+            if (editor != null && editor.getValue().equals(pendingSubmittedText)) {
+                editor.setValue("");
+            }
+            pendingSubmittedText = "";
+            setStatus(Component.translatable(result.messageKey()).copy().withStyle(ChatFormatting.DARK_GREEN), 100);
+        } else {
+            pendingSubmittedText = "";
+            setStatus(Component.translatable(result.messageKey(),
+                    Math.max(1, (result.cooldownTicksRemaining() + 19) / 20))
+                    .copy().withStyle(ChatFormatting.DARK_RED), 120);
+        }
+        refreshWidgets();
     }
 
     @Override
@@ -167,6 +199,25 @@ public final class PersonalDiaryScreen extends Screen {
         doneButton.visible = false;
         addRenderableWidget(doneButton);
 
+        memoryCaptureButton = Button.builder(memoryCaptureLabel(), button -> {
+            MyDrugsClientConfig config = MyDrugsClientConfig.get();
+            config.setMemoryCaptureEnabled(!config.isMemoryCaptureEnabled());
+            button.setMessage(memoryCaptureLabel());
+            rebuildPages();
+        }).bounds(editorX, navY, 72, 20).build();
+        addRenderableWidget(memoryCaptureButton);
+        memoryPreviewButton = Button.builder(memoryPreviewLabel(), button -> {
+            MyDrugsClientConfig config = MyDrugsClientConfig.get();
+            config.setMemoryPreviewEnabled(!config.isMemoryPreviewEnabled());
+            button.setMessage(memoryPreviewLabel());
+            rebuildPages();
+        }).bounds(editorX + 76, navY, 72, 20).build();
+        addRenderableWidget(memoryPreviewButton);
+        openMemoriesButton = Button.builder(Component.translatable("screen.mydrugs.diary.privacy.open_folder"),
+                button -> Util.getPlatform().openPath(MemoryStoragePaths.memoryRoot()))
+                .bounds(editorX + 152, navY, 72, 20).build();
+        addRenderableWidget(openMemoriesButton);
+
         refreshWidgets();
     }
 
@@ -183,18 +234,26 @@ public final class PersonalDiaryScreen extends Screen {
                 && !pages.isEmpty()
                 && pages.get(pageIndex) instanceof DayPage dp
                 && dp.isToday;
-        boolean cooldownOk = snapshot.cooldownTicksRemaining() <= 0;
+        boolean cooldownOk = effectiveCooldownTicksRemaining() <= 0;
         boolean showEditor = onTodayPage && cooldownOk;
+        boolean onPrivacyPage = !pages.isEmpty() && pages.get(pageIndex) instanceof PrivacyPage;
 
         if (editor != null) {
             editor.visible = showEditor;
-            if (!showEditor) {
-                editor.setValue("");
-            }
         }
         if (doneButton != null) {
             doneButton.visible = showEditor;
+            doneButton.active = !submitPending;
         }
+        if (memoryCaptureButton != null) {
+            memoryCaptureButton.visible = onPrivacyPage;
+            memoryCaptureButton.setMessage(memoryCaptureLabel());
+        }
+        if (memoryPreviewButton != null) {
+            memoryPreviewButton.visible = onPrivacyPage;
+            memoryPreviewButton.setMessage(memoryPreviewLabel());
+        }
+        if (openMemoriesButton != null) openMemoriesButton.visible = onPrivacyPage;
 
         if (prevButton != null) prevButton.active = pageIndex > 0;
         if (nextButton != null) nextButton.active = pageIndex < pages.size() - 1;
@@ -208,8 +267,29 @@ public final class PersonalDiaryScreen extends Screen {
             return;
         }
         ClientPacketDistributor.sendToServer(new SubmitPersonalDiaryEntryPayload(text));
-        editor.setValue("");
+        submitPending = true;
+        pendingSubmittedText = text;
+        refreshWidgets();
         setStatus(Component.translatable("screen.mydrugs.diary.saving").withStyle(ChatFormatting.DARK_GRAY), 200);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        int cooldown = effectiveCooldownTicksRemaining();
+        if (lastEffectiveCooldown > 0 && cooldown == 0) {
+            refreshWidgets();
+        }
+        lastEffectiveCooldown = cooldown;
+    }
+
+    private long clientTick() {
+        return this.minecraft == null || this.minecraft.player == null ? 0L : this.minecraft.player.tickCount;
+    }
+
+    private int effectiveCooldownTicksRemaining() {
+        long elapsed = Math.max(0L, clientTick() - snapshotReceivedClientTick);
+        return Math.max(0, snapshot.cooldownTicksRemaining() - (int) Math.min(Integer.MAX_VALUE, elapsed));
     }
 
     private void setStatus(Component msg, int ticks) {
@@ -262,17 +342,15 @@ public final class PersonalDiaryScreen extends Screen {
                 && holder.page.mouseClicked(event.x(), event.y(), event.button())) {
             return true;
         }
-        // Diary-day pages may carry memory-link lines that jump to the mind map page.
         if (event.button() == 0
                 && !pages.isEmpty()
-                && pages.get(pageIndex) instanceof DayPage dayPage
-                && tryFollowLink(dayPage, event.x(), event.y())) {
+                && tryFollowLink(pages.get(pageIndex), event.x(), event.y())) {
             return true;
         }
         return super.mouseClicked(event, doubleClick);
     }
 
-    private boolean tryFollowLink(DayPage page, double mouseX, double mouseY) {
+    private boolean tryFollowLink(DiaryPage page, double mouseX, double mouseY) {
         if (mouseX < contentLeft || mouseX > contentRight || mouseY < contentTop || mouseY > contentBottom) {
             return false;
         }
@@ -283,11 +361,21 @@ public final class PersonalDiaryScreen extends Screen {
             if (!line.visible(showDetails, showDebug)) {
                 continue;
             }
+            if (line.kind == DiaryLine.Kind.GUIDE_LINK && mouseY >= y && mouseY < y + LINE_H) {
+                minecraft.setScreen(new GuideBookScreen(this, line.linkTarget));
+                return true;
+            }
             if (line.kind == DiaryLine.Kind.LINK && mouseY >= y && mouseY < y + LINE_H) {
                 int mindMapIndex = findMindMapPageIndex();
                 if (mindMapIndex >= 0) {
+                    MindMapPageHolder holder = (MindMapPageHolder) pages.get(mindMapIndex);
+                    boolean focused = holder.page.focusNode(line.linkTarget);
                     pageIndex = mindMapIndex;
                     scrollY = 0;
+                    refreshWidgets();
+                    if (focused) {
+                        setStatus(Component.translatable("screen.mydrugs.diary.memory_located"), 60);
+                    }
                     return true;
                 }
                 return false;
@@ -425,13 +513,13 @@ public final class PersonalDiaryScreen extends Screen {
         boolean onTodayPage = page instanceof DayPage dp && dp.isToday;
 
         if (onTodayPage) {
-            if (snapshot.cooldownTicksRemaining() > 0) {
-                int secs = (snapshot.cooldownTicksRemaining() + 19) / 20;
+            if (effectiveCooldownTicksRemaining() > 0) {
+                int secs = (effectiveCooldownTicksRemaining() + 19) / 20;
                 Component msg = Component.translatable("screen.mydrugs.diary.cooldown", secs);
                 int w = this.font.width(msg);
                 g.drawString(this.font, msg, (pageLeft + PAGE_W / 2) - w / 2, textY, INK_SOFT, false);
             }
-        } else if (pageIndex == 0 && !snapshot.clarity().diagnosticMode()) {
+        } else if (pageHasShiftLines(page) && !isShiftDownForDiary() && !snapshot.clarity().diagnosticMode()) {
             Component msg = Component.translatable("screen.mydrugs.diary.shift_for_hints");
             int w = this.font.width(msg);
             g.drawString(this.font, msg, (pageLeft + PAGE_W / 2) - w / 2, textY, INK_SOFT, false);
@@ -448,13 +536,26 @@ public final class PersonalDiaryScreen extends Screen {
         }
     }
 
+    private boolean pageHasShiftLines(DiaryPage page) {
+        for (DiaryLine line : page.lines()) {
+            if (line.visibility == DiaryLine.Visibility.SHIFT) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // ----------------------- Page construction -----------------------
 
     private void rebuildPages() {
         pages.clear();
         pages.add(buildPage1());
         pages.add(buildMindMapPage());
+        pages.add(buildPrivacyPage());
         pages.add(buildPage2());
+        if (!snapshot.integrationProgress().isEmpty()) {
+            pages.add(buildIntegrationOverviewPage());
+        }
         for (DiaryIntegrationProgressDto progress : snapshot.integrationProgress()) {
             pages.add(buildIntegrationPage(progress));
         }
@@ -592,11 +693,17 @@ public final class PersonalDiaryScreen extends Screen {
         }
         if (bestRitual != null && bestRitual.completed() > 0) {
             String name = bestRitual.displayName().isBlank() ? prettyRecipeId(bestRitual.recipeId()) : bestRitual.displayName();
-            int removedActions = Math.max(0, bestRitual.completed() / 10);
-            String actionWord = removedActions == 1 ? "action" : "actions";
-            lines.addAll(wrapToLines(String.format(Locale.ROOT,
-                    "The %s ritual feels familiar now: %d successes, %d failures. My ritual mastery removes %d required %s from future rituals.",
-                    name, bestRitual.completed(), bestRitual.failed(), removedActions, actionWord)));
+            lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.mastery.formula", name)));
+            lines.addAll(wrapToLines(tr("screen.mydrugs.diary.mastery.rank",
+                    tr(bestRitual.rankKey()))));
+            lines.addAll(wrapToLines(tr("screen.mydrugs.diary.mastery.record",
+                    bestRitual.completed(), bestRitual.failed())));
+            lines.addAll(wrapToLines(tr("screen.mydrugs.diary.mastery.bonuses",
+                    Math.round(bestRitual.timingWindowBonus() * 100.0F),
+                    Math.round(bestRitual.actionTimeoutBonus() * 100.0F),
+                    bestRitual.removedActions())));
+            lines.addAll(wrapToLines(tr("screen.mydrugs.diary.mastery.next",
+                    tr(bestRitual.nextBenefitKey()))));
         }
 
         // Lifetime drug use
@@ -636,19 +743,55 @@ public final class PersonalDiaryScreen extends Screen {
         return new MindMapPageHolder(Component.translatable("screen.mydrugs.diary.mind_map"), page);
     }
 
+    private DiaryPage buildPrivacyPage() {
+        MyDrugsClientConfig config = MyDrugsClientConfig.get();
+        List<DiaryLine> lines = new ArrayList<>();
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.privacy.diary_storage")));
+        lines.addAll(wrapToLines(tr("screen.mydrugs.diary.privacy.diary_storage_detail")));
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.privacy.memory_storage")));
+        lines.addAll(wrapToLines(tr("screen.mydrugs.diary.privacy.memory_storage_detail")));
+        lines.add(DiaryLine.text(tr(config.isMemoryCaptureEnabled()
+                ? "screen.mydrugs.diary.privacy.capture_on"
+                : "screen.mydrugs.diary.privacy.capture_off")));
+        lines.add(DiaryLine.text(tr(config.isMemoryPreviewEnabled()
+                ? "screen.mydrugs.diary.privacy.preview_on"
+                : "screen.mydrugs.diary.privacy.preview_off")));
+        lines.addAll(wrapToLines(tr("screen.mydrugs.diary.privacy.delete_local")));
+        config.setMemoryPrivacyNoticeSeen(true);
+        return new PrivacyPage(Component.translatable("screen.mydrugs.diary.privacy.title"), lines);
+    }
+
+    private Component memoryCaptureLabel() {
+        return Component.translatable(MyDrugsClientConfig.get().isMemoryCaptureEnabled()
+                ? "screen.mydrugs.diary.privacy.capture_on"
+                : "screen.mydrugs.diary.privacy.capture_off");
+    }
+
+    private Component memoryPreviewLabel() {
+        return Component.translatable(MyDrugsClientConfig.get().isMemoryPreviewEnabled()
+                ? "screen.mydrugs.diary.privacy.preview_on"
+                : "screen.mydrugs.diary.privacy.preview_off");
+    }
+
     private DiaryPage buildIntegrationPage(DiaryIntegrationProgressDto p) {
         List<DiaryLine> lines = new ArrayList<>();
         DrugId id = DrugId.bySerializedNameOrNull(p.drugId());
         ItemStack icon = id == null ? ItemStack.EMPTY : DrugIconHelper.stackFor(id);
+        String traitName = p.traitKey().isBlank() ? "-" : tr(p.traitKey());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.integration.trait_header", traitName)));
         lines.add(DiaryLine.withIcon(icon, tr("screen.mydrugs.diary.integration.drug", prettyDrug(p.drugId()))));
+        lines.add(DiaryLine.text(tr("screen.mydrugs.diary.integration.status", integrationStatus(p))));
         if (!p.roleplayKey().isBlank()) {
             addWrapped(lines, tr(p.roleplayKey()), DiaryLine.Kind.HINT, DiaryLine.Visibility.ALWAYS);
         }
         lines.add(DiaryLine.spacer());
-        String traitName = p.traitKey().isBlank() ? "-" : tr(p.traitKey());
         String reward = p.rewardKey().isBlank() ? "-" : tr(p.rewardKey());
         lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.integration.reward")));
         addWrapped(lines, traitName + ": " + reward, DiaryLine.Kind.TEXT, DiaryLine.Visibility.ALWAYS);
+        lines.add(DiaryLine.spacer());
+        lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.integration.next_step")));
+        addWrapped(lines, integrationNextStep(p), DiaryLine.Kind.HINT, DiaryLine.Visibility.ALWAYS);
         lines.add(DiaryLine.spacer());
         lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.integration.checklist")));
         lines.add(DiaryLine.text(statusLine(p.knowledgeUnlocked(), tr("screen.mydrugs.diary.integration.knowledge"))));
@@ -694,8 +837,58 @@ public final class PersonalDiaryScreen extends Screen {
         return new BasicPage(Component.translatable("screen.mydrugs.diary.integration.title", prettyDrug(p.drugId())), lines);
     }
 
+    private DiaryPage buildIntegrationOverviewPage() {
+        List<DiaryLine> lines = new ArrayList<>();
+        for (DiaryIntegrationProgressDto p : snapshot.integrationProgress()) {
+            String trait = p.traitKey().isBlank() ? "?" : tr(p.traitKey());
+            lines.add(DiaryLine.text(tr("screen.mydrugs.diary.integration.overview_line",
+                    trait, prettyDrug(p.drugId()), integrationStatus(p))));
+            if (!p.alreadyIntegrated()) {
+                lines.add(DiaryLine.indented(integrationNextStep(p)));
+            }
+        }
+        return new BasicPage(Component.translatable("screen.mydrugs.diary.integration.overview"), lines);
+    }
+
+    private String integrationStatus(DiaryIntegrationProgressDto p) {
+        if (p.alreadyIntegrated()) return tr("screen.mydrugs.diary.integration.status.integrated");
+        if (integrationReady(p)) return tr("screen.mydrugs.diary.integration.status.ready");
+        return tr("screen.mydrugs.diary.integration.status.blocked");
+    }
+
+    private boolean integrationReady(DiaryIntegrationProgressDto p) {
+        boolean experience = "CLEAN_PSYCHEDELIC_STREAK".equals(p.requirementType())
+                ? p.cleanDoseStreakMet() && p.cleanSpacingReady() && p.psychedelicReflectionMet()
+                && p.safePsychedelicUseMet() && p.noRecentBadTripMet()
+                : p.peakMet() && p.lowAddictionMet() && p.lifetimeDoseMet() && p.recoveryMet();
+        return p.knowledgeUnlocked() && experience && p.diaryContext() && p.recoveryRoom()
+                && p.materialInInventory() && p.coreSufficient() && !p.alreadyIntegrated();
+    }
+
+    private String integrationNextStep(DiaryIntegrationProgressDto p) {
+        if (p.alreadyIntegrated()) return tr("screen.mydrugs.diary.integration.next.integrated");
+        if (!p.knowledgeUnlocked()) return tr("screen.mydrugs.diary.integration.next.knowledge");
+        if (!p.peakMet() || !p.lifetimeDoseMet() || !p.cleanDoseStreakMet()) return tr("screen.mydrugs.diary.integration.next.experience");
+        if (!p.lowAddictionMet()) return tr("screen.mydrugs.diary.integration.next.addiction");
+        if (!p.recoveryMet()) return tr("screen.mydrugs.diary.integration.next.recovery");
+        if (!p.cleanSpacingReady()) return tr("screen.mydrugs.diary.integration.next.spacing");
+        if (!p.psychedelicReflectionMet()) return tr("screen.mydrugs.diary.integration.next.reflection");
+        if (!p.safePsychedelicUseMet()) return tr("screen.mydrugs.diary.integration.next.safe_setting");
+        if (!p.noRecentBadTripMet()) return tr("screen.mydrugs.diary.integration.next.bad_trip");
+        if (!p.materialInInventory()) return tr("screen.mydrugs.diary.integration.next.material");
+        if (!p.coreSufficient()) return tr("screen.mydrugs.diary.integration.next.core");
+        if (!p.diaryContext()) return tr("screen.mydrugs.diary.integration.next.diary");
+        if (!p.recoveryRoom()) return tr("screen.mydrugs.diary.integration.next.room");
+        return tr("screen.mydrugs.diary.integration.next.ready");
+    }
+
     private void addWarning(List<DiaryLine> lines, DiaryWarning warning) {
-        addWrappedWithIcon(lines, tr(warning.textKey()), stackForItemId(warning.iconItemId()),
+        String severityKey = switch (warning.severity()) {
+            case 3 -> "screen.mydrugs.diary.warning.critical";
+            case 2 -> "screen.mydrugs.diary.warning.warning";
+            default -> "screen.mydrugs.diary.warning.notice";
+        };
+        addWrappedWithIcon(lines, tr(severityKey) + ": " + tr(warning.textKey()), stackForItemId(warning.iconItemId()),
                 DiaryLine.Kind.WARNING, DiaryLine.Visibility.ALWAYS);
         if (!warning.clearHintKey().isBlank()) {
             addWrapped(lines, tr("screen.mydrugs.diary.hint_line", tr(warning.clearHintKey())),
@@ -722,6 +915,15 @@ public final class PersonalDiaryScreen extends Screen {
 
     private void addBlocker(List<DiaryLine> lines, DiaryBlocker blocker) {
         addWrapped(lines, tr(blocker.textKey()), DiaryLine.Kind.WARNING, DiaryLine.Visibility.ALWAYS);
+        DiaryBlockerRoutes.Route route = DiaryBlockerRoutes.fromBlockerType(blocker.type());
+        if (route != null) {
+            addWrappedWithIcon(lines, tr(route.routeTextKey()), stackForItemId(route.iconItemId()),
+                    DiaryLine.Kind.HINT, DiaryLine.Visibility.ALWAYS);
+            lines.add(DiaryLine.guideLink(
+                    tr("screen.mydrugs.diary.open_guide_page", route.guidePage()),
+                    route.guidePage()
+            ));
+        }
         if (!blocker.clearHintKey().isBlank()) {
             addWrapped(lines, tr("screen.mydrugs.diary.hint_line", tr(blocker.clearHintKey())),
                     DiaryLine.Kind.HINT, DiaryLine.Visibility.SHIFT);
@@ -746,22 +948,39 @@ public final class PersonalDiaryScreen extends Screen {
         } else {
             int idx = 1;
             for (DiaryEntryDto e : entries) {
-                String prefix = "CUSTOM".equals(e.type())
-                        ? Component.translatable("screen.mydrugs.diary.custom_entry").getString()
-                        : Component.translatable("screen.mydrugs.diary.auto_entry").getString();
-                lines.add(DiaryLine.heading("Entry " + idx + " - " + prefix));
+                lines.add(DiaryLine.heading(tr("screen.mydrugs.diary.entry_heading", idx, entryLabel(e))));
                 for (DiaryLine wl : wrapToLines(e.content())) {
                     lines.add(wl);
                 }
                 String sk = e.sourceKey();
                 if (sk != null && sk.startsWith("memory:")) {
-                    lines.add(DiaryLine.link("See in mind map", sk.substring("memory:".length())));
+                    lines.add(DiaryLine.link(tr("screen.mydrugs.diary.see_in_mind_map"), sk.substring("memory:".length())));
                 }
                 lines.add(DiaryLine.spacer());
                 idx++;
             }
         }
         return new DayPage(Component.translatable("screen.mydrugs.diary.day", day), lines, isToday);
+    }
+
+    private String entryLabel(DiaryEntryDto entry) {
+        if ("CUSTOM".equals(entry.type())) {
+            return tr("screen.mydrugs.diary.entry_label.custom");
+        }
+        String source = entry.sourceKey() == null ? "" : entry.sourceKey();
+        if (source.startsWith("memory:")) return tr("screen.mydrugs.diary.entry_label.memory");
+        return switch (source) {
+            case "overdose" -> tr("screen.mydrugs.diary.entry_label.critical_body_warning");
+            case "bad_trip" -> tr("screen.mydrugs.diary.entry_label.bad_trip");
+            case "severe_withdrawal" -> tr("screen.mydrugs.diary.entry_label.severe_withdrawal");
+            case "moderate_withdrawal" -> tr("screen.mydrugs.diary.entry_label.withdrawal");
+            case "very_high_dose", "high_dose" -> tr("screen.mydrugs.diary.entry_label.dose");
+            case "high_stress" -> tr("screen.mydrugs.diary.entry_label.stress");
+            case "insomnia" -> tr("screen.mydrugs.diary.entry_label.sleep");
+            case "recovery_support" -> tr("screen.mydrugs.diary.entry_label.recovery");
+            case "calm_day" -> tr("screen.mydrugs.diary.entry_label.calm_day");
+            default -> tr("screen.mydrugs.diary.entry_label.automatic");
+        };
     }
 
     private List<DiaryLine> wrapToLines(String text) {
@@ -1233,6 +1452,9 @@ public final class PersonalDiaryScreen extends Screen {
     private record BasicPage(Component title, List<DiaryLine> lines) implements DiaryPage {
     }
 
+    private record PrivacyPage(Component title, List<DiaryLine> lines) implements DiaryPage {
+    }
+
     private static final class MindMapPageHolder implements DiaryPage {
         private final Component title;
         final MindMapPage page;
@@ -1264,7 +1486,7 @@ public final class PersonalDiaryScreen extends Screen {
 
     /** A single rendered line; optional icon (item-stack), optional texture icon, optional heading style. */
     private static final class DiaryLine {
-        enum Kind { TEXT, HEADING, SPACER, INDENTED, WARNING, HINT, SYMPTOM_METER, LINK }
+        enum Kind { TEXT, HEADING, SPACER, INDENTED, WARNING, HINT, SYMPTOM_METER, LINK, GUIDE_LINK }
         enum Visibility { ALWAYS, SHIFT, DEBUG }
         final String text;
         final ItemStack icon;
@@ -1308,6 +1530,9 @@ public final class PersonalDiaryScreen extends Screen {
         static DiaryLine link(String label, String targetNodeId) {
             return new DiaryLine(label, ItemStack.EMPTY, null, Kind.LINK, Visibility.ALWAYS, 0F, "", targetNodeId);
         }
+        static DiaryLine guideLink(String label, String targetPage) {
+            return new DiaryLine(label, ItemStack.EMPTY, null, Kind.GUIDE_LINK, Visibility.ALWAYS, 0F, "", targetPage);
+        }
 
         boolean visible(boolean showDetails, boolean showDebug) {
             return switch (visibility) {
@@ -1340,7 +1565,7 @@ public final class PersonalDiaryScreen extends Screen {
                     int color = kind == Kind.WARNING ? INK_WARNING : kind == Kind.HINT ? INK_HINT : INK;
                     g.drawString(font, text, textX, y, color, false);
                 }
-                case LINK -> {
+                case LINK, GUIDE_LINK -> {
                     int linkColor = 0xFF5BB8FF; // soft sky-blue, vanilla-link feel
                     int textX = x + 4;
                     g.drawString(font, "↗ " + text, textX, y, linkColor, false);

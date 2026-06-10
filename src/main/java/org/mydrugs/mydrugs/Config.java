@@ -36,6 +36,12 @@ public class Config {
         public static final String PRESET_LOW_INTENSITY = "low_intensity";
         public static final String PRESET_MINIMAL_EFFECTS = "minimal_effects";
         public static final String PRESET_CUSTOM = "custom";
+        public static final String HUD_ANCHOR_LEFT = "left";
+        public static final String HUD_ANCHOR_RIGHT = "right";
+        public static final String HUD_ANCHOR_TOP_LEFT = "top_left";
+        public static final String HUD_ANCHOR_TOP_RIGHT = "top_right";
+        public static final String HUD_ANCHOR_BOTTOM_LEFT = "bottom_left";
+        public static final String HUD_ANCHOR_BOTTOM_RIGHT = "bottom_right";
 
         public final ModConfigSpec.ConfigValue<String> accessibilityPreset;
         public final ModConfigSpec.BooleanValue enableDrugShaders;
@@ -59,6 +65,9 @@ public class Config {
         public final ModConfigSpec.BooleanValue disableScreenRoll;
         public final ModConfigSpec.BooleanValue enableHallucinations;
         public final ModConfigSpec.DoubleValue hallucinationIntensity;
+        public final ModConfigSpec.BooleanValue hallucinationSilhouetteOnly;
+        public final ModConfigSpec.BooleanValue smoothHallucinationTransitions;
+        public final ModConfigSpec.DoubleValue hallucinationSpawnDistanceScale;
         public final ModConfigSpec.BooleanValue enableHeartbeatSounds;
         public final ModConfigSpec.DoubleValue heartbeatVolume;
         public final ModConfigSpec.BooleanValue enableDrugSounds;
@@ -68,6 +77,10 @@ public class Config {
         public final ModConfigSpec.BooleanValue disableSuddenLoudSounds;
         public final ModConfigSpec.BooleanValue showAddictionHud;
         public final ModConfigSpec.BooleanValue compactAddictionHud;
+        public final ModConfigSpec.ConfigValue<String> addictionHudAnchor;
+        public final ModConfigSpec.DoubleValue addictionHudScale;
+        public final ModConfigSpec.BooleanValue addictionHudTextLabels;
+        public final ModConfigSpec.IntValue addictionHudSafeArea;
         public final ModConfigSpec.BooleanValue reducedMotionMode;
         public final ModConfigSpec.BooleanValue enableBadTripScreamers;
         public final ModConfigSpec.DoubleValue screamerIntensity;
@@ -189,12 +202,33 @@ public class Config {
             hallucinationIntensity = builder
                     .comment("Hallucination spawn/opacity intensity multiplier.")
                     .defineInRange("hallucinationIntensity", 1.0D, 0.0D, 1.0D);
+            hallucinationSilhouetteOnly = builder
+                    .comment("Render hallucinations as silhouettes without glowing eyes.")
+                    .define("hallucinationSilhouetteOnly", false);
+            smoothHallucinationTransitions = builder
+                    .comment("Use longer hallucination fades and strongly reduced bob/sway motion.")
+                    .define("smoothHallucinationTransitions", false);
+            hallucinationSpawnDistanceScale = builder
+                    .comment("Scales the client-only hallucination spawn distance.")
+                    .defineInRange("hallucinationSpawnDistanceScale", 1.0D, 0.5D, 2.0D);
             showAddictionHud = builder
                     .comment("Show MyDrugs addiction/effect HUD indicators.")
                     .define("showAddictionHud", true);
             compactAddictionHud = builder
                     .comment("Use compact static HUD indicators with fewer animated icons.")
                     .define("compactAddictionHud", false);
+            addictionHudAnchor = builder
+                    .comment("Addiction effect icon anchor. Valid values: left, right, top_left, top_right, bottom_left, bottom_right.")
+                    .define("addictionHudAnchor", HUD_ANCHOR_LEFT);
+            addictionHudScale = builder
+                    .comment("Scale of addiction effect icons and optional labels.")
+                    .defineInRange("addictionHudScale", 1.0D, 0.65D, 1.75D);
+            addictionHudTextLabels = builder
+                    .comment("Show readable text labels beside addiction HUD effect icons.")
+                    .define("addictionHudTextLabels", false);
+            addictionHudSafeArea = builder
+                    .comment("Distance in GUI pixels between the addiction HUD and the selected screen edge.")
+                    .defineInRange("addictionHudSafeArea", 8, 0, 48);
             enableBadTripScreamers = builder
                     .comment("Enable bad-trip screamer image overlays. Bad-trip mechanics still happen when disabled.")
                     .define("enableBadTripScreamers", true);
@@ -255,6 +289,15 @@ public class Config {
                 case PRESET_FULL_EXPERIENCE, PRESET_REDUCED_MOTION, PRESET_LOW_INTENSITY,
                         PRESET_MINIMAL_EFFECTS, PRESET_CUSTOM -> value;
                 default -> PRESET_CUSTOM;
+            };
+        }
+
+        public static String normalizeAddictionHudAnchor(String anchor) {
+            String value = anchor == null ? HUD_ANCHOR_LEFT : anchor.trim().toLowerCase(Locale.ROOT);
+            return switch (value) {
+                case HUD_ANCHOR_LEFT, HUD_ANCHOR_RIGHT, HUD_ANCHOR_TOP_LEFT, HUD_ANCHOR_TOP_RIGHT,
+                        HUD_ANCHOR_BOTTOM_LEFT, HUD_ANCHOR_BOTTOM_RIGHT -> value;
+                default -> HUD_ANCHOR_LEFT;
             };
         }
     }

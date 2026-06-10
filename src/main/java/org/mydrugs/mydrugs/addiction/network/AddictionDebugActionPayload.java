@@ -41,7 +41,7 @@ public record AddictionDebugActionPayload(int action, boolean value) implements 
         PlayerAddictionStats stats = player.getData(ModAttachments.PLAYER_ADDICTION.get());
         if (payload.action() == RESET_STATS) {
             boolean immune = stats.addictionSymptomsImmune;
-            stats.perDrug.clear();
+            stats.clearDrugStats();
             stats.stressLevel = AddictionConstants.STRESS_BASELINE;
             stats.overdoseDeathTimer = -1;
             stats.addictionSymptomsImmune = immune;

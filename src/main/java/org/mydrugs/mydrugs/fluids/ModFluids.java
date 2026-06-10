@@ -94,6 +94,8 @@ public final class ModFluids {
     public static final FluidEntry FUSEL_OIL;
     public static final FluidEntry ABSOLUTE_ETHANOL;
     public static final FluidEntry CRUDE_METH_SLURRY;
+    public static final FluidEntry ANTIBIOTIC_BROTH;
+    public static final FluidEntry ANTIBIOTIC_EXTRACT;
 
     static {
         METHYLAMINE = register(new FluidSpec("methylamine", 0xFFFFFFFF, false, null));
@@ -188,6 +190,8 @@ public final class ModFluids {
 
         // Improvised street-route meth slurry; the ugly cousin of phenylacetone-route meth.
         CRUDE_METH_SLURRY = register(new FluidSpec("crude_meth_slurry", 0xFFA08850, false, null));
+        ANTIBIOTIC_BROTH = register(new FluidSpec("antibiotic_broth", 0xFF7E8F45, false, null));
+        ANTIBIOTIC_EXTRACT = register(new FluidSpec("antibiotic_extract", 0xFFB8C86A, false, null));
     }
 
     private ModFluids() {

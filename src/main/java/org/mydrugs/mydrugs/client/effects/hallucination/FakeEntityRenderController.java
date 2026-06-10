@@ -51,6 +51,15 @@ public final class FakeEntityRenderController {
         pendingSpawnTries = 0;
     }
 
+    public static int activeCount() {
+        return ACTIVE.size();
+    }
+
+    public static boolean isPresentationSuppressed() {
+        return !Config.CLIENT.enableHallucinations.get()
+                || Config.CLIENT.hallucinationIntensity.get() <= 0.0D;
+    }
+
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
@@ -64,7 +73,7 @@ public final class FakeEntityRenderController {
             return;
         }
         // Accessibility: full off-switch and per-intensity scaling for spawn rate.
-        if (!Config.CLIENT.enableHallucinations.get()) {
+        if (isPresentationSuppressed()) {
             pendingSpawnTries = 0;
             return;
         }
@@ -95,7 +104,7 @@ public final class FakeEntityRenderController {
         float scale = Mth.lerp(RANDOM.nextFloat(), 0.92F, 1.18F);
         float yOffset = -0.02F + RANDOM.nextFloat() * 0.08F;
         float phase = RANDOM.nextFloat() * ((float) Math.PI * 2.0F);
-        boolean hasEyes = RANDOM.nextFloat() < 0.80F;
+        boolean hasEyes = !Config.CLIENT.hallucinationSilhouetteOnly.get() && RANDOM.nextFloat() < 0.80F;
 
         ACTIVE.add(new FakeHallucination(
                 spawnPos,
@@ -110,7 +119,7 @@ public final class FakeEntityRenderController {
 
     public static void render(RenderLevelStageEvent event) {
 
-        if (ACTIVE.isEmpty()) {
+        if (ACTIVE.isEmpty() || isPresentationSuppressed()) {
             return;
         }
 
@@ -154,7 +163,9 @@ public final class FakeEntityRenderController {
             FakeHallucination h,
             long gameTime
     ) {
-        float alpha = h.alpha(gameTime) * Config.CLIENT.hallucinationIntensity.get().floatValue();
+        boolean smooth = Config.CLIENT.smoothHallucinationTransitions.get()
+                || Config.CLIENT.reducedMotionMode.get();
+        float alpha = h.alpha(gameTime, smooth) * Config.CLIENT.hallucinationIntensity.get().floatValue();
         if (alpha <= 0.01F) {
             return;
         }
@@ -162,9 +173,13 @@ public final class FakeEntityRenderController {
         float severity = Mth.clamp(AddictionClientState.globalSeverity, 0.0F, 1.0F);
         float time = (float) gameTime;
 
-        float bob = (float) Math.sin(time * 0.10F + h.phase * 1.37F) * (0.03F + severity * 0.03F);
-        float swayX = (float) Math.sin(time * 0.07F + h.phase) * (0.02F + severity * 0.05F);
-        float scalePulse = 1.0F + (float) Math.sin(time * 0.12F + h.phase * 0.75F) * 0.025F;
+        float motionScale = smooth ? 0.15F : 1.0F;
+        float bob = (float) Math.sin(time * 0.10F + h.phase * 1.37F)
+                * (0.03F + severity * 0.03F) * motionScale;
+        float swayX = (float) Math.sin(time * 0.07F + h.phase)
+                * (0.02F + severity * 0.05F) * motionScale;
+        float scalePulse = 1.0F + (float) Math.sin(time * 0.12F + h.phase * 0.75F)
+                * 0.025F * motionScale;
 
         Vec3 cameraPos = camera.getPosition();
 
@@ -192,7 +207,7 @@ public final class FakeEntityRenderController {
                 LightTexture.FULL_BRIGHT
         );
 
-        if (h.hasEyes) {
+        if (h.hasEyes && !Config.CLIENT.hallucinationSilhouetteOnly.get()) {
             drawQuadBothSides(
                     poseStack,
                     bufferSource.getBuffer(RenderType.eyes(EYES_TEXTURE)),
@@ -296,7 +311,9 @@ public final class FakeEntityRenderController {
             if (directlyLookedAt) {
                 h.staredAtTicks++;
                 if (h.staredAtTicks >= 3) {
-                    h.expireAt = Math.min(h.expireAt, time + 4L);
+                    long stareFadeTicks = Config.CLIENT.smoothHallucinationTransitions.get()
+                            || Config.CLIENT.reducedMotionMode.get() ? 28L : 4L;
+                    h.expireAt = Math.min(h.expireAt, time + stareFadeTicks);
                 }
             } else {
                 h.staredAtTicks = Math.max(0, h.staredAtTicks - 1);
@@ -312,7 +329,8 @@ public final class FakeEntityRenderController {
         Vec3 cameraLook = new Vec3(lookVec3f.x(), lookVec3f.y(), lookVec3f.z()).normalize();
 
         for (int i = 0; i < tries; i++) {
-            double distance = Mth.lerp(RANDOM.nextDouble(), 5.0D, 11.0D);
+            double distanceScale = Config.CLIENT.hallucinationSpawnDistanceScale.get();
+            double distance = Mth.lerp(RANDOM.nextDouble(), 5.0D * distanceScale, 11.0D * distanceScale);
             double angle = RANDOM.nextDouble() * Math.PI * 2.0D;
 
             double x = Math.cos(angle) * distance;

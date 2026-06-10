@@ -29,6 +29,9 @@ public final class MyDrugsClientConfig {
     private static MyDrugsClientConfig instance;
 
     private boolean disclaimerAcknowledged = false;
+    private boolean memoryCaptureEnabled = true;
+    private boolean memoryPrivacyNoticeSeen = false;
+    private boolean memoryPreviewEnabled = true;
     private Map<String, String> toolPaths = new HashMap<>();
     private Map<String, Boolean> toolDisabled = new HashMap<>();
 
@@ -87,6 +90,39 @@ public final class MyDrugsClientConfig {
     public void setDisclaimerAcknowledged(boolean acknowledged) {
         if (this.disclaimerAcknowledged != acknowledged) {
             this.disclaimerAcknowledged = acknowledged;
+            save();
+        }
+    }
+
+    public boolean isMemoryCaptureEnabled() {
+        return memoryCaptureEnabled;
+    }
+
+    public void setMemoryCaptureEnabled(boolean enabled) {
+        if (memoryCaptureEnabled != enabled) {
+            memoryCaptureEnabled = enabled;
+            save();
+        }
+    }
+
+    public boolean isMemoryPrivacyNoticeSeen() {
+        return memoryPrivacyNoticeSeen;
+    }
+
+    public void setMemoryPrivacyNoticeSeen(boolean seen) {
+        if (memoryPrivacyNoticeSeen != seen) {
+            memoryPrivacyNoticeSeen = seen;
+            save();
+        }
+    }
+
+    public boolean isMemoryPreviewEnabled() {
+        return memoryPreviewEnabled;
+    }
+
+    public void setMemoryPreviewEnabled(boolean enabled) {
+        if (memoryPreviewEnabled != enabled) {
+            memoryPreviewEnabled = enabled;
             save();
         }
     }

@@ -347,14 +347,14 @@ public final class BadTripManager {
                     ? "message.mydrugs.bad_trip.shelter.strong"
                     : "message.mydrugs.bad_trip.shelter";
         }
-        if (stats.temporaryEffects.hasHeadphones(now)
+        if (stats.temporaryEffectsView().hasHeadphones(now)
                 || recoveryRoom != null && recoveryRoom.hasModule(SanctuaryModule.MUSIC_CORNER) && recoveryRoom.hasActiveMusic()) {
             return "message.mydrugs.bad_trip.grounding.music";
         }
-        if (stats.temporaryEffects.hasPreparedTea(now)) {
+        if (stats.temporaryEffectsView().hasPreparedTea(now)) {
             return "message.mydrugs.bad_trip.grounding.tea";
         }
-        if (stats.temporaryEffects.hasDiaryCalm(now)) {
+        if (stats.temporaryEffectsView().hasDiaryCalm(now)) {
             return "message.mydrugs.bad_trip.grounding.diary";
         }
         return "message.mydrugs.bad_trip.grounding.none";

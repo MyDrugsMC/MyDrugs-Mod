@@ -26,7 +26,8 @@ public final class PsyMixerRitualScoring {
             PsyMixerMasteryAttachment mastery,
             ResourceLocation formulaMasteryId
     ) {
-        int actionCount = RitualBaseDrugResolver.resolve(input.base())
+        DrugId baseDrug = RitualBaseDrugResolver.resolve(input.base()).orElse(null);
+        int actionCount = java.util.Optional.ofNullable(baseDrug)
                 .map(PsyMixerRitualScoring::baseDrugActionCount)
                 .orElse(0);
         if (recipe.hasValidVessel(input.vessel())) {
@@ -35,12 +36,19 @@ public final class PsyMixerRitualScoring {
         if (recipe.hasValidStabilizer(input.stabilizer())) {
             actionCount += 2;
         }
-        actionCount = Math.max(0, actionCount - mastery.getRemovedActionCount(formulaMasteryId));
+        actionCount = Math.max(actionCount > 0 ? 1 : 0, actionCount - mastery.getRemovedActionCount(formulaMasteryId));
         if (actionCount <= 0) {
             return List.of();
         }
 
-        List<PsyMixerRitualAction> pool = recipe.availableRitualActions();
+        List<PsyMixerRitualAction> configuredPool = recipe.availableRitualActions();
+        List<PsyMixerRitualAction> pool = baseDrug != null
+                && (configuredPool.isEmpty() || PsyMixerRitualProfiles.isLegacyGenericPool(configuredPool))
+                ? PsyMixerRitualProfiles.forDrug(baseDrug).weightedActions()
+                : configuredPool;
+        if (pool.isEmpty()) {
+            pool = PsyMixerRitualAction.defaultRandomPool();
+        }
         List<PsyMixerRitualAction> selected = new ArrayList<>(actionCount);
         for (int i = 0; i < actionCount; i++) {
             PsyMixerRitualAction action = pool.get(random.nextInt(pool.size()));
@@ -115,7 +123,7 @@ public final class PsyMixerRitualScoring {
 
     private static int baseDrugActionCount(DrugId drugId) {
         return switch (drugId) {
-            case TOBACCO, WEED, HASH -> 1;
+            case COFFEE, TOBACCO, WEED, HASH -> 1;
             case ALCOHOL, COCAINE, CRACK -> 2;
             case LSD, METH -> 3;
             case MUSHROOMS -> 4;

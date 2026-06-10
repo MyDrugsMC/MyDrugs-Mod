@@ -11,11 +11,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.items.data.ModDataComponents;
 import org.mydrugs.mydrugs.items.data.PersonalMusicDiscData;
 import org.mydrugs.mydrugs.recovery.block.ModRecoveryBlocks;
 import org.mydrugs.mydrugs.recovery.item.ModRecoveryItems;
+import org.mydrugs.mydrugs.recovery.music.ServerMusicLibrary;
 
 public record ScribePersonalDiscPayload(
         BlockPos scriberPos,
@@ -23,7 +25,10 @@ public record ScribePersonalDiscPayload(
         String title,
         String artist,
         int durationMs,
-        boolean liked
+        boolean liked,
+        String serverTrackId,
+        String audioHash,
+        boolean serverHosted
 ) implements CustomPacketPayload {
     private static final int MAX_TRACK_ID_LENGTH = 128;
     private static final int MAX_TITLE_LENGTH = 96;
@@ -41,6 +46,9 @@ public record ScribePersonalDiscPayload(
                 ByteBufCodecs.stringUtf8(MAX_ARTIST_LENGTH).encode(buf, payload.artist());
                 ByteBufCodecs.VAR_INT.encode(buf, payload.durationMs());
                 ByteBufCodecs.BOOL.encode(buf, payload.liked());
+                ByteBufCodecs.stringUtf8(MAX_TRACK_ID_LENGTH).encode(buf, payload.serverTrackId());
+                ByteBufCodecs.stringUtf8(64).encode(buf, payload.audioHash());
+                ByteBufCodecs.BOOL.encode(buf, payload.serverHosted());
             },
             buf -> new ScribePersonalDiscPayload(
                     BlockPos.STREAM_CODEC.decode(buf),
@@ -48,6 +56,9 @@ public record ScribePersonalDiscPayload(
                     ByteBufCodecs.stringUtf8(MAX_TITLE_LENGTH).decode(buf),
                     ByteBufCodecs.stringUtf8(MAX_ARTIST_LENGTH).decode(buf),
                     ByteBufCodecs.VAR_INT.decode(buf),
+                    ByteBufCodecs.BOOL.decode(buf),
+                    ByteBufCodecs.stringUtf8(MAX_TRACK_ID_LENGTH).decode(buf),
+                    ByteBufCodecs.stringUtf8(64).decode(buf),
                     ByteBufCodecs.BOOL.decode(buf)
             )
     );
@@ -62,28 +73,38 @@ public record ScribePersonalDiscPayload(
             return;
         }
         if (!PayloadRateLimiter.accept(player, PayloadRateLimiter.Kind.SCRIBE_PERSONAL_DISC)) {
+            sendResult(player, false, "screen.mydrugs.disc_scriber.failed.rate_limited", payload);
             return;
         }
         if (!player.level().getBlockState(payload.scriberPos()).is(ModRecoveryBlocks.DISC_SCRIBER.get())
                 || !player.blockPosition().closerThan(payload.scriberPos(), 8.0D)) {
             player.displayClientMessage(Component.translatable("message.mydrugs.music.scribe_too_far"), true);
+            sendResult(player, false, "screen.mydrugs.disc_scriber.failed.too_far", payload);
             return;
         }
 
         String trackId = clean(payload.trackId(), MAX_TRACK_ID_LENGTH);
         if (trackId.isBlank()) {
             player.displayClientMessage(Component.translatable("message.mydrugs.music.no_track_selected"), true);
+            sendResult(player, false, "screen.mydrugs.disc_scriber.failed.no_track", payload);
             return;
         }
 
         int blankSlot = findBlankDisc(player);
         if (blankSlot < 0) {
             player.displayClientMessage(Component.translatable("message.mydrugs.music.no_blank_disc"), true);
+            sendResult(player, false, "screen.mydrugs.disc_scriber.failed.no_blank_disc", payload);
             return;
         }
 
         String title = clean(payload.title(), MAX_TITLE_LENGTH);
         String artist = clean(payload.artist(), MAX_ARTIST_LENGTH);
+        String serverTrackId = clean(payload.serverTrackId(), MAX_TRACK_ID_LENGTH);
+        String audioHash = clean(payload.audioHash(), 64);
+        if (payload.serverHosted() && !ServerMusicLibrary.hasTrack(player, serverTrackId, audioHash)) {
+            sendResult(player, false, "screen.mydrugs.disc_scriber.server_upload_failed", payload);
+            return;
+        }
         int duration = Math.max(0, Math.min(MAX_DURATION_MS, payload.durationMs()));
         if (title.isBlank()) {
             title = "Personal Track";
@@ -93,7 +114,8 @@ public record ScribePersonalDiscPayload(
         blank.shrink(1);
 
         ItemStack disc = new ItemStack(ModRecoveryItems.PERSONAL_MUSIC_DISC.get());
-        disc.set(ModDataComponents.PERSONAL_MUSIC_DISC.get(), new PersonalMusicDiscData(trackId, title, artist, duration, payload.liked()));
+        disc.set(ModDataComponents.PERSONAL_MUSIC_DISC.get(), new PersonalMusicDiscData(
+                trackId, serverTrackId, audioHash, title, artist, duration, payload.liked(), payload.serverHosted()));
         disc.set(DataComponents.CUSTOM_NAME, Component.literal(title));
 
         if (!player.getInventory().add(disc)) {
@@ -101,6 +123,17 @@ public record ScribePersonalDiscPayload(
         }
         player.getInventory().setChanged();
         player.displayClientMessage(Component.translatable("message.mydrugs.music.disc_created", title), true);
+        PacketDistributor.sendToPlayer(player, new ScribePersonalDiscResultPayload(
+                true, "screen.mydrugs.disc_scriber.created", trackId, title
+        ));
+    }
+
+    private static void sendResult(ServerPlayer player, boolean success, String messageKey,
+                                   ScribePersonalDiscPayload payload) {
+        PacketDistributor.sendToPlayer(player, new ScribePersonalDiscResultPayload(
+                success, messageKey, clean(payload.trackId(), MAX_TRACK_ID_LENGTH),
+                clean(payload.title(), MAX_TITLE_LENGTH)
+        ));
     }
 
     private static int findBlankDisc(ServerPlayer player) {

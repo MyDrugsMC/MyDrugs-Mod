@@ -38,6 +38,8 @@ public final class PsyKnowledgeManager {
         PsycheMapManager.unlock(player, key.id(), "psy_knowledge");
         writeDiaryEntry(player, key);
         player.displayClientMessage(Component.translatable(messageKey(key)), true);
+        player.displayClientMessage(Component.translatable(unlocksMessageKey(key)), false);
+        player.displayClientMessage(Component.translatable("message.mydrugs.knowledge.diary_written"), false);
         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.75F, pitch(key));
 
         if (key.equals(PsyKnowledgeKey.CAFFEINE)) {
@@ -56,7 +58,7 @@ public final class PsyKnowledgeManager {
 
         if (required == null) return;
 
-        String text = diaryEntry(required);
+        String text = Component.translatable(diaryBodyKey(key)).getString();
 
         String cleaned = PlayerDiaryAttachment.sanitizeCustomContent(text);
 
@@ -69,35 +71,6 @@ public final class PsyKnowledgeManager {
                 "custom",
                 required.serializedName()
         ));
-    }
-
-    private static String diaryEntry(DrugId id) {
-        return switch (id) {
-            case COFFEE -> "Gosh what happened ? What is this thing that popped into my inventory ? Seems magical. " +
-                    "I seem to have more energy, but at what cost ?";
-            case TOBACCO -> "Ahhhh what a relief ! Grinding this tobacco reminded me that small things matter. " +
-                    "What if i separated these small sticky things from the cannabis leaves ? I should check the magical anvil thing.";
-            case WEED -> "That was way more powerful than tobacco ! Oh my god ! " +
-                    "I feel relaxed, but also more motivated to discover more of these substances. " +
-                    "I need more material. For example, what if I smashed copper into this anvil ?";
-            case ALCOHOL -> "WOWW what happened ? Everything was weird and I made this wire thing. " +
-                    "For sure I mustn't waste it. Gosh I feel heavy now. Heaviness ? Wait I got an idea !";
-            case HASH -> "Hey that was even more powerful than weed ! Alright. More power, I get it. " +
-                    "Let's smash this steel !";
-            case COCAINE -> "STFGWAOSN WHAT IS THAT ? I NEVER FELT THIS HAPPY ! Oh, it already ended. " +
-                    "Now I'm sad. I want to take it again... But I know I should not. With all this energy I understood something. " +
-                    "Energy is key. And copper drives it. Let's make those damn wires !";
-            case LSD -> "Wow. Now that was something else. I saw patterns inside patterns, machines inside thoughts, " +
-                    "and thoughts inside machines. Chemistry is not just mixing anymore. It is structure, rhythm, intention. " +
-                    "I think I can build circuits that understand more than simple control.";
-            case METH -> "I can hear everything. Too fast. Too clear. My hands want to move before I even think. " +
-                    "This power is terrifying, but I understand it now: speed, pressure, heat, overclocking. " +
-                    "If machines can be pushed past their limits... maybe I can too. I should look for mushrooms. Something is calling from below.";
-            case MUSHROOMS -> "This was not like the others. It did not push me forward. It pulled me inward. " +
-                    "I felt roots, spores, memories, and something ancient breathing through the ground. " +
-                    "The world is connected by threads I could not see before. I need to build something that can resonate with them.";
-            default -> "I don't know what was that but that was awesome !";
-        };
     }
 
     /**
@@ -143,6 +116,14 @@ public final class PsyKnowledgeManager {
 
     private static String messageKey(PsyKnowledgeKey key) {
         return "message.mydrugs.knowledge." + key.id().getPath();
+    }
+
+    private static String unlocksMessageKey(PsyKnowledgeKey key) {
+        return messageKey(key) + ".unlocks";
+    }
+
+    private static String diaryBodyKey(PsyKnowledgeKey key) {
+        return "diary.mydrugs.knowledge." + key.id().getPath() + ".body";
     }
 
     private static float pitch(PsyKnowledgeKey key) {

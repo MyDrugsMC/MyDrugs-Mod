@@ -98,7 +98,7 @@ class IntegrationEligibilityTest {
         coffee.integrationStage = DrugAddictionStats.INTEGRATION_STAGE_INTEGRATED;
 
         assertFalse(stats.removeDrugStatsIfEmpty(DrugId.COFFEE));
-        assertTrue(stats.perDrug.containsKey(DrugId.COFFEE));
+        assertTrue(stats.getAllDrugStats().containsKey(DrugId.COFFEE));
     }
 
     @Test
@@ -107,7 +107,7 @@ class IntegrationEligibilityTest {
         stats.getOrCreateDrugStats(DrugId.COFFEE);
 
         assertTrue(stats.removeDrugStatsIfEmpty(DrugId.COFFEE));
-        assertFalse(stats.perDrug.containsKey(DrugId.COFFEE));
+        assertFalse(stats.getAllDrugStats().containsKey(DrugId.COFFEE));
     }
 
     @Test

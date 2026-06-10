@@ -22,6 +22,7 @@ public final class MutationManager {
     private static final int INFECTION_EFFECT_REFRESH_TICKS = 100;
     private static final int INFECTION_EFFECT_DURATION_TICKS = 20 * 6;
     private static final int INFECTION_ONSET_EFFECT_DURATION_TICKS = 20 * 8;
+    private static final int ASSIMILATION_FEEDBACK_INTERVAL_TICKS = 20 * 10;
     private static final Map<ServerPlayer, MutationValueSnapshot> VALUE_CACHE = new WeakHashMap<>();
 
     private MutationManager() {
@@ -83,6 +84,16 @@ public final class MutationManager {
     public static void cureInfection(ServerPlayer player, float strength) {
         player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection().cure(strength);
         invalidateValueCache(player);
+        syncToClient(player);
+    }
+
+    public static void treatInfection(ServerPlayer player, float severityReduction, int rollbackTicks) {
+        if (player == null) {
+            return;
+        }
+        player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection().treat(severityReduction, rollbackTicks);
+        invalidateValueCache(player);
+        syncToClient(player);
     }
 
     public static void clearInfection(ServerPlayer player) {
@@ -102,6 +113,14 @@ public final class MutationManager {
         boolean changed = attachment.tickAssimilation(assimilationSpeed);
         if (changed) {
             invalidateValueCache(player);
+        }
+        if (changed && player.tickCount % ASSIMILATION_FEEDBACK_INTERVAL_TICKS == 0) {
+            float progress = attachment.averageAssimilationProgress();
+            player.displayClientMessage(
+                    Component.translatable("message.mydrugs.mutation.assimilation_progress", Math.round(progress * 100.0F))
+                            .withStyle(ChatFormatting.LIGHT_PURPLE),
+                    true
+            );
         }
 
         List<String> completed = attachment.drainCompletedAssimilations();

@@ -19,17 +19,21 @@ import org.mydrugs.mydrugs.addiction.network.DrugEffectCuePayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.PersonalDiarySubmitResultPayload;
 import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.client.diary.MemoryCaptureClient;
+import org.mydrugs.mydrugs.client.diary.PsycheMapClientState;
 import org.mydrugs.mydrugs.client.psy_mixer.PsyMixerRitualClientState;
 import org.mydrugs.mydrugs.client.recovery.RecoveryRoomParticleClient;
 import org.mydrugs.mydrugs.client.recovery.music.CustomDiscPlaybackController;
 import org.mydrugs.mydrugs.client.recovery.music.DiscScriberScreen;
 import org.mydrugs.mydrugs.client.recovery.music.HeadphonesMusicScreen;
+import org.mydrugs.mydrugs.client.recovery.music.SharedMusicTransferClient;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 import org.mydrugs.mydrugs.core.drug.integration.network.IntegrationSyncPayload;
+import org.mydrugs.mydrugs.psyche.network.PsycheMapSyncPayload;
 import org.mydrugs.mydrugs.network.BiomeFinderOpenScreenPayload;
 import org.mydrugs.mydrugs.network.MachineTransferConfigSnapshotPayload;
 import org.mydrugs.mydrugs.network.OpenDrugFormulaNamingPayload;
@@ -39,6 +43,12 @@ import org.mydrugs.mydrugs.network.PersonalDiscPlaybackPayload;
 import org.mydrugs.mydrugs.network.PsyBlueprintPreviewPayload;
 import org.mydrugs.mydrugs.network.PsyMixerRitualSyncPayload;
 import org.mydrugs.mydrugs.network.RecoveryRoomParticlesPayload;
+import org.mydrugs.mydrugs.network.ScribePersonalDiscResultPayload;
+import org.mydrugs.mydrugs.network.ServerMusicUploadResultPayload;
+import org.mydrugs.mydrugs.network.ServerMusicTrackInfoPayload;
+import org.mydrugs.mydrugs.network.ServerMusicTrackChunkPayload;
+import org.mydrugs.mydrugs.network.ServerMusicTrackCompletePayload;
+import org.mydrugs.mydrugs.network.ServerMusicTrackUnavailablePayload;
 import org.mydrugs.mydrugs.network.DistillateEnginePreviewPayload;
 import org.mydrugs.mydrugs.network.DistillateEnginePulsePayload;
 import org.mydrugs.mydrugs.network.InnerSkyStatePayload;
@@ -86,6 +96,22 @@ public final class ClientPayloadHandlers {
         event.register(OpenHeadphonesMusicScreenPayload.TYPE, (payload, context) -> net.minecraft.client.Minecraft.getInstance().setScreen(new HeadphonesMusicScreen()));
         event.register(OpenDiscScriberScreenPayload.TYPE, (payload, context) -> net.minecraft.client.Minecraft.getInstance().setScreen(new DiscScriberScreen(payload.scriberPos())));
         event.register(PersonalDiscPlaybackPayload.TYPE, CustomDiscPlaybackController::handle);
+        event.register(ScribePersonalDiscResultPayload.TYPE, (payload, context) -> {
+            var mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.screen instanceof DiscScriberScreen screen) {
+                screen.handleScribeResult(payload);
+            }
+        });
+        event.register(ServerMusicUploadResultPayload.TYPE, (payload, context) ->
+                SharedMusicTransferClient.handleUploadResult(payload));
+        event.register(ServerMusicTrackInfoPayload.TYPE, (payload, context) ->
+                SharedMusicTransferClient.handleInfo(payload));
+        event.register(ServerMusicTrackChunkPayload.TYPE, (payload, context) ->
+                SharedMusicTransferClient.handleChunk(payload));
+        event.register(ServerMusicTrackCompletePayload.TYPE, (payload, context) ->
+                SharedMusicTransferClient.handleComplete(payload));
+        event.register(ServerMusicTrackUnavailablePayload.TYPE, (payload, context) ->
+                SharedMusicTransferClient.handleUnavailable(payload));
 
         // Addiction snapshots, dose/effect sync, headphones, vomit, bad-trip.
         event.register(AddictionClientSnapshotPayload.TYPE, ClientPayloadHandler::handleSnapshot);
@@ -98,6 +124,12 @@ public final class ClientPayloadHandlers {
         event.register(BadTripScreamerPayload.TYPE, ClientPayloadHandler::handleBadTripScreamer);
         event.register(AddictionDebugOpenPayload.TYPE, ClientPayloadHandler::handleAddictionDebugOpen);
         event.register(PersonalDiarySnapshotPayload.TYPE, ClientPayloadHandler::handlePersonalDiarySnapshot);
+        event.register(PersonalDiarySubmitResultPayload.TYPE, (payload, context) -> {
+            var mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.screen instanceof org.mydrugs.mydrugs.client.diary.PersonalDiaryScreen screen) {
+                screen.handleSubmitResult(payload);
+            }
+        });
         event.register(StartMemoryCapturePayload.TYPE, (payload, context) -> MemoryCaptureClient.start(payload));
 
         // Mutation stat sync from server.
@@ -105,6 +137,10 @@ public final class ClientPayloadHandlers {
 
         // Integrated trait sync from server.
         event.register(IntegrationSyncPayload.TYPE, ClientPayloadHandler::handleIntegrationSync);
+
+        // Server-authoritative Psyche Map integration nodes.
+        event.register(PsycheMapSyncPayload.TYPE, (payload, context) ->
+                PsycheMapClientState.apply(payload.nodes()));
 
         // Inner Dimension sky progress (constellations + core beacon).
         event.register(InnerSkyStatePayload.TYPE, (payload, context) -> InnerSkyClientState.accept(payload));

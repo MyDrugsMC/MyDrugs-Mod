@@ -23,7 +23,7 @@ public final class ModAdvancementProvider implements DataProvider {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         new MyDrugsAdvancementGenerator().generate((id, advancement) -> {
             Path path = pathProvider.json(id);
-            futures.add(DataProvider.saveStable(cachedOutput, advancement, path));
+            futures.add(DatagenOutputGuard.saveStable("ModAdvancementProvider", cachedOutput, advancement, path));
         });
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

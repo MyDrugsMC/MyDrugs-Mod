@@ -126,7 +126,7 @@ public final class SymptomManager {
         float physicalSeverity = globalSeverity * Math.max(0.0F, 1.0F - withdrawalResilience);
         int flags = buildFlags(mentalSeverity, physicalSeverity);
         flags |= BadTripManager.symptomFlags(stats);
-        if (stats.temporaryEffects.hasSleepBonus(now)) {
+        if (stats.temporaryEffectsView().hasSleepBonus(now)) {
             flags &= ~SymptomFlags.INSOMNIA;
         }
 

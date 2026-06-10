@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.psyche.PsycheMapManager;
 
 /**
  * Decides whether a curated drug may be integrated and performs trait unlocks.
@@ -274,9 +275,11 @@ public final class IntegrationService {
         if (!eligibility.eligible()) {
             return IntegrationAttemptResult.fail("message.mydrugs.integration.requirements_unmet", eligibility);
         }
-        return forceIntegrateUnsafe(player, drugId)
-                ? IntegrationAttemptResult.passed()
-                : IntegrationAttemptResult.fail("message.mydrugs.resonator.integration_lost", eligibility);
+        if (!forceIntegrateUnsafe(player, drugId)) {
+            return IntegrationAttemptResult.fail("message.mydrugs.resonator.integration_lost", eligibility);
+        }
+        PsycheMapManager.unlockIntegration(player, drugId);
+        return IntegrationAttemptResult.passed();
     }
 
     /**

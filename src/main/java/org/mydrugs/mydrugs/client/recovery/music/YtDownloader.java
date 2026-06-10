@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * Optional online-media import via yt-dlp.
@@ -24,6 +25,24 @@ import java.util.concurrent.TimeUnit;
  * string — and is bounded by a timeout.
  */
 public final class YtDownloader {
+    public enum FailureReason {
+        NONE,
+        YT_DLP_MISSING,
+        FFMPEG_MISSING,
+        TIMEOUT,
+        EXIT_CODE,
+        OUTPUT_MISSING,
+        INVALID_URL,
+        IO_ERROR
+    }
+
+    public record DownloadResult(boolean success, Path path, String messageKey, FailureReason reason) {
+        private static DownloadResult failure(String key, FailureReason reason) {
+            return new DownloadResult(false, null, key, reason);
+        }
+    }
+
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
 
     private static final String AUDIO_FORMAT = "vorbis";
     private static final String AUDIO_EXTENSION = "ogg";
@@ -43,13 +62,19 @@ public final class YtDownloader {
      * when yt-dlp is unavailable or the download fails — callers must handle {@code null} as a
      * disabled/failed feature rather than an error.
      */
-    public static Path download(String url) {
+    public static DownloadResult download(String url) {
+        if (url == null || url.isBlank()) {
+            return DownloadResult.failure("screen.mydrugs.music.import_error.invalid_url", FailureReason.INVALID_URL);
+        }
         Path ytDlp;
         try {
             ytDlp = AudioLibraries.requireYtDlp();
         } catch (IOException e) {
-            MyDrugs.getLOGGER().info("yt-dlp not available; online import is disabled: {}", e.getMessage());
-            return null;
+            MyDrugs.getLOGGER().info("yt-dlp is unavailable; online import is disabled");
+            return DownloadResult.failure("screen.mydrugs.music.import_error.ytdlp_missing", FailureReason.YT_DLP_MISSING);
+        }
+        if (AudioLibraries.ffmpegDirectoryForYtDlp().isEmpty()) {
+            return DownloadResult.failure("screen.mydrugs.music.import_error.ffmpeg_missing", FailureReason.FFMPEG_MISSING);
         }
 
         try {
@@ -76,19 +101,29 @@ public final class YtDownloader {
             });
             command.add(url);
 
-            runCommand(command);
+            CommandResult commandResult = runCommand(command);
+            if (commandResult.timedOut()) {
+                return DownloadResult.failure("screen.mydrugs.music.import_error.timeout", FailureReason.TIMEOUT);
+            }
+            if (commandResult.exitCode() != 0) {
+                MyDrugs.getLOGGER().warn("yt-dlp failed with exit code {}", commandResult.exitCode());
+                return DownloadResult.failure("screen.mydrugs.music.import_error.download_failed", FailureReason.EXIT_CODE);
+            }
 
             if (Files.exists(expectedOutput)) {
-                return expectedOutput;
+                return new DownloadResult(true, expectedOutput, "screen.mydrugs.music.done", FailureReason.NONE);
             }
-            return findDownloadedFile(dlFolder, id);
+            Path found = findDownloadedFile(dlFolder, id);
+            return found == null
+                    ? DownloadResult.failure("screen.mydrugs.music.import_error.output_missing", FailureReason.OUTPUT_MISSING)
+                    : new DownloadResult(true, found, "screen.mydrugs.music.done", FailureReason.NONE);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            MyDrugs.getLOGGER().warn("Download interrupted for {}: {}", url, e.getMessage());
-            return null;
+            MyDrugs.getLOGGER().warn("yt-dlp download was interrupted");
+            return DownloadResult.failure("screen.mydrugs.music.import_error.download_failed", FailureReason.IO_ERROR);
         } catch (Exception e) {
-            MyDrugs.getLOGGER().warn("Could not download {}: {}", url, e.getMessage());
-            return null;
+            MyDrugs.getLOGGER().warn("yt-dlp download failed: {}", redactExternalToolOutput(e.getMessage()));
+            return DownloadResult.failure("screen.mydrugs.music.import_error.download_failed", FailureReason.IO_ERROR);
         }
     }
 
@@ -104,34 +139,46 @@ public final class YtDownloader {
         }
     }
 
-    private static void runCommand(List<String> command) throws IOException, InterruptedException {
+    private static CommandResult runCommand(List<String> command) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
 
+        MyDrugs.getLOGGER().info("yt-dlp started");
         Process process = pb.start();
-        List<String> output = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (output.size() < 256) {
-                    output.add(line);
+        Thread outputReader = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    MyDrugs.getLOGGER().debug("[yt-dlp] {}", redactExternalToolOutput(line));
                 }
-                MyDrugs.getLOGGER().info("[yt-dlp] {}", line);
+            } catch (IOException ignored) {
             }
-        }
+        }, "MyDrugs yt-dlp output");
+        outputReader.setDaemon(true);
+        outputReader.start();
 
         boolean finished = process.waitFor(PROCESS_TIMEOUT_MINUTES, TimeUnit.MINUTES);
         if (!finished) {
             process.destroyForcibly();
-            throw new IOException("yt-dlp timed out");
+            MyDrugs.getLOGGER().warn("yt-dlp timed out");
+            return new CommandResult(-1, true);
         }
 
         int exitCode = process.exitValue();
-        if (exitCode != 0) {
-            throw new IOException("yt-dlp failed with exit code " + exitCode + "\n"
-                    + String.join("\n", output));
+        if (exitCode == 0) {
+            MyDrugs.getLOGGER().info("yt-dlp completed");
         }
+        return new CommandResult(exitCode, false);
+    }
+
+    public static String redactExternalToolOutput(String line) {
+        if (line == null || line.isBlank()) {
+            return "";
+        }
+        return URL_PATTERN.matcher(line).replaceAll("[redacted-url]");
+    }
+
+    private record CommandResult(int exitCode, boolean timedOut) {
     }
 }

@@ -28,6 +28,10 @@ public final class MusicLibraryStorage {
         return root().resolve("art");
     }
 
+    public static Path serverCacheDir() {
+        return root().resolve("server_cache");
+    }
+
     public static Path bookmarksJson() {
         return root().resolve("bookmarks.json");
     }

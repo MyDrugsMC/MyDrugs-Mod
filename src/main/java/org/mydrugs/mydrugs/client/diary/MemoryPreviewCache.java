@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
+import org.mydrugs.mydrugs.client.recovery.music.tools.MyDrugsClientConfig;
 import org.slf4j.Logger;
 
 import java.io.InputStream;
@@ -64,6 +65,9 @@ public final class MemoryPreviewCache {
     }
 
     public static Entry getOrLoad(String nodeId) {
+        if (!MyDrugsClientConfig.get().isMemoryPreviewEnabled()) {
+            return Entry.MISSING;
+        }
         Entry cached = CACHE.get(nodeId);
         if (cached != null) {
             return cached;

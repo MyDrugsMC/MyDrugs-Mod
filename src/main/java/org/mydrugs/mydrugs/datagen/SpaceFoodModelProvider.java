@@ -80,8 +80,8 @@ public class SpaceFoodModelProvider implements DataProvider {
             Path modelPath = this.itemModelPath.json(spaceId);
             Path clientItemPath = this.itemClientPath.json(spaceId);
 
-            futures.add(DataProvider.saveStable(cache, modelJson, modelPath));
-            futures.add(DataProvider.saveStable(cache, clientItemJson, clientItemPath));
+            futures.add(DatagenOutputGuard.saveStable("SpaceFoodModelProvider", cache, modelJson, modelPath));
+            futures.add(DatagenOutputGuard.saveStable("SpaceFoodModelProvider", cache, clientItemJson, clientItemPath));
         });
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));

@@ -103,11 +103,11 @@ public class SteamCrackerScreen extends AbstractMachineScreen<SteamCrackerMenu> 
 
     @Override
     protected void renderExtraTooltips(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        tankTooltip(graphics, mouseX, mouseY, 0, "Input", SteamCrackerLayout.INPUT_TANK_X);
-        tankTooltip(graphics, mouseX, mouseY, 1, "Output 1", SteamCrackerLayout.OUTPUT_1_TANK_X);
-        tankTooltip(graphics, mouseX, mouseY, 2, "Output 2", SteamCrackerLayout.OUTPUT_2_TANK_X);
-        tankTooltip(graphics, mouseX, mouseY, 3, "Output 3", SteamCrackerLayout.OUTPUT_3_TANK_X);
-        tankTooltip(graphics, mouseX, mouseY, 4, "Output 4", SteamCrackerLayout.OUTPUT_4_TANK_X);
+        tankTooltip(graphics, mouseX, mouseY, 0, Component.translatable("screen.mydrugs.ui.input"), SteamCrackerLayout.INPUT_TANK_X);
+        tankTooltip(graphics, mouseX, mouseY, 1, Component.translatable("screen.mydrugs.ui.output_number", 1), SteamCrackerLayout.OUTPUT_1_TANK_X);
+        tankTooltip(graphics, mouseX, mouseY, 2, Component.translatable("screen.mydrugs.ui.output_number", 2), SteamCrackerLayout.OUTPUT_2_TANK_X);
+        tankTooltip(graphics, mouseX, mouseY, 3, Component.translatable("screen.mydrugs.ui.output_number", 3), SteamCrackerLayout.OUTPUT_3_TANK_X);
+        tankTooltip(graphics, mouseX, mouseY, 4, Component.translatable("screen.mydrugs.ui.output_number", 4), SteamCrackerLayout.OUTPUT_4_TANK_X);
         if (isHoveringBox(SteamCrackerLayout.FUEL_SLOT_X, SteamCrackerLayout.FUEL_SLOT_Y, 18, 18, mouseX, mouseY)) {
             renderTooltipLines(graphics, mouseX, mouseY, Component.translatable("screen.mydrugs.ui.fuel_slot"));
         }
@@ -119,15 +119,21 @@ public class SteamCrackerScreen extends AbstractMachineScreen<SteamCrackerMenu> 
         }
     }
 
-    private void tankTooltip(GuiGraphics graphics, int mouseX, int mouseY, int tank, String label, int x) {
+    private void tankTooltip(GuiGraphics graphics, int mouseX, int mouseY, int tank, Component role, int x) {
         if (!isHoveringBox(x, SteamCrackerLayout.TANK_Y, SteamCrackerLayout.TANK_W, SteamCrackerLayout.TANK_H, mouseX, mouseY)) {
             return;
         }
         if (this.menu.isGasMode(tank)) {
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal(label + " gas tank"), Component.literal(this.menu.getGasName(tank)), Component.literal(this.menu.getAmount(tank) + " / " + SteamCrackerBlockEntity.GAS_CAPACITY));
+            renderTooltipLines(graphics, mouseX, mouseY,
+                    Component.translatable("screen.mydrugs.ui.tank_label", role, Component.translatable("screen.mydrugs.ui.gas_tank")),
+                    Component.literal(this.menu.getGasName(tank)),
+                    Component.literal(this.menu.getAmount(tank) + " / " + SteamCrackerBlockEntity.GAS_CAPACITY));
         } else {
             Fluid fluid = this.menu.getFluid(tank);
-            renderTooltipLines(graphics, mouseX, mouseY, Component.literal(label + " fluid tank"), Component.literal(getFluidName(fluid)), Component.literal(this.menu.getAmount(tank) + " / " + SteamCrackerBlockEntity.FLUID_CAPACITY + " mB"));
+            renderTooltipLines(graphics, mouseX, mouseY,
+                    Component.translatable("screen.mydrugs.ui.tank_label", role, Component.translatable("screen.mydrugs.ui.fluid_tank")),
+                    Component.literal(getFluidName(fluid)),
+                    Component.literal(this.menu.getAmount(tank) + " / " + SteamCrackerBlockEntity.FLUID_CAPACITY + " mB"));
         }
     }
 }

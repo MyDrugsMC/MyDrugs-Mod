@@ -80,7 +80,7 @@ public final class StressManager {
         }
 
         float rate = delta > 0.0F ? AddictionConstants.STRESS_RISE_RATE : getStressFallRate(player, stats);
-        if (delta > 0.0F && stats.temporaryEffects.hasPreparedTea(player.level().getGameTime())) {
+        if (delta > 0.0F && stats.temporaryEffectsView().hasPreparedTea(player.level().getGameTime())) {
             rate *= 0.85F;
         }
         setStress(stats, current + Math.copySign(Math.min(Math.abs(delta), rate), delta));
@@ -103,9 +103,9 @@ public final class StressManager {
         } else if (inSafeZone) {
             target -= AddictionConstants.STRESS_SAFE_ZONE_REDUCTION;
         }
-        if (stats.temporaryEffects.hasCalmRelief(gameTime)) target -= AddictionConstants.STRESS_DIARY_REDUCTION;
-        if (stats.temporaryEffects.hasHeadphones(gameTime)) target -= AddictionConstants.STRESS_HEADPHONES_REDUCTION;
-        if (stats.temporaryEffects.hasPreparedTea(gameTime)) target -= 0.015F;
+        if (stats.temporaryEffectsView().hasCalmRelief(gameTime)) target -= AddictionConstants.STRESS_DIARY_REDUCTION;
+        if (stats.temporaryEffectsView().hasHeadphones(gameTime)) target -= AddictionConstants.STRESS_HEADPHONES_REDUCTION;
+        if (stats.temporaryEffectsView().hasPreparedTea(gameTime)) target -= 0.015F;
         if (hasActiveCannabis(stats)) target -= AddictionConstants.STRESS_CANNABIS_REDUCTION;
 
         int food = player.getFoodData().getFoodLevel();
@@ -154,7 +154,7 @@ public final class StressManager {
     private static float getStressFallRate(ServerPlayer player, PlayerAddictionStats stats) {
         float rate = AddictionConstants.STRESS_FALL_RATE;
         long gameTime = player.level().getGameTime();
-        if (stats.temporaryEffects.hasHeadphones(gameTime)) {
+        if (stats.temporaryEffectsView().hasHeadphones(gameTime)) {
             rate += AddictionConstants.STRESS_HEADPHONES_EXTRA_FALL_RATE;
         }
         if (hasActiveCannabis(stats)) {

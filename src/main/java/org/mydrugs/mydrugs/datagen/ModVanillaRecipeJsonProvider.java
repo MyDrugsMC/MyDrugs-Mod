@@ -58,8 +58,6 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
         saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_COD, "mydrugs:space_cooked_cod");
         saveSpaceMeatRecipe(futures, cachedOutput, Items.COOKED_SALMON, "mydrugs:space_cooked_salmon");
 
-        saveStorageBlock(futures, cachedOutput, "raw_platinum_block", "mydrugs:raw_platinum", "mydrugs:raw_platinum_block");
-        saveUnpackBlock(futures, cachedOutput, "raw_platinum_from_block", "mydrugs:raw_platinum_block", "mydrugs:raw_platinum");
         saveStorageBlock(futures, cachedOutput, "platinum_block", "mydrugs:platinum_ingot", "mydrugs:platinum_block");
         saveUnpackBlock(futures, cachedOutput, "platinum_ingot_from_block", "mydrugs:platinum_block", "mydrugs:platinum_ingot");
         saveStorageBlock(futures, cachedOutput, "raw_aluminium_block", "mydrugs:raw_aluminium", "mydrugs:raw_aluminium_block");
@@ -85,15 +83,6 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                         "R", "minecraft:redstone"
                 ),
                 "mydrugs:automation_upgrade", 1);
-        saveShaped(futures, cachedOutput, "fluid_pump",
-                List.of(" V ", "PHP", " C "),
-                Map.of(
-                        "V", "mydrugs:valve",
-                        "P", "mydrugs:copper_tube",
-                        "H", "mydrugs:pump_head",
-                        "C", "mydrugs:pressure_casing"
-                ),
-                "mydrugs:fluid_pump", 1);
         saveShaped(futures, cachedOutput, "psy_blueprint",
                 List.of("V", "P", "V"),
                 Map.of(
@@ -265,7 +254,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
     private void saveRecipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, JsonObject root) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         Path path = this.recipePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, root, path));
+        futures.add(DatagenOutputGuard.saveStable("ModVanillaRecipeJsonProvider", cachedOutput, root, path));
     }
 
     @Override

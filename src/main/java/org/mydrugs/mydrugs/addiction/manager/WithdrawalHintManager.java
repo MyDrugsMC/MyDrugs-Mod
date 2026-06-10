@@ -132,8 +132,8 @@ public final class WithdrawalHintManager {
         boolean hasFood = environment.hasEdibleFood();
         boolean hasDiary = environment.hasDiary();
         boolean hasHeadphones = environment.hasHeadphones();
-        boolean diaryActive = stats.temporaryEffects.hasCalmRelief(now);
-        boolean headphonesActive = stats.temporaryEffects.hasHeadphones(now);
+        boolean diaryActive = stats.temporaryEffectsView().hasCalmRelief(now);
+        boolean headphonesActive = stats.temporaryEffectsView().hasHeadphones(now);
         boolean night = isNight(player);
         AddictionStateExplainer.Explanation explanation = AddictionStateExplainer.explain(
                 player,

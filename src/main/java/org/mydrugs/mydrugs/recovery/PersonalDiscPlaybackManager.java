@@ -8,6 +8,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.mydrugs.mydrugs.items.data.PersonalMusicDiscData;
 import org.mydrugs.mydrugs.network.PersonalDiscPlaybackPayload;
 import org.mydrugs.mydrugs.recovery.item.PersonalMusicDiscItem;
+import org.mydrugs.mydrugs.recovery.music.ServerMusicLibrary;
 
 public final class PersonalDiscPlaybackManager {
     public static final double RANGE = 64.0D;
@@ -28,7 +29,11 @@ public final class PersonalDiscPlaybackManager {
                 clean(data.title()),
                 clean(data.artist()),
                 Math.max(0, data.durationMs()),
-                startedGameTime
+                startedGameTime,
+                clean(data.serverTrackId()),
+                clean(data.audioHash()),
+                data.serverHosted(),
+                0
         );
         sendToNearby(level, pos, payload);
     }
@@ -44,6 +49,9 @@ public final class PersonalDiscPlaybackManager {
         double maxDistanceSqr = RANGE * RANGE;
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(x, y, z) <= maxDistanceSqr) {
+                if (payload.serverHosted()) {
+                    ServerMusicLibrary.authorizeDownload(player, payload.audioHash());
+                }
                 PacketDistributor.sendToPlayer(player, payload);
             }
         }

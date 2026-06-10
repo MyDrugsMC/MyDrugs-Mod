@@ -34,6 +34,11 @@ import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
 import org.mydrugs.mydrugs.dimension.inner.InnerGenerationMetrics;
 import org.mydrugs.mydrugs.dimension.inner.InnerLocation;
 import org.mydrugs.mydrugs.dimension.inner.InnerRefreshJob;
+import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.mutation.ActiveMutationStat;
+import org.mydrugs.mydrugs.mutation.InfectionState;
+import org.mydrugs.mydrugs.mutation.MutationStat;
+import org.mydrugs.mydrugs.mutation.PlayerMutationsAttachment;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -91,6 +96,8 @@ public final class ModCommands {
                         .then(ProgressionAdminCommands.knowledge())
                         .then(ProgressionAdminCommands.recover())
                         .then(ProgressionAdminCommands.progression())
+                        .then(mutationsCommand())
+                        .then(infectionCommand())
                         .then(debugCommand())
         );
         event.getDispatcher().register(
@@ -98,6 +105,66 @@ public final class ModCommands {
                         .then(debugCommand())
         );
         event.getDispatcher().register(innerDimensionCommand());
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> mutationsCommand() {
+        return Commands.literal("mutations")
+                .requires(source -> source.getEntity() instanceof ServerPlayer)
+                .executes(context -> showMutations(context.getSource()));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> infectionCommand() {
+        return Commands.literal("infection")
+                .requires(source -> source.getEntity() instanceof ServerPlayer)
+                .executes(context -> showInfection(context.getSource()));
+    }
+
+    private static int showMutations(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        PlayerMutationsAttachment attachment = player.getData(ModAttachments.PLAYER_MUTATIONS.get());
+        if (attachment.activeStats().isEmpty()) {
+            source.sendSuccess(() -> Component.translatable("command.mydrugs.mutations.none"), false);
+            return 1;
+        }
+        source.sendSuccess(() -> Component.translatable("command.mydrugs.mutations.header"), false);
+        for (ActiveMutationStat active : attachment.activeStats()) {
+            MutationStat stat = MutationStat.bySerializedNameOrNull(active.statId());
+            Component name = stat == null
+                    ? Component.translatable("mutation.mydrugs.stat.unknown", active.statId())
+                    : Component.translatable(stat.translationKey());
+            source.sendSuccess(() -> Component.translatable(
+                    "command.mydrugs.mutations.entry",
+                    name,
+                    Math.round(active.currentValue() * 100.0F),
+                    Math.round(active.targetValue() * 100.0F),
+                    Math.round(active.assimilationProgress() * 100.0F),
+                    String.join(", ", active.sourceNames())
+            ), false);
+        }
+        return attachment.activeStats().size();
+    }
+
+    private static int showInfection(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        InfectionState infection = player.getData(ModAttachments.PLAYER_MUTATIONS.get()).infection();
+        if (!infection.active()) {
+            source.sendSuccess(() -> Component.translatable("command.mydrugs.infection.inactive"), false);
+            return 1;
+        }
+        int nextStageTicks = switch (infection.stage()) {
+            case 1 -> 20 * 60 * 2;
+            case 2 -> 20 * 60 * 5;
+            case 3 -> 20 * 60 * 9;
+            default -> infection.ticks();
+        };
+        int remainingSeconds = Math.max(0, nextStageTicks - infection.ticks()) / 20;
+        source.sendSuccess(() -> Component.translatable(
+                "command.mydrugs.infection.active",
+                infection.stage(),
+                Math.round(infection.severity() * 100.0F),
+                remainingSeconds
+        ), false);
+        return infection.stage();
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> debugCommand() {

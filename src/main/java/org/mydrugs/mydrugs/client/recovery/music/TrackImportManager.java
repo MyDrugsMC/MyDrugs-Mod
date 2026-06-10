@@ -18,42 +18,61 @@ public final class TrackImportManager {
 
     public static TrackImportJob importFile(Path path) {
         TrackImportJob job = new TrackImportJob();
-        EXECUTOR.submit(() -> job.complete(MusicLibrary.get().importFile(path).message()));
+        EXECUTOR.submit(() -> {
+            job.update(TrackImportJob.Stage.IMPORTING, Component.translatable("screen.mydrugs.music.importing"));
+            MusicLibrary.ImportResult result = MusicLibrary.get().importFile(path);
+            job.complete(result.success(), result.message());
+        });
         return job;
     }
 
     public static TrackImportJob importFolder(Path path) {
         TrackImportJob job = new TrackImportJob();
-        EXECUTOR.submit(() -> job.complete(MusicLibrary.get().importFolder(path).message()));
+        EXECUTOR.submit(() -> {
+            job.update(TrackImportJob.Stage.IMPORTING, Component.translatable("screen.mydrugs.music.importing"));
+            MusicLibrary.ImportResult result = MusicLibrary.get().importFolder(path);
+            job.complete(result.success(), result.message());
+        });
         return job;
     }
 
     public static TrackImportJob importYoutubeAudio(String url) {
         TrackImportJob job = new TrackImportJob();
         EXECUTOR.submit(() -> {
-            if (!YtDownloader.isAvailable()) {
-                job.complete(Component.translatable("message.mydrugs.external_tool.not_found"));
+            job.update(TrackImportJob.Stage.CHECKING_TOOL,
+                    Component.translatable("screen.mydrugs.music.import_stage.checking_tool"));
+            YtDownloader.DownloadResult download = YtDownloader.download(url);
+            if (!download.success()) {
+                job.fail(Component.translatable(download.messageKey()), download.reason().name());
                 return;
             }
-            Path path = YtDownloader.download(url);
-            if (path == null) {
-                job.complete(Component.translatable("screen.mydrugs.music.failed_yt_download"));
-                return;
-            }
-            job.complete(MusicLibrary.get().importFile(path).message());
+            job.update(TrackImportJob.Stage.IMPORTING,
+                    Component.translatable("screen.mydrugs.music.import_stage.importing"));
+            MusicLibrary.ImportResult result = MusicLibrary.get().importFile(download.path());
+            job.complete(result.success(), result.message());
         });
         return job;
     }
 
     public static TrackImportJob addDirectUrl(String url) {
         TrackImportJob job = new TrackImportJob();
-        EXECUTOR.submit(() -> job.complete(MusicLibrary.get().addDirectUrl(url).message()));
+        EXECUTOR.submit(() -> {
+            job.update(TrackImportJob.Stage.DOWNLOADING,
+                    Component.translatable("screen.mydrugs.music.import_stage.downloading"));
+            MusicLibrary.ImportResult result = MusicLibrary.get().addDirectUrl(url);
+            job.complete(result.success(), result.message());
+        });
         return job;
     }
 
     public static TrackImportJob addBookmark(String url) {
         TrackImportJob job = new TrackImportJob();
-        EXECUTOR.submit(() -> job.complete(MusicLibrary.get().addBookmark(url).message()));
+        EXECUTOR.submit(() -> {
+            job.update(TrackImportJob.Stage.IMPORTING,
+                    Component.translatable("screen.mydrugs.music.import_stage.importing"));
+            MusicLibrary.ImportResult result = MusicLibrary.get().addBookmark(url);
+            job.complete(result.success(), result.message());
+        });
         return job;
     }
 }

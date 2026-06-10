@@ -15,12 +15,14 @@ import org.mydrugs.mydrugs.addiction.network.DrugEffectCuePayload;
 import org.mydrugs.mydrugs.addiction.network.DrugEffectSyncPayload;
 import org.mydrugs.mydrugs.addiction.network.HeadphonesStatePayload;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
+import org.mydrugs.mydrugs.addiction.network.PersonalDiarySubmitResultPayload;
 import org.mydrugs.mydrugs.addiction.network.StartMemoryCapturePayload;
 import org.mydrugs.mydrugs.addiction.network.SubmitPersonalDiaryEntryPayload;
 import org.mydrugs.mydrugs.addiction.network.VomitOverlayPayload;
 import org.mydrugs.mydrugs.network.DrugVisualPayload;
 import org.mydrugs.mydrugs.mutation.network.MutationSyncPayload;
 import org.mydrugs.mydrugs.core.drug.integration.network.IntegrationSyncPayload;
+import org.mydrugs.mydrugs.psyche.network.PsycheMapSyncPayload;
 
 /**
  * Single source of truth for {@link RegisterPayloadHandlersEvent}.
@@ -55,6 +57,7 @@ public final class ModNetwork {
         registerDiaryPayloads(r);
         registerMutationPayloads(r);
         registerIntegrationPayloads(r);
+        registerPsychePayloads(r);
     }
 
     // --- manual machines: shake / drag impulses, server clamps and validates ---
@@ -108,6 +111,16 @@ public final class ModNetwork {
         r.playToClient(OpenHeadphonesMusicScreenPayload.TYPE, OpenHeadphonesMusicScreenPayload.STREAM_CODEC);
         r.playToClient(OpenDiscScriberScreenPayload.TYPE, OpenDiscScriberScreenPayload.STREAM_CODEC);
         r.playToClient(PersonalDiscPlaybackPayload.TYPE, PersonalDiscPlaybackPayload.STREAM_CODEC);
+        r.playToClient(ScribePersonalDiscResultPayload.TYPE, ScribePersonalDiscResultPayload.STREAM_CODEC);
+        r.playToServer(ServerMusicUploadStartPayload.TYPE, ServerMusicUploadStartPayload.STREAM_CODEC, ServerMusicUploadStartPayload::handleOnServer);
+        r.playToServer(ServerMusicUploadChunkPayload.TYPE, ServerMusicUploadChunkPayload.STREAM_CODEC, ServerMusicUploadChunkPayload::handleOnServer);
+        r.playToServer(ServerMusicUploadFinishPayload.TYPE, ServerMusicUploadFinishPayload.STREAM_CODEC, ServerMusicUploadFinishPayload::handleOnServer);
+        r.playToClient(ServerMusicUploadResultPayload.TYPE, ServerMusicUploadResultPayload.STREAM_CODEC);
+        r.playToServer(ServerMusicRequestTrackPayload.TYPE, ServerMusicRequestTrackPayload.STREAM_CODEC, ServerMusicRequestTrackPayload::handleOnServer);
+        r.playToClient(ServerMusicTrackInfoPayload.TYPE, ServerMusicTrackInfoPayload.STREAM_CODEC);
+        r.playToClient(ServerMusicTrackChunkPayload.TYPE, ServerMusicTrackChunkPayload.STREAM_CODEC);
+        r.playToClient(ServerMusicTrackCompletePayload.TYPE, ServerMusicTrackCompletePayload.STREAM_CODEC);
+        r.playToClient(ServerMusicTrackUnavailablePayload.TYPE, ServerMusicTrackUnavailablePayload.STREAM_CODEC);
         r.playToServer(HeadphonesControlPayload.TYPE, HeadphonesControlPayload.STREAM_CODEC, HeadphonesControlPayload::handleOnServer);
         r.playToServer(ScribePersonalDiscPayload.TYPE, ScribePersonalDiscPayload.STREAM_CODEC, ScribePersonalDiscPayload::handleOnServer);
     }
@@ -128,6 +141,7 @@ public final class ModNetwork {
 
     private static void registerDiaryPayloads(PayloadRegistrar r) {
         r.playToClient(PersonalDiarySnapshotPayload.TYPE, PersonalDiarySnapshotPayload.STREAM_CODEC);
+        r.playToClient(PersonalDiarySubmitResultPayload.TYPE, PersonalDiarySubmitResultPayload.STREAM_CODEC);
         r.playToServer(SubmitPersonalDiaryEntryPayload.TYPE, SubmitPersonalDiaryEntryPayload.STREAM_CODEC, SubmitPersonalDiaryEntryPayload::handleOnServer);
         r.playToClient(StartMemoryCapturePayload.TYPE, StartMemoryCapturePayload.STREAM_CODEC);
     }
@@ -138,5 +152,9 @@ public final class ModNetwork {
 
     private static void registerIntegrationPayloads(PayloadRegistrar r) {
         r.playToClient(IntegrationSyncPayload.TYPE, IntegrationSyncPayload.STREAM_CODEC);
+    }
+
+    private static void registerPsychePayloads(PayloadRegistrar r) {
+        r.playToClient(PsycheMapSyncPayload.TYPE, PsycheMapSyncPayload.STREAM_CODEC);
     }
 }

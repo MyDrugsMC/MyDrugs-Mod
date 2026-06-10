@@ -6,6 +6,11 @@ public record DiaryMasteryStatDto(
         int completed,
         int failed,
         float speedMultiplier,
-        float instabilityReduction
+        float instabilityReduction,
+        int removedActions,
+        float timingWindowBonus,
+        float actionTimeoutBonus,
+        String rankKey,
+        String nextBenefitKey
 ) {
 }

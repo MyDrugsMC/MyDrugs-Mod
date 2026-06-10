@@ -7,12 +7,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import org.mydrugs.mydrugs.client.recovery.music.tools.ExternalTool;
+import org.mydrugs.mydrugs.client.recovery.music.tools.ExternalToolManager;
 
 import java.nio.file.Path;
 
 public final class MusicImportScreen extends Screen {
     private static final int PANEL_W = 360;
-    private static final int PANEL_H = 220;
+    private static final int PANEL_H = 270;
 
     private final Screen parent;
     private EditBox input;
@@ -68,26 +70,67 @@ public final class MusicImportScreen extends Screen {
 
         int y = top + 84;
         addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.import_file"),
-                        button -> activeJob = TrackImportManager.importFile(Path.of(input.getValue().trim())))
+                        button -> importPath(false))
                 .bounds(left + 12, y, 88, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.import_folder"),
-                        button -> activeJob = TrackImportManager.importFolder(Path.of(input.getValue().trim())))
+                        button -> importPath(true))
                 .bounds(left + 104, y, 92, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.add_direct_url"),
-                        button -> activeJob = TrackImportManager.importYoutubeAudio(input.getValue().trim()))
-                .bounds(left + 200, y, 96, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.download_with_ytdlp"),
+                        button -> importUrl(true))
+                .bounds(left + 200, y, 148, 20).build());
 
         int y2 = y + 26;
+        addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.add_direct_audio_url"),
+                        button -> importUrl(false))
+                .bounds(left + 12, y2, 148, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.add_bookmark"),
-                        button -> activeJob = TrackImportManager.addBookmark(input.getValue().trim()))
-                .bounds(left + 12, y2, 100, 20).build());
+                        button -> addBookmark())
+                .bounds(left + 164, y2, 90, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.open_folder"),
                         button -> net.minecraft.Util.getPlatform().openPath(MusicLibraryStorage.root()))
-                .bounds(left + 116, y2, 80, 20).build());
+                .bounds(left + 258, y2, 90, 20).build());
 
         addRenderableWidget(Button.builder(Component.translatable("screen.mydrugs.music.done"),
                         button -> minecraft.setScreen(parent))
                 .bounds(left + PANEL_W - 64, top + PANEL_H - 28, 52, 20).build());
+    }
+
+    private void importPath(boolean folder) {
+        String value = input == null ? "" : input.getValue().trim();
+        if (value.isBlank()) {
+            activeJob = failedJob("screen.mydrugs.music.import_error.empty_input");
+            return;
+        }
+        try {
+            Path path = Path.of(value);
+            activeJob = folder ? TrackImportManager.importFolder(path) : TrackImportManager.importFile(path);
+        } catch (RuntimeException ex) {
+            activeJob = failedJob("screen.mydrugs.music.import_error.invalid_path");
+        }
+    }
+
+    private void importUrl(boolean ytDlp) {
+        String value = input == null ? "" : input.getValue().trim();
+        if (value.isBlank()) {
+            activeJob = failedJob("screen.mydrugs.music.import_error.empty_input");
+            return;
+        }
+        activeJob = ytDlp
+                ? TrackImportManager.importYoutubeAudio(value)
+                : TrackImportManager.addDirectUrl(value);
+    }
+
+    private void addBookmark() {
+        String value = input == null ? "" : input.getValue().trim();
+        activeJob = value.isBlank()
+                ? failedJob("screen.mydrugs.music.import_error.empty_input")
+                : TrackImportManager.addBookmark(value);
+    }
+
+    private static TrackImportJob failedJob(String key) {
+        TrackImportJob job = new TrackImportJob();
+        job.complete(false, Component.translatable(key));
+        return job;
     }
 
     @Override
@@ -113,21 +156,33 @@ public final class MusicImportScreen extends Screen {
 
         super.render(graphics, mouseX, mouseY, partialTick);
 
-        int statusY = top + PANEL_H - 50;
-        boolean ff = AudioConverter.isFfmpegAvailable();
-        Component ffStatus = ff
-                ? Component.translatable("screen.mydrugs.music.ffmpeg_ok").copy().withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN))
-                : Component.translatable("screen.mydrugs.music.ffmpeg_missing").copy().withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
-        graphics.drawWordWrap(font, ffStatus, left + 12, statusY, PANEL_W - 24, 0xFFFFFFFF);
+        int toolsY = top + 148;
+        graphics.drawString(font, Component.translatable("screen.mydrugs.music.tools.title"),
+                left + 12, toolsY, 0xFFE5F1EA, false);
+        drawToolStatus(graphics, ExternalTool.FFMPEG, "screen.mydrugs.music.tools.ffmpeg", left + 12, toolsY + 13);
+        drawToolStatus(graphics, ExternalTool.FFPROBE, "screen.mydrugs.music.tools.ffprobe", left + 12, toolsY + 25);
+        drawToolStatus(graphics, ExternalTool.YT_DLP, "screen.mydrugs.music.tools.ytdlp", left + 12, toolsY + 37);
 
         Component status = activeJob == null ? MusicLibrary.get().lastStatus() : activeJob.message();
         if (status != null && !status.getString().isBlank()) {
-            graphics.drawWordWrap(font, status, left + 12, top + PANEL_H - 78, PANEL_W - 24, 0xFFB7E4C7);
+            graphics.drawWordWrap(font, status, left + 12, top + PANEL_H - 62, PANEL_W - 88, 0xFFB7E4C7);
+            if (activeJob != null && activeJob.total() > 0) {
+                graphics.drawString(font, activeJob.current() + " / " + activeJob.total(),
+                        left + 12, top + PANEL_H - 48, 0xFF8FA89B, false);
+            }
         }
 
         if (NativeFileDialog.isBusy()) {
             graphics.drawString(font, Component.translatable("screen.mydrugs.music.picker_open"),
                     left + 12, top + PANEL_H - 60, 0xFFFFD166, false);
         }
+    }
+
+    private void drawToolStatus(GuiGraphics graphics, ExternalTool tool, String labelKey, int x, int y) {
+        var resolution = ExternalToolManager.get().resolve(tool);
+        Component line = Component.translatable("screen.mydrugs.music.tools.line",
+                Component.translatable(labelKey).getString(),
+                Component.translatable(resolution.status().messageKey()).getString());
+        graphics.drawString(font, line, x, y, resolution.usable() ? 0xFFB7E4C7 : 0xFFFFD166, false);
     }
 }

@@ -1088,11 +1088,11 @@ The boring stockpile that stops you mid-recipe later. Build a chest for it.
 @item mydrugs:fluid_filter
 @item mydrugs:refractory_brick
 @item mydrugs:distillation_coil
-@item mydrugs:resonance_lens
+@item mydrugs:psychotrope_lens
 
 Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, copper tube, steel plate and thick glass spare.
 
-Later, the Psychotrope Distillery and Resonator also lean on distillation coils and resonance lenses. Treat them as late support materials, not decoration.
+Later, the Psychotrope Distillery and Resonator also lean on distillation coils and psychotrope lenses. Treat them as late support materials, not decoration.
 
 > [GOAL] Stock up before coca, lab chemistry and integration work, not during.
 ---
@@ -1485,7 +1485,6 @@ ENDGAME — DREAM AND INTEGRATION
 Pillars: Integration · Inner Dimension
 
 @item mydrugs:psychotrope_lens
-@item mydrugs:resonance_lens
 @item mydrugs:psychotrope_resonator
 @item mydrugs:dream_residue
 @item mydrugs:calming_resin
@@ -1497,7 +1496,7 @@ Pillars: Integration · Inner Dimension
 @item mydrugs:pristine_integration_core
 @item mydrugs:prime_integration_core
 
-Build lenses, distill dream materials, then build the Resonator.
+Build a psychotrope lens, distill dream materials, then use that lens to build the Resonator.
 
 The Resonator has three jobs:
 
@@ -1570,7 +1569,7 @@ The Inner Dimension opens only after Dream Alignment and at least one integratio
 
 Every curated integration grows a symbolic zone in a different direction. Coffee gives a beginning. Tobacco gives tension. Weed gives softness. Hash gives gesture. Alcohol gives memory. Cocaine gives acceleration. LSD gives perception. Meth gives the machine that will not stop. Mushrooms reveal the roots underneath.
 
-The center is the Self Anchor. It evolves as integrations accumulate, from a bare amethyst marker into a ritual center and, after all nine integrations, a placeholder route toward the Spiral Court.
+The center is the Self Anchor. It evolves as integrations accumulate, from a bare amethyst marker into a ritual center and, after all nine integrations, a passage toward the Spiral Court.
 
 Echo nodes are finite symbolic resources, not normal ores. They can help with integration materials and resonator-era work, but they do not replace the production chain and they never drop raw drugs.
 
@@ -1646,9 +1645,11 @@ Pillars: Production
 
 Bottles hold valid mod fluids and turn LSD fluid into Drops.
 
-Syringes draw blood and inject mutation payloads — but a dirty syringe causes infection. Run empty dirty syringes through the autoclave before any blood or mutation work.
+Syringes draw blood and inject mutation payloads. A dirty blood draw contaminates the sample but does not infect the donor. Infection begins when dirty or contaminated biological material is injected.
 
-> [WARN] A dirty injection is rejected AND starts an infection. Sterilise first, every time.
+Run empty dirty syringes through the autoclave before mutation work. Clearing a syringe leaves it dirty; it does not restore sterility.
+
+> [WARN] A dirty or contaminated injection is rejected AND starts an infection. Sterilise first, every time.
 ---
 # Somatic Adaptation
 
@@ -1668,6 +1669,8 @@ Read it as Somatic Adaptation: your body learning to regulate intensity, survive
 Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience.
 
 A mutation makes you harder to break, but infection or time can take it from you. Integration changes what breaks you, and once kept it stays.
+
+Use `/mydrugs mutations` to read current values, targets, sources and assimilation progress. Use `/mydrugs infection` to read infection stage, severity and time pressure.
 
 > [GOAL] Use body adaptation to support recovery and safe exploration, not to avoid healing forever.
 ---
@@ -1689,7 +1692,11 @@ Gene Extractor — DNA Scrap into single-stat imprints.
 CRISPR-Cas9 — combines compatible body imprints.
 Bacterial Incubator — imprint into an adaptation vector.
 Hemogenic Infuser — vector plus blood into an adaptation vial.
-Autoclave — sterilises dirty empty syringes.
+Autoclave — sterilises dirty empty syringes and crude antibiotic vials.
+
+Antibiotic production uses the same biotech infrastructure: fungal culture and Nutrient Gel become Antibiotic Broth in the Biochemical Reactor; the Centrifuge separates Antibiotic Extract; the Fluid Filterer recovers Antibiotic Crystals; the Mixing Vat stabilises oral doses or crude injectable vials; the Autoclave turns crude vials into sterile emergency treatment.
+
+Oral doses are safe, partial treatment and work best early. Sterile vials are stronger and can clear a fresh infection. Late infection may require several prepared doses. Never inject a crude vial.
 
 > [WARN] Strong adaptation is not the same as recovery. If you only optimize the body, the diary may still ask what you are avoiding.
 ---

@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
 
 public final class PsyMixerRitualOverlay {
@@ -31,9 +32,9 @@ public final class PsyMixerRitualOverlay {
         int width = mc.getWindow().getGuiScaledWidth();
         int x = width / 2 - 96;
         int y = 18;
-        graphics.fill(x, y, x + 192, y + 61, PANEL);
+        graphics.fill(x, y, x + 192, y + 72, PANEL);
         graphics.fill(x, y, x + 192, y + 1, LINE);
-        graphics.fill(x, y + 60, x + 192, y + 61, LINE);
+        graphics.fill(x, y + 71, x + 192, y + 72, LINE);
 
         String formula = PsyMixerRitualClientState.formulaName();
         if (font.width(formula) > 176) {
@@ -44,15 +45,21 @@ public final class PsyMixerRitualOverlay {
             int step = Math.min(PsyMixerRitualClientState.actionIndex() + 1, PsyMixerRitualClientState.actionCount());
             graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.current_action", step, PsyMixerRitualClientState.actionCount()), x + 8, y + 18, MUTED, false);
             graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.action().promptKey()), x + 8, y + 30, TEXT, false);
+            graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.action().hintKey()), x + 8, y + 41, MUTED, false);
         }
 
         PsyMixerRitualQuality quality = PsyMixerRitualClientState.quality();
-        int statusY = PsyMixerRitualClientState.action() == PsyMixerRitualAction.NONE ? y + 24 : y + 43;
+        int statusY = PsyMixerRitualClientState.action() == PsyMixerRitualAction.NONE ? y + 24 : y + 54;
         graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality_preview", Component.translatable(quality.translationKey())), x + 8, statusY, qualityColor(quality), false);
         graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.mistakes", PsyMixerRitualClientState.mistakes(), PsyMixerRitualClientState.maxMistakes()), x + 112, statusY, PsyMixerRitualClientState.mistakes() > 0 ? WARN : GOOD, false);
 
-        if (PsyMixerRitualClientState.feedbackTicks() > 0 && PsyMixerRitualClientState.lastJudgement() != PsyMixerRitualJudgement.NONE) {
-            graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.lastJudgement().screenKey()), x + 138, y + 18, judgementColor(PsyMixerRitualClientState.lastJudgement()), false);
+        if (PsyMixerRitualClientState.feedbackTicks() > 0) {
+            PsyMixerRitualMissReason reason = PsyMixerRitualClientState.lastMissReason();
+            if (reason != PsyMixerRitualMissReason.NONE) {
+                graphics.drawString(font, Component.translatable(reason.screenKey()), x + 106, y + 18, BAD, false);
+            } else if (PsyMixerRitualClientState.lastJudgement() != PsyMixerRitualJudgement.NONE) {
+                graphics.drawString(font, Component.translatable(PsyMixerRitualClientState.lastJudgement().screenKey()), x + 138, y + 18, judgementColor(PsyMixerRitualClientState.lastJudgement()), false);
+            }
         }
 
         if (PsyMixerRitualClientState.action() == PsyMixerRitualAction.TIMING_RING) {

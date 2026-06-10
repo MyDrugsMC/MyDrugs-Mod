@@ -31,7 +31,6 @@
       { "type": "link", "text": "Ch.6 — Steel Plating", "target": "Hash and Steel" },
       { "type": "link", "text": "Ch.7 — Machines", "target": "Machine Era" },
       { "type": "link", "text": "Machine reference", "target": "Machine Handbook" },
-      { "type": "link", "text": "Machine lanes", "target": "Machine Lanes" },
       { "type": "link", "text": "Stockpile", "target": "Support Materials" },
       { "type": "link", "text": "Ores and wild materials", "target": "World Materials" },
       { "type": "link", "text": "Automation", "target": "Pipes and Transfer" },
@@ -328,33 +327,12 @@
       { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "Machines are not recipes. JEI can tell you what fits inside them, but this handbook explains what each machine is trying to do, why it stops, and where it belongs in your progression." },
       { "type": "text", "text": "Use the handbook when a machine status is clear but the system around it is not. Use JEI when you need exact ingredients. Use the machine GUI when you need the current blocker." },
-      { "type": "link", "text": "Machine lanes overview", "target": "Machine Lanes" },
       { "type": "link", "text": "Hand Processing / Early Processing", "target": "Machine Handbook - Early Processing" },
       { "type": "link", "text": "Crude Machine Era", "target": "Machine Handbook - Crude Machine Era" },
       { "type": "link", "text": "Chemical Machine Era", "target": "Machine Handbook - Chemical Machine Era" },
       { "type": "link", "text": "Psy Current Era", "target": "Machine Handbook - Psy Current Era" },
       { "type": "link", "text": "Ritual / Integration Era", "target": "Machine Handbook - Ritual and Integration Era" },
       { "type": "tip", "text": "The handbook stays conceptual. It names roles, cargo types, blockers and automation habits without replacing JEI." }
-    ]
-  },
-  {
-    "title": "Machine Lanes",
-    "elements": [
-      { "type": "title", "text": "Machine Lanes" },
-      { "type": "text", "text": "Machine progression is easier to read as lanes. Each lane solves a different production problem, appears at a different chapter, and blocks in a different way." },
-      { "type": "heading", "text": "Early Processing" },
-      { "type": "text", "text": "Drying Rack, Grinding Bowl, Sieve, Stomp Crafter and Evaporation Tray turn raw finds into stable early materials. This lane appears before and during the first steel steps. Use JEI for exact item forms. Expect time, manual action, container and output-slot blockers." },
-      { "type": "heading", "text": "Crude Fluids" },
-      { "type": "text", "text": "Mixing Vat, Advanced Furnace, Distiller, Fluid Filterer and Centrifuge introduce tanks, filters, heat and split outputs. This lane appears when buckets and simple machines start carrying progression. Use JEI to check fluid amounts and output containers. Expect missing fluid, wrong container, full tank and filter blockers." },
-      { "type": "heading", "text": "Chemical Gas/Fluid" },
-      { "type": "text", "text": "Gasifier, Electrolyzer, Chemical Reactor, Biochemical Reactor and Advanced Mixing Vat combine gas, fluid, heat, manual work and current support. This lane appears around lab chemistry. Use JEI to match primary gas, secondary input and output mode. Expect missing gas, insufficient heat, wrong storage type and no-matching-recipe blockers." },
-      { "type": "heading", "text": "Industrial Petroleum" },
-      { "type": "text", "text": "Steam Cracker, Aromatic Extractor, BTX Fractionation Tower and Catalytic Reformer split industrial streams into later support materials. This lane appears after advanced circuits and petroleum collection. Use JEI to follow each fraction into the next machine. Expect full paired tanks, catalyst context and throughput blockers." },
-      { "type": "heading", "text": "Psy / Ritual / Integration" },
-      { "type": "text", "text": "Psy Anvil, Psy Mixer, Psychotrope Distillery and Psychotrope Resonator turn knowledge, symbolic inputs and psychotrope current into progression support. This lane appears once the route is about state, recovery and integration as much as factory work. Use JEI for accepted inputs and the diary for personal context. Expect knowledge, structure, recovery, current and context blockers." },
-      { "type": "link", "text": "Back to machine handbook", "target": "Machine Handbook" },
-      { "type": "link", "text": "Chemical details", "target": "Lab Chemistry" },
-      { "type": "link", "text": "Industrial details", "target": "Petroleum" }
     ]
   },
   {
@@ -719,9 +697,9 @@
       { "type": "item", "text": "mydrugs:fluid_filter" },
       { "type": "item", "text": "mydrugs:refractory_brick" },
       { "type": "item", "text": "mydrugs:distillation_coil" },
-      { "type": "item", "text": "mydrugs:resonance_lens" },
+      { "type": "item", "text": "mydrugs:psychotrope_lens" },
       { "type": "text", "text": "Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, copper tube, steel plate and thick glass spare." },
-      { "type": "text", "text": "Later, the Psychotrope Distillery and Resonator also lean on distillation coils and resonance lenses. Treat them as late support materials, not decoration." },
+      { "type": "text", "text": "Later, the Psychotrope Distillery and Resonator also lean on distillation coils and psychotrope lenses. Treat them as late support materials, not decoration." },
       { "type": "goal", "text": "Stock up before coca, lab chemistry and integration work, not during." }
     ]
   },
@@ -834,7 +812,6 @@
       { "type": "text", "text": "SUPPORT — Chapter 9" },
       { "type": "text", "text": "Pillars: Production" },
       { "type": "text", "text": "The late game splits every recipe into three streams: items, fluids and gases. Each is a separate input." },
-      { "type": "text", "text": "This is the Chemical Gas/Fluid lane. Check machine screens for mode and blocker status, then use JEI for the exact recipe." },
       { "type": "item", "text": "mydrugs:gas_tank" },
       { "type": "item", "text": "mydrugs:gas_pump" },
       { "type": "item", "text": "mydrugs:fluid_pump" },
@@ -920,7 +897,6 @@
       { "type": "item", "text": "mydrugs:aromatic_extractor" },
       { "type": "item", "text": "mydrugs:btx_fractionation_tower" },
       { "type": "text", "text": "Build the cracker, reformer, extractor and BTX tower, then refine petroleum into the aromatic streams that later feed meth chemistry." },
-      { "type": "text", "text": "This is the Industrial Petroleum lane. Treat each output as a future input, and use JEI metadata to see what each intermediate feeds next." },
       { "type": "text", "text": "Benzene is the important checkpoint. If you have the machines but no benzene, follow the petroleum and BTX recipes in JEI until every output tank has somewhere to go." },
       { "type": "goal", "text": "Produce the aromatics that feed late meth chemistry." }
     ]
@@ -1029,7 +1005,6 @@
       { "type": "text", "text": "ENDGAME — DREAM AND INTEGRATION" },
       { "type": "text", "text": "Pillars: Integration · Inner Dimension" },
       { "type": "item", "text": "mydrugs:psychotrope_lens" },
-      { "type": "item", "text": "mydrugs:resonance_lens" },
       { "type": "item", "text": "mydrugs:psychotrope_resonator" },
       { "type": "item", "text": "mydrugs:dream_residue" },
       { "type": "item", "text": "mydrugs:calming_resin" },
@@ -1040,7 +1015,7 @@
       { "type": "item", "text": "mydrugs:refined_integration_core" },
       { "type": "item", "text": "mydrugs:pristine_integration_core" },
       { "type": "item", "text": "mydrugs:prime_integration_core" },
-      { "type": "text", "text": "Build lenses, distill dream materials, then build the Resonator." },
+      { "type": "text", "text": "Build a psychotrope lens, distill dream materials, then use that lens to build the Resonator." },
       { "type": "text", "text": "The Resonator has three jobs:" },
       { "type": "text", "text": "Dream Alignment uses Dream Residue and diary context to prepare the Inner Dimension route. Recovery Resonance uses Calming Resin, diary context and a valid recovery room to push recovery progress. Integration uses the right integration material, the right core tier, diary context, a valid recovery room, and a body state that proves you survived the drug instead of still being ruled by it." },
       { "type": "text", "text": "The material in the Resonator selects the drug. Dream Residue means LSD, Mycelial Insight means mushrooms, Lucid Extract means coffee, and so on. If the material is unknown, the Resonator will say that instead of blaming some other drug." },
@@ -1095,16 +1070,9 @@
       { "type": "item", "text": "mydrugs:mycelial_root" },
       { "type": "text", "text": "The Inner Dimension opens only after Dream Alignment and at least one integration. It begins almost empty on purpose: there is not much inner ground until you have actually integrated something." },
       { "type": "text", "text": "Every curated integration grows a symbolic zone in a different direction. Coffee gives a beginning. Tobacco gives tension. Weed gives softness. Hash gives gesture. Alcohol gives memory. Cocaine gives acceleration. LSD gives perception. Meth gives the machine that will not stop. Mushrooms reveal the roots underneath." },
-      { "type": "text", "text": "The center is the Self Anchor. It evolves as integrations accumulate, from a bare amethyst marker into a ritual center and, after all nine integrations, a placeholder route toward the Spiral Court." },
+      { "type": "text", "text": "The center is the Self Anchor. It evolves as integrations accumulate, from a bare amethyst marker into a ritual center and, after all nine integrations, a passage toward the Spiral Court." },
       { "type": "text", "text": "Echo nodes are finite symbolic resources, not normal ores. They can help with integration materials and resonator-era work, but they do not replace the production chain and they never drop raw drugs." },
-      { "type": "text", "text": "Plants and fragments are also symbolic. Breath Grass, Calming Ferns, Memory Reeds, Redline Thorns, and Mycelial Roots show which parts of the island are becoming stable, painful, reflective, or connected." },
-      { "type": "warning", "text": "Fragments and future inner entities are patterns, not random monsters. The point is to confront and resolve the loop, not turn the dimension into a dungeon." },
-      { "type": "goal", "text": "Stand at the Self Anchor after each integration. The island changes because you changed." }
-    ]
-  },
-  {
-    "title": "Integrated Traits",
-    "elements": [
+      { "type": "heading", "text": "Integrated Traits" },
       { "type": "text", "text": "ENDGAME — REFERENCE" },
       { "type": "text", "text": "Pillars: Integration" },
       { "type": "text", "text": "Each curated drug, once you have survived it, recovered from it, and resonated it through the Psychotrope Resonator, leaves a single permanent trait behind. The trait is not the drug. It is the part of the drug your body learned to keep without paying its price." },
@@ -1154,8 +1122,9 @@
       { "type": "item", "text": "mydrugs:autoclave" },
       { "type": "item", "text": "mydrugs:mutagenic_blood_vial" },
       { "type": "text", "text": "Bottles hold valid mod fluids and turn LSD fluid into Drops." },
-      { "type": "text", "text": "Syringes draw blood and inject mutation payloads — but a dirty syringe causes infection. Run empty dirty syringes through the autoclave before any blood or mutation work." },
-      { "type": "warning", "text": "A dirty injection is rejected AND starts an infection. Sterilise first, every time." }
+      { "type": "text", "text": "Syringes draw blood and inject mutation payloads. A dirty blood draw contaminates the sample but does not infect the donor. Infection begins when dirty or contaminated biological material is injected." },
+      { "type": "text", "text": "Run empty dirty syringes through the autoclave before mutation work. Clearing a syringe leaves it dirty; it does not restore sterility." },
+      { "type": "warning", "text": "A dirty or contaminated injection is rejected AND starts an infection. Sterilise first, every time." }
     ]
   },
   {
@@ -1172,6 +1141,7 @@
       { "type": "text", "text": "Read it as Somatic Adaptation: your body learning to regulate intensity, survive withdrawal, enter the Inner Dimension safely, and recover." },
       { "type": "text", "text": "Bad preparation — dirty syringes, infection, rejection, instability — still matters. But the goal is not just bigger stats. The goal is embodied resilience." },
       { "type": "text", "text": "A mutation makes you harder to break, but infection or time can take it from you. Integration changes what breaks you, and once kept it stays." },
+      { "type": "text", "text": "Use `/mydrugs mutations` to read current values, targets, sources and assimilation progress. Use `/mydrugs infection` to read infection stage, severity and time pressure." },
       { "type": "goal", "text": "Use body adaptation to support recovery and safe exploration, not to avoid healing forever." }
     ]
   },
@@ -1186,7 +1156,9 @@
       { "type": "item", "text": "mydrugs:hemogenic_infuser" },
       { "type": "item", "text": "mydrugs:autoclave" },
       { "type": "text", "text": "These machines turn body material into adaptation payloads." },
-      { "type": "text", "text": "Gene Extractor — DNA Scrap into single-stat imprints. CRISPR-Cas9 — combines compatible body imprints. Bacterial Incubator — imprint into an adaptation vector. Hemogenic Infuser — vector plus blood into an adaptation vial. Autoclave — sterilises dirty empty syringes." },
+      { "type": "text", "text": "Gene Extractor — DNA Scrap into single-stat imprints. CRISPR-Cas9 — combines compatible body imprints. Bacterial Incubator — imprint into an adaptation vector. Hemogenic Infuser — vector plus blood into an adaptation vial. Autoclave — sterilises dirty empty syringes and crude antibiotic vials." },
+      { "type": "text", "text": "Antibiotic production uses the same biotech infrastructure: fungal culture and Nutrient Gel become Antibiotic Broth in the Biochemical Reactor; the Centrifuge separates Antibiotic Extract; the Fluid Filterer recovers Antibiotic Crystals; the Mixing Vat stabilises oral doses or crude injectable vials; the Autoclave turns crude vials into sterile emergency treatment." },
+      { "type": "text", "text": "Oral doses are safe, partial treatment and work best early. Sterile vials are stronger and can clear a fresh infection. Late infection may require several prepared doses. Never inject a crude vial." },
       { "type": "warning", "text": "Strong adaptation is not the same as recovery. If you only optimize the body, the diary may still ask what you are avoiding." }
     ]
   },

@@ -46,14 +46,31 @@ public final class AddictionManager {
     private AddictionManager() {
     }
 
+    /**
+     * @deprecated Category-only consumption discards the concrete drug identity. Route normal
+     * consumption through {@code DrugUseService} with a model backed by a specific {@link DrugId}.
+     */
+    @Deprecated(forRemoval = false)
     public static void consume(ServerPlayer player, DrugCategory category, float dose) {
-        consume(player, category, dose, null);
+        consumeCategoryFallback(player, category, dose, null);
     }
 
+    /**
+     * @deprecated Category-only consumption discards the concrete drug identity. Route normal
+     * consumption through {@code DrugUseService} with a model backed by a specific {@link DrugId}.
+     */
+    @Deprecated(forRemoval = false)
     public static void consume(ServerPlayer player,
                                DrugCategory category,
                                float dose,
                                @Nullable ConsumptionStrategy strategy) {
+        consumeCategoryFallback(player, category, dose, strategy);
+    }
+
+    private static void consumeCategoryFallback(ServerPlayer player,
+                                                DrugCategory category,
+                                                float dose,
+                                                @Nullable ConsumptionStrategy strategy) {
         DrugId fallbackId = DrugRegistry.getRepresentativeDrugId(category);
         if (fallbackId == null) {
             return;

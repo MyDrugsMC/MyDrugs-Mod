@@ -11,6 +11,7 @@ import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorFailureReason;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeResonatorBlockEntity.ResonatorState;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationCoreTier;
+import org.mydrugs.mydrugs.core.drug.integration.IntegratedTrait;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirementProfile;
 import org.mydrugs.mydrugs.core.drug.integration.IntegrationRequirements;
 import org.mydrugs.mydrugs.menu.PsychotropeResonatorMenu;
@@ -269,6 +270,15 @@ public final class PsychotropeResonatorScreen extends AbstractMachineScreen<Psyc
                 Component.translatable("screen.mydrugs.psychotrope_resonator.candidate",
                         Component.translatable("drug.mydrugs." + candidate.serializedName())),
                 0xFFE8ECEF));
+        IntegratedTrait trait = IntegratedTrait.bySource(candidate);
+        if (trait != null) {
+            lines.add(new ChecklistLine(Component.translatable(
+                    "screen.mydrugs.psychotrope_resonator.trait_preview",
+                    Component.translatable(trait.translationKey())), 0xFFCDBDFF));
+            lines.add(new ChecklistLine(Component.translatable(trait.rewardKey()), 0xFFE8ECEF));
+            lines.add(new ChecklistLine(Component.translatable(
+                    "screen.mydrugs.psychotrope_resonator.permanent_warning"), 0xFFFFD38A));
+        }
         lines.add(checkLine(mask, PsychotropeResonatorBlockEntity.CHECK_KNOWLEDGE,
                 Component.translatable("screen.mydrugs.psychotrope_resonator.check.knowledge")));
 

@@ -9,6 +9,7 @@ import org.mydrugs.mydrugs.client.effects.AddictionClientState;
 import org.mydrugs.mydrugs.client.effects.AddictionDebugScreen;
 import org.mydrugs.mydrugs.client.effects.hud.AddictionHudRenderer;
 import org.mydrugs.mydrugs.client.diary.PersonalDiaryScreen;
+import org.mydrugs.mydrugs.client.diary.PsycheMapClientState;
 import org.mydrugs.mydrugs.addiction.network.PersonalDiarySnapshotPayload;
 import org.mydrugs.mydrugs.client.effects.sound.HeadphonesMusicController;
 import org.mydrugs.mydrugs.addiction.network.AddictionClientSnapshotPayload;
@@ -91,6 +92,7 @@ public final class ClientPayloadHandler {
     }
 
     public static void handlePersonalDiarySnapshot(PersonalDiarySnapshotPayload payload, IPayloadContext context) {
+        PsycheMapClientState.apply(payload.psycheNodes());
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen instanceof PersonalDiaryScreen open) {
             open.applySnapshot(payload);

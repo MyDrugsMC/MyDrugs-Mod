@@ -180,7 +180,7 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
     ) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         Path path = this.recipePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, json, path));
+        futures.add(DatagenOutputGuard.saveStable("ModPsyAnvilRecipeProvider", cachedOutput, json, path));
     }
 
     @Override

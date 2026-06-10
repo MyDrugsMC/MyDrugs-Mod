@@ -11,24 +11,34 @@ import net.minecraft.resources.ResourceLocation;
 import org.mydrugs.mydrugs.MyDrugs;
 
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 final class VanillaRecipeSnapshotWriter {
+    private static final Pattern PATH = Pattern.compile("[a-z0-9_./-]+");
+    private static final Pattern RESOURCE_ID = Pattern.compile("#?[a-z0-9_.-]+:[a-z0-9_./-]+");
+
     private final PackOutput.PathProvider recipePathProvider;
     private final List<CompletableFuture<?>> futures;
     private final CachedOutput cachedOutput;
+    private final String owner;
+    private final Set<String> recipeIds = new HashSet<>();
 
     VanillaRecipeSnapshotWriter(
             PackOutput.PathProvider recipePathProvider,
             List<CompletableFuture<?>> futures,
-            CachedOutput cachedOutput
+            CachedOutput cachedOutput,
+            String owner
     ) {
         this.recipePathProvider = recipePathProvider;
         this.futures = futures;
         this.cachedOutput = cachedOutput;
+        this.owner = owner;
     }
 
     void shaped(
@@ -38,6 +48,9 @@ final class VanillaRecipeSnapshotWriter {
             String result,
             int count
     ) {
+        validateResult(name, result, count);
+        validateShaped(name, pattern, key);
+
         JsonObject json = new JsonObject();
         json.addProperty("type", "minecraft:crafting_shaped");
         json.addProperty("category", "misc");
@@ -68,12 +81,18 @@ final class VanillaRecipeSnapshotWriter {
             String result,
             int count
     ) {
+        validateResult(name, result, count);
+        if (ingredients == null || ingredients.length == 0) {
+            throw invalid(name, "shapeless recipes require at least one ingredient");
+        }
+
         JsonObject json = new JsonObject();
         json.addProperty("type", "minecraft:crafting_shapeless");
         json.addProperty("category", "misc");
 
         JsonArray ingredientsArray = new JsonArray();
         for (Object value : ingredients) {
+            validateIngredient(name, value);
             ingredientsArray.add(ingredient(value));
         }
         json.add("ingredients", ingredientsArray);
@@ -114,6 +133,15 @@ final class VanillaRecipeSnapshotWriter {
             float experience,
             int cookingTime
     ) {
+        validateResult(name, result, 1);
+        validateIngredient(name, ingredient);
+        if (!Float.isFinite(experience) || experience < 0.0F) {
+            throw invalid(name, "experience must be finite and non-negative");
+        }
+        if (cookingTime <= 0) {
+            throw invalid(name, "cooking time must be positive");
+        }
+
         JsonObject json = new JsonObject();
         json.addProperty("type", type);
         json.addProperty("category", "misc");
@@ -130,9 +158,15 @@ final class VanillaRecipeSnapshotWriter {
     }
 
     private void saveRecipe(String name, JsonObject json) {
+        if (name == null || !PATH.matcher(name).matches()) {
+            throw invalid(String.valueOf(name), "recipe path must match " + PATH.pattern());
+        }
+        if (!recipeIds.add(name)) {
+            throw invalid(name, "duplicate recipe id");
+        }
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyDrugs.MODID, name);
         Path path = this.recipePathProvider.json(id);
-        futures.add(DataProvider.saveStable(cachedOutput, json, path));
+        futures.add(DatagenOutputGuard.saveStable(owner, cachedOutput, json, path));
     }
 
     private static JsonElement ingredient(Object value) {
@@ -162,8 +196,9 @@ final class VanillaRecipeSnapshotWriter {
             if (!(values[i] instanceof String key)) {
                 throw new IllegalArgumentException("Recipe key must be a String. Got: " + values[i]);
             }
-
-            map.put(key, values[i + 1]);
+            if (map.putIfAbsent(key, values[i + 1]) != null) {
+                throw new IllegalArgumentException("Duplicate recipe key symbol: '" + key + "'");
+            }
         }
 
         return map;
@@ -171,5 +206,81 @@ final class VanillaRecipeSnapshotWriter {
 
     static String[] alt(String... alternatives) {
         return alternatives;
+    }
+
+    private static void validateShaped(String name, String[] pattern, Map<String, Object> key) {
+        if (pattern == null || pattern.length == 0 || pattern.length > 3) {
+            throw invalid(name, "shaped pattern height must be between 1 and 3");
+        }
+        int width = pattern[0] == null ? 0 : pattern[0].length();
+        if (width < 1 || width > 3) {
+            throw invalid(name, "shaped pattern width must be between 1 and 3");
+        }
+
+        Set<String> used = new HashSet<>();
+        for (String row : pattern) {
+            if (row == null || row.length() != width) {
+                throw invalid(name, "all shaped pattern rows must have width " + width);
+            }
+            for (int i = 0; i < row.length(); i++) {
+                char symbol = row.charAt(i);
+                if (symbol != ' ') {
+                    used.add(String.valueOf(symbol));
+                }
+            }
+        }
+        if (used.isEmpty()) {
+            throw invalid(name, "shaped pattern cannot contain only spaces");
+        }
+
+        for (Map.Entry<String, Object> entry : key.entrySet()) {
+            if (entry.getKey().length() != 1 || " ".equals(entry.getKey())) {
+                throw invalid(name, "key symbols must be one non-space character: '" + entry.getKey() + "'");
+            }
+            validateIngredient(name, entry.getValue());
+        }
+
+        Set<String> missing = new HashSet<>(used);
+        missing.removeAll(key.keySet());
+        if (!missing.isEmpty()) {
+            throw invalid(name, "pattern symbols have no key entries: " + missing);
+        }
+        Set<String> unused = new HashSet<>(key.keySet());
+        unused.removeAll(used);
+        if (!unused.isEmpty()) {
+            throw invalid(name, "key entries are unused by the pattern: " + unused);
+        }
+    }
+
+    private static void validateIngredient(String name, Object value) {
+        if (value instanceof String string) {
+            if (!RESOURCE_ID.matcher(string).matches()) {
+                throw invalid(name, "invalid ingredient id: '" + string + "'");
+            }
+            return;
+        }
+        if (value instanceof String[] alternatives) {
+            if (alternatives.length == 0) {
+                throw invalid(name, "ingredient alternatives cannot be empty");
+            }
+            for (String alternative : alternatives) {
+                validateIngredient(name, alternative);
+            }
+            return;
+        }
+        throw invalid(name, "unsupported ingredient value: " + value);
+    }
+
+    private static void validateResult(String name, String result, int count) {
+        if (result == null || result.startsWith("#") || !RESOURCE_ID.matcher(result).matches()) {
+            throw invalid(name, "invalid result item id: '" + result + "'");
+        }
+        if (count <= 0) {
+            throw invalid(name, "result count must be positive");
+        }
+    }
+
+    private static IllegalArgumentException invalid(String name, String message) {
+        return new IllegalArgumentException("Recipe 'mydrugs:" + name + "': " + message);
     }
 }

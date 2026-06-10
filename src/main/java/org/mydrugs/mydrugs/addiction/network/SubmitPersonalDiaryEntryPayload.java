@@ -19,6 +19,7 @@ import org.mydrugs.mydrugs.diary.DiarySnapshotBuilder;
 import org.mydrugs.mydrugs.diary.PlayerDiaryAttachment;
 import org.mydrugs.mydrugs.addiction.manager.ItemEffectHandler;
 import org.mydrugs.mydrugs.items.ModItems;
+import org.mydrugs.mydrugs.network.PayloadRateLimiter;
 
 /**
  * Client -> server: submit a custom diary entry typed by the player.
@@ -37,7 +38,7 @@ public record SubmitPersonalDiaryEntryPayload(String content) implements CustomP
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SubmitPersonalDiaryEntryPayload> STREAM_CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.STRING_UTF8, SubmitPersonalDiaryEntryPayload::content,
+                    ByteBufCodecs.stringUtf8(4096), SubmitPersonalDiaryEntryPayload::content,
                     SubmitPersonalDiaryEntryPayload::new
             );
 
@@ -47,21 +48,37 @@ public record SubmitPersonalDiaryEntryPayload(String content) implements CustomP
     }
 
     private static void handle(ServerPlayer player, String rawContent) {
+        if (!PayloadRateLimiter.accept(player, PayloadRateLimiter.Kind.PERSONAL_DIARY_SUBMIT)) {
+            sendResult(player, PersonalDiarySubmitResultPayload.Result.UNKNOWN_FAILURE,
+                    "screen.mydrugs.diary.save_failed.unknown", 0);
+            return;
+        }
         // Authorize: must have a Personal Diary somewhere
         if (DiarySnapshotBuilder.findDiaryStack(player) == null
                 && player.getMainHandItem().getItem() != ModItems.PERSONAL_DIARY.get()
                 && player.getOffhandItem().getItem() != ModItems.PERSONAL_DIARY.get()) {
+            sendResult(player, PersonalDiarySubmitResultPayload.Result.NO_DIARY,
+                    "screen.mydrugs.diary.save_failed.no_diary", 0);
             return;
         }
 
         PlayerDiaryAttachment diary = player.getData(ModAttachments.PLAYER_DIARY.get());
         long gameTime = player.level().getGameTime();
         if (!diary.canWrite(gameTime)) {
+            sendResult(player, PersonalDiarySubmitResultPayload.Result.COOLDOWN,
+                    "screen.mydrugs.diary.save_failed.cooldown", diary.remainingCooldownTicks(gameTime));
             return;
         }
 
+        if (rawContent != null && rawContent.length() > PlayerDiaryAttachment.CUSTOM_MAX_LENGTH) {
+            sendResult(player, PersonalDiarySubmitResultPayload.Result.TOO_LONG_OR_INVALID,
+                    "screen.mydrugs.diary.save_failed.invalid", 0);
+            return;
+        }
         String cleaned = PlayerDiaryAttachment.sanitizeCustomContent(rawContent);
         if (cleaned == null) {
+            sendResult(player, PersonalDiarySubmitResultPayload.Result.EMPTY_OR_INVALID,
+                    "screen.mydrugs.diary.save_failed.invalid", 0);
             return;
         }
 
@@ -90,6 +107,18 @@ public record SubmitPersonalDiaryEntryPayload(String content) implements CustomP
 
         // Send a fresh snapshot back so the open screen refreshes.
         PacketDistributor.sendToPlayer(player, DiarySnapshotBuilder.build(player));
+        sendResult(player, PersonalDiarySubmitResultPayload.Result.SAVED,
+                "screen.mydrugs.diary.saved_payoff", PlayerDiaryAttachment.WRITE_COOLDOWN_TICKS);
+    }
+
+    private static void sendResult(ServerPlayer player, PersonalDiarySubmitResultPayload.Result result,
+                                   String messageKey, int cooldownTicksRemaining) {
+        PacketDistributor.sendToPlayer(player, new PersonalDiarySubmitResultPayload(
+                result,
+                result == PersonalDiarySubmitResultPayload.Result.SAVED,
+                messageKey,
+                Math.max(0, cooldownTicksRemaining)
+        ));
     }
 
     private static DrugId pickDominantDrug(PlayerAddictionStats stats) {

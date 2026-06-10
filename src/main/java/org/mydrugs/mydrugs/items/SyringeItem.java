@@ -27,7 +27,7 @@ import org.mydrugs.mydrugs.mutation.MutationStat;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SyringeItem extends Item {
+public class SyringeItem extends Item implements SterilizableItem {
     public static final int CAPACITY_MB = 100;
 
     private static final int FULL_CHARGE_TICKS = 20;
@@ -50,10 +50,8 @@ public class SyringeItem extends Item {
         stack.set(ModDataComponents.BLOOD_AMOUNT.get(), CAPACITY_MB);
         stack.set(ModDataComponents.BLOOD_SAMPLE.get(), BloodSample.fromEntity(target));
         stack.set(DataComponents.DYED_COLOR, new DyedItemColor(DEFAULT_BLOOD_COLOR));
+        stack.set(ModDataComponents.BIOLOGICALLY_CONTAMINATED.get(), !sterileBeforeDraw);
         markDirty(stack);
-        if (!sterileBeforeDraw && target instanceof ServerPlayer serverPlayer) {
-            MutationManager.injectDirty(serverPlayer);
-        }
     }
 
     public static boolean hasMutagenicBlood(ItemStack stack) {
@@ -62,7 +60,11 @@ public class SyringeItem extends Item {
     }
 
     public static boolean isSterile(ItemStack stack) {
-        return stack.getOrDefault(ModDataComponents.STERILE.get(), false);
+        return Boolean.TRUE.equals(stack.get(ModDataComponents.STERILE.get()));
+    }
+
+    public static boolean isContaminated(ItemStack stack) {
+        return Boolean.TRUE.equals(stack.get(ModDataComponents.BIOLOGICALLY_CONTAMINATED.get()));
     }
 
     public static boolean isEmptySyringe(ItemStack stack) {
@@ -76,11 +78,12 @@ public class SyringeItem extends Item {
     public static void markSterile(ItemStack stack) {
         if (stack.is(ModItems.SYRINGE.get())) {
             stack.set(ModDataComponents.STERILE.get(), true);
+            stack.set(ModDataComponents.BIOLOGICALLY_CONTAMINATED.get(), false);
         }
     }
 
     public static void markDirty(ItemStack stack) {
-        stack.remove(ModDataComponents.STERILE.get());
+        stack.set(ModDataComponents.STERILE.get(), false);
     }
 
     public static void clearBloodAndMarkDirty(ItemStack stack) {
@@ -99,11 +102,13 @@ public class SyringeItem extends Item {
         stack.remove(ModDataComponents.FILLED.get());
         stack.remove(ModDataComponents.BLOOD_AMOUNT.get());
         stack.remove(ModDataComponents.BLOOD_SAMPLE.get());
+        stack.set(ModDataComponents.BIOLOGICALLY_CONTAMINATED.get(), false);
         stack.remove(DataComponents.DYED_COLOR);
     }
 
     private static void clearMutagenicBlood(ItemStack stack) {
         stack.remove(ModDataComponents.MUTATION_PAYLOAD.get());
+        stack.set(ModDataComponents.BIOLOGICALLY_CONTAMINATED.get(), false);
     }
 
     public static boolean tryLoadMutagenicBlood(ItemStack syringe, ItemStack vial, Player player) {
@@ -132,6 +137,7 @@ public class SyringeItem extends Item {
 
         if (!player.level().isClientSide()) {
             syringe.set(ModDataComponents.MUTATION_PAYLOAD.get(), payload);
+            syringe.set(ModDataComponents.BIOLOGICALLY_CONTAMINATED.get(), false);
             syringe.set(ModDataComponents.FILLED.get(), true);
             syringe.set(DataComponents.DYED_COLOR, new DyedItemColor(0xB3204A));
             if (!player.getAbilities().instabuild) {
@@ -252,7 +258,7 @@ public class SyringeItem extends Item {
             return;
         }
 
-        if (!isSterile(stack)) {
+        if (!isSterile(stack) || isContaminated(stack)) {
             MutationManager.injectDirty(player);
             clearMutationPayloadAndMarkDirty(stack);
             return;
@@ -283,6 +289,10 @@ public class SyringeItem extends Item {
                 .withStyle(isSterile(stack) ? ChatFormatting.AQUA : ChatFormatting.RED));
         if (!isSterile(stack)) {
             tooltipAdder.accept(Component.translatable("tooltip.mydrugs.syringe.dirty_warning").withStyle(ChatFormatting.YELLOW));
+        }
+        if (isContaminated(stack)) {
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.syringe.contaminated").withStyle(ChatFormatting.RED));
+            tooltipAdder.accept(Component.translatable("tooltip.mydrugs.syringe.unsafe_to_inject").withStyle(ChatFormatting.DARK_RED));
         }
 
         if (payload != null && !payload.stats().isEmpty()) {
@@ -341,5 +351,17 @@ public class SyringeItem extends Item {
                 );
             }
         }
+    }
+
+    @Override
+    public boolean canBeSterilized(ItemStack stack) {
+        return SyringeItem.canSterilize(stack);
+    }
+
+    @Override
+    public ItemStack createSterilizedStack(ItemStack stack) {
+        ItemStack result = stack.copyWithCount(1);
+        markSterile(result);
+        return result;
     }
 }

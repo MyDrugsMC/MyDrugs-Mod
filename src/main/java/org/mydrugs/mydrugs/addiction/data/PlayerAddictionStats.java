@@ -20,11 +20,11 @@ import java.util.Locale;
 import java.util.Map;
 
 public final class PlayerAddictionStats implements ValueIOSerializable {
-    public final EnumMap<DrugId, DrugAddictionStats> perDrug = new EnumMap<>(DrugId.class);
+    private final EnumMap<DrugId, DrugAddictionStats> perDrug = new EnumMap<>(DrugId.class);
     public float geneticFactor;
     public float resilience;
     public float stressLevel;
-    public TemporaryRecoveryEffects temporaryEffects = new TemporaryRecoveryEffects();
+    private TemporaryRecoveryEffects temporaryEffects = new TemporaryRecoveryEffects();
     public RecoverySessionState recoverySession = new RecoverySessionState();
     public final BadTripState badTrip = new BadTripState();
 
@@ -86,6 +86,18 @@ public final class PlayerAddictionStats implements ValueIOSerializable {
 
     public Map<DrugId, DrugAddictionStats> getAllDrugStats() {
         return Collections.unmodifiableMap(perDrug);
+    }
+
+    public boolean hasTrackedDrugs() {
+        return !perDrug.isEmpty();
+    }
+
+    public void clearDrugStats() {
+        perDrug.clear();
+    }
+
+    public TemporaryRecoveryEffects temporaryEffectsView() {
+        return temporaryEffects;
     }
 
     public List<DrugId> getTrackedDrugIds() {

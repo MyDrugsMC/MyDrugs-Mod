@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Phase F.2 — mob-spliced mutations are <i>fast, strong, fragile</i>.
  *
- * When a creature whose {@link GeneticRarityTier} is at or below the player's strongest active
+ * When a creature whose {@link GeneticRarityTier} is at or above the player's strongest active
  * mutation stat's tier-equivalent lands a hit, the player's mutation stats decay sharply. Integrated
  * traits (Phase A) are untouched — that's the contrast the design is built around.
  */
@@ -94,7 +94,7 @@ public final class MutationFragilityEvents {
     }
 
     public static boolean shouldDecayForHit(GeneticRarityTier attackerTier, GeneticRarityTier playerTier) {
-        return attackerTier != null && playerTier != null && attackerTier.ordinal() <= playerTier.ordinal();
+        return attackerTier != null && playerTier != null && attackerTier.ordinal() >= playerTier.ordinal();
     }
 
     @SubscribeEvent

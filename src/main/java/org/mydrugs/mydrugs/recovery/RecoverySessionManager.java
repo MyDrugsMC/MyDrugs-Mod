@@ -137,12 +137,8 @@ public final class RecoverySessionManager {
         }
 
         long now = player.level().getGameTime();
-        stats.temporaryEffects.recoveryMomentumUntil = Math.max(
-                stats.temporaryEffects.recoveryMomentumUntil,
-                now + MOMENTUM_DURATION_TICKS
-        );
-        stats.temporaryEffects.recoveryMomentumCharges = Math.max(
-                stats.temporaryEffects.recoveryMomentumCharges,
+        stats.temporaryEffectsView().grantRecoveryMomentum(
+                now + MOMENTUM_DURATION_TICKS,
                 MOMENTUM_CHARGES
         );
         session.resetProgress();

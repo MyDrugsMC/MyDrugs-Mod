@@ -87,6 +87,11 @@ public record PersonalDiarySnapshotPayload(
                             ByteBufCodecs.VAR_INT.encode(buf, m.failed());
                             ByteBufCodecs.FLOAT.encode(buf, m.speedMultiplier());
                             ByteBufCodecs.FLOAT.encode(buf, m.instabilityReduction());
+                            ByteBufCodecs.VAR_INT.encode(buf, m.removedActions());
+                            ByteBufCodecs.FLOAT.encode(buf, m.timingWindowBonus());
+                            ByteBufCodecs.FLOAT.encode(buf, m.actionTimeoutBonus());
+                            ByteBufCodecs.STRING_UTF8.encode(buf, m.rankKey());
+                            ByteBufCodecs.STRING_UTF8.encode(buf, m.nextBenefitKey());
                         }
                         DiaryPlayerStateDto s = payload.playerState();
                         ByteBufCodecs.FLOAT.encode(buf, s.stress());
@@ -162,7 +167,12 @@ public record PersonalDiarySnapshotPayload(
                                     ByteBufCodecs.VAR_INT.decode(buf),
                                     ByteBufCodecs.VAR_INT.decode(buf),
                                     ByteBufCodecs.FLOAT.decode(buf),
-                                    ByteBufCodecs.FLOAT.decode(buf)
+                                    ByteBufCodecs.FLOAT.decode(buf),
+                                    ByteBufCodecs.VAR_INT.decode(buf),
+                                    ByteBufCodecs.FLOAT.decode(buf),
+                                    ByteBufCodecs.FLOAT.decode(buf),
+                                    ByteBufCodecs.STRING_UTF8.decode(buf),
+                                    ByteBufCodecs.STRING_UTF8.decode(buf)
                             ));
                         }
                         DiaryPlayerStateDto state = new DiaryPlayerStateDto(
