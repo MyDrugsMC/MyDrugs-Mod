@@ -47,6 +47,9 @@ public final class InnerHeroFeatureBuilder {
     }
 
     private static void placeHeroFeatures(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyGroveGround()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
@@ -55,11 +58,12 @@ public final class InnerHeroFeatureBuilder {
                 int worldX = minX + localX;
                 int worldZ = minZ + localZ;
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
+                InnerGroveSample grove = cache.grove(localX, localZ);
+                InnerSceneSample scene = cache.scene(localX, localZ);
                 if (!grove.heroCandidate()
                         || !InnerGroveSampler.canHostMajorFeature(sample)
-                        || (scene.preserveOpenView() && scene.type() != InnerSceneType.HERO_TREE_GROVE)) {
+                        || (scene.preserveOpenView() && scene.type() != InnerSceneType.HERO_TREE_GROVE)
+                        || InnerRegionMap.inCoreSightlineWedge(islandCenterX, islandCenterZ, worldX, worldZ)) {
                     continue;
                 }
                 // Bias hero set-pieces off the routes so they feel stumbled-upon, not staged along

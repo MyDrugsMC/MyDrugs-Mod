@@ -81,7 +81,9 @@ public final class InnerSkyRenderer {
         VertexConsumer consumer = buffers.getBuffer(RenderType.debugStructureQuads());
 
         renderGradient(consumer, matrix, sample);
+        renderAurora(consumer, matrix, sample, time);
         renderConstellations(consumer, matrix, camera, sample, time, churn);
+        renderLandmarkPillars(consumer, matrix, player, time);
         renderBeacon(consumer, matrix, camera, player, sample, time);
 
         buffers.endBatch();
@@ -92,15 +94,20 @@ public final class InnerSkyRenderer {
     // -------------------------------------------------------------------------
 
     private static void renderGradient(VertexConsumer consumer, Matrix4f matrix, InnerAtmosphere.Sample sample) {
-        int hr = sample.fogRed();
-        int hg = sample.fogGreen();
-        int hb = sample.fogBlue();
+        // Vista points earn a subtle sky lift: a brighter horizon and thinner haze so the long
+        // view reads as the reward it is. Static per scene (no motion), so reduced-motion safe.
+        float lift = sample.sceneType() == org.mydrugs.mydrugs.dimension.inner.InnerSceneType.PATH_VISTA
+                ? 1.12F
+                : 1.0F;
+        int hr = (int) Math.min(255, sample.fogRed() * lift);
+        int hg = (int) Math.min(255, sample.fogGreen() * lift);
+        int hb = (int) Math.min(255, sample.fogBlue() * lift);
         // Zenith: darker and pushed cooler/bluer than the horizon mood colour.
         int zr = (int) (hr * 0.30F);
         int zg = (int) (hg * 0.34F);
         int zb = (int) Math.min(255, hb * 0.46F + 18);
         // Haze: a denser-fogged region fills more of the sky with horizon colour.
-        float haze = (float) Mth.clamp(sample.fogDensity(), 0.0D, 1.0D);
+        float haze = (float) Mth.clamp(sample.fogDensity() / lift, 0.0D, 1.0D);
         int horizonAlpha = (int) (40 + haze * 70);
         int zenithAlpha = (int) (150 + haze * 70);
 
@@ -125,6 +132,109 @@ public final class InnerSkyRenderer {
         vertex(consumer, matrix, cap, ZENITH_Y, -cap, zr, zg, zb, zenithAlpha);
         vertex(consumer, matrix, cap, ZENITH_Y, cap, zr, zg, zb, zenithAlpha);
         vertex(consumer, matrix, -cap, ZENITH_Y, cap, zr, zg, zb, zenithAlpha);
+    }
+
+    // -------------------------------------------------------------------------
+    // Aurora — slow ribbons over calm skies (C2)
+    // -------------------------------------------------------------------------
+
+    private static void renderAurora(VertexConsumer consumer, Matrix4f matrix, InnerAtmosphere.Sample sample, float time) {
+        float calm = (float) sample.calm();
+        if (calm < 0.40F) {
+            return;
+        }
+        float strength = Mth.clamp((calm - 0.40F) / 0.60F, 0.0F, 1.0F);
+        // Aurora hue: the region mood pushed toward spectral green/teal.
+        int ar = (int) Mth.clamp(sample.fogRed() * 0.35F + 30, 0, 255);
+        int ag = (int) Mth.clamp(sample.fogGreen() * 0.45F + 130, 0, 255);
+        int ab = (int) Mth.clamp(sample.fogBlue() * 0.55F + 60, 0, 255);
+        int segments = 18;
+        for (int ribbon = 0; ribbon < 2; ribbon++) {
+            float baseAz = ribbon * 2.4F + 0.6F;
+            float baseEl = 0.85F + ribbon * 0.18F;
+            int alpha = (int) (26 * strength) + ribbon * 6;
+            float prevX = 0.0F, prevYLo = 0.0F, prevYHi = 0.0F, prevZ = 0.0F;
+            boolean hasPrev = false;
+            for (int i = 0; i <= segments; i++) {
+                float t = i / (float) segments;
+                float az = baseAz + t * 2.6F;
+                // The ribbon undulates slowly; with time frozen (reduced motion) it is a still arc.
+                float wave = Mth.sin(time * 0.006F + t * 9.0F + ribbon * 3.0F) * 0.07F;
+                float el = baseEl + wave;
+                float cosEl = Mth.cos(el);
+                float x = Mth.cos(az) * cosEl * SKY_RADIUS * 0.9F;
+                float z = Mth.sin(az) * cosEl * SKY_RADIUS * 0.9F;
+                float yLo = Mth.sin(el) * SKY_RADIUS * 0.9F;
+                float yHi = yLo + 10.0F + Mth.sin(time * 0.004F + t * 5.0F) * 2.5F;
+                if (hasPrev) {
+                    vertex(consumer, matrix, prevX, prevYLo, prevZ, ar, ag, ab, alpha);
+                    vertex(consumer, matrix, x, yLo, z, ar, ag, ab, alpha);
+                    vertex(consumer, matrix, x, yHi, z, ar, ag, ab, 0);
+                    vertex(consumer, matrix, prevX, prevYHi, prevZ, ar, ag, ab, 0);
+                }
+                prevX = x;
+                prevYLo = yLo;
+                prevYHi = yHi;
+                prevZ = z;
+                hasPrev = true;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Landmark light pillars — progression lights up the world (C1)
+    // -------------------------------------------------------------------------
+
+    private static void renderLandmarkPillars(VertexConsumer consumer, Matrix4f matrix, Player player, float time) {
+        if (InnerSkyClientState.integratedCount() == 0) {
+            return;
+        }
+        int slotX = InnerAtmosphereClient.slotCenterX();
+        int slotZ = InnerAtmosphereClient.slotCenterZ();
+        for (DrugId drug : InnerSkyClientState.integratedDrugs()) {
+            if (!org.mydrugs.mydrugs.dimension.inner.InnerRegionMap.hasAngle(drug)) {
+                continue;
+            }
+            var landmark = org.mydrugs.mydrugs.dimension.inner.InnerRegionMap.landmarkFor(slotX, slotZ, drug);
+            double toX = landmark.getX() - player.getX();
+            double toZ = landmark.getZ() - player.getZ();
+            double distance = Math.sqrt(toX * toX + toZ * toZ);
+            if (distance < 24.0D) {
+                continue; // standing at the shrine: the pillar would fill the screen
+            }
+            float dirX = (float) (toX / distance);
+            float dirZ = (float) (toZ / distance);
+            // Project onto the sky shell at the landmark's azimuth; nearer shrines read wider.
+            float r = SKY_RADIUS * 0.88F;
+            float px = dirX * r;
+            float pz = dirZ * r;
+            float halfWidth = (float) Mth.clamp(140.0D / distance, 0.35D, 2.6D);
+            int[] tint = constellationTint(drug);
+            float shimmer = 0.85F + 0.15F * Mth.sin(time * 0.03F + drug.networkId());
+            int alpha = (int) (70 * shimmer);
+            // Two crossed vertical quads from below the horizon to high sky — a column of light.
+            float perpX = -dirZ * halfWidth;
+            float perpZ = dirX * halfWidth;
+            pillarQuad(consumer, matrix, px - perpX, pz - perpZ, px + perpX, pz + perpZ, tint, alpha);
+            float diagX = dirX * halfWidth * 0.5F;
+            float diagZ = dirZ * halfWidth * 0.5F;
+            pillarQuad(consumer, matrix, px - diagX, pz - diagZ, px + diagX, pz + diagZ, tint, (int) (alpha * 0.6F));
+        }
+    }
+
+    private static void pillarQuad(
+            VertexConsumer consumer,
+            Matrix4f matrix,
+            float x0, float z0,
+            float x1, float z1,
+            int[] tint,
+            int alpha
+    ) {
+        // Bright at the base band, fading to nothing high up — reads as a beam, not a wall.
+        vertex(consumer, matrix, x0, HORIZON_Y * 0.4F, z0, tint[0], tint[1], tint[2], alpha);
+        vertex(consumer, matrix, x1, HORIZON_Y * 0.4F, z1, tint[0], tint[1], tint[2], alpha);
+        vertex(consumer, matrix, x1, ZENITH_Y * 0.9F, z1, tint[0], tint[1], tint[2], 0);
+        vertex(consumer, matrix, x0, ZENITH_Y * 0.9F, z0, tint[0], tint[1], tint[2], 0);
     }
 
     // -------------------------------------------------------------------------

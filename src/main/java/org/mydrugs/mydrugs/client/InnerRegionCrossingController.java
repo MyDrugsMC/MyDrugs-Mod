@@ -29,6 +29,7 @@ public final class InnerRegionCrossingController {
 
     private static InnerSceneType lastScene;
     private static int cooldown;
+    private static boolean nearMegaForm;
 
     private static float flashIntensity;
     private static int flashColor = 0xFFFFFF;
@@ -62,6 +63,29 @@ public final class InnerRegionCrossingController {
                 cooldown = DEBOUNCE_TICKS;
             }
         }
+        tickMegaFormApproach(mc, sample);
+    }
+
+    /**
+     * C4: stepping into a mega-form's footprint earns a low awe sting (one-shot, debounced by the
+     * enter/leave edge). Positions come from the shared deterministic geometry, no network needed.
+     */
+    private static void tickMegaFormApproach(Minecraft mc, InnerAtmosphere.Sample sample) {
+        var player = mc.player;
+        int slotX = InnerAtmosphereClient.slotCenterX();
+        int slotZ = InnerAtmosphereClient.slotCenterZ();
+        boolean inside = false;
+        for (var drug : org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain.ORDER) {
+            var form = org.mydrugs.mydrugs.dimension.inner.InnerMegaForms.formFor(slotX, slotZ, drug);
+            if (form.distance((int) player.getX(), (int) player.getZ()) <= form.radius() + 6) {
+                inside = true;
+                break;
+            }
+        }
+        if (inside && !nearMegaForm) {
+            InnerSoundscapeController.playOneShot(ModSounds.INNER_CROSSING.get(), 0.45F, 0.62F);
+        }
+        nearMegaForm = inside;
     }
 
     private static void trigger(InnerAtmosphere.Sample sample) {
@@ -120,6 +144,7 @@ public final class InnerRegionCrossingController {
         lastScene = null;
         cooldown = 0;
         flashIntensity = 0.0F;
+        nearMegaForm = false;
     }
 
     private static boolean reducedMotion() {

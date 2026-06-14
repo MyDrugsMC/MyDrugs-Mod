@@ -39,20 +39,33 @@ final class InnerTransitionSceneBuilder {
     }
 
     private static void placeTransitionScenes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyTransition()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
         int placed = 0;
+        boolean thresholdMarkersPlaced = false;
         for (int localZ = 1; localZ < 16 && placed < 8; localZ += 3) {
             for (int localX = 1; localX < 16 && placed < 8; localX += 3) {
                 int worldX = minX + localX;
                 int worldZ = minZ + localZ;
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                if (!thresholdMarkersPlaced && isPathThresholdColumn(sample)) {
+                    long thresholdHash = InnerNoise.mix64(seed
+                            ^ 0x7448_7253L
+                            ^ (long) worldX * 0x41C6_4E6DL
+                            ^ (long) worldZ * 0x6595_27F5L);
+                    if ((thresholdHash & 7L) == 0L) {
+                        buildPathThreshold(worldX, worldZ, sample, setter);
+                        thresholdMarkersPlaced = true;
+                    }
+                }
                 if (!canHostTransitionScene(sample)) {
                     continue;
                 }
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
+                InnerSceneSample scene = cache.scene(localX, localZ);
                 if (scene.type() != InnerSceneType.TRANSITION_GARDEN && sample.transitionStrength() < 0.40D) {
                     continue;
                 }
@@ -67,6 +80,36 @@ final class InnerTransitionSceneBuilder {
                 buildTransitionCluster(worldX, worldZ, sample, hash, setter);
                 placed++;
             }
+        }
+    }
+
+    /** A path column crossing the heart of a region boundary — the natural place for a gate. */
+    private static boolean isPathThresholdColumn(InnerTerrain.Sample sample) {
+        return sample.land()
+                && sample.path()
+                && sample.pathStrength() > 0.50D
+                && sample.transitionZone()
+                && sample.transitionStrength() > 0.50D
+                && !sample.lake()
+                && !sample.hole()
+                && sample.distanceFromCenter() > InnerDimensionConstants.CORE_RADIUS + 36.0D
+                && InnerTransitionPalette.hasExplicitHybrid(sample.primaryDrug(), sample.secondaryDrug());
+    }
+
+    /**
+     * Paired threshold markers flanking the path where it crosses a region boundary (P10):
+     * two short two-block pillars in the hybrid palette, one per side, so walking between
+     * regions reads as passing through a gate.
+     */
+    private static void buildPathThreshold(int x, int z, InnerTerrain.Sample sample, BlockSetter setter) {
+        int y = sample.topY() + 1;
+        BlockState pillar = InnerTransitionPalette.surfaceAccent(sample);
+        BlockState cap = InnerTransitionPalette.glowAccent(sample);
+        for (int side = -2; side <= 2; side += 4) {
+            setter.set(new BlockPos(x + side, y, z), pillar);
+            setter.set(new BlockPos(x + side, y + 1, z), cap);
+            setter.set(new BlockPos(x, y, z + side), pillar);
+            setter.set(new BlockPos(x, y + 1, z + side), cap);
         }
     }
 

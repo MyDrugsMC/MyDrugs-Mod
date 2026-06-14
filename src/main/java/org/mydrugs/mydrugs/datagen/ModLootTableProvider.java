@@ -44,9 +44,65 @@ public class ModLootTableProvider extends LootTableProvider {
         super(
                 output,
                 Set.of(),
-                List.of(new SubProviderEntry(ModBlockLoot::new, LootContextParamSets.BLOCK)),
+                List.of(
+                        new SubProviderEntry(ModBlockLoot::new, LootContextParamSets.BLOCK),
+                        new SubProviderEntry(ModChestLoot::new, LootContextParamSets.CHEST)
+                ),
                 lookupProvider
         );
+    }
+
+    /** Inner dimension memory-vault chests (B1): three tiers keyed by region danger. */
+    private record ModChestLoot(HolderLookup.Provider registries)
+            implements net.minecraft.data.loot.LootTableSubProvider {
+        @Override
+        public void generate(java.util.function.BiConsumer<net.minecraft.resources.ResourceKey<LootTable>, LootTable.Builder> output) {
+            output.accept(org.mydrugs.mydrugs.dimension.inner.InnerVaults.VAULT_CALM, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .setRolls(UniformGenerator.between(3.0F, 5.0F))
+                            .add(LootItem.lootTableItem(ModItems.PSYCHOTROPIC_PIGMENT.get()).setWeight(8)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F))))
+                            .add(LootItem.lootTableItem(ModItems.CANNABIS_LEAF.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 6.0F))))
+                            .add(LootItem.lootTableItem(ModItems.DRIED_TOBACCO_LEAF.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 6.0F))))
+                            .add(LootItem.lootTableItem(ModItems.MALT.get()).setWeight(5)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
+                            .add(LootItem.lootTableItem(net.minecraft.world.item.Items.AMETHYST_SHARD).setWeight(4)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4.0F))))
+                            .add(LootItem.lootTableItem(ModItems.PSYCHOTROPE_LENS.get()).setWeight(1)))
+            );
+            output.accept(org.mydrugs.mydrugs.dimension.inner.InnerVaults.VAULT_DEEP, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .setRolls(UniformGenerator.between(3.0F, 6.0F))
+                            .add(LootItem.lootTableItem(ModItems.ERGOT.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                            .add(LootItem.lootTableItem(ModItems.FUNGAL_CULTURE.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                            .add(LootItem.lootTableItem(ModItems.MAGIC_MUSHROOM_POWDER.get()).setWeight(5)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4.0F))))
+                            .add(LootItem.lootTableItem(ModItems.MYCELIAL_INSIGHT.get()).setWeight(4)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F))))
+                            .add(LootItem.lootTableItem(ModItems.PSYCHOTROPIC_PIGMENT.get()).setWeight(4)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F))))
+                            .add(LootItem.lootTableItem(ModItems.LSD_DROP.get()).setWeight(2))
+                            .add(LootItem.lootTableItem(ModItems.PSYCHOTROPE_LENS.get()).setWeight(2)))
+            );
+            output.accept(org.mydrugs.mydrugs.dimension.inner.InnerVaults.VAULT_DANGER, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .setRolls(UniformGenerator.between(4.0F, 6.0F))
+                            .add(LootItem.lootTableItem(ModItems.METH_SHARD.get()).setWeight(5)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                            .add(LootItem.lootTableItem(net.minecraft.world.item.Items.REDSTONE).setWeight(5)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 8.0F))))
+                            .add(LootItem.lootTableItem(ModItems.PSYCHOTROPIC_PIGMENT.get()).setWeight(4)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 6.0F))))
+                            .add(LootItem.lootTableItem(net.minecraft.world.item.Items.OBSIDIAN).setWeight(3)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                            .add(LootItem.lootTableItem(ModItems.PSYCHOTROPE_LENS.get()).setWeight(3))
+                            .add(LootItem.lootTableItem(ModItems.MYCELIAL_INSIGHT.get()).setWeight(2)))
+            );
+        }
     }
 
     private static class ModBlockLoot extends BlockLootSubProvider {

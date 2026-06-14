@@ -75,31 +75,47 @@ public final class InnerChunkGenerator extends ChunkGenerator {
         }
         int centerX = InnerTerrain.slotCenter(chunkPos.getMiddleBlockX());
         int centerZ = InnerTerrain.slotCenter(chunkPos.getMiddleBlockZ());
-        InnerChunkSampleCache cache = InnerChunkSampleCache.build(centerX, centerZ, minX, minZ);
+        // Pass cache memoizes exact noise/sample evaluations (cache build probes overlap between
+        // neighbouring columns, and builders re-sample cross-chunk neighbours) — values are
+        // identical to uncached calls, just computed once.
+        InnerTerrain.beginCachePass();
+        try {
+            InnerChunkSampleCache cache = InnerChunkSampleCache.build(centerX, centerZ, minX, minZ);
 
-        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
-        for (int localX = 0; localX < 16; localX++) {
-            int worldX = minX + localX;
-            for (int localZ = 0; localZ < 16; localZ++) {
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                if (!sample.land()) {
-                    continue;
-                }
-                for (int y = sample.bottomY(); y <= sample.topY(); y++) {
-                    if (y < chunk.getMinY() || y >= chunk.getMinY() + chunk.getHeight()) {
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+            for (int localX = 0; localX < 16; localX++) {
+                int worldX = minX + localX;
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    int worldZ = minZ + localZ;
+                    InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                    if (sample.skyLand()) {
+                        for (int y = sample.skyBottomY(); y <= sample.skyTopY(); y++) {
+                            if (y < chunk.getMinY() || y >= chunk.getMinY() + chunk.getHeight()) {
+                                continue;
+                            }
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerTerrain.skyStateFor(sample, worldX, y, worldZ), 2);
+                        }
+                    }
+                    if (!sample.land()) {
                         continue;
                     }
-                    if (InnerTerrain.caveAir(sample, worldX, y, worldZ)) {
-                        continue;
+                    for (int y = sample.bottomY(); y <= sample.topY(); y++) {
+                        if (y < chunk.getMinY() || y >= chunk.getMinY() + chunk.getHeight()) {
+                            continue;
+                        }
+                        if (InnerTerrain.caveAir(sample, worldX, y, worldZ)) {
+                            continue;
+                        }
+                        // ProtoChunk ignores update flags during worldgen, but the signature expects an int.
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerTerrain.stateFor(sample, worldX, y, worldZ), 2);
                     }
-                    // ProtoChunk ignores update flags during worldgen, but the signature expects an int.
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), InnerTerrain.stateFor(sample, worldX, y, worldZ), 2);
+                    InnerLakeBuilder.fillLakeColumn(chunk, mutable, sample, worldX, worldZ);
                 }
-                InnerLakeBuilder.fillLakeColumn(chunk, mutable, sample, worldX, worldZ);
             }
+            InnerVisualFeatureBuilders.placeInitialFeatures(chunk, cache);
+        } finally {
+            InnerTerrain.endCachePass();
         }
-        InnerVisualFeatureBuilders.placeInitialFeatures(chunk, cache);
         return CompletableFuture.completedFuture(chunk);
     }
 
@@ -143,6 +159,13 @@ public final class InnerChunkGenerator extends ChunkGenerator {
         }
 
         InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
+        if (sample.skyLand()) {
+            for (int y = sample.skyBottomY(); y <= sample.skyTopY(); y++) {
+                if (y >= level.getMinY() && y < level.getMinY() + level.getHeight()) {
+                    states[y - level.getMinY()] = InnerTerrain.skyStateFor(sample, x, y, z);
+                }
+            }
+        }
         if (sample.land()) {
             for (int y = sample.bottomY(); y <= sample.topY(); y++) {
                 if (y < level.getMinY() || y >= level.getMinY() + level.getHeight()) {

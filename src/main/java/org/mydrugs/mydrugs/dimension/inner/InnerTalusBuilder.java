@@ -47,6 +47,9 @@ final class InnerTalusBuilder {
     }
 
     private static void placeTalus(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyLand() || cache.maxCliffStrength() < TALUS_MIN_CLIFF) {
+            return;
+        }
         int centerX = InnerTerrain.slotCenter(minX + 8);
         int centerZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(centerX, centerZ);

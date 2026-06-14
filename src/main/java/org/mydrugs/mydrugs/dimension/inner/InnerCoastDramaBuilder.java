@@ -46,6 +46,9 @@ final class InnerCoastDramaBuilder {
     }
 
     private static void placeCoastDrama(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyLand()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
@@ -58,8 +61,7 @@ final class InnerCoastDramaBuilder {
                 if (!isCoastCandidate(sample)) {
                     continue;
                 }
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
+                InnerSceneSample scene = cache.scene(localX, localZ);
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x59BD_31C3L
                         ^ (long) worldZ * 0x33C7_513FL);

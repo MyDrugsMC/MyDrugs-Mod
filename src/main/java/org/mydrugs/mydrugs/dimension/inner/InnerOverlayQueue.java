@@ -129,6 +129,7 @@ public final class InnerOverlayQueue {
         LAST_METRICS.clear();
         DECORATED_CHUNKS.clear();
         org.mydrugs.mydrugs.entity.InnerDemonSpawnManager.clearInnerAmbientState();
+        org.mydrugs.mydrugs.entity.InnerWildlifeManager.clearAll();
     }
 
     public static boolean cancel(UUID owner) {
@@ -215,9 +216,13 @@ public final class InnerOverlayQueue {
 
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         int chunksLeftThisTick = InnerDimensionConstants.OVERLAY_CHUNKS_PER_TICK;
-        chunksLeftThisTick = processQueues(level, data, RECREATE_QUEUES, chunksLeftThisTick, true);
+        // Soft time budget: never raises the chunk caps, only stops early once at least one
+        // chunk has been processed, so heavy chunks cannot stack into a tick spike.
+        long deadlineNanos = System.nanoTime()
+                + InnerDimensionConstants.OVERLAY_TICK_BUDGET_MS * 1_000_000L;
+        chunksLeftThisTick = processQueues(level, data, RECREATE_QUEUES, chunksLeftThisTick, true, deadlineNanos);
         if (chunksLeftThisTick > 0) {
-            processQueues(level, data, OVERLAY_QUEUES, chunksLeftThisTick, false);
+            processQueues(level, data, OVERLAY_QUEUES, chunksLeftThisTick, false, deadlineNanos);
         }
     }
 
@@ -226,8 +231,10 @@ public final class InnerOverlayQueue {
             InnerDimensionSavedData data,
             Map<UUID, QueueState> queues,
             int chunksLeftThisTick,
-            boolean destructive
+            boolean destructive,
+            long deadlineNanos
     ) {
+        int startingBudget = chunksLeftThisTick;
         var iterator = queues.entrySet().iterator();
         while (iterator.hasNext() && chunksLeftThisTick > 0) {
             Map.Entry<UUID, QueueState> entry = iterator.next();
@@ -247,15 +254,30 @@ public final class InnerOverlayQueue {
                     queueBudget--;
                     continue;
                 }
-                InnerPlacement.PlacementCount count = placeChunk(level, island, chunkPos, state.mode);
+                InnerGenerationProfiler.begin();
+                long chunkStartNanos = System.nanoTime();
+                InnerPlacement.PlacementCount count;
+                try {
+                    count = processChunk(level, island, chunkPos, state);
+                } finally {
+                    state.absorb(InnerGenerationProfiler.end(), System.nanoTime() - chunkStartNanos);
+                }
                 markDecorated(entry.getKey(), chunkPos);
                 state.processedChunks++;
                 state.placedBlocks += count.placed();
                 state.skippedBlocks += count.skipped();
                 chunksLeftThisTick--;
                 queueBudget--;
+                // Tick-time budget: stop early (this tick only) once at least one chunk was done.
+                if (chunksLeftThisTick < startingBudget && System.nanoTime() > deadlineNanos) {
+                    if (state.exhausted()) {
+                        completeQueue(data, entry.getKey(), state);
+                        iterator.remove();
+                    }
+                    return 0;
+                }
             }
-            if (state.chunks.isEmpty()) {
+            if (state.exhausted()) {
                 completeQueue(data, entry.getKey(), state);
                 iterator.remove();
             }
@@ -270,78 +292,158 @@ public final class InnerOverlayQueue {
                 state.enqueuedChunks,
                 state.placedBlocks,
                 state.skippedBlocks,
-                elapsed
+                elapsed,
+                state.sampleComputes,
+                state.groveComputes,
+                state.sceneComputes,
+                state.maxChunkMillis,
+                state.perBuilderNanos.clone()
         );
         LAST_METRICS.put(owner, metrics);
         data.updateOverlayMetrics(owner, state.mode.id + " " + metrics.toDebugString());
     }
 
-    private static InnerPlacement.PlacementCount placeChunk(
+    /**
+     * Dispatch one chunk of work. A FULL_RECREATE queue runs in two phases: first every chunk's
+     * terrain is rebuilt (collecting the chunk for the decoration phase), then — once the terrain
+     * deque drains — the same chunks are re-walked to place structures onto now-stable terrain.
+     * OVERLAY queues are single-phase and never clear terrain.
+     */
+    private static InnerPlacement.PlacementCount processChunk(
             ServerLevel level,
             InnerDimensionSavedData.IslandState island,
             ChunkPos chunkPos,
-            QueueMode mode
+            QueueState state
+    ) {
+        if (state.mode == QueueMode.FULL_RECREATE) {
+            if (state.inDecoratePhase()) {
+                return decorateChunkNow(level, island, chunkPos);
+            }
+            InnerPlacement.PlacementCount count = rebuildChunkTerrainNow(level, island, chunkPos);
+            state.recordForDecorate(chunkPos);
+            return count;
+        }
+        return placeOverlayChunk(level, island, chunkPos);
+    }
+
+    /**
+     * Non-destructive overlay pass for a single chunk: re-runs the idempotent visual feature
+     * builders and structural decoration on terrain that already exists. Used by the OVERLAY
+     * queue (entry/awakening refreshes). Never clears or rebuilds terrain.
+     */
+    private static InnerPlacement.PlacementCount placeOverlayChunk(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            ChunkPos chunkPos
     ) {
         InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
-        // Keep the older pass cache active for helpers that still call surfaceTop/sample directly.
         InnerTerrain.beginCachePass();
         try {
-            if (mode == QueueMode.FULL_RECREATE) {
-                InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
-            }
-            InnerChunkSampleCache cache = InnerChunkSampleCache.build(
-                    island.centerX(),
-                    island.centerZ(),
-                    chunkPos.getMinBlockX(),
-                    chunkPos.getMinBlockZ()
-            );
-            if (mode == QueueMode.OVERLAY) {
-                InnerVisualFeatureBuilders.placeOverlayFeatures(level, chunkPos, cache, count);
-            }
-            int centerChunkX = island.centerX() >> 4;
-            int centerChunkZ = island.centerZ() >> 4;
-            if (chunkPos.x == centerChunkX && chunkPos.z == centerChunkZ) {
-                InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
-            }
-
-            InnerDecorator.decoratePathChunk(level, chunkPos, cache, count);
-            InnerDecorator.decorateAmbientChunk(level, chunkPos, cache, count);
-            for (DrugId drugId : CuratedDrugChain.ORDER) {
-                BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
-                ChunkPos landmarkChunk = new ChunkPos(landmark);
-                int dx = Math.abs(chunkPos.x - landmarkChunk.x);
-                int dz = Math.abs(chunkPos.z - landmarkChunk.z);
-                if (dx > 4 || dz > 4) {
-                    continue;
-                }
-                boolean unlocked = island.integratedDrugs().contains(drugId);
-                if (chunkPos.x == landmarkChunk.x && chunkPos.z == landmarkChunk.z) {
-                    InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
-                }
-                if (unlocked) {
-                    InnerDecorator.decorateRegionAwakening(
-                            level,
-                            chunkPos,
-                            drugId,
-                            true,
-                            island.integratedCount(),
-                            cache,
-                            count
-                    );
-                }
-            }
+            InnerChunkSampleCache cache = buildCache(island, chunkPos);
+            InnerVisualFeatureBuilders.placeOverlayFeatures(level, chunkPos, cache, count);
+            decorateChunk(level, island, chunkPos, cache, count);
         } finally {
             InnerTerrain.endCachePass();
         }
         return count.freeze();
     }
 
-    static InnerPlacement.PlacementCount recreateAndDecorateChunkNow(
+    /**
+     * Destructive terrain phase for a single chunk: clears the column and rebuilds terrain plus
+     * the shared visual feature pass. Structural decoration (sanctuary, landmarks, vaults, path
+     * scenes) is deliberately NOT done here — those structures span several chunks and a later
+     * neighbour's terrain clear would erase the half written into a not-yet-rebuilt chunk. They
+     * run in a second {@link #decorateChunkNow} pass once every chunk's terrain is final, so a
+     * recreate can never leave a half-built sanctuary (the burst "semicircle" bug).
+     */
+    static InnerPlacement.PlacementCount rebuildChunkTerrainNow(
             ServerLevel level,
             InnerDimensionSavedData.IslandState island,
             ChunkPos chunkPos
     ) {
-        return placeChunk(level, island, chunkPos, QueueMode.FULL_RECREATE);
+        InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
+        InnerTerrain.beginCachePass();
+        try {
+            InnerChunkRebuilder.recreateChunk(level, island, chunkPos, count);
+        } finally {
+            InnerTerrain.endCachePass();
+        }
+        return count.freeze();
+    }
+
+    /**
+     * Structure/decoration phase for a single chunk, run after all terrain is final. Idempotent
+     * via markers and {@code safeSet}, so multi-chunk structures (sanctuary disc, landmark
+     * shrines) are written whole onto stable terrain and never clipped by a neighbour's rebuild.
+     */
+    static InnerPlacement.PlacementCount decorateChunkNow(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            ChunkPos chunkPos
+    ) {
+        InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
+        InnerTerrain.beginCachePass();
+        try {
+            InnerChunkSampleCache cache = buildCache(island, chunkPos);
+            decorateChunk(level, island, chunkPos, cache, count);
+        } finally {
+            InnerTerrain.endCachePass();
+        }
+        return count.freeze();
+    }
+
+    private static InnerChunkSampleCache buildCache(
+            InnerDimensionSavedData.IslandState island,
+            ChunkPos chunkPos
+    ) {
+        return InnerChunkSampleCache.build(
+                island.centerX(),
+                island.centerZ(),
+                chunkPos.getMinBlockX(),
+                chunkPos.getMinBlockZ()
+        );
+    }
+
+    private static void decorateChunk(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            ChunkPos chunkPos,
+            InnerChunkSampleCache cache,
+            InnerPlacement.MutablePlacementCount count
+    ) {
+        int centerChunkX = island.centerX() >> 4;
+        int centerChunkZ = island.centerZ() >> 4;
+        if (chunkPos.x == centerChunkX && chunkPos.z == centerChunkZ) {
+            InnerSanctuaryBuilder.placeCenterSanctuary(level, island, count);
+        }
+
+        InnerDecorator.decoratePathChunk(level, chunkPos, cache, count);
+        InnerDecorator.decorateAmbientChunk(level, chunkPos, cache, count);
+        InnerVaults.placeVaultChests(level, InnerDimensionSavedData.get(level), island, chunkPos, count);
+        for (DrugId drugId : CuratedDrugChain.ORDER) {
+            BlockPos landmark = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
+            ChunkPos landmarkChunk = new ChunkPos(landmark);
+            int dx = Math.abs(chunkPos.x - landmarkChunk.x);
+            int dz = Math.abs(chunkPos.z - landmarkChunk.z);
+            if (dx > 4 || dz > 4) {
+                continue;
+            }
+            boolean unlocked = island.integratedDrugs().contains(drugId);
+            if (chunkPos.x == landmarkChunk.x && chunkPos.z == landmarkChunk.z) {
+                InnerLandmarkBuilder.placeLandmark(level, island, drugId, unlocked, count);
+            }
+            if (unlocked) {
+                InnerDecorator.decorateRegionAwakening(
+                        level,
+                        chunkPos,
+                        drugId,
+                        true,
+                        island.integratedCount(),
+                        cache,
+                        count
+                );
+            }
+        }
     }
 
     private static void appendQueue(UUID owner, ChunkCollector chunks) {
@@ -567,6 +669,14 @@ public final class InnerOverlayQueue {
         private int processedChunks;
         private int placedBlocks;
         private int skippedBlocks;
+        private long sampleComputes;
+        private long groveComputes;
+        private long sceneComputes;
+        private long maxChunkMillis;
+        private final long[] perBuilderNanos = new long[InnerVisualFeatureBuilders.builderCount()];
+        // FULL_RECREATE two-phase state: chunks whose terrain was rebuilt, awaiting decoration.
+        private final ArrayDeque<ChunkPos> decoratePending = new ArrayDeque<>();
+        private boolean decoratePhase;
 
         private QueueState(ArrayDeque<ChunkPos> chunks, Set<Long> queued, QueueMode mode) {
             this.chunks = chunks;
@@ -588,6 +698,19 @@ public final class InnerOverlayQueue {
             return this;
         }
 
+        void absorb(InnerGenerationProfiler.Counters counters, long chunkNanos) {
+            maxChunkMillis = Math.max(maxChunkMillis, chunkNanos / 1_000_000L);
+            if (counters == null) {
+                return;
+            }
+            sampleComputes += counters.sampleComputes;
+            groveComputes += counters.groveComputes;
+            sceneComputes += counters.sceneComputes;
+            for (int i = 0; i < perBuilderNanos.length && i < counters.builderNanos.length; i++) {
+                perBuilderNanos[i] += counters.builderNanos[i];
+            }
+        }
+
         ChunkPos pollNext() {
             ChunkPos chunkPos = chunks.removeFirst();
             queued.remove(chunkKey(chunkPos));
@@ -600,8 +723,40 @@ public final class InnerOverlayQueue {
             }
         }
 
+        boolean inDecoratePhase() {
+            return decoratePhase;
+        }
+
+        /** Remember a chunk whose terrain is now final so it can be decorated in the second phase. */
+        void recordForDecorate(ChunkPos chunkPos) {
+            decoratePending.add(chunkPos);
+        }
+
+        /**
+         * True once there is no more work. For a FULL_RECREATE queue, draining the terrain deque
+         * flips the queue into its decoration phase (re-loading the rebuilt chunks) rather than
+         * completing, so structures are placed only after every chunk's terrain is final.
+         */
+        boolean exhausted() {
+            if (!chunks.isEmpty()) {
+                return false;
+            }
+            if (mode == QueueMode.FULL_RECREATE && !decoratePhase && !decoratePending.isEmpty()) {
+                decoratePhase = true;
+                queued.clear();
+                for (ChunkPos chunkPos : decoratePending) {
+                    if (queued.add(chunkKey(chunkPos))) {
+                        chunks.add(chunkPos);
+                    }
+                }
+                decoratePending.clear();
+                return false;
+            }
+            return true;
+        }
+
         int remaining() {
-            return chunks.size();
+            return chunks.size() + decoratePending.size();
         }
     }
 }

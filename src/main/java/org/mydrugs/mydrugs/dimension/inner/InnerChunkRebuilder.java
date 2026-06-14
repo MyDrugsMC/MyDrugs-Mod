@@ -52,7 +52,10 @@ final class InnerChunkRebuilder {
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
                 int lo = clearLowYForTest(floorY);
                 int currentSurfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE, worldX, worldZ);
-                int hi = clearHighYForTest(sample.visualTopY(), currentSurfaceY, ceilY);
+                int expectedTop = sample.skyLand()
+                        ? Math.max(sample.visualTopY(), sample.skyTopY() + 8)
+                        : sample.visualTopY();
+                int hi = clearHighYForTest(expectedTop, currentSurfaceY, ceilY);
                 for (int y = lo; y <= hi; y++) {
                     pos.set(worldX, y, worldZ);
                     if (level.getBlockState(pos).isAir()) {
@@ -89,6 +92,19 @@ final class InnerChunkRebuilder {
             for (int localZ = 0; localZ < 16; localZ++) {
                 int worldZ = minZ + localZ;
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                if (sample.skyLand()) {
+                    for (int y = sample.skyBottomY(); y <= sample.skyTopY(); y++) {
+                        if (y < level.getMinY() || y >= level.getMaxY()) {
+                            continue;
+                        }
+                        pos.set(worldX, y, worldZ);
+                        BlockState skyState = InnerTerrain.skyStateFor(sample, worldX, y, worldZ);
+                        if (!level.getBlockState(pos).equals(skyState)) {
+                            level.setBlock(pos, skyState, InnerDimensionConstants.RECREATE_UPDATE_FLAGS);
+                            count.recordPlaced();
+                        }
+                    }
+                }
                 if (!sample.land()) {
                     continue;
                 }

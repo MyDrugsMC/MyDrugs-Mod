@@ -100,12 +100,17 @@ public final class InnerLakeBuilder {
             };
         }
         return switch (sample.lakeType()) {
-            case WATER -> switch (sample.drugId()) {
-                case WEED -> Blocks.MOSS_BLOCK.defaultBlockState();
-                case MUSHROOMS -> Blocks.MYCELIUM.defaultBlockState();
-                default -> Blocks.MUD.defaultBlockState();
-            };
-            case MUD, MEMORY -> Blocks.MUD.defaultBlockState();
+            case WATER -> ((InnerNoise.mix64(worldX * 41L + worldZ * 89L) & 15L) == 0L)
+                    // Occasional pale clay patches so plain water beds read as sediment, not paint.
+                    ? Blocks.CLAY.defaultBlockState()
+                    : switch (sample.drugId()) {
+                        case WEED -> Blocks.MOSS_BLOCK.defaultBlockState();
+                        case MUSHROOMS -> Blocks.MYCELIUM.defaultBlockState();
+                        default -> Blocks.MUD.defaultBlockState();
+                    };
+            case MUD, MEMORY -> ((InnerNoise.mix64(worldX * 61L + worldZ * 113L) & 15L) == 0L)
+                    ? Blocks.ROOTED_DIRT.defaultBlockState()
+                    : Blocks.MUD.defaultBlockState();
             case PRISM -> ((InnerNoise.mix64(worldX * 37L + worldZ * 71L) & 7L) == 0L)
                     ? Blocks.SEA_LANTERN.defaultBlockState()
                     : Blocks.PRISMARINE.defaultBlockState();
@@ -118,6 +123,10 @@ public final class InnerLakeBuilder {
     }
 
     private static void placeLakeDetails(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        placeShoreBands(cache, minX, minZ, setter);
+        if (!cache.anyLake()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
@@ -140,6 +149,57 @@ public final class InnerLakeBuilder {
                 }
             }
         }
+    }
+
+    /**
+     * Three readable shore bands around water (Section 4.4): a continuous wet ground ring right
+     * at the waterline, a reed ring behind it, and a sparse dry accent ring beyond — all pure
+     * functions of the cached samples so the initial and overlay passes agree.
+     */
+    private static void placeShoreBands(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyShoreOrWetland()) {
+            return;
+        }
+        long seed = cache.seed();
+        for (int localZ = 0; localZ < 16; localZ++) {
+            for (int localX = 0; localX < 16; localX++) {
+                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                if (!sample.land() || sample.lake() || sample.hole() || sample.pathStrength() > 0.50D) {
+                    continue;
+                }
+                double shore = sample.shoreStrength();
+                if (shore <= 0.16D) {
+                    continue;
+                }
+                int worldX = minX + localX;
+                int worldZ = minZ + localZ;
+                long hash = InnerNoise.mix64(seed
+                        ^ (long) worldX * 0x53C5_BF2DL
+                        ^ (long) worldZ * 0x2BD6_AA63L);
+                BlockPos top = new BlockPos(worldX, sample.topY(), worldZ);
+                if (shore > 0.55D) {
+                    // Wet ring: continuous damp ground at the waterline.
+                    setter.set(top, wetGroundFor(sample));
+                } else if (shore > 0.34D) {
+                    // Reed ring: dense but not solid, and kept out of protected sightlines.
+                    if ((hash & 3L) != 0L && !cache.scene(localX, localZ).preserveOpenView()) {
+                        setter.set(top.above(), sample.profile().flora().reed(hash >>> 8));
+                    }
+                } else if ((hash & 15L) == 0L) {
+                    // Dry accent ring: rare flowers marking where the moisture gives out.
+                    setter.set(top.above(), sample.profile().flora().flower(hash >>> 8));
+                }
+            }
+        }
+    }
+
+    private static BlockState wetGroundFor(InnerTerrain.Sample sample) {
+        return switch (sample.drugId()) {
+            case WEED -> Blocks.MOSS_BLOCK.defaultBlockState();
+            case MUSHROOMS -> Blocks.MYCELIUM.defaultBlockState();
+            case HASH, LSD -> Blocks.CLAY.defaultBlockState();
+            default -> Blocks.MUD.defaultBlockState();
+        };
     }
 
     private static void buildLakeIsland(

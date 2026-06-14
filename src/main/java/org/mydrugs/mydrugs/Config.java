@@ -488,6 +488,8 @@ public class Config {
         public final ModConfigSpec.IntValue fallingSafetyGraceTicks;
         public final ModConfigSpec.BooleanValue returnAnchorRequired;
         public final ModConfigSpec.BooleanValue enableInnerDimensionDebugLogging;
+        public final ModConfigSpec.BooleanValue innerFaultStormEnabled;
+        public final ModConfigSpec.BooleanValue innerWildlifeEnabled;
 
         private Worldgen(ModConfigSpec.Builder builder) {
             builder.push("worldgen");
@@ -595,6 +597,13 @@ public class Config {
             enableInnerDimensionDebugLogging = builder
                     .comment("Log verbose Inner Dimension overlay queue diagnostics.")
                     .define("enableInnerDimensionDebugLogging", false);
+            innerFaultStormEnabled = builder
+                    .comment("Visual-only lightning strikes at the Fault (the METH region set piece) while a player is near.",
+                            "Strikes are infrequent and never cause fire or damage. Disable for players sensitive to sky flashes.")
+                    .define("innerFaultStormEnabled", true);
+            innerWildlifeEnabled = builder
+                    .comment("Ambient Inner Dimension inhabitants: Mother Cap guardians and grazing dream-fauna in calm regions.")
+                    .define("innerWildlifeEnabled", true);
             builder.pop();
             builder.pop();
         }

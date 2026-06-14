@@ -40,6 +40,9 @@ public final class InnerTreeBuilder {
     }
 
     private static void placeTrees(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyGroveGround()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
@@ -48,9 +51,10 @@ public final class InnerTreeBuilder {
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
                 int worldX = minX + localX;
                 int worldZ = minZ + localZ;
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
-                if (!canHostTree(sample, grove, scene)) {
+                InnerGroveSample grove = cache.grove(localX, localZ);
+                InnerSceneSample scene = cache.scene(localX, localZ);
+                if (!canHostTree(sample, grove, scene)
+                        || InnerRegionMap.inCoreSightlineWedge(islandCenterX, islandCenterZ, worldX, worldZ)) {
                     continue;
                 }
                 long hash = InnerNoise.mix64(seed ^ worldX * 0x4F1BBCDCL ^ worldZ * 0x31DAA2A7L);
@@ -65,6 +69,10 @@ public final class InnerTreeBuilder {
                 buildTree(worldX, sample.topY() + 1, worldZ, sample, grove, hash, setter);
             }
         }
+    }
+
+    static boolean canHostTreeForTest(InnerTerrain.Sample sample, InnerGroveSample grove, InnerSceneSample scene) {
+        return canHostTree(sample, grove, scene);
     }
 
     private static boolean canHostTree(InnerTerrain.Sample sample, InnerGroveSample grove, InnerSceneSample scene) {

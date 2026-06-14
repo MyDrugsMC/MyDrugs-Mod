@@ -49,9 +49,12 @@ public final class PlayerTickEvents {
                 if (player.getY() < InnerDimensions.FALL_OUT_Y) {
                     InnerDimensionService.returnToOverworld(player);
                     InnerDemonSpawnManager.clearInnerAmbient(player);
+                    org.mydrugs.mydrugs.entity.InnerWildlifeManager.clear(player);
                 } else {
                     // B3: atmosphere danger drives sparse symbolic encounters in scarred regions.
                     InnerDemonSpawnManager.tickInnerAmbient(player);
+                    // B2/B3 grand remake: Fault storm, Mother Cap guardians, grazing dream-fauna.
+                    org.mydrugs.mydrugs.entity.InnerWildlifeManager.tick(player);
                 }
             }
         } finally {

@@ -13,6 +13,11 @@ import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 final class InnerLandmarkApproachBuilder {
     private static final int APPROACH_RADIUS = 132;
     private static final int CLEAR_RADIUS = 26;
+    // Three staged rings (P9): outer = sparse waypoints, middle = formal markers + ground
+    // banding, inner = dense composed base around the shrine clearing.
+    private static final int INNER_RING_RADIUS = 40;
+    private static final int MIDDLE_RING_RADIUS = 86;
+    private static final long ECHO_SALT = 0x4543_484FL;
 
     private InnerLandmarkApproachBuilder() {
     }
@@ -48,16 +53,62 @@ final class InnerLandmarkApproachBuilder {
     }
 
     private static void placeLandmarkApproaches(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyLand()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
         for (DrugId drugId : CuratedDrugChain.ORDER) {
             BlockPos landmark = InnerRegionMap.landmarkFor(islandCenterX, islandCenterZ, drugId);
+            placeEchoLandmark(cache, minX, minZ, islandCenterX, islandCenterZ, drugId, seed, setter);
             if (!chunkTouchesApproach(minX, minZ, landmark)) {
                 continue;
             }
             placeDrugApproach(cache, minX, minZ, islandCenterX, islandCenterZ, landmark, drugId, seed, setter);
         }
+    }
+
+    /**
+     * One small deterministic "echo" cairn per sector at mid-radius — a minor skyline beat that
+     * rhymes with the real landmark without competing with it. The position is a pure function of
+     * the slot seed, so initial generation and overlay refresh place it identically, and the
+     * landmark itself never moves.
+     */
+    private static void placeEchoLandmark(
+            InnerChunkSampleCache cache,
+            int minX,
+            int minZ,
+            int centerX,
+            int centerZ,
+            DrugId drugId,
+            long seed,
+            BlockSetter setter
+    ) {
+        long echoHash = InnerNoise.mix64(seed + ECHO_SALT + (long) drugId.networkId() * 0x9E37_79B9L);
+        double angle = InnerRegionMap.angleFor(drugId)
+                + (((echoHash & 1L) == 0L ? 1.0D : -1.0D) * (0.14D + ((echoHash >>> 8) & 63L) / 63.0D * 0.10D));
+        double radius = InnerRegionMap.landmarkRadiusFor(drugId) * (0.52D + ((echoHash >>> 16) & 63L) / 63.0D * 0.12D);
+        int echoX = centerX + (int) Math.round(Math.cos(angle) * radius);
+        int echoZ = centerZ + (int) Math.round(Math.sin(angle) * radius);
+        int localX = echoX - minX;
+        int localZ = echoZ - minZ;
+        if (localX < 0 || localX > 15 || localZ < 0 || localZ > 15) {
+            return;
+        }
+        InnerTerrain.Sample sample = cache.sample(localX, localZ);
+        if (!sample.land() || sample.lake() || sample.hole() || sample.pathStrength() > 0.30D) {
+            return;
+        }
+        ApproachStyle style = style(drugId);
+        int baseY = sample.topY() + 1;
+        int height = 3 + (int) ((echoHash >>> 24) & 3L);
+        for (int dy = 0; dy < height; dy++) {
+            setter.set(new BlockPos(echoX, baseY + dy, echoZ), style.threshold());
+        }
+        setter.set(new BlockPos(echoX, baseY + height, echoZ), style.glow());
+        setter.set(new BlockPos(echoX + 1, baseY, echoZ), style.pathEdge());
+        setter.set(new BlockPos(echoX - 1, baseY, echoZ), style.pathEdge());
     }
 
     private static boolean chunkTouchesApproach(int minX, int minZ, BlockPos landmark) {
@@ -102,13 +153,33 @@ final class InnerLandmarkApproachBuilder {
                     clearEntry(worldX, sample.topY(), worldZ, setter);
                     continue;
                 }
-                if ((hash & 1023L) < (0.18D + corridor * 0.32D) * 1024.0D) {
+                // Staged rings: density and formality rise as the shrine nears.
+                if (distance < INNER_RING_RADIUS) {
+                    // Inner ring: dense composed base — formal ground checker plus rich accents.
+                    if (corridor > 0.30D && ((worldX + worldZ) & 1) == 0) {
+                        setter.set(new BlockPos(worldX, sample.topY(), worldZ), style.pathEdge());
+                    }
+                    if ((hash & 1023L) < 0.45D * 1024.0D) {
+                        decorateApproachPoint(worldX, worldZ, sample, style, hash, setter);
+                        placed++;
+                    }
+                } else if (distance < MIDDLE_RING_RADIUS) {
+                    // Middle ring: formal paired markers and concentric ground banding.
+                    if ((int) Math.round(distance) % 14 < 2 && corridor > 0.22D) {
+                        setter.set(new BlockPos(worldX, sample.topY(), worldZ), style.pathEdge());
+                    }
+                    if ((hash & 1023L) < (0.22D + corridor * 0.30D) * 1024.0D) {
+                        decorateApproachPoint(worldX, worldZ, sample, style, hash, setter);
+                        placed++;
+                    }
+                    if (!thresholdPlaced && distance > 68.0D && (hash & 15L) == 0L) {
+                        buildThreshold(worldX, worldZ, sample, style, centerX, centerZ, setter);
+                        thresholdPlaced = true;
+                    }
+                } else if ((hash & 1023L) < (0.12D + corridor * 0.26D) * 1024.0D) {
+                    // Outer ring: sparse waypoints that keep the sightline open.
                     decorateApproachPoint(worldX, worldZ, sample, style, hash, setter);
                     placed++;
-                }
-                if (!thresholdPlaced && distance > 68.0D && distance < 86.0D && (hash & 15L) == 0L) {
-                    buildThreshold(worldX, worldZ, sample, style, centerX, centerZ, setter);
-                    thresholdPlaced = true;
                 }
             }
         }

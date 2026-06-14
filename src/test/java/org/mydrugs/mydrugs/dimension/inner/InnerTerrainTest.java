@@ -310,13 +310,16 @@ class InnerTerrainTest {
                 "coast_drama",
                 "spikes",
                 "talus",
+                "mega_forms",
                 "hero_features",
                 "grove_trees",
                 "path_scenes",
                 "landmark_approaches",
                 "transition_scenes",
+                "vaults",
                 "flora",
-                "glow_details"
+                "glow_details",
+                "sky_shards"
         ), order);
     }
 
@@ -327,7 +330,33 @@ class InnerTerrainTest {
         String burst = Files.readString(Path.of("src/main/java/org/mydrugs/mydrugs/dimension/inner/InnerBurstRegenerator.java"));
         assertTrue(rebuilder.contains("InnerVisualFeatureBuilders.placeOverlayFeatures"));
         assertTrue(overlay.contains("InnerVisualFeatureBuilders.placeOverlayFeatures"));
-        assertTrue(burst.contains("recreateAndDecorateChunkNow"));
+        // Burst recreate is two-phase: rebuild all terrain, then decorate. The terrain pass must
+        // run before the decoration pass so the multi-chunk sanctuary disc is never half-cleared.
+        assertTrue(burst.contains("rebuildChunkTerrainNow"));
+        assertTrue(burst.contains("decorateChunkNow"));
+        assertTrue(burst.indexOf("rebuildChunkTerrainNow") < burst.indexOf("decorateChunkNow"),
+                "burst must rebuild terrain before decorating");
+    }
+
+    @Test
+    void destructiveRecreateSeparatesTerrainRebuildFromDecoration() throws IOException {
+        // Regression for the recreate "semicircle": the sanctuary disc spans several chunks. If
+        // decoration runs inline with the chunk-by-chunk terrain clear, the half written into a
+        // not-yet-rebuilt neighbour is wiped when that neighbour is later cleared. Both recreate
+        // paths must therefore decorate only after ALL terrain is final.
+        String overlay = Files.readString(Path.of("src/main/java/org/mydrugs/mydrugs/dimension/inner/InnerOverlayQueue.java"));
+        String rebuilder = Files.readString(Path.of("src/main/java/org/mydrugs/mydrugs/dimension/inner/InnerChunkRebuilder.java"));
+        // Structural decoration (sanctuary/landmarks/vaults/paths) lives in its own method so it
+        // can run as a distinct phase, decoupled from the terrain rebuild.
+        assertTrue(overlay.contains("private static void decorateChunk("));
+        assertTrue(overlay.contains("InnerSanctuaryBuilder.placeCenterSanctuary"));
+        // The terrain rebuild must NOT place the sanctuary; that is what made the recreate cut it
+        // in half. The sanctuary belongs only to the separate decoration phase.
+        assertTrue(!rebuilder.contains("placeCenterSanctuary"),
+                "terrain rebuild must not place the sanctuary; decoration is a separate phase");
+        // The queued FULL_RECREATE path runs the same two phases (terrain, then decorate).
+        assertTrue(overlay.contains("inDecoratePhase"));
+        assertTrue(overlay.contains("recordForDecorate"));
     }
 
     @Test

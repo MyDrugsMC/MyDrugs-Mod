@@ -100,6 +100,33 @@ public final class InnerRegionMap {
         return new BlockPos(x, InnerDimensionConstants.BASE_Y + 24, z);
     }
 
+    /** Half-width (blocks) of the protected sightline corridors from the core toward each spoke. */
+    private static final double SIGHTLINE_HALF_WIDTH = 4.0D;
+    /** Sightline corridors extend this far past the core rim. */
+    private static final double SIGHTLINE_REACH = 120.0D;
+
+    /**
+     * Whether a column lies in one of the narrow radial sightline wedges that keep each spoke
+     * visible from the sanctuary (P10). Tall decorations should be suppressed here; ground
+     * decoration is unaffected. Pure geometry of the unwarped position — deterministic.
+     */
+    public static boolean inCoreSightlineWedge(int centerX, int centerZ, int worldX, int worldZ) {
+        double dx = worldX - centerX;
+        double dz = worldZ - centerZ;
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        if (distance <= InnerDimensionConstants.CORE_RADIUS
+                || distance > InnerDimensionConstants.CORE_RADIUS + SIGHTLINE_REACH) {
+            return false;
+        }
+        double angle = Math.atan2(dz, dx);
+        for (DrugId drugId : ORDER) {
+            if (angularDistance(angle, angleFor(drugId)) * distance <= SIGHTLINE_HALF_WIDTH) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static double angularDistance(double a, double b) {
         double d = Math.abs(normalizedAngle(a) - normalizedAngle(b));
         return Math.min(d, TWO_PI - d);

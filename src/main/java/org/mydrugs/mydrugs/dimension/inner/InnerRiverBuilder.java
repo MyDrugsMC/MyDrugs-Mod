@@ -53,6 +53,9 @@ final class InnerRiverBuilder {
     }
 
     private static void placeRivers(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyLand() || cache.minLandTopY() > RIVER_MAX_TOP_Y) {
+            return;
+        }
         int centerX = InnerTerrain.slotCenter(minX + 8);
         int centerZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(centerX, centerZ);
@@ -67,6 +70,38 @@ final class InnerRiverBuilder {
                 int y = sample.topY();
                 setter.set(new BlockPos(worldX, y, worldZ), Blocks.WATER.defaultBlockState());
                 setter.set(new BlockPos(worldX, y + 1, worldZ), Blocks.AIR.defaultBlockState());
+                if (isDeltaMouth(sample)) {
+                    placeDeltaFan(centerX, centerZ, worldX, y, worldZ, setter);
+                }
+            }
+        }
+    }
+
+    /** A river column entering standing water fans out into a small braided mouth. */
+    private static boolean isDeltaMouth(InnerTerrain.Sample sample) {
+        return sample.shoreStrength() > 0.30D || sample.wetlandStrength() > 0.34D;
+    }
+
+    /**
+     * Plus-shaped widening with silt corners where the channel meets the shore band. Each arm is
+     * placed at its own column's surface (and only when nearly level with the channel) so the fan
+     * never leaves floating or buried water.
+     */
+    private static void placeDeltaFan(int centerX, int centerZ, int worldX, int riverY, int worldZ, BlockSetter setter) {
+        for (int arm = 0; arm < 4; arm++) {
+            int dx = arm == 0 ? 1 : arm == 1 ? -1 : 0;
+            int dz = arm == 2 ? 1 : arm == 3 ? -1 : 0;
+            InnerTerrain.Sample neighbor = InnerTerrain.sample(centerX, centerZ, worldX + dx, worldZ + dz);
+            if (!neighbor.land() || neighbor.lake() || neighbor.hole()
+                    || Math.abs(neighbor.topY() - riverY) > 1) {
+                continue;
+            }
+            setter.set(new BlockPos(worldX + dx, neighbor.topY(), worldZ + dz), Blocks.WATER.defaultBlockState());
+            setter.set(new BlockPos(worldX + dx, neighbor.topY() + 1, worldZ + dz), Blocks.AIR.defaultBlockState());
+            // Silt bar diagonal to the watered arm.
+            InnerTerrain.Sample corner = InnerTerrain.sample(centerX, centerZ, worldX + dx + dz, worldZ + dz + dx);
+            if (corner.land() && !corner.lake() && Math.abs(corner.topY() - riverY) <= 1) {
+                setter.set(new BlockPos(worldX + dx + dz, corner.topY(), worldZ + dz + dx), Blocks.MUD.defaultBlockState());
             }
         }
     }

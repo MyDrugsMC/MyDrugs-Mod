@@ -36,6 +36,11 @@ public final class InnerSpikeBuilder {
     }
 
     private static void placeSpikes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anySpikeCandidate()) {
+            return;
+        }
+        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
+        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         for (int localZ = 3; localZ <= 12; localZ += 3) {
             for (int localX = 3; localX <= 12; localX += 3) {
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
@@ -44,6 +49,14 @@ public final class InnerSpikeBuilder {
                 }
                 int worldX = minX + localX;
                 int worldZ = minZ + localZ;
+                InnerSceneSample scene = cache.scene(localX, localZ);
+                // Spikes are the tallest scatter feature: keep them out of vista/approach framing
+                // and out of the core sightline wedges.
+                if (scene.vista()
+                        || scene.landmarkApproach()
+                        || InnerRegionMap.inCoreSightlineWedge(islandCenterX, islandCenterZ, worldX, worldZ)) {
+                    continue;
+                }
                 long hash = InnerNoise.mix64(InnerTerrain.seedForSlot(InnerTerrain.slotCenter(worldX), InnerTerrain.slotCenter(worldZ))
                         ^ worldX * 0x6C8E9CF5L ^ worldZ * 0x2A88D351L);
                 double chance = sample.spikeStrength() * 118.0D + (sample.holeStrength() > 0.12D ? 18.0D : 0.0D);

@@ -21,6 +21,13 @@ public final class InnerTerrain {
     // Optional per-pass Sample memoization for single-threaded server placement passes.
     private static final ThreadLocal<java.util.Map<Long, Sample>> PASS_CACHE = new ThreadLocal<>();
 
+    // Exact-coordinate memo for the broad elevation fbm (seed + 29). computeSample evaluates it
+    // three times per column ((x,z), (x+6,z), (x,z+6)) and the probe of column x is the base of
+    // column x+6, so within a pass most evaluations repeat. Values are memoized verbatim — never
+    // interpolated — so generation output is bit-identical with or without an active pass.
+    private static final ThreadLocal<java.util.Map<Long, Double>> ELEVATION_PASS_CACHE = new ThreadLocal<>();
+    private static final long ELEVATION_SALT = 29L;
+
     // Satellite ring layout is a function of the slot seed only, so it is safe to share.
     private static final java.util.Map<Long, SatelliteCenter[]> SATELLITE_CENTERS =
             new java.util.concurrent.ConcurrentHashMap<>();
@@ -31,11 +38,13 @@ public final class InnerTerrain {
     /** Begin a per-pass Sample cache on the current thread. Must be paired with {@link #endCachePass()}. */
     public static void beginCachePass() {
         PASS_CACHE.set(new java.util.HashMap<>());
+        ELEVATION_PASS_CACHE.set(new java.util.HashMap<>());
     }
 
     /** End the current thread's per-pass Sample cache. */
     public static void endCachePass() {
         PASS_CACHE.remove();
+        ELEVATION_PASS_CACHE.remove();
     }
 
     public static Sample sample(int worldX, int worldZ) {
@@ -59,6 +68,7 @@ public final class InnerTerrain {
     }
 
     private static Sample computeSample(int centerX, int centerZ, int worldX, int worldZ) {
+        InnerGenerationProfiler.countSample();
         long seed = seedForSlot(centerX, centerZ);
 
         // Warp before polar math so distance and angle features inherit organic wandering — but
@@ -67,8 +77,11 @@ public final class InnerTerrain {
         double rawDx = worldX - centerX;
         double rawDz = worldZ - centerZ;
         double unwarpedDistance = Math.sqrt(rawDx * rawDx + rawDz * rawDz);
+        // Warp stays zero until past the sanctuary rim and fades in over a fixed 160 blocks, so
+        // the ramp length never depends on CORE_RADIUS — a small core must not mean the full
+        // +/-135-block warp slams in right at the platform edge (that read as a lopsided disc).
         double warpMask = InnerNoise.clamp01(
-                (unwarpedDistance - InnerDimensionConstants.CORE_RADIUS) / (InnerDimensionConstants.CORE_RADIUS * 1.5D));
+                (unwarpedDistance - (InnerDimensionConstants.CORE_RADIUS + 48.0D)) / 160.0D);
         double warpX = InnerNoise.fbm(seed + WARP_SALT_X, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE * warpMask;
         double warpZ = InnerNoise.fbm(seed + WARP_SALT_Z, worldX, worldZ, WARP_SCALE, WARP_OCTAVES) * WARP_AMPLITUDE * warpMask;
         double sampleX = worldX + warpX;
@@ -121,15 +134,26 @@ public final class InnerTerrain {
         boolean land = mainLand || satelliteLand || path;
 
         // Broad elevation forms plateaus and cliff bands; ridged detail is strongest on slopes.
-        double baseElev = InnerNoise.fbm(seed + 29L, worldX, worldZ, 150.0D, 5);
-        double probe = 6.0D;
-        double shaped = elevationSpline(baseElev);
-        double gradX = elevationSpline(InnerNoise.fbm(seed + 29L, worldX + probe, worldZ, 150.0D, 5)) - shaped;
-        double gradZ = elevationSpline(InnerNoise.fbm(seed + 29L, worldX, worldZ + probe, 150.0D, 5)) - shaped;
+        // The per-region silhouette archetype post-shapes the spline (pure value shaping, no extra
+        // noise) so each sector's skyline reads distinct; gradients use the same composite so the
+        // derived slope/cliff bands stay consistent with what is actually generated.
+        int probe = 6;
+        InnerTerrainProfile.SilhouetteArchetype primaryArch = profile.silhouetteArchetype();
+        InnerTerrainProfile.SilhouetteArchetype secondaryArch = secondaryProfile.silhouetteArchetype();
+        double baseElev = elevationFbm(seed, worldX, worldZ);
+        double shaped = blendedArchetypeShape(primaryArch, secondaryArch, blendW, elevationSpline(baseElev));
+        double gradX = blendedArchetypeShape(primaryArch, secondaryArch, blendW,
+                elevationSpline(elevationFbm(seed, worldX + probe, worldZ))) - shaped;
+        double gradZ = blendedArchetypeShape(primaryArch, secondaryArch, blendW,
+                elevationSpline(elevationFbm(seed, worldX, worldZ + probe))) - shaped;
         double slope = InnerNoise.clamp01(Math.hypot(gradX, gradZ) * 3.0D);
         double primarySilhouette = silhouette(drugId, seed, worldX, worldZ);
         double secondarySilhouette = silhouette(secondaryProfile.drugId(), seed, worldX, worldZ);
         double localSilhouette = InnerNoise.lerp(primarySilhouette, secondarySilhouette, blendW);
+        // Flat-topped archetypes damp the per-drug silhouette noise so treads and mesa caps read
+        // as deliberate landforms instead of being buried under ±12 blocks of character noise.
+        localSilhouette *= InnerNoise.lerp(
+                silhouetteDamp(primaryArch), silhouetteDamp(secondaryArch), blendW);
         double cliffStrength = InnerNoise.clamp01(slope * 0.55D + cliffBreak / 72.0D);
         // Verticality where it's earned: amplify height on genuinely steep columns so dramatic zones
         // get dramatic, while flats (low cliffStrength -> ~1.0) stay calm rather than globally noisy.
@@ -147,20 +171,45 @@ public final class InnerTerrain {
         if (satelliteLand && !mainLand) {
             topY = satellite.topY();
         }
+        // The platform and its rim are deliberate geometry: measure them with the UNWARPED
+        // distance so they are perfect circles no matter what the domain warp does outside.
         double rimEnd = InnerDimensionConstants.CORE_RADIUS + 48.0D;
-        if (distance < InnerDimensionConstants.CORE_RADIUS) {
+        if (unwarpedDistance < InnerDimensionConstants.CORE_RADIUS) {
             // Flat sanctuary clearing — keep usable flat ground + path semantics for the builder.
             topY = InnerDimensionConstants.BASE_Y + 5;
             path = true;
             pathStrength = Math.max(pathStrength, 1.0D);
             scarStrength = 0.0D;
-        } else if (distance < rimEnd && !path && !(satelliteLand && !mainLand)) {
+        } else if (unwarpedDistance < rimEnd && !path && !(satelliteLand && !mainLand)) {
             // Gentle rim: ease the flat core height out to natural terrain rather than a vertical
             // cliff, so the central platform reads as a coherent place with an organic edge.
-            double t = smoothstep01((distance - InnerDimensionConstants.CORE_RADIUS) / (rimEnd - InnerDimensionConstants.CORE_RADIUS));
+            double t = smoothstep01((unwarpedDistance - InnerDimensionConstants.CORE_RADIUS) / (rimEnd - InnerDimensionConstants.CORE_RADIUS));
             double coreFlatY = InnerDimensionConstants.BASE_Y + 5;
             topY = (int) Math.round(InnerNoise.lerp(coreFlatY, (double) naturalTopY, t));
             scarStrength = scarStrength * t; // scars fade in across the rim, never abut the clearing
+        }
+
+        // Mega-form plinth (A2): the region's colossal set piece sits *in* the land. The ground
+        // eases onto the form's own relief (flat platform, crater bowl, canyon, fault) across an
+        // apron, exactly like the sanctuary rim. Crisp geometry — uses unwarped coordinates.
+        InnerMegaForms.Form megaForm = InnerMegaForms.formFor(centerX, centerZ, drugId);
+        double megaFormDistance = megaForm.distance(worldX, worldZ);
+        boolean inMegaFormFootprint = megaFormDistance < megaForm.radius() + InnerMegaForms.APRON
+                && unwarpedDistance > InnerDimensionConstants.CORE_RADIUS;
+        if (inMegaFormFootprint) {
+            double t = smoothstep01((megaFormDistance - megaForm.radius()) / InnerMegaForms.APRON);
+            int plinthY = InnerMegaForms.plinthY(megaForm, worldX, worldZ);
+            topY = (int) Math.round(InnerNoise.lerp(plinthY, (double) topY, t));
+            land = land || t < 1.0D; // the plinth guarantees ground under the whole set piece
+            scarStrength *= t;
+        }
+
+        // Scar rifts (A3): the strongest scar lines tear open into walkable canyons instead of
+        // shallow dents. Depth follows the fault's own continuous gradient, so the floor ramps
+        // back to grade at both ends of a rift — a way down is always also a way out.
+        if (scarStrength > 0.70D && land && !path) {
+            double riftT = (scarStrength - 0.70D) / 0.30D;
+            topY -= 10 + (int) Math.round(riftT * 10.0D);
         }
 
         InnerFeatureSample features = InnerFeatureSampler.sample(
@@ -178,6 +227,10 @@ public final class InnerTerrain {
                 cliffStrength,
                 satelliteLand && !mainLand
         );
+        if (inMegaFormFootprint && megaFormDistance < megaForm.radius() + 4.0D) {
+            // No lakes, holes, spike fields or groves inside a set piece.
+            features = InnerMegaForms.calm(features);
+        }
 
         boolean voidHole = false;
         if (land && features.hole()) {
@@ -207,6 +260,9 @@ public final class InnerTerrain {
 
         // Vary the surface band depth so flat palettes do not read as a thin painted slab.
         int surfaceDepth = 2 + (int) Math.round(InnerNoise.ridged(seed + 53L, worldX, worldZ, 40.0D, 2) * 4.0D);
+        // Floating sky-shard band high above the ground (A1) — annulus-gated, cell-hash cheap.
+        InnerSkyShardSample sky = InnerSkyShardSampler.sample(
+                seed, centerX, centerZ, worldX, worldZ, unwarpedDistance, land, topY);
         return new Sample(
                 land,
                 topY,
@@ -226,7 +282,8 @@ public final class InnerTerrain {
                 distance,
                 surfaceProfile,
                 surfaceDepth,
-                features
+                features,
+                sky
         );
     }
 
@@ -311,6 +368,12 @@ public final class InnerTerrain {
         return (hash & 1023L) < InnerNoise.clamp01(chance) * 1024.0D;
     }
 
+    /** Block for the floating sky-shard band; the islet's own region identity, not the column's. */
+    public static BlockState skyStateFor(Sample sample, int worldX, int y, int worldZ) {
+        return InnerSkyShardSampler.stateFor(
+                sample.sky(), InnerTerrainProfile.forDrug(sample.sky().drug()), worldX, y, worldZ);
+    }
+
     public static boolean caveAir(Sample sample, int worldX, int y, int worldZ) {
         if (sample.pathStrength() > 0.2D
                 || sample.distanceFromCenter() < InnerDimensionConstants.CORE_RADIUS + 40.0D
@@ -354,6 +417,71 @@ public final class InnerTerrain {
             case MUSHROOMS -> InnerNoise.fbm(s, worldX, worldZ, 80.0D, 4) * 5.0D
                     + Math.abs(InnerNoise.fbm(s + 3L, worldX, worldZ, 30.0D, 3)) * 3.0D;
             default -> InnerNoise.fbm(s, worldX, worldZ, 110.0D, 4) * 4.0D;
+        };
+    }
+
+    /** Raw broad-elevation fbm, memoized on exact integer coordinates while a pass is active. */
+    private static double elevationFbm(long seed, int worldX, int worldZ) {
+        java.util.Map<Long, Double> cache = ELEVATION_PASS_CACHE.get();
+        if (cache == null) {
+            return InnerNoise.fbm(seed + ELEVATION_SALT, worldX, worldZ, 150.0D, 5);
+        }
+        long key = ((long) worldX & 0xffffffffL) | (((long) worldZ & 0xffffffffL) << 32);
+        Double cached = cache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        double computed = InnerNoise.fbm(seed + ELEVATION_SALT, worldX, worldZ, 150.0D, 5);
+        cache.put(key, computed);
+        return computed;
+    }
+
+    /** How strongly an archetype lets the per-drug silhouette noise through (1 = unchanged). */
+    private static double silhouetteDamp(InnerTerrainProfile.SilhouetteArchetype archetype) {
+        return switch (archetype) {
+            case MESA, TERRACED -> 0.55D;
+            default -> 1.0D;
+        };
+    }
+
+    /** Archetype shaping blended across region transition bands with the same weight as scalars. */
+    private static double blendedArchetypeShape(
+            InnerTerrainProfile.SilhouetteArchetype primary,
+            InnerTerrainProfile.SilhouetteArchetype secondary,
+            double secondaryWeight,
+            double spline
+    ) {
+        double shaped = archetypeShape(primary, spline);
+        if (secondaryWeight <= 0.0D || primary == secondary) {
+            return shaped;
+        }
+        return InnerNoise.lerp(shaped, archetypeShape(secondary, spline), secondaryWeight);
+    }
+
+    /**
+     * Pure value shaping of the broad elevation spline (input/output roughly [-1, 1]).
+     * Deliberately noise-free so the three per-column evaluations (value + two slope probes)
+     * add no sampling cost.
+     */
+    private static double archetypeShape(InnerTerrainProfile.SilhouetteArchetype archetype, double v) {
+        return switch (archetype) {
+            case ROLLING -> v;
+            case TERRACED -> {
+                // Quantise into chunky flat treads; a small residual keeps treads from being glassy.
+                double unit = (v + 1.0D) * 0.5D;
+                yield InnerNoise.lerp(unit, terraced(unit, 4), 0.85D) * 2.0D - 1.0D;
+            }
+            case MESA -> v > 0.18D
+                    // Compress everything above the plateau line into a flat cap with a hard shoulder.
+                    ? 0.18D + (v - 0.18D) * 0.12D
+                    : v;
+            case DUNES ->
+                    // Pronounced banding: long frozen swells without sharp relief.
+                    v * 0.70D + 0.30D * Math.sin(v * 1.8D);
+            case BLADES ->
+                    // Exponent < 1 EXPANDS mid-range magnitudes (the broad spline rarely leaves
+                    // ±0.5), turning ordinary relief into steep brittle ridges and deep notches.
+                    Math.signum(v) * Math.pow(Math.abs(v), 0.70D) * 1.10D;
         };
     }
 
@@ -415,7 +543,10 @@ public final class InnerTerrain {
         double wander = InnerNoise.fbm(seed + SPOKE_SALT, distance, 0.0D, 220.0D, 3) * SPOKE_WANDER * taper;
         double target = regionAngle + wander;
         double angular = InnerRegionMap.angularDistance(angle, target);
-        if (angular < SPOKE_TOLERANCE && distance > 78.0D && distance < 1170.0D) {
+        // The corridor's inner end scales with the platform so paths always reach the clearing
+        // (78 was a constant tuned for CORE_RADIUS=112 and left a dead gap for smaller cores).
+        double corridorStart = InnerDimensionConstants.CORE_RADIUS * 0.70D;
+        if (angular < SPOKE_TOLERANCE && distance > corridorStart && distance < 1170.0D) {
             // Feathered edges (smoothstep) so the corridor isn't laser-cut.
             return smoothstep01(1.0D - angular / SPOKE_TOLERANCE);
         }
@@ -503,8 +634,21 @@ public final class InnerTerrain {
             double distanceFromCenter,
             InnerTerrainProfile profile,
             int surfaceDepth,
-            InnerFeatureSample features
+            InnerFeatureSample features,
+            InnerSkyShardSample sky
     ) {
+        public boolean skyLand() {
+            return sky.land();
+        }
+
+        public int skyTopY() {
+            return sky.topY();
+        }
+
+        public int skyBottomY() {
+            return sky.bottomY();
+        }
+
         public boolean lake() {
             return features.lake();
         }

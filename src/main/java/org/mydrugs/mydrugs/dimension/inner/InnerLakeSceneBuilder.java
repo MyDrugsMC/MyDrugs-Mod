@@ -53,6 +53,9 @@ final class InnerLakeSceneBuilder {
     }
 
     private static void placeLakeScenes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        if (!cache.anyLake()) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
@@ -62,8 +65,7 @@ final class InnerLakeSceneBuilder {
                 int worldX = minX + localX;
                 int worldZ = minZ + localZ;
                 InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
+                InnerSceneSample scene = cache.scene(localX, localZ);
                 if (!canHostLakeScene(sample, scene)) {
                     continue;
                 }

@@ -102,6 +102,14 @@ public final class InnerAmbientParticleController {
         InnerSceneType scene = atmosphere.sceneType();
         double drift = 0.004D + atmosphere.glowBias() * 0.006D;
 
+        if (terrain.skyLand() && random.nextInt(3) == 0) {
+            // C3: faint glints falling from the floating sky-shards overhead.
+            double y = terrain.skyBottomY() - 0.5D - random.nextDouble() * 2.0D;
+            level.addParticle(ParticleTypes.END_ROD, x, y, z,
+                    (random.nextDouble() - 0.5D) * 0.004D, -0.015D - random.nextDouble() * 0.01D,
+                    (random.nextDouble() - 0.5D) * 0.004D);
+            return;
+        }
         if (terrain.lake() || terrain.lakeStrength() > 0.45D) {
             // Mist / drifting light rising off the lake surface.
             double y = terrain.lakeSurfaceY() + 0.1D + random.nextDouble() * 0.6D;

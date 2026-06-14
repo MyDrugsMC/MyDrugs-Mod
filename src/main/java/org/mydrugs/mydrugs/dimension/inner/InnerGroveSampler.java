@@ -19,6 +19,7 @@ final class InnerGroveSampler {
             int worldZ,
             InnerTerrain.Sample terrain
     ) {
+        InnerGenerationProfiler.countGrove();
         if (!canHostGrove(terrain)) {
             return empty(terrain);
         }

@@ -67,7 +67,11 @@ final class InnerPlacement {
             Blocks.SPRUCE_LOG,
             Blocks.STRIPPED_SPRUCE_LOG,
             Blocks.IRON_BARS,
-            Blocks.BOOKSHELF
+            Blocks.BOOKSHELF,
+            Blocks.OBSIDIAN,
+            Blocks.CRYING_OBSIDIAN,
+            Blocks.LIGHTNING_ROD,
+            Blocks.AMETHYST_CLUSTER
     );
 
     private InnerPlacement() {

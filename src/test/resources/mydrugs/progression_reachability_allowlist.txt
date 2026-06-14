@@ -1,0 +1,43 @@
+# Intentional non-recipe/non-loot progression sources.
+# Format: namespace:id # short, specific reason
+mydrugs:bitter_nut # harvested by BitterNutBushBlock interaction
+mydrugs:coffee_cup # filled by ClayVatBlockEntity or MixingVatBlockEntity
+mydrugs:resin # dropped by repeated log stripping in LogStrippingEvents
+mydrugs:cigarette # assembled by RollerLogic with tobacco ingredients
+mydrugs:joint # assembled by RollerLogic with non-tobacco rolling ingredients
+mydrugs:psy_receptacle # granted by PsyKnowledgeManager and recoverable through the Psy Mixer ritual
+mydrugs:lsd_drop # converted from bottled LSD by LsdDropConversion
+mydrugs:mixed_drug # dynamically created by the Psy Mixer formula registry
+mydrugs:broken_courage # granted by BadTripManager after the matching recovery outcome
+mydrugs:charged_sinew # dropped by ChargedSinewDropEvents under its combat condition
+mydrugs:fractured_impulse # conditional InnerDemonEntity drop
+mydrugs:calming_spores # harvested or dropped by mushroom-domain gameplay code
+mydrugs:dreamcap_spores # conditional ShroomDefenderEntity drop
+mydrugs:inner_demon_remains # dropped by InnerDemonEntity
+mydrugs:dna_scrap # created by DnaScraperItem
+mydrugs:dna_gene # produced by GeneExtractorBlockEntity and CrisprCas9CombinatorBlockEntity
+mydrugs:mutation_vector # produced by BacterialIncubatorBlockEntity
+mydrugs:mutagenic_blood_vial # produced by HemogenicInfuserBlockEntity
+mydrugs:personal_music_disc # transformed from a blank disc by ScribePersonalDiscPayload
+mydrugs:petroleum_bucket # filled from world-generated petroleum lakes
+mydrugs:lucid_echo_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:bitter_echo_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:calming_echo_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:pressed_calm_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:fermented_memory_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:redline_crystal_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:dream_residue_geode # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:overdrive_slag # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:mycelial_insight_node # world-only Inner Dimension node; breaking it yields its material, not the node item
+mydrugs:portable_grinder # currently creative-only optional processing tool; bowl and tool remain the survival route
+mydrugs:distillation_coil # currently creative-only machine component pending a dedicated survival source
+mydrugs:current_regulator # currently creative-only optional engine upgrade
+mydrugs:strain_vent # currently creative-only optional engine upgrade
+mydrugs:ammonia_bucket # currently creative-only fluid container pending an ammonia production source
+mydrugs:blood_bucket # currently creative-only fluid container; survival blood handling uses bottles and syringes
+mydrugs:sleeping_aid # currently creative-only recovery item pending a survival source
+mydrugs:overdose_antidote # currently creative-only recovery item pending a survival source
+mydrugs:blank_music_disc # currently creative-only disc-scriber input pending a survival source
+mydrugs:drug_analyzer # currently creative-only diagnostic tool
+mydrugs:crude_reactant_cake # currently creative-only mixing-vat ingredient pending a survival source
+mydrugs:unstable_residue # registered ritual-failure marker; the failure-output grant is not implemented yet

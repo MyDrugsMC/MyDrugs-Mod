@@ -22,6 +22,7 @@ final class InnerSceneSampler {
             InnerTerrain.Sample terrain,
             InnerGroveSample grove
     ) {
+        InnerGenerationProfiler.countScene();
         InnerSceneType type = chooseType(seed, islandCenterX, islandCenterZ, worldX, worldZ, terrain, grove);
         return behavior(type, terrain.drugId());
     }

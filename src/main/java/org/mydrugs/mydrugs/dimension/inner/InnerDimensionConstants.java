@@ -9,7 +9,7 @@ public final class InnerDimensionConstants {
 
     public static final int SLOT_SPACING = 4096;
     public static final int ISLAND_RADIUS = 1280;
-    public static final int CORE_RADIUS = 112;
+    public static final int CORE_RADIUS = 40;
     public static final int SATELLITE_REACH = 420;
 
     public static final int BASE_Y = 64;
@@ -38,7 +38,15 @@ public final class InnerDimensionConstants {
             | Block.UPDATE_SUPPRESS_DROPS;
     public static final int OVERLAY_CHUNKS_PER_TICK = 6;
     public static final int RECREATE_CHUNKS_PER_TICK = 1;
+    /**
+     * Soft millisecond budget for overlay/recreate work per server tick. The chunk caps above
+     * remain hard ceilings; this budget can only <em>reduce</em> per-tick work (always processing
+     * at least one chunk so queues drain), keeping ticks smooth during awakening waves.
+     */
+    public static final long OVERLAY_TICK_BUDGET_MS = 4L;
     public static final int MAX_OVERLAY_BLOCKS_PER_CHUNK = 3600;
+    /** Hard cap on glow details per chunk — readability and bounded light updates. */
+    public static final int MAX_GLOW_DETAILS_PER_CHUNK = 48;
     public static final int FULL_RECREATE_BLOCK_RADIUS = ISLAND_RADIUS + SATELLITE_REACH + 192;
     public static final int FULL_RECREATE_CHUNK_RADIUS = (FULL_RECREATE_BLOCK_RADIUS + 15) / 16;
 

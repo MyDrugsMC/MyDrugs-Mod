@@ -93,32 +93,89 @@ final class InnerGlowBuilder {
         return InnerTerrainProfile.forDrug(drugId).nodeState();
     }
 
+    /** Constellation cell size in blocks. Cells straddle chunk borders deterministically. */
+    private static final int CONSTELLATION_CELL = 12;
+    /** Roughly one cell in this many hosts a constellation (before scene weighting). */
+    private static final long CONSTELLATION_CELL_SELECT = 5L;
+    private static final long CONSTELLATION_SALT = 0x474C_4F57L;
+
+    /**
+     * Glow is composed into small constellations (3-7 lit details per selected 12-block cell)
+     * instead of uniform scatter, so light reads as deliberate features. Cell selection and the
+     * in-cell pattern derive only from the slot seed and cell coordinates, so the part of a
+     * constellation falling in a neighbouring chunk is placed identically by that chunk's pass —
+     * constellations are seamless across chunk borders.
+     */
     private static void placeGlow(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
-        long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
+        forEachGlowPoint(cache, minX, minZ,
+                (worldX, worldZ, sample, scene, hash) -> placeGlowAt(worldX, worldZ, sample, scene, hash, setter));
+    }
+
+    /**
+     * Iterates accepted glow points for a chunk, stopping at the per-chunk cap. Separated from
+     * block placement so tests can validate density/caps without constructing block states.
+     */
+    private static void forEachGlowPoint(InnerChunkSampleCache cache, int minX, int minZ, GlowPointConsumer consumer) {
+        if (!cache.anyLand()) {
+            return;
+        }
+        long seed = cache.seed();
         int placed = 0;
-        for (int localZ = 1; localZ < 16 && placed < 7; localZ += 3) {
-            for (int localX = 1; localX < 16 && placed < 7; localX += 3) {
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                if (!canHostGlow(sample)) {
+        int cellMinX = Math.floorDiv(minX, CONSTELLATION_CELL);
+        int cellMaxX = Math.floorDiv(minX + 15, CONSTELLATION_CELL);
+        int cellMinZ = Math.floorDiv(minZ, CONSTELLATION_CELL);
+        int cellMaxZ = Math.floorDiv(minZ + 15, CONSTELLATION_CELL);
+        for (int cellZ = cellMinZ; cellZ <= cellMaxZ; cellZ++) {
+            for (int cellX = cellMinX; cellX <= cellMaxX; cellX++) {
+                long cellHash = InnerNoise.mix64(seed + CONSTELLATION_SALT
+                        + (long) cellX * 341873128712L
+                        + (long) cellZ * 132897987541L);
+                if (cellHash % CONSTELLATION_CELL_SELECT != 0L) {
                     continue;
                 }
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
-                long hash = InnerNoise.mix64(seed
-                        ^ (long) worldX * 0x1A36_5C89L
-                        ^ (long) worldZ * 0x0F5E_2D49L);
-                if (!shouldPlaceGlow(sample, scene, hash)) {
-                    continue;
-                }
-                if (placeGlowAt(worldX, worldZ, sample, scene, hash, setter)) {
-                    placed++;
+                int points = 3 + (int) ((cellHash >>> 8) % 5L); // 3..7 details per constellation
+                for (int i = 0; i < points; i++) {
+                    long pointHash = InnerNoise.mix64(cellHash + i * 0x9E37_79B9L);
+                    int worldX = cellX * CONSTELLATION_CELL + (int) ((pointHash >>> 4) % CONSTELLATION_CELL);
+                    int worldZ = cellZ * CONSTELLATION_CELL + (int) ((pointHash >>> 24) % CONSTELLATION_CELL);
+                    int localX = worldX - minX;
+                    int localZ = worldZ - minZ;
+                    if (localX < 0 || localX > 15 || localZ < 0 || localZ > 15) {
+                        continue; // this point belongs to the neighbouring chunk's pass
+                    }
+                    InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                    if (!canHostGlow(sample)) {
+                        continue;
+                    }
+                    InnerSceneSample scene = cache.scene(localX, localZ);
+                    if (!shouldPlaceGlow(sample, scene, pointHash)) {
+                        continue;
+                    }
+                    if (consumer.accept(worldX, worldZ, sample, scene, pointHash)) {
+                        placed++;
+                        if (placed >= InnerDimensionConstants.MAX_GLOW_DETAILS_PER_CHUNK) {
+                            return;
+                        }
+                    }
                 }
             }
         }
+    }
+
+    /** Accepted glow decisions for one chunk, without materialising block states. Test hook. */
+    static int glowDecisionCountForTest(int centerX, int centerZ, int minX, int minZ) {
+        InnerChunkSampleCache cache = InnerChunkSampleCache.build(centerX, centerZ, minX, minZ);
+        int[] count = {0};
+        forEachGlowPoint(cache, minX, minZ, (worldX, worldZ, sample, scene, hash) -> {
+            count[0]++;
+            return true;
+        });
+        return count[0];
+    }
+
+    @FunctionalInterface
+    private interface GlowPointConsumer {
+        boolean accept(int worldX, int worldZ, InnerTerrain.Sample sample, InnerSceneSample scene, long hash);
     }
 
     private static boolean canHostGlow(InnerTerrain.Sample sample) {
@@ -127,19 +184,24 @@ final class InnerGlowBuilder {
                 && sample.distanceFromCenter() > InnerDimensionConstants.CORE_RADIUS + 18.0D;
     }
 
+    /**
+     * Per-point acceptance inside an already-selected constellation cell. Cells are rare
+     * (1 in {@link #CONSTELLATION_CELL_SELECT}), so point chances are high — the rarity lives in
+     * cell selection, the composition lives here.
+     */
     private static boolean shouldPlaceGlow(InnerTerrain.Sample sample, InnerSceneSample scene, long hash) {
-        double chance = 0.010D
-                + scene.glowMultiplier() * 0.026D
-                + sample.scarStrength() * 0.030D
-                + sample.lakeCoreStrength() * 0.026D
-                + (sample.transitionZone() ? sample.transitionStrength() * 0.018D : 0.0D);
+        double chance = 0.30D
+                + scene.glowMultiplier() * 0.20D
+                + sample.scarStrength() * 0.18D
+                + sample.lakeCoreStrength() * 0.16D
+                + (sample.transitionZone() ? sample.transitionStrength() * 0.12D : 0.0D);
         if (scene.type() == InnerSceneType.PATH_VISTA || scene.type() == InnerSceneType.LANDMARK_APPROACH) {
-            chance += 0.050D;
+            chance += 0.20D;
         }
         if (scene.type() == InnerSceneType.QUIET_FIELD || scene.type() == InnerSceneType.ASH_FLAT) {
             chance *= 0.54D;
         }
-        return (hash & 1023L) < chance * 1024.0D;
+        return (hash & 1023L) < InnerNoise.clamp01(chance) * 1024.0D;
     }
 
     /** Pure, deterministic decision of <em>how</em> a column should be lit. Exposed for testing. */

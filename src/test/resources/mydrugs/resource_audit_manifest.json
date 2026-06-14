@@ -1,0 +1,6326 @@
+{
+  "format": 1,
+  "items": {
+    "absolute_ethanol_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "acetone_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "activated_coal": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "activated_lysergic_acid_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "acylating_agent_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "advanced_control_circuit": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "advanced_furnace": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "advanced_integration_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "advanced_mixing_vat": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "agitator": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aloe_vera": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aloe_vera_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aluminium_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "aluminium_boots": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aluminium_chestplate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aluminium_helmet": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aluminium_ingot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aluminium_leggings": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "aluminium_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "amino_acid_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "ammonia_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "antibiotic_broth_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "antibiotic_crystals": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "antibiotic_dose": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "antibiotic_extract_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "aromatic_extractor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ash_grass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "autoclave": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "automation_upgrade": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "bacterial_incubator": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "bang": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "basic_fluid_pipe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "basic_gas_pipe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "basic_integration_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "basic_item_pipe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "benzene_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "biochemical_reactor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "bitter_echo_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "bitter_nut": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "bitter_nut_bush": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "bitter_residue": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "bitter_sprout": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "blank_music_disc": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "blood_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "breath_grass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "breath_lily": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "brine_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "broken_courage": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "btx_fractionation_tower": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "btx_mix_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "burnt_nerve_residue": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "butadiene_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "butenes_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "caffeine_bar": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "calming_bush": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "calming_echo_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "calming_fern": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "calming_mixture": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "calming_resin": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "calming_spores": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cannabis_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cannabis_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cannabis_resin": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cannabis_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "catalyst_bed": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "catalytic_reformer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "centrifuge": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "charcoal_glyph_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "charged_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "charged_sinew": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "chemical_reactor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "chloroacetone_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "cigarette": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cigarette_filter": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "clay_vat": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coal_dust": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coal_tar_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "coca_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coca_paste": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coca_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cocaine_plate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cocaine_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_bean": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_cherries": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_cup": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_drying_mat": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_paste_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "coffee_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coffee_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "coke_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "condenser_coil": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "control_circuit": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "copper_plate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "copper_strapping": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "copper_tube": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "crack_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "crack_plate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "crack_shard": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "crispr_cas9_combinator": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "crude_antibiotic_vial": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "crude_c4_mix_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "crude_meth_slurry_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "crude_reactant_cake": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "crystal_shrub": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cumene_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "cumene_hydroperoxide_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "cup": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cupboard_piece": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "cured_cannabis_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "current_regulator": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "deepslate_aluminium_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "deepslate_phosphate_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "deepslate_platinum_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "deepslate_sulfur_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "defiant_spirit_bottle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "diethylamine_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "disc_scriber": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "distillate_engine": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "distillation_coil": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "distiller": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dna_gene": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dna_scrap": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dna_scraper": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dream_orchid": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dream_residue": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dream_residue_geode": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "dreamcap_spores": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dried_cannabis_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dried_coca_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dried_lavender": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "dried_tobacco_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "drug_analyzer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "drying_rack": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "electric_motor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "electrode_pair": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "electrolyzer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "energy_upgrade": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ephedra_cuttings": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ephedra_extract": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ergot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ergotamine": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ergotamine_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "ethanol_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "evaporation_tray": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fast_fluid_pipe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fast_gas_pipe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fast_item_pipe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fermented_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "fermented_memory": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fermented_memory_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "fermented_shrub": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "filter_box": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "filtered_extract_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "flour": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fluid_filter": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fluid_filterer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fluid_pump": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fractured_impulse": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fungal_culture": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fungal_fiber": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "fusel_oil_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "gas_pump": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "gas_tank": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "gasifier": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "gene_extractor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "glass_bottle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "glass_tube": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "grinding_bowl": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "grinding_tool": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "growth_chamber": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "hand_crank": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "hanging_vine_bundle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "hash_brick": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "hash_piece": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "headphones": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "heat_lining": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "heating_coil": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "heavy_iron": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "heavy_iron_plate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "hemogenic_infuser": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "herbal_tea": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "herbal_tea_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "hydrochloric_acid_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "industrial_mix_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "infected_rye": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "injector_nozzle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "inner_demon_remains": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "insulated_wire": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "integration_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "iron_axle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "iron_hammer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "iron_mesh": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "joint": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "lavender": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "lavender_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "light_oil_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "lightning_bottle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "low_wines_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "lsd_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "lsd_drop": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "lucid_clover": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "lucid_echo_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "lucid_extract": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "lysergic_acid_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "machine_transfer_upgrade": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "magic_mushroom": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "magic_mushroom_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "magic_mushroom_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "magic_mushroom_stem": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "malt": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "malt_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "malt_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "malt_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "manual_coffee_pulper": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "marrakech_butter": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mechanical_frame": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "membrane": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "memory_lotus": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "memory_reeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "memory_sedge": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "meth_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "meth_shard": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "methamphetamine_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "methanol_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "methylamine_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_cocaine_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_coffee_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_crack_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_hash_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_lsd_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_meth_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_mushrooms_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_tobacco_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixed_weed_drug": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mixing_vat": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "moss_breath_carpet": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mud_reeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "murky_extract_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mutagenic_blood_vial": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mutation_vector": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mycelial_insight": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mycelial_insight_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "mycelial_padding": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mycelial_resonator": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mycelial_root": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "mycelial_threads": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "naphtha_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "nutrient_gel": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "opium_poppy_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "overdose_antidote": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "overdrive_fuel": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "overdrive_slag": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "packed_column": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "painted_clay_bowl": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "personal_diary": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "personal_music_disc": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "petroleum_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "phenol_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "phenylacetone_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "phosphate_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "pipe_filter_upgrade": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "pipe_joint": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "pipe_wrench": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "plant_biomass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "plant_waste": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "platinum_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "platinum_boots": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "platinum_chestplate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "platinum_helmet": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "platinum_ingot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "platinum_leggings": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "platinum_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "porous_ceramic": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "porous_clay": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "portable_grinder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "potato_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "pressed_calm": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "pressed_calm_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "pressure_casing": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "pressure_seal": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "prime_integration_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "prism_lotus": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "pristine_integration_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "progression_guide": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psy_anvil": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psy_blueprint": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psy_receptacle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psychedelic_mycelium": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psychotrope_distillery": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psychotrope_lens": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psychotrope_resonator": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psychotropic_pigment": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "pump_head": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "quartz_needlegrass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "raw_alcohol_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "raw_aluminium": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "raw_aluminium_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "raw_phosphorus": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "raw_platinum": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "raw_platinum_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "raw_rubber": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "raw_thick_glass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "reaction_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "reactive_phosphorus": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "recovery_anchor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "recovery_jukebox": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "redline_bramble": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "redline_crystal_node": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "redline_fuel": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "redline_spark_bloom": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "redline_thorn": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "reduction_still": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "refined_integration_core": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "reformate_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "refractory_brick": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "refractory_mix": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "reinforced_casing": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "resin": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "resonance_lens": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ritual_bark": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ritual_resin": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "ritual_threads": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "roller": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "rotor": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "rubber": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "rye": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "rye_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "rye_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "salt_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "salt_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "shroom_harvester": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "sieve": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "sleeping_aid": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "soft_seal": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_apple": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_baked_potato": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_beef": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_beetroot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_beetroot_soup": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_bread": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_carrot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_chicken": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_chorus_fruit": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cod": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_beef": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_chicken": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_cod": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_mutton": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_porkchop": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_rabbit": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cooked_salmon": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_cookie": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_dried_kelp": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_enchanted_golden_apple": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_glow_berries": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_golden_apple": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_golden_carrot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_honey_bottle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_melon_slice": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_mushroom_stew": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_mutton": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_poisonous_potato": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_porkchop": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_potato": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_pufferfish": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_pumpkin_pie": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_rabbit": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_rabbit_stew": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_rotten_flesh": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_salmon": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_spider_eye": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_suspicious_stew": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_sweet_berries": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "space_tropical_fish": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "spent_filter": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "spent_plant_pulp": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "spore_bloom": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "starch_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "steam_cracker": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "steel_blend": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "steel_hammer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "steel_ingot": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "steel_plate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "sterile_antibiotic_vial": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "stillage_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "stomp_crafter": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "stomp_plate": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "stomp_plate_block": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "stone_hammer": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "strain_vent": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "sulfolane_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "sulfolene_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "sulfur_ore": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "sulfur_powder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "sulfuric_acid_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "sweet_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "syringe": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "tank_wall": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "therapist_desk": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "thick_glass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "third_eye_petal": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "thunder_bottle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "tight_seal": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "tobacco_handful": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "tobacco_leaf": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "tobacco_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "toluene_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "treated_planks": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "tryptophan": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "unstable_essence": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "unstable_residue": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "valerian_root": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "valerian_seeds": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "valve": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "vanilla_biome_finder": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "vodka_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "waste_biomass_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "wastewater_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "watering_connection": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "wet_activated_coal_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "wet_coffee_bean": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "wheat_mash_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "wild_yeast_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    },
+    "wooden_frame": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "woven_vine_frame": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "xylene_bucket": {
+      "lang": true,
+      "client_item": true,
+      "item_model": false
+    }
+  },
+  "blocks": {
+    "absolute_ethanol": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "acetone": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "activated_lysergic_acid": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "acylating_agent": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "advanced_furnace": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "advanced_mixing_vat": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "aloe_vera_bush": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "aloe_vera_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "aluminium_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "aluminium_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "amino_acid": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "ammonia": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "antibiotic_broth": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "antibiotic_extract": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "aromatic_extractor": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "ash_grass": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "autoclave": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "bacterial_incubator": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "basic_fluid_pipe": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "basic_gas_pipe": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "basic_item_pipe": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "benzene": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "biochemical_reactor": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "bitter_echo_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "bitter_nut_bush": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "bitter_sprout": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "blood": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "breath_grass": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "breath_lily": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "brine": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "btx_fractionation_tower": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "btx_mix": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "butadiene": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "butenes": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "calming_bush": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "calming_echo_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "calming_fern": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "cannabis_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "catalytic_reformer": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "centrifuge": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "charcoal_glyph_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "chemical_reactor": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "chloroacetone": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "clay_vat": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "coal_tar": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "coca_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "cocaine_powder_pile": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "coffee": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "coffee_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "coffee_drying_mat": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "coffee_paste": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "coke": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "crack": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "crispr_cas9_combinator": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "crude_c4_mix": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "crude_meth_slurry": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "crystal_shrub": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "cumene": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "cumene_hydroperoxide": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "deepslate_aluminium_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "deepslate_phosphate_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "deepslate_platinum_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "deepslate_sulfur_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "diethylamine": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "disc_scriber": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "distillate_engine": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "distiller": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "dream_orchid": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "dream_residue_geode": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "drying_rack": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "electrolyzer": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "ephedra_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "ergotamine": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "ethanol": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "evaporation_tray": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "fast_fluid_pipe": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "fast_gas_pipe": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "fast_item_pipe": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "fermented_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "fermented_memory_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "fermented_shrub": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "filtered_extract": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "fluid_filterer": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "fluid_pump": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "formed_psy_mixer_core": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "formed_psy_mixer_part": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "fusel_oil": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "gas_pump": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "gas_tank": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "gasifier": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "gene_extractor": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "grinding_bowl": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "growth_chamber": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "hanging_vine_bundle": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "hemogenic_infuser": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "herbal_tea": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "hydrochloric_acid": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "industrial_mix": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "lavender_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "light_oil": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "low_wines": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "lsd": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "lucid_clover": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "lucid_echo_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "lysergic_acid": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "magic_mushroom": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "magic_mushroom_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "magic_mushroom_stem": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "malt_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "malt_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "manual_coffee_pulper": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "mechanical_frame": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "memory_lotus": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "memory_reeds": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "memory_sedge": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "methamphetamine": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "methanol": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "methylamine": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "mixing_vat": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "moss_breath_carpet": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "mud_reeds": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "murky_extract": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "mycelial_insight_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "mycelial_padding": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "mycelial_root": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "mycelial_threads": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "naphtha": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "opium_poppy_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "overdrive_slag": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "painted_clay_bowl": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "petroleum": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "phenol": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "phenylacetone": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "phosphate_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "platinum_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "platinum_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "potato_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "pressed_calm_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "prism_lotus": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "psy_anvil": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "psychedelic_mycelium": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "psychotrope_distillery": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "psychotrope_resonator": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "quartz_needlegrass": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "raw_alcohol": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "raw_aluminium_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "raw_platinum_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "recovery_anchor": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "recovery_jukebox": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "redline_bramble": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "redline_crystal_node": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "redline_spark_bloom": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "redline_thorn": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "reduction_still": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "reformate": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "ritual_bark": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "rye_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "rye_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "salt_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "sieve": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "spore_bloom": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "starch_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "steam_cracker": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "stillage": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "stomp_crafter": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "stomp_plate_block": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "sulfolane": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "sulfolene": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "sulfur_ore": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "sulfuric_acid": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "sweet_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "therapist_desk": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "third_eye_petal": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "tobacco_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "toluene": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "treated_planks": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "valerian_crop": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "vodka": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "vomit_splash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "waste_biomass": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "wastewater": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "wet_activated_coal": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "wheat_mash": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "wild_yeast": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    },
+    "woven_vine_frame": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": true,
+      "loot": true
+    },
+    "xylene": {
+      "lang": true,
+      "blockstate": true,
+      "loot_required": false,
+      "loot": false
+    }
+  },
+  "recipes": {
+    "mydrugs:advanced_control_circuit": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_furnace": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_furnace/coal_tar": {
+      "type": "mydrugs:advanced_furnace",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_furnace/reactive_phosphorus": {
+      "type": "mydrugs:advanced_furnace",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_furnace/rubber": {
+      "type": "mydrugs:advanced_furnace",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_furnace/steel_ingot": {
+      "type": "mydrugs:advanced_furnace",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_furnace/steel_ingot_from_iron_coal": {
+      "type": "mydrugs:advanced_furnace",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_mixing_vat": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_mixing_vat/chemical_compound": {
+      "type": "mydrugs:advanced_mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_mixing_vat/crack": {
+      "type": "mydrugs:advanced_mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_mixing_vat/hydrochloric_acid": {
+      "type": "mydrugs:advanced_mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_mixing_vat/lysergic_acid": {
+      "type": "mydrugs:advanced_mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:advanced_mixing_vat/methylamine": {
+      "type": "mydrugs:advanced_mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:agitator": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/absolute_ethanol_from_ethanol": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/ethanol_from_raw_alcohol": {
+      "type": "mydrugs:distiller",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/fermented_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/low_wines_from_fermented_mash": {
+      "type": "mydrugs:distiller",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/malt_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/potato_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/raw_alcohol_from_low_wines": {
+      "type": "mydrugs:distiller",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/rye_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/sweet_mash_from_malt_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/sweet_mash_from_potato_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/sweet_mash_from_rye_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/sweet_mash_from_wheat_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/wheat_mash": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:alcohol/wild_yeast": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_boots": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_chestplate": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_helmet": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_aluminium_ore_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_aluminium_ore_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_block": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_deepslate_aluminium_ore_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_deepslate_aluminium_ore_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_raw_aluminium_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_ingot_from_raw_aluminium_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aluminium_leggings": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aromatic_extractor": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aromatic_extractor/btx_mix_coal": {
+      "type": "mydrugs:aromatic_extractor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:aromatic_extractor/btx_mix_petroleum": {
+      "type": "mydrugs:aromatic_extractor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:autoclave": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:automation_upgrade": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:bacterial_incubator": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:bang": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:basic_fluid_pipe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:basic_gas_pipe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:basic_item_pipe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:biochemical_reactor": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:biochemical_reactor/antibiotic_broth": {
+      "type": "mydrugs:biochemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:biochemical_reactor/ergotamine": {
+      "type": "mydrugs:biochemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:btx_fractionation/btx_mix": {
+      "type": "mydrugs:btx_fractionation",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:btx_fractionation_tower": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:catalyst_bed": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:catalytic_reformer": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:catalytic_reformer/methamphetamine": {
+      "type": "mydrugs:catalytic_reformer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:catalytic_reformer/naphtha_reforming": {
+      "type": "mydrugs:catalytic_reformer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:catalytic_reformer/phenylacetone": {
+      "type": "mydrugs:catalytic_reformer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:centrifuge": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:centrifuge/antibiotic_extract": {
+      "type": "mydrugs:centrifuge",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:centrifuge/filtered_extract": {
+      "type": "mydrugs:centrifuge",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:centrifuge/naphtha": {
+      "type": "mydrugs:centrifuge",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:charcoal_glyph_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:charged_core": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/chloroacetone": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/cumene": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/cumene_hydroperoxide": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/hydrochloric_gas": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/methanol": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/sulfolane": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/sulfolene": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/sulfur_dioxide": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:chemical_reactor/sulfur_trioxide": {
+      "type": "mydrugs:chemical_reactor",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:cigarette_filter": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:clay_vat": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:coffee/coffee_pulping": {
+      "type": "mydrugs:coffee_pulping",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:coffee_drying_mat": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:coffee_seeds_from_cherries": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:condenser_coil": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:control_circuit": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:copper_plate": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:copper_strapping": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:copper_tube": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:crispr_cas9_combinator": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:cup": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:cupboard_piece": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:distillate_engine": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:distiller": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:distilling/coal_tar": {
+      "type": "mydrugs:distiller",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:distilling/cumene_hydroperoxide": {
+      "type": "mydrugs:distiller",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:distilling/petroleum": {
+      "type": "mydrugs:distiller",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:dna_scraper": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying/coca_leaf": {
+      "type": "mydrugs:drying",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying/cured_cannabis_leaf": {
+      "type": "mydrugs:drying",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying/dried_kelp_from_kelp": {
+      "type": "mydrugs:drying",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying/lavender": {
+      "type": "mydrugs:drying",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying/tobacco_leaf": {
+      "type": "mydrugs:drying",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying/wet_coffee_bean": {
+      "type": "mydrugs:drying",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:drying_rack": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:electric_motor": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:electrode_pair": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:electrolyzer": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:electrolyzer/brine": {
+      "type": "mydrugs:electrolyzer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:electrolyzer/water": {
+      "type": "mydrugs:electrolyzer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:energy_upgrade": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/activated_coal": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/caffeine_bar": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/crack_plate": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/crude_meth_shards": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/filtered_extract": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/meth": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/plant_biomass": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:evaporation_tray/salt_powder": {
+      "type": "mydrugs:evaporation_tray",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fast_fluid_pipe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fast_gas_pipe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fast_item_pipe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:filter_box": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fluid_filter": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fluid_filterer": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fluid_filtering/antibiotic_crystals": {
+      "type": "mydrugs:fluid_filtering",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fluid_filtering/tryptophan": {
+      "type": "mydrugs:fluid_filtering",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:fluid_pump": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:gas_pump": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:gas_tank": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:gasifier": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:gasifier/chlorine": {
+      "type": "mydrugs:gasifier",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:gasifier/sulfur_gas": {
+      "type": "mydrugs:gasifier",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:gene_extractor": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:glass_bottle": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:glass_tube": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/coal_dust_from_charcoal": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/coal_dust_from_coal": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/cocaine": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/coffee_powder": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/crack": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/dried_cannabis_leaf": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/dried_coca_leaf": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/magic_mushroom": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/malt": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/meth_shard": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/plant_biomass": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/tobacco": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding/wheat": {
+      "type": "mydrugs:grinding",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding_bowl": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:grinding_tool": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:growth_chamber": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:growth_chamber/ergot": {
+      "type": "mydrugs:growth_chamber",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:growth_chamber/fungal_culture": {
+      "type": "mydrugs:growth_chamber",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:hand_crank": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:hanging_vine_bundle": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:hash_piece": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:headphones": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:heat_lining": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:heating_coil": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:heavy_iron": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:heavy_iron_plate": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:hemogenic_infuser": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:injector_nozzle": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:insulated_wire": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:integration_core/advanced": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:integration_core/basic": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:integration_core/crude": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:integration_core/prime": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:integration_core/pristine": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:integration_core/refined": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:iron_axle": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:iron_hammer": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:iron_mesh": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:machine_transfer_upgrade": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:manual_coffee_pulper": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_beef": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_chicken": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_cod": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_mutton": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_porkchop": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_rabbit": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:marrakech_butter_cooked_salmon": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mechanical_frame": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:membrane": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/activated_lysergic_acid": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/acylating_agent": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/amino_acid": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/antibiotic_dose": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/brine": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/calming_mixture": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/coffee": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/coffee_paste": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/crude_antibiotic_vial": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/crude_meth_slurry": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/diethylamine": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/herbal_tea": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/lsd": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/marrakech_butter": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/murky_extract": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/raw_rubber": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/refractory_mix": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/wet_activated_coal": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mixing_vat/wet_activated_coal_2": {
+      "type": "mydrugs:mixing_vat",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mycelial_padding": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:mycelial_resonator": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:nutrient_gel": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:opium_poppy_seeds": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:packed_column": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:painted_clay_bowl": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:personal_diary": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:pipe_filter_upgrade": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:pipe_joint": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:pipe_wrench": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_boots": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_chestplate": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_helmet": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_blasting_raw_platinum": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_block": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_deepslate_platinum_ore_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_deepslate_platinum_ore_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_platinum_ore_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_platinum_ore_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_raw_platinum": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_raw_platinum_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_ingot_from_raw_platinum_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:platinum_leggings": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:porous_ceramic_from_porous_clay": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:porous_clay": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:pressure_casing": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:pressure_seal": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:progression_guide": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_anvil": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_blueprint": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/alcohol_broken_courage": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/alcohol_ghast_tear": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/alcohol_inner_demon_remains": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/alcohol_iron_ingot": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/cocaine_blaze_powder": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/cocaine_charged_sinew": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/cocaine_rabbit_foot": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/cocaine_redstone": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/coffee_bitter_nut": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/coffee_cocoa_beans": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/coffee_redstone": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/coffee_sugar": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/crack_echo_shard": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/crack_fractured_impulse": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/crack_gunpowder": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/hash_calming_spores": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/hash_ghast_tear": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/hash_phantom_membrane": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/lsd_diamond": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/lsd_ender_pearl": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/lsd_lapis_lazuli": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/lsd_third_eye_petal": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/meth_charged_core": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/meth_diamond": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/meth_netherite_scrap": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/mushrooms_amethyst_shard": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/mushrooms_dreamcap_spores": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/mushrooms_glow_berries": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/tobacco_aloe_vera": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/tobacco_copper_ingot": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/tobacco_quartz": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/weed_calming_spores": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/weed_glowstone_dust": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/weed_moss_carpet": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/weed_phantom_membrane": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/bitter_residue_from_tobacco": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/calming_resin_from_cannabis": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/calming_resin_from_cannabis_resin": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/calming_resin_from_hash_brick": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/calming_resin_from_hash_piece": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/dream_residue_from_lsd": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/fermented_memory_from_defiant_spirit": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/lucid_extract_from_coffee": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/lucid_extract_from_dried_tobacco": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/lucid_extract_from_tobacco": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/mycelial_insight_from_mushroom": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/mycelial_insight_from_whole_mushroom": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/overdrive_fuel_from_meth_powder": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/overdrive_fuel_from_meth_shard": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/pressed_calm_from_hash_brick": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/pressed_calm_from_hash_piece": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/redline_fuel_from_coca_paste": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/redline_fuel_from_cocaine": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/unstable_essence_from_mixed_drug": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/unstable_essence_from_mixed_lsd": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_distillery/unstable_essence_from_mixed_mushrooms": {
+      "type": "mydrugs:psychotrope_distillery",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_lens": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotrope_resonator": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psychotropic_pigment": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:pump_head": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:raw_aluminium_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:raw_aluminium_from_block": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:raw_platinum_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:raw_platinum_from_raw_platinum_block": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:raw_thick_glass": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:reaction_core": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:recovery_anchor": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:reduction_still/ephedra_extract": {
+      "type": "mydrugs:reduction_still",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:refractory_brick": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:refractory_brick_blasting": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:reinforced_casing": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:ritual_bark": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:ritual_resin": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:ritual_threads": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:roller": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:salt_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:salt_from_salt_block": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:shroom_harvester": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sieve": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sieving/cannabis_resin": {
+      "type": "mydrugs:sieving",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sieving/flint_from_gravel_sieving": {
+      "type": "mydrugs:sieving",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:soft_seal": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:space_cooked_beef_from_space_beef_smelting": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:space_cooked_beef_from_space_beef_smoking": {
+      "type": "minecraft:smoking",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:steam_cracker": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:steam_cracker/naphtha": {
+      "type": "mydrugs:steam_cracker",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:steel_hammer": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:steel_plate": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:stomp_crafter": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:stomp_crafting/hash_brick": {
+      "type": "mydrugs:stomp_crafting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:stomp_crafting/steel_blend": {
+      "type": "mydrugs:stomp_crafting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:stomp_plate": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:stomp_plate_block": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:stone_hammer": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sulfur_from_blasting_deepslate_sulfur_ore": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sulfur_from_blasting_sulfur_ore": {
+      "type": "minecraft:blasting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sulfur_from_deepslate_sulfur_ore": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:sulfur_from_sulfur_ore": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:syringe": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:tank_wall": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:therapist_desk": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:thick_glass_from_raw_thick_glass": {
+      "type": "minecraft:smelting",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:thunder_bottle": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:tight_seal": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:treated_planks": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:valve": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:vanilla_biome_finder": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:watering_connection": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:wooden_frame": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:woven_vine_frame": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    }
+  },
+  "advancements": {
+    "mydrugs:agriculture/ergot": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/fungal_culture": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/grow_malt": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/grow_rye": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/harvest_cannabis": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/harvest_coca": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/harvest_tobacco": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/magic_mushroom": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/plant_cannabis": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/plant_coca": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/plant_opium_poppy": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/plant_tobacco": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:agriculture/psychedelic_biome": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/complete_crop_branch": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/complete_logistics_branch": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/complete_machine_branch": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/complete_recovery_branch": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/consume_all_categories": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/deep_production": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:challenges/full_mod_progression": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_bang": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_bottle": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_drug": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_eaten": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_injected": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_rolled_item": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_smoked": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:consumption/first_sniffed": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:fluids/distill_first_fluid": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:fluids/first_custom_fluid": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:fluids/industrial_fluid_chain": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:fluids/use_fluid_filter": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:gases/first_gas": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:gases/gas_pump": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:gases/gas_tank": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:gases/process_first_gas": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:gases/toxic_gas_handling": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/cannabinoid": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/fermented": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_alcohol": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_cannabinoid": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_depressant": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_hash": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_nicotinic": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_psychedelic": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/first_stimulant": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/lysergic": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/mycelial": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/nicotinic": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/overclocked": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/steel_plating": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:knowledge/stimulant": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/automation_upgrade": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/basic_fluid_pipe": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/basic_gas_pipe": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/basic_item_pipe": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/energy_upgrade": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/fast_pipe": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/filter_upgrade": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/fluid_pump": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/machine_transfer_upgrade": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:logistics/pipe_wrench": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/advanced_furnace": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/advanced_mixing_vat": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/aromatic_extractor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/biochemical_reactor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/btx_fractionation_tower": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/catalytic_reformer": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/centrifuge": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/chemical_reactor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/distiller": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/drying_rack": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/electrolyzer": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/fluid_filterer": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/gasifier": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/grinding_bowl": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/mixing_vat": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/sieve": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machine_first_use/steam_cracker": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/advanced_furnace": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/advanced_mixing_vat": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/all_advanced_machines": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/all_basic_machines": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/aromatic_extractor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/biochemical_reactor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/btx_fractionation_tower": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/catalytic_reformer": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/centrifuge": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/chemical_reactor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/distiller": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/electrolyzer": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/fluid_filterer": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/gasifier": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/growth_chamber": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/mixing_vat": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:machines/steam_cracker": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/advanced_control_circuit": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/aluminium_ingot": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/control_circuit": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/platinum_ingot": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/raw_aluminium": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/raw_platinum": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/salt": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/steel_blend": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/steel_ingot": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/sulfur": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:materials/thick_glass": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/drying_rack": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/first_consumable": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/first_harvest": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/first_processing_station": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/first_seed": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/grinding_started": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/root": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:onboarding/support_tools": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_bang": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_clay_vat": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_evaporation_tray": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_grinding_bowl": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_roller": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_sieve": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_stomp_crafter": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/craft_syringe": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/dry_first_leaf": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/evaporate_first_output": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/fill_glass_bottle": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/grind_first_material": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/place_drying_rack": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/portable_grinder": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/roll_first_item": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/sieve_first_material": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/stomp_first_recipe": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:processing/stomp_plate": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/build_resonator": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/craft_psy_anvil": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/obtain_receptacle": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/shape_advanced_control_circuit": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/shape_copper_plate": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/shape_heavy_iron": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/shape_insulated_wire": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psychotrope/psychotrope_lens": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/calming_mixture": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/headphones": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/herbal_tea": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/overdose_antidote": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/overdose_survived": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/personal_diary": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/recovery_anchor": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/safe_zone": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/sleeping_aid": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/therapist_desk": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/therapy_used": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/use_headphones": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:recovery/use_personal_diary": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    }
+  },
+  "jei": {
+    "advanced_furnace": {
+      "title": true,
+      "category": true,
+      "cache": "getAdvancedFurnaceRecipes",
+      "catalyst": true
+    },
+    "psychotrope_distillery": {
+      "title": true,
+      "category": true,
+      "cache": "getPsychotropeDistilleryRecipes",
+      "catalyst": true
+    },
+    "centrifuge": {
+      "title": true,
+      "category": true,
+      "cache": "getCentrifugeRecipes",
+      "catalyst": true
+    },
+    "electrolyzer": {
+      "title": true,
+      "category": true,
+      "cache": "getElectrolyzerRecipes",
+      "catalyst": true
+    },
+    "distiller": {
+      "title": true,
+      "category": true,
+      "cache": "getDistillerRecipes",
+      "catalyst": true
+    },
+    "drying": {
+      "title": true,
+      "category": true,
+      "cache": "getDryingRecipes",
+      "catalyst": true
+    },
+    "coffee_pulping": {
+      "title": true,
+      "category": true,
+      "cache": "getCoffeePulpingRecipes",
+      "catalyst": true
+    },
+    "reduction_still": {
+      "title": true,
+      "category": true,
+      "cache": "getReductionStillRecipes",
+      "catalyst": true
+    },
+    "evaporation_tray": {
+      "title": true,
+      "category": true,
+      "cache": "getEvaporationTrayRecipes",
+      "catalyst": true
+    },
+    "grinding": {
+      "title": true,
+      "category": true,
+      "cache": "getGrindingRecipes",
+      "catalyst": true
+    },
+    "advanced_mixing_vat": {
+      "title": true,
+      "category": true,
+      "cache": "getAdvancedMixingVatRecipes",
+      "catalyst": true
+    },
+    "biochemical_reactor": {
+      "title": true,
+      "category": true,
+      "cache": "getBiochemicalReactorRecipes",
+      "catalyst": true
+    },
+    "chemical_reactor": {
+      "title": true,
+      "category": true,
+      "cache": "getChemicalReactorRecipes",
+      "catalyst": true
+    },
+    "fluid_filtering": {
+      "title": true,
+      "category": true,
+      "cache": "getFluidFiltererRecipes",
+      "catalyst": true
+    },
+    "gasifier": {
+      "title": true,
+      "category": true,
+      "cache": "getGasifierRecipes",
+      "catalyst": true
+    },
+    "growth_chamber": {
+      "title": true,
+      "category": true,
+      "cache": "getGrowthChamberRecipes",
+      "catalyst": true
+    },
+    "mixing_vat": {
+      "title": true,
+      "category": true,
+      "cache": "getMixingVatRecipes",
+      "catalyst": true
+    },
+    "sieving": {
+      "title": true,
+      "category": true,
+      "cache": "getSieveRecipes",
+      "catalyst": true
+    },
+    "stomp_crafting": {
+      "title": true,
+      "category": true,
+      "cache": "getStompCraftingRecipes",
+      "catalyst": true
+    },
+    "catalytic_reformer": {
+      "title": true,
+      "category": true,
+      "cache": "getCatalyticReformerRecipes",
+      "catalyst": true
+    },
+    "steam_cracker": {
+      "title": true,
+      "category": true,
+      "cache": "getSteamCrackerRecipes",
+      "catalyst": true
+    },
+    "btx_fractionation": {
+      "title": true,
+      "category": true,
+      "cache": "getBtxFractionationRecipes",
+      "catalyst": true
+    },
+    "aromatic_extractor": {
+      "title": true,
+      "category": true,
+      "cache": "getAromaticExtractorRecipes",
+      "catalyst": true
+    },
+    "psy_anvil": {
+      "title": true,
+      "category": true,
+      "cache": "getPsyAnvilRecipes",
+      "catalyst": true
+    },
+    "psy_mixer": {
+      "title": true,
+      "category": true,
+      "cache": "getPsyMixerRecipes",
+      "catalyst": true
+    }
+  },
+  "known_texture_debt": [
+    "assets/mydrugs/textures/block/advanced_mixing_vat_bottom.png \u003c- assets/mydrugs/models/block/advanced_mixing_vat.json",
+    "assets/mydrugs/textures/block/advanced_mixing_vat_front.png \u003c- assets/mydrugs/models/block/advanced_mixing_vat.json",
+    "assets/mydrugs/textures/block/advanced_mixing_vat_side.png \u003c- assets/mydrugs/models/block/advanced_mixing_vat.json",
+    "assets/mydrugs/textures/block/advanced_mixing_vat_top.png \u003c- assets/mydrugs/models/block/advanced_mixing_vat.json",
+    "assets/mydrugs/textures/block/aloe_vera_bush_stage0.png \u003c- assets/mydrugs/models/block/aloe_vera_bush_stage0.json",
+    "assets/mydrugs/textures/block/aloe_vera_bush_stage1.png \u003c- assets/mydrugs/models/block/aloe_vera_bush_stage1.json",
+    "assets/mydrugs/textures/block/aloe_vera_bush_stage2.png \u003c- assets/mydrugs/models/block/aloe_vera_bush_stage2.json",
+    "assets/mydrugs/textures/block/aloe_vera_bush_stage3.png \u003c- assets/mydrugs/models/block/aloe_vera_bush_stage3.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage0.png \u003c- assets/mydrugs/models/block/aloe_vera_stage0.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage1.png \u003c- assets/mydrugs/models/block/aloe_vera_stage1.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage2.png \u003c- assets/mydrugs/models/block/aloe_vera_stage2.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage3.png \u003c- assets/mydrugs/models/block/aloe_vera_stage3.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage4.png \u003c- assets/mydrugs/models/block/aloe_vera_stage4.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage5.png \u003c- assets/mydrugs/models/block/aloe_vera_stage5.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage6.png \u003c- assets/mydrugs/models/block/aloe_vera_stage6.json",
+    "assets/mydrugs/textures/block/aloe_vera_stage7.png \u003c- assets/mydrugs/models/block/aloe_vera_stage7.json",
+    "assets/mydrugs/textures/block/aluminium_block.png \u003c- assets/mydrugs/models/block/aluminium_block.json",
+    "assets/mydrugs/textures/block/aluminium_ore.png \u003c- assets/mydrugs/models/block/aluminium_ore.json",
+    "assets/mydrugs/textures/block/autoclave_bottom.png \u003c- assets/mydrugs/models/block/autoclave.json",
+    "assets/mydrugs/textures/block/autoclave_front.png \u003c- assets/mydrugs/models/block/autoclave.json",
+    "assets/mydrugs/textures/block/autoclave_side.png \u003c- assets/mydrugs/models/block/autoclave.json",
+    "assets/mydrugs/textures/block/autoclave_top.png \u003c- assets/mydrugs/models/block/autoclave.json",
+    "assets/mydrugs/textures/block/bacterial_incubator_bottom.png \u003c- assets/mydrugs/models/block/bacterial_incubator.json",
+    "assets/mydrugs/textures/block/bacterial_incubator_front.png \u003c- assets/mydrugs/models/block/bacterial_incubator.json",
+    "assets/mydrugs/textures/block/bacterial_incubator_side.png \u003c- assets/mydrugs/models/block/bacterial_incubator.json",
+    "assets/mydrugs/textures/block/bacterial_incubator_top.png \u003c- assets/mydrugs/models/block/bacterial_incubator.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_bottom.png \u003c- assets/mydrugs/models/block/biochemical_reactor.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_bottom.png \u003c- assets/mydrugs/models/block/biochemical_reactor_on.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_front.png \u003c- assets/mydrugs/models/block/biochemical_reactor.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_front_on.png \u003c- assets/mydrugs/models/block/biochemical_reactor_on.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_side.png \u003c- assets/mydrugs/models/block/biochemical_reactor.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_side.png \u003c- assets/mydrugs/models/block/biochemical_reactor_on.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_top.png \u003c- assets/mydrugs/models/block/biochemical_reactor.json",
+    "assets/mydrugs/textures/block/biochemical_reactor_top.png \u003c- assets/mydrugs/models/block/biochemical_reactor_on.json",
+    "assets/mydrugs/textures/block/bitter_nut_bush_stage0.png \u003c- assets/mydrugs/models/block/bitter_nut_bush_stage0.json",
+    "assets/mydrugs/textures/block/bitter_nut_bush_stage1.png \u003c- assets/mydrugs/models/block/bitter_nut_bush_stage1.json",
+    "assets/mydrugs/textures/block/bitter_nut_bush_stage2.png \u003c- assets/mydrugs/models/block/bitter_nut_bush_stage2.json",
+    "assets/mydrugs/textures/block/bitter_nut_bush_stage3.png \u003c- assets/mydrugs/models/block/bitter_nut_bush_stage3.json",
+    "assets/mydrugs/textures/block/catalytic_reformer_bottom.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
+    "assets/mydrugs/textures/block/catalytic_reformer_front.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
+    "assets/mydrugs/textures/block/catalytic_reformer_side.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
+    "assets/mydrugs/textures/block/catalytic_reformer_top.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
+    "assets/mydrugs/textures/block/charcoal_glyph_block.png \u003c- assets/mydrugs/models/block/charcoal_glyph_block.json",
+    "assets/mydrugs/textures/block/chemical_reactor_bottom.png \u003c- assets/mydrugs/models/block/chemical_reactor.json",
+    "assets/mydrugs/textures/block/chemical_reactor_bottom.png \u003c- assets/mydrugs/models/block/chemical_reactor_on.json",
+    "assets/mydrugs/textures/block/chemical_reactor_front.png \u003c- assets/mydrugs/models/block/chemical_reactor.json",
+    "assets/mydrugs/textures/block/chemical_reactor_front_on.png \u003c- assets/mydrugs/models/block/chemical_reactor_on.json",
+    "assets/mydrugs/textures/block/chemical_reactor_side.png \u003c- assets/mydrugs/models/block/chemical_reactor.json",
+    "assets/mydrugs/textures/block/chemical_reactor_side.png \u003c- assets/mydrugs/models/block/chemical_reactor_on.json",
+    "assets/mydrugs/textures/block/chemical_reactor_top.png \u003c- assets/mydrugs/models/block/chemical_reactor.json",
+    "assets/mydrugs/textures/block/chemical_reactor_top.png \u003c- assets/mydrugs/models/block/chemical_reactor_on.json",
+    "assets/mydrugs/textures/block/cocaine_powder_pile.png \u003c- assets/mydrugs/models/block/cocaine_powder_pile.json",
+    "assets/mydrugs/textures/block/cocaine_powder_rail.png \u003c- assets/mydrugs/models/block/cocaine_powder_rail.json",
+    "assets/mydrugs/textures/block/coffee_drying_mat.png \u003c- assets/mydrugs/models/block/coffee_drying_mat.json",
+    "assets/mydrugs/textures/block/coffee_drying_mat_edge.png \u003c- assets/mydrugs/models/block/coffee_drying_mat.json",
+    "assets/mydrugs/textures/block/crispr_cas9_combinator_bottom.png \u003c- assets/mydrugs/models/block/crispr_cas9_combinator.json",
+    "assets/mydrugs/textures/block/crispr_cas9_combinator_front.png \u003c- assets/mydrugs/models/block/crispr_cas9_combinator.json",
+    "assets/mydrugs/textures/block/crispr_cas9_combinator_side.png \u003c- assets/mydrugs/models/block/crispr_cas9_combinator.json",
+    "assets/mydrugs/textures/block/crispr_cas9_combinator_top.png \u003c- assets/mydrugs/models/block/crispr_cas9_combinator.json",
+    "assets/mydrugs/textures/block/deepslate_aluminium_ore.png \u003c- assets/mydrugs/models/block/deepslate_aluminium_ore.json",
+    "assets/mydrugs/textures/block/deepslate_phosphate_ore.png \u003c- assets/mydrugs/models/block/deepslate_phosphate_ore.json",
+    "assets/mydrugs/textures/block/deepslate_platinum_ore.png \u003c- assets/mydrugs/models/block/deepslate_platinum_ore.json",
+    "assets/mydrugs/textures/block/deepslate_sulfur_ore.png \u003c- assets/mydrugs/models/block/deepslate_sulfur_ore.json",
+    "assets/mydrugs/textures/block/disc_scriber.png \u003c- assets/mydrugs/models/block/disc_scriber.json",
+    "assets/mydrugs/textures/block/distillate_engine_bottom.png \u003c- assets/mydrugs/models/block/distillate_engine.json",
+    "assets/mydrugs/textures/block/distillate_engine_front.png \u003c- assets/mydrugs/models/block/distillate_engine.json",
+    "assets/mydrugs/textures/block/distillate_engine_side.png \u003c- assets/mydrugs/models/block/distillate_engine.json",
+    "assets/mydrugs/textures/block/distillate_engine_top.png \u003c- assets/mydrugs/models/block/distillate_engine.json",
+    "assets/mydrugs/textures/block/dryer_bottom.png \u003c- assets/mydrugs/models/block/dryer.json",
+    "assets/mydrugs/textures/block/dryer_side.png \u003c- assets/mydrugs/models/block/dryer.json",
+    "assets/mydrugs/textures/block/dryer_top.png \u003c- assets/mydrugs/models/block/dryer.json",
+    "assets/mydrugs/textures/block/electrolyzer_bottom.png \u003c- assets/mydrugs/models/block/electrolyzer.json",
+    "assets/mydrugs/textures/block/electrolyzer_front.png \u003c- assets/mydrugs/models/block/electrolyzer.json",
+    "assets/mydrugs/textures/block/electrolyzer_side.png \u003c- assets/mydrugs/models/block/electrolyzer.json",
+    "assets/mydrugs/textures/block/electrolyzer_top.png \u003c- assets/mydrugs/models/block/electrolyzer.json",
+    "assets/mydrugs/textures/block/ephedra_stage0.png \u003c- assets/mydrugs/models/block/ephedra_stage0.json",
+    "assets/mydrugs/textures/block/ephedra_stage1.png \u003c- assets/mydrugs/models/block/ephedra_stage1.json",
+    "assets/mydrugs/textures/block/ephedra_stage2.png \u003c- assets/mydrugs/models/block/ephedra_stage2.json",
+    "assets/mydrugs/textures/block/ephedra_stage3.png \u003c- assets/mydrugs/models/block/ephedra_stage3.json",
+    "assets/mydrugs/textures/block/ephedra_stage4.png \u003c- assets/mydrugs/models/block/ephedra_stage4.json",
+    "assets/mydrugs/textures/block/ephedra_stage5.png \u003c- assets/mydrugs/models/block/ephedra_stage5.json",
+    "assets/mydrugs/textures/block/ephedra_stage6.png \u003c- assets/mydrugs/models/block/ephedra_stage6.json",
+    "assets/mydrugs/textures/block/ephedra_stage7.png \u003c- assets/mydrugs/models/block/ephedra_stage7.json",
+    "assets/mydrugs/textures/block/fluid_pump_crank.png \u003c- assets/mydrugs/models/block/fluid_pump_crank.json",
+    "assets/mydrugs/textures/block/formed_psy_mixer_core_inside.png \u003c- assets/mydrugs/models/block/formed_psy_mixer_core.json",
+    "assets/mydrugs/textures/block/formed_psy_mixer_core_side.png \u003c- assets/mydrugs/models/block/formed_psy_mixer_core.json",
+    "assets/mydrugs/textures/block/formed_psy_mixer_part.png \u003c- assets/mydrugs/models/block/formed_psy_mixer_part.json",
+    "assets/mydrugs/textures/block/gas_tank.png \u003c- assets/mydrugs/models/block/gas_tank.json",
+    "assets/mydrugs/textures/block/gasifier.png \u003c- assets/mydrugs/models/block/gasifier.json",
+    "assets/mydrugs/textures/block/gene_extractor_bottom.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
+    "assets/mydrugs/textures/block/gene_extractor_front.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
+    "assets/mydrugs/textures/block/gene_extractor_side.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
+    "assets/mydrugs/textures/block/gene_extractor_top.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
+    "assets/mydrugs/textures/block/hanging_vine_bundle.png \u003c- assets/mydrugs/models/block/hanging_vine_bundle.json",
+    "assets/mydrugs/textures/block/hemogenic_infuser_bottom.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
+    "assets/mydrugs/textures/block/hemogenic_infuser_front.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
+    "assets/mydrugs/textures/block/hemogenic_infuser_side.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
+    "assets/mydrugs/textures/block/hemogenic_infuser_top.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
+    "assets/mydrugs/textures/block/lavender_stage0.png \u003c- assets/mydrugs/models/block/lavender_stage0.json",
+    "assets/mydrugs/textures/block/lavender_stage1.png \u003c- assets/mydrugs/models/block/lavender_stage1.json",
+    "assets/mydrugs/textures/block/lavender_stage2.png \u003c- assets/mydrugs/models/block/lavender_stage2.json",
+    "assets/mydrugs/textures/block/lavender_stage3.png \u003c- assets/mydrugs/models/block/lavender_stage3.json",
+    "assets/mydrugs/textures/block/lavender_stage4.png \u003c- assets/mydrugs/models/block/lavender_stage4.json",
+    "assets/mydrugs/textures/block/lavender_stage5.png \u003c- assets/mydrugs/models/block/lavender_stage5.json",
+    "assets/mydrugs/textures/block/lavender_stage6.png \u003c- assets/mydrugs/models/block/lavender_stage6.json",
+    "assets/mydrugs/textures/block/lavender_stage7.png \u003c- assets/mydrugs/models/block/lavender_stage7.json",
+    "assets/mydrugs/textures/block/magic_mushroom_inside.png \u003c- assets/mydrugs/models/block/magic_mushroom_inside.json",
+    "assets/mydrugs/textures/block/manual_coffee_pulper_front.png \u003c- assets/mydrugs/models/block/manual_coffee_pulper.json",
+    "assets/mydrugs/textures/block/manual_coffee_pulper_side.png \u003c- assets/mydrugs/models/block/manual_coffee_pulper.json",
+    "assets/mydrugs/textures/block/manual_coffee_pulper_top.png \u003c- assets/mydrugs/models/block/manual_coffee_pulper.json",
+    "assets/mydrugs/textures/block/mechanical_frame.png \u003c- assets/mydrugs/models/block/mechanical_frame.json",
+    "assets/mydrugs/textures/block/mixing_vat.png \u003c- assets/mydrugs/models/block/mixing_vat.json",
+    "assets/mydrugs/textures/block/mycelial_padding.png \u003c- assets/mydrugs/models/block/mycelial_padding.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage0.png \u003c- assets/mydrugs/models/block/opium_poppy_stage0.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage1.png \u003c- assets/mydrugs/models/block/opium_poppy_stage1.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage2.png \u003c- assets/mydrugs/models/block/opium_poppy_stage2.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage3.png \u003c- assets/mydrugs/models/block/opium_poppy_stage3.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage4.png \u003c- assets/mydrugs/models/block/opium_poppy_stage4.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage5.png \u003c- assets/mydrugs/models/block/opium_poppy_stage5.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage6.png \u003c- assets/mydrugs/models/block/opium_poppy_stage6.json",
+    "assets/mydrugs/textures/block/opium_poppy_stage7.png \u003c- assets/mydrugs/models/block/opium_poppy_stage7.json",
+    "assets/mydrugs/textures/block/painted_clay_bowl_bottom.png \u003c- assets/mydrugs/models/block/painted_clay_bowl.json",
+    "assets/mydrugs/textures/block/painted_clay_bowl_inside.png \u003c- assets/mydrugs/models/block/painted_clay_bowl.json",
+    "assets/mydrugs/textures/block/painted_clay_bowl_side.png \u003c- assets/mydrugs/models/block/painted_clay_bowl.json",
+    "assets/mydrugs/textures/block/phosphate_ore.png \u003c- assets/mydrugs/models/block/phosphate_ore.json",
+    "assets/mydrugs/textures/block/pipe/basic_fluid_pipe.png \u003c- assets/mydrugs/models/block/pipe/basic_fluid_pipe.json",
+    "assets/mydrugs/textures/block/pipe/basic_gas_pipe.png \u003c- assets/mydrugs/models/block/pipe/basic_gas_pipe.json",
+    "assets/mydrugs/textures/block/pipe/basic_item_pipe.png \u003c- assets/mydrugs/models/block/pipe/basic_item_pipe.json",
+    "assets/mydrugs/textures/block/pipe/fast_fluid_pipe.png \u003c- assets/mydrugs/models/block/pipe/fast_fluid_pipe.json",
+    "assets/mydrugs/textures/block/pipe/fast_gas_pipe.png \u003c- assets/mydrugs/models/block/pipe/fast_gas_pipe.json",
+    "assets/mydrugs/textures/block/pipe/fast_item_pipe.png \u003c- assets/mydrugs/models/block/pipe/fast_item_pipe.json",
+    "assets/mydrugs/textures/block/platinum_block.png \u003c- assets/mydrugs/models/block/platinum_block.json",
+    "assets/mydrugs/textures/block/platinum_ore.png \u003c- assets/mydrugs/models/block/platinum_ore.json",
+    "assets/mydrugs/textures/block/psychedelic_grass_bottom.png \u003c- assets/mydrugs/models/block/psychedelic_grass.json",
+    "assets/mydrugs/textures/block/psychedelic_grass_bottom.png \u003c- assets/mydrugs/models/block/psychedelic_grass_snowy.json",
+    "assets/mydrugs/textures/block/psychedelic_grass_side.png \u003c- assets/mydrugs/models/block/psychedelic_grass.json",
+    "assets/mydrugs/textures/block/psychedelic_grass_side_snowed.png \u003c- assets/mydrugs/models/block/psychedelic_grass_snowy.json",
+    "assets/mydrugs/textures/block/psychedelic_grass_snow.png \u003c- assets/mydrugs/models/block/psychedelic_grass_snowy.json",
+    "assets/mydrugs/textures/block/psychedelic_grass_top.png \u003c- assets/mydrugs/models/block/psychedelic_grass.json",
+    "assets/mydrugs/textures/block/psychedelic_mycelium_bottom.png \u003c- assets/mydrugs/models/block/psychedelic_mycelium.json",
+    "assets/mydrugs/textures/block/psychedelic_mycelium_bottom.png \u003c- assets/mydrugs/models/block/psychedelic_mycelium_snowy.json",
+    "assets/mydrugs/textures/block/psychedelic_mycelium_snow.png \u003c- assets/mydrugs/models/block/psychedelic_mycelium_snowy.json",
+    "assets/mydrugs/textures/block/psychotrope_distillery_bottom.png \u003c- assets/mydrugs/models/block/psychotrope_distillery.json",
+    "assets/mydrugs/textures/block/psychotrope_distillery_front.png \u003c- assets/mydrugs/models/block/psychotrope_distillery.json",
+    "assets/mydrugs/textures/block/psychotrope_distillery_side.png \u003c- assets/mydrugs/models/block/psychotrope_distillery.json",
+    "assets/mydrugs/textures/block/psychotrope_distillery_top.png \u003c- assets/mydrugs/models/block/psychotrope_distillery.json",
+    "assets/mydrugs/textures/block/psychotrope_resonator.png \u003c- assets/mydrugs/models/block/psychotrope_resonator.json",
+    "assets/mydrugs/textures/block/raw_aluminium_block.png \u003c- assets/mydrugs/models/block/raw_aluminium_block.json",
+    "assets/mydrugs/textures/block/raw_platinum_block.png \u003c- assets/mydrugs/models/block/raw_platinum_block.json",
+    "assets/mydrugs/textures/block/recovery_anchor.png \u003c- assets/mydrugs/models/block/recovery_anchor.json",
+    "assets/mydrugs/textures/block/recovery_jukebox.png \u003c- assets/mydrugs/models/block/recovery_jukebox.json",
+    "assets/mydrugs/textures/block/reduction_still_bottom.png \u003c- assets/mydrugs/models/block/reduction_still.json",
+    "assets/mydrugs/textures/block/reduction_still_front.png \u003c- assets/mydrugs/models/block/reduction_still.json",
+    "assets/mydrugs/textures/block/reduction_still_side.png \u003c- assets/mydrugs/models/block/reduction_still.json",
+    "assets/mydrugs/textures/block/reduction_still_top.png \u003c- assets/mydrugs/models/block/reduction_still.json",
+    "assets/mydrugs/textures/block/ritual_bark.png \u003c- assets/mydrugs/models/block/ritual_bark.json",
+    "assets/mydrugs/textures/block/rye.png \u003c- assets/mydrugs/models/block/rye.json",
+    "assets/mydrugs/textures/block/salt_block.png \u003c- assets/mydrugs/models/block/salt_block.json",
+    "assets/mydrugs/textures/block/steam_cracker_bottom.png \u003c- assets/mydrugs/models/block/steam_cracker.json",
+    "assets/mydrugs/textures/block/steam_cracker_front.png \u003c- assets/mydrugs/models/block/steam_cracker.json",
+    "assets/mydrugs/textures/block/steam_cracker_side.png \u003c- assets/mydrugs/models/block/steam_cracker.json",
+    "assets/mydrugs/textures/block/steam_cracker_top.png \u003c- assets/mydrugs/models/block/steam_cracker.json",
+    "assets/mydrugs/textures/block/sulfur_ore.png \u003c- assets/mydrugs/models/block/sulfur_ore.json",
+    "assets/mydrugs/textures/block/therapist_desk.png \u003c- assets/mydrugs/models/block/therapist_desk.json",
+    "assets/mydrugs/textures/block/treated_planks.png \u003c- assets/mydrugs/models/block/treated_planks.json",
+    "assets/mydrugs/textures/block/valerian_stage0.png \u003c- assets/mydrugs/models/block/valerian_stage0.json",
+    "assets/mydrugs/textures/block/valerian_stage1.png \u003c- assets/mydrugs/models/block/valerian_stage1.json",
+    "assets/mydrugs/textures/block/valerian_stage2.png \u003c- assets/mydrugs/models/block/valerian_stage2.json",
+    "assets/mydrugs/textures/block/valerian_stage3.png \u003c- assets/mydrugs/models/block/valerian_stage3.json",
+    "assets/mydrugs/textures/block/valerian_stage4.png \u003c- assets/mydrugs/models/block/valerian_stage4.json",
+    "assets/mydrugs/textures/block/valerian_stage5.png \u003c- assets/mydrugs/models/block/valerian_stage5.json",
+    "assets/mydrugs/textures/block/valerian_stage6.png \u003c- assets/mydrugs/models/block/valerian_stage6.json",
+    "assets/mydrugs/textures/block/valerian_stage7.png \u003c- assets/mydrugs/models/block/valerian_stage7.json",
+    "assets/mydrugs/textures/block/vomit_splash.png \u003c- assets/mydrugs/models/block/vomit_splash.json",
+    "assets/mydrugs/textures/block/woven_vine_frame.png \u003c- assets/mydrugs/models/block/woven_vine_frame.json",
+    "assets/mydrugs/textures/item/aloe_vera_seeds.png \u003c- assets/mydrugs/models/item/aloe_vera_seeds.json",
+    "assets/mydrugs/textures/item/aluminium_boots.png \u003c- assets/mydrugs/models/item/aluminium_boots.json",
+    "assets/mydrugs/textures/item/aluminium_chestplate.png \u003c- assets/mydrugs/models/item/aluminium_chestplate.json",
+    "assets/mydrugs/textures/item/aluminium_helmet.png \u003c- assets/mydrugs/models/item/aluminium_helmet.json",
+    "assets/mydrugs/textures/item/aluminium_ingot.png \u003c- assets/mydrugs/models/item/aluminium_ingot.json",
+    "assets/mydrugs/textures/item/aluminium_leggings.png \u003c- assets/mydrugs/models/item/aluminium_leggings.json",
+    "assets/mydrugs/textures/item/basic_fluid_pipe.png \u003c- assets/mydrugs/models/item/basic_fluid_pipe.json",
+    "assets/mydrugs/textures/item/basic_gas_pipe.png \u003c- assets/mydrugs/models/item/basic_gas_pipe.json",
+    "assets/mydrugs/textures/item/basic_item_pipe.png \u003c- assets/mydrugs/models/item/basic_item_pipe.json",
+    "assets/mydrugs/textures/item/bitter_nut.png \u003c- assets/mydrugs/models/item/bitter_nut.json",
+    "assets/mydrugs/textures/item/bitter_residue.png \u003c- assets/mydrugs/models/item/bitter_residue.json",
+    "assets/mydrugs/textures/item/brightened_cannabis_powder.png \u003c- assets/mydrugs/models/item/brightened_cannabis_powder.json",
+    "assets/mydrugs/textures/item/broken_courage.png \u003c- assets/mydrugs/models/item/broken_courage.json",
+    "assets/mydrugs/textures/item/burnt_nerve_residue.png \u003c- assets/mydrugs/models/item/burnt_nerve_residue.json",
+    "assets/mydrugs/textures/item/calming_resin.png \u003c- assets/mydrugs/models/item/calming_resin.json",
+    "assets/mydrugs/textures/item/calming_spores.png \u003c- assets/mydrugs/models/item/calming_spores.json",
+    "assets/mydrugs/textures/item/charged_core.png \u003c- assets/mydrugs/models/item/charged_core.json",
+    "assets/mydrugs/textures/item/charged_sinew.png \u003c- assets/mydrugs/models/item/charged_sinew.json",
+    "assets/mydrugs/textures/item/coffee_bucket.png \u003c- assets/mydrugs/models/item/coffee_bucket.json",
+    "assets/mydrugs/textures/item/condenser_coil.png \u003c- assets/mydrugs/models/item/condenser_coil.json",
+    "assets/mydrugs/textures/item/copper_nugget.png \u003c- assets/mydrugs/models/item/copper_nugget.json",
+    "assets/mydrugs/textures/item/crude_reactant_cake.png \u003c- assets/mydrugs/models/item/crude_reactant_cake.json",
+    "assets/mydrugs/textures/item/current_regulator.png \u003c- assets/mydrugs/models/item/current_regulator.json",
+    "assets/mydrugs/textures/item/defiant_spirit_bottle.png \u003c- assets/mydrugs/models/item/defiant_spirit_bottle.json",
+    "assets/mydrugs/textures/item/distillation_coil.png \u003c- assets/mydrugs/models/item/distillation_coil.json",
+    "assets/mydrugs/textures/item/dream_residue.png \u003c- assets/mydrugs/models/item/dream_residue.json",
+    "assets/mydrugs/textures/item/dreamcap_spores.png \u003c- assets/mydrugs/models/item/dreamcap_spores.json",
+    "assets/mydrugs/textures/item/ephedra_cuttings.png \u003c- assets/mydrugs/models/item/ephedra_cuttings.json",
+    "assets/mydrugs/textures/item/ephedra_extract.png \u003c- assets/mydrugs/models/item/ephedra_extract.json",
+    "assets/mydrugs/textures/item/fast_fluid_pipe.png \u003c- assets/mydrugs/models/item/fast_fluid_pipe.json",
+    "assets/mydrugs/textures/item/fast_gas_pipe.png \u003c- assets/mydrugs/models/item/fast_gas_pipe.json",
+    "assets/mydrugs/textures/item/fast_item_pipe.png \u003c- assets/mydrugs/models/item/fast_item_pipe.json",
+    "assets/mydrugs/textures/item/fermented_memory.png \u003c- assets/mydrugs/models/item/fermented_memory.json",
+    "assets/mydrugs/textures/item/filter_upgrade.png \u003c- assets/mydrugs/models/item/filter_upgrade.json",
+    "assets/mydrugs/textures/item/fractured_impulse.png \u003c- assets/mydrugs/models/item/fractured_impulse.json",
+    "assets/mydrugs/textures/item/integration_core.png \u003c- assets/mydrugs/models/item/advanced_integration_core.json",
+    "assets/mydrugs/textures/item/integration_core.png \u003c- assets/mydrugs/models/item/basic_integration_core.json",
+    "assets/mydrugs/textures/item/integration_core.png \u003c- assets/mydrugs/models/item/integration_core.json",
+    "assets/mydrugs/textures/item/integration_core.png \u003c- assets/mydrugs/models/item/prime_integration_core.json",
+    "assets/mydrugs/textures/item/integration_core.png \u003c- assets/mydrugs/models/item/pristine_integration_core.json",
+    "assets/mydrugs/textures/item/integration_core.png \u003c- assets/mydrugs/models/item/refined_integration_core.json",
+    "assets/mydrugs/textures/item/lavender_seeds.png \u003c- assets/mydrugs/models/item/lavender_seeds.json",
+    "assets/mydrugs/textures/item/lsd_bottle.png \u003c- assets/mydrugs/models/item/lsd_bottle.json",
+    "assets/mydrugs/textures/item/lucid_extract.png \u003c- assets/mydrugs/models/item/lucid_extract.json",
+    "assets/mydrugs/textures/item/mixing_spatula.png \u003c- assets/mydrugs/models/item/mixing_spatula.json",
+    "assets/mydrugs/textures/item/mutagenic_blood_vial.png \u003c- assets/mydrugs/models/item/crude_antibiotic_vial.json",
+    "assets/mydrugs/textures/item/mutagenic_blood_vial.png \u003c- assets/mydrugs/models/item/mutagenic_blood_vial.json",
+    "assets/mydrugs/textures/item/mutagenic_blood_vial.png \u003c- assets/mydrugs/models/item/sterile_antibiotic_vial.json",
+    "assets/mydrugs/textures/item/mutation_vector.png \u003c- assets/mydrugs/models/item/mutation_vector.json",
+    "assets/mydrugs/textures/item/mycelial_insight.png \u003c- assets/mydrugs/models/item/mycelial_insight.json",
+    "assets/mydrugs/textures/item/mycelial_resonator.png \u003c- assets/mydrugs/models/item/mycelial_resonator.json",
+    "assets/mydrugs/textures/item/opium_poppy_seeds.png \u003c- assets/mydrugs/models/item/opium_poppy_seeds.json",
+    "assets/mydrugs/textures/item/overdrive_fuel.png \u003c- assets/mydrugs/models/item/overdrive_fuel.json",
+    "assets/mydrugs/textures/item/pipe_filter_upgrade.png \u003c- assets/mydrugs/models/item/pipe_filter_upgrade.json",
+    "assets/mydrugs/textures/item/platinum_boots.png \u003c- assets/mydrugs/models/item/platinum_boots.json",
+    "assets/mydrugs/textures/item/platinum_chestplate.png \u003c- assets/mydrugs/models/item/platinum_chestplate.json",
+    "assets/mydrugs/textures/item/platinum_helmet.png \u003c- assets/mydrugs/models/item/platinum_helmet.json",
+    "assets/mydrugs/textures/item/platinum_ingot.png \u003c- assets/mydrugs/models/item/platinum_ingot.json",
+    "assets/mydrugs/textures/item/platinum_leggings.png \u003c- assets/mydrugs/models/item/platinum_leggings.json",
+    "assets/mydrugs/textures/item/pressed_calm.png \u003c- assets/mydrugs/models/item/pressed_calm.json",
+    "assets/mydrugs/textures/item/psy_receptacle.png \u003c- assets/mydrugs/models/item/psy_receptacle.json",
+    "assets/mydrugs/textures/item/psychotropic_pigment.png \u003c- assets/mydrugs/models/item/psychotropic_pigment.json",
+    "assets/mydrugs/textures/item/raw_aluminium.png \u003c- assets/mydrugs/models/item/raw_aluminium.json",
+    "assets/mydrugs/textures/item/raw_phosphorus.png \u003c- assets/mydrugs/models/item/raw_phosphorus.json",
+    "assets/mydrugs/textures/item/raw_platinum.png \u003c- assets/mydrugs/models/item/raw_platinum.json",
+    "assets/mydrugs/textures/item/reactive_phosphorus.png \u003c- assets/mydrugs/models/item/reactive_phosphorus.json",
+    "assets/mydrugs/textures/item/redline_fuel.png \u003c- assets/mydrugs/models/item/redline_fuel.json",
+    "assets/mydrugs/textures/item/ritual_resin.png \u003c- assets/mydrugs/models/item/ritual_resin.json",
+    "assets/mydrugs/textures/item/ritual_threads.png \u003c- assets/mydrugs/models/item/ritual_threads.json",
+    "assets/mydrugs/textures/item/shroom_harvester.png \u003c- assets/mydrugs/models/item/shroom_harvester.json",
+    "assets/mydrugs/textures/item/space_overlays/space_enchanted_golden_apple.png \u003c- assets/mydrugs/models/item/space_enchanted_golden_apple.json",
+    "assets/mydrugs/textures/item/spent_filter.png \u003c- assets/mydrugs/models/item/spent_filter.json",
+    "assets/mydrugs/textures/item/spent_plant_pulp.png \u003c- assets/mydrugs/models/item/spent_plant_pulp.json",
+    "assets/mydrugs/textures/item/strain_vent.png \u003c- assets/mydrugs/models/item/strain_vent.json",
+    "assets/mydrugs/textures/item/transfer_upgrade.png \u003c- assets/mydrugs/models/item/transfer_upgrade.json",
+    "assets/mydrugs/textures/item/unstable_essence.png \u003c- assets/mydrugs/models/item/unstable_essence.json",
+    "assets/mydrugs/textures/item/unstable_residue.png \u003c- assets/mydrugs/models/item/unstable_residue.json",
+    "assets/mydrugs/textures/item/valerian_root.png \u003c- assets/mydrugs/models/item/valerian_root.json",
+    "assets/mydrugs/textures/item/valerian_seeds.png \u003c- assets/mydrugs/models/item/valerian_seeds.json",
+    "assets/mydrugs/textures/item/wrench.png \u003c- assets/mydrugs/models/item/wrench.json"
+  ],
+  "known_texture_debt_count": 255
+}

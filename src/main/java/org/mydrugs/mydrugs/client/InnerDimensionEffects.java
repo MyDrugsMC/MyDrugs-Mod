@@ -21,6 +21,12 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
     private static Vec3 cachedColor;
     private static double cachedBlend = 0.85D;
 
+    // Time-eased presentation values so crossing a region/scene boundary shifts the fog mood
+    // over a couple of seconds instead of snapping per block step. Render-thread only.
+    private static Vec3 easedColor;
+    private static double easedBlend = 0.85D;
+    private static long lastEaseNanos;
+
     public InnerDimensionEffects() {
         // SkyType.NONE: the borrowed End sky is gone. The level clears to the mood fog colour
         // (the horizon band), and InnerSkyRenderer paints the gradient, constellations, and core
@@ -32,7 +38,7 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
     public Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
         Vec3 mood = currentMoodColor(fogColor);
         // Blend the biome fog toward the region mood, then dim with brightness like the End does.
-        Vec3 blended = fogColor.lerp(mood, cachedBlend);
+        Vec3 blended = fogColor.lerp(mood, easedBlend);
         return blended.scale(brightness);
     }
 
@@ -45,6 +51,8 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player == null || mc.level == null || !mc.level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
+            easedColor = null;
+            lastEaseNanos = 0L;
             return fallback;
         }
         BlockPos pos = player.blockPosition();
@@ -57,6 +65,35 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
             cachedBlend = 0.68D + Math.min(0.27D, sample.fogDensity() * 0.27D + sample.glowBias() * 0.05D);
             cachedKey = key;
         }
-        return cachedColor;
+        return easeToward(cachedColor);
+    }
+
+    /**
+     * Exponential time-based ease toward the target mood (frame-rate independent). Reduced motion
+     * eases more slowly — boundaries become a gradual mood drift rather than a visible swing.
+     */
+    private static Vec3 easeToward(Vec3 target) {
+        long now = System.nanoTime();
+        if (easedColor == null || lastEaseNanos == 0L) {
+            easedColor = target;
+            easedBlend = cachedBlend;
+            lastEaseNanos = now;
+            return easedColor;
+        }
+        double dtSeconds = Math.min(0.25D, (now - lastEaseNanos) / 1_000_000_000.0D);
+        lastEaseNanos = now;
+        double tau = reducedMotion() ? 2.4D : 0.9D; // seconds to ~63% of the shift
+        double t = 1.0D - Math.exp(-dtSeconds / tau);
+        easedColor = easedColor.lerp(target, t);
+        easedBlend = easedBlend + (cachedBlend - easedBlend) * t;
+        return easedColor;
+    }
+
+    private static boolean reducedMotion() {
+        try {
+            return org.mydrugs.mydrugs.Config.CLIENT.reducedMotionMode.get();
+        } catch (IllegalStateException ignored) {
+            return false;
+        }
     }
 }

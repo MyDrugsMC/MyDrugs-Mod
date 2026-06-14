@@ -77,6 +77,10 @@ final class InnerPathSceneBuilder {
     }
 
     private static void placePathScenes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+        // canDecoratePath requires pathStrength > 0.52 on the column itself.
+        if (cache.maxPathStrength() <= 0.52D) {
+            return;
+        }
         int islandCenterX = InnerTerrain.slotCenter(minX + 8);
         int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
@@ -93,8 +97,7 @@ final class InnerPathSceneBuilder {
                 if (!canDecoratePath(sample)) {
                     continue;
                 }
-                InnerGroveSample grove = InnerGroveSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample);
-                InnerSceneSample scene = InnerSceneSampler.sample(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, grove);
+                InnerSceneSample scene = cache.scene(localX, localZ);
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x4B1D_2271L
                         ^ (long) worldZ * 0x2925_39EFL);

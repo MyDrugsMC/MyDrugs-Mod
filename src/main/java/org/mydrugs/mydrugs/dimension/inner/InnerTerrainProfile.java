@@ -180,6 +180,35 @@ public record InnerTerrainProfile(
         }
     }
 
+    /**
+     * Region skyline character. Applied as a pure post-shaping of the broad elevation spline in
+     * {@code InnerTerrain.computeSample}, so each drug sector reads as a distinct silhouette
+     * (terraces, buttes, soft dunes, brittle blades) rather than the same hills in a new palette.
+     */
+    public enum SilhouetteArchetype {
+        /** Gentle uninterrupted hills — calm regions. */
+        ROLLING,
+        /** Stepped shelves with flat treads — ordered, layered regions. */
+        TERRACED,
+        /** Flat-topped buttes: highs compress into plateaus with steep shoulders. */
+        MESA,
+        /** Soft banded swells, like slow waves frozen mid-roll. */
+        DUNES,
+        /** Exaggerated brittle peaks and deep notches — dangerous regions. */
+        BLADES
+    }
+
+    public SilhouetteArchetype silhouetteArchetype() {
+        return switch (drugId) {
+            case COFFEE, WEED -> SilhouetteArchetype.ROLLING;
+            case TOBACCO -> SilhouetteArchetype.MESA;
+            case HASH, LSD -> SilhouetteArchetype.TERRACED;
+            case ALCOHOL, MUSHROOMS -> SilhouetteArchetype.DUNES;
+            case COCAINE, METH -> SilhouetteArchetype.BLADES;
+            default -> SilhouetteArchetype.ROLLING;
+        };
+    }
+
     public static boolean hasProfile(DrugId drugId) {
         return PROFILES.containsKey(drugId);
     }
