@@ -10,7 +10,30 @@ import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 import java.util.Set;
 
 final class InnerPlacement {
-    private static final Set<Block> VANILLA_GENERATED_REPLACEABLE = Set.of(
+    /**
+     * Controls update flags and replaceability rules during block placement.
+     *
+     * <ul>
+     *   <li>{@link #LIVE_OVERLAY} — {@link Block#UPDATE_ALL} flags, safe for player-visible
+     *       incremental overlays and entry setup.</li>
+     *   <li>{@link #RECREATE} — {@link Block#UPDATE_CLIENTS} | {@link Block#UPDATE_KNOWN_SHAPE}
+     *       | {@link Block#UPDATE_SUPPRESS_DROPS} flags, cheaper for bulk terrain/decoration
+     *       rebuilds where every block in the column is being rewritten.</li>
+     * </ul>
+     */
+    enum PlacementMode {
+        LIVE_OVERLAY(Block.UPDATE_ALL),
+        RECREATE(InnerDimensionConstants.RECREATE_UPDATE_FLAGS);
+
+        final int updateFlags;
+
+        PlacementMode(int updateFlags) {
+            this.updateFlags = updateFlags;
+        }
+    }
+
+    private static final class GeneratedReplaceableBlocks {
+        private static final Set<Block> VANILLA = Set.of(
             Blocks.AIR,
             Blocks.CAVE_AIR,
             Blocks.VOID_AIR,
@@ -72,7 +95,8 @@ final class InnerPlacement {
             Blocks.CRYING_OBSIDIAN,
             Blocks.LIGHTNING_ROD,
             Blocks.AMETHYST_CLUSTER
-    );
+        );
+    }
 
     private InnerPlacement() {
     }
@@ -83,6 +107,10 @@ final class InnerPlacement {
         return new BlockPos(x, Math.max(level.getMinY(), surfaceY), z);
     }
 
+    /**
+     * Places a block using {@link PlacementMode#LIVE_OVERLAY} update flags.
+     * Safe for player-visible incremental overlays and entry setup.
+     */
     static boolean safeSet(
             ServerLevel level,
             BlockPos pos,
@@ -90,7 +118,63 @@ final class InnerPlacement {
             boolean allowTerrainReplace,
             MutablePlacementCount count
     ) {
-        if (count.attempted++ >= InnerDimensionConstants.MAX_OVERLAY_BLOCKS_PER_CHUNK
+        return safeSet(level, pos, state, allowTerrainReplace, count, PlacementMode.LIVE_OVERLAY, true);
+    }
+
+    /**
+     * Places a block using the given {@link PlacementMode} update flags.
+     */
+    static boolean safeSet(
+            ServerLevel level,
+            BlockPos pos,
+            BlockState state,
+            boolean allowTerrainReplace,
+            MutablePlacementCount count,
+            PlacementMode mode
+    ) {
+        return safeSet(level, pos, state, allowTerrainReplace, count, mode, true);
+    }
+
+    /**
+     * Same replacement rules as {@link #safeSet}, but without charging the small per-chunk
+     * overlay attempt budget. Use only for deterministic structures that intentionally span
+     * multiple chunks, such as the center sanctuary disc. Otherwise, a large structure can be
+     * clipped halfway through its own loop and appear as a semicircle.
+     */
+    static boolean safeSetStructural(
+            ServerLevel level,
+            BlockPos pos,
+            BlockState state,
+            boolean allowTerrainReplace,
+            MutablePlacementCount count
+    ) {
+        return safeSet(level, pos, state, allowTerrainReplace, count, PlacementMode.LIVE_OVERLAY, false);
+    }
+
+    /**
+     * Same as {@link #safeSetStructural} but with explicit {@link PlacementMode}.
+     */
+    static boolean safeSetStructural(
+            ServerLevel level,
+            BlockPos pos,
+            BlockState state,
+            boolean allowTerrainReplace,
+            MutablePlacementCount count,
+            PlacementMode mode
+    ) {
+        return safeSet(level, pos, state, allowTerrainReplace, count, mode, false);
+    }
+
+    private static boolean safeSet(
+            ServerLevel level,
+            BlockPos pos,
+            BlockState state,
+            boolean allowTerrainReplace,
+            MutablePlacementCount count,
+            PlacementMode mode,
+            boolean enforceAttemptBudget
+    ) {
+        if ((enforceAttemptBudget && count.attempted++ >= InnerDimensionConstants.MAX_OVERLAY_BLOCKS_PER_CHUNK)
                 || pos.getY() < level.getMinY()
                 || pos.getY() >= level.getMaxY()) {
             count.skipped++;
@@ -108,19 +192,59 @@ final class InnerPlacement {
         if (current.equals(state)) {
             return true;
         }
-        boolean replaceable = current.isAir() || current.canBeReplaced() || !current.getFluidState().isEmpty();
-        if (!replaceable && (!allowTerrainReplace || !isGeneratedReplaceable(current.getBlock()))) {
+        if (!canReplaceCurrent(current, allowTerrainReplace)) {
             count.skipped++;
             return false;
         }
-        level.setBlock(pos, state, InnerDimensionConstants.UPDATE_FLAGS);
+        level.setBlock(pos, state, mode.updateFlags);
         count.placed++;
         return true;
     }
 
+    private static boolean canReplaceCurrent(BlockState current, boolean allowTerrainReplace) {
+        return canReplaceCurrent(
+                current.isAir(),
+                current.canBeReplaced(),
+                !current.getFluidState().isEmpty(),
+                allowTerrainReplace,
+                isGeneratedReplaceable(current.getBlock())
+        );
+    }
+
+    private static boolean canReplaceCurrent(
+            boolean air,
+            boolean replaceable,
+            boolean fluid,
+            boolean allowTerrainReplace,
+            boolean generatedReplaceable
+    ) {
+        return air || replaceable || fluid || allowTerrainReplace && generatedReplaceable;
+    }
+
+    static boolean canReplaceCurrentForTest(
+            boolean air,
+            boolean replaceable,
+            boolean fluid,
+            boolean allowTerrainReplace,
+            boolean generatedReplaceable,
+            PlacementMode mode
+    ) {
+        // PlacementMode affects update flags only; safety/replaceability rules are shared.
+        return canReplaceCurrent(air, replaceable, fluid, allowTerrainReplace, generatedReplaceable);
+    }
+
     static void clearSpawnColumn(ServerLevel level, BlockPos feet, MutablePlacementCount count) {
-        safeSet(level, feet, Blocks.AIR.defaultBlockState(), true, count);
-        safeSet(level, feet.above(), Blocks.AIR.defaultBlockState(), true, count);
+        clearSpawnColumn(level, feet, count, PlacementMode.LIVE_OVERLAY);
+    }
+
+    static void clearSpawnColumn(
+            ServerLevel level,
+            BlockPos feet,
+            MutablePlacementCount count,
+            PlacementMode mode
+    ) {
+        safeSet(level, feet, Blocks.AIR.defaultBlockState(), true, count, mode);
+        safeSet(level, feet.above(), Blocks.AIR.defaultBlockState(), true, count, mode);
     }
 
     private static boolean requiresSupport(BlockState state) {
@@ -133,7 +257,7 @@ final class InnerPlacement {
     }
 
     private static boolean isGeneratedReplaceable(Block block) {
-        return VANILLA_GENERATED_REPLACEABLE.contains(block)
+        return GeneratedReplaceableBlocks.VANILLA.contains(block)
                 || ModInnerDimensionBlocks.isGeneratedInnerBlock(block);
     }
 

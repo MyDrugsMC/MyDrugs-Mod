@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.entity;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,6 +10,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
+import org.mydrugs.mydrugs.dimension.InnerDimensions;
+import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
 import org.mydrugs.mydrugs.items.ModItems;
 
 public class ShroomDefenderEntity extends Zombie {
@@ -29,6 +34,24 @@ public class ShroomDefenderEntity extends Zombie {
     @Override
     protected boolean isSunSensitive() {
         return false;
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (target instanceof ServerPlayer player
+                && this.level() instanceof ServerLevel level
+                && level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
+            int centerX = InnerTerrain.slotCenter(this.blockPosition().getX());
+            int centerZ = InnerTerrain.slotCenter(this.blockPosition().getZ());
+            InnerDimensionSavedData.IslandState island =
+                    InnerDimensionSavedData.get(level).findIslandBySlot(centerX, centerZ);
+            if (island != null
+                    && island.owner().equals(player.getUUID())
+                    && island.hasCompletedInnerTrial(DrugId.MUSHROOMS)) {
+                return false;
+            }
+        }
+        return super.canAttack(target);
     }
 
     @Override

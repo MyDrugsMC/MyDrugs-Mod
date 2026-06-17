@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -33,7 +34,11 @@ import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
 import org.mydrugs.mydrugs.dimension.inner.InnerGenerationMetrics;
 import org.mydrugs.mydrugs.dimension.inner.InnerLocation;
+import org.mydrugs.mydrugs.dimension.inner.InnerObjectiveHelper;
+import org.mydrugs.mydrugs.dimension.inner.InnerOverlayQueue;
 import org.mydrugs.mydrugs.dimension.inner.InnerRefreshJob;
+import org.mydrugs.mydrugs.dimension.inner.InnerTrialManager;
+import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.mutation.ActiveMutationStat;
 import org.mydrugs.mydrugs.mutation.InfectionState;
@@ -225,6 +230,9 @@ public final class ModCommands {
                 .then(Commands.literal("metrics")
                         .executes(context -> innerDimensionMetrics(context.getSource()))
                 )
+                .then(Commands.literal("objective")
+                        .executes(context -> innerDimensionObjective(context.getSource()))
+                )
                 .then(Commands.literal("refresh_owner")
                         .executes(context -> innerDimensionRefreshOwner(context.getSource()))
                 )
@@ -246,6 +254,47 @@ public final class ModCommands {
                                         context.getSource(),
                                         StringArgumentType.getString(context, "drug")
                                 ))
+                        )
+                )
+                .then(Commands.literal("trial")
+                        .then(Commands.literal("status")
+                                .executes(context -> innerDimensionTrialStatus(context.getSource()))
+                        )
+                        .then(Commands.literal("complete")
+                                .then(Commands.argument("drug", StringArgumentType.word())
+                                        .suggests((context, builder) -> suggestCuratedDrugs(builder))
+                                        .executes(context -> innerDimensionTrialComplete(
+                                                context.getSource(),
+                                                StringArgumentType.getString(context, "drug")
+                                        ))
+                                )
+                        )
+                        .then(Commands.literal("reset")
+                                .executes(context -> innerDimensionTrialReset(context.getSource()))
+                        )
+                )
+                .then(Commands.literal("locate")
+                        .then(Commands.literal("landmark")
+                                .then(Commands.argument("drug", StringArgumentType.word())
+                                        .suggests((context, builder) -> suggestCuratedDrugs(builder))
+                                        .executes(context -> innerDimensionLocateLandmark(
+                                                context.getSource(),
+                                                StringArgumentType.getString(context, "drug")
+                                        ))
+                                )
+                        )
+                        .then(Commands.literal("nearest_uncompleted")
+                                .executes(context -> innerDimensionLocateNearestUncompleted(context.getSource()))
+                        )
+                )
+                .then(Commands.literal("spiral")
+                        .then(Commands.literal("build")
+                                .executes(context -> innerDimensionSpiralBuild(context.getSource()))
+                        )
+                )
+                .then(Commands.literal("compass")
+                        .then(Commands.literal("give")
+                                .executes(context -> innerDimensionCompassGive(context.getSource()))
                         )
                 );
     }
@@ -269,6 +318,12 @@ public final class ModCommands {
     private static int innerDimensionMetrics(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         source.sendSuccess(() -> Component.literal(InnerDimensionSystem.lastMetricsFor(player.getUUID())), false);
+        return 1;
+    }
+
+    private static int innerDimensionObjective(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        source.sendSuccess(() -> InnerObjectiveHelper.currentObjective(player).message(), false);
         return 1;
     }
 
@@ -309,11 +364,9 @@ public final class ModCommands {
 
     private static int innerDimensionCancelRefresh(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        boolean cancelled = InnerDimensionSystem.cancelRefresh(player.getUUID());
-        source.sendSuccess(() -> Component.literal(cancelled
-                ? "Cancelled Inner Dimension overlay refresh queue."
-                : "No Inner Dimension overlay refresh queue was active."), true);
-        return cancelled ? 1 : 0;
+        InnerOverlayQueue.CancelSummary summary = InnerDimensionSystem.cancelQueues(player.getUUID());
+        source.sendSuccess(() -> Component.literal(summary.describe()), true);
+        return summary.cancelledAnything() ? 1 : 0;
     }
 
     private static int innerDimensionLocateLandmark(CommandSourceStack source, String drugName) throws CommandSyntaxException {
@@ -332,6 +385,112 @@ public final class ModCommands {
         BlockPos pos = location.pos();
         source.sendSuccess(() -> Component.literal("Inner Dimension " + drugId.serializedName() + " "
                 + location.kind() + ": " + pos.getX() + " " + pos.getY() + " " + pos.getZ()), false);
+        return 1;
+    }
+
+    private static int innerDimensionTrialStatus(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData.IslandState island =
+                InnerDimensionSavedData.get(innerLevel).getOrCreateIsland(player.getUUID());
+        source.sendSuccess(() -> Component.translatable(
+                "message.mydrugs.inner_command.trial_status.header",
+                island.completedInnerTrialCount(),
+                CuratedDrugChain.ORDER.size()
+        ), false);
+        for (DrugId drug : CuratedDrugChain.ORDER) {
+            String state = island.hasCompletedInnerTrial(drug)
+                    ? "completed"
+                    : island.hasIntegrated(drug) ? "incomplete" : "locked";
+            source.sendSuccess(() -> Component.translatable(
+                    "message.mydrugs.inner_command.trial_status.line",
+                    Component.translatable("drug.mydrugs." + drug.serializedName()),
+                    Component.translatable("message.mydrugs.inner_command.trial_status." + state)
+            ), false);
+        }
+        return island.completedInnerTrialCount();
+    }
+
+    private static int innerDimensionCompassGive(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ItemStack compass = new ItemStack(ModItems.MEMORY_COMPASS.get());
+        if (!player.addItem(compass)) {
+            player.drop(compass, false);
+        }
+        source.sendSuccess(() -> Component.translatable(
+                "message.mydrugs.inner_command.compass_given"
+        ), false);
+        return 1;
+    }
+
+    private static int innerDimensionTrialComplete(CommandSourceStack source, String drugName) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        DrugId drug = DrugId.bySerializedNameOrNull(drugName);
+        if (drug == null || !CuratedDrugChain.ORDER.contains(drug)) {
+            source.sendFailure(Component.literal("No curated Inner Dimension region named '" + drugName + "'."));
+            return 0;
+        }
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData.IslandState island =
+                InnerDimensionSavedData.get(innerLevel).getOrCreateIsland(player.getUUID());
+        boolean completed = InnerTrialManager.completeTrial(innerLevel, player, island, drug, true);
+        source.sendSuccess(() -> Component.literal(completed
+                ? "Completed Inner Dimension trial " + drug.serializedName() + "."
+                : "Inner Dimension trial " + drug.serializedName() + " was already completed."), false);
+        return completed ? 1 : 0;
+    }
+
+    private static int innerDimensionTrialReset(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData.IslandState island =
+                InnerDimensionSavedData.get(innerLevel).getOrCreateIsland(player.getUUID());
+        boolean reset = InnerTrialManager.resetTrials(innerLevel, island);
+        source.sendSuccess(() -> Component.literal(reset
+                ? "Reset all Inner Dimension trial completions. Existing court loot was not re-armed."
+                : "No completed Inner Dimension trials to reset."), true);
+        return reset ? 1 : 0;
+    }
+
+    private static int innerDimensionLocateNearestUncompleted(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData.IslandState island =
+                InnerDimensionSavedData.get(innerLevel).getOrCreateIsland(player.getUUID());
+        DrugId drug = InnerTrialManager.nearestIncompleteTrial(island, player.blockPosition());
+        if (drug == null) {
+            source.sendFailure(Component.literal("No integrated, incomplete Inner Dimension trial was found."));
+            return 0;
+        }
+        return innerDimensionLocateLandmark(source, drug.serializedName());
+    }
+
+    private static int innerDimensionSpiralBuild(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        if (innerLevel == null) {
+            return 0;
+        }
+        InnerDimensionSavedData.IslandState island =
+                InnerDimensionSavedData.get(innerLevel).getOrCreateIsland(player.getUUID());
+        if (!island.allInnerTrialsCompleted()) {
+            source.sendFailure(Component.literal("All nine Inner Dimension trials must be completed first."));
+            return 0;
+        }
+        org.mydrugs.mydrugs.dimension.inner.InnerOverlayQueue.enqueueEntryRefresh(island);
+        source.sendSuccess(() -> Component.literal("Queued the Spiral Court center refresh."), true);
         return 1;
     }
 

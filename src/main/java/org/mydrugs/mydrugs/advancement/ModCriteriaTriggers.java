@@ -21,6 +21,8 @@ public final class ModCriteriaTriggers {
             TRIGGERS.register("psy_current_machine_powered", PsyCurrentTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, PsyKnowledgeUnlockedTrigger> PSY_KNOWLEDGE_UNLOCKED =
             TRIGGERS.register("psy_knowledge_unlocked", PsyKnowledgeUnlockedTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, InnerDimensionMilestoneTrigger> INNER_DIMENSION_MILESTONE =
+            TRIGGERS.register("inner_dimension_milestone", InnerDimensionMilestoneTrigger::new);
 
     private ModCriteriaTriggers() {
     }

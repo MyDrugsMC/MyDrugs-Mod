@@ -15,6 +15,7 @@ import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Memory vaults (B1): small lootable ruins scattered deterministically across the island —
@@ -48,6 +49,12 @@ public final class InnerVaults {
         public String marker() {
             return "vault:" + x + ":" + z;
         }
+    }
+
+    public enum VaultTier {
+        CALM,
+        DEEP,
+        DANGER
     }
 
     /** All vaults whose footprint could intersect the given chunk. */
@@ -118,11 +125,63 @@ public final class InnerVaults {
 
     /** Region tier decides what a vault's chest holds. */
     public static ResourceKey<LootTable> lootTableFor(DrugId drug) {
-        return switch (drug) {
-            case COCAINE, METH -> VAULT_DANGER;
-            case ALCOHOL, LSD, MUSHROOMS -> VAULT_DEEP;
-            default -> VAULT_CALM;
+        return switch (tierFor(drug)) {
+            case DANGER -> VAULT_DANGER;
+            case DEEP -> VAULT_DEEP;
+            case CALM -> VAULT_CALM;
         };
+    }
+
+    public static VaultTier tierFor(DrugId drug) {
+        return switch (drug) {
+            case COCAINE, METH -> VaultTier.DANGER;
+            case ALCOHOL, LSD, MUSHROOMS -> VaultTier.DEEP;
+            default -> VaultTier.CALM;
+        };
+    }
+
+    public static boolean isUnlocked(Vault vault, InnerDimensionSavedData.IslandState island) {
+        Set<DrugId> completed = island.completedInnerTrials();
+        return switch (tierFor(vault.drug())) {
+            case CALM -> hasAny(completed, DrugId.COFFEE, DrugId.WEED, DrugId.HASH, DrugId.MUSHROOMS);
+            case DEEP -> hasAny(completed, DrugId.LSD, DrugId.ALCOHOL, DrugId.MUSHROOMS, DrugId.HASH);
+            case DANGER -> hasAny(completed, DrugId.COCAINE, DrugId.METH, DrugId.TOBACCO);
+        };
+    }
+
+    public static Vault vaultAtChest(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos chestPos
+    ) {
+        ChunkPos chunk = new ChunkPos(chestPos);
+        for (Vault vault : vaultsTouchingChunk(
+                island.centerX(),
+                island.centerZ(),
+                chunk.getMinBlockX(),
+                chunk.getMinBlockZ()
+        )) {
+            InnerTerrain.Sample centre = InnerTerrain.sample(
+                    island.centerX(),
+                    island.centerZ(),
+                    vault.x(),
+                    vault.z()
+            );
+            if (chestPos.getX() == vault.x()
+                    && chestPos.getY() == chestY(vault, centre.topY())
+                    && chestPos.getZ() == vault.z()) {
+                return vault;
+            }
+        }
+        return null;
+    }
+
+    private static boolean hasAny(Set<DrugId> completed, DrugId... drugs) {
+        for (DrugId drug : drugs) {
+            if (completed.contains(drug)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Y of the loot chest relative to the vault's ground level. */
@@ -143,6 +202,17 @@ public final class InnerVaults {
             ChunkPos chunkPos,
             InnerPlacement.MutablePlacementCount count
     ) {
+        placeVaultChests(level, data, island, chunkPos, count, InnerPlacement.PlacementMode.LIVE_OVERLAY);
+    }
+
+    static void placeVaultChests(
+            ServerLevel level,
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island,
+            ChunkPos chunkPos,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (Vault vault : vaultsTouchingChunk(island.centerX(), island.centerZ(), chunkPos.getMinBlockX(), chunkPos.getMinBlockZ())) {
             if (vault.x() < chunkPos.getMinBlockX() || vault.x() > chunkPos.getMaxBlockX()
                     || vault.z() < chunkPos.getMinBlockZ() || vault.z() > chunkPos.getMaxBlockZ()) {
@@ -153,7 +223,7 @@ public final class InnerVaults {
             }
             InnerTerrain.Sample centre = InnerTerrain.sample(island.centerX(), island.centerZ(), vault.x(), vault.z());
             BlockPos chestPos = new BlockPos(vault.x(), chestY(vault, centre.topY()), vault.z());
-            if (!InnerPlacement.safeSet(level, chestPos, Blocks.CHEST.defaultBlockState(), true, count)) {
+            if (!InnerPlacement.safeSet(level, chestPos, Blocks.CHEST.defaultBlockState(), true, count, mode)) {
                 continue;
             }
             RandomizableContainer.setBlockEntityLootTable(level, level.getRandom(), chestPos, lootTableFor(vault.drug()));

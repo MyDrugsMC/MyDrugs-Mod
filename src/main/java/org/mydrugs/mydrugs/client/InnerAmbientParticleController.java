@@ -248,4 +248,9 @@ public final class InnerAmbientParticleController {
             return false;
         }
     }
+
+    public static void clear() {
+        tickCounter = 0;
+        heroCooldown = 200;
+    }
 }

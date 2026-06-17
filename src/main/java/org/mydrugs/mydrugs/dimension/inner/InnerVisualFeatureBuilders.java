@@ -26,57 +26,70 @@ public final class InnerVisualFeatureBuilders {
             "sky_shards"
     );
 
+    /**
+     * The visual builders in canonical order, index-aligned with {@link #BUILDER_ORDER} (and so
+     * with {@code InnerGenerationProfiler}'s per-builder nanos / {@code QueueState.perBuilderNanos}).
+     * Each builder is written once against {@link InnerBlockSink}; the worldgen-thread initial pass
+     * and the server-thread overlay pass run the same {@code place} method through the appropriate
+     * sink, so the two passes cannot diverge.
+     */
+    private static final VisualBuilder[] BUILDERS = {
+            InnerLakeBuilder::place,
+            InnerLakeSceneBuilder::place,
+            InnerRiverBuilder::place,
+            InnerCoastDramaBuilder::place,
+            InnerSpikeBuilder::place,
+            InnerTalusBuilder::place,
+            InnerMegaFormBuilder::place,
+            InnerHeroFeatureBuilder::place,
+            InnerTreeBuilder::place,
+            InnerPathSceneBuilder::place,
+            InnerLandmarkApproachBuilder::place,
+            InnerTransitionSceneBuilder::place,
+            InnerVaultBuilder::place,
+            InnerPlantBuilder::place,
+            InnerGlowBuilder::place,
+            InnerSkyShardBuilder::place
+    };
+
     private InnerVisualFeatureBuilders() {
     }
 
+    /** Worldgen-thread pass: dress the chunk being generated via a chunk-backed sink. */
     public static void placeInitialFeatures(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        InnerLakeBuilder.placeInitialLakeDetails(chunk, cache);
-        InnerLakeSceneBuilder.placeInitialLakeScenes(chunk, cache);
-        InnerRiverBuilder.placeInitialRivers(chunk, cache);
-        InnerCoastDramaBuilder.placeInitialCoastDrama(chunk, cache);
-        InnerSpikeBuilder.placeInitialSpikes(chunk, cache);
-        InnerTalusBuilder.placeInitialTalus(chunk, cache);
-        InnerMegaFormBuilder.placeInitialMegaForms(chunk, cache);
-        InnerHeroFeatureBuilder.placeInitialHeroFeatures(chunk, cache);
-        InnerTreeBuilder.placeInitialTrees(chunk, cache);
-        InnerPathSceneBuilder.placeInitialPathScenes(chunk, cache);
-        InnerLandmarkApproachBuilder.placeInitialLandmarkApproaches(chunk, cache);
-        InnerTransitionSceneBuilder.placeInitialTransitionScenes(chunk, cache);
-        InnerVaultBuilder.placeInitialVaults(chunk, cache);
-        InnerPlantBuilder.placeInitialPlants(chunk, cache);
-        InnerGlowBuilder.placeInitialGlow(chunk, cache);
-        InnerSkyShardBuilder.placeInitialSkyShardDetails(chunk, cache);
+        ChunkPos chunkPos = chunk.getPos();
+        int minX = chunkPos.getMinBlockX();
+        int minZ = chunkPos.getMinBlockZ();
+        InnerBlockSink sink = InnerBlockSink.forChunk(chunk);
+        for (VisualBuilder builder : BUILDERS) {
+            builder.place(sink, cache, minX, minZ);
+        }
     }
 
-    /** Overlay steps, index-aligned with {@link #BUILDER_ORDER} for per-builder metrics. */
-    private static final OverlayStep[] OVERLAY_STEPS = {
-            InnerLakeBuilder::placeOverlayLakeDetails,
-            InnerLakeSceneBuilder::placeOverlayLakeScenes,
-            InnerRiverBuilder::placeOverlayRivers,
-            InnerCoastDramaBuilder::placeOverlayCoastDrama,
-            InnerSpikeBuilder::placeOverlaySpikes,
-            InnerTalusBuilder::placeOverlayTalus,
-            InnerMegaFormBuilder::placeOverlayMegaForms,
-            InnerHeroFeatureBuilder::placeOverlayHeroFeatures,
-            InnerTreeBuilder::placeOverlayTrees,
-            InnerPathSceneBuilder::placeOverlayPathScenes,
-            InnerLandmarkApproachBuilder::placeOverlayLandmarkApproaches,
-            InnerTransitionSceneBuilder::placeOverlayTransitionScenes,
-            InnerVaultBuilder::placeOverlayVaults,
-            InnerPlantBuilder::placeOverlayPlants,
-            InnerGlowBuilder::placeOverlayGlow,
-            InnerSkyShardBuilder::placeOverlaySkyShardDetails
-    };
-
+    /** Server-thread overlay pass: idempotent re-dress via a {@link InnerPlacement#safeSet} sink. */
     static void placeOverlayFeatures(
             ServerLevel level,
             ChunkPos chunkPos,
             InnerChunkSampleCache cache,
             InnerPlacement.MutablePlacementCount count
     ) {
-        for (int i = 0; i < OVERLAY_STEPS.length; i++) {
+        placeOverlayFeatures(level, chunkPos, cache, count, InnerPlacement.PlacementMode.LIVE_OVERLAY);
+    }
+
+    /** Server-thread overlay/recreate pass with explicit placement mode. */
+    static void placeOverlayFeatures(
+            ServerLevel level,
+            ChunkPos chunkPos,
+            InnerChunkSampleCache cache,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
+        InnerBlockSink sink = InnerBlockSink.forLevel(level, count, mode);
+        int minX = chunkPos.getMinBlockX();
+        int minZ = chunkPos.getMinBlockZ();
+        for (int i = 0; i < BUILDERS.length; i++) {
             long start = System.nanoTime();
-            OVERLAY_STEPS[i].place(level, chunkPos, cache, count);
+            BUILDERS[i].place(sink, cache, minX, minZ);
             InnerGenerationProfiler.recordBuilderNanos(i, System.nanoTime() - start);
         }
     }
@@ -90,11 +103,12 @@ public final class InnerVisualFeatureBuilders {
     }
 
     static int overlayStepCountForTest() {
-        return OVERLAY_STEPS.length;
+        return BUILDERS.length;
     }
 
+    /** A visual builder collapsed onto the single sink-based placement API. */
     @FunctionalInterface
-    private interface OverlayStep {
-        void place(ServerLevel level, ChunkPos chunkPos, InnerChunkSampleCache cache, InnerPlacement.MutablePlacementCount count);
+    interface VisualBuilder {
+        void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ);
     }
 }

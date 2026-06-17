@@ -1,11 +1,7 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 
 /**
  * Carves narrow watercourses through low valleys so water connects downhill rather than only sitting
@@ -25,53 +21,26 @@ final class InnerRiverBuilder {
     private static final double RIVER_HALF_WIDTH = 0.06D;
     // Only carve in low valley ground so rivers descend and connect basins.
     private static final int RIVER_MAX_TOP_Y = InnerDimensionConstants.BASE_Y + 8;
+    private static final int MARGIN = 2;
 
     private InnerRiverBuilder() {
     }
 
-    static void placeInitialRivers(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeRivers(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayRivers(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeRivers(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
-    }
-
-    private static void placeRivers(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        if (!cache.anyLand() || cache.minLandTopY() > RIVER_MAX_TOP_Y) {
-            return;
-        }
-        int centerX = InnerTerrain.slotCenter(minX + 8);
-        int centerZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int centerX = cache.islandCenterX();
+        int centerZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(centerX, centerZ);
-        for (int localZ = 0; localZ < 16; localZ++) {
-            for (int localX = 0; localX < 16; localX++) {
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN; worldZ++) {
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN; worldX++) {
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
                 if (!isRiver(sample, seed, worldX, worldZ)) {
                     continue;
                 }
                 int y = sample.topY();
-                setter.set(new BlockPos(worldX, y, worldZ), Blocks.WATER.defaultBlockState());
-                setter.set(new BlockPos(worldX, y + 1, worldZ), Blocks.AIR.defaultBlockState());
+                sink.setBlock(new BlockPos(worldX, y, worldZ), Blocks.WATER.defaultBlockState(), true);
+                sink.setBlock(new BlockPos(worldX, y + 1, worldZ), Blocks.AIR.defaultBlockState(), true);
                 if (isDeltaMouth(sample)) {
-                    placeDeltaFan(centerX, centerZ, worldX, y, worldZ, setter);
+                    placeDeltaFan(centerX, centerZ, worldX, y, worldZ, sink);
                 }
             }
         }
@@ -87,7 +56,7 @@ final class InnerRiverBuilder {
      * placed at its own column's surface (and only when nearly level with the channel) so the fan
      * never leaves floating or buried water.
      */
-    private static void placeDeltaFan(int centerX, int centerZ, int worldX, int riverY, int worldZ, BlockSetter setter) {
+    private static void placeDeltaFan(int centerX, int centerZ, int worldX, int riverY, int worldZ, InnerBlockSink sink) {
         for (int arm = 0; arm < 4; arm++) {
             int dx = arm == 0 ? 1 : arm == 1 ? -1 : 0;
             int dz = arm == 2 ? 1 : arm == 3 ? -1 : 0;
@@ -96,12 +65,12 @@ final class InnerRiverBuilder {
                     || Math.abs(neighbor.topY() - riverY) > 1) {
                 continue;
             }
-            setter.set(new BlockPos(worldX + dx, neighbor.topY(), worldZ + dz), Blocks.WATER.defaultBlockState());
-            setter.set(new BlockPos(worldX + dx, neighbor.topY() + 1, worldZ + dz), Blocks.AIR.defaultBlockState());
+            sink.setBlock(new BlockPos(worldX + dx, neighbor.topY(), worldZ + dz), Blocks.WATER.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(worldX + dx, neighbor.topY() + 1, worldZ + dz), Blocks.AIR.defaultBlockState(), true);
             // Silt bar diagonal to the watered arm.
             InnerTerrain.Sample corner = InnerTerrain.sample(centerX, centerZ, worldX + dx + dz, worldZ + dz + dx);
             if (corner.land() && !corner.lake() && Math.abs(corner.topY() - riverY) <= 1) {
-                setter.set(new BlockPos(worldX + dx + dz, corner.topY(), worldZ + dz + dx), Blocks.MUD.defaultBlockState());
+                sink.setBlock(new BlockPos(worldX + dx + dz, corner.topY(), worldZ + dz + dx), Blocks.MUD.defaultBlockState(), true);
             }
         }
     }
@@ -119,9 +88,5 @@ final class InnerRiverBuilder {
         }
         double n = InnerNoise.fbm(seed + RIVER_SALT, worldX, worldZ, RIVER_SCALE, 4);
         return Math.abs(n) < RIVER_HALF_WIDTH;
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

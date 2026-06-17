@@ -147,7 +147,7 @@ public final class InnerChunkGenerator extends ChunkGenerator {
             LevelHeightAccessor level,
             RandomState randomState
     ) {
-        InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
+        InnerTerrain.Sample sample = InnerTerrain.sampleVanillaColumn(x, z);
         return sample.land() ? sample.visualTopY() + 1 : level.getMinY();
     }
 
@@ -158,7 +158,7 @@ public final class InnerChunkGenerator extends ChunkGenerator {
             states[i] = Blocks.AIR.defaultBlockState();
         }
 
-        InnerTerrain.Sample sample = InnerTerrain.sample(x, z);
+        InnerTerrain.Sample sample = InnerTerrain.sampleVanillaColumn(x, z);
         if (sample.skyLand()) {
             for (int y = sample.skyBottomY(); y <= sample.skyTopY(); y++) {
                 if (y >= level.getMinY() && y < level.getMinY() + level.getHeight()) {

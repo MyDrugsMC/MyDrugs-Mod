@@ -1091,6 +1091,11 @@
       "client_item": true,
       "item_model": true
     },
+    "memory_compass": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
     "memory_lotus": {
       "lang": true,
       "client_item": true,
@@ -4176,6 +4181,11 @@
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:memory_compass": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:mixing_vat": {
       "type": "minecraft:crafting_shaped",
       "schema": "validated",
@@ -5205,6 +5215,54 @@
       "lang": true
     },
     "mydrugs:gases/toxic_gas_handling": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/above_the_self": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/first_sigil": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/freedom_is_not_escape": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/nine_lessons": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/the_inner_world": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/the_spiral_court": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/the_world_answers_back": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:inner_dimension/vault_of_memory": {
       "display": true,
       "parent": true,
       "icon": true,

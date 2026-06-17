@@ -38,6 +38,12 @@ public final class AdvancementEventHooks {
         mapRecoveryActionToPsyche(player, action);
     }
 
+    public static void innerDimensionMilestone(ServerPlayer player, String milestone) {
+        if (player != null && milestone != null && !milestone.isBlank()) {
+            ModCriteriaTriggers.INNER_DIMENSION_MILESTONE.get().trigger(player, milestone);
+        }
+    }
+
     private static void mapRecoveryActionToPsyche(ServerPlayer player, String action) {
         if (player == null || action == null) return;
         switch (action) {

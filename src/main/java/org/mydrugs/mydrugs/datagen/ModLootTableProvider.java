@@ -102,6 +102,36 @@ public class ModLootTableProvider extends LootTableProvider {
                             .add(LootItem.lootTableItem(ModItems.PSYCHOTROPE_LENS.get()).setWeight(3))
                             .add(LootItem.lootTableItem(ModItems.MYCELIAL_INSIGHT.get()).setWeight(2)))
             );
+            output.accept(org.mydrugs.mydrugs.dimension.inner.InnerSkyShardLootBuilder.SKY_SHRINE, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .setRolls(UniformGenerator.between(2.0F, 4.0F))
+                            .add(LootItem.lootTableItem(ModItems.DREAM_RESIDUE.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                            .add(LootItem.lootTableItem(ModItems.MYCELIAL_INSIGHT.get()).setWeight(5)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F))))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.DREAM_ORCHID.get()).setWeight(4))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.PRISM_LOTUS.get()).setWeight(3))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.SPORE_BLOOM.get()).setWeight(3))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.DREAM_RESIDUE_GEODE.get()).setWeight(1)))
+            );
+            output.accept(org.mydrugs.mydrugs.dimension.inner.InnerSpiralCourtBuilder.SPIRAL_COURT_REWARD, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                            .setRolls(UniformGenerator.between(7.0F, 9.0F))
+                            .add(LootItem.lootTableItem(ModItems.DREAM_RESIDUE.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F))))
+                            .add(LootItem.lootTableItem(ModItems.MYCELIAL_INSIGHT.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
+                            .add(LootItem.lootTableItem(ModItems.PRESSED_CALM.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
+                            .add(LootItem.lootTableItem(ModItems.FERMENTED_MEMORY.get()).setWeight(6)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
+                            .add(LootItem.lootTableItem(ModItems.CALMING_SPORES.get()).setWeight(5)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 6.0F))))
+                            .add(LootItem.lootTableItem(ModItems.PRISTINE_INTEGRATION_CORE.get()).setWeight(1))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.LUCID_ECHO_NODE.get()).setWeight(2))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.DREAM_RESIDUE_GEODE.get()).setWeight(2))
+                            .add(LootItem.lootTableItem(ModInnerDimensionBlocks.MYCELIAL_INSIGHT_NODE.get()).setWeight(2)))
+            );
         }
     }
 

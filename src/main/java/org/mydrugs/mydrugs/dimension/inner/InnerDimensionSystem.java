@@ -6,6 +6,7 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class InnerDimensionSystem {
@@ -38,7 +39,6 @@ public final class InnerDimensionSystem {
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         boolean recorded = data.recordIntegration(island.owner(), drugId);
         if (recorded) {
-            data.markStructurePlaced(island.owner(), InnerDimensionConstants.pathMarker(drugId));
             InnerOverlayQueue.enqueueIntegrationAwakening(island, drugId, liveWave);
         }
         return recorded;
@@ -91,9 +91,6 @@ public final class InnerDimensionSystem {
             InnerDimensionSavedData.IslandState island
     ) {
         data.markStructurePlaced(island.owner(), InnerDimensionConstants.MARKER_OWNER_READY);
-        for (DrugId drugId : island.integratedDrugs()) {
-            data.markStructurePlaced(island.owner(), InnerDimensionConstants.pathMarker(drugId));
-        }
     }
 
     public static InnerLocation locateLandmark(InnerDimensionSavedData.IslandState island, DrugId drugId) {
@@ -108,6 +105,16 @@ public final class InnerDimensionSystem {
         return InnerOverlayQueue.cancel(owner);
     }
 
+    /** Cancel an owner's queues and report what was abandoned (admin/debug command surface). */
+    public static InnerOverlayQueue.CancelSummary cancelQueues(UUID owner) {
+        return InnerOverlayQueue.cancelWithSummary(owner);
+    }
+
+    /** Structured progress of an owner's destructive recreate, if one is running. */
+    public static Optional<InnerOverlayQueue.QueueProgress> recreateProgress(UUID owner) {
+        return InnerOverlayQueue.recreateProgress(owner);
+    }
+
     public static String queueStatus(UUID owner) {
         return InnerOverlayQueue.queueStatus(owner);
     }
@@ -117,11 +124,16 @@ public final class InnerDimensionSystem {
     }
 
     public static BlockPos safeSpawnPos(ServerLevel level, InnerDimensionSavedData.IslandState island) {
-        int y = InnerTerrain.safeSpawnY(island.centerX(), island.centerZ());
-        BlockPos feet = new BlockPos(island.centerX(), y, island.centerZ());
+        int cx = island.centerX();
+        int cz = island.centerZ();
+        // Sample the terrain at the island centre so the spawn-support block matches the generated
+        // surface profile for that region instead of a hard-coded Coffee path.
+        InnerTerrain.Sample terrain = InnerTerrain.sample(cx, cz, cx, cz);
+        int y = terrain.topY() + 1;
+        BlockPos feet = new BlockPos(cx, y, cz);
         level.getChunkAt(feet);
         InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
-        InnerPlacement.safeSet(level, feet.below(), InnerTerrainProfile.forDrug(DrugId.COFFEE).pathBlock(), true, count);
+        InnerPlacement.safeSet(level, feet.below(), terrain.profile().pathBlock(), true, count);
         InnerPlacement.clearSpawnColumn(level, feet, count);
         return feet;
     }

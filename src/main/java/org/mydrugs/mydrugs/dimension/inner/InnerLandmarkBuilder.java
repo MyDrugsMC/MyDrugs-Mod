@@ -19,26 +19,40 @@ public final class InnerLandmarkBuilder {
             boolean unlocked,
             InnerPlacement.MutablePlacementCount count
     ) {
+        placeLandmark(level, island, drugId, unlocked, count, InnerPlacement.PlacementMode.LIVE_OVERLAY);
+    }
+
+    public static void placeLandmark(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            DrugId drugId,
+            boolean unlocked,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         // Skip the full shrine rebuild if this landmark has already been placed in its current state.
         String marker = InnerDimensionConstants.landmarkMarker(drugId, unlocked);
-        if (island.hasMarker(marker)) {
-            return;
+        if (!island.hasMarker(marker)) {
+            BlockPos anchor = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
+            BlockPos surface = InnerPlacement.surfaceTop(level, anchor.getX(), anchor.getZ());
+            if (unlocked) {
+                placeUnlockedLandmark(level, island, drugId, surface, count, mode);
+            } else {
+                placeLockedLandmark(level, drugId, surface, count, mode);
+            }
+            InnerDimensionSavedData.get(level).markStructurePlaced(island.owner(), marker);
         }
-        BlockPos anchor = InnerRegionMap.landmarkFor(island.centerX(), island.centerZ(), drugId);
-        BlockPos surface = InnerPlacement.surfaceTop(level, anchor.getX(), anchor.getZ());
         if (unlocked) {
-            placeUnlockedLandmark(level, island, drugId, surface, count);
-        } else {
-            placeLockedLandmark(level, drugId, surface, count);
+            InnerTrialBuilder.placeFixtures(level, island, drugId, count, mode);
         }
-        InnerDimensionSavedData.get(level).markStructurePlaced(island.owner(), marker);
     }
 
     static void placeLockedLandmark(
             ServerLevel level,
             DrugId drugId,
             BlockPos surface,
-            InnerPlacement.MutablePlacementCount count
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
     ) {
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
         for (int dz = -8; dz <= 8; dz++) {
@@ -51,9 +65,9 @@ public final class InnerLandmarkBuilder {
                 BlockState floor = dist < 5.0D
                         ? Blocks.DEEPSLATE_TILES.defaultBlockState()
                         : Blocks.CRACKED_DEEPSLATE_TILES.defaultBlockState();
-                InnerPlacement.safeSet(level, top, floor, true, count);
+                InnerPlacement.safeSet(level, top, floor, true, count, mode);
                 if (dist > 6.8D && ((dx + dz) & 1) == 0) {
-                    InnerPlacement.safeSet(level, top.above(), Blocks.IRON_BARS.defaultBlockState(), true, count);
+                    InnerPlacement.safeSet(level, top.above(), Blocks.IRON_BARS.defaultBlockState(), true, count, mode);
                 }
             }
         }
@@ -65,10 +79,10 @@ public final class InnerLandmarkBuilder {
                     surface.getZ() + (int) Math.round(Math.sin(angle) * 6.0D)
             );
             for (int y = 0; y < 4; y++) {
-                InnerPlacement.safeSet(level, top.above(y), Blocks.CRACKED_DEEPSLATE_TILES.defaultBlockState(), true, count);
+                InnerPlacement.safeSet(level, top.above(y), Blocks.CRACKED_DEEPSLATE_TILES.defaultBlockState(), true, count, mode);
             }
         }
-        InnerPlacement.safeSet(level, surface.above(2), profile.accentBlock(), true, count);
+        InnerPlacement.safeSet(level, surface.above(2), profile.accentBlock(), true, count, mode);
     }
 
     static void placeUnlockedLandmark(
@@ -76,7 +90,8 @@ public final class InnerLandmarkBuilder {
             InnerDimensionSavedData.IslandState island,
             DrugId drugId,
             BlockPos surface,
-            InnerPlacement.MutablePlacementCount count
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
     ) {
         InnerTerrainProfile profile = InnerTerrainProfile.forDrug(drugId);
         int radius = switch (drugId) {
@@ -84,21 +99,21 @@ public final class InnerLandmarkBuilder {
             case METH, COCAINE -> 18;
             default -> 16;
         };
-        placeStandingPlace(level, surface, profile, radius, count);
+        placeStandingPlace(level, surface, profile, radius, count, mode);
         switch (drugId) {
-            case COFFEE -> coffeeCircle(level, surface, count);
-            case TOBACCO -> tobaccoChapel(level, surface, count);
-            case WEED -> weedGarden(level, surface, count);
-            case HASH -> hashShrine(level, surface, count);
-            case ALCOHOL -> alcoholBasin(level, surface, count);
-            case COCAINE -> cocaineBridge(level, surface, count);
-            case LSD -> lsdSpiral(level, surface, count);
-            case METH -> methPylon(level, surface, count);
-            case MUSHROOMS -> mushroomCathedral(level, surface, count);
+            case COFFEE -> coffeeCircle(level, surface, count, mode);
+            case TOBACCO -> tobaccoChapel(level, surface, count, mode);
+            case WEED -> weedGarden(level, surface, count, mode);
+            case HASH -> hashShrine(level, surface, count, mode);
+            case ALCOHOL -> alcoholBasin(level, surface, count, mode);
+            case COCAINE -> cocaineBridge(level, surface, count, mode);
+            case LSD -> lsdSpiral(level, surface, count, mode);
+            case METH -> methPylon(level, surface, count, mode);
+            case MUSHROOMS -> mushroomCathedral(level, surface, count, mode);
             default -> {
             }
         }
-        InnerPlacement.safeSet(level, surface.above(2), profile.nodeState(), true, count);
+        InnerPlacement.safeSet(level, surface.above(2), profile.nodeState(), true, count, mode);
     }
 
     private static void placeStandingPlace(
@@ -106,7 +121,8 @@ public final class InnerLandmarkBuilder {
             BlockPos center,
             InnerTerrainProfile profile,
             int radius,
-            InnerPlacement.MutablePlacementCount count
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
     ) {
         for (int dz = -radius; dz <= radius; dz++) {
             for (int dx = -radius; dx <= radius; dx++) {
@@ -116,16 +132,21 @@ public final class InnerLandmarkBuilder {
                 }
                 BlockPos top = InnerPlacement.surfaceTop(level, center.getX() + dx, center.getZ() + dz);
                 BlockState floor = dist < 7.0D ? profile.surfaceBlock() : profile.pathBlock();
-                InnerPlacement.safeSet(level, top, floor, true, count);
+                InnerPlacement.safeSet(level, top, floor, true, count, mode);
                 if (dist < 10.0D) {
-                    InnerPlacement.safeSet(level, top.above(), Blocks.AIR.defaultBlockState(), true, count);
-                    InnerPlacement.safeSet(level, top.above(2), Blocks.AIR.defaultBlockState(), true, count);
+                    InnerPlacement.safeSet(level, top.above(), Blocks.AIR.defaultBlockState(), true, count, mode);
+                    InnerPlacement.safeSet(level, top.above(2), Blocks.AIR.defaultBlockState(), true, count, mode);
                 }
             }
         }
     }
 
-    private static void coffeeCircle(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void coffeeCircle(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int i = 0; i < 12; i++) {
             double angle = i / 12.0D * Math.PI * 2.0D;
             BlockPos top = InnerPlacement.surfaceTop(
@@ -135,11 +156,16 @@ public final class InnerLandmarkBuilder {
             );
             InnerPlacement.safeSet(level, top.above(), i % 3 == 0
                     ? Blocks.LANTERN.defaultBlockState()
-                    : Blocks.BOOKSHELF.defaultBlockState(), true, count);
+                    : Blocks.BOOKSHELF.defaultBlockState(), true, count, mode);
         }
     }
 
-    private static void tobaccoChapel(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void tobaccoChapel(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int i = 0; i < 8; i++) {
             double angle = i / 8.0D * Math.PI * 2.0D;
             BlockPos top = InnerPlacement.surfaceTop(
@@ -150,24 +176,34 @@ public final class InnerLandmarkBuilder {
             for (int y = 0; y < 6; y++) {
                 InnerPlacement.safeSet(level, top.above(y), y == 5
                         ? Blocks.TUFF.defaultBlockState()
-                        : Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), true, count);
+                        : Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), true, count, mode);
             }
         }
     }
 
-    private static void weedGarden(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void weedGarden(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int dz = -12; dz <= 12; dz += 2) {
             for (int dx = -12; dx <= 12; dx += 2) {
                 if (dx * dx + dz * dz > 145 || ((dx * 19 + dz * 31) & 3) != 0) {
                     continue;
                 }
                 BlockPos top = InnerPlacement.surfaceTop(level, center.getX() + dx, center.getZ() + dz);
-                InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState(), false, count);
+                InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState(), false, count, mode);
             }
         }
     }
 
-    private static void hashShrine(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void hashShrine(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int i = 0; i < 10; i++) {
             double angle = i / 10.0D * Math.PI * 2.0D;
             for (int r = 8; r <= 14; r += 3) {
@@ -179,13 +215,18 @@ public final class InnerLandmarkBuilder {
                 for (int y = 0; y < 3 + (i % 3); y++) {
                     InnerPlacement.safeSet(level, top.above(y), i % 2 == 0
                             ? Blocks.CALCITE.defaultBlockState()
-                            : Blocks.AMETHYST_BLOCK.defaultBlockState(), true, count);
+                            : Blocks.AMETHYST_BLOCK.defaultBlockState(), true, count, mode);
                 }
             }
         }
     }
 
-    private static void alcoholBasin(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void alcoholBasin(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int dz = -11; dz <= 11; dz++) {
             for (int dx = -11; dx <= 11; dx++) {
                 double dist = Math.sqrt(dx * dx + dz * dz);
@@ -195,29 +236,39 @@ public final class InnerLandmarkBuilder {
                 BlockPos top = InnerPlacement.surfaceTop(level, center.getX() + dx, center.getZ() + dz);
                 InnerPlacement.safeSet(level, top, dist < 8.0D
                         ? Blocks.MUD.defaultBlockState()
-                        : Blocks.DEEPSLATE_TILES.defaultBlockState(), true, count);
+                        : Blocks.DEEPSLATE_TILES.defaultBlockState(), true, count, mode);
                 if (((dx * 13 + dz * 7) & 5) == 0) {
-                    InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.MEMORY_REEDS.get().defaultBlockState(), false, count);
+                    InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.MEMORY_REEDS.get().defaultBlockState(), false, count, mode);
                 }
             }
         }
     }
 
-    private static void cocaineBridge(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void cocaineBridge(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int i = -17; i <= 17; i++) {
             BlockPos top = InnerPlacement.surfaceTop(level, center.getX() + i, center.getZ());
-            InnerPlacement.safeSet(level, top, Blocks.SMOOTH_QUARTZ.defaultBlockState(), true, count);
+            InnerPlacement.safeSet(level, top, Blocks.SMOOTH_QUARTZ.defaultBlockState(), true, count, mode);
             if (Math.abs(i) % 5 == 0) {
-                InnerPlacement.safeSet(level, top.above(), Blocks.REDSTONE_BLOCK.defaultBlockState(), true, count);
+                InnerPlacement.safeSet(level, top.above(), Blocks.REDSTONE_BLOCK.defaultBlockState(), true, count, mode);
             }
             if (Math.abs(i) % 7 == 0) {
-                InnerPlacement.safeSet(level, top.north().above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count);
-                InnerPlacement.safeSet(level, top.south().above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count);
+                InnerPlacement.safeSet(level, top.north().above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count, mode);
+                InnerPlacement.safeSet(level, top.south().above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count, mode);
             }
         }
     }
 
-    private static void lsdSpiral(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void lsdSpiral(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int i = 0; i < 52; i++) {
             double t = i / 8.0D;
             double radius = 3.0D + i * 0.28D;
@@ -228,18 +279,23 @@ public final class InnerLandmarkBuilder {
             ).above(i % 5);
             InnerPlacement.safeSet(level, top, i % 4 == 0
                     ? Blocks.SEA_LANTERN.defaultBlockState()
-                    : Blocks.PRISMARINE.defaultBlockState(), true, count);
+                    : Blocks.PRISMARINE.defaultBlockState(), true, count, mode);
             if (i % 6 == 0) {
-                InnerPlacement.safeSet(level, top.above(), Blocks.TINTED_GLASS.defaultBlockState(), true, count);
+                InnerPlacement.safeSet(level, top.above(), Blocks.TINTED_GLASS.defaultBlockState(), true, count, mode);
             }
         }
     }
 
-    private static void methPylon(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void methPylon(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int y = 0; y < 13; y++) {
             InnerPlacement.safeSet(level, center.above(y), y % 4 == 0
                     ? Blocks.MAGMA_BLOCK.defaultBlockState()
-                    : Blocks.POLISHED_BLACKSTONE.defaultBlockState(), true, count);
+                    : Blocks.POLISHED_BLACKSTONE.defaultBlockState(), true, count, mode);
         }
         for (int i = 0; i < 6; i++) {
             double angle = i / 6.0D * Math.PI * 2.0D;
@@ -248,11 +304,16 @@ public final class InnerLandmarkBuilder {
                     center.getX() + (int) Math.round(Math.cos(angle) * 9.0D),
                     center.getZ() + (int) Math.round(Math.sin(angle) * 9.0D)
             );
-            InnerPlacement.safeSet(level, top.above(), Blocks.MAGMA_BLOCK.defaultBlockState(), true, count);
+            InnerPlacement.safeSet(level, top.above(), Blocks.MAGMA_BLOCK.defaultBlockState(), true, count, mode);
         }
     }
 
-    private static void mushroomCathedral(ServerLevel level, BlockPos center, InnerPlacement.MutablePlacementCount count) {
+    private static void mushroomCathedral(
+            ServerLevel level,
+            BlockPos center,
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
+    ) {
         for (int i = 0; i < 9; i++) {
             double angle = i / 9.0D * Math.PI * 2.0D;
             BlockPos top = InnerPlacement.surfaceTop(
@@ -261,11 +322,11 @@ public final class InnerLandmarkBuilder {
                     center.getZ() + (int) Math.round(Math.sin(angle) * 12.0D)
             );
             for (int y = 0; y < 7; y++) {
-                InnerPlacement.safeSet(level, top.above(y), Blocks.MUSHROOM_STEM.defaultBlockState(), true, count);
+                InnerPlacement.safeSet(level, top.above(y), Blocks.MUSHROOM_STEM.defaultBlockState(), true, count, mode);
             }
             InnerPlacement.safeSet(level, top.above(7), i % 2 == 0
                     ? Blocks.RED_MUSHROOM_BLOCK.defaultBlockState()
-                    : Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState(), true, count);
+                    : Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState(), true, count, mode);
         }
         for (int dz = -14; dz <= 14; dz += 3) {
             for (int dx = -14; dx <= 14; dx += 3) {
@@ -273,7 +334,7 @@ public final class InnerLandmarkBuilder {
                     continue;
                 }
                 BlockPos top = InnerPlacement.surfaceTop(level, center.getX() + dx, center.getZ() + dz);
-                InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.MYCELIAL_ROOT.get().defaultBlockState(), false, count);
+                InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.MYCELIAL_ROOT.get().defaultBlockState(), false, count, mode);
             }
         }
     }

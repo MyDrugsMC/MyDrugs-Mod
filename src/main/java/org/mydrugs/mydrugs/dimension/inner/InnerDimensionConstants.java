@@ -5,7 +5,8 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerDimensionConstants {
     public static final String SYSTEM_NAME = "Inner Dimension";
-    public static final int OVERLAY_SCHEMA_VERSION = 2;
+    public static final int OVERLAY_SCHEMA_VERSION = 3;
+    private static final String OVERLAY_SCHEMA_SUFFIX = ":v" + OVERLAY_SCHEMA_VERSION;
 
     public static final int SLOT_SPACING = 4096;
     public static final int ISLAND_RADIUS = 1280;
@@ -39,6 +40,15 @@ public final class InnerDimensionConstants {
     public static final int OVERLAY_CHUNKS_PER_TICK = 6;
     public static final int RECREATE_CHUNKS_PER_TICK = 1;
     /**
+     * Upper bound on how many not-yet-loaded chunks a single queue may examine (and skip past)
+     * in one tick while hunting for loaded work. Deferring an unloaded chunk never consumes the
+     * per-tick processing budget, so this cap is the safeguard that keeps a queue made entirely of
+     * unloaded chunks from re-scanning its whole backlog every tick. The queue rotates by this many
+     * positions per tick, so loaded chunks behind a long unloaded run are still reached over a few
+     * ticks without ever forcing a chunk load.
+     */
+    public static final int MAX_UNLOADED_CHUNK_SCANS_PER_TICK = 64;
+    /**
      * Soft millisecond budget for overlay/recreate work per server tick. The chunk caps above
      * remain hard ceilings; this budget can only <em>reduce</em> per-tick work (always processing
      * at least one chunk so queues drain), keeping ticks smooth during awakening waves.
@@ -52,6 +62,16 @@ public final class InnerDimensionConstants {
 
     public static final String MARKER_SANCTUARY = "sanctuary:center";
     public static final String MARKER_OWNER_READY = "owner:ready";
+    public static final String MARKER_TRIAL_FIXTURE = "trial_fixture:";
+    public static final String MARKER_SPIRAL_COURT = "spiral_court:placed";
+    public static final String MARKER_SPIRAL_REWARD = "spiral_court:reward";
+    // Semantic progress markers are achievement/state, not decoration cache entries. Do not
+    // version them with OVERLAY_SCHEMA_VERSION or visual refreshes would erase player progress.
+    public static final String MARKER_PROGRESS_PREFIX = "progress:";
+    public static final String MARKER_RETURN_PENDING = MARKER_PROGRESS_PREFIX + "return_pending:";
+    public static final String MARKER_FIRST_VAULT_OPENED = MARKER_PROGRESS_PREFIX + "first_vault_opened";
+    public static final String MARKER_FIRST_SKY_SHRINE = MARKER_PROGRESS_PREFIX + "first_sky_shrine";
+    public static final String MARKER_SPIRAL_COMPLETED = MARKER_PROGRESS_PREFIX + "spiral_court_completed";
 
     private InnerDimensionConstants() {
     }
@@ -60,8 +80,10 @@ public final class InnerDimensionConstants {
      * Sanctuary marker keyed by integration count so the gate lets the sanctuary regrow each
      * time a new drug is integrated, then skips re-placement on idle chunk loads at the same count.
      */
-    public static String sanctuaryMarker(int integratedCount) {
-        return MARKER_SANCTUARY + ":" + integratedCount;
+    public static String sanctuaryMarker(int integratedCount, int completedTrialCount) {
+        return MARKER_SANCTUARY + OVERLAY_SCHEMA_SUFFIX
+                + ":" + integratedCount
+                + ":" + completedTrialCount;
     }
 
     /**
@@ -69,10 +91,22 @@ public final class InnerDimensionConstants {
      * shrine once, after which idle loads skip it.
      */
     public static String landmarkMarker(DrugId drugId, boolean unlocked) {
-        return "landmark:" + drugId.serializedName() + (unlocked ? ":unlocked" : ":locked");
+        return "landmark" + OVERLAY_SCHEMA_SUFFIX
+                + ":" + drugId.serializedName()
+                + (unlocked ? ":unlocked" : ":locked");
     }
 
     public static String pathMarker(DrugId drugId) {
-        return "path:" + drugId.serializedName();
+        return "path" + OVERLAY_SCHEMA_SUFFIX + ":" + drugId.serializedName();
+    }
+
+    public static String trialFixtureMarker(DrugId drugId, boolean completed) {
+        return MARKER_TRIAL_FIXTURE + "v" + OVERLAY_SCHEMA_VERSION
+                + ":" + drugId.serializedName()
+                + (completed ? ":completed" : ":active");
+    }
+
+    public static String returnPendingMarker(DrugId drugId) {
+        return MARKER_RETURN_PENDING + drugId.serializedName();
     }
 }

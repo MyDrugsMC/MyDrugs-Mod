@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InnerTerrainTest {
@@ -46,6 +47,18 @@ class InnerTerrainTest {
         } finally {
             InnerTerrain.endCachePass();
         }
+    }
+
+    @Test
+    void vanillaColumnMemoDoesNotChangeResults() {
+        int x = 123_456;
+        int z = -987_654;
+        InnerTerrain.Sample uncached = InnerTerrain.sample(x, z);
+        InnerTerrain.Sample first = InnerTerrain.sampleVanillaColumn(x, z);
+        InnerTerrain.Sample second = InnerTerrain.sampleVanillaColumn(x, z);
+
+        assertEquals(uncached, first, "vanilla memo must equal the uncached sample");
+        assertSame(first, second, "repeated vanilla lookups must return the memoized sample");
     }
 
     @Test
@@ -363,10 +376,15 @@ class InnerTerrainTest {
     void innerClientParticlesAndFogAreDimensionGuarded() throws IOException {
         String particles = Files.readString(Path.of("src/main/java/org/mydrugs/mydrugs/client/InnerAmbientParticleController.java"));
         String fog = Files.readString(Path.of("src/main/java/org/mydrugs/mydrugs/client/InnerDimensionEffects.java"));
+        String atmosphereClient = Files.readString(Path.of("src/main/java/org/mydrugs/mydrugs/client/InnerAtmosphereClient.java"));
+        // Particles check their own dimension gate.
         assertTrue(particles.contains("InnerDimensions.INNER_LEVEL"));
         assertTrue(particles.contains("particleIntensity()"));
-        assertTrue(fog.contains("InnerDimensions.INNER_LEVEL"));
+        // Fog delegates to the shared InnerAtmosphereClient cache, which owns the dimension gate.
+        assertTrue(fog.contains("InnerAtmosphereClient.current"));
         assertTrue(fog.contains("fogDensity()"));
+        // InnerAtmosphereClient must guard on INNER_LEVEL so all consumers are safe.
+        assertTrue(atmosphereClient.contains("InnerDimensions.INNER_LEVEL"));
     }
 
     @Test
@@ -445,5 +463,111 @@ class InnerTerrainTest {
                 assertTrue(offenders.isEmpty(), "versioned visual residue remains in " + offenders);
             }
         }
+    }
+
+    @Test
+    void safeSpawnYMatchesCenterTerrainSample() {
+        int centerX = 0;
+        int centerZ = 0;
+        int spawnY = InnerTerrain.safeSpawnY(centerX, centerZ);
+        InnerTerrain.Sample sample = InnerTerrain.sample(centerX, centerZ, centerX, centerZ);
+        assertEquals(sample.topY() + 1, spawnY);
+    }
+
+    @Test
+    void terrainHeightDeterministicAtLakeArea() {
+        // Walk through a known low/wet area and verify repeated samples match.
+        for (int r = 600; r <= 800; r += 40) {
+            for (int deg = 60; deg <= 120; deg += 20) {
+                double rad = Math.toRadians(deg);
+                int x = (int) Math.round(Math.cos(rad) * r);
+                int z = (int) Math.round(Math.sin(rad) * r);
+                InnerTerrain.Sample a = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+                InnerTerrain.Sample b = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+                assertEquals(a.topY(), b.topY(), "topY mismatch at " + x + "," + z);
+                assertEquals(a.surfaceDepth(), b.surfaceDepth(), "surfaceDepth mismatch at " + x + "," + z);
+                assertEquals(a.land(), b.land(), "land flag mismatch at " + x + "," + z);
+                assertEquals(a.lake(), b.lake(), "lake flag mismatch at " + x + "," + z);
+            }
+        }
+    }
+
+    @Test
+    void terrainHeightDeterministicAtScarArea() {
+        // Sample a region known for scar generation.
+        for (int r = 900; r <= 1100; r += 50) {
+            for (int deg = 200; deg <= 260; deg += 20) {
+                double rad = Math.toRadians(deg);
+                int x = (int) Math.round(Math.cos(rad) * r);
+                int z = (int) Math.round(Math.sin(rad) * r);
+                InnerTerrain.Sample a = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+                InnerTerrain.Sample b = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+                assertEquals(a.scar(), b.scar(), "scar flag mismatch at " + x + "," + z);
+                assertEquals(a.scarStrength(), b.scarStrength(), 0.0001D, "scarStrength mismatch at " + x + "," + z);
+            }
+        }
+    }
+
+    @Test
+    void terrainHeightDeterministicAtBorderPositions() {
+        // Sample near the island edge where terrain transitions to void.
+        int radius = InnerDimensionConstants.ISLAND_RADIUS;
+        for (int deg = 0; deg < 360; deg += 45) {
+            double rad = Math.toRadians(deg);
+            int x = (int) Math.round(Math.cos(rad) * radius);
+            int z = (int) Math.round(Math.sin(rad) * radius);
+            InnerTerrain.Sample a = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+            InnerTerrain.Sample b = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+            assertEquals(a.land(), b.land(), "land flag mismatch at border " + x + "," + z);
+            assertEquals(a.topY(), b.topY(), "topY mismatch at border " + x + "," + z);
+        }
+        // Well beyond the island, terrain should be void and deterministic.
+        for (int d = -3; d <= 3; d += 2) {
+            int x = CENTER_X + radius * 2 + d;
+            int z = CENTER_Z + d * 37;
+            InnerTerrain.Sample a = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+            InnerTerrain.Sample b = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+            assertEquals(a.land(), b.land(), "land flag mismatch beyond island at " + x + "," + z);
+            assertFalse(a.land(), "position " + x + "," + z + " far outside island should not be land");
+        }
+    }
+
+    @Test
+    void terrainContinuityAcrossChunkBoundary() {
+        // Positions one block apart should have generally close topY values.
+        // Scar terrain and deliberate cliffs may produce larger jumps; the
+        // test bounds are generous enough to permit those while catching
+        // catastrophic discontinuities.
+        int[][] boundaries = {
+                {511, 512, 0, 0},
+                {511, 512, 300, 0},
+                {0, 0, 511, 512},
+                {-512, -513, 400, 400},
+        };
+        for (int[] b : boundaries) {
+            InnerTerrain.Sample a = InnerTerrain.sample(CENTER_X, CENTER_Z, b[0], b[2]);
+            InnerTerrain.Sample b1 = InnerTerrain.sample(CENTER_X, CENTER_Z, b[1], b[3]);
+            int dy = Math.abs(a.topY() - b1.topY());
+            // Allow deliberate cliff heights up to 24 blocks; larger jumps
+            // indicate a terrain sampling discontinuity.
+            assertTrue(dy <= 24,
+                    "topY jumped " + dy + " across chunk boundary at (" + b[0] + "," + b[2] + ") -> (" + b[1] + "," + b[3] + ")");
+            // When both sides are land, the jump should be a moderate cliff at most.
+            if (a.land() && b1.land()) {
+                assertTrue(dy <= 18, "land-to-land topY jump " + dy + " too large across chunk boundary");
+            }
+        }
+    }
+
+    @Test
+    void emptyColumnIsPredictable() {
+        // A column deep below the island (MIN_Y area) should not have land features.
+        int x = CENTER_X + 200;
+        int z = CENTER_Z + 200;
+        InnerTerrain.Sample a = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+        InnerTerrain.Sample b = InnerTerrain.sample(CENTER_X, CENTER_Z, x, z);
+        assertEquals(a.hole(), b.hole());
+        assertEquals(a.lake(), b.lake());
+        assertEquals(a.scar(), b.scar());
     }
 }

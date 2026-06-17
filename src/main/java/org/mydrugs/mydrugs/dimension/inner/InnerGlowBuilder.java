@@ -1,12 +1,9 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 
@@ -26,9 +23,9 @@ import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
  *       {@link #AMBIENT_LIGHT_FILL} is disabled, nothing at all. Never a visible cube.</li>
  * </ul>
  *
- * <p>Placement is deterministic and seeded exactly as before, and the same logic runs for both the
- * initial ({@link #placeInitialGlow}) and overlay ({@link #placeOverlayGlow}) passes, so generated
- * and overlaid chunks agree. The old freestanding-vanilla-cube mapping is gone.
+ * <p>Placement is deterministic and seeded exactly as before, and the same {@link #place} method
+ * runs for both the initial (worldgen) and overlay (server) passes via {@link InnerBlockSink}, so
+ * generated and overlaid chunks agree. The old freestanding-vanilla-cube mapping is gone.
  */
 final class InnerGlowBuilder {
     /** When true, featureless dark ground gets a soft invisible {@link Blocks#LIGHT} fill. */
@@ -37,6 +34,7 @@ final class InnerGlowBuilder {
     static final int AMBIENT_LIGHT_LEVEL = 8;
     /** Height above the surface for the invisible ambient light source. */
     private static final int AMBIENT_LIGHT_HEIGHT = 2;
+    private static final int MARGIN = 0;
 
     private static final double ROCK_CLIFF_MIN = 0.42D;
     private static final double ROCK_SLOPE_MIN = 0.55D;
@@ -52,29 +50,6 @@ final class InnerGlowBuilder {
         GLOW_PLANT,
         AMBIENT_FILL,
         NONE
-    }
-
-    static void placeInitialGlow(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeGlow(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayGlow(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeGlow(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static boolean hasGlowLanguageFor(DrugId drugId) {
@@ -106,9 +81,9 @@ final class InnerGlowBuilder {
      * constellation falling in a neighbouring chunk is placed identically by that chunk's pass —
      * constellations are seamless across chunk borders.
      */
-    private static void placeGlow(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
         forEachGlowPoint(cache, minX, minZ,
-                (worldX, worldZ, sample, scene, hash) -> placeGlowAt(worldX, worldZ, sample, scene, hash, setter));
+                (worldX, worldZ, sample, scene, hash) -> placeGlowAt(worldX, worldZ, sample, scene, hash, sink));
     }
 
     /**
@@ -248,7 +223,7 @@ final class InnerGlowBuilder {
             InnerTerrain.Sample sample,
             InnerSceneSample scene,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         DrugId drugId = sample.chooseFeatureDrug(hash);
         Mode mode = modeFor(sample);
@@ -256,7 +231,7 @@ final class InnerGlowBuilder {
         switch (mode) {
             case LAKE_BED -> {
                 // Bioluminescent lake floor — emissive bed beneath the water, nothing on the shore.
-                setter.set(new BlockPos(worldX, y, worldZ), lakeBedGlowFor(drugId));
+                sink.setBlock(new BlockPos(worldX, y, worldZ), lakeBedGlowFor(drugId), true);
                 return true;
             }
             case EMBEDDED_ROCK -> {
@@ -264,19 +239,19 @@ final class InnerGlowBuilder {
                 BlockState node = sample.scar()
                         ? ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE.get().defaultBlockState()
                         : glowStateFor(drugId);
-                setter.set(new BlockPos(worldX, y, worldZ), node);
+                sink.setBlock(new BlockPos(worldX, y, worldZ), node, true);
                 return true;
             }
             case GLOW_PLANT -> {
                 // Biological glow that sits on the surface as a plant (not litter).
-                setter.set(new BlockPos(worldX, y, worldZ), glowPlantFor(sample, drugId));
+                sink.setBlock(new BlockPos(worldX, y, worldZ), glowPlantFor(sample, drugId), true);
                 return true;
             }
             case AMBIENT_FILL -> {
                 // Invisible soft fill: the air glows, fitting a dream dimension. No visible block.
                 BlockState light = Blocks.LIGHT.defaultBlockState()
                         .setValue(LightBlock.LEVEL, AMBIENT_LIGHT_LEVEL);
-                setter.set(new BlockPos(worldX, y, worldZ), light);
+                sink.setBlock(new BlockPos(worldX, y, worldZ), light, true);
                 return true;
             }
             default -> {
@@ -308,9 +283,5 @@ final class InnerGlowBuilder {
             case COCAINE, METH, CRACK -> ModInnerDimensionBlocks.REDLINE_SPARK_BLOOM.get().defaultBlockState();
             default -> ModInnerDimensionBlocks.DREAM_ORCHID.get().defaultBlockState();
         };
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

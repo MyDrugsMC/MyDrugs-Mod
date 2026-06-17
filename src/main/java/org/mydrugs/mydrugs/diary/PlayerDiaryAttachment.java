@@ -57,6 +57,38 @@ public final class PlayerDiaryAttachment implements ValueIOSerializable {
         }
     }
 
+    /**
+     * Appends an automatic milestone once per source/drug pair. Existing saves need no new field:
+     * the persisted entries themselves are the unlock record.
+     */
+    public boolean appendIfAbsent(DiaryEntry entry) {
+        if (entry == null) {
+            return false;
+        }
+        for (DiaryEntry existing : entries) {
+            if (existing.sourceKey().equals(entry.sourceKey())
+                    && existing.dominantDrugId().equals(entry.dominantDrugId())) {
+                return false;
+            }
+        }
+        append(entry);
+        return true;
+    }
+
+    /** Appends a milestone only if its source has never appeared, regardless of drug context. */
+    public boolean appendIfSourceAbsent(DiaryEntry entry) {
+        if (entry == null) {
+            return false;
+        }
+        for (DiaryEntry existing : entries) {
+            if (existing.sourceKey().equals(entry.sourceKey())) {
+                return false;
+            }
+        }
+        append(entry);
+        return true;
+    }
+
     public void recordBlocker(String type, long gameTime) {
         String cleanType = sanitizeType(type);
         if (cleanType.isEmpty()) {

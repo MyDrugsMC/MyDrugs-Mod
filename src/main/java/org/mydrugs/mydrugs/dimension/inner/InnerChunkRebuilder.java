@@ -123,6 +123,12 @@ final class InnerChunkRebuilder {
                 InnerLakeBuilder.fillLakeColumn(level, pos, sample, worldX, worldZ, count);
             }
         }
-        InnerVisualFeatureBuilders.placeOverlayFeatures(level, chunkPos, cache, count);
+        InnerVisualFeatureBuilders.placeOverlayFeatures(
+                level,
+                chunkPos,
+                cache,
+                count,
+                InnerPlacement.PlacementMode.RECREATE
+        );
     }
 }

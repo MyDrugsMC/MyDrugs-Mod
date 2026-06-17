@@ -567,6 +567,9 @@ public class ModItems {
                             .component(ModDataComponents.BIOME_FINDER_TARGET.get(),
                                     BiomeFinderTarget.EMPTY)));
 
+    public static final DeferredItem<MemoryCompassItem> MEMORY_COMPASS =
+            ITEMS.registerItem("memory_compass", props -> new MemoryCompassItem(props.stacksTo(1)));
+
     // ===== PR 3: Ritual mix ingredients =====
     public static final DeferredItem<Item> CALMING_SPORES =
             ITEMS.registerItem("calming_spores",
@@ -624,13 +627,16 @@ public class ModItems {
 
     // Psychedelic / integration materials — never engine fuel.
     public static final DeferredItem<Item> DREAM_RESIDUE =
-            ITEMS.registerSimpleItem("dream_residue");
+            ITEMS.registerItem("dream_residue",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.dream_residue"));
     public static final DeferredItem<Item> MYCELIAL_INSIGHT =
             ITEMS.registerSimpleItem("mycelial_insight");
     public static final DeferredItem<Item> PRESSED_CALM =
-            ITEMS.registerSimpleItem("pressed_calm");
+            ITEMS.registerItem("pressed_calm",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.pressed_calm"));
     public static final DeferredItem<Item> FERMENTED_MEMORY =
-            ITEMS.registerSimpleItem("fermented_memory");
+            ITEMS.registerItem("fermented_memory",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.fermented_memory"));
 
     // Deterministic distillery byproducts.
     public static final DeferredItem<Item> BITTER_RESIDUE =

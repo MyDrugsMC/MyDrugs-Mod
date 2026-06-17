@@ -42,7 +42,7 @@ public final class InnerSkyClientState {
     }
 
     public static Set<DrugId> integratedDrugs() {
-        return INTEGRATED;
+        return Set.copyOf(INTEGRATED);
     }
 
     public static int integratedCount() {

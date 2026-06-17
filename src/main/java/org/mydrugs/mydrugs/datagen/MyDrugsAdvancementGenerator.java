@@ -22,6 +22,7 @@ public final class MyDrugsAdvancementGenerator {
         fluidsAndGases();
         logistics();
         psychotrope();
+        innerDimension();
         challenges();
     }
 
@@ -194,7 +195,27 @@ public final class MyDrugsAdvancementGenerator {
         psyAnvilCraft("psy_anvil/shape_insulated_wire", "knowledge/stimulant", item("insulated_wire"), "mydrugs:insulated_wire");
         psyAnvilCraft("psy_anvil/shape_advanced_control_circuit", "knowledge/lysergic", item("advanced_control_circuit"), "mydrugs:advanced_control_circuit");
         psyAnvilCraft("psy_anvil/build_resonator", "knowledge/overclocked", item("mycelial_resonator"), "mydrugs:mycelial_resonator");
-        inventoryAny("psychotrope/psychotrope_lens", "materials/advanced_control_circuit", item("psychotrope_lens"), recipes("psychotrope_lens"), item("psychotrope_lens"));
+        inventoryAny("psychotrope/psychotrope_lens", "materials/advanced_control_circuit", item("psychotrope_lens"),
+                recipes("psychotrope_lens", "memory_compass"), item("psychotrope_lens"));
+    }
+
+    private void innerDimension() {
+        innerMilestone("inner_dimension/the_inner_world", "psychotrope/psychotrope_lens",
+                item("memory_compass"), "entered", "task");
+        innerMilestone("inner_dimension/first_sigil", "inner_dimension/the_inner_world",
+                item("lucid_echo_node"), "first_sigil", "task");
+        innerMilestone("inner_dimension/the_world_answers_back", "inner_dimension/first_sigil",
+                item("calming_spores"), "scar_healed", "task");
+        innerMilestone("inner_dimension/above_the_self", "inner_dimension/first_sigil",
+                item("dream_orchid"), "sky_shrine", "task");
+        innerMilestone("inner_dimension/vault_of_memory", "inner_dimension/first_sigil",
+                item("dream_residue"), "vault_opened", "task");
+        innerMilestone("inner_dimension/nine_lessons", "inner_dimension/first_sigil",
+                item("pristine_integration_core"), "nine_sigils", "goal");
+        innerMilestone("inner_dimension/the_spiral_court", "inner_dimension/nine_lessons",
+                item("mycelial_insight_node"), "spiral_opened", "goal");
+        innerMilestone("inner_dimension/freedom_is_not_escape", "inner_dimension/the_spiral_court",
+                item("prime_integration_core"), "spiral_completed", "challenge");
     }
 
     private void challenges() {
@@ -373,6 +394,12 @@ public final class MyDrugsAdvancementGenerator {
         JsonObject conditions = new JsonObject();
         conditions.addProperty("knowledge", knowledge);
         custom(path, parent, icon, "mydrugs:psy_knowledge_unlocked", conditions, hidden, "task");
+    }
+
+    private void innerMilestone(String path, String parent, String icon, String milestone, String frame) {
+        JsonObject conditions = new JsonObject();
+        conditions.addProperty("milestone", milestone);
+        custom(path, parent, icon, "mydrugs:inner_dimension_milestone", conditions, false, frame);
     }
 
     private void psyAnvilCraft(String path, String parent, String icon, String resultItem) {

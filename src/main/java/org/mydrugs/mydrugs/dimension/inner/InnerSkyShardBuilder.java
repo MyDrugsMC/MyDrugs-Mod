@@ -1,10 +1,7 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 
 /**
  * Dresses the floating sky-shards (A1): crown flora or crystal teeth on top, and hanging
@@ -14,34 +11,12 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  */
 final class InnerSkyShardBuilder {
     private static final long DRIP_SALT = 0x4452_4950L;
+    private static final int MARGIN = 0;
 
     private InnerSkyShardBuilder() {
     }
 
-    static void placeInitialSkyShardDetails(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeSkyShardDetails(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlaySkyShardDetails(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeSkyShardDetails(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
-    }
-
-    private static void placeSkyShardDetails(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
         if (!cache.anySkyLand()) {
             return;
         }
@@ -63,7 +38,7 @@ final class InnerSkyShardBuilder {
                 // Crown: flora on soft islets, crystal teeth on crystalline ones.
                 BlockState crown = InnerSkyShardSampler.crownState(sky, profile, hash);
                 if (crown != null) {
-                    setter.set(new BlockPos(worldX, sky.topY() + 1, worldZ), crown);
+                    sink.setBlock(new BlockPos(worldX, sky.topY() + 1, worldZ), crown, true);
                 }
 
                 // Hanging drip below the deepest part of the islet only (strength near centre).
@@ -73,14 +48,10 @@ final class InnerSkyShardBuilder {
                         BlockState drip = i == dripLength
                                 ? profile.nodeState()
                                 : profile.subsurfaceBlock();
-                        setter.set(new BlockPos(worldX, sky.bottomY() - i, worldZ), drip);
+                        sink.setBlock(new BlockPos(worldX, sky.bottomY() - i, worldZ), drip, true);
                     }
                 }
             }
         }
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

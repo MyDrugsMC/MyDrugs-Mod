@@ -160,6 +160,7 @@ public final class ModCreativeTabs {
             ModItems.PSY_BLUEPRINT,
             ModItems.MYCELIAL_RESONATOR,
             ModItems.PSYCHOTROPE_LENS,
+            ModItems.MEMORY_COMPASS,
             ModItems.STRAIN_VENT,
             ModItems.CURRENT_REGULATOR,
             ModItems.INTEGRATION_CORE,

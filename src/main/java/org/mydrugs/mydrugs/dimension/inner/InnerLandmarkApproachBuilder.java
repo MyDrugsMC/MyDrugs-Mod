@@ -1,11 +1,8 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
@@ -18,31 +15,9 @@ final class InnerLandmarkApproachBuilder {
     private static final int INNER_RING_RADIUS = 40;
     private static final int MIDDLE_RING_RADIUS = 86;
     private static final long ECHO_SALT = 0x4543_484FL;
+    private static final int MARGIN = 4;
 
     private InnerLandmarkApproachBuilder() {
-    }
-
-    static void placeInitialLandmarkApproaches(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeLandmarkApproaches(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayLandmarkApproaches(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeLandmarkApproaches(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static boolean hasApproachStyleFor(DrugId drugId) {
@@ -52,20 +27,17 @@ final class InnerLandmarkApproachBuilder {
         };
     }
 
-    private static void placeLandmarkApproaches(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        if (!cache.anyLand()) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
         for (DrugId drugId : CuratedDrugChain.ORDER) {
             BlockPos landmark = InnerRegionMap.landmarkFor(islandCenterX, islandCenterZ, drugId);
-            placeEchoLandmark(cache, minX, minZ, islandCenterX, islandCenterZ, drugId, seed, setter);
+            placeEchoLandmark(cache, minX, minZ, islandCenterX, islandCenterZ, drugId, seed, sink);
             if (!chunkTouchesApproach(minX, minZ, landmark)) {
                 continue;
             }
-            placeDrugApproach(cache, minX, minZ, islandCenterX, islandCenterZ, landmark, drugId, seed, setter);
+            placeDrugApproach(cache, minX, minZ, islandCenterX, islandCenterZ, landmark, drugId, seed, sink);
         }
     }
 
@@ -83,7 +55,7 @@ final class InnerLandmarkApproachBuilder {
             int centerZ,
             DrugId drugId,
             long seed,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         long echoHash = InnerNoise.mix64(seed + ECHO_SALT + (long) drugId.networkId() * 0x9E37_79B9L);
         double angle = InnerRegionMap.angleFor(drugId)
@@ -91,12 +63,11 @@ final class InnerLandmarkApproachBuilder {
         double radius = InnerRegionMap.landmarkRadiusFor(drugId) * (0.52D + ((echoHash >>> 16) & 63L) / 63.0D * 0.12D);
         int echoX = centerX + (int) Math.round(Math.cos(angle) * radius);
         int echoZ = centerZ + (int) Math.round(Math.sin(angle) * radius);
-        int localX = echoX - minX;
-        int localZ = echoZ - minZ;
-        if (localX < 0 || localX > 15 || localZ < 0 || localZ > 15) {
+        if (echoX < minX - MARGIN || echoX >= minX + 16 + MARGIN
+                || echoZ < minZ - MARGIN || echoZ >= minZ + 16 + MARGIN) {
             return;
         }
-        InnerTerrain.Sample sample = cache.sample(localX, localZ);
+        InnerTerrain.Sample sample = cache.sampleAt(echoX, echoZ);
         if (!sample.land() || sample.lake() || sample.hole() || sample.pathStrength() > 0.30D) {
             return;
         }
@@ -104,11 +75,11 @@ final class InnerLandmarkApproachBuilder {
         int baseY = sample.topY() + 1;
         int height = 3 + (int) ((echoHash >>> 24) & 3L);
         for (int dy = 0; dy < height; dy++) {
-            setter.set(new BlockPos(echoX, baseY + dy, echoZ), style.threshold());
+            sink.setBlock(new BlockPos(echoX, baseY + dy, echoZ), style.threshold(), true);
         }
-        setter.set(new BlockPos(echoX, baseY + height, echoZ), style.glow());
-        setter.set(new BlockPos(echoX + 1, baseY, echoZ), style.pathEdge());
-        setter.set(new BlockPos(echoX - 1, baseY, echoZ), style.pathEdge());
+        sink.setBlock(new BlockPos(echoX, baseY + height, echoZ), style.glow(), true);
+        sink.setBlock(new BlockPos(echoX + 1, baseY, echoZ), style.pathEdge(), true);
+        sink.setBlock(new BlockPos(echoX - 1, baseY, echoZ), style.pathEdge(), true);
     }
 
     private static boolean chunkTouchesApproach(int minX, int minZ, BlockPos landmark) {
@@ -127,16 +98,20 @@ final class InnerLandmarkApproachBuilder {
             BlockPos landmark,
             DrugId drugId,
             long seed,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         ApproachStyle style = style(drugId);
         int placed = 0;
         boolean thresholdPlaced = false;
-        for (int localZ = 0; localZ < 16 && placed < 8; localZ += 3) {
-            for (int localX = 0; localX < 16 && placed < 8; localX += 3) {
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN && placed < 8; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 0, 16, 3)) {
+                continue;
+            }
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN && placed < 8; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 0, 16, 3)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
                 double distance = Math.hypot(worldX - landmark.getX(), worldZ - landmark.getZ());
                 if (!canPlaceApproach(sample, distance, drugId)) {
                     continue;
@@ -150,35 +125,35 @@ final class InnerLandmarkApproachBuilder {
                         ^ (long) worldX * 0x2A0B_37EFL
                         ^ (long) worldZ * 0x6A09_E667L);
                 if (distance < CLEAR_RADIUS) {
-                    clearEntry(worldX, sample.topY(), worldZ, setter);
+                    clearEntry(worldX, sample.topY(), worldZ, sink);
                     continue;
                 }
                 // Staged rings: density and formality rise as the shrine nears.
                 if (distance < INNER_RING_RADIUS) {
                     // Inner ring: dense composed base — formal ground checker plus rich accents.
                     if (corridor > 0.30D && ((worldX + worldZ) & 1) == 0) {
-                        setter.set(new BlockPos(worldX, sample.topY(), worldZ), style.pathEdge());
+                        sink.setBlock(new BlockPos(worldX, sample.topY(), worldZ), style.pathEdge(), true);
                     }
                     if ((hash & 1023L) < 0.45D * 1024.0D) {
-                        decorateApproachPoint(worldX, worldZ, sample, style, hash, setter);
+                        decorateApproachPoint(worldX, worldZ, sample, style, hash, sink);
                         placed++;
                     }
                 } else if (distance < MIDDLE_RING_RADIUS) {
                     // Middle ring: formal paired markers and concentric ground banding.
                     if ((int) Math.round(distance) % 14 < 2 && corridor > 0.22D) {
-                        setter.set(new BlockPos(worldX, sample.topY(), worldZ), style.pathEdge());
+                        sink.setBlock(new BlockPos(worldX, sample.topY(), worldZ), style.pathEdge(), true);
                     }
                     if ((hash & 1023L) < (0.22D + corridor * 0.30D) * 1024.0D) {
-                        decorateApproachPoint(worldX, worldZ, sample, style, hash, setter);
+                        decorateApproachPoint(worldX, worldZ, sample, style, hash, sink);
                         placed++;
                     }
                     if (!thresholdPlaced && distance > 68.0D && (hash & 15L) == 0L) {
-                        buildThreshold(worldX, worldZ, sample, style, centerX, centerZ, setter);
+                        buildThreshold(worldX, worldZ, sample, style, centerX, centerZ, sink);
                         thresholdPlaced = true;
                     }
                 } else if ((hash & 1023L) < (0.12D + corridor * 0.26D) * 1024.0D) {
                     // Outer ring: sparse waypoints that keep the sightline open.
-                    decorateApproachPoint(worldX, worldZ, sample, style, hash, setter);
+                    decorateApproachPoint(worldX, worldZ, sample, style, hash, sink);
                     placed++;
                 }
             }
@@ -216,23 +191,23 @@ final class InnerLandmarkApproachBuilder {
             InnerTerrain.Sample sample,
             ApproachStyle style,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         BlockPos top = new BlockPos(worldX, sample.topY(), worldZ);
-        setter.set(top, ((hash >>> 4) & 1L) == 0L ? style.pathEdge() : sample.profile().pathBlock());
+        sink.setBlock(top, ((hash >>> 4) & 1L) == 0L ? style.pathEdge() : sample.profile().pathBlock(), true);
         if ((hash & 3L) != 0L) {
-            setter.set(top.above(), style.plant());
+            sink.setBlock(top.above(), style.plant(), true);
         }
         if (((hash >>> 8) & 3L) == 0L) {
             if (style.glow().getBlock() == Blocks.LANTERN || style.glow().getBlock() == Blocks.SOUL_LANTERN) {
-                setter.set(top, style.pathEdge());
-                setter.set(top.above(), style.glow());
+                sink.setBlock(top, style.pathEdge(), true);
+                sink.setBlock(top.above(), style.glow(), true);
             } else {
-                setter.set(top.east(), style.glow());
+                sink.setBlock(top.east(), style.glow(), true);
             }
         }
         if (((hash >>> 12) & 7L) == 0L) {
-            setter.set(top.west().above(), style.threshold());
+            sink.setBlock(top.west().above(), style.threshold(), true);
         }
     }
 
@@ -243,7 +218,7 @@ final class InnerLandmarkApproachBuilder {
             ApproachStyle style,
             int centerX,
             int centerZ,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         double angle = Math.atan2(worldZ - centerZ, worldX - centerX);
         int px = (int) Math.round(-Math.sin(angle) * 4.0D);
@@ -257,17 +232,17 @@ final class InnerLandmarkApproachBuilder {
             }
             int baseY = edge.topY() + 1;
             for (int dy = 0; dy < 4; dy++) {
-                setter.set(new BlockPos(x, baseY + dy, z), style.threshold());
+                sink.setBlock(new BlockPos(x, baseY + dy, z), style.threshold(), true);
             }
         }
         for (int i = -2; i <= 2; i++) {
-            setter.set(new BlockPos(worldX + px * i / 2, sample.topY() + 5, worldZ + pz * i / 2), style.threshold());
+            sink.setBlock(new BlockPos(worldX + px * i / 2, sample.topY() + 5, worldZ + pz * i / 2), style.threshold(), true);
         }
     }
 
-    private static void clearEntry(int worldX, int topY, int worldZ, BlockSetter setter) {
-        setter.set(new BlockPos(worldX, topY + 1, worldZ), Blocks.AIR.defaultBlockState());
-        setter.set(new BlockPos(worldX, topY + 2, worldZ), Blocks.AIR.defaultBlockState());
+    private static void clearEntry(int worldX, int topY, int worldZ, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(worldX, topY + 1, worldZ), Blocks.AIR.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(worldX, topY + 2, worldZ), Blocks.AIR.defaultBlockState(), true);
     }
 
     private static ApproachStyle style(DrugId drugId) {
@@ -336,9 +311,5 @@ final class InnerLandmarkApproachBuilder {
     }
 
     private record ApproachStyle(BlockState pathEdge, BlockState glow, BlockState plant, BlockState threshold) {
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

@@ -1,55 +1,33 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerSpikeBuilder {
+    private static final int MARGIN = 3;
+
     private InnerSpikeBuilder() {
     }
 
-    public static void placeInitialSpikes(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeSpikes(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 3, 13, 3)) {
+                continue;
             }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlaySpikes(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeSpikes(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
-    }
-
-    private static void placeSpikes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        if (!cache.anySpikeCandidate()) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
-        for (int localZ = 3; localZ <= 12; localZ += 3) {
-            for (int localX = 3; localX <= 12; localX += 3) {
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 3, 13, 3)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
                 if (!canHostSpike(sample)) {
                     continue;
                 }
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerSceneSample scene = cache.scene(localX, localZ);
+                InnerGroveSample grove = cache.groveAt(worldX, worldZ, sample);
+                InnerSceneSample scene = cache.sceneAt(worldX, worldZ, sample, grove);
                 // Spikes are the tallest scatter feature: keep them out of vista/approach framing
                 // and out of the core sightline wedges.
                 if (scene.vista()
@@ -63,7 +41,7 @@ public final class InnerSpikeBuilder {
                 if ((hash & 1023L) >= chance) {
                     continue;
                 }
-                buildSpike(worldX, sample.topY() + 1, worldZ, sample, hash, setter);
+                buildSpike(worldX, sample.topY() + 1, worldZ, sample, hash, sink);
             }
         }
     }
@@ -82,7 +60,7 @@ public final class InnerSpikeBuilder {
             int z,
             InnerTerrain.Sample sample,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         int height = spikeHeight(sample.drugId(), sample.spikeStrength(), hash);
         int leanX = ((hash >>> 8) & 1L) == 0L ? 0 : (((hash >>> 9) & 1L) == 0L ? -1 : 1);
@@ -100,8 +78,8 @@ public final class InnerSpikeBuilder {
                     if (dx * dx + dz * dz > radius * radius) {
                         continue;
                     }
-                    setter.set(new BlockPos(x + offsetX + dx, y + dy, z + offsetZ + dz),
-                            material(sample.drugId(), dy, height, hash));
+                    sink.setBlock(new BlockPos(x + offsetX + dx, y + dy, z + offsetZ + dz),
+                            material(sample.drugId(), dy, height, hash), true);
                 }
             }
         }
@@ -168,9 +146,5 @@ public final class InnerSpikeBuilder {
                     ? Blocks.BOOKSHELF.defaultBlockState()
                     : Blocks.SMOOTH_STONE.defaultBlockState();
         };
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

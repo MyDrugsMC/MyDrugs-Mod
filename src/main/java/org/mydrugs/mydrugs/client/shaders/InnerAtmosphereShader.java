@@ -94,6 +94,17 @@ public final class InnerAtmosphereShader extends AnimatedShader {
         crossingPulse = Mth.clamp(crossingPulse + amount, 0.0F, 1.0F);
     }
 
+    /** Resets all eased atmosphere parameters, safe to call outside the Inner Dimension. */
+    public void clear() {
+        strength = 0.0F;
+        bloom = 0.0F;
+        vignette = 0.0F;
+        desat = 0.0F;
+        warmth = 0.0F;
+        godray = 0.0F;
+        crossingPulse = 0.0F;
+    }
+
     public boolean shouldRender() {
         return enabled() && (strength > 0.004F || crossingPulse > 0.004F);
     }

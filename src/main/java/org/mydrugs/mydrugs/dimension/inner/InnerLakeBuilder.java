@@ -2,13 +2,14 @@ package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerLakeBuilder {
+    private static final int MARGIN = 2;
+
     private InnerLakeBuilder() {
     }
 
@@ -42,29 +43,6 @@ public final class InnerLakeBuilder {
             return fillState(sample, worldX, y, worldZ);
         }
         return null;
-    }
-
-    public static void placeInitialLakeDetails(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeLakeDetails(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayLakeDetails(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeLakeDetails(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static void fillLakeColumn(
@@ -122,19 +100,20 @@ public final class InnerLakeBuilder {
         };
     }
 
-    private static void placeLakeDetails(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        placeShoreBands(cache, minX, minZ, setter);
-        if (!cache.anyLake()) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        placeShoreBands(cache, minX, minZ, sink);
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
-        for (int localZ = 2; localZ < 16; localZ += 3) {
-            for (int localX = 2; localX < 16; localX += 3) {
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 2, 16, 3)) {
+                continue;
+            }
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 2, 16, 3)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
                 if (!sample.land() || !sample.lake()) {
                     continue;
                 }
@@ -142,10 +121,10 @@ public final class InnerLakeBuilder {
                         ^ (long) worldX * 0x10E1_5A7EL
                         ^ (long) worldZ * 0x71AC_3B11L);
                 if (sample.lakeIsland() && (hash & 255L) < 38L) {
-                    buildLakeIsland(worldX, sample.lakeSurfaceY(), worldZ, sample, hash, setter);
+                    buildLakeIsland(worldX, sample.lakeSurfaceY(), worldZ, sample, hash, sink);
                 }
                 if (sample.lakeCenterpiece() && ((hash >>> 8) & 511L) < 46L) {
-                    buildLakeCenterpiece(worldX, sample.lakeSurfaceY() + 1, worldZ, sample.chooseFeatureDrug(hash), setter);
+                    buildLakeCenterpiece(worldX, sample.lakeSurfaceY() + 1, worldZ, sample.chooseFeatureDrug(hash), sink);
                 }
             }
         }
@@ -156,7 +135,7 @@ public final class InnerLakeBuilder {
      * at the waterline, a reed ring behind it, and a sparse dry accent ring beyond — all pure
      * functions of the cached samples so the initial and overlay passes agree.
      */
-    private static void placeShoreBands(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+    private static void placeShoreBands(InnerChunkSampleCache cache, int minX, int minZ, InnerBlockSink sink) {
         if (!cache.anyShoreOrWetland()) {
             return;
         }
@@ -179,15 +158,15 @@ public final class InnerLakeBuilder {
                 BlockPos top = new BlockPos(worldX, sample.topY(), worldZ);
                 if (shore > 0.55D) {
                     // Wet ring: continuous damp ground at the waterline.
-                    setter.set(top, wetGroundFor(sample));
+                    sink.setBlock(top, wetGroundFor(sample), true);
                 } else if (shore > 0.34D) {
                     // Reed ring: dense but not solid, and kept out of protected sightlines.
                     if ((hash & 3L) != 0L && !cache.scene(localX, localZ).preserveOpenView()) {
-                        setter.set(top.above(), sample.profile().flora().reed(hash >>> 8));
+                        sink.setBlock(top.above(), sample.profile().flora().reed(hash >>> 8), true);
                     }
                 } else if ((hash & 15L) == 0L) {
                     // Dry accent ring: rare flowers marking where the moisture gives out.
-                    setter.set(top.above(), sample.profile().flora().flower(hash >>> 8));
+                    sink.setBlock(top.above(), sample.profile().flora().flower(hash >>> 8), true);
                 }
             }
         }
@@ -208,7 +187,7 @@ public final class InnerLakeBuilder {
             int z,
             InnerTerrain.Sample sample,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         BlockState shore = sample.transitionZone()
                 ? InnerTransitionPalette.shoreAccent(sample)
@@ -218,9 +197,9 @@ public final class InnerLakeBuilder {
                 if (dx * dx + dz * dz > 5) {
                     continue;
                 }
-                setter.set(new BlockPos(x + dx, y, z + dz), shore);
+                sink.setBlock(new BlockPos(x + dx, y, z + dz), shore, true);
                 if (Math.abs(dx) + Math.abs(dz) <= 2) {
-                    setter.set(new BlockPos(x + dx, y + 1, z + dz), islandPlant(sample, hash + dx * 31L + dz * 17L));
+                    sink.setBlock(new BlockPos(x + dx, y + 1, z + dz), islandPlant(sample, hash + dx * 31L + dz * 17L), true);
                 }
             }
         }
@@ -233,50 +212,50 @@ public final class InnerLakeBuilder {
         return sample.profile().flora().flower(hash);
     }
 
-    private static void buildLakeCenterpiece(int x, int y, int z, DrugId drugId, BlockSetter setter) {
+    private static void buildLakeCenterpiece(int x, int y, int z, DrugId drugId, InnerBlockSink sink) {
         switch (drugId) {
             case ALCOHOL -> {
-                column(x, y, z, 5, Blocks.DARK_OAK_LOG.defaultBlockState(), setter);
-                setter.set(new BlockPos(x + 1, y, z), Blocks.MUD.defaultBlockState());
-                setter.set(new BlockPos(x, y + 5, z), Blocks.ROOTED_DIRT.defaultBlockState());
+                column(x, y, z, 5, Blocks.DARK_OAK_LOG.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x + 1, y, z), Blocks.MUD.defaultBlockState(), true);
+                sink.setBlock(new BlockPos(x, y + 5, z), Blocks.ROOTED_DIRT.defaultBlockState(), true);
             }
             case WEED -> {
-                column(x, y, z, 4, Blocks.MOSS_BLOCK.defaultBlockState(), setter);
-                setter.set(new BlockPos(x + 1, y + 1, z), Blocks.AZALEA_LEAVES.defaultBlockState());
-                setter.set(new BlockPos(x - 1, y + 1, z), Blocks.AZALEA_LEAVES.defaultBlockState());
+                column(x, y, z, 4, Blocks.MOSS_BLOCK.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x + 1, y + 1, z), Blocks.AZALEA_LEAVES.defaultBlockState(), true);
+                sink.setBlock(new BlockPos(x - 1, y + 1, z), Blocks.AZALEA_LEAVES.defaultBlockState(), true);
             }
             case MUSHROOMS -> {
-                column(x, y, z, 5, Blocks.MUSHROOM_STEM.defaultBlockState(), setter);
-                setter.set(new BlockPos(x, y + 5, z), Blocks.RED_MUSHROOM_BLOCK.defaultBlockState());
-                setter.set(new BlockPos(x + 1, y + 5, z), Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState());
+                column(x, y, z, 5, Blocks.MUSHROOM_STEM.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x, y + 5, z), Blocks.RED_MUSHROOM_BLOCK.defaultBlockState(), true);
+                sink.setBlock(new BlockPos(x + 1, y + 5, z), Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState(), true);
             }
             case HASH, LSD -> {
-                column(x, y, z, 6, Blocks.PRISMARINE.defaultBlockState(), setter);
-                setter.set(new BlockPos(x, y + 6, z), Blocks.SEA_LANTERN.defaultBlockState());
-                setter.set(new BlockPos(x + 1, y + 4, z), Blocks.TINTED_GLASS.defaultBlockState());
+                column(x, y, z, 6, Blocks.PRISMARINE.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x, y + 6, z), Blocks.SEA_LANTERN.defaultBlockState(), true);
+                sink.setBlock(new BlockPos(x + 1, y + 4, z), Blocks.TINTED_GLASS.defaultBlockState(), true);
             }
             case COCAINE -> {
-                column(x, y, z, 5, Blocks.SMOOTH_QUARTZ.defaultBlockState(), setter);
-                setter.set(new BlockPos(x, y + 5, z), Blocks.REDSTONE_BLOCK.defaultBlockState());
+                column(x, y, z, 5, Blocks.SMOOTH_QUARTZ.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x, y + 5, z), Blocks.REDSTONE_BLOCK.defaultBlockState(), true);
             }
             case METH -> {
-                column(x, y, z, 5, Blocks.BASALT.defaultBlockState(), setter);
-                setter.set(new BlockPos(x, y + 5, z), Blocks.MAGMA_BLOCK.defaultBlockState());
+                column(x, y, z, 5, Blocks.BASALT.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x, y + 5, z), Blocks.MAGMA_BLOCK.defaultBlockState(), true);
             }
             case TOBACCO -> {
-                column(x, y, z, 4, Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState(), setter);
-                setter.set(new BlockPos(x + 1, y + 3, z), Blocks.CRACKED_STONE_BRICKS.defaultBlockState());
+                column(x, y, z, 4, Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x + 1, y + 3, z), Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), true);
             }
             default -> {
-                column(x, y, z, 4, Blocks.OAK_LOG.defaultBlockState(), setter);
-                setter.set(new BlockPos(x, y + 4, z), Blocks.LANTERN.defaultBlockState());
+                column(x, y, z, 4, Blocks.OAK_LOG.defaultBlockState(), sink);
+                sink.setBlock(new BlockPos(x, y + 4, z), Blocks.LANTERN.defaultBlockState(), true);
             }
         }
     }
 
-    private static void column(int x, int y, int z, int height, BlockState state, BlockSetter setter) {
+    private static void column(int x, int y, int z, int height, BlockState state, InnerBlockSink sink) {
         for (int i = 0; i < height; i++) {
-            setter.set(new BlockPos(x, y + i, z), state);
+            sink.setBlock(new BlockPos(x, y + i, z), state, true);
         }
     }
 
@@ -329,9 +308,5 @@ public final class InnerLakeBuilder {
         }
         level.setBlock(pos, state, InnerDimensionConstants.RECREATE_UPDATE_FLAGS);
         count.recordPlaced();
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

@@ -2,22 +2,19 @@ package org.mydrugs.mydrugs.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
-import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
 
 /**
- * Client special effects for {@code mydrugs:inner}. Fog colour is sampled from
- * {@link InnerAtmosphere}, so paths, lakes, scars, transitions, and region scenes shift the mood.
+ * Client special effects for {@code mydrugs:inner}. Fog colour is derived from the shared
+ * {@link InnerAtmosphereClient} cache, so paths, lakes, scars, transitions, and region scenes
+ * shift the mood without duplicating the terrain-noise sampling.
  *
- * <p>The atmosphere sample runs terrain noise, so the result is cached per block position
- * on the (single) render thread to avoid recomputing every frame.
+ * <p>Atmosphere sampling ownership lives in {@link InnerAtmosphereClient}; this class only
+ * derives presentation values (colour Vec3, blend weight) and applies time-based easing so
+ * region/scene boundaries crossfade the fog mood over a couple of seconds.
  */
 public final class InnerDimensionEffects extends DimensionSpecialEffects {
-    private static long cachedKey = Long.MIN_VALUE;
     private static Vec3 cachedColor;
     private static double cachedBlend = 0.85D;
 
@@ -48,23 +45,14 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
     }
 
     private static Vec3 currentMoodColor(Vec3 fallback) {
-        Minecraft mc = Minecraft.getInstance();
-        Player player = mc.player;
-        if (player == null || mc.level == null || !mc.level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
+        InnerAtmosphere.Sample sample = InnerAtmosphereClient.current(Minecraft.getInstance());
+        if (sample == null) {
             easedColor = null;
             lastEaseNanos = 0L;
             return fallback;
         }
-        BlockPos pos = player.blockPosition();
-        long key = pos.asLong();
-        if (key != cachedKey || cachedColor == null) {
-            int centerX = InnerTerrain.slotCenter(pos.getX());
-            int centerZ = InnerTerrain.slotCenter(pos.getZ());
-            InnerAtmosphere.Sample sample = InnerAtmosphere.sample(centerX, centerZ, pos);
-            cachedColor = new Vec3(sample.fogRed() / 255.0D, sample.fogGreen() / 255.0D, sample.fogBlue() / 255.0D);
-            cachedBlend = 0.68D + Math.min(0.27D, sample.fogDensity() * 0.27D + sample.glowBias() * 0.05D);
-            cachedKey = key;
-        }
+        cachedColor = new Vec3(sample.fogRed() / 255.0D, sample.fogGreen() / 255.0D, sample.fogBlue() / 255.0D);
+        cachedBlend = 0.68D + Math.min(0.27D, sample.fogDensity() * 0.27D + sample.glowBias() * 0.05D);
         return easeToward(cachedColor);
     }
 
@@ -87,6 +75,15 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
         easedColor = easedColor.lerp(target, t);
         easedBlend = easedBlend + (cachedBlend - easedBlend) * t;
         return easedColor;
+    }
+
+    /** Resets all cached and eased fog state, safe to call outside the Inner Dimension. */
+    public static void clear() {
+        cachedColor = null;
+        cachedBlend = 0.85D;
+        easedColor = null;
+        easedBlend = 0.85D;
+        lastEaseNanos = 0L;
     }
 
     private static boolean reducedMotion() {

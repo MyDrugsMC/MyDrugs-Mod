@@ -71,5 +71,7 @@ public final class InnerAtmosphereClient {
     public static void clear() {
         cached = null;
         cachedKey = Long.MIN_VALUE;
+        cachedCenterX = 0;
+        cachedCenterZ = 0;
     }
 }

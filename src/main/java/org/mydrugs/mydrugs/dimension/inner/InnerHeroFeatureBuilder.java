@@ -1,41 +1,16 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerHeroFeatureBuilder {
     // Demoted from 420: hero set-pieces are rarer now so the world reads as natural, not staged.
     private static final long HERO_BASE_WEIGHT = 170L;
+    private static final int MARGIN = 6;
 
     private InnerHeroFeatureBuilder() {
-    }
-
-    public static void placeInitialHeroFeatures(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeHeroFeatures(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayHeroFeatures(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeHeroFeatures(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static boolean hasHeroForDrug(DrugId drugId) {
@@ -46,20 +21,21 @@ public final class InnerHeroFeatureBuilder {
         return InnerGroveSampler.rejectsSanctuaryForTest();
     }
 
-    private static void placeHeroFeatures(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        if (!cache.anyGroveGround()) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
-        for (int localZ = 4; localZ <= 11; localZ++) {
-            for (int localX = 4; localX <= 11; localX++) {
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                InnerGroveSample grove = cache.grove(localX, localZ);
-                InnerSceneSample scene = cache.scene(localX, localZ);
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 4, 12, 1)) {
+                continue;
+            }
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 4, 12, 1)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
+                InnerGroveSample grove = cache.groveAt(worldX, worldZ, sample);
+                InnerSceneSample scene = cache.sceneAt(worldX, worldZ, sample, grove);
                 if (!grove.heroCandidate()
                         || !InnerGroveSampler.canHostMajorFeature(sample)
                         || (scene.preserveOpenView() && scene.type() != InnerSceneType.HERO_TREE_GROVE)
@@ -79,12 +55,12 @@ public final class InnerHeroFeatureBuilder {
                 if ((hash & 4095L) >= HERO_BASE_WEIGHT * scene.heroFeatureMultiplier()) {
                     continue;
                 }
-                buildHero(worldX, sample.topY() + 1, worldZ, sample.chooseFeatureDrug(hash), hash, setter);
+                buildHero(worldX, sample.topY() + 1, worldZ, sample.chooseFeatureDrug(hash), hash, sink);
             }
         }
     }
 
-    private static void buildHero(int x, int y, int z, DrugId drugId, long hash, BlockSetter setter) {
+    private static void buildHero(int x, int y, int z, DrugId drugId, long hash, InnerBlockSink sink) {
         int height = switch (drugId) {
             case LSD, METH -> 24;
             case HASH, MUSHROOMS -> 21;
@@ -93,73 +69,73 @@ public final class InnerHeroFeatureBuilder {
             default -> 18;
         } + (int) (hash & 3L);
         switch (drugId) {
-            case TOBACCO -> skeletalHero(x, y, z, height, setter);
-            case WEED -> canopyHero(x, y, z, height, Blocks.JUNGLE_LOG.defaultBlockState(), Blocks.AZALEA_LEAVES.defaultBlockState(), setter);
-            case HASH -> crystalHero(x, y, z, height, setter);
-            case ALCOHOL -> drownedHero(x, y, z, height, setter);
-            case COCAINE -> redlineHero(x, y, z, height, setter);
-            case LSD -> prismHero(x, y, z, height, setter);
-            case METH -> lightningHero(x, y, z, height, setter);
-            case MUSHROOMS -> motherMushroom(x, y, z, height, hash, setter);
-            default -> canopyHero(x, y, z, height, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LEAVES.defaultBlockState(), setter);
+            case TOBACCO -> skeletalHero(x, y, z, height, sink);
+            case WEED -> canopyHero(x, y, z, height, Blocks.JUNGLE_LOG.defaultBlockState(), Blocks.AZALEA_LEAVES.defaultBlockState(), sink);
+            case HASH -> crystalHero(x, y, z, height, sink);
+            case ALCOHOL -> drownedHero(x, y, z, height, sink);
+            case COCAINE -> redlineHero(x, y, z, height, sink);
+            case LSD -> prismHero(x, y, z, height, sink);
+            case METH -> lightningHero(x, y, z, height, sink);
+            case MUSHROOMS -> motherMushroom(x, y, z, height, hash, sink);
+            default -> canopyHero(x, y, z, height, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LEAVES.defaultBlockState(), sink);
         }
     }
 
-    private static void canopyHero(int x, int y, int z, int height, BlockState log, BlockState leaves, BlockSetter setter) {
-        thickColumn(x, y, z, height, log, setter);
+    private static void canopyHero(int x, int y, int z, int height, BlockState log, BlockState leaves, InnerBlockSink sink) {
+        thickColumn(x, y, z, height, log, sink);
         int top = y + height;
-        canopy(x, top, z, 5, leaves, setter);
-        canopy(x, top + 2, z, 3, leaves, setter);
-        ringRoots(x, y, z, Blocks.ROOTED_DIRT.defaultBlockState(), setter);
+        canopy(x, top, z, 5, leaves, sink);
+        canopy(x, top + 2, z, 3, leaves, sink);
+        ringRoots(x, y, z, Blocks.ROOTED_DIRT.defaultBlockState(), sink);
     }
 
-    private static void skeletalHero(int x, int y, int z, int height, BlockSetter setter) {
-        thickColumn(x, y, z, height, Blocks.STRIPPED_DARK_OAK_LOG.defaultBlockState(), setter);
+    private static void skeletalHero(int x, int y, int z, int height, InnerBlockSink sink) {
+        thickColumn(x, y, z, height, Blocks.STRIPPED_DARK_OAK_LOG.defaultBlockState(), sink);
         for (int i = 3; i < height; i += 4) {
-            setter.set(new BlockPos(x + 2, y + i, z), Blocks.CRACKED_STONE_BRICKS.defaultBlockState());
-            setter.set(new BlockPos(x - 2, y + i + 1, z), Blocks.TUFF.defaultBlockState());
-            setter.set(new BlockPos(x, y + i, z + 2), Blocks.IRON_BARS.defaultBlockState());
+            sink.setBlock(new BlockPos(x + 2, y + i, z), Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x - 2, y + i + 1, z), Blocks.TUFF.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x, y + i, z + 2), Blocks.IRON_BARS.defaultBlockState(), true);
         }
-        ringRoots(x, y, z, Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), setter);
+        ringRoots(x, y, z, Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), sink);
     }
 
-    private static void crystalHero(int x, int y, int z, int height, BlockSetter setter) {
-        column(x, y, z, height, Blocks.CALCITE.defaultBlockState(), setter);
+    private static void crystalHero(int x, int y, int z, int height, InnerBlockSink sink) {
+        column(x, y, z, height, Blocks.CALCITE.defaultBlockState(), sink);
         for (int i = 2; i < height; i += 3) {
-            setter.set(new BlockPos(x + 1, y + i, z), Blocks.AMETHYST_BLOCK.defaultBlockState());
-            setter.set(new BlockPos(x - 1, y + i + 1, z), Blocks.TINTED_GLASS.defaultBlockState());
-            setter.set(new BlockPos(x, y + i, z + 1), Blocks.SMOOTH_BASALT.defaultBlockState());
+            sink.setBlock(new BlockPos(x + 1, y + i, z), Blocks.AMETHYST_BLOCK.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x - 1, y + i + 1, z), Blocks.TINTED_GLASS.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x, y + i, z + 1), Blocks.SMOOTH_BASALT.defaultBlockState(), true);
         }
-        canopy(x, y + height, z, 3, Blocks.AMETHYST_BLOCK.defaultBlockState(), setter);
+        canopy(x, y + height, z, 3, Blocks.AMETHYST_BLOCK.defaultBlockState(), sink);
     }
 
-    private static void drownedHero(int x, int y, int z, int height, BlockSetter setter) {
-        thickColumn(x, y, z, height, Blocks.DARK_OAK_LOG.defaultBlockState(), setter);
-        ringRoots(x, y, z, Blocks.MUD.defaultBlockState(), setter);
-        canopy(x, y + height - 2, z, 4, Blocks.ROOTED_DIRT.defaultBlockState(), setter);
+    private static void drownedHero(int x, int y, int z, int height, InnerBlockSink sink) {
+        thickColumn(x, y, z, height, Blocks.DARK_OAK_LOG.defaultBlockState(), sink);
+        ringRoots(x, y, z, Blocks.MUD.defaultBlockState(), sink);
+        canopy(x, y + height - 2, z, 4, Blocks.ROOTED_DIRT.defaultBlockState(), sink);
     }
 
-    private static void redlineHero(int x, int y, int z, int height, BlockSetter setter) {
-        column(x, y, z, height, Blocks.SMOOTH_QUARTZ.defaultBlockState(), setter);
+    private static void redlineHero(int x, int y, int z, int height, InnerBlockSink sink) {
+        column(x, y, z, height, Blocks.SMOOTH_QUARTZ.defaultBlockState(), sink);
         for (int i = 0; i <= height; i += 4) {
-            setter.set(new BlockPos(x, y + i, z), Blocks.REDSTONE_BLOCK.defaultBlockState());
-            setter.set(new BlockPos(x + 1, y + i, z), Blocks.SMOOTH_QUARTZ.defaultBlockState());
+            sink.setBlock(new BlockPos(x, y + i, z), Blocks.REDSTONE_BLOCK.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x + 1, y + i, z), Blocks.SMOOTH_QUARTZ.defaultBlockState(), true);
         }
-        ringRoots(x, y, z, Blocks.REDSTONE_BLOCK.defaultBlockState(), setter);
+        ringRoots(x, y, z, Blocks.REDSTONE_BLOCK.defaultBlockState(), sink);
     }
 
-    private static void prismHero(int x, int y, int z, int height, BlockSetter setter) {
-        column(x, y, z, height, Blocks.PRISMARINE.defaultBlockState(), setter);
+    private static void prismHero(int x, int y, int z, int height, InnerBlockSink sink) {
+        column(x, y, z, height, Blocks.PRISMARINE.defaultBlockState(), sink);
         for (int i = 2; i <= height; i += 5) {
-            setter.set(new BlockPos(x + 2, y + i, z), Blocks.SEA_LANTERN.defaultBlockState());
-            setter.set(new BlockPos(x - 2, y + i + 1, z), Blocks.TINTED_GLASS.defaultBlockState());
-            setter.set(new BlockPos(x, y + i, z + 2), Blocks.PRISMARINE.defaultBlockState());
-            setter.set(new BlockPos(x, y + i + 1, z - 2), Blocks.SEA_LANTERN.defaultBlockState());
+            sink.setBlock(new BlockPos(x + 2, y + i, z), Blocks.SEA_LANTERN.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x - 2, y + i + 1, z), Blocks.TINTED_GLASS.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x, y + i, z + 2), Blocks.PRISMARINE.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x, y + i + 1, z - 2), Blocks.SEA_LANTERN.defaultBlockState(), true);
         }
-        canopy(x, y + height, z, 4, Blocks.TINTED_GLASS.defaultBlockState(), setter);
+        canopy(x, y + height, z, 4, Blocks.TINTED_GLASS.defaultBlockState(), sink);
     }
 
-    private static void lightningHero(int x, int y, int z, int height, BlockSetter setter) {
+    private static void lightningHero(int x, int y, int z, int height, InnerBlockSink sink) {
         int ox = 0;
         int oz = 0;
         for (int i = 0; i < height; i++) {
@@ -170,58 +146,54 @@ public final class InnerHeroFeatureBuilder {
                 oz += i % 14 == 0 ? 1 : -1;
             }
             BlockState state = i % 4 == 0 ? Blocks.MAGMA_BLOCK.defaultBlockState() : Blocks.BASALT.defaultBlockState();
-            setter.set(new BlockPos(x + ox, y + i, z + oz), state);
+            sink.setBlock(new BlockPos(x + ox, y + i, z + oz), state, true);
         }
-        ringRoots(x, y, z, Blocks.POLISHED_BLACKSTONE.defaultBlockState(), setter);
+        ringRoots(x, y, z, Blocks.POLISHED_BLACKSTONE.defaultBlockState(), sink);
     }
 
-    private static void motherMushroom(int x, int y, int z, int height, long hash, BlockSetter setter) {
-        column(x, y, z, height, Blocks.MUSHROOM_STEM.defaultBlockState(), setter);
+    private static void motherMushroom(int x, int y, int z, int height, long hash, InnerBlockSink sink) {
+        column(x, y, z, height, Blocks.MUSHROOM_STEM.defaultBlockState(), sink);
         BlockState cap = (hash & 1L) == 0L
                 ? Blocks.RED_MUSHROOM_BLOCK.defaultBlockState()
                 : Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState();
-        canopy(x, y + height, z, 6, cap, setter);
-        canopy(x, y + height + 2, z, 4, cap, setter);
-        ringRoots(x, y, z, Blocks.MYCELIUM.defaultBlockState(), setter);
+        canopy(x, y + height, z, 6, cap, sink);
+        canopy(x, y + height + 2, z, 4, cap, sink);
+        ringRoots(x, y, z, Blocks.MYCELIUM.defaultBlockState(), sink);
     }
 
-    private static void column(int x, int y, int z, int height, BlockState state, BlockSetter setter) {
+    private static void column(int x, int y, int z, int height, BlockState state, InnerBlockSink sink) {
         for (int i = 0; i < height; i++) {
-            setter.set(new BlockPos(x, y + i, z), state);
+            sink.setBlock(new BlockPos(x, y + i, z), state, true);
         }
     }
 
-    private static void thickColumn(int x, int y, int z, int height, BlockState state, BlockSetter setter) {
+    private static void thickColumn(int x, int y, int z, int height, BlockState state, InnerBlockSink sink) {
         for (int i = 0; i < height; i++) {
-            setter.set(new BlockPos(x, y + i, z), state);
-            setter.set(new BlockPos(x + 1, y + i, z), state);
-            setter.set(new BlockPos(x, y + i, z + 1), state);
-            setter.set(new BlockPos(x + 1, y + i, z + 1), state);
+            sink.setBlock(new BlockPos(x, y + i, z), state, true);
+            sink.setBlock(new BlockPos(x + 1, y + i, z), state, true);
+            sink.setBlock(new BlockPos(x, y + i, z + 1), state, true);
+            sink.setBlock(new BlockPos(x + 1, y + i, z + 1), state, true);
         }
     }
 
-    private static void canopy(int x, int y, int z, int radius, BlockState state, BlockSetter setter) {
+    private static void canopy(int x, int y, int z, int radius, BlockState state, InnerBlockSink sink) {
         for (int dz = -radius; dz <= radius; dz++) {
             for (int dx = -radius; dx <= radius; dx++) {
                 if (dx * dx + dz * dz <= radius * radius + 1) {
-                    setter.set(new BlockPos(x + dx, y, z + dz), state);
+                    sink.setBlock(new BlockPos(x + dx, y, z + dz), state, true);
                 }
             }
         }
     }
 
-    private static void ringRoots(int x, int y, int z, BlockState state, BlockSetter setter) {
+    private static void ringRoots(int x, int y, int z, BlockState state, InnerBlockSink sink) {
         for (int dz = -3; dz <= 3; dz++) {
             for (int dx = -3; dx <= 3; dx++) {
                 int dist = Math.abs(dx) + Math.abs(dz);
                 if (dist >= 2 && dist <= 4) {
-                    setter.set(new BlockPos(x + dx, y - 1, z + dz), state);
+                    sink.setBlock(new BlockPos(x + dx, y - 1, z + dz), state, true);
                 }
             }
         }
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

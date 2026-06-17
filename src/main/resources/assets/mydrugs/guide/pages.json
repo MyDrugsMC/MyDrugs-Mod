@@ -1053,7 +1053,63 @@
       { "type": "text", "text": "ENDGAME — INNER WORLD" },
       { "type": "item", "text": "mydrugs:psychotrope_resonator" },
       { "type": "item", "text": "mydrugs:personal_diary" },
+      { "type": "item", "text": "mydrugs:memory_compass" },
       { "type": "item", "text": "mydrugs:dream_residue" },
+      { "type": "text", "text": "The Inner Dimension opens only after Dream Alignment and at least one integration. It begins almost empty on purpose: there is not much inner ground until you have actually integrated something." },
+      { "type": "text", "text": "Every curated integration grows a symbolic zone in a different direction. Coffee gives a beginning. Tobacco gives tension. Weed gives softness. Hash gives gesture. Alcohol gives memory. Cocaine gives acceleration. LSD gives perception. Meth gives the machine that will not stop. Mushrooms reveal the roots underneath." },
+      { "type": "text", "text": "The center is the Self Anchor: part sanctuary, part map, part witness. The island does not explain itself all at once. Paths, landmarks, sigils, the diary, and the Memory Compass each reveal a different part of the route." },
+      { "type": "text", "text": "Echo nodes are finite symbolic resources, not normal ores. They can help with integration materials and resonator-era work, but they do not replace the production chain and they never drop raw drugs." },
+      { "type": "link", "text": "What to do after entering", "target": "Inner Dimension — First Steps" },
+      { "type": "link", "text": "What each landmark asks", "target": "Inner Dimension — Region Trials" },
+      { "type": "link", "text": "How the center shows progress", "target": "Inner Dimension — Sigils and the Self Anchor" },
+      { "type": "link", "text": "Why some ruins remain sealed", "target": "Inner Dimension — Vaults" },
+      { "type": "link", "text": "What waits above the island", "target": "Inner Dimension — Sky Shards" },
+      { "type": "link", "text": "How to calm damaged ground", "target": "Inner Dimension — Scar Healing" },
+      { "type": "link", "text": "What all nine lessons open", "target": "Inner Dimension — Spiral Court" },
+      { "type": "goal", "text": "Let the island become readable through action: integrate, explore, answer, return." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — First Steps",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — FIRST ROUTE" },
+      { "type": "item", "text": "mydrugs:memory_compass" },
+      { "type": "item", "text": "mydrugs:lucid_echo_node" },
+      { "type": "text", "text": "1. Enter after Dream Alignment and at least one successful integration." },
+      { "type": "text", "text": "2. Find the Self Anchor at the center of your personal island." },
+      { "type": "text", "text": "3. Each integrated drug awakens one region and one spoke leading away from the center." },
+      { "type": "text", "text": "4. Follow that spoke to the region landmark." },
+      { "type": "text", "text": "5. Read the landmark\u0027s physical clues and complete its trial." },
+      { "type": "text", "text": "6. Return to the Self Anchor. The matching sigil in its nine-marker ring will awaken." },
+      { "type": "text", "text": "7. Complete all nine sigils. The full ring opens the way to the Spiral Court." },
+      { "type": "text", "text": "Use a Memory Compass when the terrain becomes difficult to read. It reports the direction and approximate distance to the nearest unfinished integrated landmark." },
+      { "type": "tip", "text": "The center is always the place to return after a trial. New sigils change what the rest of the island will reveal." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — Region Trials",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — NINE LESSONS" },
+      { "type": "item", "text": "mydrugs:calming_spores" },
+      { "type": "item", "text": "mydrugs:pressed_calm" },
+      { "type": "item", "text": "mydrugs:fermented_memory" },
+      { "type": "item", "text": "mydrugs:current_regulator" },
+      { "type": "text", "text": "Coffee — Still Point. Enter the marked circle, slow down, and remain grounded. Sprinting, jumping, attacking, moving too quickly, or leaving breaks the stillness." },
+      { "type": "text", "text": "Tobacco — Petrified Choir. Activate the four bitter and lucid nodes in the order shown by their rising pillars. A wrong answer resets the sequence." },
+      { "type": "text", "text": "Weed — Verdant Crater. Restore the landmark with calming flora. Calming Spores can feed the work directly." },
+      { "type": "text", "text": "Hash — Geode of Quiet. Fill the four quiet sockets with calcite, amethyst, or Pressed Calm Nodes." },
+      { "type": "text", "text": "Alcohol — Drowned Memory. Enter the flooded ruin and activate the Fermented Memory Node while fully submerged." },
+      { "type": "text", "text": "Cocaine — White Razor. Step onto the first red pad and cross the sharp route with control before time runs out. Leaving the lane or touching thorns resets it." },
+      { "type": "text", "text": "LSD — Prism Span. One dream geode is true; the others are decoys. A Psychotrope Lens gives clearer feedback when a reflection is false." },
+      { "type": "text", "text": "Meth — Fault Stabilization. Stabilize all three overheating pylons with water, snowballs, a Current Regulator, or captured storm bottles." },
+      { "type": "text", "text": "Mushrooms — Mother Cap Communion. Activate the four root nodes around the communion stem." },
+      { "type": "tip", "text": "Landmark messages give the immediate rule. The Personal Diary records the meaning after the moment has passed." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — Sigils and the Self Anchor",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — PHYSICAL PROGRESS" },
       { "type": "item", "text": "mydrugs:lucid_echo_node" },
       { "type": "item", "text": "mydrugs:bitter_echo_node" },
       { "type": "item", "text": "mydrugs:calming_echo_node" },
@@ -1063,16 +1119,70 @@
       { "type": "item", "text": "mydrugs:dream_residue_geode" },
       { "type": "item", "text": "mydrugs:overdrive_slag" },
       { "type": "item", "text": "mydrugs:mycelial_insight_node" },
-      { "type": "item", "text": "mydrugs:breath_grass" },
+      { "type": "text", "text": "Nine markers surround the Self Anchor in the same order as the nine regions." },
+      { "type": "text", "text": "A dark marker means that lesson has not yet entered the island. A subtle region-colored marker means the region exists, but its trial remains incomplete. A bright symbolic node means its sigil is awake." },
+      { "type": "text", "text": "The spokes show where each integrated region lies. Return after each trial to read the ring, see the sanctuary respond, and learn what the new sigil has unlocked." },
+      { "type": "text", "text": "When the full ring is bright, the Self Anchor raises its final crown and reveals the Spiral Court entrance." },
+      { "type": "goal", "text": "Use the center as a progress map rather than trying to remember nine distant landmarks." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — Vaults",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — SEALED MEMORIES" },
+      { "type": "item", "text": "mydrugs:dream_residue" },
+      { "type": "item", "text": "mydrugs:pressed_calm" },
+      { "type": "item", "text": "mydrugs:fermented_memory" },
+      { "type": "text", "text": "Vaults are deterministic ruins scattered across the island. Their chests remain sealed until the Self Anchor carries a compatible completed sigil." },
+      { "type": "text", "text": "Calm vaults respond to Coffee, Weed, Hash, or Mushrooms." },
+      { "type": "text", "text": "Deep vaults respond to LSD, Alcohol, Hash, or Mushrooms." },
+      { "type": "text", "text": "Danger vaults respond to Tobacco, Cocaine, or Meth." },
+      { "type": "text", "text": "Only one matching sigil is required for each family. A locked vault tells you which lessons it recognizes; return after making progress rather than trying to break the seal." },
+      { "type": "warning", "text": "Opening a vault is a reward for sigil progress, not a renewable source of infinite loot." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — Sky Shards",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — OPTIONAL HEIGHTS" },
+      { "type": "item", "text": "mydrugs:dream_orchid" },
+      { "type": "item", "text": "mydrugs:prism_lotus" },
+      { "type": "item", "text": "mydrugs:spore_bloom" },
+      { "type": "item", "text": "mydrugs:dream_residue_geode" },
+      { "type": "text", "text": "Some floating shards carry rare plants, symbolic nodes, or small shrines with rewards. They are optional expeditions, not requirements for basic sigil progression." },
+      { "type": "text", "text": "Build upward or bridge carefully. The useful fragments are sparse, and falling from the island returns you from the Inner Dimension." },
+      { "type": "tip", "text": "Look for unusual growth or a node-and-chest shrine at a shard\u0027s high point." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — Scar Healing",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — RESTORATION" },
+      { "type": "item", "text": "mydrugs:calming_spores" },
       { "type": "item", "text": "mydrugs:calming_fern" },
-      { "type": "item", "text": "mydrugs:memory_reeds" },
+      { "type": "item", "text": "mydrugs:calming_echo_node" },
       { "type": "item", "text": "mydrugs:redline_thorn" },
-      { "type": "item", "text": "mydrugs:mycelial_root" },
-      { "type": "text", "text": "The Inner Dimension opens only after Dream Alignment and at least one integration. It begins almost empty on purpose: there is not much inner ground until you have actually integrated something." },
-      { "type": "text", "text": "Every curated integration grows a symbolic zone in a different direction. Coffee gives a beginning. Tobacco gives tension. Weed gives softness. Hash gives gesture. Alcohol gives memory. Cocaine gives acceleration. LSD gives perception. Meth gives the machine that will not stop. Mushrooms reveal the roots underneath." },
-      { "type": "text", "text": "The center is the Self Anchor. It evolves as integrations accumulate, from a bare amethyst marker into a ritual center and, after all nine integrations, a passage toward the Spiral Court." },
-      { "type": "text", "text": "Echo nodes are finite symbolic resources, not normal ores. They can help with integration materials and resonator-era work, but they do not replace the production chain and they never drop raw drugs." },
-      { "type": "heading", "text": "Integrated Traits" },
+      { "type": "text", "text": "Scarred ground can be taught a calmer pattern. Establish several calming anchors inside the same scar cell: calming flora, Breath Grass, calming carpet, lanterns, or a Calming Echo Node all contribute." },
+      { "type": "text", "text": "Calming Spores seed several patches at once. Progress feedback shows how close the local cell is to settling." },
+      { "type": "text", "text": "When a scar is restored, some hostile growth retracts, nearby inner demons lose pressure, and the area becomes safer to revisit." },
+      { "type": "goal", "text": "Healing is manual and local. Change one wounded place enough for the island to remember it." }
+    ]
+  },
+  {
+    "title": "Inner Dimension — Spiral Court",
+    "elements": [
+      { "type": "text", "text": "ENDGAME — FINAL RETURN" },
+      { "type": "item", "text": "mydrugs:pristine_integration_core" },
+      { "type": "item", "text": "mydrugs:mycelial_insight_node" },
+      { "type": "text", "text": "The Spiral Court opens beneath the Self Anchor only after all nine region trials are complete and every sigil in the center ring is awake." },
+      { "type": "text", "text": "Return to the center when the nine sigils answer. The sanctuary\u0027s crown and descending path mark the entrance. Nine alcoves below remember the nine regions without repeating their trials." },
+      { "type": "text", "text": "The court contains a final response and a one-time reward, but not every meaning should be named before you enter." },
+      { "type": "goal", "text": "Complete the ring, return to the Self Anchor, and descend." }
+    ]
+  },
+  {
+    "title": "Integrated Traits Reference",
+    "elements": [
       { "type": "text", "text": "ENDGAME — REFERENCE" },
       { "type": "text", "text": "Pillars: Integration" },
       { "type": "text", "text": "Each curated drug, once you have survived it, recovered from it, and resonated it through the Psychotrope Resonator, leaves a single permanent trait behind. The trait is not the drug. It is the part of the drug your body learned to keep without paying its price." },

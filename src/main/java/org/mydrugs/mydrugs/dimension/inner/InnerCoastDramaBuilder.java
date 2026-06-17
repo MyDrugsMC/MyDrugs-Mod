@@ -1,11 +1,8 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 
@@ -14,54 +11,34 @@ final class InnerCoastDramaBuilder {
     private static final double COAST_BASE_CHANCE = 0.05D;
     private static final double COAST_INTENSITY_CHANCE = 0.05D;
     private static final double SATELLITE_CROWN_CHANCE = 0.12D;
+    private static final int MARGIN = 2;
 
     private InnerCoastDramaBuilder() {
-    }
-
-    static void placeInitialCoastDrama(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeCoastDrama(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayCoastDrama(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeCoastDrama(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static boolean rejectsSanctuaryForTest() {
         return !isCoastCandidate(InnerTerrain.sample(0, 0, 0, 0));
     }
 
-    private static void placeCoastDrama(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        if (!cache.anyLand()) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
         int placed = 0;
-        for (int localZ = 2; localZ < 16 && placed < 6; localZ += 4) {
-            for (int localX = 2; localX < 16 && placed < 6; localX += 4) {
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN && placed < 6; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 2, 16, 4)) {
+                continue;
+            }
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN && placed < 6; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 2, 16, 4)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
                 if (!isCoastCandidate(sample)) {
                     continue;
                 }
-                InnerSceneSample scene = cache.scene(localX, localZ);
+                InnerGroveSample grove = cache.groveAt(worldX, worldZ, sample);
+                InnerSceneSample scene = cache.sceneAt(worldX, worldZ, sample, grove);
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x59BD_31C3L
                         ^ (long) worldZ * 0x33C7_513FL);
@@ -74,9 +51,9 @@ final class InnerCoastDramaBuilder {
                     continue;
                 }
                 if (sample.satellite() || scene.type() == InnerSceneType.SATELLITE_CROWN) {
-                    buildSatelliteCrown(worldX, worldZ, sample, hash, setter);
+                    buildSatelliteCrown(worldX, worldZ, sample, hash, sink);
                 } else {
-                    buildCoastFragment(islandCenterX, islandCenterZ, worldX, worldZ, sample, hash, setter);
+                    buildCoastFragment(islandCenterX, islandCenterZ, worldX, worldZ, sample, hash, sink);
                 }
                 placed++;
             }
@@ -100,7 +77,7 @@ final class InnerCoastDramaBuilder {
             int worldZ,
             InnerTerrain.Sample sample,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         DrugId drugId = sample.chooseFeatureDrug(hash);
         BlockState debris = debrisState(drugId);
@@ -109,19 +86,19 @@ final class InnerCoastDramaBuilder {
         int outX = (int) Math.round(Math.cos(angle) * 2.0D);
         int outZ = (int) Math.round(Math.sin(angle) * 2.0D);
         BlockPos top = new BlockPos(worldX, sample.topY(), worldZ);
-        setter.set(top.above(), debris);
+        sink.setBlock(top.above(), debris, true);
         if ((hash & 3L) == 0L) {
-            setter.set(top.offset(outX, 2 + (int) (hash & 1L), outZ), debris);
+            sink.setBlock(top.offset(outX, 2 + (int) (hash & 1L), outZ), debris, true);
         }
         for (int drop = 1; drop <= 3 + (int) ((hash >>> 4) & 1L); drop++) {
-            setter.set(top.below(drop), hanging);
+            sink.setBlock(top.below(drop), hanging, true);
         }
         if (((hash >>> 8) & 7L) == 0L) {
-            setter.set(top.offset(outX * 2, 1, outZ * 2), InnerGlowBuilder.glowStateFor(drugId));
+            sink.setBlock(top.offset(outX * 2, 1, outZ * 2), InnerGlowBuilder.glowStateFor(drugId), true);
         }
     }
 
-    private static void buildSatelliteCrown(int worldX, int worldZ, InnerTerrain.Sample sample, long hash, BlockSetter setter) {
+    private static void buildSatelliteCrown(int worldX, int worldZ, InnerTerrain.Sample sample, long hash, InnerBlockSink sink) {
         DrugId drugId = sample.chooseFeatureDrug(hash);
         BlockState base = debrisState(drugId);
         BlockState glow = drugId == DrugId.COFFEE
@@ -130,14 +107,14 @@ final class InnerCoastDramaBuilder {
         int height = 4 + (int) (hash & 3L);
         int y = sample.topY() + 1;
         for (int dy = 0; dy < height; dy++) {
-            setter.set(new BlockPos(worldX, y + dy, worldZ), dy == height - 1 ? glow : base);
+            sink.setBlock(new BlockPos(worldX, y + dy, worldZ), dy == height - 1 ? glow : base, true);
         }
         for (int i = 0; i < 4; i++) {
             int dx = i == 0 ? 2 : i == 1 ? -2 : 0;
             int dz = i == 2 ? 2 : i == 3 ? -2 : 0;
-            setter.set(new BlockPos(worldX + dx, y, worldZ + dz), base);
+            sink.setBlock(new BlockPos(worldX + dx, y, worldZ + dz), base, true);
             if (((hash >>> (i + 6)) & 1L) == 0L) {
-                setter.set(new BlockPos(worldX + dx, y + 1, worldZ + dz), coastPlant(drugId));
+                sink.setBlock(new BlockPos(worldX + dx, y + 1, worldZ + dz), coastPlant(drugId), true);
             }
         }
     }
@@ -176,9 +153,5 @@ final class InnerCoastDramaBuilder {
             case MUSHROOMS -> ModInnerDimensionBlocks.MYCELIAL_ROOT.get().defaultBlockState();
             default -> ModInnerDimensionBlocks.BREATH_GRASS.get().defaultBlockState();
         };
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

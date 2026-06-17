@@ -183,6 +183,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "soothing_tobacco_blend", "mydrugs:item/tobacco_handful"));
         futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "mydrugs:item/inner_demon_remains"));
         futures.add(saveFlatItem(cachedOutput, "progression_guide", "mydrugs:item/progression_guide"));
+        futures.add(saveFlatItem(cachedOutput, "memory_compass", "mydrugs:item/vanilla_biome_finder"));
         futures.add(saveFlatItem(cachedOutput, "dna_scraper", "mydrugs:item/dna_scraper"));
         futures.add(saveFlatItem(cachedOutput, "dna_scrap", "mydrugs:item/dna_scrap"));
         futures.add(saveFlatItem(cachedOutput, "dna_gene", "mydrugs:item/dna_gene"));

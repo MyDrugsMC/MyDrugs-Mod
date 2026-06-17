@@ -28,6 +28,21 @@ public final class InnerTerrain {
     private static final ThreadLocal<java.util.Map<Long, Double>> ELEVATION_PASS_CACHE = new ThreadLocal<>();
     private static final long ELEVATION_SALT = 29L;
 
+    // Exact-coordinate memo for per-drug silhouette noise within a pass. Values are memoized
+    // verbatim - never interpolated - so generation output is bit-identical with or without it.
+    private static final ThreadLocal<java.util.Map<SilhouetteKey, Double>> SILHOUETTE_PASS_CACHE =
+            new ThreadLocal<>();
+
+    // Exact-coordinate memo for vanilla height/column queries that run outside a generation pass.
+    // Values are computeSample results stored verbatim - never interpolated or altered - so the
+    // memo cannot change terrain output. Access is striped because these callbacks may run
+    // concurrently on worldgen threads, and eldest eviction keeps total memory strictly bounded.
+    private static final int VANILLA_COLUMN_CACHE_MAX_ENTRIES = 4_096;
+    private static final int VANILLA_COLUMN_CACHE_SHARDS = 16;
+    private static final int VANILLA_COLUMN_CACHE_ENTRIES_PER_SHARD =
+            VANILLA_COLUMN_CACHE_MAX_ENTRIES / VANILLA_COLUMN_CACHE_SHARDS;
+    private static final VanillaColumnCacheShard[] VANILLA_COLUMN_CACHE = createVanillaColumnCache();
+
     // Satellite ring layout is a function of the slot seed only, so it is safe to share.
     private static final java.util.Map<Long, SatelliteCenter[]> SATELLITE_CENTERS =
             new java.util.concurrent.ConcurrentHashMap<>();
@@ -39,16 +54,43 @@ public final class InnerTerrain {
     public static void beginCachePass() {
         PASS_CACHE.set(new java.util.HashMap<>());
         ELEVATION_PASS_CACHE.set(new java.util.HashMap<>());
+        SILHOUETTE_PASS_CACHE.set(new java.util.HashMap<>());
     }
 
     /** End the current thread's per-pass Sample cache. */
     public static void endCachePass() {
         PASS_CACHE.remove();
         ELEVATION_PASS_CACHE.remove();
+        SILHOUETTE_PASS_CACHE.remove();
     }
 
     public static Sample sample(int worldX, int worldZ) {
         return sample(slotCenter(worldX), slotCenter(worldZ), worldX, worldZ);
+    }
+
+    /**
+     * Sample lookup for vanilla heightmap and base-column callbacks outside a pass cache.
+     * Generation fills must continue to use {@link #sample} inside begin/endCachePass.
+     */
+    public static Sample sampleVanillaColumn(int worldX, int worldZ) {
+        long key = columnKey(worldX, worldZ);
+        VanillaColumnCacheShard shard = vanillaColumnCacheShard(key);
+        synchronized (shard) {
+            Sample cached = shard.samples.get(key);
+            if (cached != null) {
+                return cached;
+            }
+        }
+
+        Sample computed = computeSample(slotCenter(worldX), slotCenter(worldZ), worldX, worldZ);
+        synchronized (shard) {
+            Sample existing = shard.samples.get(key);
+            if (existing != null) {
+                return existing;
+            }
+            shard.samples.put(key, computed);
+            return computed;
+        }
     }
 
     public static Sample sample(int centerX, int centerZ, int worldX, int worldZ) {
@@ -57,7 +99,7 @@ public final class InnerTerrain {
             return computeSample(centerX, centerZ, worldX, worldZ);
         }
         // A pass always runs against a single island, so (worldX, worldZ) keys the column uniquely.
-        long key = ((long) worldX & 0xffffffffL) | (((long) worldZ & 0xffffffffL) << 32);
+        long key = columnKey(worldX, worldZ);
         Sample cached = cache.get(key);
         if (cached != null) {
             return cached;
@@ -65,6 +107,33 @@ public final class InnerTerrain {
         Sample computed = computeSample(centerX, centerZ, worldX, worldZ);
         cache.put(key, computed);
         return computed;
+    }
+
+    private static long columnKey(int worldX, int worldZ) {
+        return ((long) worldX & 0xffffffffL) | (((long) worldZ & 0xffffffffL) << 32);
+    }
+
+    private static VanillaColumnCacheShard[] createVanillaColumnCache() {
+        VanillaColumnCacheShard[] shards = new VanillaColumnCacheShard[VANILLA_COLUMN_CACHE_SHARDS];
+        for (int i = 0; i < shards.length; i++) {
+            shards[i] = new VanillaColumnCacheShard();
+        }
+        return shards;
+    }
+
+    private static VanillaColumnCacheShard vanillaColumnCacheShard(long key) {
+        int index = (int) (key ^ (key >>> 32)) & (VANILLA_COLUMN_CACHE_SHARDS - 1);
+        return VANILLA_COLUMN_CACHE[index];
+    }
+
+    private static final class VanillaColumnCacheShard {
+        private final java.util.Map<Long, Sample> samples =
+                new java.util.LinkedHashMap<>(VANILLA_COLUMN_CACHE_ENTRIES_PER_SHARD, 0.75F, true) {
+                    @Override
+                    protected boolean removeEldestEntry(java.util.Map.Entry<Long, Sample> eldest) {
+                        return size() > VANILLA_COLUMN_CACHE_ENTRIES_PER_SHARD;
+                    }
+                };
     }
 
     private static Sample computeSample(int centerX, int centerZ, int worldX, int worldZ) {
@@ -402,8 +471,31 @@ public final class InnerTerrain {
         return sample(centerX, centerZ, centerX, centerZ).topY() + 1;
     }
 
+    static void clearSatelliteCenters(int centerX, int centerZ) {
+        SATELLITE_CENTERS.remove(seedForSlot(centerX, centerZ));
+    }
+
+    static void clearAllSatelliteCenters() {
+        SATELLITE_CENTERS.clear();
+    }
+
     /** Per-drug surface character expressed as world-space noise, not concentric rings. */
     private static double silhouette(DrugId drugId, long seed, int worldX, int worldZ) {
+        java.util.Map<SilhouetteKey, Double> cache = SILHOUETTE_PASS_CACHE.get();
+        if (cache == null) {
+            return computeSilhouette(drugId, seed, worldX, worldZ);
+        }
+        SilhouetteKey key = new SilhouetteKey(drugId.networkId(), worldX, worldZ);
+        Double cached = cache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        double computed = computeSilhouette(drugId, seed, worldX, worldZ);
+        cache.put(key, computed);
+        return computed;
+    }
+
+    private static double computeSilhouette(DrugId drugId, long seed, int worldX, int worldZ) {
         long s = seed + 501L + drugId.networkId();
         return switch (drugId) {
             case TOBACCO -> InnerNoise.ridged(s, worldX, worldZ, 54.0D, 3) * 11.0D;
@@ -418,6 +510,9 @@ public final class InnerTerrain {
                     + Math.abs(InnerNoise.fbm(s + 3L, worldX, worldZ, 30.0D, 3)) * 3.0D;
             default -> InnerNoise.fbm(s, worldX, worldZ, 110.0D, 4) * 4.0D;
         };
+    }
+
+    private record SilhouetteKey(int drugId, int worldX, int worldZ) {
     }
 
     /** Raw broad-elevation fbm, memoized on exact integer coordinates while a pass is active. */
@@ -537,20 +632,42 @@ public final class InnerTerrain {
         if (rawAngular > spokeExclusionEnvelope()) {
             return 0.0D;
         }
-        double landmarkRadius = InnerRegionMap.landmarkRadiusFor(drugId);
-        double progress = InnerNoise.clamp01(distance / landmarkRadius);
-        double taper = Math.sin(Math.PI * progress);
-        double wander = InnerNoise.fbm(seed + SPOKE_SALT, distance, 0.0D, 220.0D, 3) * SPOKE_WANDER * taper;
-        double target = regionAngle + wander;
+        double target = corridorCenterAngle(seed, distance, drugId);
         double angular = InnerRegionMap.angularDistance(angle, target);
         // The corridor's inner end scales with the platform so paths always reach the clearing
         // (78 was a constant tuned for CORE_RADIUS=112 and left a dead gap for smaller cores).
-        double corridorStart = InnerDimensionConstants.CORE_RADIUS * 0.70D;
+        double corridorStart = corridorStartRadius();
         if (angular < SPOKE_TOLERANCE && distance > corridorStart && distance < 1170.0D) {
             // Feathered edges (smoothstep) so the corridor isn't laser-cut.
             return smoothstep01(1.0D - angular / SPOKE_TOLERANCE);
         }
         return 0.0D;
+    }
+
+    /**
+     * Centre bearing of the wandering spoke corridor at a given radius. Single source of the
+     * corridor's geometry: {@link #pathStrength} renders against it and the awakening-wave enqueue
+     * (InnerOverlayQueue) walks against it, so they cannot drift. The wander is a low-frequency
+     * angular offset that tapers to zero at the shrine radius (so the route always reconnects to
+     * the exact landmark). Read-only; never mutates generation state.
+     */
+    static double corridorCenterAngle(long seed, double distance, DrugId drugId) {
+        double regionAngle = InnerRegionMap.angleFor(drugId);
+        double landmarkRadius = InnerRegionMap.landmarkRadiusFor(drugId);
+        double progress = InnerNoise.clamp01(distance / landmarkRadius);
+        double taper = Math.sin(Math.PI * progress);
+        double wander = InnerNoise.fbm(seed + SPOKE_SALT, distance, 0.0D, 220.0D, 3) * SPOKE_WANDER * taper;
+        return regionAngle + wander;
+    }
+
+    /** Angular half-width of the spoke corridor (lateral block reach is this times the radius). */
+    static double spokeCorridorHalfWidth() {
+        return SPOKE_TOLERANCE;
+    }
+
+    /** Radius at which the spoke corridor begins, scaled to the central platform. */
+    static double corridorStartRadius() {
+        return InnerDimensionConstants.CORE_RADIUS * 0.70D;
     }
 
     static double pathStrengthForTest(long seed, double distance, double angle, DrugId drugId) {

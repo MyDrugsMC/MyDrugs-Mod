@@ -73,6 +73,9 @@ public final class ClientEventHandler {
             org.mydrugs.mydrugs.client.InnerSoundscapeController.clear();
             org.mydrugs.mydrugs.client.InnerPlayerResponseController.clear();
             org.mydrugs.mydrugs.client.InnerAtmosphereClient.clear();
+            org.mydrugs.mydrugs.client.InnerDimensionEffects.clear();
+            org.mydrugs.mydrugs.client.InnerAmbientParticleController.clear();
+            org.mydrugs.mydrugs.client.shaders.InnerAtmosphereShader.INSTANCE.clear();
         }
 
         @SubscribeEvent

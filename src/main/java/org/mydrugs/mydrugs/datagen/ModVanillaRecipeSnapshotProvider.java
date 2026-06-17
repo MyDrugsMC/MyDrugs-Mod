@@ -291,6 +291,17 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 1
         );
 
+        writer.shapeless("memory_compass",
+                new Object[]{
+                        "minecraft:compass",
+                        "minecraft:amethyst_shard",
+                        "mydrugs:dream_residue",
+                        "mydrugs:personal_diary"
+                },
+                "mydrugs:memory_compass",
+                1
+        );
+
         writer.shaped("grinding_bowl",
                 new String[]{
                         "A A",

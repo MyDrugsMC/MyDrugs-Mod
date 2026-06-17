@@ -16,7 +16,8 @@ final class InnerDecorator {
             ServerLevel level,
             ChunkPos chunkPos,
             InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
     ) {
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
@@ -32,14 +33,14 @@ final class InnerDecorator {
                         ^ (long) x * 31L ^ (long) z * 17L);
                 if ((hash & 15L) == 0L) {
                     BlockPos top = InnerPlacement.surfaceTop(level, x, z);
-                    InnerPlacement.safeSet(level, top, sample.profile().pathBlock(), true, count);
+                    InnerPlacement.safeSet(level, top, sample.profile().pathBlock(), true, count, mode);
                     BlockState marker = sample.drugId() == DrugId.LSD
                             ? Blocks.SEA_LANTERN.defaultBlockState()
                             : Blocks.LANTERN.defaultBlockState();
-                    InnerPlacement.safeSet(level, top.above(), marker, false, count);
+                    InnerPlacement.safeSet(level, top.above(), marker, false, count, mode);
                 } else if ((hash & 31L) == 1L) {
                     BlockPos top = InnerPlacement.surfaceTop(level, x, z);
-                    InnerPlacement.safeSet(level, top.above(), healingPlantFor(sample.drugId()), false, count);
+                    InnerPlacement.safeSet(level, top.above(), healingPlantFor(sample.drugId()), false, count, mode);
                 }
             }
         }
@@ -49,7 +50,8 @@ final class InnerDecorator {
             ServerLevel level,
             ChunkPos chunkPos,
             InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
     ) {
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
@@ -68,7 +70,7 @@ final class InnerDecorator {
                     continue;
                 }
                 BlockPos top = new BlockPos(x, sample.topY(), z);
-                InnerPlacement.safeSet(level, top.above(), ambientPlantFor(sample, hash), false, count);
+                InnerPlacement.safeSet(level, top.above(), ambientPlantFor(sample, hash), false, count, mode);
             }
         }
     }
@@ -80,7 +82,8 @@ final class InnerDecorator {
             boolean unlocked,
             int integratedCount,
             InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
+            InnerPlacement.MutablePlacementCount count,
+            InnerPlacement.PlacementMode mode
     ) {
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
@@ -103,24 +106,24 @@ final class InnerDecorator {
                     // Thorns thin out as the region heals; some scar cells turn to calming growth.
                     double thornChance = 0.25D * (1.0D - 0.7D * order);
                     if (roll < thornChance * 1024.0D) {
-                        InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count);
+                        InnerPlacement.safeSet(level, top.above(), ModInnerDimensionBlocks.REDLINE_THORN.get().defaultBlockState(), false, count, mode);
                         continue;
                     }
                     if (unlocked && roll < (thornChance + 0.20D * order) * 1024.0D) {
-                        InnerPlacement.safeSet(level, top.above(), healingPlantFor(drugId), false, count);
+                        InnerPlacement.safeSet(level, top.above(), healingPlantFor(drugId), false, count, mode);
                         continue;
                     }
                 }
                 if (sample.scar() && unlocked && roll < (0.125D + 0.20D * order) * 1024.0D) {
-                    InnerPlacement.safeSet(level, top.above(), healingPlantFor(drugId), false, count);
+                    InnerPlacement.safeSet(level, top.above(), healingPlantFor(drugId), false, count, mode);
                     continue;
                 }
                 double plantChance = 0.0625D + 0.10D * order;
                 double accentChance = unlocked ? 0.015D + 0.05D * order : 0.0D;
                 if (roll < plantChance * 1024.0D) {
-                    InnerPlacement.safeSet(level, top.above(), plantFromProfile(profile, hash), false, count);
+                    InnerPlacement.safeSet(level, top.above(), plantFromProfile(profile, hash), false, count, mode);
                 } else if (accentChance > 0.0D && roll >= 1024.0D - accentChance * 1024.0D) {
-                    InnerPlacement.safeSet(level, top.above(), profile.accentBlock(), true, count);
+                    InnerPlacement.safeSet(level, top.above(), profile.accentBlock(), true, count, mode);
                 }
             }
         }

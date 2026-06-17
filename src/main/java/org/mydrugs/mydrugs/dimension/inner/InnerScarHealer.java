@@ -1,12 +1,20 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.mydrugs.mydrugs.MyDrugs;
@@ -14,39 +22,16 @@ import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
+import org.mydrugs.mydrugs.entity.InnerDemonEntity;
+import org.mydrugs.mydrugs.items.ModItems;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Phase 7.4 — scars heal over time (server authority). A reconciled region's scar blocks slowly
- * convert toward calm states across sessions: the {@link ModInnerDimensionBlocks#REDLINE_THORN}
- * thorns placed in {@code COCAINE}/{@code METH} scar cells retract (and some become a calming fern)
- * as the owner's integration count rises.
- *
- * <p>Why a dedicated healer: the overlay decorator ({@link InnerDecorator#decorateRegionAwakening})
- * already <em>places fewer</em> thorns as the region heals, but its {@code safeSet} can never
- * <em>remove</em> a thorn that is already in the world. This pass closes that gap by explicitly
- * retracting standing thorns to match the region's current healing level.
- *
- * <p>Constraints honoured:
- * <ul>
- *   <li><b>Server-side / persisted:</b> the healing target is driven by {@code integratedCount} in
- *       {@link InnerDimensionSavedData.IslandState}, which persists across sessions; the retraction
- *       is written to the world, so progress survives relog.</li>
- *   <li><b>Slow cadence &amp; budget:</b> spreads one 5x5 chunk sweep over roughly
- *       {@link #HEAL_INTERVAL} ticks and changes at most {@link #MAX_BLOCKS_PER_SWEEP} blocks per
- *       present player per rolling sweep, so the sample work does not land in one tick.</li>
- *   <li><b>Loaded chunks only:</b> heals only around players actually in the dimension; never
- *       force-loads.</li>
- *   <li><b>Idempotent:</b> a retracted thorn is gone, so re-running is a no-op; the keep/retract
- *       decision is a deterministic function of position and healing level.</li>
- * </ul>
- *
- * <p>Deferred (noted, not silently expanded): warming the scar <em>terrain</em> itself
- * (magma/blackstone &rarr; stone) would need the scar surface palette and a per-region progress
- * field; this pass deliberately limits itself to the unambiguous thorn marker.
+ * Server-authoritative manual scar restoration. Players establish calming growth inside a bounded
+ * scar cell; restored cells persist, repel nearby demons, and are healed gradually in loaded chunks.
  */
 @EventBusSubscriber(modid = MyDrugs.MODID)
 public final class InnerScarHealer {
@@ -57,6 +42,8 @@ public final class InnerScarHealer {
     private static final int HEAL_SWEEP_WIDTH = CHUNK_RADIUS * 2 + 1;
     private static final int CHUNKS_PER_HEAL_SWEEP = HEAL_SWEEP_WIDTH * HEAL_SWEEP_WIDTH;
     private static final int HEAL_STEP_INTERVAL = Math.max(1, HEAL_INTERVAL / CHUNKS_PER_HEAL_SWEEP);
+    private static final int SCAR_CELL_SIZE = 16;
+    private static final int RESTORATION_THRESHOLD = 4;
     private static final Map<UUID, Integer> SWEEP_WRITE_BUDGETS = new HashMap<>();
 
     private static int timer;
@@ -81,7 +68,7 @@ public final class InnerScarHealer {
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         for (ServerPlayer player : level.players()) {
             InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-            if (island.integratedCount() <= 0) {
+            if (island.restoredScarMarkers().isEmpty()) {
                 continue;
             }
             int budget = remainingSweepBudget(player.getUUID(), chunkIndex);
@@ -93,6 +80,48 @@ public final class InnerScarHealer {
                     healNextChunk(level, island, player.blockPosition(), chunkIndex, budget)
             );
         }
+    }
+
+    @SubscribeEvent
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)
+                || !(event.getLevel() instanceof ServerLevel level)
+                || !level.dimension().equals(InnerDimensions.INNER_LEVEL)
+                || !isRestorativeBlock(event.getPlacedBlock())) {
+            return;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        if (!isOwnIsland(island, event.getPos()) || !scarSample(island, event.getPos()).scar()) {
+            return;
+        }
+        evaluateRestoration(level, data, island, player, event.getPos());
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getHand() != InteractionHand.MAIN_HAND
+                || !(event.getEntity() instanceof ServerPlayer player)
+                || !(event.getLevel() instanceof ServerLevel level)
+                || !level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
+            return;
+        }
+        ItemStack held = player.getItemInHand(event.getHand());
+        if (!held.is(ModItems.CALMING_SPORES.get())) {
+            return;
+        }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        if (!isOwnIsland(island, event.getPos()) || !scarSample(island, event.getPos()).scar()) {
+            return;
+        }
+        seedCalmingFlora(level, island, event.getPos());
+        if (!player.getAbilities().instabuild) {
+            held.shrink(1);
+        }
+        evaluateRestoration(level, data, island, player, event.getPos());
+        event.setCancellationResult(InteractionResult.SUCCESS);
+        event.setCanceled(true);
     }
 
     @SubscribeEvent
@@ -109,12 +138,6 @@ public final class InnerScarHealer {
             int chunkIndex,
             int budget
     ) {
-        // Higher integration -> stronger retraction. Mirrors the decorator's `order` model.
-        double order = InnerNoise.clamp01(island.integratedCount() / 9.0D);
-        double retractChance = 0.6D * order;
-        if (retractChance <= 0.0D) {
-            return budget;
-        }
         int centerX = island.centerX();
         int centerZ = island.centerZ();
         int playerChunkX = around.getX() >> 4;
@@ -128,7 +151,7 @@ public final class InnerScarHealer {
         }
         InnerTerrain.beginCachePass();
         try {
-            return healChunk(level, centerX, centerZ, chunkX, chunkZ, retractChance, budget);
+            return healChunk(level, island, chunkX, chunkZ, 0.85D, budget);
         } finally {
             InnerTerrain.endCachePass();
         }
@@ -136,8 +159,7 @@ public final class InnerScarHealer {
 
     private static int healChunk(
             ServerLevel level,
-            int centerX,
-            int centerZ,
+            InnerDimensionSavedData.IslandState island,
             int chunkX,
             int chunkZ,
             double retractChance,
@@ -151,11 +173,14 @@ public final class InnerScarHealer {
                 int z = minZ + localZ;
                 int slotCenterX = InnerTerrain.slotCenter(x);
                 int slotCenterZ = InnerTerrain.slotCenter(z);
-                if (slotCenterX != centerX || slotCenterZ != centerZ) {
+                if (slotCenterX != island.centerX() || slotCenterZ != island.centerZ()) {
                     continue; // only heal this island's own slot
                 }
-                InnerTerrain.Sample sample = InnerTerrain.sample(centerX, centerZ, x, z);
+                InnerTerrain.Sample sample = InnerTerrain.sample(island.centerX(), island.centerZ(), x, z);
                 if (!sample.scar() || (sample.drugId() != DrugId.COCAINE && sample.drugId() != DrugId.METH)) {
+                    continue;
+                }
+                if (!isRestoredAt(island, new BlockPos(x, sample.topY(), z))) {
                     continue;
                 }
                 BlockPos pos = new BlockPos(x, sample.topY() + 1, z);
@@ -163,7 +188,7 @@ public final class InnerScarHealer {
                 if (!current.is(ModInnerDimensionBlocks.REDLINE_THORN.get())) {
                     continue; // nothing to retract here (idempotent)
                 }
-                int roll = thornRetractionRoll(centerX, centerZ, x, z, sample.drugId());
+                int roll = thornRetractionRoll(island.centerX(), island.centerZ(), x, z, sample.drugId());
                 if (!shouldRetractThorn(roll, retractChance)) {
                     continue; // this thorn persists at the current healing level
                 }
@@ -178,6 +203,155 @@ public final class InnerScarHealer {
             }
         }
         return budget;
+    }
+
+    public static String scarMarkerFor(InnerDimensionSavedData.IslandState island, BlockPos pos) {
+        int cellX = Math.floorDiv(pos.getX() - island.centerX(), SCAR_CELL_SIZE);
+        int cellZ = Math.floorDiv(pos.getZ() - island.centerZ(), SCAR_CELL_SIZE);
+        return "scar_cell:" + cellX + ":" + cellZ;
+    }
+
+    public static boolean isRestoredAt(InnerDimensionSavedData.IslandState island, BlockPos pos) {
+        return island != null && island.isScarRestored(scarMarkerFor(island, pos));
+    }
+
+    private static void evaluateRestoration(
+            ServerLevel level,
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island,
+            ServerPlayer player,
+            BlockPos pos
+    ) {
+        String marker = scarMarkerFor(island, pos);
+        if (island.isScarRestored(marker)) {
+            return;
+        }
+        int restoredBlocks = countRestorativeBlocks(level, island, pos);
+        InnerMessageCooldowns.actionBar(
+                player,
+                "scar:progress:" + marker,
+                5,
+                Component.translatable(
+                        "message.mydrugs.inner_scar.progress",
+                        Math.min(RESTORATION_THRESHOLD, restoredBlocks),
+                        RESTORATION_THRESHOLD
+                ).withStyle(ChatFormatting.GREEN)
+        );
+        if (restoredBlocks < RESTORATION_THRESHOLD || !data.markScarRestored(island.owner(), marker)) {
+            return;
+        }
+
+        calmCell(level, island, pos);
+        for (InnerDemonEntity demon : level.getEntitiesOfClass(
+                InnerDemonEntity.class,
+                new AABB(pos).inflate(18.0D)
+        )) {
+            demon.beginNaturalDespawn(20 * 3);
+        }
+        ItemStack reward = new ItemStack(ModItems.CALMING_RESIN.get());
+        if (!player.addItem(reward)) {
+            player.drop(reward, false);
+        }
+        player.sendSystemMessage(Component.translatable(
+                "message.mydrugs.inner_scar.restored"
+        ).withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+        InnerProgressionMilestones.scarHealed(player);
+    }
+
+    private static int countRestorativeBlocks(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            BlockPos pos
+    ) {
+        int cellX = Math.floorDiv(pos.getX() - island.centerX(), SCAR_CELL_SIZE);
+        int cellZ = Math.floorDiv(pos.getZ() - island.centerZ(), SCAR_CELL_SIZE);
+        int minX = island.centerX() + cellX * SCAR_CELL_SIZE;
+        int minZ = island.centerZ() + cellZ * SCAR_CELL_SIZE;
+        int count = 0;
+        for (int x = minX; x < minX + SCAR_CELL_SIZE; x++) {
+            for (int z = minZ; z < minZ + SCAR_CELL_SIZE; z++) {
+                if (!level.hasChunk(x >> 4, z >> 4)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = InnerTerrain.sample(island.centerX(), island.centerZ(), x, z);
+                if (isRestorativeBlock(level.getBlockState(new BlockPos(x, sample.topY() + 1, z)))) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private static void seedCalmingFlora(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            BlockPos origin
+    ) {
+        int[][] offsets = {{0, 0}, {2, 0}, {-2, 0}, {0, 2}, {0, -2}};
+        InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
+        for (int[] offset : offsets) {
+            int x = origin.getX() + offset[0];
+            int z = origin.getZ() + offset[1];
+            if (!level.hasChunk(x >> 4, z >> 4)) {
+                continue;
+            }
+            InnerTerrain.Sample sample = InnerTerrain.sample(island.centerX(), island.centerZ(), x, z);
+            BlockPos top = new BlockPos(x, sample.topY() + 1, z);
+            InnerPlacement.safeSet(level, top,
+                    ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState(), false, count);
+        }
+    }
+
+    private static void calmCell(
+            ServerLevel level,
+            InnerDimensionSavedData.IslandState island,
+            BlockPos pos
+    ) {
+        int cellX = Math.floorDiv(pos.getX() - island.centerX(), SCAR_CELL_SIZE);
+        int cellZ = Math.floorDiv(pos.getZ() - island.centerZ(), SCAR_CELL_SIZE);
+        int minX = island.centerX() + cellX * SCAR_CELL_SIZE;
+        int minZ = island.centerZ() + cellZ * SCAR_CELL_SIZE;
+        InnerPlacement.MutablePlacementCount count = new InnerPlacement.MutablePlacementCount();
+        for (int x = minX + 1; x < minX + SCAR_CELL_SIZE; x += 3) {
+            for (int z = minZ + 1; z < minZ + SCAR_CELL_SIZE; z += 3) {
+                if (!level.hasChunk(x >> 4, z >> 4)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = InnerTerrain.sample(island.centerX(), island.centerZ(), x, z);
+                BlockPos plantPos = new BlockPos(x, sample.topY() + 1, z);
+                if (level.getBlockState(plantPos).is(ModInnerDimensionBlocks.REDLINE_THORN.get())) {
+                    level.setBlock(plantPos, Blocks.AIR.defaultBlockState(), InnerDimensionConstants.UPDATE_FLAGS);
+                }
+                InnerPlacement.safeSet(level, plantPos,
+                        ((x + z) & 1) == 0
+                                ? ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState()
+                                : ModInnerDimensionBlocks.BREATH_GRASS.get().defaultBlockState(),
+                        false,
+                        count);
+            }
+        }
+    }
+
+    private static InnerTerrain.Sample scarSample(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos pos
+    ) {
+        return InnerTerrain.sample(island.centerX(), island.centerZ(), pos.getX(), pos.getZ());
+    }
+
+    private static boolean isOwnIsland(InnerDimensionSavedData.IslandState island, BlockPos pos) {
+        return InnerTerrain.slotCenter(pos.getX()) == island.centerX()
+                && InnerTerrain.slotCenter(pos.getZ()) == island.centerZ();
+    }
+
+    private static boolean isRestorativeBlock(BlockState state) {
+        return state.is(ModInnerDimensionBlocks.CALMING_FERN.get())
+                || state.is(ModInnerDimensionBlocks.CALMING_BUSH.get())
+                || state.is(ModInnerDimensionBlocks.MOSS_BREATH_CARPET.get())
+                || state.is(ModInnerDimensionBlocks.BREATH_GRASS.get())
+                || state.is(ModInnerDimensionBlocks.CALMING_ECHO_NODE.get())
+                || state.is(Blocks.LANTERN)
+                || state.is(Blocks.SOUL_LANTERN);
     }
 
     private static int chunkDxForIndex(int chunkIndex) {

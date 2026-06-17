@@ -1,11 +1,8 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
@@ -19,33 +16,12 @@ import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
  * the structure above (and occasionally carves into) that prepared ground.
  */
 final class InnerMegaFormBuilder {
+    private static final int MARGIN = 0;
+
     private InnerMegaFormBuilder() {
     }
 
-    static void placeInitialMegaForms(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeMegaForms(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayMegaForms(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeMegaForms(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
-    }
-
-    private static void placeMegaForms(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
         if (!cache.anyLand()) {
             return;
         }
@@ -56,7 +32,7 @@ final class InnerMegaFormBuilder {
             if (!chunkIntersects(minX, minZ, form)) {
                 continue;
             }
-            renderSlice(form, cache, minX, minZ, setter);
+            renderSlice(form, cache, minX, minZ, sink);
         }
     }
 
@@ -66,7 +42,7 @@ final class InnerMegaFormBuilder {
                 && minZ + 15 >= form.z() - reach && minZ <= form.z() + reach;
     }
 
-    private static void renderSlice(InnerMegaForms.Form form, InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+    private static void renderSlice(InnerMegaForms.Form form, InnerChunkSampleCache cache, int minX, int minZ, InnerBlockSink sink) {
         for (int localZ = 0; localZ < 16; localZ++) {
             for (int localX = 0; localX < 16; localX++) {
                 int worldX = minX + localX;
@@ -84,15 +60,15 @@ final class InnerMegaFormBuilder {
                         ^ (long) worldX * 0x6C62_272EL
                         ^ (long) worldZ * 0x27D4_EB2FL);
                 switch (form.drug()) {
-                    case COFFEE -> stillPoint(form, worldX, g, worldZ, d, hash, setter);
-                    case TOBACCO -> petrifiedChoir(form, worldX, g, worldZ, d, hash, setter);
-                    case WEED -> verdantCrater(form, worldX, g, worldZ, d, hash, setter);
-                    case HASH -> geodeOfQuiet(form, worldX, g, worldZ, d, hash, setter);
-                    case ALCOHOL -> drownedMemory(form, worldX, g, worldZ, hash, setter);
-                    case COCAINE -> whiteRazor(form, worldX, g, worldZ, d, hash, setter);
-                    case LSD -> prismSpan(form, worldX, g, worldZ, d, hash, setter);
-                    case METH -> theFault(form, worldX, g, worldZ, d, hash, setter);
-                    case MUSHROOMS -> motherCap(form, worldX, g, worldZ, d, hash, setter);
+                    case COFFEE -> stillPoint(form, worldX, g, worldZ, d, hash, sink);
+                    case TOBACCO -> petrifiedChoir(form, worldX, g, worldZ, d, hash, sink);
+                    case WEED -> verdantCrater(form, worldX, g, worldZ, d, hash, sink);
+                    case HASH -> geodeOfQuiet(form, worldX, g, worldZ, d, hash, sink);
+                    case ALCOHOL -> drownedMemory(form, worldX, g, worldZ, hash, sink);
+                    case COCAINE -> whiteRazor(form, worldX, g, worldZ, d, hash, sink);
+                    case LSD -> prismSpan(form, worldX, g, worldZ, d, hash, sink);
+                    case METH -> theFault(form, worldX, g, worldZ, d, hash, sink);
+                    case MUSHROOMS -> motherCap(form, worldX, g, worldZ, d, hash, sink);
                     default -> {
                     }
                 }
@@ -103,10 +79,10 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // COFFEE — "Still Point": raked concentric rings and a levitating stone halo.
     // -------------------------------------------------------------------------
-    private static void stillPoint(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void stillPoint(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         if (d < 1.5D) {
-            setter.set(new BlockPos(x, g + 1, z), Blocks.SMOOTH_STONE.defaultBlockState());
-            setter.set(new BlockPos(x, g + 2, z), Blocks.LANTERN.defaultBlockState());
+            sink.setBlock(new BlockPos(x, g + 1, z), Blocks.SMOOTH_STONE.defaultBlockState(), true);
+            sink.setBlock(new BlockPos(x, g + 2, z), Blocks.LANTERN.defaultBlockState(), true);
             return;
         }
         for (int ring = 6; ring <= 18; ring += 6) {
@@ -114,15 +90,15 @@ final class InnerMegaFormBuilder {
                 BlockState band = ((int) d & 1) == 0
                         ? Blocks.SMOOTH_STONE.defaultBlockState()
                         : Blocks.BOOKSHELF.defaultBlockState();
-                setter.set(new BlockPos(x, g, z), band);
+                sink.setBlock(new BlockPos(x, g, z), band, true);
             }
         }
         // Levitating halo at radius ~11, nine blocks up, with four cardinal lanterns.
         if (Math.abs(d - 11.0D) < 1.4D) {
-            setter.set(new BlockPos(x, form.baseY() + 9, z), Blocks.SMOOTH_STONE.defaultBlockState());
+            sink.setBlock(new BlockPos(x, form.baseY() + 9, z), Blocks.SMOOTH_STONE.defaultBlockState(), true);
             double angle = Math.atan2(z - form.z(), x - form.x());
             if (Math.abs(Math.cos(angle * 2.0D)) > 0.985D) {
-                setter.set(new BlockPos(x, form.baseY() + 10, z), Blocks.LANTERN.defaultBlockState());
+                sink.setBlock(new BlockPos(x, form.baseY() + 10, z), Blocks.LANTERN.defaultBlockState(), true);
             }
         }
     }
@@ -130,7 +106,7 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // TOBACCO — "Petrified Choir": colossal hollow burned trunks in an ash bowl.
     // -------------------------------------------------------------------------
-    private static void petrifiedChoir(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void petrifiedChoir(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         for (int k = 0; k < 7; k++) {
             long husk = InnerNoise.mix64(form.hash() + 0x4855_534BL + k * 0x9E37L);
             double angle = k * (Math.PI * 2.0D / 7.0D) + ((husk & 63L) / 63.0D - 0.5D) * 0.5D;
@@ -157,41 +133,41 @@ final class InnerMegaFormBuilder {
                 if (dy == height && dist >= taper - 1.2D && (husk & 3L) != 0L) {
                     state = Blocks.CRACKED_STONE_BRICKS.defaultBlockState();
                 }
-                setter.set(new BlockPos(x, g + dy, z), state);
+                sink.setBlock(new BlockPos(x, g + dy, z), state, true);
             }
             return;
         }
         // Ash bowl floor accents between the husks.
         if ((hash & 31L) == 0L && d < form.radius() - 2) {
-            setter.set(new BlockPos(x, g, z), Blocks.TUFF.defaultBlockState());
+            sink.setBlock(new BlockPos(x, g, z), Blocks.TUFF.defaultBlockState(), true);
         }
     }
 
     // -------------------------------------------------------------------------
     // WEED — "Verdant Crater": terraced garden bowl with a pool and rim glow.
     // -------------------------------------------------------------------------
-    private static void verdantCrater(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void verdantCrater(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         if (d < 3.0D) {
-            setter.set(new BlockPos(x, g, z), Blocks.WATER.defaultBlockState());
+            sink.setBlock(new BlockPos(x, g, z), Blocks.WATER.defaultBlockState(), true);
             return;
         }
         if (Math.abs(d - (form.radius() - 2.0D)) < 0.8D && (hash & 7L) == 0L) {
-            setter.set(new BlockPos(x, g + 1, z),
-                    ModInnerDimensionBlocks.CALMING_ECHO_NODE.get().defaultBlockState());
+            sink.setBlock(new BlockPos(x, g + 1, z),
+                    ModInnerDimensionBlocks.CALMING_ECHO_NODE.get().defaultBlockState(), true);
             return;
         }
         if (d < form.radius() && (hash & 7L) == 0L) {
             BlockState plant = (hash & 8L) == 0L
                     ? ModInnerDimensionBlocks.CALMING_FERN.get().defaultBlockState()
                     : ModInnerDimensionBlocks.BREATH_LILY.get().defaultBlockState();
-            setter.set(new BlockPos(x, g + 1, z), plant);
+            sink.setBlock(new BlockPos(x, g + 1, z), plant, true);
         }
     }
 
     // -------------------------------------------------------------------------
     // HASH — "Geode of Quiet": a hollow walk-in amethyst dome with crystal teeth.
     // -------------------------------------------------------------------------
-    private static void geodeOfQuiet(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void geodeOfQuiet(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         double r = form.radius();
         if (d > r) {
             return;
@@ -219,19 +195,19 @@ final class InnerMegaFormBuilder {
                         ? Blocks.SEA_LANTERN.defaultBlockState()
                         : Blocks.AMETHYST_BLOCK.defaultBlockState();
             }
-            setter.set(new BlockPos(x, y, z), state);
+            sink.setBlock(new BlockPos(x, y, z), state, true);
         }
         // Interior: calcite/amethyst floor and budding crystal teeth.
         if (d < r - 4.0D) {
-            setter.set(new BlockPos(x, g, z), ((x + z) & 1) == 0
+            sink.setBlock(new BlockPos(x, g, z), ((x + z) & 1) == 0
                     ? Blocks.CALCITE.defaultBlockState()
-                    : Blocks.AMETHYST_BLOCK.defaultBlockState());
+                    : Blocks.AMETHYST_BLOCK.defaultBlockState(), true);
             if ((hash & 15L) == 0L) {
                 int teeth = 1 + (int) ((hash >>> 8) & 1L);
                 for (int dy = 1; dy <= teeth; dy++) {
-                    setter.set(new BlockPos(x, g + dy, z), Blocks.AMETHYST_BLOCK.defaultBlockState());
+                    sink.setBlock(new BlockPos(x, g + dy, z), Blocks.AMETHYST_BLOCK.defaultBlockState(), true);
                 }
-                setter.set(new BlockPos(x, g + teeth + 1, z), Blocks.AMETHYST_CLUSTER.defaultBlockState());
+                sink.setBlock(new BlockPos(x, g + teeth + 1, z), Blocks.AMETHYST_CLUSTER.defaultBlockState(), true);
             }
         }
     }
@@ -239,7 +215,7 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // ALCOHOL — "Drowned Memory": a half-sunken ruined hall with broken arch ribs.
     // -------------------------------------------------------------------------
-    private static void drownedMemory(InnerMegaForms.Form form, int x, int g, int z, long hash, BlockSetter setter) {
+    private static void drownedMemory(InnerMegaForms.Form form, int x, int g, int z, long hash, InnerBlockSink sink) {
         double u = form.along(x, z);
         double v = form.perp(x, z);
         double halfLength = 13.0D;
@@ -255,26 +231,26 @@ final class InnerMegaFormBuilder {
                 BlockState wall = ((hash >>> dy) & 3L) == 0L
                         ? Blocks.CRACKED_DEEPSLATE_TILES.defaultBlockState()
                         : Blocks.DEEPSLATE_TILES.defaultBlockState();
-                setter.set(new BlockPos(x, g + dy, z), wall);
+                sink.setBlock(new BlockPos(x, g + dy, z), wall, true);
             }
             return;
         }
         if (Math.abs(u) < halfLength && v < halfWidth) {
             // Tiled floor, flooded down the middle.
             if (v < 3.0D && Math.abs(u) < halfLength - 2) {
-                setter.set(new BlockPos(x, g, z), Blocks.WATER.defaultBlockState());
+                sink.setBlock(new BlockPos(x, g, z), Blocks.WATER.defaultBlockState(), true);
             } else {
-                setter.set(new BlockPos(x, g, z), ((hash & 7L) == 0L
+                sink.setBlock(new BlockPos(x, g, z), ((hash & 7L) == 0L
                         ? Blocks.CRACKED_DEEPSLATE_TILES
-                        : Blocks.DEEPSLATE_TILES).defaultBlockState());
+                        : Blocks.DEEPSLATE_TILES).defaultBlockState(), true);
             }
             // Broken arch ribs every five blocks along the hall.
             double rib = Math.abs(u) % 5.0D;
             if ((rib < 0.6D || rib > 4.4D) && ((hash >>> 4) & 3L) != 0L) {
                 int archY = g + 8 - (int) Math.round(v * v / 6.0D);
-                setter.set(new BlockPos(x, archY, z), Blocks.DEEPSLATE_TILES.defaultBlockState());
+                sink.setBlock(new BlockPos(x, archY, z), Blocks.DEEPSLATE_TILES.defaultBlockState(), true);
                 if (v < 1.0D && ((hash >>> 6) & 3L) == 0L) {
-                    setter.set(new BlockPos(x, archY - 1, z), Blocks.SOUL_LANTERN.defaultBlockState());
+                    sink.setBlock(new BlockPos(x, archY - 1, z), Blocks.SOUL_LANTERN.defaultBlockState(), true);
                 }
             }
         }
@@ -283,7 +259,7 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // COCAINE — "White Razor": tapered monolithic quartz blades with red seams.
     // -------------------------------------------------------------------------
-    private static void whiteRazor(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void whiteRazor(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         for (int k = 0; k < 5; k++) {
             long blade = InnerNoise.mix64(form.hash() + 0x424C_4144L + k * 0x85EBL);
             double angle = (blade & 1023L) / 1023.0D * Math.PI;
@@ -303,11 +279,11 @@ final class InnerMegaFormBuilder {
                 BlockState state = dy % 6 == 0
                         ? Blocks.REDSTONE_BLOCK.defaultBlockState()
                         : Blocks.SMOOTH_QUARTZ.defaultBlockState();
-                setter.set(new BlockPos(x, g + dy, z), state);
+                sink.setBlock(new BlockPos(x, g + dy, z), state, true);
             }
             if (columnHeight > 2 && (hash & 31L) == 0L) {
-                setter.set(new BlockPos(x, g + 1, z),
-                        ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE.get().defaultBlockState());
+                sink.setBlock(new BlockPos(x, g + 1, z),
+                        ModInnerDimensionBlocks.REDLINE_CRYSTAL_NODE.get().defaultBlockState(), true);
             }
             return;
         }
@@ -316,30 +292,30 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // LSD — "Prism Span": a glowing canyon crossed by tinted-glass arch bridges.
     // -------------------------------------------------------------------------
-    private static void prismSpan(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void prismSpan(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         double perp = form.perp(x, z);
         double along = form.along(x, z);
         if (perp < 4.5D && d < form.radius()) {
             // Canyon floor: a luminous seam running down the middle.
             if (perp < 0.9D) {
-                setter.set(new BlockPos(x, g - 1, z), Blocks.SEA_LANTERN.defaultBlockState());
-                setter.set(new BlockPos(x, g, z), Blocks.TINTED_GLASS.defaultBlockState());
+                sink.setBlock(new BlockPos(x, g - 1, z), Blocks.SEA_LANTERN.defaultBlockState(), true);
+                sink.setBlock(new BlockPos(x, g, z), Blocks.TINTED_GLASS.defaultBlockState(), true);
             } else {
-                setter.set(new BlockPos(x, g, z), Blocks.PRISMARINE.defaultBlockState());
+                sink.setBlock(new BlockPos(x, g, z), Blocks.PRISMARINE.defaultBlockState(), true);
             }
         } else if (perp < 6.5D && d < form.radius()) {
             // Canyon lip veneer.
-            setter.set(new BlockPos(x, g, z), ((hash & 3L) == 0L
+            sink.setBlock(new BlockPos(x, g, z), ((hash & 3L) == 0L
                     ? Blocks.SEA_LANTERN
-                    : Blocks.PRISMARINE).defaultBlockState());
+                    : Blocks.PRISMARINE).defaultBlockState(), true);
         }
         // Two glass arch bridges crossing the canyon.
         for (double bridgeAt : new double[]{-8.0D, 8.0D}) {
             if (Math.abs(along - bridgeAt) < 0.8D && perp <= 6.0D) {
                 int deckY = form.baseY() + 5 - (int) Math.round(perp * perp / 20.0D);
-                setter.set(new BlockPos(x, deckY, z), Blocks.TINTED_GLASS.defaultBlockState());
+                sink.setBlock(new BlockPos(x, deckY, z), Blocks.TINTED_GLASS.defaultBlockState(), true);
                 if (((int) Math.round(perp) % 3) == 0) {
-                    setter.set(new BlockPos(x, deckY + 1, z), Blocks.SEA_LANTERN.defaultBlockState());
+                    sink.setBlock(new BlockPos(x, deckY + 1, z), Blocks.SEA_LANTERN.defaultBlockState(), true);
                 }
             }
         }
@@ -348,18 +324,18 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // METH — "The Fault": a torn obsidian rift, magma veins, lightning spires.
     // -------------------------------------------------------------------------
-    private static void theFault(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void theFault(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         double perp = form.perp(x, z);
         double along = form.along(x, z);
         if (perp < 5.5D && d < form.radius()) {
             // Rift floor: blackstone crossed by glowing magma veins.
             boolean vein = Math.floorMod((int) Math.round(along), 6) == 0;
-            setter.set(new BlockPos(x, g, z), (vein ? Blocks.MAGMA_BLOCK : Blocks.BLACKSTONE).defaultBlockState());
+            sink.setBlock(new BlockPos(x, g, z), (vein ? Blocks.MAGMA_BLOCK : Blocks.BLACKSTONE).defaultBlockState(), true);
         } else if (perp < 7.5D && d < form.radius()) {
             // Torn obsidian lips.
-            setter.set(new BlockPos(x, g, z), ((hash & 3L) == 0L
+            sink.setBlock(new BlockPos(x, g, z), ((hash & 3L) == 0L
                     ? Blocks.CRYING_OBSIDIAN
-                    : Blocks.OBSIDIAN).defaultBlockState());
+                    : Blocks.OBSIDIAN).defaultBlockState(), true);
         }
         // Six lightning spires staggered along the rift edges (B3 strikes these).
         int[][] spires = InnerMegaForms.faultSpireOffsets(form);
@@ -375,12 +351,12 @@ final class InnerMegaFormBuilder {
                 if (dist > taper) {
                     continue;
                 }
-                setter.set(new BlockPos(x, g + dy, z), (dy % 7 == 0
+                sink.setBlock(new BlockPos(x, g + dy, z), (dy % 7 == 0
                         ? Blocks.MAGMA_BLOCK
-                        : Blocks.BASALT).defaultBlockState());
+                        : Blocks.BASALT).defaultBlockState(), true);
             }
             if (dist < 0.8D) {
-                setter.set(new BlockPos(x, g + height + 1, z), Blocks.LIGHTNING_ROD.defaultBlockState());
+                sink.setBlock(new BlockPos(x, g + height + 1, z), Blocks.LIGHTNING_ROD.defaultBlockState(), true);
             }
             return;
         }
@@ -389,7 +365,7 @@ final class InnerMegaFormBuilder {
     // -------------------------------------------------------------------------
     // MUSHROOMS — "Mother Cap": a hill-sized mushroom with a walkable gill ring.
     // -------------------------------------------------------------------------
-    private static void motherCap(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, BlockSetter setter) {
+    private static void motherCap(InnerMegaForms.Form form, int x, int g, int z, double d, long hash, InnerBlockSink sink) {
         int stemTop = form.baseY() + 16;
         // Stem with a hollow climbing shaft lit by shroomlight.
         if (d < 4.2D) {
@@ -402,7 +378,7 @@ final class InnerMegaFormBuilder {
                 } else {
                     state = Blocks.MUSHROOM_STEM.defaultBlockState();
                 }
-                setter.set(new BlockPos(x, y, z), state);
+                sink.setBlock(new BlockPos(x, y, z), state, true);
             }
             return;
         }
@@ -412,9 +388,9 @@ final class InnerMegaFormBuilder {
             if (d >= 5.0D && d <= 18.0D) {
                 double angle = Math.atan2(z - form.z(), x - form.x());
                 int spoke = (int) Math.floor((angle + Math.PI) * 12.0D / Math.PI);
-                setter.set(new BlockPos(x, stemTop, z), ((spoke & 1) == 0
+                sink.setBlock(new BlockPos(x, stemTop, z), ((spoke & 1) == 0
                         ? Blocks.MUSHROOM_STEM
-                        : Blocks.SHROOMLIGHT).defaultBlockState());
+                        : Blocks.SHROOMLIGHT).defaultBlockState(), true);
             }
             // The cap dome above.
             BlockState cap = (form.hash() & 1L) == 0L
@@ -422,17 +398,13 @@ final class InnerMegaFormBuilder {
                     : Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState();
             double lift = Math.sqrt(Math.max(0.0D, 1.0D - (d / capRadius) * (d / capRadius))) * 9.0D;
             int capY = stemTop + 1 + (int) Math.round(lift);
-            setter.set(new BlockPos(x, capY, z), cap);
-            setter.set(new BlockPos(x, capY - 1, z), cap);
+            sink.setBlock(new BlockPos(x, capY, z), cap, true);
+            sink.setBlock(new BlockPos(x, capY - 1, z), cap, true);
             // Spore strands drifting beneath the gills.
             if ((hash & 63L) == 0L && d > 6.0D) {
-                setter.set(new BlockPos(x, stemTop - 2 - (int) ((hash >>> 8) & 3L), z),
-                        Blocks.SHROOMLIGHT.defaultBlockState());
+                sink.setBlock(new BlockPos(x, stemTop - 2 - (int) ((hash >>> 8) & 3L), z),
+                        Blocks.SHROOMLIGHT.defaultBlockState(), true);
             }
         }
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

@@ -1,37 +1,13 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 
 public final class InnerPlantBuilder {
+    private static final int MARGIN = 0;
+
     private InnerPlantBuilder() {
-    }
-
-    public static void placeInitialPlants(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placePlants(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayPlants(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placePlants(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, false, count));
     }
 
     static boolean hasFloraIdentityFor(DrugId drugId) {
@@ -39,7 +15,7 @@ public final class InnerPlantBuilder {
         return flora.hasAny() && flora.categoryCount() >= 3;
     }
 
-    private static void placePlants(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
         if (!cache.anyLand()) {
             return;
         }
@@ -74,7 +50,7 @@ public final class InnerPlantBuilder {
                 }
                 BlockState plant = plantFor(sample, grove, scene, hash);
                 int y = sample.topY() + 1;
-                setter.set(new BlockPos(worldX, y, worldZ), plant);
+                sink.setBlock(new BlockPos(worldX, y, worldZ), plant, false);
             }
         }
     }
@@ -122,9 +98,5 @@ public final class InnerPlantBuilder {
             return flora.groundCover(hash >>> 8);
         }
         return flora.flower(hash >>> 8);
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

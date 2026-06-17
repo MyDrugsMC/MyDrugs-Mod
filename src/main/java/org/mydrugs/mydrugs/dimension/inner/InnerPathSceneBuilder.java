@@ -1,11 +1,8 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.integration.CuratedDrugChain;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
@@ -14,31 +11,9 @@ final class InnerPathSceneBuilder {
     // Demoted (was 0.10 / 0.08): keep the route legible but less manicured.
     private static final double PATH_DETAIL_CHANCE = 0.07D;
     private static final double PATH_CORE_BONUS_CHANCE = 0.05D;
+    private static final int MARGIN = 5;
 
     private InnerPathSceneBuilder() {
-    }
-
-    static void placeInitialPathScenes(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placePathScenes(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayPathScenes(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placePathScenes(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static boolean hasDecorationFor(DrugId drugId) {
@@ -76,28 +51,29 @@ final class InnerPathSceneBuilder {
         return !InnerSceneSampler.isVistaPoint(seed, 0, 0, 0, 0, center);
     }
 
-    private static void placePathScenes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        // canDecoratePath requires pathStrength > 0.52 on the column itself.
-        if (cache.maxPathStrength() <= 0.52D) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
         int decorations = 0;
         int arches = 0;
-        for (int localZ = 0; localZ < 16; localZ += 2) {
-            for (int localX = 0; localX < 16; localX += 2) {
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 0, 16, 2)) {
+                continue;
+            }
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 0, 16, 2)) {
+                    continue;
+                }
                 if (decorations >= 10 && arches >= 1) {
                     return;
                 }
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
                 if (!canDecoratePath(sample)) {
                     continue;
                 }
-                InnerSceneSample scene = cache.scene(localX, localZ);
+                InnerGroveSample grove = cache.groveAt(worldX, worldZ, sample);
+                InnerSceneSample scene = cache.sceneAt(worldX, worldZ, sample, grove);
                 long hash = InnerNoise.mix64(seed
                         ^ (long) worldX * 0x4B1D_2271L
                         ^ (long) worldZ * 0x2925_39EFL);
@@ -106,15 +82,15 @@ final class InnerPathSceneBuilder {
                     chance += PATH_CORE_BONUS_CHANCE;
                 }
                 if ((hash & 1023L) < chance * 1024.0D && decorations < 10) {
-                    decorateEdge(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, scene, hash, setter);
+                    decorateEdge(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, scene, hash, sink);
                     decorations++;
                 }
                 if (scene.type() == InnerSceneType.PATH_VISTA && arches < 1 && shouldBuildArch(hash, sample)) {
-                    buildArch(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, hash, setter);
+                    buildArch(seed, islandCenterX, islandCenterZ, worldX, worldZ, sample, hash, sink);
                     arches++;
                 }
                 if (scene.type() == InnerSceneType.PATH_VISTA) {
-                    clearVista(worldX, sample.topY(), worldZ, setter);
+                    clearVista(worldX, sample.topY(), worldZ, sink);
                 }
             }
         }
@@ -142,7 +118,7 @@ final class InnerPathSceneBuilder {
             InnerTerrain.Sample pathSample,
             InnerSceneSample scene,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         DrugId drugId = pathSample.chooseFeatureDrug(hash);
         int offset = scene.type() == InnerSceneType.PATH_VISTA ? 4 : 3;
@@ -159,12 +135,12 @@ final class InnerPathSceneBuilder {
             BlockState marker = pathSample.transitionZone() && pathSample.transitionStrength() > 0.32D
                     ? InnerTransitionPalette.pathAccent(pathSample)
                     : pathMarker(drugId);
-            setter.set(top, marker);
+            sink.setBlock(top, marker, true);
             if (((hash >>> 9) & 3L) == 0L || scene.type() == InnerSceneType.PATH_VISTA) {
-                setter.set(top.above(), edgePlant(drugId));
+                sink.setBlock(top.above(), edgePlant(drugId), true);
             }
             if (((hash >>> 13) & 7L) == 0L || scene.type() == InnerSceneType.PATH_VISTA) {
-                setter.set(top.above(1), pathGlow(drugId));
+                sink.setBlock(top.above(1), pathGlow(drugId), true);
             }
         }
     }
@@ -204,7 +180,7 @@ final class InnerPathSceneBuilder {
             int worldZ,
             InnerTerrain.Sample sample,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         DrugId drugId = sample.chooseFeatureDrug(hash);
         BlockState arch = archState(drugId);
@@ -216,22 +192,22 @@ final class InnerPathSceneBuilder {
             }
             int baseY = edgeSample.topY() + 1;
             for (int dy = 0; dy < 4; dy++) {
-                setter.set(new BlockPos(edge.getX(), baseY + dy, edge.getZ()), arch);
+                sink.setBlock(new BlockPos(edge.getX(), baseY + dy, edge.getZ()), arch, true);
             }
         }
         int topY = sample.topY() + 5;
         boolean eastWest = Math.abs(worldX - centerX) > Math.abs(worldZ - centerZ);
         for (int i = -3; i <= 3; i++) {
-            setter.set(new BlockPos(worldX + (eastWest ? 0 : i), topY, worldZ + (eastWest ? i : 0)), arch);
+            sink.setBlock(new BlockPos(worldX + (eastWest ? 0 : i), topY, worldZ + (eastWest ? i : 0)), arch, true);
         }
     }
 
-    private static void clearVista(int x, int y, int z, BlockSetter setter) {
+    private static void clearVista(int x, int y, int z, InnerBlockSink sink) {
         for (int dz = -2; dz <= 2; dz++) {
             for (int dx = -2; dx <= 2; dx++) {
                 if (Math.abs(dx) + Math.abs(dz) <= 3) {
-                    setter.set(new BlockPos(x + dx, y + 1, z + dz), Blocks.AIR.defaultBlockState());
-                    setter.set(new BlockPos(x + dx, y + 2, z + dz), Blocks.AIR.defaultBlockState());
+                    sink.setBlock(new BlockPos(x + dx, y + 1, z + dz), Blocks.AIR.defaultBlockState(), true);
+                    sink.setBlock(new BlockPos(x + dx, y + 2, z + dz), Blocks.AIR.defaultBlockState(), true);
                 }
             }
         }
@@ -295,9 +271,5 @@ final class InnerPathSceneBuilder {
             }
         }
         return true;
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

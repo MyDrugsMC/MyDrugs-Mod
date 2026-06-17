@@ -9,6 +9,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,6 +25,7 @@ import org.mydrugs.mydrugs.energy.psycurrent.PsyCurrentTargetScan;
 import org.mydrugs.mydrugs.energy.psycurrent.StrainRisk;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 
 /**
  * Right-click an engine or a Psy Current-compatible machine with the Current Regulator to read
@@ -35,6 +39,20 @@ public final class CurrentRegulatorItem extends Item {
 
     public CurrentRegulatorItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void appendHoverText(
+            ItemStack stack,
+            TooltipContext context,
+            TooltipDisplay tooltipDisplay,
+            Consumer<Component> tooltipAdder,
+            TooltipFlag flag
+    ) {
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
+        tooltipAdder.accept(Component.translatable(
+                "tooltip.mydrugs.current_regulator"
+        ).withStyle(ChatFormatting.GRAY));
     }
 
     @Override

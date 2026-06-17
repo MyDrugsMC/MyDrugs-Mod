@@ -1,39 +1,15 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 
 final class InnerLakeSceneBuilder {
+    private static final int MARGIN = 5;
+
     private InnerLakeSceneBuilder() {
-    }
-
-    static void placeInitialLakeScenes(ChunkAccess chunk, InnerChunkSampleCache cache) {
-        ChunkPos chunkPos = chunk.getPos();
-        placeLakeScenes(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(), (pos, state) -> {
-            if (pos.getY() < chunk.getMinY() || pos.getY() >= chunk.getMinY() + chunk.getHeight()) {
-                return;
-            }
-            if (!chunkPos.equals(new ChunkPos(pos))) {
-                return;
-            }
-            chunk.setBlockState(pos, state, 2);
-        });
-    }
-
-    static void placeOverlayLakeScenes(
-            ServerLevel level,
-            ChunkPos chunkPos,
-            InnerChunkSampleCache cache,
-            InnerPlacement.MutablePlacementCount count
-    ) {
-        placeLakeScenes(cache, chunkPos.getMinBlockX(), chunkPos.getMinBlockZ(),
-                (pos, state) -> InnerPlacement.safeSet(level, pos, state, true, count));
     }
 
     static boolean rejectsSanctuaryForTest() {
@@ -52,20 +28,22 @@ final class InnerLakeSceneBuilder {
         return typeFor(drugId, lakeType);
     }
 
-    private static void placeLakeScenes(InnerChunkSampleCache cache, int minX, int minZ, BlockSetter setter) {
-        if (!cache.anyLake()) {
-            return;
-        }
-        int islandCenterX = InnerTerrain.slotCenter(minX + 8);
-        int islandCenterZ = InnerTerrain.slotCenter(minZ + 8);
+    static void place(InnerBlockSink sink, InnerChunkSampleCache cache, int minX, int minZ) {
+        int islandCenterX = cache.islandCenterX();
+        int islandCenterZ = cache.islandCenterZ();
         long seed = InnerTerrain.seedForSlot(islandCenterX, islandCenterZ);
         int scenesPlaced = 0;
-        for (int localZ = 2; localZ < 16 && scenesPlaced < 1; localZ += 3) {
-            for (int localX = 2; localX < 16 && scenesPlaced < 1; localX += 3) {
-                int worldX = minX + localX;
-                int worldZ = minZ + localZ;
-                InnerTerrain.Sample sample = cache.sample(localX, localZ);
-                InnerSceneSample scene = cache.scene(localX, localZ);
+        for (int worldZ = minZ - MARGIN; worldZ < minZ + 16 + MARGIN && scenesPlaced < 1; worldZ++) {
+            if (!InnerChunkSampleCache.chunkLocalCandidate(worldZ, 2, 16, 3)) {
+                continue;
+            }
+            for (int worldX = minX - MARGIN; worldX < minX + 16 + MARGIN && scenesPlaced < 1; worldX++) {
+                if (!InnerChunkSampleCache.chunkLocalCandidate(worldX, 2, 16, 3)) {
+                    continue;
+                }
+                InnerTerrain.Sample sample = cache.sampleAt(worldX, worldZ);
+                InnerGroveSample grove = cache.groveAt(worldX, worldZ, sample);
+                InnerSceneSample scene = cache.sceneAt(worldX, worldZ, sample, grove);
                 if (!canHostLakeScene(sample, scene)) {
                     continue;
                 }
@@ -76,7 +54,7 @@ final class InnerLakeSceneBuilder {
                 if (!sample.lakeCenterpiece() && (hash & 1023L) >= chance * 1024.0D) {
                     continue;
                 }
-                buildLakeScene(worldX, sample.lakeSurfaceY(), worldZ, sample, scene, hash, setter);
+                buildLakeScene(worldX, sample.lakeSurfaceY(), worldZ, sample, scene, hash, sink);
                 scenesPlaced++;
             }
         }
@@ -98,21 +76,21 @@ final class InnerLakeSceneBuilder {
             InnerTerrain.Sample sample,
             InnerSceneSample scene,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         InnerLakeSceneType type = typeFor(sample.chooseFeatureDrug(hash), sample.lakeType());
         switch (type) {
-            case MIRROR_LAKE -> mirrorLake(x, surfaceY, z, sample, hash, setter);
-            case MEMORY_MARSH -> memoryMarsh(x, surfaceY, z, hash, setter);
-            case PRISM_BASIN -> prismBasin(x, surfaceY, z, hash, setter);
-            case ROOT_LAKE -> rootLake(x, surfaceY, z, hash, setter);
-            case EMBER_PIT -> emberPit(x, surfaceY, z, hash, setter);
-            case CRYSTAL_SINK -> crystalSink(x, surfaceY, z, hash, setter);
-            case REDLINE_DRY_BASIN -> redlineDryBasin(x, surfaceY, z, hash, setter);
-            case ASH_BASIN -> ashBasin(x, surfaceY, z, hash, setter);
+            case MIRROR_LAKE -> mirrorLake(x, surfaceY, z, sample, hash, sink);
+            case MEMORY_MARSH -> memoryMarsh(x, surfaceY, z, hash, sink);
+            case PRISM_BASIN -> prismBasin(x, surfaceY, z, hash, sink);
+            case ROOT_LAKE -> rootLake(x, surfaceY, z, hash, sink);
+            case EMBER_PIT -> emberPit(x, surfaceY, z, hash, sink);
+            case CRYSTAL_SINK -> crystalSink(x, surfaceY, z, hash, sink);
+            case REDLINE_DRY_BASIN -> redlineDryBasin(x, surfaceY, z, hash, sink);
+            case ASH_BASIN -> ashBasin(x, surfaceY, z, hash, sink);
         }
         if (scene.preserveOpenView()) {
-            clearLowView(x, surfaceY, z, setter);
+            clearLowView(x, surfaceY, z, sink);
         }
     }
 
@@ -136,66 +114,66 @@ final class InnerLakeSceneBuilder {
         };
     }
 
-    private static void mirrorLake(int x, int y, int z, InnerTerrain.Sample sample, long hash, BlockSetter setter) {
+    private static void mirrorLake(int x, int y, int z, InnerTerrain.Sample sample, long hash, InnerBlockSink sink) {
         BlockState bottomGlow = sample.drugId() == DrugId.COFFEE
                 ? Blocks.GLOWSTONE.defaultBlockState()
                 : InnerGlowBuilder.glowStateFor(sample.drugId());
-        setter.set(new BlockPos(x, y - 1, z), bottomGlow);
-        setter.set(new BlockPos(x, y + 1, z), Blocks.CALCITE.defaultBlockState());
-        rim(x, y, z, 4, sample.profile().surfaceBlock(), Blocks.MOSS_BLOCK.defaultBlockState(), hash, setter);
+        sink.setBlock(new BlockPos(x, y - 1, z), bottomGlow, true);
+        sink.setBlock(new BlockPos(x, y + 1, z), Blocks.CALCITE.defaultBlockState(), true);
+        rim(x, y, z, 4, sample.profile().surfaceBlock(), Blocks.MOSS_BLOCK.defaultBlockState(), hash, sink);
     }
 
-    private static void memoryMarsh(int x, int y, int z, long hash, BlockSetter setter) {
-        setter.set(new BlockPos(x, y, z), Blocks.MUD.defaultBlockState());
-        setter.set(new BlockPos(x, y + 1, z), Blocks.SOUL_LANTERN.defaultBlockState());
-        rootLine(x, y + 1, z, Blocks.DARK_OAK_LOG.defaultBlockState(), hash, setter);
-        rim(x, y, z, 5, Blocks.MUD.defaultBlockState(), ModInnerDimensionBlocks.MEMORY_REEDS.get().defaultBlockState(), hash, setter);
+    private static void memoryMarsh(int x, int y, int z, long hash, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(x, y, z), Blocks.MUD.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(x, y + 1, z), Blocks.SOUL_LANTERN.defaultBlockState(), true);
+        rootLine(x, y + 1, z, Blocks.DARK_OAK_LOG.defaultBlockState(), hash, sink);
+        rim(x, y, z, 5, Blocks.MUD.defaultBlockState(), ModInnerDimensionBlocks.MEMORY_REEDS.get().defaultBlockState(), hash, sink);
     }
 
-    private static void prismBasin(int x, int y, int z, long hash, BlockSetter setter) {
-        setter.set(new BlockPos(x, y - 1, z), Blocks.SEA_LANTERN.defaultBlockState());
-        setter.set(new BlockPos(x, y + 1, z), Blocks.TINTED_GLASS.defaultBlockState());
-        rim(x, y, z, 5, Blocks.PRISMARINE.defaultBlockState(), Blocks.SEA_LANTERN.defaultBlockState(), hash, setter);
-        shardCluster(x, y + 1, z, Blocks.CALCITE.defaultBlockState(), Blocks.TINTED_GLASS.defaultBlockState(), setter);
+    private static void prismBasin(int x, int y, int z, long hash, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(x, y - 1, z), Blocks.SEA_LANTERN.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(x, y + 1, z), Blocks.TINTED_GLASS.defaultBlockState(), true);
+        rim(x, y, z, 5, Blocks.PRISMARINE.defaultBlockState(), Blocks.SEA_LANTERN.defaultBlockState(), hash, sink);
+        shardCluster(x, y + 1, z, Blocks.CALCITE.defaultBlockState(), Blocks.TINTED_GLASS.defaultBlockState(), sink);
     }
 
-    private static void rootLake(int x, int y, int z, long hash, BlockSetter setter) {
-        setter.set(new BlockPos(x, y - 1, z), Blocks.SHROOMLIGHT.defaultBlockState());
-        setter.set(new BlockPos(x, y + 1, z), ModInnerDimensionBlocks.SPORE_BLOOM.get().defaultBlockState());
-        rootLine(x, y + 1, z, Blocks.MUSHROOM_STEM.defaultBlockState(), hash, setter);
-        rim(x, y, z, 5, Blocks.MYCELIUM.defaultBlockState(), ModInnerDimensionBlocks.MYCELIAL_THREADS.get().defaultBlockState(), hash, setter);
+    private static void rootLake(int x, int y, int z, long hash, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(x, y - 1, z), Blocks.SHROOMLIGHT.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(x, y + 1, z), ModInnerDimensionBlocks.SPORE_BLOOM.get().defaultBlockState(), true);
+        rootLine(x, y + 1, z, Blocks.MUSHROOM_STEM.defaultBlockState(), hash, sink);
+        rim(x, y, z, 5, Blocks.MYCELIUM.defaultBlockState(), ModInnerDimensionBlocks.MYCELIAL_THREADS.get().defaultBlockState(), hash, sink);
     }
 
-    private static void emberPit(int x, int y, int z, long hash, BlockSetter setter) {
-        setter.set(new BlockPos(x, y, z), Blocks.MAGMA_BLOCK.defaultBlockState());
-        setter.set(new BlockPos(x + 1, y, z), Blocks.POLISHED_BLACKSTONE.defaultBlockState());
-        setter.set(new BlockPos(x - 1, y, z), Blocks.BASALT.defaultBlockState());
-        rim(x, y, z, 4, Blocks.BLACKSTONE.defaultBlockState(), Blocks.MAGMA_BLOCK.defaultBlockState(), hash, setter);
+    private static void emberPit(int x, int y, int z, long hash, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(x, y, z), Blocks.MAGMA_BLOCK.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(x + 1, y, z), Blocks.POLISHED_BLACKSTONE.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(x - 1, y, z), Blocks.BASALT.defaultBlockState(), true);
+        rim(x, y, z, 4, Blocks.BLACKSTONE.defaultBlockState(), Blocks.MAGMA_BLOCK.defaultBlockState(), hash, sink);
     }
 
-    private static void crystalSink(int x, int y, int z, long hash, BlockSetter setter) {
-        setter.set(new BlockPos(x, y - 1, z), Blocks.SEA_LANTERN.defaultBlockState());
-        setter.set(new BlockPos(x, y + 1, z), Blocks.AMETHYST_BLOCK.defaultBlockState());
-        rim(x, y, z, 5, Blocks.CALCITE.defaultBlockState(), Blocks.AMETHYST_BLOCK.defaultBlockState(), hash, setter);
-        shardCluster(x, y + 1, z, Blocks.CALCITE.defaultBlockState(), Blocks.AMETHYST_BLOCK.defaultBlockState(), setter);
+    private static void crystalSink(int x, int y, int z, long hash, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(x, y - 1, z), Blocks.SEA_LANTERN.defaultBlockState(), true);
+        sink.setBlock(new BlockPos(x, y + 1, z), Blocks.AMETHYST_BLOCK.defaultBlockState(), true);
+        rim(x, y, z, 5, Blocks.CALCITE.defaultBlockState(), Blocks.AMETHYST_BLOCK.defaultBlockState(), hash, sink);
+        shardCluster(x, y + 1, z, Blocks.CALCITE.defaultBlockState(), Blocks.AMETHYST_BLOCK.defaultBlockState(), sink);
     }
 
-    private static void redlineDryBasin(int x, int y, int z, long hash, BlockSetter setter) {
+    private static void redlineDryBasin(int x, int y, int z, long hash, InnerBlockSink sink) {
         for (int i = -5; i <= 5; i++) {
             BlockState state = Math.abs(i) % 3 == 0
                     ? Blocks.REDSTONE_BLOCK.defaultBlockState()
                     : Blocks.SMOOTH_QUARTZ.defaultBlockState();
-            setter.set(new BlockPos(x + i, y, z), state);
+            sink.setBlock(new BlockPos(x + i, y, z), state, true);
         }
-        rim(x, y, z, 4, Blocks.WHITE_CONCRETE.defaultBlockState(), Blocks.REDSTONE_BLOCK.defaultBlockState(), hash, setter);
+        rim(x, y, z, 4, Blocks.WHITE_CONCRETE.defaultBlockState(), Blocks.REDSTONE_BLOCK.defaultBlockState(), hash, sink);
     }
 
-    private static void ashBasin(int x, int y, int z, long hash, BlockSetter setter) {
-        setter.set(new BlockPos(x, y, z), Blocks.CRACKED_STONE_BRICKS.defaultBlockState());
+    private static void ashBasin(int x, int y, int z, long hash, InnerBlockSink sink) {
+        sink.setBlock(new BlockPos(x, y, z), Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), true);
         for (int i = 0; i < 4; i++) {
-            setter.set(new BlockPos(x, y + i + 1, z), Blocks.STRIPPED_DARK_OAK_LOG.defaultBlockState());
+            sink.setBlock(new BlockPos(x, y + i + 1, z), Blocks.STRIPPED_DARK_OAK_LOG.defaultBlockState(), true);
         }
-        rim(x, y, z, 4, Blocks.TUFF.defaultBlockState(), Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), hash, setter);
+        rim(x, y, z, 4, Blocks.TUFF.defaultBlockState(), Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), hash, sink);
     }
 
     private static void rim(
@@ -206,7 +184,7 @@ final class InnerLakeSceneBuilder {
             BlockState rim,
             BlockState accent,
             long hash,
-            BlockSetter setter
+            InnerBlockSink sink
     ) {
         for (int dz = -radius; dz <= radius; dz++) {
             for (int dx = -radius; dx <= radius; dx++) {
@@ -215,39 +193,35 @@ final class InnerLakeSceneBuilder {
                     continue;
                 }
                 long local = InnerNoise.mix64(hash + dx * 31L + dz * 17L);
-                setter.set(new BlockPos(x + dx, y, z + dz), (local & 3L) == 0L ? accent : rim);
+                sink.setBlock(new BlockPos(x + dx, y, z + dz), (local & 3L) == 0L ? accent : rim, true);
             }
         }
     }
 
-    private static void rootLine(int x, int y, int z, BlockState root, long hash, BlockSetter setter) {
+    private static void rootLine(int x, int y, int z, BlockState root, long hash, InnerBlockSink sink) {
         boolean eastWest = (hash & 1L) == 0L;
         for (int i = -4; i <= 4; i++) {
-            setter.set(new BlockPos(x + (eastWest ? i : 0), y, z + (eastWest ? 0 : i)), root);
+            sink.setBlock(new BlockPos(x + (eastWest ? i : 0), y, z + (eastWest ? 0 : i)), root, true);
         }
     }
 
-    private static void shardCluster(int x, int y, int z, BlockState trunk, BlockState glow, BlockSetter setter) {
+    private static void shardCluster(int x, int y, int z, BlockState trunk, BlockState glow, InnerBlockSink sink) {
         int[][] offsets = {{0, 0}, {2, 1}, {-2, 0}, {1, -2}};
         for (int i = 0; i < offsets.length; i++) {
             int height = 2 + i;
             for (int dy = 0; dy < height; dy++) {
-                setter.set(new BlockPos(x + offsets[i][0], y + dy, z + offsets[i][1]), dy == height - 1 ? glow : trunk);
+                sink.setBlock(new BlockPos(x + offsets[i][0], y + dy, z + offsets[i][1]), dy == height - 1 ? glow : trunk, true);
             }
         }
     }
 
-    private static void clearLowView(int x, int y, int z, BlockSetter setter) {
+    private static void clearLowView(int x, int y, int z, InnerBlockSink sink) {
         for (int dz = -3; dz <= 3; dz++) {
             for (int dx = -3; dx <= 3; dx++) {
                 if (dx * dx + dz * dz <= 9) {
-                    setter.set(new BlockPos(x + dx, y + 2, z + dz), Blocks.AIR.defaultBlockState());
+                    sink.setBlock(new BlockPos(x + dx, y + 2, z + dz), Blocks.AIR.defaultBlockState(), true);
                 }
             }
         }
-    }
-
-    private interface BlockSetter {
-        void set(BlockPos pos, BlockState state);
     }
 }

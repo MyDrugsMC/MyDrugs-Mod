@@ -130,6 +130,15 @@ public final class InnerChunkSampleCache {
         return samples[localX][localZ];
     }
 
+    InnerTerrain.Sample sampleAt(int worldX, int worldZ) {
+        int localX = worldX - chunkMinX;
+        int localZ = worldZ - chunkMinZ;
+        if (inChunk(localX, localZ)) {
+            return sample(localX, localZ);
+        }
+        return InnerTerrain.sample(centerX, centerZ, worldX, worldZ);
+    }
+
     long seed() {
         return seed;
     }
@@ -153,6 +162,15 @@ public final class InnerChunkSampleCache {
         return grove;
     }
 
+    InnerGroveSample groveAt(int worldX, int worldZ, InnerTerrain.Sample sample) {
+        int localX = worldX - chunkMinX;
+        int localZ = worldZ - chunkMinZ;
+        if (inChunk(localX, localZ)) {
+            return grove(localX, localZ);
+        }
+        return InnerGroveSampler.sample(seed, centerX, centerZ, worldX, worldZ, sample);
+    }
+
     /** Memoized {@link InnerSceneSampler#sample} for the column at chunk-local coordinates. */
     InnerSceneSample scene(int localX, int localZ) {
         InnerSceneSample scene = scenes[localX][localZ];
@@ -163,5 +181,29 @@ public final class InnerChunkSampleCache {
             scenes[localX][localZ] = scene;
         }
         return scene;
+    }
+
+    InnerSceneSample sceneAt(int worldX, int worldZ, InnerTerrain.Sample sample, InnerGroveSample grove) {
+        int localX = worldX - chunkMinX;
+        int localZ = worldZ - chunkMinZ;
+        if (inChunk(localX, localZ)) {
+            return scene(localX, localZ);
+        }
+        return InnerSceneSampler.sample(seed, centerX, centerZ, worldX, worldZ, sample, grove);
+    }
+
+    static boolean chunkLocalCandidate(int worldCoord, int firstInclusive, int lastExclusive, int step) {
+        int local = Math.floorMod(worldCoord, 16);
+        return local >= firstInclusive
+                && local < lastExclusive
+                && Math.floorMod(local - firstInclusive, step) == 0;
+    }
+
+    boolean ownsColumn(int worldX, int worldZ) {
+        return inChunk(worldX - chunkMinX, worldZ - chunkMinZ);
+    }
+
+    private static boolean inChunk(int localX, int localZ) {
+        return localX >= 0 && localX < 16 && localZ >= 0 && localZ < 16;
     }
 }
