@@ -14,7 +14,6 @@ import java.util.UUID;
 
 public final class InnerCommunicationManager {
     private static final int REGION_MESSAGE_COOLDOWN = 20 * 10;
-    private static final double ANCHOR_RETURN_RADIUS_SQR = 24.0D * 24.0D;
     private static final Map<UUID, DrugId> LAST_REGION = new HashMap<>();
 
     private InnerCommunicationManager() {
@@ -25,16 +24,29 @@ public final class InnerCommunicationManager {
             return;
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        BlockPos pos = player.blockPosition();
-
-        double centerDistance = horizontalDistanceSqr(pos, island.centerX(), island.centerZ());
-        if (centerDistance <= ANCHOR_RETURN_RADIUS_SQR) {
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (context == null || !context.playerInsideOwnIsland()) {
             LAST_REGION.remove(player.getUUID());
-            InnerProgressionMilestones.returnedToAnchor(data, island, player);
-            if (data.isSpiralCourtPlaced(island.owner())) {
+            return;
+        }
+        InnerDimensionSavedData.IslandState island = context.island();
+        BlockPos pos = player.blockPosition();
+        InnerGameplayLoop.State loop = InnerGameplayLoop.inside(data, island, context.owner(), pos);
+
+        if (InnerProgressionMilestones.isNearSelfAnchor(island, pos)) {
+            LAST_REGION.remove(player.getUUID());
+            if (loop.phase() == InnerGameplayLoop.Phase.RETURN_TO_ANCHOR) {
+                InnerProgressionMilestones.returnedToAnchor(data, island, player);
+                return;
+            }
+            if (loop.phase() == InnerGameplayLoop.Phase.COMPLETE_SPIRAL_COURT
+                    || loop.phase() == InnerGameplayLoop.Phase.COMPLETE) {
                 InnerProgressionMilestones.spiralCourtOpened(level, island);
             }
+            return;
+        }
+        if (!loop.phase().directsTrialSearch()) {
+            LAST_REGION.remove(player.getUUID());
             return;
         }
 
@@ -75,11 +87,5 @@ public final class InnerCommunicationManager {
 
     public static void clearAll() {
         LAST_REGION.clear();
-    }
-
-    private static double horizontalDistanceSqr(BlockPos pos, int x, int z) {
-        double dx = pos.getX() - x;
-        double dz = pos.getZ() - z;
-        return dx * dx + dz * dz;
     }
 }

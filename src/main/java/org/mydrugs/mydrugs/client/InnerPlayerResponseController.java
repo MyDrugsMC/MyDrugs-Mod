@@ -6,7 +6,6 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
 import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
 import org.mydrugs.mydrugs.sounds.ModSounds;
@@ -92,7 +91,7 @@ public final class InnerPlayerResponseController {
         if (FOOTSTEPS.isEmpty()) {
             return;
         }
-        boolean reduced = reducedMotion();
+        double motionScale = InnerClientIntensity.particleScale();
         Iterator<Footstep> it = FOOTSTEPS.iterator();
         while (it.hasNext()) {
             Footstep step = it.next();
@@ -103,7 +102,7 @@ public final class InnerPlayerResponseController {
             }
             float life = 1.0F - elapsed / (float) FOOTSTEP_LIFETIME;
             // Older footsteps re-light less often, so the path dissolves from the oldest end.
-            double p = life * life * 0.18D * density * (reduced ? 0.35D : 1.0D);
+            double p = life * life * 0.18D * density * motionScale;
             if (random.nextDouble() < p) {
                 float scale = 0.5F + life * 0.6F;
                 level.addParticle(
@@ -177,18 +176,10 @@ public final class InnerPlayerResponseController {
     }
 
     private static double particleDensity() {
-        try {
-            return Math.max(0.0D, Math.min(1.0D, Config.CLIENT.particleDensityMultiplier.get()));
-        } catch (IllegalStateException ignored) {
-            return 1.0D;
-        }
+        return InnerClientIntensity.particleDensity();
     }
 
     private static boolean reducedMotion() {
-        try {
-            return Config.CLIENT.reducedMotionMode.get();
-        } catch (IllegalStateException ignored) {
-            return false;
-        }
+        return InnerClientIntensity.reducedMotion();
     }
 }

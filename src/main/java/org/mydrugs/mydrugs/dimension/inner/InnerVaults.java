@@ -9,6 +9,7 @@ import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootTable;
+import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
@@ -147,6 +148,40 @@ public final class InnerVaults {
             case DEEP -> hasAny(completed, DrugId.LSD, DrugId.ALCOHOL, DrugId.MUSHROOMS, DrugId.HASH);
             case DANGER -> hasAny(completed, DrugId.COCAINE, DrugId.METH, DrugId.TOBACCO);
         };
+    }
+
+    public static @Nullable Vault nearestUnlockedVault(
+            InnerDimensionSavedData.IslandState island,
+            @Nullable BlockPos origin
+    ) {
+        if (island == null) {
+            return null;
+        }
+        int fromX = origin == null ? island.centerX() : origin.getX();
+        int fromZ = origin == null ? island.centerZ() : origin.getZ();
+        int minCellX = Math.floorDiv(island.centerX() - (int) OUTER_LIMIT - CELL_SIZE, CELL_SIZE);
+        int maxCellX = Math.floorDiv(island.centerX() + (int) OUTER_LIMIT + CELL_SIZE, CELL_SIZE);
+        int minCellZ = Math.floorDiv(island.centerZ() - (int) OUTER_LIMIT - CELL_SIZE, CELL_SIZE);
+        int maxCellZ = Math.floorDiv(island.centerZ() + (int) OUTER_LIMIT + CELL_SIZE, CELL_SIZE);
+        long seed = InnerTerrain.seedForSlot(island.centerX(), island.centerZ());
+        Vault best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
+            for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
+                Vault vault = vaultForCell(seed, island.centerX(), island.centerZ(), cellX, cellZ);
+                if (vault == null || !isUnlocked(vault, island)) {
+                    continue;
+                }
+                double dx = vault.x() - fromX;
+                double dz = vault.z() - fromZ;
+                double distance = dx * dx + dz * dz;
+                if (distance < bestDistance) {
+                    best = vault;
+                    bestDistance = distance;
+                }
+            }
+        }
+        return best;
     }
 
     public static Vault vaultAtChest(

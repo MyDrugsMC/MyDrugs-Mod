@@ -32,14 +32,66 @@ import java.util.function.Supplier;
 
 public final class InnerTrialManager {
     private static final int COFFEE_REQUIRED_TICKS = 20 * 6;
+    private static final int COFFEE_GRACE_TICKS = 5;
+    private static final int COFFEE_FAILURE_MESSAGE_COOLDOWN_TICKS = 40;
+    private static final double COFFEE_RADIUS = 5.5D;
+    private static final double COFFEE_MAX_HORIZONTAL_SPEED_SQR = 0.028D;
+    private static final int TOBACCO_REQUIRED_STEPS = 4;
     private static final int WEED_REQUIRED_PLACEMENTS = 6;
-    private static final int COCAINE_TIME_LIMIT_TICKS = 20 * 14;
-    private static final double LANDMARK_NOTICE_RADIUS_SQR = 24.0D * 24.0D;
+    private static final int WEED_PLACEMENT_PROGRESS = 1;
+    private static final int WEED_SPORE_PROGRESS = 2;
+    private static final double WEED_TRIAL_RADIUS = 18.0D;
+    private static final double ALCOHOL_TRIAL_RADIUS = 8.0D;
+    private static final int HASH_REQUIRED_SOCKETS = InnerTrialDefinition.hashSockets().size();
+    private static final int METH_REQUIRED_NODES = InnerTrialDefinition.methNodes().size();
+    private static final int MUSHROOM_REQUIRED_ROOTS = InnerTrialDefinition.mushroomRoots().size();
+    private static final int COCAINE_TIME_LIMIT_SECONDS = 14;
+    private static final int COCAINE_TIME_LIMIT_TICKS = 20 * COCAINE_TIME_LIMIT_SECONDS;
+    private static final int COCAINE_START_OFFSET = -14;
+    private static final int COCAINE_END_OFFSET = 14;
+    private static final double COCAINE_PAD_RADIUS = 2.4D;
+    private static final int COCAINE_ROUTE_HALF_LENGTH = 16;
+    private static final double COCAINE_ROUTE_HALF_WIDTH = 3.0D;
+    // The notice radius (when the trial hint is announced) must stay at least as large as any
+    // landmark interaction radius below, so the player is always told about a trial before — or at
+    // the moment — they are close enough to act on it. Locked by InnerTrialRadiiTest.
+    private static final double LANDMARK_NOTICE_RADIUS = 24.0D;
+    private static final double LANDMARK_NOTICE_RADIUS_SQR = LANDMARK_NOTICE_RADIUS * LANDMARK_NOTICE_RADIUS;
 
     private static final Map<UUID, InnerTrialProgress> PROGRESS = new LinkedHashMap<>();
     private static final Map<DrugId, Supplier<Item>> TRIAL_REWARDS = trialRewards();
 
     private InnerTrialManager() {
+    }
+
+    enum CoffeeBreakReason {
+        NONE(null, false),
+        MOVED("message.mydrugs.inner_trial.coffee.failed.moved", true),
+        SPRINTED("message.mydrugs.inner_trial.coffee.failed.sprinted", false),
+        LEFT_AREA("message.mydrugs.inner_trial.coffee.failed.left_area", false),
+        NOT_GROUNDED("message.mydrugs.inner_trial.coffee.failed.not_grounded", true),
+        INTERRUPTED("message.mydrugs.inner_trial.coffee.failed.interrupted", false);
+
+        private final String translationKey;
+        private final boolean graceEligible;
+
+        CoffeeBreakReason(String translationKey, boolean graceEligible) {
+            this.translationKey = translationKey;
+            this.graceEligible = graceEligible;
+        }
+    }
+
+    enum CocaineFailureReason {
+        NONE(null),
+        LEFT_ROUTE("message.mydrugs.inner_trial.cocaine.failed.left_route"),
+        THORN("message.mydrugs.inner_trial.cocaine.failed.thorn"),
+        TIMEOUT("message.mydrugs.inner_trial.cocaine.failed.timeout");
+
+        private final String translationKey;
+
+        CocaineFailureReason(String translationKey) {
+            this.translationKey = translationKey;
+        }
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -49,7 +101,11 @@ public final class InnerTrialManager {
             return;
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (context == null || !context.playerInsideOwnIsland()) {
+            return;
+        }
+        InnerDimensionSavedData.IslandState island = context.island();
         InnerTrialProgress progress = progress(player);
         if (player.tickCount % 20 == 0) {
             announceNearbyTrial(player, level, island, progress);
@@ -72,10 +128,11 @@ public final class InnerTrialManager {
             return false;
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        if (!isOwnIsland(island, clicked)) {
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (!canOwnerInteractAt(context, clicked)) {
             return false;
         }
+        InnerDimensionSavedData.IslandState island = context.island();
         InnerTrialProgress progress = progress(player);
         ItemStack held = player.getItemInHand(hand);
 
@@ -112,16 +169,17 @@ public final class InnerTrialManager {
             return;
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        if (!isOwnIsland(island, placedPos)) {
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (!canOwnerInteractAt(context, placedPos)) {
             return;
         }
+        InnerDimensionSavedData.IslandState island = context.island();
         InnerTrialProgress progress = progress(player);
         if (canAttempt(island, DrugId.WEED)
-                && isNearLandmark(level, island, DrugId.WEED, placedPos, 18.0D)
+                && isNearLandmark(level, island, DrugId.WEED, placedPos, WEED_TRIAL_RADIUS)
                 && isCalmingFlora(placedState.getBlock())) {
-            progress.weedPlacements++;
-            int current = Math.min(WEED_REQUIRED_PLACEMENTS, progress.weedPlacements);
+            progress.weedPlacements += WEED_PLACEMENT_PROGRESS;
+            int current = displayProgress(progress.weedPlacements, WEED_REQUIRED_PLACEMENTS);
             player.displayClientMessage(Component.translatable(
                     "message.mydrugs.inner_trial.progress",
                     current,
@@ -135,13 +193,13 @@ public final class InnerTrialManager {
         if (canAttempt(island, DrugId.HASH)
                 && isHashSocket(level, island, placedPos)
                 && isHashSocketMaterial(placedState.getBlock())) {
-            int filled = hashFilledSockets(level, island);
+            int filled = displayProgress(hashFilledSockets(level, island), HASH_REQUIRED_SOCKETS);
             player.displayClientMessage(Component.translatable(
                     "message.mydrugs.inner_trial.progress",
                     filled,
-                    InnerTrialDefinition.hashSockets().size()
+                    HASH_REQUIRED_SOCKETS
             ).withStyle(ChatFormatting.LIGHT_PURPLE), true);
-            if (filled >= InnerTrialDefinition.hashSockets().size()) {
+            if (filled >= HASH_REQUIRED_SOCKETS) {
                 completeTrial(level, player, island, DrugId.HASH, true);
             }
         }
@@ -153,16 +211,7 @@ public final class InnerTrialManager {
         }
         InnerTrialProgress progress = PROGRESS.get(player.getUUID());
         if (progress != null && progress.coffeeTicks > 0) {
-            if (progress.coffeeTicks >= 20) {
-                InnerMessageCooldowns.actionBar(
-                        player,
-                        "trial:coffee:failed",
-                        40,
-                        Component.translatable("message.mydrugs.inner_trial.coffee.failed")
-                                .withStyle(ChatFormatting.RED)
-                );
-            }
-            progress.coffeeTicks = 0;
+            failCoffee(player, progress, CoffeeBreakReason.INTERRUPTED);
         }
     }
 
@@ -176,6 +225,7 @@ public final class InnerTrialManager {
         if (player == null
                 || island == null
                 || island.owner() == null
+                || !island.owner().equals(player.getUUID())
                 || drug == null
                 || !CuratedDrugChain.ORDER.contains(drug)
                 || !isInnerDimension(player.level())
@@ -260,8 +310,77 @@ public final class InnerTrialManager {
         PROGRESS.remove(playerId);
     }
 
+    static CoffeeBreakReason classifyCoffeeBreak(
+            double distanceSqr,
+            boolean sprinting,
+            boolean grounded,
+            double speedSqr
+    ) {
+        if (distanceSqr > COFFEE_RADIUS * COFFEE_RADIUS) {
+            return CoffeeBreakReason.LEFT_AREA;
+        }
+        if (sprinting) {
+            return CoffeeBreakReason.SPRINTED;
+        }
+        if (!grounded) {
+            return CoffeeBreakReason.NOT_GROUNDED;
+        }
+        if (speedSqr > COFFEE_MAX_HORIZONTAL_SPEED_SQR) {
+            return CoffeeBreakReason.MOVED;
+        }
+        return CoffeeBreakReason.NONE;
+    }
+
+    static CocaineFailureReason classifyCocaineFailure(
+            BlockPos pos,
+            BlockPos center,
+            boolean touchedThorn,
+            long elapsedTicks
+    ) {
+        if (touchedThorn) {
+            return CocaineFailureReason.THORN;
+        }
+        if (outsideCocaineRoute(pos, center)) {
+            return CocaineFailureReason.LEFT_ROUTE;
+        }
+        if (elapsedTicks > COCAINE_TIME_LIMIT_TICKS) {
+            return CocaineFailureReason.TIMEOUT;
+        }
+        return CocaineFailureReason.NONE;
+    }
+
+    private static boolean outsideCocaineRoute(BlockPos pos, BlockPos center) {
+        return pos == null
+                || center == null
+                || pos.getX() < center.getX() - COCAINE_ROUTE_HALF_LENGTH
+                || pos.getX() > center.getX() + COCAINE_ROUTE_HALF_LENGTH
+                || Math.abs(pos.getZ() - center.getZ()) > COCAINE_ROUTE_HALF_WIDTH;
+    }
+
     private static boolean isInnerDimension(Level level) {
         return level != null && level.dimension().equals(InnerDimensions.INNER_LEVEL);
+    }
+
+    private static boolean canSpendCoffeeGrace(InnerTrialProgress progress, CoffeeBreakReason reason) {
+        return reason.graceEligible && progress.coffeeTicks > 0 && progress.coffeeGraceTicks > 0;
+    }
+
+    static boolean canSpendCoffeeGraceForTest(InnerTrialProgress progress, CoffeeBreakReason reason) {
+        return canSpendCoffeeGrace(progress, reason);
+    }
+
+    private static void failCoffee(ServerPlayer player, InnerTrialProgress progress, CoffeeBreakReason reason) {
+        if (progress.coffeeTicks > 0 && reason.translationKey != null) {
+            InnerMessageCooldowns.actionBar(
+                    player,
+                    "trial:coffee:failed:" + reason.name(),
+                    COFFEE_FAILURE_MESSAGE_COOLDOWN_TICKS,
+                    Component.translatable(reason.translationKey)
+                            .withStyle(ChatFormatting.RED)
+            );
+        }
+        progress.coffeeTicks = 0;
+        progress.coffeeGraceTicks = 0;
     }
 
     private static void tickCoffee(
@@ -272,25 +391,25 @@ public final class InnerTrialManager {
     ) {
         if (!canAttempt(island, DrugId.COFFEE)) {
             progress.coffeeTicks = 0;
+            progress.coffeeGraceTicks = 0;
             return;
         }
         BlockPos center = landmarkSurface(level, island, DrugId.COFFEE);
-        if (horizontalDistanceSqr(player.blockPosition(), center) > 5.5D * 5.5D
-                || player.isSprinting()
-                || !player.onGround()
-                || horizontalSpeedSqr(player) > 0.028D) {
-            if (progress.coffeeTicks >= 20) {
-                InnerMessageCooldowns.actionBar(
-                        player,
-                        "trial:coffee:failed",
-                        40,
-                        Component.translatable("message.mydrugs.inner_trial.coffee.failed")
-                                .withStyle(ChatFormatting.RED)
-                );
+        CoffeeBreakReason breakReason = classifyCoffeeBreak(
+                horizontalDistanceSqr(player.blockPosition(), center),
+                player.isSprinting(),
+                player.onGround(),
+                horizontalSpeedSqr(player)
+        );
+        if (breakReason != CoffeeBreakReason.NONE) {
+            if (canSpendCoffeeGrace(progress, breakReason)) {
+                progress.coffeeGraceTicks--;
+                return;
             }
-            progress.coffeeTicks = 0;
+            failCoffee(player, progress, breakReason);
             return;
         }
+        progress.coffeeGraceTicks = COFFEE_GRACE_TICKS;
         progress.coffeeTicks++;
         if (progress.coffeeTicks % 20 == 0) {
             player.displayClientMessage(Component.translatable(
@@ -316,11 +435,11 @@ public final class InnerTrialManager {
         }
         BlockPos center = landmarkSurface(level, island, DrugId.COCAINE);
         BlockPos pos = player.blockPosition();
-        BlockPos start = center.offset(-14, 0, 0);
-        BlockPos end = center.offset(14, 0, 0);
+        BlockPos start = center.offset(COCAINE_START_OFFSET, 0, 0);
+        BlockPos end = center.offset(COCAINE_END_OFFSET, 0, 0);
         long now = level.getGameTime();
         if (progress.cocaineStartTick < 0L) {
-            if (horizontalDistanceSqr(pos, start) <= 2.4D * 2.4D) {
+            if (horizontalDistanceSqr(pos, start) <= COCAINE_PAD_RADIUS * COCAINE_PAD_RADIUS) {
                 progress.cocaineStartTick = now;
                 player.displayClientMessage(Component.translatable(
                         "message.mydrugs.inner_trial.cocaine.started"
@@ -329,23 +448,26 @@ public final class InnerTrialManager {
             return;
         }
 
-        boolean outsideRoute = pos.getX() < center.getX() - 16
-                || pos.getX() > center.getX() + 16
-                || Math.abs(pos.getZ() - center.getZ()) > 3;
         boolean touchedThorn = level.getBlockState(pos).is(ModInnerDimensionBlocks.REDLINE_THORN.get())
                 || level.getBlockState(pos.below()).is(ModInnerDimensionBlocks.REDLINE_THORN.get());
-        if (outsideRoute || touchedThorn || now - progress.cocaineStartTick > COCAINE_TIME_LIMIT_TICKS) {
+        CocaineFailureReason failure = classifyCocaineFailure(
+                pos,
+                center,
+                touchedThorn,
+                now - progress.cocaineStartTick
+        );
+        if (failure != CocaineFailureReason.NONE) {
             progress.cocaineStartTick = -1L;
             InnerMessageCooldowns.actionBar(
                     player,
-                    "trial:cocaine:failed",
+                    "trial:cocaine:failed:" + failure.name(),
                     40,
-                    Component.translatable("message.mydrugs.inner_trial.cocaine.failed")
+                    Component.translatable(failure.translationKey)
                             .withStyle(ChatFormatting.RED)
             );
             return;
         }
-        if (horizontalDistanceSqr(pos, end) <= 2.4D * 2.4D) {
+        if (horizontalDistanceSqr(pos, end) <= COCAINE_PAD_RADIUS * COCAINE_PAD_RADIUS) {
             completeTrial(level, player, island, DrugId.COCAINE, true);
         }
     }
@@ -374,10 +496,10 @@ public final class InnerTrialManager {
             progress.tobaccoStep++;
             player.displayClientMessage(Component.translatable(
                     "message.mydrugs.inner_trial.progress",
-                    progress.tobaccoStep,
-                    4
+                    displayProgress(progress.tobaccoStep, TOBACCO_REQUIRED_STEPS),
+                    TOBACCO_REQUIRED_STEPS
             ).withStyle(ChatFormatting.GRAY), true);
-            if (progress.tobaccoStep >= 4) {
+            if (progress.tobaccoStep >= TOBACCO_REQUIRED_STEPS) {
                 completeTrial(level, player, island, DrugId.TOBACCO, true);
             }
         } else {
@@ -386,7 +508,7 @@ public final class InnerTrialManager {
                     player,
                     "trial:tobacco:failed",
                     20,
-                    Component.translatable("message.mydrugs.inner_trial.tobacco.failed")
+                    Component.translatable("message.mydrugs.inner_trial.tobacco.reset")
                             .withStyle(ChatFormatting.DARK_GRAY)
             );
         }
@@ -401,13 +523,16 @@ public final class InnerTrialManager {
             BlockPos clicked,
             ItemStack held
     ) {
-        if (!canAttempt(island, DrugId.WEED)
-                || !held.is(ModItems.CALMING_SPORES.get())
-                || !isNearLandmark(level, island, DrugId.WEED, clicked, 18.0D)) {
+        boolean nearLandmark = isNearLandmark(level, island, DrugId.WEED, clicked, WEED_TRIAL_RADIUS);
+        if (!isValidWeedSporesAction(
+                canAttempt(island, DrugId.WEED),
+                held.is(ModItems.CALMING_SPORES.get()),
+                nearLandmark
+        )) {
             return false;
         }
-        progress.weedPlacements += 2;
-        int current = Math.min(WEED_REQUIRED_PLACEMENTS, progress.weedPlacements);
+        progress.weedPlacements += WEED_SPORE_PROGRESS;
+        int current = displayProgress(progress.weedPlacements, WEED_REQUIRED_PLACEMENTS);
         player.displayClientMessage(Component.translatable(
                 "message.mydrugs.inner_trial.progress",
                 current,
@@ -427,7 +552,7 @@ public final class InnerTrialManager {
     ) {
         if (!canAttempt(island, DrugId.ALCOHOL)
                 || !level.getBlockState(clicked).is(ModInnerDimensionBlocks.FERMENTED_MEMORY_NODE.get())
-                || !isNearLandmark(level, island, DrugId.ALCOHOL, clicked, 8.0D)) {
+                || !isNearLandmark(level, island, DrugId.ALCOHOL, clicked, ALCOHOL_TRIAL_RADIUS)) {
             return false;
         }
         if (!player.isUnderWater()) {
@@ -492,18 +617,22 @@ public final class InnerTrialManager {
         int nodeBit = 1 << node;
         boolean newlyStabilized = (progress.methMask & nodeBit) == 0;
         progress.methMask |= nodeBit;
-        int stabilized = Integer.bitCount(progress.methMask);
+        int stabilized = displayProgress(Integer.bitCount(progress.methMask), METH_REQUIRED_NODES);
         player.displayClientMessage(Component.translatable(
                 "message.mydrugs.inner_trial.progress",
                 stabilized,
-                InnerTrialDefinition.methNodes().size()
+                METH_REQUIRED_NODES
         ).withStyle(ChatFormatting.GOLD), true);
         level.sendParticles(ParticleTypes.CLOUD, clicked.getX() + 0.5D, clicked.getY() + 0.8D, clicked.getZ() + 0.5D,
                 10, 0.25D, 0.35D, 0.25D, 0.02D);
-        if (newlyStabilized) {
+        if (shouldConsumeMethTool(
+                player.getAbilities().instabuild,
+                held.is(ModItems.CURRENT_REGULATOR.get()),
+                newlyStabilized
+        )) {
             consumeMethTool(player, hand, held);
         }
-        if (stabilized >= InnerTrialDefinition.methNodes().size()) {
+        if (stabilized >= METH_REQUIRED_NODES) {
             completeTrial(level, player, island, DrugId.METH, true);
         }
         return true;
@@ -530,13 +659,13 @@ public final class InnerTrialManager {
             return false;
         }
         progress.mushroomMask |= 1 << root;
-        int connected = Integer.bitCount(progress.mushroomMask);
+        int connected = displayProgress(Integer.bitCount(progress.mushroomMask), MUSHROOM_REQUIRED_ROOTS);
         player.displayClientMessage(Component.translatable(
                 "message.mydrugs.inner_trial.progress",
                 connected,
-                InnerTrialDefinition.mushroomRoots().size()
+                MUSHROOM_REQUIRED_ROOTS
         ).withStyle(ChatFormatting.DARK_GREEN), true);
-        if (connected >= InnerTrialDefinition.mushroomRoots().size()) {
+        if (connected >= MUSHROOM_REQUIRED_ROOTS) {
             completeTrial(level, player, island, DrugId.MUSHROOMS, true);
         }
         return true;
@@ -574,11 +703,49 @@ public final class InnerTrialManager {
         return island != null && drug != null && island.hasIntegrated(drug) && !island.hasCompletedInnerTrial(drug);
     }
 
-    private static boolean isOwnIsland(InnerDimensionSavedData.IslandState island, BlockPos pos) {
-        return island != null
-                && pos != null
-                && InnerTerrain.slotCenter(pos.getX()) == island.centerX()
-                && InnerTerrain.slotCenter(pos.getZ()) == island.centerZ();
+    static boolean isValidWeedSporesAction(boolean canAttempt, boolean holdingSpores, boolean nearLandmark) {
+        return canAttempt && holdingSpores && nearLandmark;
+    }
+
+    static int displayProgress(int actual, int required) {
+        return Math.min(Math.max(0, actual), required);
+    }
+
+    // --- Balancing visibility: the genuine per-trial proximity radii (see InnerTrialRadiiTest). ---
+    static double coffeeRadiusForTest() {
+        return COFFEE_RADIUS;
+    }
+
+    static double weedTrialRadiusForTest() {
+        return WEED_TRIAL_RADIUS;
+    }
+
+    static double alcoholTrialRadiusForTest() {
+        return ALCOHOL_TRIAL_RADIUS;
+    }
+
+    static double cocainePadRadiusForTest() {
+        return COCAINE_PAD_RADIUS;
+    }
+
+    static double landmarkNoticeRadiusForTest() {
+        return LANDMARK_NOTICE_RADIUS;
+    }
+
+    private static boolean canOwnerInteractAt(InnerIslandContext context, BlockPos pos) {
+        return context != null && context.allowsOwnerInteractionAt(pos);
+    }
+
+    static boolean canOwnerInteractAtForTest(
+            InnerDimensionSavedData data,
+            UUID playerId,
+            BlockPos playerPos,
+            BlockPos interactionPos
+    ) {
+        return canOwnerInteractAt(
+                InnerIslandContext.resolveForInnerPosition(data, playerId, playerPos),
+                interactionPos
+        );
     }
 
     private static boolean isNearLandmark(
@@ -646,10 +813,11 @@ public final class InnerTrialManager {
                 || stack.is(ModItems.LIGHTNING_BOTTLE.get());
     }
 
+    static boolean shouldConsumeMethTool(boolean instabuild, boolean currentRegulator, boolean newlyStabilized) {
+        return newlyStabilized && !instabuild && !currentRegulator;
+    }
+
     private static void consumeMethTool(ServerPlayer player, InteractionHand hand, ItemStack stack) {
-        if (player.getAbilities().instabuild || stack.is(ModItems.CURRENT_REGULATOR.get())) {
-            return;
-        }
         if (stack.is(Items.WATER_BUCKET)) {
             player.setItemInHand(hand, new ItemStack(Items.BUCKET));
         } else {
@@ -690,6 +858,10 @@ public final class InnerTrialManager {
         return drug != null && TRIAL_REWARDS.containsKey(drug);
     }
 
+    static void clearDrugProgressForTest(InnerTrialProgress progress, DrugId drug) {
+        clearDrugProgress(progress, drug);
+    }
+
     private static InnerTrialProgress progress(ServerPlayer player) {
         return PROGRESS.computeIfAbsent(player.getUUID(), ignored -> new InnerTrialProgress());
     }
@@ -698,7 +870,10 @@ public final class InnerTrialManager {
         // Announcements are intentionally retained for the session: completing a trial makes
         // canAttempt false, while a full trial reset removes the whole progress object.
         switch (drug) {
-            case COFFEE -> progress.coffeeTicks = 0;
+            case COFFEE -> {
+                progress.coffeeTicks = 0;
+                progress.coffeeGraceTicks = 0;
+            }
             case TOBACCO -> progress.tobaccoStep = 0;
             case WEED -> progress.weedPlacements = 0;
             case COCAINE -> progress.cocaineStartTick = -1L;

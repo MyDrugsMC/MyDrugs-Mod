@@ -160,6 +160,10 @@ class InnerTrialProgressionTest {
         assertTrue(data.completeInnerTrial(owner, DrugId.COFFEE));
         assertTrue(data.markTrialReturnPending(owner, DrugId.COFFEE));
         assertEquals(DrugId.WEED, InnerTrialManager.nearestIncompleteTrial(island, origin));
+        assertEquals(
+                InnerGameplayLoop.Phase.RETURN_TO_ANCHOR,
+                InnerGameplayLoop.inside(data, island, owner, origin).phase()
+        );
 
         InnerObjectiveHelper.Objective objective = InnerObjectiveHelper.currentObjectiveForTest(
                 data,
@@ -180,5 +184,212 @@ class InnerTrialProgressionTest {
                 ),
                 InnerObjectiveHelper.memoryCompassMessageForTest(data, island, owner, origin)
         );
+    }
+
+    @Test
+    void pendingTrialReturnClearsOnlyNearSelfAnchor() {
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-000000000035");
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(owner);
+        BlockPos far = new BlockPos(
+                island.centerX() + 25,
+                InnerDimensionConstants.BASE_Y,
+                island.centerZ()
+        );
+        BlockPos anchor = new BlockPos(
+                island.centerX(),
+                InnerDimensionConstants.BASE_Y,
+                island.centerZ()
+        );
+
+        assertTrue(data.recordIntegration(owner, DrugId.COFFEE));
+        assertTrue(data.completeInnerTrial(owner, DrugId.COFFEE));
+        assertTrue(data.markTrialReturnPending(owner, DrugId.COFFEE));
+
+        assertFalse(InnerProgressionMilestones.clearPendingReturnAtAnchor(data, island, owner, far));
+        assertTrue(data.hasPendingTrialReturn(owner));
+        assertTrue(InnerProgressionMilestones.clearPendingReturnAtAnchor(data, island, owner, anchor));
+        assertFalse(data.hasPendingTrialReturn(owner));
+    }
+
+    @Test
+    void pendingTrialReturnSettlementIsOneShotSoReturnMessageCannotSpam() {
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-000000000036");
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(owner);
+        BlockPos anchor = new BlockPos(
+                island.centerX(),
+                InnerDimensionConstants.BASE_Y,
+                island.centerZ()
+        );
+
+        assertTrue(data.recordIntegration(owner, DrugId.COFFEE));
+        assertTrue(data.completeInnerTrial(owner, DrugId.COFFEE));
+        assertTrue(data.markTrialReturnPending(owner, DrugId.COFFEE));
+
+        assertTrue(InnerProgressionMilestones.clearPendingReturnAtAnchor(data, island, owner, anchor));
+        assertFalse(InnerProgressionMilestones.clearPendingReturnAtAnchor(data, island, owner, anchor));
+        assertFalse(data.hasPendingTrialReturn(owner));
+    }
+
+    @Test
+    void nextObjectiveAfterAnchorReturnIsStableAndUsedInSummary() {
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-000000000037");
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(owner);
+        BlockPos anchor = new BlockPos(
+                island.centerX(),
+                InnerDimensionConstants.BASE_Y,
+                island.centerZ()
+        );
+
+        assertTrue(data.recordIntegration(owner, DrugId.COFFEE));
+        assertTrue(data.recordIntegration(owner, DrugId.WEED));
+        assertTrue(data.completeInnerTrial(owner, DrugId.COFFEE));
+        assertTrue(data.markTrialReturnPending(owner, DrugId.COFFEE));
+        assertTrue(InnerProgressionMilestones.clearPendingReturnAtAnchor(data, island, owner, anchor));
+
+        InnerObjectiveHelper.Objective first = InnerProgressionMilestones.nextObjectiveAfterReturn(
+                data,
+                island,
+                owner,
+                anchor
+        );
+        InnerObjectiveHelper.Objective second = InnerProgressionMilestones.nextObjectiveAfterReturn(
+                data,
+                island,
+                owner,
+                anchor
+        );
+
+        assertEquals(InnerObjectiveHelper.Kind.VAULT, first.kind());
+        assertEquals(first, second);
+        assertEquals(
+                Component.translatable(
+                        "message.mydrugs.inner_dimension.trial_settled_at_anchor",
+                        Component.translatable("drug.mydrugs.coffee"),
+                        first.message()
+                ),
+                InnerProgressionMilestones.returnSummaryMessage(DrugId.COFFEE, first.message())
+        );
+    }
+
+    @Test
+    void trialItemConsumptionRequiresValidAction() {
+        assertTrue(InnerTrialManager.isValidWeedSporesAction(true, true, true));
+        assertFalse(InnerTrialManager.isValidWeedSporesAction(false, true, true));
+        assertFalse(InnerTrialManager.isValidWeedSporesAction(true, false, true));
+        assertFalse(InnerTrialManager.isValidWeedSporesAction(true, true, false));
+
+        assertTrue(InnerTrialManager.shouldConsumeMethTool(false, false, true));
+        assertFalse(InnerTrialManager.shouldConsumeMethTool(false, false, false));
+        assertFalse(InnerTrialManager.shouldConsumeMethTool(true, false, true));
+        assertFalse(InnerTrialManager.shouldConsumeMethTool(false, true, true));
+    }
+
+    @Test
+    void coffeeFailureClassificationAndGraceAreExplicit() {
+        InnerTrialProgress progress = new InnerTrialProgress();
+        progress.coffeeTicks = 20;
+        progress.coffeeGraceTicks = 2;
+
+        assertEquals(
+                InnerTrialManager.CoffeeBreakReason.NONE,
+                InnerTrialManager.classifyCoffeeBreak(0.0D, false, true, 0.0D)
+        );
+        assertEquals(
+                InnerTrialManager.CoffeeBreakReason.LEFT_AREA,
+                InnerTrialManager.classifyCoffeeBreak(31.0D, false, true, 0.0D)
+        );
+        assertEquals(
+                InnerTrialManager.CoffeeBreakReason.SPRINTED,
+                InnerTrialManager.classifyCoffeeBreak(0.0D, true, true, 0.0D)
+        );
+        assertEquals(
+                InnerTrialManager.CoffeeBreakReason.NOT_GROUNDED,
+                InnerTrialManager.classifyCoffeeBreak(0.0D, false, false, 0.0D)
+        );
+        assertEquals(
+                InnerTrialManager.CoffeeBreakReason.MOVED,
+                InnerTrialManager.classifyCoffeeBreak(0.0D, false, true, 0.029D)
+        );
+        assertTrue(InnerTrialManager.canSpendCoffeeGraceForTest(
+                progress,
+                InnerTrialManager.CoffeeBreakReason.MOVED
+        ));
+        assertTrue(InnerTrialManager.canSpendCoffeeGraceForTest(
+                progress,
+                InnerTrialManager.CoffeeBreakReason.NOT_GROUNDED
+        ));
+        assertFalse(InnerTrialManager.canSpendCoffeeGraceForTest(
+                progress,
+                InnerTrialManager.CoffeeBreakReason.SPRINTED
+        ));
+    }
+
+    @Test
+    void cocaineFailureClassificationNamesTheReason() {
+        BlockPos center = new BlockPos(0, 70, 0);
+
+        assertEquals(
+                InnerTrialManager.CocaineFailureReason.NONE,
+                InnerTrialManager.classifyCocaineFailure(new BlockPos(0, 70, 0), center, false, 20)
+        );
+        assertEquals(
+                InnerTrialManager.CocaineFailureReason.THORN,
+                InnerTrialManager.classifyCocaineFailure(new BlockPos(0, 70, 0), center, true, 20)
+        );
+        assertEquals(
+                InnerTrialManager.CocaineFailureReason.LEFT_ROUTE,
+                InnerTrialManager.classifyCocaineFailure(new BlockPos(17, 70, 0), center, false, 20)
+        );
+        assertEquals(
+                InnerTrialManager.CocaineFailureReason.LEFT_ROUTE,
+                InnerTrialManager.classifyCocaineFailure(new BlockPos(0, 70, 4), center, false, 20)
+        );
+        assertEquals(
+                InnerTrialManager.CocaineFailureReason.TIMEOUT,
+                InnerTrialManager.classifyCocaineFailure(new BlockPos(0, 70, 0), center, false, 20 * 14 + 1)
+        );
+    }
+
+    @Test
+    void displayedProgressIsClampedToTrialMaximum() {
+        assertEquals(0, InnerTrialManager.displayProgress(-1, 4));
+        assertEquals(2, InnerTrialManager.displayProgress(2, 4));
+        assertEquals(4, InnerTrialManager.displayProgress(5, 4));
+    }
+
+    @Test
+    void completedTrialClearsOnlyThatDrugProgress() {
+        InnerTrialProgress progress = new InnerTrialProgress();
+        progress.coffeeTicks = 30;
+        progress.coffeeGraceTicks = 2;
+        progress.tobaccoStep = 3;
+        progress.weedPlacements = 5;
+        progress.cocaineStartTick = 99L;
+        progress.methMask = 0b111;
+        progress.mushroomMask = 0b1111;
+
+        InnerTrialManager.clearDrugProgressForTest(progress, DrugId.COFFEE);
+        assertEquals(0, progress.coffeeTicks);
+        assertEquals(0, progress.coffeeGraceTicks);
+        assertEquals(3, progress.tobaccoStep);
+
+        InnerTrialManager.clearDrugProgressForTest(progress, DrugId.TOBACCO);
+        assertEquals(0, progress.tobaccoStep);
+        assertEquals(5, progress.weedPlacements);
+
+        InnerTrialManager.clearDrugProgressForTest(progress, DrugId.WEED);
+        assertEquals(0, progress.weedPlacements);
+
+        InnerTrialManager.clearDrugProgressForTest(progress, DrugId.COCAINE);
+        assertEquals(-1L, progress.cocaineStartTick);
+
+        InnerTrialManager.clearDrugProgressForTest(progress, DrugId.METH);
+        assertEquals(0, progress.methMask);
+
+        InnerTrialManager.clearDrugProgressForTest(progress, DrugId.MUSHROOMS);
+        assertEquals(0, progress.mushroomMask);
     }
 }

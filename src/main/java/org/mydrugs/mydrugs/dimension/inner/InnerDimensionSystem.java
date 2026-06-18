@@ -69,7 +69,7 @@ public final class InnerDimensionSystem {
         data.clearOverlayMarkers(island.owner());
         InnerOverlayQueue.invalidateDecorated(island.owner());
         restoreSemanticMarkers(data, island);
-        return InnerOverlayQueue.enqueueOwnerFullRecreate(island);
+        return InnerOverlayQueue.enqueueOwnerFullRecreate(data, island);
     }
 
     public static InnerGenerationMetrics burstRecreateOwnerDebug(
@@ -110,6 +110,13 @@ public final class InnerDimensionSystem {
         return InnerOverlayQueue.cancelWithSummary(owner);
     }
 
+    public static InnerOverlayQueue.CancelSummary cancelQueues(ServerLevel level, UUID owner) {
+        return InnerOverlayQueue.cancelWithSummary(
+                level == null ? null : InnerDimensionSavedData.get(level),
+                owner
+        );
+    }
+
     /** Structured progress of an owner's destructive recreate, if one is running. */
     public static Optional<InnerOverlayQueue.QueueProgress> recreateProgress(UUID owner) {
         return InnerOverlayQueue.recreateProgress(owner);
@@ -119,8 +126,20 @@ public final class InnerDimensionSystem {
         return InnerOverlayQueue.queueStatus(owner);
     }
 
+    public static String queueStatus(ServerLevel level, UUID owner) {
+        return InnerOverlayQueue.queueStatus(
+                level == null ? null : InnerDimensionSavedData.get(level),
+                owner
+        );
+    }
+
     public static String lastMetricsFor(UUID owner) {
         return InnerOverlayQueue.lastMetricsFor(owner);
+    }
+
+    /** Occupancy of the bounded static terrain caches, for the debug metrics command. */
+    public static String cacheDebugStatus() {
+        return InnerTerrain.cacheDebugString();
     }
 
     public static BlockPos safeSpawnPos(ServerLevel level, InnerDimensionSavedData.IslandState island) {

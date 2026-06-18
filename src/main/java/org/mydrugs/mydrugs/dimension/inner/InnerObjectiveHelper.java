@@ -13,6 +13,12 @@ import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import java.util.UUID;
 
 public final class InnerObjectiveHelper {
+    private static final int SCAR_TARGET_NEAR_RADIUS = 128;
+    private static final int SCAR_TARGET_NEAR_STEP = 16;
+    private static final int SCAR_TARGET_CENTER_RADIUS = 720;
+    private static final int SCAR_TARGET_CENTER_STEP = 24;
+    private static final int SCAR_TARGET_CENTER_DIRECTIONS = 32;
+
     private InnerObjectiveHelper() {
     }
 
@@ -42,11 +48,24 @@ public final class InnerObjectiveHelper {
         }
         ServerLevel level = (ServerLevel) player.level();
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
-        return currentObjective(data, island, player.getUUID(), player.blockPosition(), liveTargets(level, island));
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (context == null || !context.playerInsideOwnIsland()) {
+            return unavailableObjective();
+        }
+        InnerDimensionSavedData.IslandState island = context.island();
+        return currentObjective(data, island, context.owner(), player.blockPosition(), liveTargets(level, island));
     }
 
     static Objective currentObjectiveForTest(
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island,
+            UUID owner,
+            BlockPos origin
+    ) {
+        return currentObjectiveFromState(data, island, owner, origin);
+    }
+
+    static Objective currentObjectiveFromState(
             InnerDimensionSavedData data,
             InnerDimensionSavedData.IslandState island,
             UUID owner,
@@ -62,61 +81,38 @@ public final class InnerObjectiveHelper {
             BlockPos origin,
             ObjectiveTargets targets
     ) {
-        if (data.hasPendingTrialReturn(owner)) {
-            return targets.anchor(Kind.RETURN_TO_ANCHOR, "message.mydrugs.inner_objective.return_anchor");
-        }
-        DrugId nearest = InnerTrialManager.nearestIncompleteTrial(island, origin);
-        if (nearest != null) {
-            return targets.trial(nearest);
-        }
-        if (!island.allInnerTrialsCompleted()
-                && island.completedInnerTrialCount() > 0
-                && !data.hasProgressMarker(owner, InnerDimensionConstants.MARKER_FIRST_VAULT_OPENED)) {
-            return new Objective(
-                    Kind.VAULT,
-                    Component.translatable("message.mydrugs.inner_objective.vault"),
-                    null,
-                    null
+        InnerGameplayLoop.State state = InnerGameplayLoop.inside(data, island, owner, origin);
+        return switch (state.phase()) {
+            case RETURN_TO_ANCHOR -> targets.anchor(
+                    Kind.RETURN_TO_ANCHOR,
+                    "message.mydrugs.inner_objective.return_anchor"
             );
-        }
-        if (!island.allInnerTrialsCompleted()
-                && island.completedInnerTrialCount() > 0
-                && island.restoredScarMarkers().isEmpty()) {
-            return new Objective(
-                    Kind.SCAR,
-                    Component.translatable("message.mydrugs.inner_objective.scar"),
-                    null,
-                    null
-            );
-        }
-        if (island.allInnerTrialsCompleted()) {
-            if (!data.isSpiralCourtPlaced(owner)) {
-                return targets.anchor(Kind.OPEN_SPIRAL_COURT, "message.mydrugs.inner_objective.open_spiral");
-            }
-            if (!data.hasProgressMarker(owner, InnerDimensionConstants.MARKER_SPIRAL_COMPLETED)) {
-                return targets.anchor(Kind.COMPLETE_SPIRAL_COURT, "message.mydrugs.inner_objective.complete_spiral");
-            }
-            return new Objective(
-                    Kind.COMPLETE,
-                    Component.translatable("message.mydrugs.inner_objective.complete"),
-                    null,
-                    null
-            );
-        }
-        if (allIntegratedTrialsCompleted(island)) {
-            return new Objective(
+            case REFLECT_UNLOCK -> reflectionObjective(data, island, owner, origin);
+            case SEEK_TRIAL, ATTEMPT_TRIAL, SEEK_NEXT -> state.nearestTrial() == null
+                    ? exploreObjective()
+                    : targets.trial(state.nearestTrial());
+            case WAIT_FOR_INTEGRATION -> new Objective(
                     Kind.WAIT_FOR_INTEGRATION,
                     Component.translatable("message.mydrugs.inner_objective.wait_integration"),
                     null,
                     null
             );
-        }
-        return new Objective(
-                Kind.COMPLETE,
-                Component.translatable("message.mydrugs.inner_objective.explore"),
-                null,
-                null
-        );
+            case OPEN_SPIRAL_COURT -> targets.anchor(
+                    Kind.OPEN_SPIRAL_COURT,
+                    "message.mydrugs.inner_objective.open_spiral"
+            );
+            case COMPLETE_SPIRAL_COURT -> targets.anchor(
+                    Kind.COMPLETE_SPIRAL_COURT,
+                    "message.mydrugs.inner_objective.complete_spiral"
+            );
+            case COMPLETE -> new Objective(
+                    Kind.COMPLETE,
+                    Component.translatable("message.mydrugs.inner_objective.complete"),
+                    null,
+                    null
+            );
+            case ENTER_READY, UNAVAILABLE -> unavailableObjective();
+        };
     }
 
     public static Component memoryCompassMessage(ServerPlayer player) {
@@ -125,11 +121,15 @@ public final class InnerObjectiveHelper {
         }
         ServerLevel level = (ServerLevel) player.level();
         InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (context == null || !context.playerInsideOwnIsland()) {
+            return unavailableObjective().message();
+        }
+        InnerDimensionSavedData.IslandState island = context.island();
         return memoryCompassMessage(
                 data,
                 island,
-                player.getUUID(),
+                context.owner(),
                 player.blockPosition(),
                 player.getX(),
                 player.getZ(),
@@ -163,45 +163,52 @@ public final class InnerObjectiveHelper {
             double playerZ,
             ObjectiveTargets targets
     ) {
-        if (data.hasPendingTrialReturn(owner)) {
-            return compassTargetMessage(playerX, playerZ,
+        InnerGameplayLoop.State state = InnerGameplayLoop.inside(data, island, owner, origin);
+        return switch (state.phase()) {
+            case RETURN_TO_ANCHOR -> compassTargetMessage(playerX, playerZ,
                     targets.anchor(Kind.RETURN_TO_ANCHOR, "message.mydrugs.inner_objective.return_anchor"));
-        }
-        DrugId nearest = InnerTrialManager.nearestIncompleteTrial(island, origin);
-        if (nearest != null) {
-            return compassTargetMessage(playerX, playerZ, targets.trial(nearest));
-        }
-        if (island.integratedDrugCount() < 9 && allIntegratedTrialsCompleted(island)) {
-            return Component.translatable("message.mydrugs.memory_compass.wait_integration");
-        }
-        if (island.allInnerTrialsCompleted() && !data.isSpiralCourtPlaced(owner)) {
-            return compassTargetMessage(playerX, playerZ,
+            case SEEK_TRIAL, ATTEMPT_TRIAL, SEEK_NEXT -> state.nearestTrial() == null
+                    ? Component.translatable("message.mydrugs.memory_compass.rest")
+                    : compassTargetMessage(playerX, playerZ, targets.trial(state.nearestTrial()));
+            case REFLECT_UNLOCK -> compassTargetMessage(
+                    playerX,
+                    playerZ,
+                    reflectionObjective(data, island, owner, origin)
+            );
+            case WAIT_FOR_INTEGRATION -> Component.translatable("message.mydrugs.memory_compass.wait_integration");
+            case OPEN_SPIRAL_COURT -> compassTargetMessage(playerX, playerZ,
                     targets.anchor(Kind.OPEN_SPIRAL_COURT, "message.mydrugs.inner_objective.open_spiral"));
-        }
-        if (data.isSpiralCourtPlaced(owner)
-                && !data.hasProgressMarker(owner, InnerDimensionConstants.MARKER_SPIRAL_COMPLETED)) {
-            return compassTargetMessage(playerX, playerZ,
+            case COMPLETE_SPIRAL_COURT -> compassTargetMessage(playerX, playerZ,
                     targets.anchor(Kind.COMPLETE_SPIRAL_COURT, "message.mydrugs.inner_objective.complete_spiral"));
-        }
-        return Component.translatable("message.mydrugs.memory_compass.rest");
+            case COMPLETE -> Component.translatable("message.mydrugs.memory_compass.rest");
+            case ENTER_READY, UNAVAILABLE -> unavailableObjective().message();
+        };
     }
 
     private static Objective outsideObjective(@Nullable ServerPlayer player) {
         if (player == null) {
-            return new Objective(
-                    Kind.ENTER,
-                    Component.translatable("message.mydrugs.inner_objective.unavailable"),
-                    null,
-                    null
-            );
+            return unavailableObjective();
         }
-        String key = switch (InnerDimensionService.openStatus(player)) {
-            case READY -> "message.mydrugs.inner_objective.enter_ready";
+        InnerDimensionService.OpenStatus status = InnerDimensionService.openStatus(player);
+        InnerGameplayLoop.Phase phase = InnerGameplayLoop.outside(status);
+        String key = switch (status) {
+            case READY -> phase == InnerGameplayLoop.Phase.ENTER_READY
+                    ? "message.mydrugs.inner_objective.enter_ready"
+                    : "message.mydrugs.inner_objective.unavailable";
             case MISSING_INTEGRATION -> "message.mydrugs.inner_objective.need_integration";
             case MISSING_DREAM_ALIGNMENT -> "message.mydrugs.inner_objective.need_alignment";
             case UNAVAILABLE -> "message.mydrugs.inner_objective.unavailable";
         };
         return new Objective(Kind.ENTER, Component.translatable(key), null, null);
+    }
+
+    private static Objective unavailableObjective() {
+        return new Objective(
+                Kind.ENTER,
+                Component.translatable("message.mydrugs.inner_objective.unavailable"),
+                null,
+                null
+        );
     }
 
     private static Objective trialObjective(
@@ -224,6 +231,160 @@ public final class InnerObjectiveHelper {
                 ),
                 target,
                 title
+        );
+    }
+
+    private static Objective reflectionObjective(
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island,
+            UUID owner,
+            BlockPos origin
+    ) {
+        if (!data.hasProgressMarker(owner, InnerDimensionConstants.MARKER_FIRST_VAULT_OPENED)) {
+            return vaultObjective(island, origin);
+        }
+        if (island.restoredScarMarkers().isEmpty()) {
+            return scarObjective(island, origin);
+        }
+        return exploreObjective();
+    }
+
+    private static Objective vaultObjective(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos origin
+    ) {
+        BlockPos target = vaultTarget(island, origin);
+        return new Objective(
+                Kind.VAULT,
+                Component.translatable("message.mydrugs.inner_objective.vault"),
+                target,
+                target == null ? null : Component.translatable("message.mydrugs.inner_target.memory_vault")
+        );
+    }
+
+    private static Objective scarObjective(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos origin
+    ) {
+        BlockPos target = scarTarget(island, origin);
+        return new Objective(
+                Kind.SCAR,
+                Component.translatable("message.mydrugs.inner_objective.scar"),
+                target,
+                target == null ? null : Component.translatable("message.mydrugs.inner_target.scar")
+        );
+    }
+
+    private static @Nullable BlockPos vaultTarget(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos origin
+    ) {
+        InnerVaults.Vault vault = InnerVaults.nearestUnlockedVault(island, origin);
+        if (vault == null) {
+            return null;
+        }
+        InnerTerrain.Sample sample = InnerTerrain.sample(
+                island.centerX(),
+                island.centerZ(),
+                vault.x(),
+                vault.z()
+        );
+        return new BlockPos(vault.x(), InnerVaults.chestY(vault, sample.topY()), vault.z());
+    }
+
+    private static @Nullable BlockPos scarTarget(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos origin
+    ) {
+        if (island == null) {
+            return null;
+        }
+        BlockPos near = origin == null
+                ? new BlockPos(island.centerX(), InnerDimensionConstants.BASE_Y, island.centerZ())
+                : origin;
+        BlockPos target = scarTargetNear(island, near, SCAR_TARGET_NEAR_RADIUS, SCAR_TARGET_NEAR_STEP);
+        if (target != null) {
+            return target;
+        }
+        return scarTargetFromCenter(island);
+    }
+
+    private static @Nullable BlockPos scarTargetNear(
+            InnerDimensionSavedData.IslandState island,
+            BlockPos origin,
+            int radius,
+            int step
+    ) {
+        BlockPos best = null;
+        double bestDistance = Double.MAX_VALUE;
+        InnerTerrain.beginCachePass();
+        try {
+            for (int dz = -radius; dz <= radius; dz += step) {
+                for (int dx = -radius; dx <= radius; dx += step) {
+                    if (dx * dx + dz * dz > radius * radius) {
+                        continue;
+                    }
+                    BlockPos candidate = scarCandidate(island, origin.getX() + dx, origin.getZ() + dz);
+                    if (candidate == null) {
+                        continue;
+                    }
+                    double distance = (double) dx * dx + (double) dz * dz;
+                    if (distance < bestDistance) {
+                        best = candidate;
+                        bestDistance = distance;
+                    }
+                }
+            }
+        } finally {
+            InnerTerrain.endCachePass();
+        }
+        return best;
+    }
+
+    private static @Nullable BlockPos scarTargetFromCenter(InnerDimensionSavedData.IslandState island) {
+        InnerTerrain.beginCachePass();
+        try {
+            for (int radius = InnerDimensionConstants.CORE_RADIUS + 64;
+                 radius <= SCAR_TARGET_CENTER_RADIUS;
+                 radius += SCAR_TARGET_CENTER_STEP) {
+                for (int i = 0; i < SCAR_TARGET_CENTER_DIRECTIONS; i++) {
+                    double angle = Math.PI * 2.0D * i / SCAR_TARGET_CENTER_DIRECTIONS;
+                    int x = island.centerX() + (int) Math.round(Math.cos(angle) * radius);
+                    int z = island.centerZ() + (int) Math.round(Math.sin(angle) * radius);
+                    BlockPos candidate = scarCandidate(island, x, z);
+                    if (candidate != null) {
+                        return candidate;
+                    }
+                }
+            }
+        } finally {
+            InnerTerrain.endCachePass();
+        }
+        return null;
+    }
+
+    private static @Nullable BlockPos scarCandidate(
+            InnerDimensionSavedData.IslandState island,
+            int x,
+            int z
+    ) {
+        if (InnerTerrain.slotCenter(x) != island.centerX() || InnerTerrain.slotCenter(z) != island.centerZ()) {
+            return null;
+        }
+        InnerTerrain.Sample sample = InnerTerrain.sample(island.centerX(), island.centerZ(), x, z);
+        if (!sample.land() || !sample.scar()) {
+            return null;
+        }
+        BlockPos target = new BlockPos(x, sample.topY() + 1, z);
+        return InnerScarHealer.isRestoredAt(island, target) ? null : target;
+    }
+
+    private static Objective exploreObjective() {
+        return new Objective(
+                Kind.COMPLETE,
+                Component.translatable("message.mydrugs.inner_objective.explore"),
+                null,
+                null
         );
     }
 
@@ -330,7 +491,8 @@ public final class InnerObjectiveHelper {
         return Component.translatable("message.mydrugs.direction." + direction);
     }
 
-    private static boolean allIntegratedTrialsCompleted(InnerDimensionSavedData.IslandState island) {
-        return island.allIntegratedTrialsCompleted();
+    static Component compassTargetMessageForTest(Objective objective, BlockPos origin) {
+        return compassTargetMessage(origin.getX(), origin.getZ(), objective);
     }
+
 }

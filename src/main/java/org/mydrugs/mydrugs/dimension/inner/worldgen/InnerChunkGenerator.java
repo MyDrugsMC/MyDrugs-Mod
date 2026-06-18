@@ -148,7 +148,7 @@ public final class InnerChunkGenerator extends ChunkGenerator {
             RandomState randomState
     ) {
         InnerTerrain.Sample sample = InnerTerrain.sampleVanillaColumn(x, z);
-        return sample.land() ? sample.visualTopY() + 1 : level.getMinY();
+        return InnerTerrain.generatedBaseHeight(sample, x, z, level.getMinY(), level.getHeight());
     }
 
     @Override

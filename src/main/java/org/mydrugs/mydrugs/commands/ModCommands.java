@@ -317,7 +317,9 @@ public final class ModCommands {
 
     private static int innerDimensionMetrics(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        source.sendSuccess(() -> Component.literal(InnerDimensionSystem.lastMetricsFor(player.getUUID())), false);
+        source.sendSuccess(() -> Component.literal(
+                InnerDimensionSystem.lastMetricsFor(player.getUUID())
+                        + "\n" + InnerDimensionSystem.cacheDebugStatus()), false);
         return 1;
     }
 
@@ -358,13 +360,15 @@ public final class ModCommands {
 
     private static int innerDimensionQueueStatus(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        source.sendSuccess(() -> Component.literal(InnerDimensionSystem.queueStatus(player.getUUID())), false);
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        source.sendSuccess(() -> Component.literal(InnerDimensionSystem.queueStatus(innerLevel, player.getUUID())), false);
         return 1;
     }
 
     private static int innerDimensionCancelRefresh(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        InnerOverlayQueue.CancelSummary summary = InnerDimensionSystem.cancelQueues(player.getUUID());
+        ServerLevel innerLevel = innerLevelOrNull(source);
+        InnerOverlayQueue.CancelSummary summary = InnerDimensionSystem.cancelQueues(innerLevel, player.getUUID());
         source.sendSuccess(() -> Component.literal(summary.describe()), true);
         return summary.cancelledAnything() ? 1 : 0;
     }

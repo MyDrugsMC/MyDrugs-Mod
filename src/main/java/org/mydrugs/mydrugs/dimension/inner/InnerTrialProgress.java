@@ -16,6 +16,7 @@ import java.util.EnumSet;
 final class InnerTrialProgress {
     final EnumSet<DrugId> announced = EnumSet.noneOf(DrugId.class);
     int coffeeTicks;
+    int coffeeGraceTicks;
     int tobaccoStep;
     int weedPlacements;
     int methMask;

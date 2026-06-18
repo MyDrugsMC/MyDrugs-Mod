@@ -8,11 +8,20 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Static, non-persisted descriptor for a drug's Inner Dimension trial: which drug it belongs to and
+ * its localized title/hint keys, plus the fixed interaction-node geometry each trial type uses.
+ *
+ * <p>There is intentionally no single "interaction radius" here: the trials use heterogeneous
+ * engagement models (a stand-still pad, a planting reach, exact node offsets, a sprint route), and
+ * the genuine per-trial proximity radii live in {@link InnerTrialManager} where they are actually
+ * applied. A former uniform {@code interactionRadius} field was unused dead data and was removed so
+ * the balancing surface is truthful.
+ */
 public record InnerTrialDefinition(
         DrugId drug,
         String titleKey,
-        String hintKey,
-        int interactionRadius
+        String hintKey
 ) {
     private static final Map<DrugId, InnerTrialDefinition> DEFINITIONS = definitions();
 
@@ -96,8 +105,7 @@ public record InnerTrialDefinition(
             definitions.put(drug, new InnerTrialDefinition(
                     drug,
                     "message.mydrugs.inner_trial." + name + ".title",
-                    "message.mydrugs.inner_trial." + name + ".hint",
-                    22
+                    "message.mydrugs.inner_trial." + name + ".hint"
             ));
         }
         return Map.copyOf(definitions);

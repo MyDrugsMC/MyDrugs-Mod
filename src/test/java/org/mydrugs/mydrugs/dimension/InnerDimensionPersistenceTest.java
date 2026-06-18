@@ -452,4 +452,50 @@ class InnerDimensionPersistenceTest {
         assertFalse(data.hasPendingTrialReturn(owner));
         assertTrue(data.hasProgressMarker(owner, InnerDimensionConstants.MARKER_SPIRAL_COMPLETED));
     }
+
+    @Test
+    void pendingRecreateJobSurvivesCodecRoundTrip() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-000000000036");
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        data.getOrCreateIsland(owner);
+        assertTrue(data.markRecreateJobPending(owner));
+        assertTrue(data.updateRecreateJobPhase(owner, "decorate"));
+
+        var encoded = InnerDimensionSavedData.CODEC.encodeStart(JsonOps.INSTANCE, data)
+                .result()
+                .orElseThrow();
+        InnerDimensionSavedData decoded = InnerDimensionSavedData.CODEC
+                .parse(JsonOps.INSTANCE, encoded)
+                .result()
+                .orElseThrow();
+
+        InnerDimensionSavedData.RecreateJobState job = decoded.pendingRecreateJob(owner);
+        assertNotNull(job);
+        assertEquals(owner, job.owner());
+        assertTrue(job.fullRecreate());
+        assertEquals("decorate", job.phase());
+        assertTrue(job.schemaVersion() > 0);
+    }
+
+    @Test
+    void lastSafeReturnSurvivesCodecRoundTrip() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-000000000037");
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        assertTrue(data.recordLastSafeReturn(owner, new BlockPos(12, 70, -8), NETHER));
+
+        var encoded = InnerDimensionSavedData.CODEC.encodeStart(JsonOps.INSTANCE, data)
+                .result()
+                .orElseThrow();
+        InnerDimensionSavedData decoded = InnerDimensionSavedData.CODEC
+                .parse(JsonOps.INSTANCE, encoded)
+                .result()
+                .orElseThrow();
+
+        InnerDimensionSavedData.ReturnPositionState lastSafe = decoded.lastSafeReturn(owner);
+        assertNotNull(lastSafe);
+        assertEquals(12, lastSafe.x());
+        assertEquals(70, lastSafe.y());
+        assertEquals(-8, lastSafe.z());
+        assertEquals(NETHER, lastSafe.dimension());
+    }
 }

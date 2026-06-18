@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -98,7 +97,7 @@ public final class InnerMirrorReflectionRenderer {
 
         Matrix4f matrix = poseStack.last().pose();
         MultiBufferSource.BufferSource buffers = MultiBufferSource.immediate(BUFFER);
-        VertexConsumer consumer = buffers.getBuffer(RenderType.debugStructureQuads());
+        VertexConsumer consumer = buffers.getBuffer(InnerRenderTypes.innerOverlayQuads());
 
         // Tall, narrow silhouette hanging below the surface (a reflection of a standing figure).
         float halfW = 0.45F;

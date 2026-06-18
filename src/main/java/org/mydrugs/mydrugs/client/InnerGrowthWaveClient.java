@@ -15,8 +15,10 @@ public final class InnerGrowthWaveClient {
     }
 
     public static void trigger(int drugNetworkId) {
-        // One-time bloom that rides up and decays over ~0.8s.
-        InnerAtmosphereShader.INSTANCE.addCrossingPulse(0.9F);
+        // One-time bloom that rides up and decays over ~0.8s. Reduced motion softens the bloom
+        // strength via the shared screen-effect scale (the post pass also disables itself entirely
+        // under reduced motion, so this is a belt-and-braces consistency with the other stings).
+        InnerAtmosphereShader.INSTANCE.addCrossingPulse(0.9F * (float) InnerClientIntensity.screenEffectScale());
         // Resonant swell + a soft breath, scaled by the master ambient volume inside playOneShot.
         InnerSoundscapeController.playOneShot(ModSounds.INNER_LANDMARK_TONE.get(), 0.85F, 0.95F);
         InnerSoundscapeController.playOneShot(ModSounds.INNER_BREATH.get(), 0.6F, 1.05F);

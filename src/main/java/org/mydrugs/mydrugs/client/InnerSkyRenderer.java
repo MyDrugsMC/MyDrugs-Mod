@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +15,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
@@ -38,8 +36,8 @@ import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
  * <p>Calm regions drift slowly; danger regions churn faster and cooler. Under reduced motion the
  * churn freezes but the colour is preserved. Everything no-ops outside the Inner Dimension.
  *
- * <p>Rendering uses {@link RenderType#debugStructureQuads()} — POSITION_COLOR, translucent blend,
- * no face cull, depth-tested but <em>not</em> depth-writing — so the far sky quads never cull
+ * <p>Rendering uses {@link InnerRenderTypes#innerOverlayQuads()} — POSITION_COLOR, translucent
+ * blend, no face cull, depth-tested but <em>not</em> depth-writing — so the far sky quads never cull
  * distant terrain. Geometry is camera-relative (a skybox), except the beacon which is placed at the
  * world azimuth of the sanctuary so it points home as the player moves.
  */
@@ -70,15 +68,16 @@ public final class InnerSkyRenderer {
 
         Player player = mc.player;
         Camera camera = mc.gameRenderer.getMainCamera();
-        boolean reducedMotion = reducedMotion();
         float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        // Drift speed: calm warms and slows, danger cools and churns. Frozen under reduced motion.
-        float time = reducedMotion ? 0.0F : (mc.level.getGameTime() + partial);
-        float churn = reducedMotion ? 0.0F : (0.06F + (float) sample.danger() * 0.5F - (float) sample.calm() * 0.03F);
+        // Drift speed: calm warms and slows, danger cools and churns. The shared sky-motion scale
+        // freezes both to a static sky under reduced motion (colour/gradient are unaffected below).
+        float motion = (float) InnerClientIntensity.skyMotionScale();
+        float time = motion * (mc.level.getGameTime() + partial);
+        float churn = motion * (0.06F + (float) sample.danger() * 0.5F - (float) sample.calm() * 0.03F);
 
         Matrix4f matrix = poseStack.last().pose();
         MultiBufferSource.BufferSource buffers = MultiBufferSource.immediate(BUFFER);
-        VertexConsumer consumer = buffers.getBuffer(RenderType.debugStructureQuads());
+        VertexConsumer consumer = buffers.getBuffer(InnerRenderTypes.innerOverlayQuads());
 
         renderGradient(consumer, matrix, sample);
         renderAurora(consumer, matrix, sample, time);
@@ -396,13 +395,5 @@ public final class InnerSkyRenderer {
 
     private static void vertex(VertexConsumer consumer, Matrix4f matrix, float x, float y, float z, int r, int g, int b, int a) {
         consumer.addVertex(matrix, x, y, z).setColor(r, g, b, a);
-    }
-
-    private static boolean reducedMotion() {
-        try {
-            return Config.CLIENT.reducedMotionMode.get();
-        } catch (IllegalStateException ignored) {
-            return false;
-        }
     }
 }

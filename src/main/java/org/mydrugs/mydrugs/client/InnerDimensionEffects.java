@@ -87,10 +87,6 @@ public final class InnerDimensionEffects extends DimensionSpecialEffects {
     }
 
     private static boolean reducedMotion() {
-        try {
-            return org.mydrugs.mydrugs.Config.CLIENT.reducedMotionMode.get();
-        } catch (IllegalStateException ignored) {
-            return false;
-        }
+        return InnerClientIntensity.reducedMotion();
     }
 }

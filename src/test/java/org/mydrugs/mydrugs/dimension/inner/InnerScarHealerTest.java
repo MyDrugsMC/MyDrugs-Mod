@@ -1,16 +1,41 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
+import net.minecraft.core.BlockPos;
 import org.junit.jupiter.api.Test;
 import org.mydrugs.mydrugs.core.drug.DrugId;
+import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InnerScarHealerTest {
+
+    @Test
+    void restoredMarkerPersistsAndCoversItsWholeCellButNotNeighbours() {
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-0000000005ca");
+        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(owner);
+
+        BlockPos inCell = new BlockPos(island.centerX() + 3, 64, island.centerZ() + 5);
+        assertFalse(InnerScarHealer.isRestoredAt(island, inCell), "cell starts unrestored");
+
+        String marker = InnerScarHealer.scarMarkerFor(island, inCell);
+        assertTrue(data.markScarRestored(owner, marker), "first restore should persist a new marker");
+        assertFalse(data.markScarRestored(owner, marker), "re-restoring the same cell is idempotent");
+
+        assertTrue(InnerScarHealer.isRestoredAt(island, inCell), "the restored cell is detected");
+        // Another block within the same 16-wide scar cell shares the marker and reads as restored.
+        BlockPos sameCell = new BlockPos(island.centerX() + 12, 70, island.centerZ() + 11);
+        assertTrue(InnerScarHealer.isRestoredAt(island, sameCell), "whole cell is restored");
+        // A block a full cell away is a different marker and stays unrestored.
+        BlockPos neighbourCell = new BlockPos(island.centerX() + 20, 64, island.centerZ() + 5);
+        assertFalse(InnerScarHealer.isRestoredAt(island, neighbourCell), "neighbouring cell is untouched");
+    }
 
     @Test
     void rollingSweepCoversTheFiveByFiveChunkArea() {

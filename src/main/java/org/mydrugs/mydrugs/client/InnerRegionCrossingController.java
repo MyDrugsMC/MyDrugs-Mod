@@ -91,7 +91,7 @@ public final class InnerRegionCrossingController {
     private static void trigger(InnerAtmosphere.Sample sample) {
         float transition = (float) Mth.clamp(sample.transitionStrength(), 0.0D, 1.0D);
         float scale = 0.3F + transition * 0.7F;
-        boolean reduced = reducedMotion();
+        boolean reduced = InnerClientIntensity.reducedMotion();
 
         // Post-pulse (no-op visually if the post pass is disabled / reduced motion).
         InnerAtmosphereShader.INSTANCE.addCrossingPulse(0.5F * scale);
@@ -99,10 +99,11 @@ public final class InnerRegionCrossingController {
         // One-shot sting — always kept, even under reduced motion.
         InnerSoundscapeController.playOneShot(ModSounds.INNER_CROSSING.get(), 0.55F * scale + 0.15F, 1.0F);
 
-        // Edge flash in the new region's hue.
+        // Edge flash in the new region's hue. Reduced motion keeps the hue but halves the sting
+        // (and renders it as a gentle tint rather than an edge strobe — see render()).
         flashColor = (sample.fogRed() << 16) | (sample.fogGreen() << 8) | sample.fogBlue();
         flashGentle = reduced;
-        flashIntensity = reduced ? Math.min(0.5F, scale * 0.5F) : scale;
+        flashIntensity = scale * (float) InnerClientIntensity.screenEffectScale();
     }
 
     public static void render(GuiGraphics graphics) {
@@ -145,13 +146,5 @@ public final class InnerRegionCrossingController {
         cooldown = 0;
         flashIntensity = 0.0F;
         nearMegaForm = false;
-    }
-
-    private static boolean reducedMotion() {
-        try {
-            return Config.CLIENT.reducedMotionMode.get();
-        } catch (IllegalStateException ignored) {
-            return false;
-        }
     }
 }

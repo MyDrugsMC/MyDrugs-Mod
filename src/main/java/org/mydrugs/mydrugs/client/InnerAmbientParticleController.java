@@ -6,10 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import org.mydrugs.mydrugs.Config;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.dimension.InnerDimensions;
 import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
@@ -234,19 +232,11 @@ public final class InnerAmbientParticleController {
     }
 
     private static double particleDensity() {
-        try {
-            return Mth.clamp(Config.CLIENT.particleDensityMultiplier.get(), 0.0D, 1.0D);
-        } catch (IllegalStateException ignored) {
-            return 1.0D;
-        }
+        return InnerClientIntensity.particleDensity();
     }
 
     private static boolean reducedMotion() {
-        try {
-            return Config.CLIENT.reducedMotionMode.get();
-        } catch (IllegalStateException ignored) {
-            return false;
-        }
+        return InnerClientIntensity.reducedMotion();
     }
 
     public static void clear() {

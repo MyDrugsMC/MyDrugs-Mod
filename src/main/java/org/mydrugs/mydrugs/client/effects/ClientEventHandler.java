@@ -67,6 +67,18 @@ public final class ClientEventHandler {
             CustomDiscPlaybackController.clear();
             org.mydrugs.mydrugs.client.DistillateEngineAreaPreviewClientState.clear();
             org.mydrugs.mydrugs.client.PsyCurrentPulseClientState.clear();
+            org.mydrugs.mydrugs.client.InnerClientLifecycle.reset();
+            clearInnerClientState();
+        }
+
+        /**
+         * Resets every piece of Inner Dimension client-side state so its sounds, sky, fog, post-pass,
+         * particles, footstep trail, and crossing/entry choreography cannot bleed into another level.
+         * Called both on logout/login (via {@link #clearWorldScopedState()}) and on the in-session
+         * leaving edge detected in {@link #onClientTick} so leaving through the portal/Self Anchor or
+         * a respawn out of the dimension is handled the same as a disconnect.
+         */
+        private static void clearInnerClientState() {
             org.mydrugs.mydrugs.client.InnerEntrySequence.clear();
             org.mydrugs.mydrugs.client.InnerSkyClientState.clear();
             org.mydrugs.mydrugs.client.InnerRegionCrossingController.clear();
@@ -81,6 +93,14 @@ public final class ClientEventHandler {
         @SubscribeEvent
         public static void onClientTick(ClientTickEvent.Post event) {
             Minecraft mc = Minecraft.getInstance();
+
+            // Leaving the Inner Dimension without a disconnect (portal/Self Anchor return, level
+            // change, respawn out of it) still has to flush its client effects so they never bleed
+            // into the overworld. Detect the inside->outside edge and reset exactly once.
+            if (org.mydrugs.mydrugs.client.InnerClientLifecycle.leftInnerThisTick(
+                    org.mydrugs.mydrugs.client.InnerAtmosphereClient.inInnerDimension(mc))) {
+                clearInnerClientState();
+            }
 
             AddictionClientState.tick();
             AddictionHudRenderer.tick();

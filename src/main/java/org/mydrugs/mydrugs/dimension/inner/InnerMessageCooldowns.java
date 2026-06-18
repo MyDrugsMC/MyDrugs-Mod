@@ -19,6 +19,25 @@ public final class InnerMessageCooldowns {
             int cooldownTicks,
             Component message
     ) {
+        return send(player, id, cooldownTicks, message, true);
+    }
+
+    public static boolean systemMessage(
+            ServerPlayer player,
+            String id,
+            int cooldownTicks,
+            Component message
+    ) {
+        return send(player, id, cooldownTicks, message, false);
+    }
+
+    private static boolean send(
+            ServerPlayer player,
+            String id,
+            int cooldownTicks,
+            Component message,
+            boolean actionBar
+    ) {
         if (player == null || id == null || id.isBlank() || message == null) {
             return false;
         }
@@ -32,7 +51,11 @@ public final class InnerMessageCooldowns {
             return false;
         }
         playerMessages.put(id, now);
-        player.displayClientMessage(message, true);
+        if (actionBar) {
+            player.displayClientMessage(message, true);
+        } else {
+            player.sendSystemMessage(message);
+        }
         return true;
     }
 

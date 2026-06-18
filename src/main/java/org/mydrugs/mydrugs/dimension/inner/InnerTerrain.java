@@ -43,9 +43,21 @@ public final class InnerTerrain {
             VANILLA_COLUMN_CACHE_MAX_ENTRIES / VANILLA_COLUMN_CACHE_SHARDS;
     private static final VanillaColumnCacheShard[] VANILLA_COLUMN_CACHE = createVanillaColumnCache();
 
-    // Satellite ring layout is a function of the slot seed only, so it is safe to share.
+    // Satellite ring layout is a function of the slot seed only, so it is safe to share and to
+    // memoize verbatim. Insertion-ordered with eldest eviction so a long-running server that visits
+    // many island slots cannot grow it without bound; the values are pure functions of the key, so
+    // an evicted entry simply recomputes identically (terrain output is unchanged either way).
+    // Guarded by its own monitor because worldgen callbacks reach it from multiple threads. The cap
+    // is generous (it is a safety net against pathological growth, not a working-set limit), so the
+    // FIFO eviction below effectively never runs in normal play and get() stays a plain read.
+    private static final int SATELLITE_CENTER_CACHE_MAX_ENTRIES = 512;
     private static final java.util.Map<Long, SatelliteCenter[]> SATELLITE_CENTERS =
-            new java.util.concurrent.ConcurrentHashMap<>();
+            new java.util.LinkedHashMap<>(64, 0.75F, false) {
+                @Override
+                protected boolean removeEldestEntry(java.util.Map.Entry<Long, SatelliteCenter[]> eldest) {
+                    return size() > SATELLITE_CENTER_CACHE_MAX_ENTRIES;
+                }
+            };
 
     private InnerTerrain() {
     }
@@ -471,12 +483,77 @@ public final class InnerTerrain {
         return sample(centerX, centerZ, centerX, centerZ).topY() + 1;
     }
 
+    public static int generatedBaseHeight(Sample sample, int worldX, int worldZ, int minY, int height) {
+        int maxExclusive = minY + height;
+        int highest = Integer.MIN_VALUE;
+        if (sample.skyLand()) {
+            highest = Math.max(highest, boundedTop(sample.skyTopY(), minY, maxExclusive));
+        }
+        if (sample.land()) {
+            if (sample.lake()) {
+                highest = Math.max(highest, boundedTop(sample.lakeSurfaceY(), minY, maxExclusive));
+            } else {
+                for (int y = Math.min(sample.topY(), maxExclusive - 1); y >= Math.max(sample.bottomY(), minY); y--) {
+                    if (!caveAir(sample, worldX, y, worldZ)) {
+                        highest = Math.max(highest, y);
+                        break;
+                    }
+                }
+            }
+        }
+        return highest == Integer.MIN_VALUE ? minY : Math.clamp(highest + 1, minY, maxExclusive);
+    }
+
+    private static int boundedTop(int y, int minY, int maxExclusive) {
+        return y < minY || y >= maxExclusive ? Integer.MIN_VALUE : y;
+    }
+
     static void clearSatelliteCenters(int centerX, int centerZ) {
-        SATELLITE_CENTERS.remove(seedForSlot(centerX, centerZ));
+        long key = seedForSlot(centerX, centerZ);
+        synchronized (SATELLITE_CENTERS) {
+            SATELLITE_CENTERS.remove(key);
+        }
     }
 
     static void clearAllSatelliteCenters() {
-        SATELLITE_CENTERS.clear();
+        synchronized (SATELLITE_CENTERS) {
+            SATELLITE_CENTERS.clear();
+        }
+    }
+
+    /** Current number of cached per-slot satellite layouts. Bounded by the cache capacity. */
+    public static int satelliteCenterCacheSize() {
+        synchronized (SATELLITE_CENTERS) {
+            return SATELLITE_CENTERS.size();
+        }
+    }
+
+    /** Hard upper bound on the satellite-layout cache. */
+    public static int satelliteCenterCacheCapacity() {
+        return SATELLITE_CENTER_CACHE_MAX_ENTRIES;
+    }
+
+    /** Current number of cached vanilla-column samples across all shards. Bounded by the capacity. */
+    public static int vanillaColumnCacheSize() {
+        int total = 0;
+        for (VanillaColumnCacheShard shard : VANILLA_COLUMN_CACHE) {
+            synchronized (shard) {
+                total += shard.samples.size();
+            }
+        }
+        return total;
+    }
+
+    /** Hard upper bound on the vanilla-column sample cache (summed across shards). */
+    public static int vanillaColumnCacheCapacity() {
+        return VANILLA_COLUMN_CACHE_MAX_ENTRIES;
+    }
+
+    /** One-line snapshot of the bounded static cache occupancy, for debug commands. */
+    public static String cacheDebugString() {
+        return "inner_terrain_caches: satellite_centers="
+                + satelliteCenterCacheSize() + "/" + SATELLITE_CENTER_CACHE_MAX_ENTRIES
+                + ", vanilla_columns=" + vanillaColumnCacheSize() + "/" + VANILLA_COLUMN_CACHE_MAX_ENTRIES;
     }
 
     /** Per-drug surface character expressed as world-space noise, not concentric rings. */
@@ -701,24 +778,47 @@ public final class InnerTerrain {
     }
 
     private static SatelliteCenter[] satelliteCenters(long seed, int centerX, int centerZ) {
-        return SATELLITE_CENTERS.computeIfAbsent(seed, s -> {
-            // Variable count and heavy per-index jitter so satellites never form a visible ring.
-            int count = 6 + (int) Math.floor(unit(InnerNoise.value(s + 89L, 1, 1)) * 6.0D); // 6..11
-            SatelliteCenter[] arr = new SatelliteCenter[count];
-            for (int i = 0; i < arr.length; i++) {
-                // Uniform slot plus jitter up to a full slot width, so the angular spacing scatters.
-                double slot = (i + 0.5D) / count * Math.PI * 2.0D;
-                double angle = slot + InnerNoise.value(s + 95L, i, 7) * (Math.PI / count);
-                double radius = 1180.0D + unit(InnerNoise.value(s + 91L, i, 0)) * 360.0D; // 1180..1540
-                int sx = centerX + (int) Math.round(Math.cos(angle) * radius);
-                int sz = centerZ + (int) Math.round(Math.sin(angle) * radius);
-                double size = 64.0D + unit(InnerNoise.value(s + 93L, i, 0)) * 72.0D; // 64..136
-                int topY = InnerDimensionConstants.BASE_Y + 18
-                        + (int) Math.round(unit(InnerNoise.value(s + 97L, i, 0)) * 26.0D);
-                arr[i] = new SatelliteCenter(sx, sz, size, topY);
+        synchronized (SATELLITE_CENTERS) {
+            SatelliteCenter[] cached = SATELLITE_CENTERS.get(seed);
+            if (cached != null) {
+                return cached;
             }
-            return arr;
-        });
+        }
+        // Compute outside the lock; the layout is a pure function of the inputs so a concurrent
+        // duplicate computation produces an identical array and the first stored wins.
+        SatelliteCenter[] computed = computeSatelliteCenters(seed, centerX, centerZ);
+        synchronized (SATELLITE_CENTERS) {
+            SatelliteCenter[] existing = SATELLITE_CENTERS.get(seed);
+            if (existing != null) {
+                return existing;
+            }
+            SATELLITE_CENTERS.put(seed, computed);
+            return computed;
+        }
+    }
+
+    private static SatelliteCenter[] computeSatelliteCenters(long seed, int centerX, int centerZ) {
+        // Variable count and heavy per-index jitter so satellites never form a visible ring.
+        int count = 6 + (int) Math.floor(unit(InnerNoise.value(seed + 89L, 1, 1)) * 6.0D); // 6..11
+        SatelliteCenter[] arr = new SatelliteCenter[count];
+        for (int i = 0; i < arr.length; i++) {
+            // Uniform slot plus jitter up to a full slot width, so the angular spacing scatters.
+            double slot = (i + 0.5D) / count * Math.PI * 2.0D;
+            double angle = slot + InnerNoise.value(seed + 95L, i, 7) * (Math.PI / count);
+            double radius = 1180.0D + unit(InnerNoise.value(seed + 91L, i, 0)) * 360.0D; // 1180..1540
+            int sx = centerX + (int) Math.round(Math.cos(angle) * radius);
+            int sz = centerZ + (int) Math.round(Math.sin(angle) * radius);
+            double size = 64.0D + unit(InnerNoise.value(seed + 93L, i, 0)) * 72.0D; // 64..136
+            int topY = InnerDimensionConstants.BASE_Y + 18
+                    + (int) Math.round(unit(InnerNoise.value(seed + 97L, i, 0)) * 26.0D);
+            arr[i] = new SatelliteCenter(sx, sz, size, topY);
+        }
+        return arr;
+    }
+
+    /** Warms and returns the satellite layout size for a slot (test visibility into the bounded cache). */
+    static int satelliteCenterCountForTest(int centerX, int centerZ) {
+        return satelliteCenters(seedForSlot(centerX, centerZ), centerX, centerZ).length;
     }
 
     /** Maps a roughly [-1,1] noise value into [0,1]. */

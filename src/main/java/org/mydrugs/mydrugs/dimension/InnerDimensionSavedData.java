@@ -24,6 +24,10 @@ import java.util.UUID;
 
 public final class InnerDimensionSavedData extends SavedData {
     private static final String DEFAULT_DREAM_DIMENSION = "minecraft:overworld";
+    private static final int RECREATE_JOB_SCHEMA_VERSION = 1;
+    private static final String RECREATE_JOB_TYPE_FULL = "full_recreate";
+    private static final String RECREATE_JOB_PHASE_TERRAIN = "terrain";
+    private static final String RECREATE_JOB_PHASE_DECORATE = "decorate";
 
     public static final Codec<IslandState> ISLAND_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("owner").forGetter(IslandState::ownerString),
@@ -51,9 +55,29 @@ public final class InnerDimensionSavedData extends SavedData {
                     .forGetter(state -> List.copyOf(state.restoredScarMarkers))
     ).apply(instance, IslandState::new));
 
+    public static final Codec<RecreateJobState> RECREATE_JOB_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("owner").forGetter(RecreateJobState::ownerString),
+            Codec.STRING.optionalFieldOf("type", RECREATE_JOB_TYPE_FULL).forGetter(RecreateJobState::type),
+            Codec.STRING.optionalFieldOf("phase", RECREATE_JOB_PHASE_TERRAIN).forGetter(RecreateJobState::phase),
+            Codec.INT.optionalFieldOf("schema_version", RECREATE_JOB_SCHEMA_VERSION)
+                    .forGetter(RecreateJobState::schemaVersion)
+    ).apply(instance, RecreateJobState::new));
+
+    public static final Codec<ReturnPositionState> RETURN_POSITION_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.optionalFieldOf("dimension", DEFAULT_DREAM_DIMENSION)
+                    .forGetter(ReturnPositionState::dimension),
+            Codec.INT.fieldOf("x").forGetter(ReturnPositionState::x),
+            Codec.INT.fieldOf("y").forGetter(ReturnPositionState::y),
+            Codec.INT.fieldOf("z").forGetter(ReturnPositionState::z)
+    ).apply(instance, ReturnPositionState::new));
+
     public static final Codec<InnerDimensionSavedData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.unboundedMap(Codec.STRING, ISLAND_CODEC).optionalFieldOf("player_islands", Map.of())
-                    .forGetter(InnerDimensionSavedData::encodedIslands)
+                    .forGetter(InnerDimensionSavedData::encodedIslands),
+            Codec.unboundedMap(Codec.STRING, RECREATE_JOB_CODEC).optionalFieldOf("pending_recreate_jobs", Map.of())
+                    .forGetter(InnerDimensionSavedData::encodedRecreateJobs),
+            Codec.unboundedMap(Codec.STRING, RETURN_POSITION_CODEC).optionalFieldOf("last_safe_returns", Map.of())
+                    .forGetter(InnerDimensionSavedData::encodedLastSafeReturns)
     ).apply(instance, InnerDimensionSavedData::new));
 
     private static final String DATA_ID = "mydrugs_inner_dimension";
@@ -62,12 +86,18 @@ public final class InnerDimensionSavedData extends SavedData {
 
     private final Map<UUID, IslandState> islands = new LinkedHashMap<>();
     private final Map<Long, UUID> islandOwnersBySlotCenter = new LinkedHashMap<>();
+    private final Map<UUID, RecreateJobState> pendingRecreateJobs = new LinkedHashMap<>();
+    private final Map<UUID, ReturnPositionState> lastSafeReturns = new LinkedHashMap<>();
 
     public InnerDimensionSavedData() {
-        this(Map.of());
+        this(Map.of(), Map.of(), Map.of());
     }
 
-    private InnerDimensionSavedData(Map<String, IslandState> islands) {
+    private InnerDimensionSavedData(
+            Map<String, IslandState> islands,
+            Map<String, RecreateJobState> recreateJobs,
+            Map<String, ReturnPositionState> lastSafeReturns
+    ) {
         LoadDiagnostics diagnostics = new LoadDiagnostics();
         for (Map.Entry<String, IslandState> entry : islands.entrySet()) {
             IslandState state = entry.getValue();
@@ -88,6 +118,25 @@ public final class InnerDimensionSavedData extends SavedData {
             diagnostics.absorb(placed);
         }
         rebuildSlotIndex();
+        for (Map.Entry<String, RecreateJobState> entry : recreateJobs.entrySet()) {
+            UUID owner = parseUuid(entry.getKey());
+            if (owner == null && entry.getValue() != null) {
+                owner = entry.getValue().owner();
+            }
+            if (owner == null) {
+                diagnostics.discardedRecreateJobRecords++;
+                continue;
+            }
+            pendingRecreateJobs.put(owner, entry.getValue().withOwner(owner));
+        }
+        for (Map.Entry<String, ReturnPositionState> entry : lastSafeReturns.entrySet()) {
+            UUID owner = parseUuid(entry.getKey());
+            if (owner == null || entry.getValue() == null) {
+                diagnostics.discardedReturnPositionRecords++;
+                continue;
+            }
+            this.lastSafeReturns.put(owner, entry.getValue());
+        }
         diagnostics.recordSlotCollisions(this.islands.values());
         diagnostics.report(this.islands.size());
     }
@@ -349,6 +398,29 @@ public final class InnerDimensionSavedData extends SavedData {
         return island != null && island.dreamAligned;
     }
 
+    public boolean recordLastSafeReturn(UUID playerId, BlockPos feet, String dimensionId) {
+        if (playerId == null || feet == null) {
+            return false;
+        }
+        getOrCreateIsland(playerId);
+        ReturnPositionState next = new ReturnPositionState(
+                normalizeDreamDimension(dimensionId),
+                feet.getX(),
+                feet.getY(),
+                feet.getZ()
+        );
+        if (next.equals(lastSafeReturns.get(playerId))) {
+            return false;
+        }
+        lastSafeReturns.put(playerId, next);
+        setDirty();
+        return true;
+    }
+
+    public ReturnPositionState lastSafeReturn(UUID playerId) {
+        return lastSafeReturns.get(playerId);
+    }
+
     public boolean markStructurePlaced(UUID playerId, String marker) {
         IslandState island = getOrCreateIsland(playerId);
         if (marker == null || marker.isBlank() || !island.placedMarkers.add(marker)) {
@@ -367,6 +439,55 @@ public final class InnerDimensionSavedData extends SavedData {
         island.lastOverlayMetricsSummary = value;
         setDirty();
         return true;
+    }
+
+    public boolean markRecreateJobPending(UUID playerId) {
+        if (playerId == null) {
+            return false;
+        }
+        getOrCreateIsland(playerId);
+        RecreateJobState next = new RecreateJobState(
+                playerId.toString(),
+                RECREATE_JOB_TYPE_FULL,
+                RECREATE_JOB_PHASE_TERRAIN,
+                RECREATE_JOB_SCHEMA_VERSION
+        );
+        if (next.equals(pendingRecreateJobs.get(playerId))) {
+            return false;
+        }
+        pendingRecreateJobs.put(playerId, next);
+        setDirty();
+        return true;
+    }
+
+    public boolean updateRecreateJobPhase(UUID playerId, String phase) {
+        RecreateJobState existing = pendingRecreateJobs.get(playerId);
+        if (existing == null) {
+            return false;
+        }
+        RecreateJobState next = existing.withPhase(normalizeRecreatePhase(phase));
+        if (next.equals(existing)) {
+            return false;
+        }
+        pendingRecreateJobs.put(playerId, next);
+        setDirty();
+        return true;
+    }
+
+    public boolean clearRecreateJob(UUID playerId) {
+        if (pendingRecreateJobs.remove(playerId) == null) {
+            return false;
+        }
+        setDirty();
+        return true;
+    }
+
+    public RecreateJobState pendingRecreateJob(UUID playerId) {
+        return pendingRecreateJobs.get(playerId);
+    }
+
+    public Collection<RecreateJobState> pendingRecreateJobs() {
+        return List.copyOf(pendingRecreateJobs.values());
     }
 
     public boolean clearOverlayMarkers(UUID playerId) {
@@ -391,6 +512,22 @@ public final class InnerDimensionSavedData extends SavedData {
         return out;
     }
 
+    private Map<String, RecreateJobState> encodedRecreateJobs() {
+        Map<String, RecreateJobState> out = new LinkedHashMap<>();
+        for (Map.Entry<UUID, RecreateJobState> entry : pendingRecreateJobs.entrySet()) {
+            out.put(entry.getKey().toString(), entry.getValue());
+        }
+        return out;
+    }
+
+    private Map<String, ReturnPositionState> encodedLastSafeReturns() {
+        Map<String, ReturnPositionState> out = new LinkedHashMap<>();
+        for (Map.Entry<UUID, ReturnPositionState> entry : lastSafeReturns.entrySet()) {
+            out.put(entry.getKey().toString(), entry.getValue());
+        }
+        return out;
+    }
+
     private static int slotCenterX(int index) {
         return (index % 64) * InnerDimensionConstants.SLOT_SPACING;
     }
@@ -410,6 +547,12 @@ public final class InnerDimensionSavedData extends SavedData {
         return dimensionId == null || dimensionId.isBlank()
                 ? DEFAULT_DREAM_DIMENSION
                 : dimensionId;
+    }
+
+    private static String normalizeRecreatePhase(String phase) {
+        return RECREATE_JOB_PHASE_DECORATE.equals(phase)
+                ? RECREATE_JOB_PHASE_DECORATE
+                : RECREATE_JOB_PHASE_TERRAIN;
     }
 
     private void rebuildSlotIndex() {
@@ -492,6 +635,8 @@ public final class InnerDimensionSavedData extends SavedData {
         private int malformedDreamDimensions;
         private int staleMarkerSchemas;
         private int discardedMarkerRecords;
+        private int discardedRecreateJobRecords;
+        private int discardedReturnPositionRecords;
         private int duplicateSlotCenters;
         private int duplicateSlotIndices;
 
@@ -524,6 +669,8 @@ public final class InnerDimensionSavedData extends SavedData {
                     || malformedDreamDimensions > 0
                     || staleMarkerSchemas > 0
                     || discardedMarkerRecords > 0
+                    || discardedRecreateJobRecords > 0
+                    || discardedReturnPositionRecords > 0
                     || duplicateSlotCenters > 0
                     || duplicateSlotIndices > 0;
         }
@@ -531,7 +678,7 @@ public final class InnerDimensionSavedData extends SavedData {
         private void report(int islandsLoaded) {
             if (hasAnomalies()) {
                 MyDrugs.getLOGGER().info(
-                        "Inner Dimension saved data loaded {} island(s); cleaned data: invalidUuidKeys={}, discardedIslands={}, invalidDrugIds={}, malformedDreamDimensions={}, staleMarkerSchemas={}, discardedMarkerRecords={}, duplicateSlotCenters={}, duplicateSlotIndices={}",
+                        "Inner Dimension saved data loaded {} island(s); cleaned data: invalidUuidKeys={}, discardedIslands={}, invalidDrugIds={}, malformedDreamDimensions={}, staleMarkerSchemas={}, discardedMarkerRecords={}, discardedRecreateJobs={}, discardedReturnPositions={}, duplicateSlotCenters={}, duplicateSlotIndices={}",
                         islandsLoaded,
                         invalidUuidKeys,
                         discardedIslandRecords,
@@ -539,6 +686,8 @@ public final class InnerDimensionSavedData extends SavedData {
                         malformedDreamDimensions,
                         staleMarkerSchemas,
                         discardedMarkerRecords,
+                        discardedRecreateJobRecords,
+                        discardedReturnPositionRecords,
                         duplicateSlotCenters,
                         duplicateSlotIndices
                 );
@@ -546,6 +695,49 @@ public final class InnerDimensionSavedData extends SavedData {
                 MyDrugs.getLOGGER().debug(
                         "Inner Dimension saved data loaded {} island(s) with no anomalies", islandsLoaded);
             }
+        }
+    }
+
+    public record RecreateJobState(String ownerString, String type, String phase, int schemaVersion) {
+        public RecreateJobState {
+            type = type == null || type.isBlank() ? RECREATE_JOB_TYPE_FULL : type;
+            phase = normalizeRecreatePhase(phase);
+            schemaVersion = schemaVersion <= 0 ? RECREATE_JOB_SCHEMA_VERSION : schemaVersion;
+        }
+
+        public UUID owner() {
+            return parseUuid(ownerString);
+        }
+
+        private RecreateJobState withOwner(UUID owner) {
+            return new RecreateJobState(
+                    owner == null ? "" : owner.toString(),
+                    type,
+                    phase,
+                    schemaVersion
+            );
+        }
+
+        private RecreateJobState withPhase(String phase) {
+            return new RecreateJobState(ownerString, type, phase, schemaVersion);
+        }
+
+        public boolean fullRecreate() {
+            return RECREATE_JOB_TYPE_FULL.equals(type);
+        }
+
+        public boolean decoratePhase() {
+            return RECREATE_JOB_PHASE_DECORATE.equals(phase);
+        }
+    }
+
+    public record ReturnPositionState(String dimension, int x, int y, int z) {
+        public ReturnPositionState {
+            dimension = normalizeDreamDimension(dimension);
+        }
+
+        public BlockPos pos() {
+            return new BlockPos(x, y, z);
         }
     }
 

@@ -1,5 +1,6 @@
 package org.mydrugs.mydrugs.dimension.inner;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -76,6 +77,45 @@ class InnerOverlayQueueTest {
         assertEquals(0, result[0], "the loaded chunk is beyond the scan cap, so none processed this tick");
         assertEquals(10, result[1], "exactly the scan cap's worth of unloaded chunks are examined");
         assertEquals(101, result[2], "no chunk is dropped; the queue merely rotates");
+    }
+
+    @Test
+    void roundRobinGivesLaterOwnersTurnsWithLowPerTickBudget() {
+        boolean[][] queues = {
+                {true, true, true, true},
+                {true, true, true, true}
+        };
+
+        int[] processed = InnerOverlayQueue.roundRobinOwnerSchedulingForTest(queues, 1, 64, 4);
+
+        assertArrayEquals(new int[] {2, 2}, processed,
+                "a one-chunk tick budget should rotate between owners instead of draining the first owner");
+    }
+
+    @Test
+    void unloadedOwnerQueueDoesNotStarveLoadedOwnerQueue() {
+        boolean[][] queues = {
+                {false, false, false, false},
+                {true, true}
+        };
+
+        int[] processed = InnerOverlayQueue.roundRobinOwnerSchedulingForTest(queues, 1, 64, 1);
+
+        assertArrayEquals(new int[] {0, 1}, processed,
+                "unloaded chunks for one owner should not consume another owner's processing turn");
+    }
+
+    @Test
+    void roundRobinCursorSurvivesOwnerCompletion() {
+        boolean[][] queues = {
+                {true},
+                {true, true}
+        };
+
+        int[] processed = InnerOverlayQueue.roundRobinOwnerSchedulingForTest(queues, 1, 64, 3);
+
+        assertArrayEquals(new int[] {1, 2}, processed,
+                "removing a completed owner should not reset or break later owner progress");
     }
 
     @Test
@@ -181,6 +221,21 @@ class InnerOverlayQueueTest {
     @Test
     void recreateProgressSnapshotIsExposed() {
         assertTrue(InnerOverlayQueue.recreateProgressSnapshotForTest());
+    }
+
+    @Test
+    void persistedRecreateMarkerRestoresQueue() {
+        assertTrue(InnerOverlayQueue.persistedRecreateRestoresQueueForTest());
+    }
+
+    @Test
+    void completingRecreateClearsPersistedMarker() {
+        assertTrue(InnerOverlayQueue.completingRecreateClearsPersistedMarkerForTest());
+    }
+
+    @Test
+    void queueStatusReportsPersistedRecreateMarker() {
+        assertTrue(InnerOverlayQueue.queueStatusReportsPersistedRecreateForTest());
     }
 
     @Test

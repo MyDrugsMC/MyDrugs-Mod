@@ -18,9 +18,11 @@ import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 import org.mydrugs.mydrugs.dimension.InnerDimensions;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +33,8 @@ import java.util.function.BiConsumer;
 public final class InnerOverlayQueue {
     private static final Map<UUID, QueueState> OVERLAY_QUEUES = new LinkedHashMap<>();
     private static final Map<UUID, QueueState> RECREATE_QUEUES = new LinkedHashMap<>();
+    private static final QueueCursor OVERLAY_CURSOR = new QueueCursor();
+    private static final QueueCursor RECREATE_CURSOR = new QueueCursor();
     private static final Map<UUID, InnerGenerationMetrics> LAST_METRICS = new LinkedHashMap<>();
     private static final int DECORATED_CHUNK_CAP_PER_OWNER = 8_192;
     /**
@@ -115,14 +119,14 @@ public final class InnerOverlayQueue {
     /**
      * Queue a destructive full rebuild of the owner's whole island area (terrain pass, then a
      * decorate pass). The queue is intentionally <em>not</em> persisted: it can hold tens of
-     * thousands of chunk coordinates, so writing it into the level's saved data would bloat the
-     * file and add schema churn for no real benefit. Recreate processing never mutates
+     * thousands of chunk coordinates, so saved data stores only a compact "recreate incomplete"
+     * marker that can requeue the full deterministic pass after restart. Recreate processing never mutates
      * gameplay-critical island state (center, slot, integrations, progress markers, trials, dream
      * alignment); only visual overlay markers are cleared at enqueue, and
      * {@link InnerDimensionSavedData#clearOverlayMarkers} preserves progress markers. If the server
-     * stops mid-recreate, already-rebuilt terrain remains and the in-memory backlog is lost, so an
-     * admin should re-issue recreate when a complete visual pass is still required. Progress is
-     * observable via {@link #recreateProgress} / {@link #queueStatus} and can be explicitly
+     * stops mid-recreate, already-rebuilt terrain remains but the persisted marker requeues a full
+     * safe pass on the next Inner Dimension tick. Progress is observable via {@link #recreateProgress}
+     * / {@link #queueStatus} and can be explicitly
      * abandoned via {@link #cancelWithSummary}.
      */
     public static InnerRefreshJob enqueueOwnerFullRecreate(InnerDimensionSavedData.IslandState island) {
@@ -134,6 +138,17 @@ public final class InnerOverlayQueue {
         addRecreateChunks(chunks, island);
         boolean replaced = RECREATE_QUEUES.put(island.owner(), new QueueState(chunks.chunks(), chunks.keys(), QueueMode.FULL_RECREATE)) != null;
         return new InnerRefreshJob(island.owner(), chunks.size(), replaced);
+    }
+
+    public static InnerRefreshJob enqueueOwnerFullRecreate(
+            InnerDimensionSavedData data,
+            InnerDimensionSavedData.IslandState island
+    ) {
+        InnerRefreshJob job = enqueueOwnerFullRecreate(island);
+        if (data != null && job.enqueuedChunks() > 0) {
+            data.markRecreateJobPending(job.owner());
+        }
+        return job;
     }
 
     /**
@@ -167,6 +182,8 @@ public final class InnerOverlayQueue {
     public static void onServerStopping(ServerStoppingEvent event) {
         OVERLAY_QUEUES.clear();
         RECREATE_QUEUES.clear();
+        OVERLAY_CURSOR.clear();
+        RECREATE_CURSOR.clear();
         LAST_METRICS.clear();
         DECORATED_CHUNKS.clear();
         LANDMARK_CHUNKS_BY_CENTER.clear();
@@ -214,12 +231,26 @@ public final class InnerOverlayQueue {
     public static CancelSummary cancelWithSummary(UUID owner) {
         QueueState recreate = RECREATE_QUEUES.remove(owner);
         QueueState overlay = OVERLAY_QUEUES.remove(owner);
+        RECREATE_CURSOR.drop(owner);
+        OVERLAY_CURSOR.drop(owner);
         return new CancelSummary(
                 recreate != null,
                 overlay != null,
                 recreate == null ? 0 : recreate.pendingWork(),
                 overlay == null ? 0 : overlay.pendingWork()
         );
+    }
+
+    public static CancelSummary cancelWithSummary(InnerDimensionSavedData data, UUID owner) {
+        boolean persistedRecreate = data != null && data.pendingRecreateJob(owner) != null;
+        CancelSummary summary = cancelWithSummary(owner);
+        if (data != null && (summary.cancelledRecreate() || persistedRecreate)) {
+            data.clearRecreateJob(owner);
+        }
+        if (!persistedRecreate || summary.cancelledRecreate()) {
+            return summary;
+        }
+        return new CancelSummary(true, summary.cancelledOverlay(), 0, summary.overlayPendingDropped());
     }
 
     public static boolean cancel(UUID owner) {
@@ -229,6 +260,7 @@ public final class InnerOverlayQueue {
     /** Logout cleanup: only abandon overlay work; destructive recreate queues continue server-side. */
     private static CancelSummary cancelOverlayForLogout(UUID owner) {
         QueueState overlay = OVERLAY_QUEUES.remove(owner);
+        OVERLAY_CURSOR.drop(owner);
         return new CancelSummary(false, overlay != null, 0, overlay == null ? 0 : overlay.pendingWork());
     }
 
@@ -239,9 +271,24 @@ public final class InnerOverlayQueue {
     }
 
     public static String queueStatus(UUID owner) {
+        return queueStatus(null, owner);
+    }
+
+    public static String queueStatus(InnerDimensionSavedData data, UUID owner) {
         QueueState recreate = RECREATE_QUEUES.get(owner);
         QueueState overlay = OVERLAY_QUEUES.get(owner);
         if (recreate == null && overlay == null) {
+            InnerDimensionSavedData.RecreateJobState persisted = data == null ? null : data.pendingRecreateJob(owner);
+            if (persisted != null) {
+                return "Inner Dimension queue owner=" + owner
+                        + "\n  destructive: incomplete persisted "
+                        + persisted.type()
+                        + " phase="
+                        + persisted.phase()
+                        + " schema="
+                        + persisted.schemaVersion()
+                        + " (will resume by replaying the full recreate pass).";
+            }
             InnerGenerationMetrics metrics = LAST_METRICS.getOrDefault(owner, InnerGenerationMetrics.EMPTY);
             if (metrics.equals(InnerGenerationMetrics.EMPTY)) {
                 return "Inner Dimension queue idle for owner=" + owner + " (no previous activity).";
@@ -317,19 +364,20 @@ public final class InnerOverlayQueue {
         if (!(event.getLevel() instanceof ServerLevel level) || !level.dimension().equals(InnerDimensions.INNER_LEVEL)) {
             return;
         }
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
+        restorePersistedRecreateQueues(data);
         if (OVERLAY_QUEUES.isEmpty() && RECREATE_QUEUES.isEmpty()) {
             return;
         }
 
-        InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
         int chunksLeftThisTick = InnerDimensionConstants.OVERLAY_CHUNKS_PER_TICK;
         // Soft time budget: never raises the chunk caps, only stops early once at least one
         // chunk has been processed, so heavy chunks cannot stack into a tick spike.
         long deadlineNanos = System.nanoTime()
                 + InnerDimensionConstants.OVERLAY_TICK_BUDGET_MS * 1_000_000L;
-        chunksLeftThisTick = processQueues(level, data, RECREATE_QUEUES, chunksLeftThisTick, true, deadlineNanos);
+        chunksLeftThisTick = processQueues(level, data, RECREATE_QUEUES, RECREATE_CURSOR, chunksLeftThisTick, true, deadlineNanos);
         if (chunksLeftThisTick > 0) {
-            processQueues(level, data, OVERLAY_QUEUES, chunksLeftThisTick, false, deadlineNanos);
+            processQueues(level, data, OVERLAY_QUEUES, OVERLAY_CURSOR, chunksLeftThisTick, false, deadlineNanos);
         }
     }
 
@@ -337,30 +385,57 @@ public final class InnerOverlayQueue {
             ServerLevel level,
             InnerDimensionSavedData data,
             Map<UUID, QueueState> queues,
+            QueueCursor cursor,
             int chunksLeftThisTick,
             boolean destructive,
             long deadlineNanos
     ) {
         int startingBudget = chunksLeftThisTick;
-        var iterator = queues.entrySet().iterator();
-        while (iterator.hasNext() && chunksLeftThisTick > 0) {
-            Map.Entry<UUID, QueueState> entry = iterator.next();
-            if (!destructive && RECREATE_QUEUES.containsKey(entry.getKey())) {
+        ArrayList<UUID> owners = activeOwners(queues, destructive);
+        if (owners.isEmpty()) {
+            cursor.clear();
+            return chunksLeftThisTick;
+        }
+
+        int ownerIndex = cursor.startIndex(owners);
+        int visitsWithoutProgress = 0;
+        Set<UUID> visitedThisTick = destructive ? new LinkedHashSet<>() : null;
+        Map<UUID, Integer> scanBudgets = new HashMap<>();
+        while (chunksLeftThisTick > 0
+                && !owners.isEmpty()
+                && (!destructive || visitedThisTick.size() < owners.size())
+                && (destructive || visitsWithoutProgress < owners.size())) {
+            if (ownerIndex >= owners.size()) {
+                ownerIndex = 0;
+            }
+            UUID owner = owners.get(ownerIndex);
+            ownerIndex = (ownerIndex + 1) % owners.size();
+            if (destructive) {
+                visitedThisTick.add(owner);
+            }
+
+            QueueState state = queues.get(owner);
+            if (state == null || (!destructive && RECREATE_QUEUES.containsKey(owner))) {
+                visitsWithoutProgress++;
                 continue;
             }
-            QueueState state = entry.getValue();
-            InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(entry.getKey());
+
+            InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(owner);
             int queueBudget = destructive
                     ? Math.min(chunksLeftThisTick, InnerDimensionConstants.RECREATE_CHUNKS_PER_TICK)
-                    : chunksLeftThisTick;
+                    : overlayOwnerBudget(chunksLeftThisTick, owners, queues);
             // Unloaded chunks are held aside (not re-queued) for the duration of this queue's pass,
             // so each chunk is examined at most once per tick and a loaded chunk behind a run of
             // unloaded ones can still be reached. Skipping an unloaded chunk costs only the bounded
             // scan budget, never the per-tick processing budget, so unloaded work cannot starve
             // loaded work in this or any other queue.
             ArrayDeque<ChunkPos> deferredThisPass = new ArrayDeque<>();
-            int[] scanBudget = { Math.min(state.chunks.size(), InnerDimensionConstants.MAX_UNLOADED_CHUNK_SCANS_PER_TICK) };
-            while (queueBudget > 0) {
+            int[] scanBudget = {
+                    scanBudgets.computeIfAbsent(owner,
+                            ignored -> Math.min(state.chunks.size(), InnerDimensionConstants.MAX_UNLOADED_CHUNK_SCANS_PER_TICK))
+            };
+            int processedBefore = state.processedChunks;
+            while (queueBudget > 0 && scanBudget[0] > 0) {
                 ChunkPos chunkPos = pollNextLoaded(state, level, deferredThisPass, scanBudget);
                 if (chunkPos == null) {
                     // No loaded chunk reachable within this tick's scan budget; stop hunting.
@@ -378,7 +453,7 @@ public final class InnerOverlayQueue {
                 // after a recreate's terrain-only rebuild — so the lazy on-load guard cannot
                 // suppress a chunk that still needs its structures placed.
                 if (result.decorated()) {
-                    markDecorated(entry.getKey(), chunkPos);
+                    markDecorated(owner, chunkPos);
                 }
                 state.processedChunks++;
                 state.placedBlocks += result.count().placed();
@@ -388,20 +463,90 @@ public final class InnerOverlayQueue {
                 // Tick-time budget: stop early (this tick only) once at least one chunk was done.
                 if (chunksLeftThisTick < startingBudget && System.nanoTime() > deadlineNanos) {
                     requeueDeferred(state, deferredThisPass);
-                    if (state.exhausted()) {
-                        completeQueue(data, entry.getKey(), state);
-                        iterator.remove();
+                    scanBudgets.put(owner, scanBudget[0]);
+                    if (completeOrTrackQueue(data, owner, state)) {
+                        queues.remove(owner);
                     }
+                    cursor.set(nextActiveOwner(owners, ownerIndex, queues, destructive));
                     return 0;
                 }
             }
             requeueDeferred(state, deferredThisPass);
-            if (state.exhausted()) {
-                completeQueue(data, entry.getKey(), state);
-                iterator.remove();
+            scanBudgets.put(owner, scanBudget[0]);
+            if (completeOrTrackQueue(data, owner, state)) {
+                queues.remove(owner);
+            }
+            if (state.processedChunks > processedBefore) {
+                visitsWithoutProgress = 0;
+            } else {
+                visitsWithoutProgress++;
             }
         }
+        cursor.set(nextActiveOwner(owners, ownerIndex, queues, destructive));
         return chunksLeftThisTick;
+    }
+
+    private static ArrayList<UUID> activeOwners(Map<UUID, QueueState> queues, boolean destructive) {
+        ArrayList<UUID> owners = new ArrayList<>(queues.size());
+        for (UUID owner : queues.keySet()) {
+            if (isActiveOwner(owner, queues, destructive)) {
+                owners.add(owner);
+            }
+        }
+        return owners;
+    }
+
+    private static boolean isActiveOwner(UUID owner, Map<UUID, QueueState> queues, boolean destructive) {
+        return queues.containsKey(owner) && (destructive || !RECREATE_QUEUES.containsKey(owner));
+    }
+
+    private static int activeOwnerCount(List<UUID> owners, Map<UUID, QueueState> queues, boolean destructive) {
+        int count = 0;
+        for (UUID owner : owners) {
+            if (isActiveOwner(owner, queues, destructive)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int overlayOwnerBudget(int chunksLeftThisTick, List<UUID> owners, Map<UUID, QueueState> queues) {
+        return activeOwnerCount(owners, queues, false) <= 1 ? chunksLeftThisTick : 1;
+    }
+
+    private static UUID nextActiveOwner(List<UUID> owners, int startIndex, Map<UUID, QueueState> queues, boolean destructive) {
+        if (owners.isEmpty()) {
+            return null;
+        }
+        for (int offset = 0; offset < owners.size(); offset++) {
+            UUID owner = owners.get((startIndex + offset) % owners.size());
+            if (isActiveOwner(owner, queues, destructive)) {
+                return owner;
+            }
+        }
+        return null;
+    }
+
+    private static void restorePersistedRecreateQueues(InnerDimensionSavedData data) {
+        for (InnerDimensionSavedData.RecreateJobState job : data.pendingRecreateJobs()) {
+            UUID owner = job.owner();
+            if (owner == null || !job.fullRecreate() || RECREATE_QUEUES.containsKey(owner)) {
+                continue;
+            }
+            InnerDimensionSavedData.IslandState island = data.island(owner);
+            if (island == null) {
+                continue;
+            }
+            invalidateDecorated(owner);
+            data.updateRecreateJobPhase(owner, "terrain");
+            InnerChunkCollector.ChunkCollector chunks = new InnerChunkCollector.ChunkCollector();
+            addRecreateChunks(chunks, island);
+            RECREATE_QUEUES.put(owner, new QueueState(chunks.chunks(), chunks.keys(), QueueMode.FULL_RECREATE));
+            MyDrugs.getLOGGER().warn(
+                    "Restored incomplete Inner Dimension full recreate for owner {} from saved marker; replaying the full pass safely",
+                    owner
+            );
+        }
     }
 
     /**
@@ -438,6 +583,18 @@ public final class InnerOverlayQueue {
         deferred.clear();
     }
 
+    private static boolean completeOrTrackQueue(InnerDimensionSavedData data, UUID owner, QueueState state) {
+        boolean wasDecoratePhase = state.inDecoratePhase();
+        if (state.exhausted()) {
+            completeQueue(data, owner, state);
+            return true;
+        }
+        if (state.mode == QueueMode.FULL_RECREATE && !wasDecoratePhase && state.inDecoratePhase()) {
+            data.updateRecreateJobPhase(owner, "decorate");
+        }
+        return false;
+    }
+
     private static void completeQueue(InnerDimensionSavedData data, UUID owner, QueueState state) {
         long elapsed = Math.max(0L, System.currentTimeMillis() - state.startedMillis);
         InnerGenerationMetrics metrics = new InnerGenerationMetrics(
@@ -454,6 +611,9 @@ public final class InnerOverlayQueue {
         );
         LAST_METRICS.put(owner, metrics);
         data.updateOverlayMetrics(owner, state.mode.id + " " + metrics.toDebugString());
+        if (state.mode == QueueMode.FULL_RECREATE) {
+            data.clearRecreateJob(owner);
+        }
     }
 
     /**
@@ -832,6 +992,112 @@ public final class InnerOverlayQueue {
         return new int[] {processed, deferredCount, deque.size()};
     }
 
+    /**
+     * Pure JVM mirror of overlay owner scheduling. Each owner's boolean array is its chunk queue:
+     * {@code true} chunks are loaded and processable, {@code false} chunks are deferred. Returns
+     * processed chunk counts per owner after {@code ticks} simulated ticks.
+     */
+    static int[] roundRobinOwnerSchedulingForTest(boolean[][] loadedByOwner, int processBudget, int scanCap, int ticks) {
+        ArrayList<ArrayDeque<Integer>> queues = new ArrayList<>(loadedByOwner.length);
+        for (boolean[] ownerChunks : loadedByOwner) {
+            ArrayDeque<Integer> queue = new ArrayDeque<>();
+            for (int chunk = 0; chunk < ownerChunks.length; chunk++) {
+                queue.add(chunk);
+            }
+            queues.add(queue);
+        }
+
+        int[] processed = new int[loadedByOwner.length];
+        int cursor = 0;
+        for (int tick = 0; tick < ticks; tick++) {
+            int chunksLeft = processBudget;
+            int[] scanBudgets = new int[queues.size()];
+            for (int owner = 0; owner < queues.size(); owner++) {
+                scanBudgets[owner] = Math.min(queues.get(owner).size(), scanCap);
+            }
+
+            int ownerIndex = nextSimulatedOwnerIndex(queues, cursor);
+            if (ownerIndex < 0) {
+                break;
+            }
+            int visitsWithoutProgress = 0;
+            while (chunksLeft > 0 && visitsWithoutProgress < queues.size()) {
+                if (ownerIndex >= queues.size()) {
+                    ownerIndex = 0;
+                }
+                int owner = ownerIndex;
+                ownerIndex = (ownerIndex + 1) % queues.size();
+
+                ArrayDeque<Integer> queue = queues.get(owner);
+                if (queue.isEmpty()) {
+                    visitsWithoutProgress++;
+                    continue;
+                }
+
+                int ownerBudget = activeSimulatedOwnerCount(queues) <= 1 ? chunksLeft : 1;
+                int processedBefore = processed[owner];
+                if (scanBudgets[owner] > 0) {
+                    ArrayDeque<Integer> deferred = new ArrayDeque<>();
+                    scheduling:
+                    while (ownerBudget > 0) {
+                        Integer loadedChunk = null;
+                        while (!queue.isEmpty()) {
+                            int chunk = queue.removeFirst();
+                            if (loadedByOwner[owner][chunk]) {
+                                loadedChunk = chunk;
+                                break;
+                            }
+                            deferred.add(chunk);
+                            if (--scanBudgets[owner] <= 0) {
+                                break scheduling;
+                            }
+                        }
+                        if (loadedChunk == null) {
+                            break;
+                        }
+                        processed[owner]++;
+                        chunksLeft--;
+                        ownerBudget--;
+                    }
+                    queue.addAll(deferred);
+                }
+
+                if (processed[owner] > processedBefore) {
+                    visitsWithoutProgress = 0;
+                } else {
+                    visitsWithoutProgress++;
+                }
+            }
+
+            int next = nextSimulatedOwnerIndex(queues, ownerIndex);
+            cursor = next < 0 ? 0 : next;
+        }
+        return processed;
+    }
+
+    private static int activeSimulatedOwnerCount(ArrayList<ArrayDeque<Integer>> queues) {
+        int count = 0;
+        for (ArrayDeque<Integer> queue : queues) {
+            if (!queue.isEmpty()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int nextSimulatedOwnerIndex(ArrayList<ArrayDeque<Integer>> queues, int startIndex) {
+        if (queues.isEmpty()) {
+            return -1;
+        }
+        for (int offset = 0; offset < queues.size(); offset++) {
+            int index = (startIndex + offset) % queues.size();
+            if (!queues.get(index).isEmpty()) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
     static boolean processedChunkCanBeRequeuedForTest() {
         long key = InnerChunkCollector.chunkKey(4, -7);
         Set<Long> queued = new LinkedHashSet<>();
@@ -877,6 +1143,48 @@ public final class InnerOverlayQueue {
                     && progress.get().phase().equals("terrain");
         } finally {
             RECREATE_QUEUES.remove(owner);
+        }
+    }
+
+    static boolean persistedRecreateRestoresQueueForTest() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-00000000c0df");
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        try {
+            InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(owner);
+            data.markRecreateJobPending(owner);
+            InnerDimensionSavedData.RecreateJobState job = data.pendingRecreateJob(owner);
+            return job != null
+                    && job.fullRecreate()
+                    && fullRecreateChunkCountForTest(island.centerX(), island.centerZ()) > 0
+                    && queueStatus(data, owner).contains("will resume");
+        } finally {
+            RECREATE_QUEUES.remove(owner);
+            RECREATE_CURSOR.drop(owner);
+        }
+    }
+
+    static boolean completingRecreateClearsPersistedMarkerForTest() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-00000000c0e0");
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        QueueState state = new QueueState(new ArrayDeque<>(), new LinkedHashSet<>(), QueueMode.FULL_RECREATE);
+        data.getOrCreateIsland(owner);
+        data.markRecreateJobPending(owner);
+        completeQueue(data, owner, state);
+        return data.pendingRecreateJob(owner) == null;
+    }
+
+    static boolean queueStatusReportsPersistedRecreateForTest() {
+        UUID owner = UUID.fromString("00000000-0000-0000-0000-00000000c0e1");
+        InnerDimensionSavedData data = new InnerDimensionSavedData();
+        try {
+            data.getOrCreateIsland(owner);
+            data.markRecreateJobPending(owner);
+            String status = queueStatus(data, owner);
+            return status.contains("incomplete persisted full_recreate")
+                    && status.contains("will resume");
+        } finally {
+            RECREATE_QUEUES.remove(owner);
+            OVERLAY_QUEUES.remove(owner);
         }
     }
 
@@ -1059,6 +1367,34 @@ public final class InnerOverlayQueue {
 
         QueueMode(String id) {
             this.id = id;
+        }
+    }
+
+    private static final class QueueCursor {
+        private UUID nextOwner;
+
+        int startIndex(List<UUID> owners) {
+            if (nextOwner != null) {
+                int index = owners.indexOf(nextOwner);
+                if (index >= 0) {
+                    return index;
+                }
+            }
+            return 0;
+        }
+
+        void set(UUID owner) {
+            nextOwner = owner;
+        }
+
+        void drop(UUID owner) {
+            if (owner != null && owner.equals(nextOwner)) {
+                nextOwner = null;
+            }
+        }
+
+        void clear() {
+            nextOwner = null;
         }
     }
 

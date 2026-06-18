@@ -1,21 +1,33 @@
 package org.mydrugs.mydrugs.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.addiction.config.AddictionConstants;
 import org.mydrugs.mydrugs.addiction.data.PlayerAddictionStats;
 import org.mydrugs.mydrugs.addiction.manager.state.BadTripState;
 import org.mydrugs.mydrugs.dimension.InnerDimensionSavedData;
 import org.mydrugs.mydrugs.dimension.inner.InnerAtmosphere;
+import org.mydrugs.mydrugs.dimension.inner.InnerIslandContext;
 import org.mydrugs.mydrugs.dimension.inner.InnerScarHealer;
-import org.mydrugs.mydrugs.dimension.inner.InnerTerrain;
+import org.mydrugs.mydrugs.dimension.ModInnerDimensionBlocks;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomManager;
 import org.mydrugs.mydrugs.recovery.RecoveryRoomReport;
 
@@ -28,6 +40,10 @@ public final class InnerDemonSpawnManager {
     private static final int MAX_BOUND_TO_PLAYER = 3;
     private static final int MAX_NEARBY = 6;
     private static final double NEARBY_RADIUS = 32.0D;
+    private static final double MIN_SPAWN_DISTANCE_SQR = 7.0D * 7.0D;
+    private static final double LOOK_LINE_REJECT_DISTANCE_SQR = 12.0D * 12.0D;
+    private static final double LOOK_LINE_DOT_THRESHOLD = 0.965D;
+    private static final int PENDING_RETURN_GRACE_TICKS = 20 * 12;
 
     // B3: sparse, atmosphere-danger-weighted symbolic encounters while wandering the inner
     // dimension (distinct from the bad-trip path above). Per-player cooldown in ticks; entries are
@@ -39,6 +55,30 @@ public final class InnerDemonSpawnManager {
     private static final int DEMON_COUNT_CACHE_TICKS = 10;
     private static final double DEMON_COUNT_MOVE_REFRESH_DISTANCE_SQR = 64.0D;
 
+    // Ambient danger weighting: completing a trial or restoring a scar cell lowers the local spawn
+    // pressure without touching the pure terrain/atmosphere sampler used by worldgen and the client.
+    private static final double COMPLETED_TRIAL_DANGER_MULTIPLIER = 0.4D;
+    private static final double RESTORED_SCAR_DANGER_MULTIPLIER = 0.25D;
+    // Ambient spawn chance above the gate: scales with danger, capped so it never feels relentless.
+    private static final double AMBIENT_CHANCE_PER_DANGER = 0.6D;
+    private static final double AMBIENT_CHANCE_MAX = 0.5D;
+    // Ambient encounter pacing (ticks): a base delay plus a random spread between encounters.
+    private static final int AMBIENT_DELAY_MIN_TICKS = 20 * 18;
+    private static final int AMBIENT_DELAY_RANDOM_TICKS = 20 * 24;
+    // Recovery-room hallucination suppression pushes the next bad-trip spawn out by these minimums.
+    private static final int RECOVERY_FIRST_SPAWN_MIN_TICKS = 20 * 5;
+    private static final int RECOVERY_NEXT_ATTEMPT_MIN_TICKS = 20 * 8;
+    // Bad-trip demon spawn chances and attempt pacing (violent severity is more frequent).
+    private static final float BAD_TRIP_VIOLENT_SPAWN_CHANCE = 0.25F;
+    private static final float BAD_TRIP_STRONG_SPAWN_CHANCE = 0.10F;
+    private static final int BAD_TRIP_VIOLENT_ATTEMPT_MIN_TICKS = 20 * 15;
+    private static final int BAD_TRIP_STRONG_ATTEMPT_MIN_TICKS = 20 * 20;
+    private static final int BAD_TRIP_ATTEMPT_RANDOM_TICKS = 20 * 10;
+    // How long owned demons linger before despawning once their bad trip ends.
+    private static final int OWNED_DEMON_DESPAWN_DELAY_TICKS = 20 * 25;
+    // Radius (blocks) used when collecting a player's owned demons for counting/despawn.
+    private static final double OWNED_DEMON_SEARCH_RADIUS = 96.0D;
+
     private InnerDemonSpawnManager() {
     }
 
@@ -47,6 +87,18 @@ public final class InnerDemonSpawnManager {
         if (player != null) {
             INNER_AMBIENT_COOLDOWN.put(player.getUUID(), INNER_AMBIENT_GRACE_TICKS);
         }
+    }
+
+    /** Extend the current ambient encounter grace without shortening an existing longer delay. */
+    public static void extendInnerAmbientGrace(ServerPlayer player, int graceTicks) {
+        if (player != null && graceTicks > 0) {
+            INNER_AMBIENT_COOLDOWN.merge(player.getUUID(), graceTicks, Math::max);
+        }
+    }
+
+    /** Briefly suppress ambient encounters after a trial asks the player to return to the anchor. */
+    public static void primePendingTrialReturnGrace(ServerPlayer player) {
+        extendInnerAmbientGrace(player, PENDING_RETURN_GRACE_TICKS);
     }
 
     /** Forget a player's ambient cooldown (e.g. when they leave the inner dimension). */
@@ -82,24 +134,22 @@ public final class InnerDemonSpawnManager {
         INNER_AMBIENT_COOLDOWN.put(id, nextInnerAmbientDelay(player));
 
         BlockPos pos = player.blockPosition();
-        int centerX = InnerTerrain.slotCenter(pos.getX());
-        int centerZ = InnerTerrain.slotCenter(pos.getZ());
+        InnerDimensionSavedData data = InnerDimensionSavedData.get(level);
+        InnerIslandContext context = InnerIslandContext.resolve(player, data);
+        if (context == null) {
+            return;
+        }
+        int centerX = context.centerX();
+        int centerZ = context.centerZ();
         InnerAtmosphere.Sample atmosphere = InnerAtmosphere.sample(centerX, centerZ, pos);
-        double danger = atmosphere.danger();
-        // Completed trials and manually restored scar cells lower pressure without changing the
-        // pure terrain/atmosphere sampler used by worldgen and client presentation.
-        InnerDimensionSavedData.IslandState island =
-                InnerDimensionSavedData.get(level).findIslandBySlot(centerX, centerZ);
-        if (island != null && island.hasCompletedInnerTrial(atmosphere.dominantDrug())) {
-            danger *= 0.4D;
-        }
-        if (island != null && InnerScarHealer.isRestoredAt(island, pos)) {
-            danger *= 0.25D;
-        }
+        InnerDimensionSavedData.IslandState island = context.island();
+        boolean completedTrial = island != null && island.hasCompletedInnerTrial(atmosphere.dominantDrug());
+        boolean restoredScar = island != null && InnerScarHealer.isRestoredAt(island, pos);
+        double danger = effectiveAmbientDanger(atmosphere.danger(), completedTrial, restoredScar);
         if (danger < INNER_AMBIENT_DANGER_GATE) {
             return;
         }
-        float chance = (float) Mth.clamp((danger - INNER_AMBIENT_DANGER_GATE) * 0.6D, 0.0D, 0.5D);
+        float chance = ambientSpawnChance(danger);
         if (player.getRandom().nextFloat() >= chance) {
             return;
         }
@@ -109,13 +159,35 @@ public final class InnerDemonSpawnManager {
         }
         BlockPos spawnPos = findSpawnPos(level, player);
         if (spawnPos != null) {
+            telegraphAmbientSpawn(level, spawnPos);
             spawn(level, player, spawnPos, false, false);
             DEMON_COUNT_CACHE.remove(player.getUUID());
         }
     }
 
     private static int nextInnerAmbientDelay(ServerPlayer player) {
-        return 20 * 18 + player.getRandom().nextInt(20 * 24 + 1);
+        return AMBIENT_DELAY_MIN_TICKS + player.getRandom().nextInt(AMBIENT_DELAY_RANDOM_TICKS + 1);
+    }
+
+    /**
+     * Local ambient danger after gameplay relief is applied: a completed trial and a restored scar
+     * each scale the raw atmosphere danger down. Pure function so the weighting is unit-testable.
+     */
+    static double effectiveAmbientDanger(double rawDanger, boolean completedTrial, boolean restoredScar) {
+        double danger = rawDanger;
+        if (completedTrial) {
+            danger *= COMPLETED_TRIAL_DANGER_MULTIPLIER;
+        }
+        if (restoredScar) {
+            danger *= RESTORED_SCAR_DANGER_MULTIPLIER;
+        }
+        return danger;
+    }
+
+    /** Ambient encounter chance for a given (already weighted) danger above the gate. Pure function. */
+    static float ambientSpawnChance(double danger) {
+        return (float) Mth.clamp((danger - INNER_AMBIENT_DANGER_GATE) * AMBIENT_CHANCE_PER_DANGER,
+                0.0D, AMBIENT_CHANCE_MAX);
     }
 
     public static void tickBadTrip(ServerPlayer player, PlayerAddictionStats stats) {
@@ -140,8 +212,8 @@ public final class InnerDemonSpawnManager {
         }
 
         if (RecoveryRoomManager.suppressesHostileHallucinations(recoveryRoom)) {
-            state.firstDemonSpawnDelay = Math.max(state.firstDemonSpawnDelay, 20 * 5);
-            state.nextDemonSpawnAttempt = Math.max(state.nextDemonSpawnAttempt, 20 * 8);
+            state.firstDemonSpawnDelay = Math.max(state.firstDemonSpawnDelay, RECOVERY_FIRST_SPAWN_MIN_TICKS);
+            state.nextDemonSpawnAttempt = Math.max(state.nextDemonSpawnAttempt, RECOVERY_NEXT_ATTEMPT_MIN_TICKS);
             return;
         }
 
@@ -169,7 +241,7 @@ public final class InnerDemonSpawnManager {
         }
 
         state.nextDemonSpawnAttempt = nextAttemptDelay(player, violent);
-        float chance = violent ? 0.25F : 0.10F;
+        float chance = violent ? BAD_TRIP_VIOLENT_SPAWN_CHANCE : BAD_TRIP_STRONG_SPAWN_CHANCE;
         if (player.getRandom().nextFloat() >= chance) {
             return;
         }
@@ -204,9 +276,9 @@ public final class InnerDemonSpawnManager {
         if (!(player.level() instanceof ServerLevel level)) {
             return;
         }
-        AABB area = new AABB(player.blockPosition()).inflate(96.0D);
+        AABB area = new AABB(player.blockPosition()).inflate(OWNED_DEMON_SEARCH_RADIUS);
         for (InnerDemonEntity demon : level.getEntitiesOfClass(InnerDemonEntity.class, area, demon -> demon.isOwnedBy(player.getUUID()))) {
-            demon.beginNaturalDespawn(20 * 25);
+            demon.beginNaturalDespawn(OWNED_DEMON_DESPAWN_DELAY_TICKS);
         }
     }
 
@@ -244,29 +316,153 @@ public final class InnerDemonSpawnManager {
 
     private static BlockPos findSpawnPos(ServerLevel level, ServerPlayer player) {
         for (int tries = 0; tries < 16; tries++) {
-            double distance = 6.0D + player.getRandom().nextDouble() * 8.0D;
+            double distance = 7.0D + player.getRandom().nextDouble() * 9.0D;
             double angle = player.getRandom().nextDouble() * Math.PI * 2.0D;
             int x = Mth.floor(player.getX() + Math.cos(angle) * distance);
             int z = Mth.floor(player.getZ() + Math.sin(angle) * distance);
-            int y = Mth.clamp(
-                    Mth.floor(player.getY()) + player.getRandom().nextInt(6) - 2,
-                    level.getMinY() + 2,
-                    level.getMaxY() - 2
-            );
-            BlockPos pos = new BlockPos(x, y, z);
-            if (isAcceptableSpawnPos(level, pos, player)) {
-                return pos;
+            int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            int y = Mth.clamp(surfaceY, level.getMinY() + 1, level.getMaxY() - 2);
+            for (int dy = 0; dy <= 2; dy++) {
+                BlockPos pos = new BlockPos(x, y + dy, z);
+                if (isAcceptableSpawnPos(level, pos, player)) {
+                    return pos;
+                }
             }
         }
         return null;
     }
 
     private static boolean isAcceptableSpawnPos(ServerLevel level, BlockPos pos, ServerPlayer player) {
-        if (pos.distSqr(player.blockPosition()) < 25.0D || pos.getY() <= level.getMinY() + 1) {
+        BlockPos headPos = pos.above();
+        BlockPos belowPos = pos.below();
+        BlockState feetState = level.getBlockState(pos);
+        BlockState headState = level.getBlockState(headPos);
+        BlockState belowState = level.getBlockState(belowPos);
+        boolean feetOpen = isOpenSpawnSpace(level, pos, feetState);
+        boolean headOpen = isOpenSpawnSpace(level, headPos, headState);
+        boolean supportSturdy = belowState.isFaceSturdy(level, belowPos, Direction.UP);
+        if (!isSpawnGeometryAcceptable(
+                pos.distSqr(player.blockPosition()),
+                pos.getY(),
+                level.getMinY(),
+                level.getMaxY(),
+                feetOpen,
+                headOpen,
+                supportSturdy,
+                isDangerousBlock(belowState),
+                isSafeSpawnFluid(feetState.getFluidState()),
+                isSafeSpawnFluid(headState.getFluidState())
+        )) {
             return false;
         }
-        FluidState fluid = level.getFluidState(pos);
-        return !fluid.is(FluidTags.LAVA);
+        if (isDangerousBlock(feetState) || isDangerousBlock(headState)) {
+            return false;
+        }
+        AABB body = new AABB(
+                pos.getX() + 0.20D,
+                pos.getY(),
+                pos.getZ() + 0.20D,
+                pos.getX() + 0.80D,
+                pos.getY() + 1.95D,
+                pos.getZ() + 0.80D
+        );
+        return level.noCollision(body) && !isTooCloseToVisibleLookLine(level, pos, player);
+    }
+
+    private static boolean isSpawnGeometryAcceptable(
+            double distanceToPlayerSqr,
+            int feetY,
+            int minY,
+            int maxY,
+            boolean feetOpen,
+            boolean headOpen,
+            boolean supportSturdy,
+            boolean supportDangerous,
+            boolean feetFluidSafe,
+            boolean headFluidSafe
+    ) {
+        return distanceToPlayerSqr >= MIN_SPAWN_DISTANCE_SQR
+                && feetY > minY
+                && feetY + 1 < maxY
+                && feetOpen
+                && headOpen
+                && supportSturdy
+                && !supportDangerous
+                && feetFluidSafe
+                && headFluidSafe;
+    }
+
+    private static boolean isOpenSpawnSpace(ServerLevel level, BlockPos pos, BlockState state) {
+        return state.isAir()
+                || (!state.blocksMotion() && state.getCollisionShape(level, pos).isEmpty());
+    }
+
+    private static boolean isSafeSpawnFluid(FluidState fluid) {
+        return fluid == null || (fluid.isEmpty() && !fluid.is(FluidTags.LAVA));
+    }
+
+    private static boolean isDangerousBlock(BlockState state) {
+        if (state == null) {
+            return false;
+        }
+        if (state.is(ModInnerDimensionBlocks.REDLINE_THORN.get())
+                || state.is(Blocks.CACTUS)
+                || state.is(Blocks.MAGMA_BLOCK)
+                || state.is(Blocks.FIRE)
+                || state.is(Blocks.SOUL_FIRE)
+                || state.is(Blocks.LAVA)
+                || state.is(Blocks.SWEET_BERRY_BUSH)
+                || state.is(Blocks.WITHER_ROSE)
+                || state.is(Blocks.POWDER_SNOW)) {
+            return true;
+        }
+        return state.getBlock() instanceof CampfireBlock;
+    }
+
+    private static boolean isTooCloseToVisibleLookLine(ServerLevel level, BlockPos pos, ServerPlayer player) {
+        Vec3 eye = player.getEyePosition();
+        Vec3 look = player.getLookAngle().normalize();
+        Vec3 center = Vec3.atCenterOf(pos).add(0.0D, 0.35D, 0.0D);
+        Vec3 toSpawn = center.subtract(eye);
+        double distanceSqr = toSpawn.lengthSqr();
+        if (distanceSqr > LOOK_LINE_REJECT_DISTANCE_SQR || distanceSqr <= 0.0001D) {
+            return false;
+        }
+        Vec3 direction = toSpawn.normalize();
+        if (look.dot(direction) < LOOK_LINE_DOT_THRESHOLD) {
+            return false;
+        }
+        HitResult result = level.clip(new ClipContext(
+                eye,
+                center,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                player
+        ));
+        return result.getType() == HitResult.Type.MISS
+                || result.getLocation().distanceToSqr(center) < 0.35D;
+    }
+
+    private static void telegraphAmbientSpawn(ServerLevel level, BlockPos pos) {
+        level.sendParticles(
+                ParticleTypes.SMOKE,
+                pos.getX() + 0.5D,
+                pos.getY() + 0.25D,
+                pos.getZ() + 0.5D,
+                6,
+                0.24D,
+                0.08D,
+                0.24D,
+                0.01D
+        );
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.SOUL_ESCAPE.value(),
+                SoundSource.HOSTILE,
+                0.18F,
+                0.55F
+        );
     }
 
     private static DemonCounts demonCounts(ServerLevel level, ServerPlayer player) {
@@ -286,7 +482,7 @@ public final class InnerDemonSpawnManager {
     }
 
     private static int countBoundToPlayer(ServerLevel level, ServerPlayer player) {
-        AABB area = new AABB(player.blockPosition()).inflate(96.0D);
+        AABB area = new AABB(player.blockPosition()).inflate(OWNED_DEMON_SEARCH_RADIUS);
         return level.getEntitiesOfClass(InnerDemonEntity.class, area, demon -> demon.isOwnedBy(player.getUUID())).size();
     }
 
@@ -297,9 +493,8 @@ public final class InnerDemonSpawnManager {
     }
 
     private static int nextAttemptDelay(ServerPlayer player, boolean violent) {
-        int min = violent ? 20 * 15 : 20 * 20;
-        int random = violent ? 20 * 10 : 20 * 10;
-        return min + player.getRandom().nextInt(random + 1);
+        int min = violent ? BAD_TRIP_VIOLENT_ATTEMPT_MIN_TICKS : BAD_TRIP_STRONG_ATTEMPT_MIN_TICKS;
+        return min + player.getRandom().nextInt(BAD_TRIP_ATTEMPT_RANDOM_TICKS + 1);
     }
 
     private record DemonCounts(int boundToPlayer, int nearby) {
@@ -316,5 +511,31 @@ public final class InnerDemonSpawnManager {
                     && now - gameTime < DEMON_COUNT_CACHE_TICKS
                     && pos.distSqr(currentPos) < DEMON_COUNT_MOVE_REFRESH_DISTANCE_SQR;
         }
+    }
+
+    static boolean isSpawnGeometryAcceptableForTest(
+            double distanceToPlayerSqr,
+            int feetY,
+            int minY,
+            int maxY,
+            boolean feetOpen,
+            boolean headOpen,
+            boolean supportSturdy,
+            boolean supportDangerous,
+            boolean feetFluidSafe,
+            boolean headFluidSafe
+    ) {
+        return isSpawnGeometryAcceptable(
+                distanceToPlayerSqr,
+                feetY,
+                minY,
+                maxY,
+                feetOpen,
+                headOpen,
+                supportSturdy,
+                supportDangerous,
+                feetFluidSafe,
+                headFluidSafe
+        );
     }
 }

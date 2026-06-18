@@ -83,9 +83,11 @@ class InnerDimensionOpenStatusTest {
         assertTrue(respawn > dream);
         assertTrue(spawn > respawn);
         assertTrue(source.contains("unsafeSurfaceLastResort(overworld, spawn, \"world_spawn\")"));
+        assertTrue(source.contains("lastSafeReturnTarget(player, server)"));
         assertTrue(source.contains("dimension.equals(InnerDimensions.INNER_LEVEL)"));
         assertTrue(source.contains("dream dimension for player {} is the Inner Dimension itself, rejecting"));
         assertTrue(source.contains("respawn point for player {} is the Inner Dimension itself, rejecting"));
+        assertTrue(source.contains("using unsafe absolute last resort"));
     }
 
     @Test
@@ -97,7 +99,33 @@ class InnerDimensionOpenStatusTest {
         assertTrue(source.contains("headState.getCollisionShape(level, headPos).isEmpty()"));
         assertTrue(source.contains("feetState.getFluidState().isEmpty()"));
         assertTrue(source.contains("headState.getFluidState().isEmpty()"));
-        assertTrue(source.contains("!isLava(feetState.getFluidState())"));
-        assertTrue(source.contains("!isLava(headState.getFluidState())"));
+        assertTrue(source.contains("below.getFluidState().isEmpty()"));
+        assertTrue(source.contains("isDangerousReturnBlock(below)"));
+        assertTrue(source.contains("isDangerousReturnBlock(feetState)"));
+        assertTrue(source.contains("isDangerousReturnBlock(headState)"));
+    }
+
+    @Test
+    void safeStandingStateRejectsSolidHead() {
+        assertTrue(InnerDimensionService.safeStandingStateForTest(
+                true, true, true, true, true, true, false, false, false));
+        assertTrue(!InnerDimensionService.safeStandingStateForTest(
+                true, true, false, true, true, true, false, false, false));
+    }
+
+    @Test
+    void safeStandingStateRejectsLavaFireAndDangerousSupport() {
+        assertTrue(!InnerDimensionService.safeStandingStateForTest(
+                true, true, true, true, false, true, false, true, false));
+        assertTrue(!InnerDimensionService.safeStandingStateForTest(
+                true, true, true, true, true, true, true, false, false));
+    }
+
+    @Test
+    void invalidDreamCoordinateHasFallbackMessage() {
+        assertEquals(
+                "message.mydrugs.inner_dimension.return_fallback",
+                InnerDimensionService.returnFallbackMessageKeyForTest()
+        );
     }
 }

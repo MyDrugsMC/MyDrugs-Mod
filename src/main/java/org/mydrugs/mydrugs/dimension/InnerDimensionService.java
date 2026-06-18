@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
@@ -24,8 +25,9 @@ import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.diary.IntegrationDiary;
-import org.mydrugs.mydrugs.dimension.inner.InnerProgressionMilestones;
 import org.mydrugs.mydrugs.dimension.inner.InnerDimensionSystem;
+import org.mydrugs.mydrugs.dimension.inner.InnerIslandContext;
+import org.mydrugs.mydrugs.dimension.inner.InnerProgressionMilestones;
 import org.mydrugs.mydrugs.entity.InnerDemonSpawnManager;
 import org.mydrugs.mydrugs.network.InnerGrowthWavePayload;
 import org.mydrugs.mydrugs.network.InnerSkyStatePayload;
@@ -51,6 +53,8 @@ public final class InnerDimensionService {
             {0, -2}
     };
     private static final int SAFE_SEARCH_RADIUS = 8;
+    private static final String RETURN_FALLBACK_MESSAGE =
+            "message.mydrugs.inner_dimension.return_fallback";
 
     private InnerDimensionService() {
     }
@@ -190,11 +194,21 @@ public final class InnerDimensionService {
             return;
         }
         InnerDimensionSavedData data = InnerDimensionSavedData.get(innerLevel);
-        InnerDimensionSavedData.IslandState island = data.getOrCreateIsland(player.getUUID());
         // Phase 8: if the player is standing in their dimension at integration time, pace the new
         // region in as a visible outward wave and fire the client growth flourish; otherwise the
         // awakening enqueues silently as before.
-        boolean liveWave = isInInnerDimension(player);
+        boolean liveWave = false;
+        InnerDimensionSavedData.IslandState island;
+        if (isInInnerDimension(player)) {
+            InnerIslandContext context = InnerIslandContext.resolve(player, data);
+            if (context == null || !context.playerInsideOwnIsland()) {
+                return;
+            }
+            island = context.island();
+            liveWave = true;
+        } else {
+            island = data.getOrCreateIsland(player.getUUID());
+        }
         if (InnerDimensionSystem.onIntegration(innerLevel, island, drugId, liveWave)) {
             IntegrationDiary.dimensionExpanded(player, drugId);
             if (liveWave) {
@@ -245,6 +259,9 @@ public final class InnerDimensionService {
                 player.getXRot(),
                 TeleportTransition.DO_NOTHING
         ));
+        if (target.safe()) {
+            recordLastSafeReturn(player, target);
+        }
     }
 
     private static ReturnTarget resolveReturnTarget(ServerPlayer player, MinecraftServer server) {
@@ -262,9 +279,13 @@ public final class InnerDimensionService {
         BlockPos spawn = overworld.getLevelData().getRespawnData().pos();
         BlockPos safeSpawn = safeNearOrNull(overworld, spawn, false);
         if (safeSpawn != null) {
-            return new ReturnTarget(overworld, safeSpawn);
+            return new ReturnTarget(overworld, safeSpawn, true);
         }
-        return new ReturnTarget(overworld, unsafeSurfaceLastResort(overworld, spawn, "world_spawn"));
+        ReturnTarget lastSafe = lastSafeReturnTarget(player, server);
+        if (lastSafe != null) {
+            return lastSafe;
+        }
+        return new ReturnTarget(overworld, unsafeSurfaceLastResort(overworld, spawn, "world_spawn"), false);
     }
 
     @Nullable
@@ -280,23 +301,27 @@ public final class InnerDimensionService {
         ResourceKey<Level> dimension = parseDimension(island.dreamDimension());
         if (dimension == null) {
             MyDrugs.getLOGGER().debug("Inner Dimension return: dream dimension '{}' for player {} could not be parsed", island.dreamDimension(), player.getName().getString());
+            sendDreamFallbackMessage(player);
             return null;
         }
         if (dimension.equals(InnerDimensions.INNER_LEVEL)) {
             MyDrugs.getLOGGER().debug("Inner Dimension return: dream dimension for player {} is the Inner Dimension itself, rejecting", player.getName().getString());
+            sendDreamFallbackMessage(player);
             return null;
         }
         ServerLevel targetLevel = server.getLevel(dimension);
         if (targetLevel == null) {
+            sendDreamFallbackMessage(player);
             return null;
         }
         BlockPos resonator = new BlockPos(island.dreamX(), island.dreamY(), island.dreamZ());
         BlockPos safe = safeNearOrNull(targetLevel, resonator, true);
         if (safe == null) {
             MyDrugs.getLOGGER().debug("Inner Dimension return: dream coordinate for player {} has no safe nearby position, falling back", player.getName().getString());
+            sendDreamFallbackMessage(player);
             return null;
         }
-        return new ReturnTarget(targetLevel, safe);
+        return new ReturnTarget(targetLevel, safe, true);
     }
 
     @Nullable
@@ -319,7 +344,50 @@ public final class InnerDimensionService {
             MyDrugs.getLOGGER().debug("Inner Dimension return: respawn point for player {} has no safe nearby position, falling back", player.getName().getString());
             return null;
         }
-        return new ReturnTarget(respawnLevel, safe);
+        return new ReturnTarget(respawnLevel, safe, true);
+    }
+
+    @Nullable
+    private static ReturnTarget lastSafeReturnTarget(ServerPlayer player, MinecraftServer server) {
+        ServerLevel innerLevel = innerLevel(server);
+        if (innerLevel == null) {
+            return null;
+        }
+        InnerDimensionSavedData.ReturnPositionState previousReturn =
+                InnerDimensionSavedData.get(innerLevel).lastSafeReturn(player.getUUID());
+        if (previousReturn == null) {
+            return null;
+        }
+        ResourceKey<Level> dimension = parseDimension(previousReturn.dimension());
+        if (dimension == null || dimension.equals(InnerDimensions.INNER_LEVEL)) {
+            return null;
+        }
+        ServerLevel targetLevel = server.getLevel(dimension);
+        if (targetLevel == null) {
+            return null;
+        }
+        BlockPos safe = safeNearOrNull(targetLevel, previousReturn.pos(), false);
+        if (safe == null) {
+            return null;
+        }
+        MyDrugs.getLOGGER().debug(
+                "Inner Dimension return: using last safe return position for player {} after primary fallbacks failed",
+                player.getName().getString()
+        );
+        return new ReturnTarget(targetLevel, safe, true);
+    }
+
+    private static void recordLastSafeReturn(ServerPlayer player, ReturnTarget target) {
+        MinecraftServer server = player.level().getServer();
+        ServerLevel innerLevel = innerLevel(server);
+        if (innerLevel == null || target.level().dimension().equals(InnerDimensions.INNER_LEVEL)) {
+            return;
+        }
+        InnerDimensionSavedData.get(innerLevel).recordLastSafeReturn(
+                player.getUUID(),
+                target.feet(),
+                target.level().dimension().location().toString()
+        );
     }
 
     @Nullable
@@ -374,7 +442,7 @@ public final class InnerDimensionService {
         if (sameColumnSafe != null) {
             return sameColumnSafe;
         }
-        MyDrugs.getLOGGER().debug(
+        MyDrugs.getLOGGER().warn(
                 "Inner Dimension return: using unsafe absolute last resort {} from {} after all safe candidates failed",
                 lastResort,
                 source
@@ -411,17 +479,91 @@ public final class InnerDimensionService {
         BlockState below = level.getBlockState(belowPos);
         BlockState feetState = level.getBlockState(feet);
         BlockState headState = level.getBlockState(headPos);
-        return below.isFaceSturdy(level, belowPos, Direction.UP)
-                && feetState.getCollisionShape(level, feet).isEmpty()
-                && headState.getCollisionShape(level, headPos).isEmpty()
-                && feetState.getFluidState().isEmpty()
-                && headState.getFluidState().isEmpty()
-                && !isLava(feetState.getFluidState())
-                && !isLava(headState.getFluidState());
+        return isSafeStandingState(
+                below.isFaceSturdy(level, belowPos, Direction.UP),
+                feetState.getCollisionShape(level, feet).isEmpty(),
+                headState.getCollisionShape(level, headPos).isEmpty(),
+                below.getFluidState().isEmpty(),
+                feetState.getFluidState().isEmpty(),
+                headState.getFluidState().isEmpty(),
+                isDangerousReturnBlock(below) || isLava(below.getFluidState()),
+                isDangerousReturnBlock(feetState) || isLava(feetState.getFluidState()),
+                isDangerousReturnBlock(headState) || isLava(headState.getFluidState())
+        );
+    }
+
+    private static boolean isSafeStandingState(
+            boolean belowSupports,
+            boolean feetClear,
+            boolean headClear,
+            boolean belowFluidEmpty,
+            boolean feetFluidEmpty,
+            boolean headFluidEmpty,
+            boolean belowDangerous,
+            boolean feetDangerous,
+            boolean headDangerous
+    ) {
+        return belowSupports
+                && feetClear
+                && headClear
+                && belowFluidEmpty
+                && feetFluidEmpty
+                && headFluidEmpty
+                && !belowDangerous
+                && !feetDangerous
+                && !headDangerous;
+    }
+
+    private static boolean isDangerousReturnBlock(BlockState state) {
+        return state.is(Blocks.FIRE)
+                || state.is(Blocks.SOUL_FIRE)
+                || state.is(Blocks.CACTUS)
+                || state.is(Blocks.MAGMA_BLOCK)
+                || state.is(Blocks.POWDER_SNOW)
+                || state.is(Blocks.CAMPFIRE)
+                || state.is(Blocks.SOUL_CAMPFIRE)
+                || state.is(Blocks.SWEET_BERRY_BUSH)
+                || state.is(Blocks.WITHER_ROSE)
+                || state.is(Blocks.LAVA);
     }
 
     private static boolean isLava(FluidState state) {
         return state.is(Fluids.LAVA) || state.is(Fluids.FLOWING_LAVA);
+    }
+
+    private static void sendDreamFallbackMessage(ServerPlayer player) {
+        player.displayClientMessage(
+                Component.translatable(RETURN_FALLBACK_MESSAGE).withStyle(ChatFormatting.DARK_PURPLE),
+                false
+        );
+    }
+
+    static boolean safeStandingStateForTest(
+            boolean belowSupports,
+            boolean feetClear,
+            boolean headClear,
+            boolean belowFluidEmpty,
+            boolean feetFluidEmpty,
+            boolean headFluidEmpty,
+            boolean belowDangerous,
+            boolean feetDangerous,
+            boolean headDangerous
+    ) {
+        return isSafeStandingState(
+                belowSupports,
+                feetClear,
+                headClear,
+                belowFluidEmpty,
+                feetFluidEmpty,
+                headFluidEmpty,
+                belowDangerous,
+                feetDangerous,
+                headDangerous
+        );
+    }
+
+    static String returnFallbackMessageKeyForTest() {
+        return RETURN_FALLBACK_MESSAGE;
     }
 
     public static boolean isInInnerDimension(ServerPlayer player) {
@@ -434,6 +576,6 @@ public final class InnerDimensionService {
         return server == null ? null : server.getLevel(InnerDimensions.INNER_LEVEL);
     }
 
-    private record ReturnTarget(ServerLevel level, BlockPos feet) {
+    private record ReturnTarget(ServerLevel level, BlockPos feet, boolean safe) {
     }
 }
