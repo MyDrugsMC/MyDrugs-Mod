@@ -152,6 +152,33 @@ public class ModBlocks {
     public static final DeferredItem<BlockItem> DISTILLATE_ENGINE_ITEM =
             registerMachineBlockItem("distillate_engine", DISTILLATE_ENGINE);
 
+    public static final DeferredBlock<StillhouseBurnerBlock> STILLHOUSE_BURNER = BLOCKS.registerBlock(
+            "stillhouse_burner",
+            StillhouseBurnerBlock::new,
+            props -> props
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .lightLevel(state -> 3)
+    );
+
+    public static final DeferredItem<BlockItem> STILLHOUSE_BURNER_ITEM =
+            registerMachineBlockItem("stillhouse_burner", STILLHOUSE_BURNER);
+
+    public static final DeferredBlock<CopperDrumBlock> COPPER_DRUM = BLOCKS.registerBlock(
+            "copper_drum",
+            CopperDrumBlock::new,
+            props -> props
+                    .strength(2.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+    );
+
+    public static final DeferredItem<BlockItem> COPPER_DRUM_ITEM =
+            ITEMS.registerItem("copper_drum", props -> new CopperDrumBlockItem(COPPER_DRUM.get(), props));
+
     public static final DeferredBlock<PsychotropeResonatorBlock> PSYCHOTROPE_RESONATOR = BLOCKS.registerBlock(
             "psychotrope_resonator",
             PsychotropeResonatorBlock::new,

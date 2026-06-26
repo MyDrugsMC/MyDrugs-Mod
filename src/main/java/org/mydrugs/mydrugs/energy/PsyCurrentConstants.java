@@ -2,14 +2,14 @@ package org.mydrugs.mydrugs.energy;
 
 /**
  * Constants for Psy Current — the renamed, reworked machine energy. Psy Current (unit "PC") powers
- * machine automation. It is produced by the Distillate Engine, never by burning drugs directly.
+ * machine automation. It is produced by the Psychotrope Engine, never by burning drugs directly.
  */
 public final class PsyCurrentConstants {
     public static final int DEFAULT_MACHINE_CAPACITY = 10_000;
     /** Psy Current a powered machine consumes per tick. Kept at 1 to preserve existing balance. */
     public static final int DEFAULT_MACHINE_CURRENT_PER_TICK = 1;
 
-    // --- Distillate Engine ---
+    // --- Psychotrope Engine ---
     public static final int ENGINE_CURRENT_CAPACITY = 100_000;
     public static final int ENGINE_MIN_RADIUS = 1;
     public static final int ENGINE_MAX_RADIUS = 8;

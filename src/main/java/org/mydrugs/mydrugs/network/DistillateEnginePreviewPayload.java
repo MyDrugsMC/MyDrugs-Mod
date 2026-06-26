@@ -11,7 +11,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import java.util.List;
 
 /**
- * Server -> client: show the Distillate Engine's distribution area for {@code durationTicks}.
+ * Server -> client: show the Psychotrope Engine's distribution area for {@code durationTicks}.
  *
  * The server emits this once when the player presses the "show area" button. The client renders
  * a particle outline around {@code enginePos} at the requested radius for the requested duration.

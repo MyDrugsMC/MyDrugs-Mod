@@ -148,7 +148,11 @@ public class MixingVatBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        if (vat.stirOnce()) {
+        if (vat.isStirAnimationActive()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        if (vat.stirOnce(player)) {
             return InteractionResult.SUCCESS;
         }
 

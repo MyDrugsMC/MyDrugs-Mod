@@ -31,6 +31,8 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.AdvancedMixingVatBlock;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.advancement.AdvancementEventHooks;
 import org.mydrugs.mydrugs.gas.*;
 import org.mydrugs.mydrugs.machine.MachineCompletionHelper;
@@ -75,7 +77,7 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
     public static final int OUTPUT_TANK_CAPACITY = 4000;
     public static final long GAS_TANK_CAPACITY = 4000L;
 
-    public static final int DATA_COUNT = 13;
+    public static final int DATA_COUNT = 16;
 
     private final VatItemHandler itemHandler = new VatItemHandler(ITEM_SLOT_COUNT);
     private final NonNullList<ItemStack> itemStacks = this.itemHandler.list();
@@ -126,6 +128,9 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
                         outputStacks.get(0).isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(outputStacks.get(0).getFluid());
                 case 11 -> gasTank.isEmpty() ? -1 : ModGases.getSyncId(gasTank.getGasType());
                 case 12 -> hasRecipe ? 1 : 0;
+                case 13 -> MachineEnergyAttachments.get(AdvancedMixingVatBlockEntity.this).storage().stored();
+                case 14 -> MachineEnergyAttachments.get(AdvancedMixingVatBlockEntity.this).storage().capacity();
+                case 15 -> MachineEnergyAttachments.get(AdvancedMixingVatBlockEntity.this).hasEnergyUpgrade() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -223,14 +228,40 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         ResolvedRecipe recipe = match.get();
 
+        if (recipe.requiresHeat() && !be.hasValidHeatSource()) {
+            changed |= be.setMachineStatus(MachineStatus.NOT_ENOUGH_HEAT);
+            be.hasRecipe = true;
+            if (changed) {
+                be.syncState();
+            }
+            return;
+        }
+
         if (!be.canAcceptOutput(recipe.result())) {
             changed |= be.setMachineStatus(MachineStatus.OUTPUT_TANK_FULL);
-            if (be.progress != 0 || be.hasRecipe) {
-                be.progress = 0;
+            if (be.hasRecipe) {
                 be.hasRecipe = false;
                 changed = true;
             }
 
+            if (changed) {
+                be.syncState();
+            }
+            return;
+        }
+
+        if (!MachineEnergyAttachments.get(be).hasEnergyUpgrade()) {
+            changed |= be.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
+            be.hasRecipe = true;
+            if (changed) {
+                be.syncState();
+            }
+            return;
+        }
+
+        if (!PsyCurrentMachines.tryUseCurrentTick(be)) {
+            changed |= be.setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
+            be.hasRecipe = true;
             if (changed) {
                 be.syncState();
             }
@@ -450,6 +481,19 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         return FluidStack.isSameFluidSameComponents(stored, result)
                 && stored.getAmount() + result.getAmount() <= OUTPUT_TANK_CAPACITY;
+    }
+
+    private boolean hasValidHeatSource() {
+        if (this.level == null) {
+            return false;
+        }
+        BlockState belowState = this.level.getBlockState(this.worldPosition.below());
+        var belowBlock = belowState.getBlock();
+        return belowBlock == net.minecraft.world.level.block.Blocks.FIRE
+                || belowBlock == net.minecraft.world.level.block.Blocks.SOUL_FIRE
+                || ((belowBlock == net.minecraft.world.level.block.Blocks.CAMPFIRE
+                || belowBlock == net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE)
+                && belowState.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT));
     }
 
     private boolean runTransferWithoutReset(java.util.function.BooleanSupplier action) {
@@ -917,6 +961,10 @@ public class AdvancedMixingVatBlockEntity extends net.minecraft.world.level.bloc
 
         public int processingTime() {
             return this.processingTime;
+        }
+
+        public boolean requiresHeat() {
+            return this.mixingRecipe != null && this.mixingRecipe.requiresHeat();
         }
     }
 

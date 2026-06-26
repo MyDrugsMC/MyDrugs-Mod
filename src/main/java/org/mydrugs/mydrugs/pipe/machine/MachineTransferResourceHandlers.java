@@ -21,7 +21,7 @@ public final class MachineTransferResourceHandlers {
 
     @Nullable
     public static ResourceHandler<ItemResource> itemContainer(BlockEntity blockEntity, Container container, @Nullable Direction side) {
-        if (side == null || !MachineTransferAttachments.hasTransferUpgrade(blockEntity)) {
+        if (side == null || !MachineTransferAttachments.hasAnyPipeAccess(blockEntity)) {
             return null;
         }
 
@@ -40,7 +40,7 @@ public final class MachineTransferResourceHandlers {
             @Nullable Direction side,
             @Nullable ResourceHandler<T> delegate
     ) {
-        if (side == null || delegate == null || !MachineTransferAttachments.hasTransferUpgrade(blockEntity)) {
+        if (side == null || delegate == null || !MachineTransferAttachments.hasAnyPipeAccess(blockEntity)) {
             return null;
         }
 
@@ -54,7 +54,7 @@ public final class MachineTransferResourceHandlers {
 
     @Nullable
     public static IGasHandler restrictedGas(BlockEntity blockEntity, @Nullable Direction side, @Nullable IGasHandler delegate) {
-        if (side == null || delegate == null || !MachineTransferAttachments.hasTransferUpgrade(blockEntity)) {
+        if (side == null || delegate == null || !MachineTransferAttachments.hasAnyPipeAccess(blockEntity)) {
             return null;
         }
 
@@ -67,7 +67,13 @@ public final class MachineTransferResourceHandlers {
     }
 
     private static SlotAccess accessFor(BlockEntity blockEntity, MachineTransferResourceKind kind, Direction worldSide) {
-        MachineTransferConfig config = MachineTransferAttachments.config(blockEntity);
+        MachineTransferAccessLevel accessLevel = MachineTransferAttachments.accessLevel(blockEntity);
+        if (accessLevel == MachineTransferAccessLevel.NONE) {
+            return SlotAccess.EMPTY;
+        }
+        MachineTransferConfig config = accessLevel == MachineTransferAccessLevel.CONFIGURABLE
+                ? MachineTransferAttachments.config(blockEntity)
+                : null;
         MachineLocalSide localSide = MachineOrientation.fromWorld(blockEntity.getBlockState(), worldSide);
         Set<Integer> insertSlots = new HashSet<>();
         Set<Integer> extractSlots = new HashSet<>();
@@ -77,7 +83,9 @@ public final class MachineTransferResourceHandlers {
                 continue;
             }
 
-            MachineTransferSideRule rule = config.getRule(port.id(), localSide);
+            MachineTransferSideRule rule = accessLevel == MachineTransferAccessLevel.CONFIGURABLE
+                    ? config.getRule(port.id(), localSide)
+                    : defaultRule(port, localSide);
             if (!port.supports(rule)) {
                 continue;
             }
@@ -93,6 +101,16 @@ public final class MachineTransferResourceHandlers {
         return new SlotAccess(insertSlots, extractSlots);
     }
 
+    private static MachineTransferSideRule defaultRule(MachineTransferPortSpec port, MachineLocalSide localSide) {
+        if (!port.defaultLocalSides().contains(localSide)) {
+            return MachineTransferSideRule.DISABLED;
+        }
+        return switch (port.access()) {
+            case INPUT_ONLY, BIDIRECTIONAL -> MachineTransferSideRule.INPUT;
+            case OUTPUT_ONLY -> MachineTransferSideRule.OUTPUT;
+        };
+    }
+
     private static Set<Integer> targetSlots(MachineTransferPortSpec port) {
         return switch (port.kind()) {
             case ITEM -> Set.copyOf(port.itemSlots());
@@ -102,6 +120,8 @@ public final class MachineTransferResourceHandlers {
     }
 
     private record SlotAccess(Set<Integer> insertSlots, Set<Integer> extractSlots) {
+        private static final SlotAccess EMPTY = new SlotAccess(Set.of(), Set.of());
+
         boolean isEmpty() {
             return this.insertSlots.isEmpty() && this.extractSlots.isEmpty();
         }

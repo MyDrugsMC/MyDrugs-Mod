@@ -37,6 +37,22 @@ public final class MachineEnergyAttachment implements ValueIOSerializable {
         return true;
     }
 
+    public boolean removeEnergyUpgrade() {
+        if (!this.energyUpgradeInstalled || this.storage.stored() > 0) {
+            return false;
+        }
+        this.energyUpgradeInstalled = false;
+        return true;
+    }
+
+    public boolean removeAutomationUpgrade() {
+        if (!this.automationUpgradeInstalled || this.storage.stored() > 0) {
+            return false;
+        }
+        this.automationUpgradeInstalled = false;
+        return true;
+    }
+
     public boolean hasAnyEnergyStorageUpgrade() {
         return this.energyUpgradeInstalled || this.automationUpgradeInstalled;
     }

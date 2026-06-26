@@ -62,6 +62,7 @@ public class ClientModEvents {
         event.register(ModMenus.DISTILLER.get(), DistillerScreen::new);
         event.register(ModMenus.PSYCHOTROPE_DISTILLERY.get(), PsychotropeDistilleryScreen::new);
         event.register(ModMenus.DISTILLATE_ENGINE.get(), DistillateEngineScreen::new);
+        event.register(ModMenus.STILLHOUSE_BURNER.get(), StillhouseBurnerScreen::new);
         event.register(ModMenus.PSYCHOTROPE_RESONATOR.get(), PsychotropeResonatorScreen::new);
         event.register(ModMenus.SIEVE.get(), SieveScreen::new);
         event.register(ModMenus.ROLLER.get(), RollerScreen::new);

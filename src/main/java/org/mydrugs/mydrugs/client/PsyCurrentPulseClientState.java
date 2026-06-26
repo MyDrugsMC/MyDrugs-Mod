@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Animates short particle trails from a Distillate Engine to each Psy Current target while the
+ * Animates short particle trails from a Psychotrope Engine to each Psy Current target while the
  * engine is actively transferring. Pulses are queued by {@code DistillateEnginePulsePayload} and
  * tick out client-side, so the server only emits one packet per pulse — never one packet per
  * particle.

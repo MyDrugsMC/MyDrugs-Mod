@@ -6,11 +6,11 @@
   },
   "output_1": {
     "fluid": "mydrugs:low_wines",
-    "amount": 250
+    "amount": 500
   },
   "output_2": {
     "fluid": "mydrugs:stillage",
-    "amount": 750
+    "amount": 500
   },
   "base_ticks": 200
 }

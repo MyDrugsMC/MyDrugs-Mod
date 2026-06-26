@@ -10,11 +10,14 @@ import org.mydrugs.mydrugs.blocks.entity.AutoclaveBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.BacterialIncubatorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.ChemicalReactorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.DistillateEngineBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.FluidPumpBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.GeneExtractorBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.HemogenicInfuserBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.CrisprCas9CombinatorBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.MixingVatBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.PsychotropeDistilleryBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.StompCrafterBlockEntity;
 import org.mydrugs.mydrugs.menu.AromaticExtractorMenu;
 import org.mydrugs.mydrugs.menu.BTXFractionationTowerMenu;
 import org.mydrugs.mydrugs.menu.BiochemicalReactorMenu;
@@ -39,8 +42,11 @@ public final class MachineTransferSpecs {
     private static final Set<MachineLocalSide> INPUT_DEFAULT = EnumSet.of(MachineLocalSide.LEFT);
     private static final Set<MachineLocalSide> SECONDARY_INPUT_DEFAULT = EnumSet.of(MachineLocalSide.BACK);
     private static final Set<MachineLocalSide> OUTPUT_DEFAULT = EnumSet.of(MachineLocalSide.RIGHT);
+    private static final Set<MachineLocalSide> FRONT_OUTPUT_DEFAULT = EnumSet.of(MachineLocalSide.FRONT);
     private static final Set<MachineLocalSide> TOP_INPUT_DEFAULT = EnumSet.of(MachineLocalSide.TOP);
+    private static final Set<MachineLocalSide> TOP_OUTPUT_DEFAULT = EnumSet.of(MachineLocalSide.TOP);
     private static final Set<MachineLocalSide> BOTTOM_OUTPUT_DEFAULT = EnumSet.of(MachineLocalSide.BOTTOM);
+    private static final Set<MachineLocalSide> ANY_INPUT_DEFAULT = EnumSet.allOf(MachineLocalSide.class);
 
     private MachineTransferSpecs() {
     }
@@ -67,13 +73,34 @@ public final class MachineTransferSpecs {
         }
         if (type == ModBlockEntities.DISTILLER.get()) {
             return spec(
-                    itemIn("input_container", 0, DistillerMenu.INPUT_CONTAINER_SLOT, INPUT_DEFAULT),
-                    itemOut("output_a_container", 1, DistillerMenu.OUTPUT_A_CONTAINER_SLOT, OUTPUT_DEFAULT),
-                    itemOut("output_b_container", 2, DistillerMenu.OUTPUT_B_CONTAINER_SLOT, OUTPUT_DEFAULT),
+                    itemIn("input_container", 0, DistillerMenu.INPUT_CONTAINER_SLOT, TOP_INPUT_DEFAULT),
+                    itemOut("output_a_container", 1, DistillerMenu.OUTPUT_A_CONTAINER_SLOT, FRONT_OUTPUT_DEFAULT),
+                    itemOut("output_b_container", 2, DistillerMenu.OUTPUT_B_CONTAINER_SLOT, FRONT_OUTPUT_DEFAULT),
                     fluidIn("fluid_input", 3, 0, INPUT_DEFAULT),
                     fluidOut("fluid_output_a", 4, 1, OUTPUT_DEFAULT),
-                    fluidOut("fluid_output_b", 5, 2, OUTPUT_DEFAULT)
+                    fluidOut("fluid_output_b", 5, 2, SECONDARY_INPUT_DEFAULT)
             );
+        }
+        if (type == ModBlockEntities.MIXING_VAT.get()) {
+            return spec(
+                    itemIn("mixing_vat_item_input_1", 0, 0, TOP_INPUT_DEFAULT),
+                    itemIn("mixing_vat_item_input_2", 1, 1, TOP_INPUT_DEFAULT),
+                    itemIn("mixing_vat_item_input_3", 2, 2, TOP_INPUT_DEFAULT),
+                    itemIn("mixing_vat_item_input_4", 3, 3, TOP_INPUT_DEFAULT),
+                    itemOut("mixing_vat_item_output", 4, MixingVatBlockEntity.MAX_ITEM_TYPES, OUTPUT_DEFAULT),
+                    fluidIn("mixing_vat_fluid_input_a", 5, 0, INPUT_DEFAULT),
+                    fluidIn("mixing_vat_fluid_input_b", 6, 1, SECONDARY_INPUT_DEFAULT),
+                    fluidOut("mixing_vat_fluid_output", 7, 2, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.STOMP_CRAFTER.get()) {
+            return spec(
+                    itemIn("stomp_crafter_input", 0, StompCrafterBlockEntity.INPUT_SLOT, TOP_INPUT_DEFAULT),
+                    itemOut("stomp_crafter_output", 1, StompCrafterBlockEntity.OUTPUT_SLOT, OUTPUT_DEFAULT)
+            );
+        }
+        if (type == ModBlockEntities.FLUID_PUMP.get()) {
+            return spec(fluidOut("fluid_pump_output", 0, FluidPumpBlockEntity.OUTPUT_TANK, TOP_OUTPUT_DEFAULT));
         }
         if (type == ModBlockEntities.PSYCHOTROPE_DISTILLERY.get()) {
             return spec(
@@ -90,6 +117,9 @@ public final class MachineTransferSpecs {
                     itemIn("current_regulator", 1, DistillateEngineBlockEntity.SLOT_REGULATOR, TOP_INPUT_DEFAULT),
                     itemOut("engine_waste", 2, DistillateEngineBlockEntity.SLOT_WASTE_OUTPUT, OUTPUT_DEFAULT)
             );
+        }
+        if (type == ModBlockEntities.STILLHOUSE_BURNER.get()) {
+            return spec(fluidIn("stillhouse_fuel", 0, 0, ANY_INPUT_DEFAULT));
         }
         if (type == ModBlockEntities.SIEVE.get()) {
             return spec(

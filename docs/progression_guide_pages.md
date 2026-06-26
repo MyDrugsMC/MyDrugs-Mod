@@ -919,17 +919,17 @@ Automation: Route extract and residue to different storage so fuel work does not
 See also: Psy Current, Psychotrope Resonator.
 
 @item mydrugs:distillate_engine
-## Distillate Engine
+## Psychotrope Engine
 
 Era: Psy Current Era.
 
-Purpose: Converts valid distillate fuels into Psy Current for nearby compatible machines.
+Purpose: Converts psychotrope fuel items into Psy Current for nearby compatible machines at larger scale.
 
-Handles: Fuel item or fuel fluid, internal Psy Current storage, strain, nearby machine targets.
+Handles: Fuel items, internal Psy Current storage, strain, nearby machine targets, regulators and vents.
 
 Common blockers: No valid fuel, no valid targets in range, target buffers full, strain too high, overload cooldown.
 
-Automation: Keep the engine near compatible machines and use inspection or transfer tools to understand what it can reach.
+Automation: Use it after the Stillhouse Burner when you need wider range, larger buffers, strain-bearing throughput, and general Psy Current infrastructure.
 
 See also: Psy Current, Pipes and Transfer, Recovery Basics.
 
@@ -1177,19 +1177,29 @@ SUPPORT
 
 Pillars: Production · Risk
 
-Coca and lab chemistry both run on absolute ethanol. Make it before chapter 8.
+Coca and lab chemistry both run on alcohol processing. First batches teach the route by hand; steel machines, Automation Upgrades, pipes, and the Stillhouse Burner turn it into the first factory project.
 
 @item mydrugs:low_wines_bucket
 @item mydrugs:raw_alcohol_bucket
 @item mydrugs:ethanol_bucket
 @item mydrugs:absolute_ethanol_bucket
+@item mydrugs:fusel_oil_bucket
+@item mydrugs:stillage_bucket
 @item mydrugs:distiller
+@item mydrugs:automation_upgrade
+@item mydrugs:stillhouse_burner
 
-Distill fermented mash up the chain: fermented mash → low wines → raw alcohol → ethanol. Mix ethanol with salt powder for absolute ethanol.
+Fermented mash is the biological starting material. Low wines are the first concentrated distillate. Raw alcohol is further-refined spirit. Ethanol is a general solvent and Stillhouse Burner fuel. Absolute ethanol is dried high-purity solvent for sensitive chemistry such as diethylamine.
+
+Stillage is biomass-rich residue. Wastewater is a recoverable processing byproduct. Fusel oil is a low-grade combustible byproduct and the first fuel to try in the Stillhouse Burner.
+
+Plain ethanol now has real uses: it fuels local stillhouse automation, helps with early solvent mixing, and bridges toward absolute ethanol. Absolute ethanol still matters for stricter stimulant and lab chains.
 
 > [WARN] Coca stalls immediately if you try to run it on normal ethanol. The route wants absolute ethanol.
 
-> [GOAL] Keep a steady supply of absolute ethanol.
+> [WARN] Install Automation Upgrades on the Basic Mixing Vat and Distiller, then feed a nearby Stillhouse Burner with fusel oil, raw alcohol, or ethanol.
+
+> [GOAL] Keep a steady supply of ethanol, absolute ethanol, and useful alcohol byproducts.
 ---
 
 # Cocaine and Crack
@@ -1755,6 +1765,7 @@ Pillars: Production
 
 @item mydrugs:psychotrope_distillery
 @item mydrugs:distillate_engine
+@item mydrugs:stillhouse_burner
 @item mydrugs:lucid_extract
 @item mydrugs:calming_resin
 @item mydrugs:redline_fuel
@@ -1763,7 +1774,7 @@ Pillars: Production
 @item mydrugs:current_regulator
 @item mydrugs:strain_vent
 
-The Psychotrope Distillery turns substance products into industrial extracts. The Distillate Engine burns compatible extracts into Psy Current for nearby machine automation.
+The Stillhouse Burner is machine-era infrastructure for local alcohol automation: low output, fluid-fueled, and limited to nearby stillhouse machines. The Psychotrope Engine burns psychotrope fuel items for larger Psy Current infrastructure with strain, overload, regulators and vents.
 
 Psy Current is factory support, not healing. It powers compatible machines and can build strain if pushed too hard.
 

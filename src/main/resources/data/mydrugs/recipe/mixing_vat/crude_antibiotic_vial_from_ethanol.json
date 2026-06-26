@@ -1,0 +1,14 @@
+{
+  "type": "mydrugs:mixing_vat",
+  "item_1": "mydrugs:antibiotic_crystals",
+  "item_2": "minecraft:glass_bottle",
+  "fluid_input_1": {
+    "fluid": "mydrugs:ethanol",
+    "amount": 200
+  },
+  "result_item": {
+    "id": "mydrugs:crude_antibiotic_vial",
+    "count": 1
+  },
+  "required_stirs": 6
+}

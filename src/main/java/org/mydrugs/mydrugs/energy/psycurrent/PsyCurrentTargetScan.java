@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import java.util.List;
 
 /**
- * Server-computed summary of every Psy Current candidate around a Distillate Engine. Used by the
+ * Server-computed summary of every Psy Current candidate around a Psychotrope Engine. Used by the
  * engine GUI to show target counts, by the area preview to color each block, and by the inspection
  * tool to report network health.
  *

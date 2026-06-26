@@ -392,7 +392,7 @@ public class Config {
                     .comment("Allow the Psy Receptacle recovery (rebind) ritual. Disable to remove the survival rebind path for the receptacle specifically; the wire ritual stays available.")
                     .define("allowBrokenReceptacle", true);
             allowDreamResidueAsEngineFuel = builder
-                    .comment("Allow Dream Residue and Mycelial Insight to be burned as Distillate Engine fuel. Default false: psychedelic materials belong to integration, not factory power.")
+                    .comment("Allow Dream Residue and Mycelial Insight to be burned as Psychotrope Engine fuel. Default false: psychedelic materials belong to integration, not factory power.")
                     .define("allowDreamResidueAsEngineFuel", false);
             builder.pop();
 

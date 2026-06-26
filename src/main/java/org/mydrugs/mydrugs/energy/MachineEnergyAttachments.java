@@ -4,7 +4,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.DistillerBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.FluidFiltererBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.FluidPumpBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.MixingVatBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.SieveBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.StompCrafterBlockEntity;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachments;
@@ -24,8 +26,10 @@ public final class MachineEnergyAttachments {
     public static boolean supportsAutomationUpgrade(BlockEntity blockEntity) {
         return blockEntity instanceof SieveBlockEntity
                 || blockEntity instanceof DistillerBlockEntity
+                || blockEntity instanceof MixingVatBlockEntity
                 || blockEntity instanceof FluidFiltererBlockEntity
-                || blockEntity instanceof FluidPumpBlockEntity;
+                || blockEntity instanceof FluidPumpBlockEntity
+                || blockEntity instanceof StompCrafterBlockEntity;
     }
 
     public static boolean hasEnergyStorage(BlockEntity blockEntity) {
@@ -50,6 +54,25 @@ public final class MachineEnergyAttachments {
         boolean changed = get(blockEntity).installAutomationUpgrade();
         if (changed) {
             MachineSync.syncAndInvalidateCaps(blockEntity);
+            MachineTransferAttachments.markCapabilityChanged(blockEntity);
+        }
+        return changed;
+    }
+
+    public static boolean removeEnergyUpgrade(BlockEntity blockEntity) {
+        boolean changed = get(blockEntity).removeEnergyUpgrade();
+        if (changed) {
+            MachineSync.syncAndInvalidateCaps(blockEntity);
+            MachineTransferAttachments.markCapabilityChanged(blockEntity);
+        }
+        return changed;
+    }
+
+    public static boolean removeAutomationUpgrade(BlockEntity blockEntity) {
+        boolean changed = get(blockEntity).removeAutomationUpgrade();
+        if (changed) {
+            MachineSync.syncAndInvalidateCaps(blockEntity);
+            MachineTransferAttachments.markCapabilityChanged(blockEntity);
         }
         return changed;
     }

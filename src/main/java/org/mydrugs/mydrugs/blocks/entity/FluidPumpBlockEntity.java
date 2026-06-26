@@ -19,6 +19,7 @@ import org.mydrugs.mydrugs.blocks.ModBlockEntities;
 import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 
 public class FluidPumpBlockEntity extends BlockEntity {
+    public static final int OUTPUT_TANK = 0;
     private static final int MAX_MANUAL_CREDIT = 5000;
 
     /** Sentinel meaning "no crank turn has ever happened on this BE". */
@@ -123,7 +124,7 @@ public class FluidPumpBlockEntity extends BlockEntity {
             return false;
         }
 
-        return this.manualCredit < MAX_MANUAL_CREDIT || this.tryPushUp(level, 1, true) > 0;
+        return this.tryPushUp(level, 1, true) > 0 || this.manualCredit < MAX_MANUAL_CREDIT;
     }
 
     private int tryPushUp(ServerLevel level, int amount, boolean simulate) {

@@ -30,6 +30,9 @@ public class ModMenus {
     public static final Supplier<MenuType<DistillateEngineMenu>> DISTILLATE_ENGINE =
             MENUS.register("distillate_engine", () -> new MenuType<>(DistillateEngineMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
+    public static final Supplier<MenuType<StillhouseBurnerMenu>> STILLHOUSE_BURNER =
+            MENUS.register("stillhouse_burner", () -> new MenuType<>(StillhouseBurnerMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
     public static final Supplier<MenuType<PsychotropeResonatorMenu>> PSYCHOTROPE_RESONATOR =
             MENUS.register("psychotrope_resonator", () -> new MenuType<>(PsychotropeResonatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
 

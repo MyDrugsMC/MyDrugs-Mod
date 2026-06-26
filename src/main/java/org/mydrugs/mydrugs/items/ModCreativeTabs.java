@@ -68,6 +68,7 @@ public final class ModCreativeTabs {
             ModBlocks.ADVANCED_MIXING_VAT_ITEM,
             ModBlocks.ADVANCED_FURNACE_ITEM,
             ModBlocks.DISTILLER_ITEM,
+            ModBlocks.COPPER_DRUM_ITEM,
             ModBlocks.REDUCTION_STILL_ITEM,
             ModBlocks.CENTRIFUGE_ITEM,
             ModBlocks.FLUID_FILTERER_ITEM,

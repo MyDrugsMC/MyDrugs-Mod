@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Client state for the Distillate Engine "show area" preview.
+ * Client state for the Psychotrope Engine "show area" preview.
  *
  * <p>Each entry is a TTL'd particle outline at a known engine position, plus the per-category
  * target lists the server captured when the preview started. The cube outline tells the player

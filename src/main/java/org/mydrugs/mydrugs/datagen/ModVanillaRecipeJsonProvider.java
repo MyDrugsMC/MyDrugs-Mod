@@ -70,19 +70,37 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                 Map.of(
                         "R", "minecraft:redstone",
                         "G", "minecraft:gold_ingot",
-                        "P", "mydrugs:platinum_ingot",
-                        "C", "mydrugs:reaction_core"
+                        "P", "mydrugs:activated_coal",
+                        "C", "mydrugs:charged_sinew"
                 ),
                 "mydrugs:energy_upgrade", 1);
         saveShaped(futures, cachedOutput, "automation_upgrade",
-                List.of(" A ", "PEP", " R "),
+                List.of(" C ", "RAR", " C "),
                 Map.of(
-                        "A", "mydrugs:agitator",
-                        "P", "mydrugs:aluminium_ingot",
-                        "E", "mydrugs:energy_upgrade",
+                        "A", "mydrugs:hand_crank",
+                        "C", "minecraft:copper_ingot",
                         "R", "minecraft:redstone"
                 ),
                 "mydrugs:automation_upgrade", 1);
+        saveShaped(futures, cachedOutput, "copper_drum",
+                List.of("C C", "CBC", "CGC"),
+                Map.of(
+                        "C", "minecraft:copper_ingot",
+                        "B", "minecraft:barrel",
+                        "G", "mydrugs:thick_glass"
+                ),
+                itemId(ModBlocks.COPPER_DRUM.get()), 1);
+        saveShaped(futures, cachedOutput, "stillhouse_burner",
+                List.of("BIB", "TFT", "RCR"),
+                Map.of(
+                        "B", "mydrugs:refractory_brick",
+                        "C", "mydrugs:copper_tube",
+                        "T", "minecraft:copper_ingot",
+                        "F", "mydrugs:mechanical_frame",
+                        "I", "minecraft:iron_ingot",
+                        "R", "minecraft:redstone"
+                ),
+                itemId(ModBlocks.STILLHOUSE_BURNER.get()), 1);
         saveShaped(futures, cachedOutput, "psy_blueprint",
                 List.of("V", "P", "V"),
                 Map.of(

@@ -50,13 +50,12 @@ import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerFluidStack;
 import org.mydrugs.mydrugs.recipes.distiller.DistillerRecipe;
 
-import java.util.ArrayDeque;
 import java.util.Optional;
 
 public class DistillerBlockEntity extends BaseContainerBlockEntity implements DistillerMenu.DistillerButtonHandler, MachineStatusProvider {
     public static final int FLUID_CAPACITY = 4000;
+    private static final int CRANK_HEARTBEAT_TIMEOUT_TICKS = 8;
 
-    private final ArrayDeque<Long> recentClicks = new ArrayDeque<>();
     private final LockedTransferSlots inputTransferLocks = new LockedTransferSlots(1);
     private final StoredFluidTank inputTank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
     private final StoredFluidTank outputATank = new StoredFluidTank(FLUID_CAPACITY, this::sync);
@@ -64,9 +63,10 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
     private NonNullList<ItemStack> buckets = NonNullList.withSize(3, ItemStack.EMPTY);
     private int progress = 0;
     private int maxProgress = 200;
-    private int clicksPerSec = 0;
+    private int crankTimeoutTicks = 0;
     private int speedPercent = 0;
     private float manualSpeedMultiplier = 1.0F;
+    private double manualProgressRemainder = 0.0D;
     private MachineStatus machineStatus = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
@@ -78,7 +78,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
                 case 2 -> outputBTank.getAmount();
                 case 3 -> progress;
                 case 4 -> maxProgress;
-                case 5 -> clicksPerSec;
+                case 5 -> isCranking() ? 1 : 0;
                 case 6 -> speedPercent;
                 case 7 -> inputTank.encodeFluidSyncId();
                 case 8 -> outputATank.encodeFluidSyncId();
@@ -95,7 +95,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             switch (index) {
                 case 3 -> progress = value;
                 case 4 -> maxProgress = value;
-                case 5 -> clicksPerSec = value;
+                case 5 -> crankTimeoutTicks = value > 0 ? CRANK_HEARTBEAT_TIMEOUT_TICKS : 0;
                 case 6 -> speedPercent = value;
                 default -> {
                     // client-only sync fields
@@ -120,7 +120,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         boolean changed = false;
 
-        int oldCps = be.clicksPerSec;
+        boolean wasCranking = be.isCranking();
         int oldSpeed = be.speedPercent;
         int oldProgress = be.progress;
         int oldMaxProgress = be.maxProgress;
@@ -151,9 +151,10 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             changed = true;
         }
 
-        be.refreshClickStats(level.getGameTime());
+        be.tickCrankTimeout();
+        be.refreshManualStats();
 
-        if (be.clicksPerSec != oldCps || be.speedPercent != oldSpeed) {
+        if (be.isCranking() != wasCranking || be.speedPercent != oldSpeed) {
             changed = true;
         }
 
@@ -191,7 +192,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
             return;
         }
 
-        int progressPerTick = be.getProgressPerTickFromCps();
+        int progressPerTick = be.getManualProgressPerTick();
         if (PsyCurrentMachines.tryUseAutomationCurrentTick(be)) {
             progressPerTick += 1;
         }
@@ -349,10 +350,10 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 200);
 
-        this.clicksPerSec = 0;
         this.speedPercent = 0;
         this.manualSpeedMultiplier = 1.0F;
-        this.recentClicks.clear();
+        this.crankTimeoutTicks = 0;
+        this.manualProgressRemainder = input.getDoubleOr("ManualProgressRemainder", 0.0D);
         this.inputTransferLocks.resetAll();
     }
 
@@ -367,6 +368,7 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         output.putInt("Progress", this.progress);
         output.putInt("MaxProgress", this.maxProgress);
+        output.putDouble("ManualProgressRemainder", this.manualProgressRemainder);
     }
 
     @Override
@@ -377,12 +379,11 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
 
         return switch (buttonId) {
             case DistillerMenu.RUN_BUTTON_ID -> {
-                long now = this.level.getGameTime();
                 this.manualSpeedMultiplier = player instanceof ServerPlayer serverPlayer
                         ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.DISTILLER)
                         : 1.0F;
-                this.recentClicks.addLast(now);
-                refreshClickStats(now);
+                this.crankTimeoutTicks = CRANK_HEARTBEAT_TIMEOUT_TICKS;
+                refreshManualStats();
                 sync();
                 yield true;
             }
@@ -574,25 +575,30 @@ public class DistillerBlockEntity extends BaseContainerBlockEntity implements Di
         );
     }
 
-    private void refreshClickStats(long now) {
-        while (!this.recentClicks.isEmpty() && now - this.recentClicks.peekFirst() >= 20) {
-            this.recentClicks.removeFirst();
+    private void tickCrankTimeout() {
+        if (this.crankTimeoutTicks > 0) {
+            this.crankTimeoutTicks--;
         }
-
-        this.clicksPerSec = this.recentClicks.size();
-        this.speedPercent = Math.round(computeSpeedPercent(this.clicksPerSec) * this.manualSpeedMultiplier);
     }
 
-    private int computeSpeedPercent(int cps) {
-        if (cps <= 5) {
+    private boolean isCranking() {
+        return this.crankTimeoutTicks > 0;
+    }
+
+    private void refreshManualStats() {
+        this.speedPercent = this.isCranking() ? Math.round(this.manualSpeedMultiplier * 100.0F) : 0;
+    }
+
+    private int getManualProgressPerTick() {
+        if (!this.isCranking()) {
             return 0;
         }
-
-        return Math.min(500, 100 + (cps - 6) * 25);
-    }
-
-    private int getProgressPerTickFromCps() {
-        return this.clicksPerSec <= 5 ? 0 : Math.max(1, Math.round((this.clicksPerSec - 5) * this.manualSpeedMultiplier));
+        this.manualProgressRemainder += this.manualSpeedMultiplier;
+        int whole = (int) this.manualProgressRemainder;
+        if (whole > 0) {
+            this.manualProgressRemainder -= whole;
+        }
+        return whole;
     }
 
     private void sync() {

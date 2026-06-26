@@ -1,6 +1,7 @@
 package org.mydrugs.mydrugs.menu.client;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
@@ -17,6 +18,8 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
     private InvisibleButton dumpInputButton;
     private InvisibleButton dumpOutputAButton;
     private InvisibleButton dumpOutputBButton;
+    private boolean holdingRunButton;
+    private int heartbeatCooldown;
 
     public DistillerScreen(DistillerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, DistillerLayout.GUI_WIDTH, DistillerLayout.GUI_HEIGHT);
@@ -82,8 +85,10 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
                         this.menu.getOutputBTankAmount() > 0,
                         this.runButton != null && this.runButton.isHoveredOrFocused(),
                         this.menu.isWorking(),
-                        this.menu.getClicksPerSecond() > 5,
-                        this.menu.getClicksPerSecond() + " CPS",
+                        this.menu.isCranking(),
+                        this.menu.isCranking()
+                                ? Component.translatable("screen.mydrugs.ui.manual_crank_active").getString()
+                                : Component.translatable("screen.mydrugs.ui.manual_crank_inactive").getString(),
                         this.menu.getSpeedPercent() + "% speed"
                 ),
                 true
@@ -172,10 +177,55 @@ public class DistillerScreen extends AbstractMachineScreen<DistillerMenu> {
                     graphics,
                     mouseX,
                     mouseY,
-                    Component.translatable("screen.mydrugs.ui.run_distiller"),
-                    Component.translatable("screen.mydrugs.ui.more_than_5_cps_increases_speed")
+                    Component.translatable("screen.mydrugs.ui.hold_to_crank"),
+                    Component.translatable("screen.mydrugs.ui.manual_speed_percent", this.menu.getSpeedPercent())
             );
         }
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        if (!this.holdingRunButton) {
+            return;
+        }
+        if (this.heartbeatCooldown-- <= 0) {
+            pressMenuButton(DistillerMenu.RUN_BUTTON_ID);
+            this.heartbeatCooldown = 3;
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClicked) {
+        if (event.button() == 0 && isHoveringBox(
+                DistillerLayout.RUN_BUTTON_X,
+                DistillerLayout.RUN_BUTTON_Y,
+                DistillerLayout.RUN_BUTTON_SIZE,
+                DistillerLayout.RUN_BUTTON_SIZE,
+                event.x(),
+                event.y()
+        )) {
+            this.holdingRunButton = true;
+            this.heartbeatCooldown = 0;
+            pressMenuButton(DistillerMenu.RUN_BUTTON_ID);
+            return true;
+        }
+        return super.mouseClicked(event, doubleClicked);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.holdingRunButton) {
+            this.holdingRunButton = false;
+            return true;
+        }
+        return super.mouseReleased(event);
+    }
+
+    @Override
+    public void removed() {
+        this.holdingRunButton = false;
+        super.removed();
     }
 
     private void drawReactor(GuiGraphics graphics, int localX, int localY, boolean hovered, boolean working, boolean boosted) {

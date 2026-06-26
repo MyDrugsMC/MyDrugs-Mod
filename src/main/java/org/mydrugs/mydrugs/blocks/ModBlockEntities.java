@@ -75,6 +75,26 @@ public final class ModBlockEntities {
                     )
             );
 
+    public static final Supplier<BlockEntityType<StillhouseBurnerBlockEntity>> STILLHOUSE_BURNER =
+            BLOCK_ENTITY_TYPES.register(
+                    "stillhouse_burner",
+                    () -> new BlockEntityType<>(
+                            StillhouseBurnerBlockEntity::new,
+                            false,
+                            ModBlocks.STILLHOUSE_BURNER.get()
+                    )
+            );
+
+    public static final Supplier<BlockEntityType<CopperDrumBlockEntity>> COPPER_DRUM =
+            BLOCK_ENTITY_TYPES.register(
+                    "copper_drum",
+                    () -> new BlockEntityType<>(
+                            CopperDrumBlockEntity::new,
+                            false,
+                            ModBlocks.COPPER_DRUM.get()
+                    )
+            );
+
     public static final Supplier<BlockEntityType<PsychotropeResonatorBlockEntity>> PSYCHOTROPE_RESONATOR =
             BLOCK_ENTITY_TYPES.register(
                     "psychotrope_resonator",

@@ -11,7 +11,7 @@ import org.mydrugs.mydrugs.MyDrugs;
 import java.util.List;
 
 /**
- * Server -> client: tell tracking clients a Distillate Engine just pushed Psy Current to a set of
+ * Server -> client: tell tracking clients a Psychotrope Engine just pushed Psy Current to a set of
  * targets. The client animates a brief trail along each engine->target line, color-modulated by
  * the strain bucket so the player can feel the engine getting jagged as it approaches overload.
  */

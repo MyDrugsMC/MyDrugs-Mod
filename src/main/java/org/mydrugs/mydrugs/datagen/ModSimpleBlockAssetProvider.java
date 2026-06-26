@@ -48,6 +48,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveCubeAllBlock(futures, cachedOutput, "deepslate_sulfur_ore");
         saveCubeAllBlock(futures, cachedOutput, "salt_block");
         saveCubeAllBlock(futures, cachedOutput, "treated_planks");
+        saveCubeAllBlockWithTexture(futures, cachedOutput, "copper_drum", "minecraft:block/copper_block");
         saveGasTankBlock(futures, cachedOutput);
         saveCubeAllBlockWithTexture(futures, cachedOutput, "mechanical_frame", MyDrugs.MODID + ":block/mechanical_frame");
         saveCubeAllBlockWithTexture(futures, cachedOutput, "recovery_anchor", MyDrugs.MODID + ":block/recovery_anchor");
@@ -79,6 +80,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveHorizontalBlockState(futures, cachedOutput, "centrifuge");
         saveHorizontalBlockState(futures, cachedOutput, "psychotrope_distillery");
         saveHorizontalBlockState(futures, cachedOutput, "distillate_engine");
+        saveHorizontalBlockState(futures, cachedOutput, "stillhouse_burner");
         saveHorizontalBlockState(futures, cachedOutput, "psychotrope_resonator");
         saveHorizontalBlockState(futures, cachedOutput, "drying_rack");
         saveHorizontalBlockState(futures, cachedOutput, "reduction_still");
@@ -106,6 +108,8 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
                 textures("top", "psychotrope_distillery_top", "front", "psychotrope_distillery_front", "side", "psychotrope_distillery_side", "bottom", "psychotrope_distillery_bottom"));
         saveOrientableBlock(futures, cachedOutput, "distillate_engine", "minecraft:block/orientable_with_bottom",
                 textures("top", "distillate_engine_top", "front", "distillate_engine_front", "side", "distillate_engine_side", "bottom", "distillate_engine_bottom"));
+        saveOrientableBlock(futures, cachedOutput, "stillhouse_burner", "minecraft:block/cube_all",
+                textures("all", "distiller", "particle", "distiller"));
         saveOrientableBlock(futures, cachedOutput, "psychotrope_resonator", "minecraft:block/cube_all",
                 textures("all", "psychotrope_resonator", "particle", "psychotrope_resonator"));
         saveOrientableBlock(futures, cachedOutput, "electrolyzer", "minecraft:block/orientable_with_bottom",
@@ -137,6 +141,7 @@ public class ModSimpleBlockAssetProvider implements DataProvider {
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_distillery");
         saveBlockItemViaBlockModel(futures, cachedOutput, "distiller");
         saveBlockItemViaBlockModel(futures, cachedOutput, "distillate_engine");
+        saveBlockItemViaBlockModel(futures, cachedOutput, "stillhouse_burner");
         saveBlockItemViaBlockModel(futures, cachedOutput, "psychotrope_resonator");
         saveBlockItemViaBlockModel(futures, cachedOutput, "drying_rack");
         saveBlockItemViaBlockModel(futures, cachedOutput, "reduction_still");

@@ -50,6 +50,12 @@ public final class ServerModEvents {
         );
 
         event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                ModBlockEntities.COPPER_DRUM.get(),
+                (blockEntity, side) -> blockEntity.getFluidHandler(side)
+        );
+
+        event.registerBlockEntity(
                 Capabilities.Item.BLOCK,
                 ModBlockEntities.ADVANCED_FURNACE.get(),
                 (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)
@@ -59,6 +65,26 @@ public final class ServerModEvents {
                 Capabilities.Item.BLOCK,
                 ModBlockEntities.DISTILLER.get(),
                 (blockEntity, side) -> MachineTransferResourceHandlers.itemContainer(blockEntity, blockEntity, side)
+        );
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                ModBlockEntities.MIXING_VAT.get(),
+                (blockEntity, side) -> MachineTransferResourceHandlers.restricted(
+                        blockEntity,
+                        MachineTransferResourceKind.ITEM,
+                        side,
+                        blockEntity.getItemCapability(side)
+                )
+        );
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                ModBlockEntities.STOMP_CRAFTER.get(),
+                (blockEntity, side) -> MachineTransferResourceHandlers.restricted(
+                        blockEntity,
+                        MachineTransferResourceKind.ITEM,
+                        side,
+                        blockEntity.getItemCapability(side)
+                )
         );
 
         event.registerBlockEntity(
@@ -170,6 +196,16 @@ public final class ServerModEvents {
         event.registerBlockEntity(
                 Capabilities.Fluid.BLOCK,
                 ModBlockEntities.DISTILLER.get(),
+                (be, side) -> MachineTransferResourceHandlers.restricted(be, MachineTransferResourceKind.FLUID, side, be.getFluidHandler(side))
+        );
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                ModBlockEntities.MIXING_VAT.get(),
+                (be, side) -> MachineTransferResourceHandlers.restricted(be, MachineTransferResourceKind.FLUID, side, be.getFluidCapability(side))
+        );
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                ModBlockEntities.STILLHOUSE_BURNER.get(),
                 (be, side) -> MachineTransferResourceHandlers.restricted(be, MachineTransferResourceKind.FLUID, side, be.getFluidHandler(side))
         );
         event.registerBlockEntity(

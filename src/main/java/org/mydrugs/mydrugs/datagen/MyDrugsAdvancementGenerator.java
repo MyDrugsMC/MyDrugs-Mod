@@ -181,10 +181,12 @@ public final class MyDrugsAdvancementGenerator {
         inventoryAny("logistics/fast_pipe", "logistics/basic_gas_pipe", item("fast_item_pipe"), recipes("fast_item_pipe", "fast_fluid_pipe", "fast_gas_pipe"), item("fast_item_pipe"), item("fast_fluid_pipe"), item("fast_gas_pipe"));
         inventory("logistics/pipe_wrench", "logistics/basic_item_pipe", item("pipe_wrench"), item("pipe_wrench"));
         inventory("logistics/filter_upgrade", "logistics/pipe_wrench", item("pipe_filter_upgrade"), item("pipe_filter_upgrade"));
-        inventory("logistics/machine_transfer_upgrade", "logistics/filter_upgrade", item("machine_transfer_upgrade"), item("machine_transfer_upgrade"));
-        inventoryAny("logistics/automation_upgrade", "logistics/machine_transfer_upgrade", item("automation_upgrade"), recipes("automation_upgrade"), item("automation_upgrade"));
-        inventoryAny("logistics/energy_upgrade", "logistics/automation_upgrade", item("energy_upgrade"), recipes("energy_upgrade"), item("energy_upgrade"));
+        inventoryAny("logistics/automation_upgrade", "logistics/basic_fluid_pipe", item("automation_upgrade"), recipes("automation_upgrade"), item("automation_upgrade"));
+        inventoryAny("logistics/copper_drum", "logistics/automation_upgrade", item("copper_drum"), recipes("copper_drum"), item("copper_drum"));
+        placedAny("logistics/stillhouse_burner", "logistics/automation_upgrade", item("stillhouse_burner"), recipes("stillhouse_burner"), block("stillhouse_burner"));
+        inventoryAny("logistics/energy_upgrade", "logistics/stillhouse_burner", item("energy_upgrade"), recipes("energy_upgrade"), item("energy_upgrade"));
         placedAny("logistics/fluid_pump", "logistics/basic_fluid_pipe", item("fluid_pump"), recipes("fluid_pump"), block("fluid_pump"));
+        inventory("logistics/machine_transfer_upgrade", "logistics/filter_upgrade", item("machine_transfer_upgrade"), item("machine_transfer_upgrade"));
     }
 
     private void psychotrope() {
@@ -224,7 +226,7 @@ public final class MyDrugsAdvancementGenerator {
         inventoryAll("challenges/complete_recovery_branch", "recovery/safe_zone", item("recovery_anchor"), "goal",
                 item("personal_diary"), item("headphones"), item("herbal_tea"), item("calming_mixture"), item("sleeping_aid"), item("overdose_antidote"), item("recovery_anchor"));
         inventoryAll("challenges/complete_logistics_branch", "logistics/energy_upgrade", item("automation_upgrade"), "goal",
-                item("basic_item_pipe"), item("basic_fluid_pipe"), item("basic_gas_pipe"), item("pipe_wrench"), item("pipe_filter_upgrade"), item("machine_transfer_upgrade"), item("automation_upgrade"), item("energy_upgrade"));
+                item("basic_item_pipe"), item("basic_fluid_pipe"), item("basic_gas_pipe"), item("pipe_wrench"), item("pipe_filter_upgrade"), item("machine_transfer_upgrade"), item("automation_upgrade"), item("stillhouse_burner"), item("energy_upgrade"));
         inventoryAll("challenges/complete_machine_branch", "machines/all_advanced_machines", item("catalytic_reformer"), "challenge",
                 item("advanced_furnace"), item("mixing_vat"), item("distiller"), item("fluid_filterer"), item("centrifuge"), item("chemical_reactor"), item("advanced_mixing_vat"), item("electrolyzer"), item("gasifier"), item("steam_cracker"), item("aromatic_extractor"), item("btx_fractionation_tower"), item("catalytic_reformer"), item("growth_chamber"), item("biochemical_reactor"));
         drugAllCategories("challenges/consume_all_categories", "knowledge/first_nicotinic", item("joint"));

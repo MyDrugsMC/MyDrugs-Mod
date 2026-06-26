@@ -28,14 +28,27 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.items.bottle.GlassBottleItem;
 import org.mydrugs.mydrugs.items.ModItems;
 import org.mydrugs.mydrugs.fluids.ModFluids;
+import org.mydrugs.mydrugs.machine.MachineStatus;
+import org.mydrugs.mydrugs.machine.MachineStatusProvider;
+import org.mydrugs.mydrugs.machine.MachineSync;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
+import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
+import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachments;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatFluidStack;
 import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipe;
@@ -43,9 +56,10 @@ import org.mydrugs.mydrugs.recipes.mixing_vat.MixingVatRecipeInput;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-public class MixingVatBlockEntity extends BlockEntity {
+public class MixingVatBlockEntity extends BlockEntity implements MachineStatusProvider {
     public static final int MAX_ITEM_TYPES = 4;
     public static final int FLUID_CAPACITY = 4000;
     public static final int STIR_ANIMATION_TICKS = 8;
@@ -66,6 +80,8 @@ public class MixingVatBlockEntity extends BlockEntity {
     private int requiredStirs = 0;
     private int stirAnimationTicks = 0;
     private int pendingFumeTicks = 0;
+    private double fractionalWork = 0.0D;
+    private MachineStatus machineStatus = MachineStatus.IDLE;
 
     public MixingVatBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MIXING_VAT.get(), pos, state);
@@ -94,6 +110,7 @@ public class MixingVatBlockEntity extends BlockEntity {
 
         if (level instanceof ServerLevel serverLevel) {
             tickStreetCookHazard(serverLevel, pos, be);
+            be.tickAutomation(serverLevel);
         }
     }
 
@@ -181,7 +198,16 @@ public class MixingVatBlockEntity extends BlockEntity {
         return !resultItem.isEmpty() || (resultFluidId != null && resultFluidAmount > 0);
     }
 
+    private boolean hasBlockingResult() {
+        return !resultItem.isEmpty();
+    }
+
+    private boolean hasResultFluid() {
+        return resultFluidId != null && resultFluidAmount > 0;
+    }
+
     public boolean hasContentsToMix() {
+        if (hasResultFluid()) return true;
         if (getTotalInputFluidAmount() > 0) return true;
 
         for (ItemStack stack : inputItems) {
@@ -208,6 +234,10 @@ public class MixingVatBlockEntity extends BlockEntity {
         return Math.min(1.0f, elapsed / (float) STIR_ANIMATION_TICKS);
     }
 
+    public boolean isStirAnimationActive() {
+        return stirAnimationTicks > 0;
+    }
+
     public boolean isHeated() {
         if (level == null) return false;
         BlockPos below = worldPosition.below();
@@ -227,12 +257,15 @@ public class MixingVatBlockEntity extends BlockEntity {
     }
 
     private void resetMixingProgress() {
+        progress = 0;
+        maxProgress = 100;
         currentStirs = 0;
         requiredStirs = 0;
+        fractionalWork = 0.0D;
     }
 
     public boolean insertOneItem(ItemStack held) {
-        if (held.isEmpty() || hasPendingResult()) return false;
+        if (held.isEmpty() || hasBlockingResult()) return false;
 
         for (int i = 0; i < inputItems.size(); i++) {
             ItemStack existing = inputItems.get(i);
@@ -258,7 +291,7 @@ public class MixingVatBlockEntity extends BlockEntity {
     }
 
     public int insertWholeStack(ItemStack held) {
-        if (held.isEmpty() || hasPendingResult()) return 0;
+        if (held.isEmpty() || hasBlockingResult()) return 0;
 
         int inserted = 0;
         int remaining = held.getCount();
@@ -313,7 +346,31 @@ public class MixingVatBlockEntity extends BlockEntity {
             return 0;
         }
 
-        return Math.min(requestedAmount, freeSpace);
+        int insertable = Math.min(requestedAmount, freeSpace);
+        while (insertable > 0 && !canPromoteResultFluidAfterInsert(incomingId, insertable)) {
+            insertable--;
+        }
+        return insertable;
+    }
+
+    private int getSlotInsertableAmount(int slot, ResourceLocation incomingId, int requestedAmount) {
+        if (requestedAmount <= 0 || slot < 0 || slot > 1) {
+            return 0;
+        }
+
+        int existingAmount = slot == 0 ? inputFluid1Amount : inputFluid2Amount;
+        int freeSpace = FLUID_CAPACITY - getTotalInputFluidAmount();
+        if (freeSpace <= 0) {
+            return 0;
+        }
+
+        int insertable = Math.min(requestedAmount, freeSpace);
+        while (insertable > 0 && !canPromoteResultFluidAfterSlotInsert(slot, incomingId, insertable)) {
+            insertable--;
+        }
+
+        int slotCapacity = FLUID_CAPACITY - existingAmount;
+        return Math.min(insertable, slotCapacity);
     }
 
     private void addInputFluid(ResourceLocation incomingId, int amount) {
@@ -341,6 +398,65 @@ public class MixingVatBlockEntity extends BlockEntity {
             inputFluid2Id = incomingId;
             inputFluid2Amount = amount;
         }
+    }
+
+    private boolean canPromoteResultFluidAfterInsert(ResourceLocation incomingId, int incomingAmount) {
+        if (!hasResultFluid()) {
+            return true;
+        }
+
+        FluidSnapshot tank1 = new FluidSnapshot(inputFluid1Id, inputFluid1Amount);
+        FluidSnapshot tank2 = new FluidSnapshot(inputFluid2Id, inputFluid2Amount);
+
+        if (incomingAmount > 0) {
+            if (tank1.amount() > 0 && incomingId.equals(tank1.id())) {
+                tank1 = new FluidSnapshot(tank1.id(), tank1.amount() + incomingAmount);
+            } else if (tank2.amount() > 0 && incomingId.equals(tank2.id())) {
+                tank2 = new FluidSnapshot(tank2.id(), tank2.amount() + incomingAmount);
+            } else if (tank1.amount() <= 0) {
+                tank1 = new FluidSnapshot(incomingId, incomingAmount);
+            } else if (tank2.amount() <= 0) {
+                tank2 = new FluidSnapshot(incomingId, incomingAmount);
+            } else {
+                return false;
+            }
+        }
+
+        return canFitResultFluidInInputTanks(tank1, tank2);
+    }
+
+    private boolean canPromoteResultFluidAfterSlotInsert(int slot, ResourceLocation incomingId, int incomingAmount) {
+        if (!hasResultFluid()) {
+            return true;
+        }
+
+        FluidSnapshot tank1 = new FluidSnapshot(inputFluid1Id, inputFluid1Amount);
+        FluidSnapshot tank2 = new FluidSnapshot(inputFluid2Id, inputFluid2Amount);
+
+        if (incomingAmount > 0) {
+            if (slot == 0) {
+                tank1 = new FluidSnapshot(incomingId, tank1.amount() + incomingAmount);
+            } else if (slot == 1) {
+                tank2 = new FluidSnapshot(incomingId, tank2.amount() + incomingAmount);
+            } else {
+                return false;
+            }
+        }
+
+        return canFitResultFluidInInputTanks(tank1, tank2);
+    }
+
+    private boolean canFitResultFluidInInputTanks(FluidSnapshot tank1, FluidSnapshot tank2) {
+        if (!hasResultFluid()) {
+            return true;
+        }
+        if (tank1.amount() + tank2.amount() + resultFluidAmount > FLUID_CAPACITY) {
+            return false;
+        }
+        return (tank1.amount() > 0 && resultFluidId.equals(tank1.id()))
+                || (tank2.amount() > 0 && resultFluidId.equals(tank2.id()))
+                || tank1.amount() <= 0
+                || tank2.amount() <= 0;
     }
 
 
@@ -389,7 +505,7 @@ public class MixingVatBlockEntity extends BlockEntity {
     }
 
     public boolean tryInsertFluidFromHeld(Player player, InteractionHand hand, ItemStack held) {
-        if (held.isEmpty() || hasPendingResult()) return false;
+        if (held.isEmpty() || hasBlockingResult()) return false;
 
         if (player.getAbilities().instabuild && held.getItem() instanceof GlassBottleItem) {
             ResourceLocation incomingId = GlassBottleItem.getStoredFluidId(held);
@@ -617,12 +733,85 @@ public class MixingVatBlockEntity extends BlockEntity {
         return list;
     }
 
+    private List<MixingVatFluidStack> currentFluidListWithResultFluid() {
+        List<MixingVatFluidStack> list = new ArrayList<>();
+        boolean resultMerged = false;
+
+        if (inputFluid1Id != null && inputFluid1Amount > 0) {
+            int amount = inputFluid1Amount;
+            if (hasResultFluid() && resultFluidId.equals(inputFluid1Id)) {
+                amount += resultFluidAmount;
+                resultMerged = true;
+            }
+            list.add(new MixingVatFluidStack(inputFluid1Id, amount));
+        }
+
+        if (inputFluid2Id != null && inputFluid2Amount > 0) {
+            int amount = inputFluid2Amount;
+            if (!resultMerged && hasResultFluid() && resultFluidId.equals(inputFluid2Id)) {
+                amount += resultFluidAmount;
+                resultMerged = true;
+            }
+            list.add(new MixingVatFluidStack(inputFluid2Id, amount));
+        }
+
+        if (hasResultFluid() && !resultMerged) {
+            list.add(new MixingVatFluidStack(resultFluidId, resultFluidAmount));
+        }
+
+        return list;
+    }
+
     private Optional<RecipeHolder<MixingVatRecipe>> getCurrentRecipe(ServerLevel level) {
         return level.recipeAccess().getRecipeFor(
                 ModRecipeTypes.MIXING_VAT.get(),
                 new MixingVatRecipeInput(currentInputList(), currentFluidList()),
                 level
         );
+    }
+
+    private Optional<RecipeHolder<MixingVatRecipe>> getMixableRecipe(ServerLevel level) {
+        if (hasResultFluid()) {
+            return getRecipeUsingResultFluid(level);
+        }
+        return getCurrentRecipe(level);
+    }
+
+    private Optional<RecipeHolder<MixingVatRecipe>> getRecipeUsingResultFluid(ServerLevel level) {
+        if (!hasResultFluid() || !canPromoteResultFluidAfterInsert(resultFluidId, 0)) {
+            return Optional.empty();
+        }
+
+        MixingVatRecipeInput input = new MixingVatRecipeInput(currentInputList(), currentFluidListWithResultFluid());
+        for (RecipeHolder<MixingVatRecipe> holder : level.recipeAccess()
+                .recipeMap()
+                .byType(ModRecipeTypes.MIXING_VAT.get())) {
+            MixingVatRecipe recipe = holder.value();
+            if (recipeRequiresResultFluid(recipe) && recipe.matches(input, level)) {
+                return Optional.of(holder);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean recipeRequiresResultFluid(MixingVatRecipe recipe) {
+        return hasResultFluid()
+                && recipe.requiredFluids().stream().anyMatch(required -> required.fluid().equals(resultFluidId));
+    }
+
+    private boolean promoteResultFluidToInput() {
+        if (!hasResultFluid()) {
+            return true;
+        }
+        if (!canPromoteResultFluidAfterInsert(resultFluidId, 0)) {
+            return false;
+        }
+
+        addInputFluid(resultFluidId, resultFluidAmount);
+        resultFluidId = null;
+        resultFluidAmount = 0;
+        return true;
     }
 
     private void consumeOneMatchingItem(net.minecraft.world.item.crafting.Ingredient ingredient) {
@@ -692,16 +881,16 @@ public class MixingVatBlockEntity extends BlockEntity {
         );
     }
 
-    public boolean stirOnce() {
+    public boolean stirOnce(Player player) {
         if (level == null || level.isClientSide()) {
             return false;
         }
 
-        if (hasPendingResult()) {
+        if (hasBlockingResult() || isStirAnimationActive()) {
             return false;
         }
 
-        Optional<RecipeHolder<MixingVatRecipe>> recipeHolder = getCurrentRecipe((ServerLevel) level);
+        Optional<RecipeHolder<MixingVatRecipe>> recipeHolder = getMixableRecipe((ServerLevel) level);
         if (recipeHolder.isEmpty()) {
             resetMixingProgress();
             notifyUpdate();
@@ -714,18 +903,102 @@ public class MixingVatBlockEntity extends BlockEntity {
             return false;
         }
 
-        requiredStirs = recipe.requiredStirs();
-
-        currentStirs++;
-        stirAnimationTicks = STIR_ANIMATION_TICKS;
-
-        if (currentStirs >= requiredStirs) {
-            craft(recipeHolder.get());
-            currentStirs = 0;
-            requiredStirs = 0;
+        if (hasResultFluid() && !promoteResultFluidToInput()) {
+            return false;
         }
 
+        float speed = player instanceof net.minecraft.server.level.ServerPlayer serverPlayer
+                ? ManualMachineSpeedHelper.getSpeedMultiplier(serverPlayer, ManualMachineType.MIXING_VAT)
+                : 1.0F;
+        addRecipeWork(recipeHolder.get(), 20.0D * speed);
+        stirAnimationTicks = STIR_ANIMATION_TICKS;
+
         notifyUpdate();
+        return true;
+    }
+
+    private void tickAutomation(ServerLevel level) {
+        if (!MachineEnergyAttachments.get(this).hasAutomationUpgrade()) {
+            setMachineStatus(MachineStatus.IDLE);
+            return;
+        }
+        if (hasBlockingResult()) {
+            setMachineStatus(MachineStatus.OUTPUT_SLOT_FULL);
+            return;
+        }
+        Optional<RecipeHolder<MixingVatRecipe>> recipeHolder = getMixableRecipe(level);
+        if (recipeHolder.isEmpty()) {
+            if (hasContentsToMix()) {
+                setMachineStatus(MachineStatus.NO_MATCHING_RECIPE);
+            } else {
+                setMachineStatus(MachineStatus.IDLE);
+            }
+            return;
+        }
+        MixingVatRecipe recipe = recipeHolder.get().value();
+        if (recipe.requiresHeat() && !isHeated()) {
+            setMachineStatus(MachineStatus.NOT_ENOUGH_HEAT);
+            return;
+        }
+        prepareProgressFor(recipe);
+        if (!PsyCurrentMachines.tryUseAutomationCurrentTick(this)) {
+            setMachineStatus(MachineStatus.NOT_ENOUGH_ENERGY);
+            return;
+        }
+        if (hasResultFluid() && !promoteResultFluidToInput()) {
+            setMachineStatus(MachineStatus.OUTPUT_TANK_FULL);
+            return;
+        }
+        addRecipeWork(recipeHolder.get(), 1.0D);
+        if (!isStirAnimationActive()) {
+            stirAnimationTicks = STIR_ANIMATION_TICKS;
+        }
+        setMachineStatus(MachineStatus.RUNNING);
+        MachineSync.syncIfDue(this, 10);
+    }
+
+    private void prepareProgressFor(MixingVatRecipe recipe) {
+        int requiredWork = Math.max(1, recipe.requiredStirs() * 20);
+        if (this.maxProgress != requiredWork || this.requiredStirs != recipe.requiredStirs()) {
+            this.maxProgress = requiredWork;
+            this.requiredStirs = recipe.requiredStirs();
+            this.progress = Math.min(this.progress, this.maxProgress);
+            updateCurrentStirsFromWork();
+        }
+    }
+
+    private void addRecipeWork(RecipeHolder<MixingVatRecipe> holder, double work) {
+        MixingVatRecipe recipe = holder.value();
+        prepareProgressFor(recipe);
+        this.fractionalWork += Math.max(0.0D, work);
+        int wholeWork = (int) this.fractionalWork;
+        if (wholeWork <= 0) {
+            return;
+        }
+        this.fractionalWork -= wholeWork;
+        this.progress += wholeWork;
+        updateCurrentStirsFromWork();
+        if (this.progress >= this.maxProgress) {
+            craft(holder);
+            resetMixingProgress();
+        }
+    }
+
+    private void updateCurrentStirsFromWork() {
+        this.currentStirs = Math.min(this.requiredStirs, this.progress / 20);
+    }
+
+    @Override
+    public MachineStatus getMachineStatus() {
+        return this.machineStatus;
+    }
+
+    private boolean setMachineStatus(MachineStatus status) {
+        if (this.machineStatus == status) {
+            return false;
+        }
+        this.machineStatus = status;
+        MachineSync.syncIfDue(this, 10);
         return true;
     }
 
@@ -755,6 +1028,7 @@ public class MixingVatBlockEntity extends BlockEntity {
 
         output.putInt("progress", progress);
         output.putInt("max_progress", maxProgress);
+        output.putDouble("fractional_work", fractionalWork);
 
         output.putInt("current_stirs", currentStirs);
         output.putInt("required_stirs", requiredStirs);
@@ -792,6 +1066,7 @@ public class MixingVatBlockEntity extends BlockEntity {
 
         progress = input.getIntOr("progress", 0);
         maxProgress = input.getIntOr("max_progress", 100);
+        fractionalWork = input.getDoubleOr("fractional_work", 0.0D);
 
         currentStirs = input.getIntOr("current_stirs", 0);
         requiredStirs = input.getIntOr("required_stirs", 0);
@@ -856,5 +1131,266 @@ public class MixingVatBlockEntity extends BlockEntity {
                 inputFluid2Id = null;
             }
         }
+    }
+
+    public ResourceHandler<ItemResource> getItemCapability(@Nullable net.minecraft.core.Direction side) {
+        return new VatItemResourceHandler();
+    }
+
+    public ResourceHandler<FluidResource> getFluidCapability(@Nullable net.minecraft.core.Direction side) {
+        return new VatFluidResourceHandler();
+    }
+
+    private final class VatItemResourceHandler implements ResourceHandler<ItemResource> {
+        private final List<ItemJournal> journals = List.of(
+                new ItemJournal(0), new ItemJournal(1), new ItemJournal(2), new ItemJournal(3), new ItemJournal(4)
+        );
+
+        @Override
+        public int size() {
+            return MAX_ITEM_TYPES + 1;
+        }
+
+        @Override
+        public ItemResource getResource(int slot) {
+            Objects.checkIndex(slot, size());
+            ItemStack stack = slot < MAX_ITEM_TYPES ? inputItems.get(slot) : resultItem;
+            return ItemResource.of(stack);
+        }
+
+        @Override
+        public long getAmountAsLong(int slot) {
+            Objects.checkIndex(slot, size());
+            return slot < MAX_ITEM_TYPES ? inputItems.get(slot).getCount() : resultItem.getCount();
+        }
+
+        @Override
+        public long getCapacityAsLong(int slot, ItemResource resource) {
+            Objects.checkIndex(slot, size());
+            if (slot >= MAX_ITEM_TYPES) {
+                return resource.isEmpty() ? 64 : resource.getMaxStackSize();
+            }
+            return resource.isEmpty() ? 64 : resource.getMaxStackSize();
+        }
+
+        @Override
+        public boolean isValid(int slot, ItemResource resource) {
+            Objects.checkIndex(slot, size());
+            return slot < MAX_ITEM_TYPES && !resource.isEmpty() && !hasBlockingResult();
+        }
+
+        @Override
+        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(slot, size());
+            if (!isValid(slot, resource) || amount <= 0) {
+                return 0;
+            }
+            ItemStack existing = inputItems.get(slot);
+            if (!existing.isEmpty() && !resource.matches(existing)) {
+                return 0;
+            }
+            int inserted = Math.min(amount, Math.min(resource.getMaxStackSize(), 64) - existing.getCount());
+            if (inserted <= 0) {
+                return 0;
+            }
+            journals.get(slot).updateSnapshots(transaction);
+            inputItems.set(slot, resource.toStack(existing.getCount() + inserted));
+            resetMixingProgress();
+            return inserted;
+        }
+
+        @Override
+        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(slot, size());
+            if (slot != MAX_ITEM_TYPES || resource.isEmpty() || amount <= 0 || resultItem.isEmpty() || !resource.matches(resultItem)) {
+                return 0;
+            }
+            int extracted = Math.min(amount, resultItem.getCount());
+            journals.get(slot).updateSnapshots(transaction);
+            resultItem.shrink(extracted);
+            if (resultItem.isEmpty()) {
+                resultItem = ItemStack.EMPTY;
+            }
+            resetMixingProgress();
+            return extracted;
+        }
+
+        private final class ItemJournal extends SnapshotJournal<ItemStack> {
+            private final int slot;
+
+            private ItemJournal(int slot) {
+                this.slot = slot;
+            }
+
+            @Override
+            protected ItemStack createSnapshot() {
+                return this.slot < MAX_ITEM_TYPES ? inputItems.get(this.slot).copy() : resultItem.copy();
+            }
+
+            @Override
+            protected void revertToSnapshot(ItemStack snapshot) {
+                if (this.slot < MAX_ITEM_TYPES) {
+                    inputItems.set(this.slot, snapshot.copy());
+                } else {
+                    resultItem = snapshot.copy();
+                }
+            }
+
+            @Override
+            protected void onRootCommit(ItemStack originalState) {
+                MachineTransferAttachments.markCapabilityChanged(MixingVatBlockEntity.this);
+                notifyUpdate();
+            }
+        }
+    }
+
+    private final class VatFluidResourceHandler implements ResourceHandler<FluidResource> {
+        private final List<FluidJournal> journals = List.of(new FluidJournal(0), new FluidJournal(1), new FluidJournal(2));
+
+        @Override
+        public int size() {
+            return 3;
+        }
+
+        @Override
+        public FluidResource getResource(int slot) {
+            Objects.checkIndex(slot, size());
+            ResourceLocation id = fluidIdForSlot(slot);
+            if (id == null) {
+                return FluidResource.EMPTY;
+            }
+            Fluid fluid = BuiltInRegistries.FLUID.getValue(id);
+            return fluid == null || fluid == Fluids.EMPTY ? FluidResource.EMPTY : FluidResource.of(fluid);
+        }
+
+        @Override
+        public long getAmountAsLong(int slot) {
+            Objects.checkIndex(slot, size());
+            return switch (slot) {
+                case 0 -> inputFluid1Amount;
+                case 1 -> inputFluid2Amount;
+                case 2 -> resultFluidAmount;
+                default -> 0;
+            };
+        }
+
+        @Override
+        public long getCapacityAsLong(int slot, FluidResource resource) {
+            Objects.checkIndex(slot, size());
+            return FLUID_CAPACITY;
+        }
+
+        @Override
+        public boolean isValid(int slot, FluidResource resource) {
+            Objects.checkIndex(slot, size());
+            return slot < 2 && !resource.isEmpty() && !hasBlockingResult();
+        }
+
+        @Override
+        public int insert(int slot, FluidResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(slot, size());
+            if (!isValid(slot, resource) || amount <= 0) {
+                return 0;
+            }
+            ResourceLocation incomingId = BuiltInRegistries.FLUID.getKey(resource.getFluid());
+            if (incomingId == null) {
+                return 0;
+            }
+            ResourceLocation existingId = fluidIdForSlot(slot);
+            int existingAmount = slot == 0 ? inputFluid1Amount : inputFluid2Amount;
+            if (existingAmount > 0 && !incomingId.equals(existingId)) {
+                return 0;
+            }
+            int inserted = getSlotInsertableAmount(slot, incomingId, amount);
+            if (inserted <= 0) {
+                return 0;
+            }
+            journals.get(slot).updateSnapshots(transaction);
+            if (slot == 0) {
+                inputFluid1Id = incomingId;
+                inputFluid1Amount += inserted;
+            } else {
+                inputFluid2Id = incomingId;
+                inputFluid2Amount += inserted;
+            }
+            resetMixingProgress();
+            return inserted;
+        }
+
+        @Override
+        public int extract(int slot, FluidResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(slot, size());
+            if (slot != 2 || resource.isEmpty() || amount <= 0 || resultFluidId == null || resultFluidAmount <= 0) {
+                return 0;
+            }
+            FluidStack stored = fluidStack(resultFluidId, resultFluidAmount);
+            if (stored.isEmpty() || !resource.matches(stored)) {
+                return 0;
+            }
+            int extracted = Math.min(amount, resultFluidAmount);
+            journals.get(slot).updateSnapshots(transaction);
+            resultFluidAmount -= extracted;
+            if (resultFluidAmount <= 0) {
+                resultFluidAmount = 0;
+                resultFluidId = null;
+            }
+            resetMixingProgress();
+            return extracted;
+        }
+
+        @Nullable
+        private ResourceLocation fluidIdForSlot(int slot) {
+            return switch (slot) {
+                case 0 -> inputFluid1Amount > 0 ? inputFluid1Id : null;
+                case 1 -> inputFluid2Amount > 0 ? inputFluid2Id : null;
+                case 2 -> resultFluidAmount > 0 ? resultFluidId : null;
+                default -> null;
+            };
+        }
+
+        private FluidStack fluidStack(ResourceLocation id, int amount) {
+            Fluid fluid = BuiltInRegistries.FLUID.getValue(id);
+            return fluid == null || fluid == Fluids.EMPTY || amount <= 0 ? FluidStack.EMPTY : new FluidStack(fluid, amount);
+        }
+
+        private final class FluidJournal extends SnapshotJournal<FluidSnapshot> {
+            private final int slot;
+
+            private FluidJournal(int slot) {
+                this.slot = slot;
+            }
+
+            @Override
+            protected FluidSnapshot createSnapshot() {
+                return switch (this.slot) {
+                    case 0 -> new FluidSnapshot(inputFluid1Id, inputFluid1Amount);
+                    case 1 -> new FluidSnapshot(inputFluid2Id, inputFluid2Amount);
+                    default -> new FluidSnapshot(resultFluidId, resultFluidAmount);
+                };
+            }
+
+            @Override
+            protected void revertToSnapshot(FluidSnapshot snapshot) {
+                if (this.slot == 0) {
+                    inputFluid1Id = snapshot.id();
+                    inputFluid1Amount = snapshot.amount();
+                } else if (this.slot == 1) {
+                    inputFluid2Id = snapshot.id();
+                    inputFluid2Amount = snapshot.amount();
+                } else {
+                    resultFluidId = snapshot.id();
+                    resultFluidAmount = snapshot.amount();
+                }
+            }
+
+            @Override
+            protected void onRootCommit(FluidSnapshot originalState) {
+                MachineTransferAttachments.markCapabilityChanged(MixingVatBlockEntity.this);
+                notifyUpdate();
+            }
+        }
+    }
+
+    private record FluidSnapshot(@Nullable ResourceLocation id, int amount) {
     }
 }

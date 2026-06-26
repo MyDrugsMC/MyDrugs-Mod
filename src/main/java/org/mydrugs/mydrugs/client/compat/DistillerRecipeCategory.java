@@ -93,7 +93,7 @@ final class DistillerRecipeCategory extends AbstractNiceRecipeCategory<Distiller
         } else if (isHoveringBox(DistillerLayout.PROGRESS_X, DistillerLayout.PROGRESS_Y, DistillerLayout.PROGRESS_W, DistillerLayout.PROGRESS_H, mouseX, mouseY)) {
             return appendPolishTooltip(recipe, amountTooltip("Distillation progress", 0, recipe.baseTicks()));
         } else if (isHoveringBox(DistillerLayout.RUN_BUTTON_X, DistillerLayout.RUN_BUTTON_Y, DistillerLayout.RUN_BUTTON_SIZE, DistillerLayout.RUN_BUTTON_SIZE, mouseX, mouseY)) {
-            return tooltip("Run distiller", "More than 5 CPS increases speed");
+            return tooltip("Run distiller", "Hold the crank for manual progress");
         }
         return List.of();
     }

@@ -156,9 +156,11 @@ public class ModLootTableProvider extends LootTableProvider {
             dropSelf(ModBlocks.CENTRIFUGE.get());
             dropSelf(ModBlocks.CHEMICAL_REACTOR.get());
             dropSelf(ModBlocks.CLAY_VAT.get());
+            dropSelf(ModBlocks.COPPER_DRUM.get());
             dropSelf(ModBlocks.DISTILLER.get());
             dropSelf(ModBlocks.PSYCHOTROPE_DISTILLERY.get());
             dropSelf(ModBlocks.DISTILLATE_ENGINE.get());
+            dropSelf(ModBlocks.STILLHOUSE_BURNER.get());
             dropSelf(ModBlocks.PSYCHOTROPE_RESONATOR.get());
             dropSelf(ModBlocks.DRYING_RACK.get());
             dropSelf(ModBlocks.ELECTROLYZER.get());
@@ -400,9 +402,11 @@ public class ModLootTableProvider extends LootTableProvider {
                     ModBlocks.CENTRIFUGE.get(),
                     ModBlocks.CHEMICAL_REACTOR.get(),
                     ModBlocks.CLAY_VAT.get(),
+                    ModBlocks.COPPER_DRUM.get(),
                     ModBlocks.DISTILLER.get(),
                     ModBlocks.PSYCHOTROPE_DISTILLERY.get(),
                     ModBlocks.DISTILLATE_ENGINE.get(),
+                    ModBlocks.STILLHOUSE_BURNER.get(),
                     ModBlocks.PSYCHOTROPE_RESONATOR.get(),
                     ModBlocks.DRYING_RACK.get(),
                     ModBlocks.ELECTROLYZER.get(),

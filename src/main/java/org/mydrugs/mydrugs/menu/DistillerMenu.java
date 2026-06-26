@@ -165,8 +165,8 @@ public class DistillerMenu extends AbstractMachineMenu {
         return this.data.get(4);
     }
 
-    public int getClicksPerSecond() {
-        return this.data.get(5);
+    public boolean isCranking() {
+        return this.data.get(5) != 0;
     }
 
     public int getSpeedPercent() {

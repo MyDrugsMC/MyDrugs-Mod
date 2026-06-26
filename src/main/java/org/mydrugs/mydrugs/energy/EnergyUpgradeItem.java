@@ -4,8 +4,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.function.Consumer;
 
 public class EnergyUpgradeItem extends Item {
     public EnergyUpgradeItem(Properties properties) {
@@ -39,5 +44,16 @@ public class EnergyUpgradeItem extends Item {
         }
 
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void appendHoverText(
+            ItemStack stack,
+            TooltipContext context,
+            TooltipDisplay tooltipDisplay,
+            Consumer<Component> tooltipAdder,
+            TooltipFlag flag
+    ) {
+        tooltipAdder.accept(Component.translatable("tooltip.mydrugs.energy_upgrade"));
     }
 }

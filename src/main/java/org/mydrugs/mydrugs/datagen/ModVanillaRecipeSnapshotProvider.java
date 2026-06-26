@@ -271,7 +271,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "A", "mydrugs:copper_plate"
                 ),
                 "mydrugs:copper_tube",
-                2
+                6
         );
 
         writer.shapeless("glass_bottle",
@@ -699,7 +699,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "B", "mydrugs:pressure_seal"
                 ),
                 "mydrugs:tank_wall",
-                1
+                4
         );
 
         writer.shaped("pressure_casing",
@@ -894,18 +894,18 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
 
         writer.shaped("machine_transfer_upgrade",
                 new String[]{
-                        "ABA",
-                        "CDC",
-                        "ABA"
+                        " A ",
+                        "BCD",
+                        " A "
                 },
                 key(
-                        "A", "mydrugs:pipe_joint",
+                        "A", "minecraft:redstone",
                         "B", "mydrugs:copper_tube",
-                        "C", "minecraft:redstone",
+                        "C", "mydrugs:pipe_joint",
                         "D", "mydrugs:control_circuit"
                 ),
                 "mydrugs:machine_transfer_upgrade",
-                1
+                2
         );
 
         writer.shaped("psychotrope_lens",
@@ -1086,7 +1086,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "A", "mydrugs:copper_plate",
                         "B", "mydrugs:condenser_coil",
                         "C", "mydrugs:glass_tube",
-                        "D", "mydrugs:advanced_furnace",
+                        "D", "minecraft:furnace",
                         "E", "minecraft:bucket",
                         "F", "mydrugs:mechanical_frame"
                 ),
@@ -1215,7 +1215,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 key(
                         "A", "mydrugs:pump_head",
                         "B", "mydrugs:fluid_filter",
-                        "C", "mydrugs:electric_motor",
+                        "C", "mydrugs:hand_crank",
                         "D", "mydrugs:copper_tube",
                         "E", "mydrugs:mechanical_frame"
                 ),

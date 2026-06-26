@@ -38,7 +38,8 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
         psyAnvil(futures, cachedOutput, "iron_mesh",
                 "mydrugs:nicotinic",
                 ingredients(
-                        ingredient("minecraft:iron_ingot", 1)
+                        ingredient("minecraft:iron_ingot", 1),
+                        ingredient("minecraft:string", 1)
                 ),
                 "mydrugs:iron_mesh",
                 1
@@ -56,7 +57,7 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
         psyAnvil(futures, cachedOutput, "heavy_iron",
                 "mydrugs:fermented",
                 ingredients(
-                        ingredient("minecraft:iron_ingot", 2)
+                        ingredient("minecraft:iron_ingot", 1)
                 ),
                 "mydrugs:heavy_iron",
                 1

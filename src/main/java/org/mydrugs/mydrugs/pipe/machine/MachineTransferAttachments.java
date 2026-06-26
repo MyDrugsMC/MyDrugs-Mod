@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mydrugs.mydrugs.addiction.attachment.ModAttachments;
+import org.mydrugs.mydrugs.blocks.entity.StillhouseBurnerBlockEntity;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
 import org.mydrugs.mydrugs.machine.MachineSync;
 import org.mydrugs.mydrugs.pipe.blockentity.PipeBlockEntity;
 import org.mydrugs.mydrugs.pipe.network.PipeNetworkDirtyReason;
@@ -27,6 +29,31 @@ public final class MachineTransferAttachments {
         return isSupported(blockEntity) && get(blockEntity).installed();
     }
 
+    public static MachineTransferAccessLevel accessLevel(BlockEntity blockEntity) {
+        if (!isSupported(blockEntity)) {
+            return MachineTransferAccessLevel.NONE;
+        }
+        if (hasTransferUpgrade(blockEntity)) {
+            return MachineTransferAccessLevel.CONFIGURABLE;
+        }
+        if (hasInherentFixedTransfer(blockEntity)) {
+            return MachineTransferAccessLevel.FIXED_DEFAULTS;
+        }
+        if (MachineEnergyAttachments.supportsAutomationUpgrade(blockEntity)
+                && MachineEnergyAttachments.get(blockEntity).hasAutomationUpgrade()) {
+            return MachineTransferAccessLevel.FIXED_DEFAULTS;
+        }
+        return MachineTransferAccessLevel.NONE;
+    }
+
+    public static boolean hasFixedDefaultAccess(BlockEntity blockEntity) {
+        return accessLevel(blockEntity) == MachineTransferAccessLevel.FIXED_DEFAULTS;
+    }
+
+    public static boolean hasAnyPipeAccess(BlockEntity blockEntity) {
+        return accessLevel(blockEntity) != MachineTransferAccessLevel.NONE;
+    }
+
     public static boolean install(BlockEntity blockEntity) {
         if (!isSupported(blockEntity)) {
             return false;
@@ -38,6 +65,19 @@ public final class MachineTransferAttachments {
         changed |= ensureDefaults(blockEntity, attachment);
         markChanged(blockEntity);
         return changed;
+    }
+
+    public static boolean remove(BlockEntity blockEntity) {
+        if (!isSupported(blockEntity)) {
+            return false;
+        }
+        MachineTransferAttachment attachment = get(blockEntity);
+        if (!attachment.installed()) {
+            return false;
+        }
+        attachment.setInstalled(false);
+        markChanged(blockEntity);
+        return true;
     }
 
     public static MachineTransferConfig config(BlockEntity blockEntity) {
@@ -61,14 +101,23 @@ public final class MachineTransferAttachments {
             return false;
         }
 
-        MachineTransferAttachment attachment = get(blockEntity);
-        if (!attachment.installed()) {
+        MachineTransferAccessLevel accessLevel = accessLevel(blockEntity);
+        if (accessLevel == MachineTransferAccessLevel.NONE) {
             return false;
         }
 
-        ensureDefaults(blockEntity, attachment);
         MachineLocalSide localSide = MachineOrientation.fromWorld(blockEntity.getBlockState(), worldSide);
+        if (accessLevel == MachineTransferAccessLevel.FIXED_DEFAULTS) {
+            return port.defaultLocalSides().contains(localSide) && port.supports(rule);
+        }
+
+        MachineTransferAttachment attachment = get(blockEntity);
+        ensureDefaults(blockEntity, attachment);
         return attachment.config().getRule(port.id(), localSide) == rule;
+    }
+
+    private static boolean hasInherentFixedTransfer(BlockEntity blockEntity) {
+        return blockEntity instanceof StillhouseBurnerBlockEntity;
     }
 
     private static void seedDefaults(BlockEntity blockEntity, MachineTransferConfig config) {

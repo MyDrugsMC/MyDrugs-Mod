@@ -1,0 +1,10 @@
+{
+  "type": "mydrugs:evaporation_tray",
+  "input_fluid": "mydrugs:stillage",
+  "input_amount": 1000,
+  "result": {
+    "id": "mydrugs:plant_biomass",
+    "count": 1
+  },
+  "processing_time": 200
+}

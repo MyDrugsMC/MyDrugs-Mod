@@ -57,7 +57,7 @@ class MachineHandbookResourceTest {
             "BTX Fractionation Tower",
             "Reduction Still",
             "Psychotrope Distillery",
-            "Distillate Engine",
+            "Psychotrope Engine",
             "Psy Anvil",
             "Psy Mixer",
             "Psychotrope Resonator",

@@ -159,7 +159,7 @@ public final class CurrentRegulatorItem extends Item {
                 "item.mydrugs.current_regulator.report.state",
                 Component.translatable(stateKey)));
 
-        // Cheap bounded scan: look for any Distillate Engine within engine-max-radius and report
+        // Cheap bounded scan: look for any Psychotrope Engine within engine-max-radius and report
         // the closest one's distance and whether this machine is actually inside its powered radius.
         EngineMatch match = findNearestEngine(level, pos);
         if (match == null) {

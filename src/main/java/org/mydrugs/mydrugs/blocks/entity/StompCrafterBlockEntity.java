@@ -16,9 +16,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.mydrugs.mydrugs.blocks.ModBlockEntities;
+import org.mydrugs.mydrugs.energy.MachineEnergyAttachments;
+import org.mydrugs.mydrugs.energy.PsyCurrentMachines;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
+import org.mydrugs.mydrugs.pipe.machine.MachineTransferAttachments;
 import org.mydrugs.mydrugs.recipes.stomp_crafting.StompCrafterRecipeResolver;
 
 import java.util.ArrayList;
@@ -26,11 +33,16 @@ import java.util.List;
 import java.util.Optional;
 
 public class StompCrafterBlockEntity extends BlockEntity {
+    public static final int INPUT_SLOT = 0;
+    public static final int OUTPUT_SLOT = 1;
     private static final int MAX_SLOTS = 32;
     private static final int DEFAULT_REQUIRED_WORK = 100;
 
     private final List<ItemStack> insertedItems = new ArrayList<>();
     private ItemStack displayStack = ItemStack.EMPTY;
+    private ItemStack outputStack = ItemStack.EMPTY;
+    private double fractionalWork = 0.0D;
+    private final StompItemHandler itemHandler = new StompItemHandler();
 
     // raw work progress
     private int progress = 0;
@@ -38,6 +50,12 @@ public class StompCrafterBlockEntity extends BlockEntity {
 
     public StompCrafterBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.STOMP_CRAFTER.get(), pos, state);
+    }
+
+    public static void serverTick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state, StompCrafterBlockEntity be) {
+        if (level instanceof ServerLevel serverLevel) {
+            be.tickAutomation(serverLevel);
+        }
     }
 
     private static ItemStack buildDisplayStackFor(List<ItemStack> items, ItemStack basis) {
@@ -92,6 +110,9 @@ public class StompCrafterBlockEntity extends BlockEntity {
     }
 
     public void addProgressFromFall(ServerLevel level, double fallDistance, Player player) {
+        if (!this.outputStack.isEmpty()) {
+            return;
+        }
         StompCrafterRecipeResolver.ProcessMatch match =
                 StompCrafterRecipeResolver.findExactMatch(level, this.insertedItems);
 
@@ -146,6 +167,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
         this.displayStack = ItemStack.EMPTY;
         this.progress = 0;
         this.requiredWork = DEFAULT_REQUIRED_WORK;
+        this.fractionalWork = 0.0D;
         this.markUpdated();
     }
 
@@ -172,6 +194,8 @@ public class StompCrafterBlockEntity extends BlockEntity {
         }
 
         this.displayStack = input.read("display", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        this.outputStack = input.read("output", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        this.fractionalWork = input.getDoubleOr("fractional_work", 0.0D);
     }
 
     @Override
@@ -185,6 +209,10 @@ public class StompCrafterBlockEntity extends BlockEntity {
         if (!this.displayStack.isEmpty()) {
             output.store("display", ItemStack.CODEC, this.displayStack);
         }
+        if (!this.outputStack.isEmpty()) {
+            output.store("output", ItemStack.CODEC, this.outputStack);
+        }
+        output.putDouble("fractional_work", this.fractionalWork);
     }
 
     @Override
@@ -206,6 +234,15 @@ public class StompCrafterBlockEntity extends BlockEntity {
                 );
             }
         }
+        if (!this.outputStack.isEmpty()) {
+            Containers.dropItemStack(
+                    this.level,
+                    pos.getX() + 0.5D,
+                    pos.getY() + 0.5D,
+                    pos.getZ() + 0.5D,
+                    this.outputStack
+            );
+        }
     }
 
     @Override
@@ -224,7 +261,7 @@ public class StompCrafterBlockEntity extends BlockEntity {
     }
 
     public boolean canAcceptInsertion(ServerLevel level, ItemStack heldStack) {
-        if (heldStack.isEmpty() || this.isFull()) {
+        if (heldStack.isEmpty() || this.isFull() || !this.outputStack.isEmpty()) {
             return false;
         }
 
@@ -245,5 +282,164 @@ public class StompCrafterBlockEntity extends BlockEntity {
         this.progress = 0;
         this.requiredWork = DEFAULT_REQUIRED_WORK;
         this.markUpdated();
+    }
+
+    public ResourceHandler<ItemResource> getItemCapability(net.minecraft.core.Direction side) {
+        return this.itemHandler;
+    }
+
+    private void tickAutomation(ServerLevel level) {
+        if (!MachineEnergyAttachments.get(this).hasAutomationUpgrade() || !this.outputStack.isEmpty()) {
+            return;
+        }
+
+        StompCrafterRecipeResolver.ProcessMatch match =
+                StompCrafterRecipeResolver.findExactMatch(level, this.insertedItems);
+        if (match == null) {
+            return;
+        }
+
+        this.requiredWork = Math.max(1, match.requiredWork());
+        if (!PsyCurrentMachines.tryUseAutomationCurrentTick(this)) {
+            return;
+        }
+
+        this.fractionalWork += 1.0D;
+        int gained = (int) this.fractionalWork;
+        if (gained <= 0) {
+            return;
+        }
+        this.fractionalWork -= gained;
+        this.progress = Mth.clamp(this.progress + gained, 0, this.requiredWork);
+        if (this.progress >= this.requiredWork) {
+            this.outputStack = match.assemble(level, this.insertedItems);
+            org.mydrugs.mydrugs.advancement.AdvancementEventHooks.machineRecipeCompleted(
+                    this,
+                    recipeId(match),
+                    org.mydrugs.mydrugs.machine.MachineCompletionHelper.itemId(this.outputStack),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty()
+            );
+            this.insertedItems.clear();
+            this.displayStack = ItemStack.EMPTY;
+            this.progress = 0;
+            this.requiredWork = DEFAULT_REQUIRED_WORK;
+            this.fractionalWork = 0.0D;
+        }
+        this.markUpdated();
+    }
+
+    private final class StompItemHandler implements ResourceHandler<ItemResource> {
+        private final OutputJournal outputJournal = new OutputJournal();
+
+        @Override
+        public int size() {
+            return 2;
+        }
+
+        @Override
+        public ItemResource getResource(int slot) {
+            return slot == OUTPUT_SLOT && !outputStack.isEmpty() ? ItemResource.of(outputStack) : ItemResource.EMPTY;
+        }
+
+        @Override
+        public long getAmountAsLong(int slot) {
+            return slot == OUTPUT_SLOT ? outputStack.getCount() : 0;
+        }
+
+        @Override
+        public long getCapacityAsLong(int slot, ItemResource resource) {
+            if (slot == INPUT_SLOT) {
+                return MAX_SLOTS - insertedItems.size();
+            }
+            return slot == OUTPUT_SLOT ? outputStack.getMaxStackSize() : 0;
+        }
+
+        @Override
+        public boolean isValid(int slot, ItemResource resource) {
+            if (slot != INPUT_SLOT || resource.isEmpty() || !(level instanceof ServerLevel serverLevel)) {
+                return false;
+            }
+            return canAcceptInsertion(serverLevel, resource.toStack(1));
+        }
+
+        @Override
+        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            if (!isValid(slot, resource) || amount <= 0) {
+                return 0;
+            }
+            int accepted = 0;
+            List<ItemStack> test = new ArrayList<>(insertedItems);
+            while (accepted < amount && test.size() < MAX_SLOTS) {
+                test.add(resource.toStack(1));
+                if (!(level instanceof ServerLevel serverLevel) || !StompCrafterRecipeResolver.canAcceptPartial(serverLevel, test)) {
+                    break;
+                }
+                accepted++;
+            }
+            if (accepted <= 0) {
+                return 0;
+            }
+            outputJournal.updateSnapshots(transaction);
+            for (int i = 0; i < accepted; i++) {
+                insertedItems.add(resource.toStack(1));
+            }
+            displayStack = buildDisplayStackFor(insertedItems, resource.toStack(1));
+            progress = 0;
+            requiredWork = DEFAULT_REQUIRED_WORK;
+            fractionalWork = 0.0D;
+            return accepted;
+        }
+
+        @Override
+        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            if (slot != OUTPUT_SLOT || resource.isEmpty() || amount <= 0 || outputStack.isEmpty() || !resource.matches(outputStack)) {
+                return 0;
+            }
+            int extracted = Math.min(amount, outputStack.getCount());
+            outputJournal.updateSnapshots(transaction);
+            outputStack.shrink(extracted);
+            if (outputStack.isEmpty()) {
+                outputStack = ItemStack.EMPTY;
+            }
+            return extracted;
+        }
+    }
+
+    private final class OutputJournal extends SnapshotJournal<StompSnapshot> {
+        @Override
+        protected StompSnapshot createSnapshot() {
+            return new StompSnapshot(List.copyOf(insertedItems), displayStack.copy(), outputStack.copy(), progress, requiredWork, fractionalWork);
+        }
+
+        @Override
+        protected void revertToSnapshot(StompSnapshot snapshot) {
+            insertedItems.clear();
+            for (ItemStack stack : snapshot.inputs()) {
+                insertedItems.add(stack.copy());
+            }
+            displayStack = snapshot.display().copy();
+            outputStack = snapshot.output().copy();
+            progress = snapshot.progress();
+            requiredWork = snapshot.requiredWork();
+            fractionalWork = snapshot.fractionalWork();
+        }
+
+        @Override
+        protected void onRootCommit(StompSnapshot originalState) {
+            MachineTransferAttachments.markCapabilityChanged(StompCrafterBlockEntity.this);
+            markUpdated();
+        }
+    }
+
+    private record StompSnapshot(
+            List<ItemStack> inputs,
+            ItemStack display,
+            ItemStack output,
+            int progress,
+            int requiredWork,
+            double fractionalWork
+    ) {
     }
 }
