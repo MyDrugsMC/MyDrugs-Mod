@@ -100,6 +100,12 @@ final class PsyMixerRecipeCategory extends AbstractNiceRecipeCategory<PsyMixerRe
             infoY += 10;
         }
         if (infoY < height - 8) {
+            g.drawString(font, fit(Component.translatable(
+                    "screen.mydrugs.jei.required_mixer_tier",
+                    Component.translatable(recipe.requiredMixerTier().translationKey())), 158), 8, infoY, TEXT, false);
+            infoY += 10;
+        }
+        if (infoY < height - 8) {
             Component actions = Component.translatable("screen.mydrugs.jei.ritual_actions", recipe.availableRitualActions().stream()
                     .map(action -> Component.translatable(action.promptKey()).getString())
                     .limit(3)

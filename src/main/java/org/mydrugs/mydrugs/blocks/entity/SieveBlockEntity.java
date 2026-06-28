@@ -3,6 +3,7 @@ package org.mydrugs.mydrugs.blocks.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -35,6 +36,7 @@ import org.mydrugs.mydrugs.machine.manual.ManualMachineSpeedHelper;
 import org.mydrugs.mydrugs.machine.manual.ManualMachineType;
 import org.mydrugs.mydrugs.menu.SieveMenu;
 import org.mydrugs.mydrugs.recipes.ModRecipeTypes;
+import org.mydrugs.mydrugs.recipes.sieving.SieveDeterministicBonus;
 import org.mydrugs.mydrugs.recipes.sieving.SieveRecipe;
 
 import java.util.Optional;
@@ -80,6 +82,8 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
     };
     private float shakeProgressBuffer = 0.0F;
     private int idleTicks = 0;
+    private float deterministicBonusAccumulator = 0.0F;
+    private String deterministicBonusKey = "";
 
     public SieveBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SIEVE.get(), pos, state);
@@ -110,13 +114,16 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
                 be.idleTicks = 0;
                 be.markDirtyAndSync();
             }
+            be.resetDeterministicBonus();
             return;
         }
 
-        SieveRecipe recipe = match.get().value();
+        RecipeHolder<SieveRecipe> holder = match.get();
+        SieveRecipe recipe = holder.value();
+        be.updateDeterministicBonusKey(holder);
         be.maxProgress = recipe.sieveTime();
 
-        if (!be.canCraft(recipe)) {
+        if (!be.canProgress(recipe)) {
             if (be.progress != 0 || be.shakeProgressBuffer != 0.0F) {
                 be.progress = 0;
                 be.shakeProgressBuffer = 0.0F;
@@ -142,7 +149,9 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         }
 
         if (be.progress >= be.maxProgress) {
-            be.craft(match.get());
+            if (be.canCompleteCraft(holder)) {
+                be.craft(holder);
+            }
             be.shakeProgressBuffer = 0.0F;
             be.idleTicks = 0;
         }
@@ -162,8 +171,10 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
             return;
         }
 
-        SieveRecipe recipe = match.get().value();
-        if (!this.canCraft(recipe)) {
+        RecipeHolder<SieveRecipe> holder = match.get();
+        SieveRecipe recipe = holder.value();
+        this.updateDeterministicBonusKey(holder);
+        if (!this.canProgress(recipe)) {
             return;
         }
 
@@ -230,18 +241,38 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         );
     }
 
-    private boolean canCraft(SieveRecipe recipe) {
+    private boolean canProgress(SieveRecipe recipe) {
         ItemStack mainOut = recipe.result().copy();
         if (!canAccept(this.items.get(SLOT_RESULT), mainOut, this.getMaxStackSize())) {
             return false;
         }
 
-        if (recipe.hasBonus()) {
+        if (recipe.hasBonus() && !recipe.deterministicBonus()) {
             ItemStack bonusOut = recipe.bonusResult().orElse(ItemStack.EMPTY).copy();
             return canAccept(this.items.get(SLOT_BONUS), bonusOut, this.getMaxStackSize());
         }
 
         return true;
+    }
+
+    private boolean canCompleteCraft(RecipeHolder<SieveRecipe> holder) {
+        SieveRecipe recipe = holder.value();
+        if (!canProgress(recipe)) {
+            return false;
+        }
+        if (!recipe.hasBonus() || !recipe.deterministicBonus()) {
+            return true;
+        }
+
+        SieveDeterministicBonus.Result result = SieveDeterministicBonus.apply(
+                this.deterministicBonusAccumulator,
+                recipe.bonusChance()
+        );
+        if (result.bonusCount() <= 0) {
+            return true;
+        }
+        ItemStack bonusOut = deterministicBonusStack(recipe, result.bonusCount());
+        return canAccept(this.items.get(SLOT_BONUS), bonusOut, this.getMaxStackSize());
     }
 
     private void insertToSlot(int slot, ItemStack stack) {
@@ -262,7 +293,16 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
         this.removeItem(SLOT_INPUT, 1);
         this.insertToSlot(SLOT_RESULT, recipe.result().copy());
 
-        if (recipe.hasBonus() && this.level != null && this.level.random.nextFloat() < recipe.bonusChance()) {
+        if (recipe.hasBonus() && recipe.deterministicBonus()) {
+            SieveDeterministicBonus.Result result = SieveDeterministicBonus.apply(
+                    this.deterministicBonusAccumulator,
+                    recipe.bonusChance()
+            );
+            this.deterministicBonusAccumulator = result.accumulator();
+            if (result.bonusCount() > 0) {
+                this.insertToSlot(SLOT_BONUS, deterministicBonusStack(recipe, result.bonusCount()));
+            }
+        } else if (recipe.hasBonus() && this.level != null && this.level.random.nextFloat() < recipe.bonusChance()) {
             this.insertToSlot(SLOT_BONUS, recipe.bonusResult().orElse(ItemStack.EMPTY).copy());
         }
 
@@ -276,6 +316,34 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
                 Optional.empty()
         );
         this.markDirtyAndSync();
+    }
+
+    private ItemStack deterministicBonusStack(SieveRecipe recipe, int bonusCount) {
+        ItemStack stack = recipe.bonusResult().orElse(ItemStack.EMPTY).copy();
+        if (!stack.isEmpty()) {
+            stack.setCount(stack.getCount() * bonusCount);
+        }
+        return stack;
+    }
+
+    private void updateDeterministicBonusKey(RecipeHolder<SieveRecipe> holder) {
+        SieveRecipe recipe = holder.value();
+        if (!recipe.hasBonus() || !recipe.deterministicBonus()) {
+            this.resetDeterministicBonus();
+            return;
+        }
+
+        ItemStack bonus = recipe.bonusResult().orElse(ItemStack.EMPTY);
+        String key = holder.id().location() + "|" + BuiltInRegistries.ITEM.getKey(bonus.getItem()) + "|" + bonus.getCount();
+        if (!key.equals(this.deterministicBonusKey)) {
+            this.deterministicBonusKey = key;
+            this.deterministicBonusAccumulator = 0.0F;
+        }
+    }
+
+    private void resetDeterministicBonus() {
+        this.deterministicBonusKey = "";
+        this.deterministicBonusAccumulator = 0.0F;
     }
 
     @Override
@@ -359,6 +427,7 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         if (slot == SLOT_INPUT) {
             this.progress = 0;
+            this.resetDeterministicBonus();
         }
 
         this.markDirtyAndSync();
@@ -396,6 +465,8 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         this.progress = 0;
         this.maxProgress = 200;
+        this.deterministicBonusAccumulator = 0.0F;
+        this.deterministicBonusKey = "";
 
         for (ValueInput child : input.childrenListOrEmpty("items")) {
             int slot = child.getIntOr("slot", -1);
@@ -408,6 +479,8 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         this.progress = input.getIntOr("progress", 0);
         this.maxProgress = input.getIntOr("max_progress", 200);
+        this.deterministicBonusAccumulator = input.getFloatOr("deterministic_bonus_accumulator", 0.0F);
+        this.deterministicBonusKey = input.getStringOr("deterministic_bonus_key", "");
     }
 
     @Override
@@ -430,6 +503,10 @@ public final class SieveBlockEntity extends BlockEntity implements MenuProvider,
 
         output.putInt("progress", this.progress);
         output.putInt("max_progress", this.maxProgress);
+        output.putFloat("deterministic_bonus_accumulator", this.deterministicBonusAccumulator);
+        if (!this.deterministicBonusKey.isEmpty()) {
+            output.putString("deterministic_bonus_key", this.deterministicBonusKey);
+        }
     }
 
     @Override

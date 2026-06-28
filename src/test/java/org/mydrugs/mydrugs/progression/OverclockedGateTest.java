@@ -7,6 +7,7 @@ import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
 
 import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -73,5 +74,39 @@ class OverclockedGateTest {
         );
         assertEquals(a.allowed(), b.allowed());
         assertEquals(a.grantedKnowledge(), b.grantedKnowledge());
+    }
+
+    @Test
+    void hashRequiresFermentationAndGrantsSteelPlatingOnly() {
+        DrugModel hash = DrugRegistry.getDrug(DrugId.HASH);
+        assertNotNull(hash);
+
+        DrugProgressionGate.Decision blocked = DrugProgressionGate.evaluateKnownKnowledge(
+                hash, Set.of(PsyKnowledgeKey.NICOTINIC, PsyKnowledgeKey.CANNABINOID)
+        );
+        assertFalse(blocked.allowed(), "Hash should wait until fermentation is known");
+
+        DrugProgressionGate.Decision allowed = DrugProgressionGate.evaluateKnownKnowledge(
+                hash, Set.of(PsyKnowledgeKey.FERMENTED)
+        );
+        assertTrue(allowed.allowed());
+        assertEquals(List.of(PsyKnowledgeKey.STEEL_PLATING), allowed.grantedKnowledge());
+    }
+
+    @Test
+    void stimulantsRequireSteelPlating() {
+        DrugModel cocaine = DrugRegistry.getDrug(DrugId.COCAINE);
+        assertNotNull(cocaine);
+
+        DrugProgressionGate.Decision blocked = DrugProgressionGate.evaluateKnownKnowledge(
+                cocaine, Set.of(PsyKnowledgeKey.FERMENTED)
+        );
+        assertFalse(blocked.allowed(), "Stimulants should not unlock from fermentation alone");
+
+        DrugProgressionGate.Decision allowed = DrugProgressionGate.evaluateKnownKnowledge(
+                cocaine, Set.of(PsyKnowledgeKey.STEEL_PLATING)
+        );
+        assertTrue(allowed.allowed());
+        assertEquals(List.of(PsyKnowledgeKey.STIMULANT), allowed.grantedKnowledge());
     }
 }

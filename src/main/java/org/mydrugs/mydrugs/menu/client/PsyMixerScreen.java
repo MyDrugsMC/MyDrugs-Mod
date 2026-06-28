@@ -14,6 +14,7 @@ import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualEngine;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualLevel;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualProfiles;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
@@ -26,8 +27,8 @@ import org.mydrugs.mydrugs.network.PsyMixerRitualActionPayload;
 import org.mydrugs.mydrugs.network.PsyMixerStartRitualPayload;
 import org.mydrugs.mydrugs.recipes.psy_mixer.PsyMixerRecipe;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> {
     private static final int OUTER = 0xFF12070A;
@@ -83,6 +84,7 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, OUTER);
         fillPanel(graphics, layout.ritualX, layout.ritualY, layout.ritualWidth, layout.ritualHeight);
         fillPanel(graphics, layout.inventoryPanelX, layout.inventoryPanelY, layout.inventoryPanelWidth, layout.inventoryPanelHeight);
+        fillPanel(graphics, layout.sidePanelX, layout.sidePanelY, layout.sidePanelWidth, layout.sidePanelHeight);
 
         int cx = leftPos + layout.ritualCenterX;
         int cy = topPos + layout.ritualCenterY;
@@ -148,12 +150,21 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawString(font, title, titleLabelX, titleLabelY, MUTED, false);
+        drawTierBadge(graphics, titleLabelX + 62, titleLabelY - 1);
         //graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, MUTED, false);
         drawSideInstructions(graphics);
         drawChecklist(graphics);
         drawActiveDrugBonuses(graphics);
         drawMeters(graphics);
         drawRitualCue(graphics);
+    }
+
+    private void drawTierBadge(GuiGraphics graphics, int x, int y) {
+        Component tier = Component.translatable(menu.getTier().translationKey());
+        int width = Math.min(layout.titleBadgeWidth, font.width(tier) + 10);
+        graphics.fill(x, y, x + width, y + 11, 0xFF26131B);
+        graphics.fill(x, y, x + width, y + 1, PANEL_LINE);
+        graphics.drawString(font, fit(tier, width - 8), x + 5, y + 2, TEXT, false);
     }
 
     private void drawSideInstructions(GuiGraphics graphics) {
@@ -168,13 +179,10 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         int y = layout.sideY;
         graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.guidance"), layout.sideX, y, MUTED, false);
         y += 12;
-        for (var line : font.split(status, layout.sideWidth)) {
-            graphics.drawString(font, line, layout.sideX, y, TEXT, false);
-            y += 10;
-        }
+        y = drawWrapped(graphics, status, layout.sideX, y, layout.sideWidth, TEXT, layout.summaryY - 2);
         if (!menu.isRunning()) {
-            int summaryY = y + 2;
-            currentRecipe().ifPresent(recipe -> drawRecipeSummary(graphics, summaryY, recipe));
+            int summaryStartY = Math.max(layout.summaryY, y + 2);
+            currentRecipe().ifPresent(recipe -> drawRecipeSummary(graphics, summaryStartY, recipe));
         }
     }
 
@@ -182,21 +190,29 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         Component formula = recipe.formulaId()
                 .map(id -> Component.literal(id.toString()))
                 .orElseGet(() -> Component.translatable("screen.mydrugs.psy_mixer.formula_derived"));
-        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.formula", formula), layout.sideX, y, TEXT, false);
+        graphics.drawString(font, fit(Component.translatable("screen.mydrugs.psy_mixer.formula", formula), layout.sideWidth), layout.sideX, y, TEXT, false);
+        y += 10;
+        graphics.drawString(font, fit(Component.translatable(
+                "screen.mydrugs.psy_mixer.required_tier",
+                Component.translatable(recipe.requiredMixerTier().translationKey())), layout.sideWidth), layout.sideX, y, MUTED, false);
         y += 10;
 //        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality", qualityRange()), layout.sideX, y, TEXT, false);
 //        y += 10;
         Component actions = !hasPotentialActionRitual(recipe)
                 ? Component.translatable("screen.mydrugs.psy_mixer.no_ritual_required")
                 : actionSummary(recipe);
-        graphics.drawString(font, actions, layout.sideX, y, MUTED, false);
+        graphics.drawString(font, fit(actions, layout.sideWidth), layout.sideX, y, MUTED, false);
         y += 10;
         int patternY = y;
         RitualBaseDrugResolver.resolve(menu.getSlot(PsyMixerMultiblock.SLOT_BASE).getItem()).ifPresent(drug ->
-                graphics.drawString(font, Component.translatable(
+        {
+            if (patternY <= layout.checklistY - 10) {
+                graphics.drawString(font, fit(Component.translatable(
                         "screen.mydrugs.psy_mixer.ritual_pattern",
                         Component.translatable(PsyMixerRitualProfiles.forDrug(drug).motif().translationKey())
-                ), layout.sideX, patternY, MUTED, false));
+                ), layout.sideWidth), layout.sideX, patternY, MUTED, false);
+            }
+        });
     }
 
     private Component actionSummary(PsyMixerRecipe recipe) {
@@ -219,6 +235,9 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     }
 
     private boolean hasPotentialActionRitual(PsyMixerRecipe recipe) {
+        if (recipe.ritualLevel() == PsyMixerRitualLevel.PRIMITIVE) {
+            return baseDrugActionCount() > 0;
+        }
         return baseDrugActionCount() > 0 || hasActionOptionalItems(recipe);
     }
 
@@ -285,19 +304,14 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         switch (state) {
             case VALID -> {
                 color = GOOD;
-                stateText = Component.translatable(switch (slot) {
-                    case PsyMixerMultiblock.SLOT_CATALYST -> "screen.mydrugs.psy_mixer.optional.catalyst";
-                    case PsyMixerMultiblock.SLOT_STABILIZER -> "screen.mydrugs.psy_mixer.optional.stabilizer";
-                    case PsyMixerMultiblock.SLOT_VESSEL -> "screen.mydrugs.psy_mixer.optional.vessel";
-                    default -> "screen.mydrugs.psy_mixer.bonus_active";
-                });
+                stateText = Component.translatable("screen.mydrugs.psy_mixer.ready_short");
             }
             case REQUIRED_MISSING -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.missing"); }
-            case INVALID -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.optional.invalid"); }
+            case INVALID -> { color = BAD; stateText = Component.translatable("screen.mydrugs.psy_mixer.missing_short"); }
             case OPTIONAL_EMPTY -> { color = MUTED; stateText = Component.translatable("screen.mydrugs.psy_mixer.optional_short"); }
         }
         Component label = Component.translatable("screen.mydrugs.psy_mixer.checkline", Component.translatable(labelKey), stateText);
-        graphics.drawString(font, label, layout.sideX, y, color, false);
+        graphics.drawString(font, fit(label, layout.sideWidth), layout.sideX, y, color, false);
     }
 
     private void drawChecklistLine(GuiGraphics graphics, int y, String labelKey, boolean present, boolean required) {
@@ -306,29 +320,34 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
                 ? "screen.mydrugs.psy_mixer.ready"
                 : required ? "screen.mydrugs.psy_mixer.missing" : "screen.mydrugs.psy_mixer.optional_short");
         Component label = Component.translatable("screen.mydrugs.psy_mixer.checkline", Component.translatable(labelKey), state);
-        graphics.drawString(font, label, layout.sideX, y, color, false);
+        graphics.drawString(font, fit(label, layout.sideWidth), layout.sideX, y, color, false);
     }
 
     private void drawMeters(GuiGraphics graphics) {
         int y = layout.meterY;
-        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.quality_preview", Component.translatable(menu.getQualityPreview().translationKey())), layout.sideX, y, qualityColor(menu.getQualityPreview()), false);
+        graphics.drawString(font, fit(Component.translatable("screen.mydrugs.psy_mixer.quality_preview", Component.translatable(menu.getQualityPreview().translationKey())), layout.sideWidth), layout.sideX, y, qualityColor(menu.getQualityPreview()), false);
         y += 12;
-        graphics.drawString(font, Component.translatable("screen.mydrugs.psy_mixer.mistakes", menu.getMistakes(), menu.getMaxMistakes()), layout.sideX, y, menu.getMistakes() > 0 ? WARN : GOOD, false);
+        graphics.drawString(font, fit(Component.translatable("screen.mydrugs.psy_mixer.mistakes", menu.getMistakes(), menu.getMaxMistakes()), layout.sideWidth), layout.sideX, y, menu.getMistakes() > 0 ? WARN : GOOD, false);
         y += 12;
         if (!menu.isRunning()) {
+            int detailStartY = y;
             currentRecipe().ifPresent(recipe -> {
                 float multiplier = 1.0F;
                 if (recipe.hasValidCatalyst(menu.getSlot(PsyMixerMultiblock.SLOT_CATALYST).getItem())) multiplier += 0.20F;
                 if (recipe.hasValidStabilizer(menu.getSlot(PsyMixerMultiblock.SLOT_STABILIZER).getItem())) multiplier += 0.10F;
                 if (recipe.hasValidVessel(menu.getSlot(PsyMixerMultiblock.SLOT_VESSEL).getItem())) multiplier += 0.10F;
-                graphics.drawString(font, Component.translatable(
+                int detailY = detailStartY;
+                graphics.drawString(font, fit(Component.translatable(
                         "screen.mydrugs.psy_mixer.score_multiplier", Math.round(multiplier * 100.0F)
-                ), layout.sideX, layout.bonusY, TEXT, false);
-                graphics.drawString(font, Component.translatable(
-                        "screen.mydrugs.psy_mixer.quality_effects",
-                        PsyMixerRitualQuality.MASTERWORK.positivePercent(),
-                        PsyMixerRitualQuality.MASTERWORK.negativePercent()
-                ), layout.sideX, layout.bonusY + 10, MUTED, false);
+                ), layout.sideWidth), layout.sideX, detailY, TEXT, false);
+                detailY += 10;
+                if (detailY <= layout.actionY - 12) {
+                    graphics.drawString(font, fit(Component.translatable(
+                            "screen.mydrugs.psy_mixer.quality_effects",
+                            PsyMixerRitualQuality.MASTERWORK.positivePercent(),
+                            PsyMixerRitualQuality.MASTERWORK.negativePercent()
+                    ), layout.sideWidth), layout.sideX, detailY, MUTED, false);
+                }
             });
         }
         if (menu.isRunning()) {
@@ -344,8 +363,8 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     }
 
     private void drawMeter(GuiGraphics graphics, int y, String labelKey, int fillWidth, int fillColor) {
-        graphics.drawString(font, Component.translatable(labelKey), layout.sideX, y - 1, MUTED, false);
-        int barX = layout.sideX + 64;
+        graphics.drawString(font, fit(Component.translatable(labelKey), layout.meterLabelWidth), layout.sideX, y - 1, MUTED, false);
+        int barX = layout.sideX + layout.meterLabelWidth + 6;
         graphics.fill(barX, y + 2, barX + layout.meterWidth, y + 5, 0xFF21131A);
         graphics.fill(barX, y + 2, barX + fillWidth, y + 5, fillColor);
     }
@@ -423,6 +442,26 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         graphics.drawString(font, text, x - font.width(text) / 2, y, color, false);
     }
 
+    private int drawWrapped(GuiGraphics graphics, Component text, int x, int y, int width, int color, int maxY) {
+        for (var line : font.split(text, width)) {
+            if (y > maxY) {
+                graphics.drawString(font, "...", x, maxY, color, false);
+                return maxY + 10;
+            }
+            graphics.drawString(font, line, x, y, color, false);
+            y += 10;
+        }
+        return y;
+    }
+
+    private Component fit(Component component, int width) {
+        if (font.width(component) <= width) {
+            return component;
+        }
+        int ellipsisWidth = font.width("...");
+        return Component.literal(font.plainSubstrByWidth(component.getString(), Math.max(0, width - ellipsisWidth)) + "...");
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         updateButtons();
@@ -497,10 +536,11 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
     }
 
     private static final class RitualLayout {
-        final int width = 336;
-        final int height = 198;
+        final int width = 388;
+        final int height = 216;
         final int titleX = 10;
         final int titleY = 8;
+        final int titleBadgeWidth = 72;
         final int ritualX = 10;
         final int ritualY = 22;
         final int ritualWidth = 164;
@@ -512,16 +552,21 @@ public final class PsyMixerScreen extends AbstractContainerScreen<PsyMixerMenu> 
         final int outputOffsetX = 64;
         final int ringRadius = 42;
         final int markerRadius = 49;
-        final int sideX = 188;
-        final int sideY = 20;
-        final int sideWidth = 132;
-        final int checklistY = 66;
-        final int bonusY = 120;
-        final int meterY = 135;
+        final int sidePanelX = 184;
+        final int sidePanelY = 22;
+        final int sidePanelWidth = 194;
+        final int sidePanelHeight = 166;
+        final int sideX = 194;
+        final int sideY = 30;
+        final int sideWidth = 174;
+        final int summaryY = 54;
+        final int checklistY = 82;
+        final int meterY = 146;
+        final int meterLabelWidth = 58;
         final int meterWidth = 64;
-        final int actionX = 236;
-        final int actionY = 164;
-        final int actionWidth = 84;
+        final int actionX = 252;
+        final int actionY = 194;
+        final int actionWidth = 110;
         final int inventoryX = 10;
         final int inventoryLabelY = 104;
         final int inventoryPanelX = 6;

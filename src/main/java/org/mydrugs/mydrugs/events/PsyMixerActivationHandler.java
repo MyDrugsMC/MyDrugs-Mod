@@ -21,6 +21,7 @@ import org.mydrugs.mydrugs.blocks.ModBlocks;
 import org.mydrugs.mydrugs.blocks.PsyMixerMultiblock;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerPartBlockEntity;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerTier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +60,19 @@ public final class PsyMixerActivationHandler {
 
         ServerPlayer thrower = (pearl.getOwner() instanceof ServerPlayer sp) ? sp : null;
 
+        boolean activated = activate(level, pos, thrower, PsyMixerTier.AWAKENED);
+        pearl.discard();
+        if (!activated) {
+            return;
+        }
+    }
+
+    public static boolean activate(ServerLevel level, BlockPos pos, ServerPlayer player, PsyMixerTier tier) {
         PsyMixerMultiblock.Match match = PsyMixerMultiblock.validate(level, pos);
         if (match == null) {
-            sendRandomMessage(thrower, level, INVALID_MESSAGES);
+            sendRandomMessage(player, level, INVALID_MESSAGES);
             level.playSound(null, pos, SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.BLOCKS, 0.6F, 0.4F);
-            pearl.discard();
-            return;
+            return false;
         }
 
         // Save original states
@@ -78,7 +86,7 @@ public final class PsyMixerActivationHandler {
         // First place core on bowl pos
         level.setBlock(pos, ModBlocks.FORMED_PSY_MIXER_CORE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(pos) instanceof FormedPsyMixerCoreBlockEntity core) {
-            core.initFromActivation(match.facing(), saved);
+            core.initFromActivation(match.facing(), saved, tier);
         }
 
         for (PsyMixerMultiblock.PlacedSlot placed : match.placed()) {
@@ -91,9 +99,12 @@ public final class PsyMixerActivationHandler {
         }
 
         // Send the required activation message
-        if (thrower != null) {
-            thrower.displayClientMessage(Component.translatable("message.mydrugs.psy_mixer.awaken"), false);
-            sendRandomMessage(thrower, level, ACTIVATION_MESSAGES);
+        if (player != null) {
+            player.displayClientMessage(Component.translatable(
+                    tier == PsyMixerTier.DORMANT
+                            ? "message.mydrugs.psy_mixer.activated_dormant"
+                            : "message.mydrugs.psy_mixer.awaken"), false);
+            sendRandomMessage(player, level, ACTIVATION_MESSAGES);
         }
 
         // Sound + particles
@@ -109,7 +120,7 @@ public final class PsyMixerActivationHandler {
             );
         }
 
-        pearl.discard();
+        return true;
     }
 
     private static void sendRandomMessage(ServerPlayer player, Level level, String[] keys) {

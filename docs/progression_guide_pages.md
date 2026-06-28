@@ -45,6 +45,7 @@ JEI has exact recipes. Machine screens explain immediate refusals. Advancements 
 @link Coffee|Ch.1 — Caffeine
 @link Tools and Resin|Early workshop
 @link Tobacco|Ch.2 — Nicotinic
+@link Early Psy Mixer|Early rituals
 @link Anvil and Sieve|Ch.3 — Tools
 @link Cannabis|Ch.4 — Cannabinoid
 @link Copper Workshop|Copper and vats
@@ -67,7 +68,7 @@ JEI has exact recipes. Machine screens explain immediate refusals. Advancements 
 @link Petroleum|Industrial fluids
 @link Meth|Ch.11 — Overclocked
 @link Mushrooms|Ch.12 — Mycelial
-@link Psy Mixer|Rituals
+@link Psy Mixer|Full ritual reference
 @link Starter Mixes|Gentle mixes
 @link Strong Mixes|Dangerous mixes
 @link Psy Current|Extraction power
@@ -128,13 +129,15 @@ Pillars: Production · Risk · Recovery · Integration · Inner Dimension
 
 This is the whole game on one page. Each arrow is roughly one chapter.
 
-Grass and ferns → crops → coffee kit → coffee → tobacco → Psy Receptacle → Psy Anvil → iron mesh → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
+Grass and ferns → coffee and tobacco farm → early workshop → coffee → Psy Receptacle → tobacco → Dormant Psy Mixer → Psy Anvil → iron mesh → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
 
 Recovery runs alongside ALL of it, not after.
 
+The early route is not only technology. Coffee teaches focus, tobacco teaches steadiness, and the Dormant Psy Mixer turns those first lessons into useful mixes before the machine era begins.
+
 The machine route teaches control. The stimulant route tempts overclocking. LSD and mushrooms open a different route: insight, recovery, integration, and the Inner Dimension.
 
-> [WARN] Hash is a knowledge milestone tied to cannabis, but the physical hash route waits until after Fermented Knowledge because the stomp crafter needs heavy iron.
+> [WARN] Hash belongs after Fermented Knowledge. It is made from cannabis resin, but the physical hash route waits for heavy iron and the stomp crafter.
 
 > [GOAL] Use the guide for the route. Use the diary to understand whether the route is helping you or trapping you.
 
@@ -156,9 +159,11 @@ Knowledge is permanent. It usually comes from consuming the finished form of a d
 8. Meth powder, smoked → Overclocked
 9. Magic mushroom → Mycelial
 
-Cannabis needs Nicotinic before it can teach Cannabinoid. Alcohol needs Cannabinoid before it can teach Fermented. Cocaine and crack need Fermented before Stimulant. LSD needs Stimulant. Meth needs Lysergic. Mushrooms can be eaten early, but Mycelial Knowledge waits until Overclocked.
+Cannabis needs Nicotinic before it can teach Cannabinoid. Alcohol needs Cannabinoid before it can teach Fermented. Hash needs Fermented before it can teach Steel Plating. Cocaine and crack need Steel Plating before Stimulant. LSD needs Stimulant. Meth needs Lysergic. Mushrooms can be eaten early, but Mycelial Knowledge waits until Overclocked.
 
-Hash is special: it can teach Steel Plating, but you cannot practically make it until after Fermented unlocks heavy iron and the stomp crafter.
+The Psy Mixer is different. It does not replace drug knowledge. Early rituals teach ritual literacy and make better tools for work, exploration and risk management, but the base drug still teaches the actual knowledge.
+
+Hash is special: it is a cannabis material, but not an early cannabis lesson. Save cannabis resin until Fermented Knowledge gives you heavy iron and the stomp crafter.
 
 > [WARN] Consume something too early and you may still get the effects and the addiction — but no knowledge. The dose is wasted, except mushrooms, which simply defer their real lesson.
 
@@ -170,6 +175,8 @@ MAIN QUEST + EXPLORATION
 
 Everything starts in the grass. Break grass, tall grass, ferns and large ferns by hand — no shears — and mod seeds can drop.
 
+Your first practical goal is not every crop. It is coffee plus tobacco. Coffee opens Caffeine and the Psy Receptacle. Tobacco opens Nicotinic and makes early rituals stable enough to matter.
+
 @item mydrugs:coffee_seeds
 @item mydrugs:tobacco_seeds
 @item mydrugs:cannabis_seeds
@@ -178,7 +185,9 @@ Everything starts in the grass. Break grass, tall grass, ferns and large ferns b
 @item mydrugs:malt_seeds
 @item mydrugs:aloe_vera_seeds
 
-Plant all of them. Keep the rows separate so you never confuse a harvest.
+Plant all of them when you find them, but keep the rows separate so you never confuse a harvest. Start processing once coffee and tobacco are growing; do not wait for every seed before the mod begins.
+
+Cannabis is the next main crop after tobacco. Rye and malt matter for fermentation. Aloe is useful for safer tobacco mixes and later recovery-adjacent work. Coca is important, but it is not an early knowledge gate.
 
 Poppies can become poppy seeds for the optional opium crop, but that branch is not part of the main knowledge spine.
 
@@ -194,7 +203,7 @@ While you explore, pocket wild finds too. Some are recovery materials, some are 
 @item mydrugs:third_eye_petal
 @item mydrugs:magic_mushroom
 
-> [GOAL] Get a farm running before you touch repeated processing.
+> [GOAL] Get coffee and tobacco growing first. Then expand the farm instead of breaking grass forever.
 
 > [TIP] Magic mushrooms can appear early, but Mycelial Knowledge is late. Save some instead of eating every find.
 ---
@@ -216,9 +225,11 @@ Your first drug, and the gentlest. It teaches the whole pattern: harvest, proces
 
 Harvest cherries. Use the Manual Coffee Pulper to turn cherries into wet beans and biomass. Dry the wet beans on the coffee drying mat or drying rack. Grind the dry beans into powder.
 
-Put water in a clay vat, heat it, add enough coffee powder for the water batch, then fill a cup and drink.
+Put water in a clay vat and heat it. One serving uses one coffee powder, one cup, and a small amount of water. A full bucket can support several cups, but you do not need a full batch for your first drink.
 
-That first cup grants Caffeine Knowledge — and hands you the Psy Receptacle, the heart of every tool ahead.
+That first cup grants Caffeine Knowledge — and hands you the Psy Receptacle, the heart of every tool and ritual ahead.
+
+Coffee is not just a checkbox. It makes early hand work faster, and mixed coffee later becomes one of the best ways to mine, process and build without turning the whole early game into a grind.
 
 > [WARN] Coffee still needs workshop pieces. If you have cherries but cannot finish the drink, build the drying and grinding setup first.
 
@@ -239,9 +250,11 @@ Before tobacco becomes reliable, build a small workshop.
 @item mydrugs:grinding_tool
 @item mydrugs:portable_grinder
 
-Strike strippable logs with an axe, over and over, until ordinary resin falls. Resin plus planks gives treated planks.
+Normal axe use strips logs like vanilla. Sneak while using an axe on a strippable log to tap ordinary resin instead. Finish the tapping sequence and collect the resin, then use resin plus planks to make treated planks.
 
 Build the drying rack, grinding bowl and grinding tool. These three process nearly every early crop. The portable grinder is the comfort upgrade once repeated grinding becomes annoying.
+
+The early workshop should feel physical, not mysterious: dry things that are wet, grind things that are dry, and read block messages when an interaction refuses.
 
 > [WARN] Ordinary resin is NOT cannabis resin. Different thing, different page.
 
@@ -264,13 +277,62 @@ Tobacco is the second gate — and the first thing that bites back.
 
 Dry the leaves, grind them into handfuls, then smoke them raw with a bang or roll a proper cigarette.
 
-Processed tobacco grants Nicotinic Knowledge.
+Processed tobacco grants Nicotinic Knowledge. Together with Caffeine and the Psy Receptacle, this is enough to make the Dormant Psy Mixer worth building.
+
+Tobacco mixes are not decoration. Copper tobacco, aloe tobacco and quartz tobacco help with precision, tremor control and ritual focus — exactly the things early manual machines and rituals ask from you.
 
 > [WARN] Addiction climbs fast here. The habits you skip now become the crisis you fix later.
 
-> [GOAL] Get Nicotinic Knowledge — then read the recovery pages before your next smoke.
+> [GOAL] Get Nicotinic Knowledge, then build the Dormant Psy Mixer before you rush too deep into machines.
 
+@link Early Psy Mixer|Turn coffee and tobacco into tools
 @link Recovery Basics|Get ahead of it
+---
+# Early Psy Mixer
+
+RITUAL — EARLY UTILITY
+
+Pillars: Production · Risk
+
+The Psy Mixer now has two lives.
+
+Dormant Psy Mixer is early utility: simple rituals, no formula naming, readable mixed drugs, and effects strong enough to justify the time. Awakened Psy Mixer is later mastery: stronger formulas, naming, deeper catalysts and higher ritual pressure.
+
+@item mydrugs:psy_receptacle
+@item mydrugs:woven_vine_frame
+@item mydrugs:ritual_bark
+@item mydrugs:charcoal_glyph_block
+@item mydrugs:painted_clay_bowl
+@item mydrugs:hanging_vine_bundle
+@item mydrugs:mycelial_padding
+@item mydrugs:psychotropic_pigment
+@item mydrugs:ritual_resin
+@item mydrugs:ritual_threads
+
+Build the mixer structure, then use the Psy Receptacle on the painted clay bowl. The receptacle wakes the structure without being consumed. This forms a Dormant Psy Mixer.
+
+Start with primitive formulas. They do not ask you to name or patent anything. They produce readable items like Sweet Coffee, Redline Coffee, Steady Tobacco or Grounded Cannabis.
+
+Good first uses:
+
+Coffee + sugar → comfortable workshop and travel speed.
+Coffee + redstone → mining and intense processing.
+Coffee + cocoa → safer daily work.
+Tobacco + copper → steady hands for tools and anvil work.
+Tobacco + aloe → safer precision and less tremor.
+Tobacco + quartz → ritual focus.
+
+After Cannabinoid Knowledge, try cannabis formulas for stress relief, low-light exploration and ritual stability.
+
+The mixer learns from your hands. Repeating a family of rituals gives small mastery bonuses: coffee makes future coffee work faster, tobacco widens ritual control, and cannabis makes calm rituals more forgiving.
+
+Later, an Ender Pearl or Unstable Pearl awakens the mixer fully. Save the deep, named and dangerous formulas for that stage.
+
+> [TIP] The Dormant Psy Mixer is not optional fluff. Use it to make mining, hand processing, early rituals and recovery safer.
+
+> [GOAL] Make one useful coffee or tobacco mix before building the Psy Anvil.
+
+@link Starter Mixes|Which formulas are worth trying
 ---
 # Anvil and Sieve
 
@@ -280,13 +342,19 @@ With Caffeine and Nicotinic in your head, the Psy Anvil becomes useful.
 
 @item mydrugs:psy_receptacle
 @item mydrugs:psy_anvil
+@item mydrugs:lucid_lure
+@item mydrugs:unstable_pearl
 @item mydrugs:stone_hammer
 @item mydrugs:iron_mesh
 @item mydrugs:sieve
 
-Craft the Psy Anvil. Use it to forge iron mesh, then build the sieve from that mesh.
+Craft the Psy Anvil. Its core accepts a vanilla Ender Pearl or an Unstable Pearl. If Endermen refuse to cooperate, craft a Lucid Lure, use it at night or in low light, defeat the echo it calls, and claim the Unstable Pearl.
+
+Use the Psy Anvil to forge iron mesh, then build the sieve from that mesh.
 
 The anvil unlocks new recipes with every knowledge you gain. If it refuses you, read its message — it tells you exactly which knowledge is missing.
+
+> [WARN] Do not let Ender Pearl or amethyst luck decide the run. When a vanilla rare material blocks the route, look for the modded fallback.
 
 > [GOAL] Forge iron mesh and build the sieve.
 
@@ -309,11 +377,14 @@ Dry cannabis leaves into cured leaves. Run cured leaves through the sieve. Grind
 
 Smoke or roll the powder for Cannabinoid Knowledge.
 
+The sieve is tactile on purpose. Drag and work the material until it separates. Cannabis resin no longer depends on endless luck: repeated sieving builds resin progress, and enough leaves guarantee resin.
+
+Use early cannabis mixes after Cannabinoid Knowledge if you need stress relief, low-light exploration or ritual stability. Do not rush hash yet.
+
 > [WARN] Sieve BEFORE you grind — sieving is where cannabis resin comes from, and every scrap of resin becomes hash later. Throw none away.
 
-> [GOAL] Unlock Cannabinoid Knowledge. Hoard the resin.
+> [GOAL] Unlock Cannabinoid Knowledge. Hoard the resin for post-fermented hash.
 ---
-
 # Copper Workshop
 
 SUPPORT
@@ -330,10 +401,11 @@ Cannabinoid Knowledge teaches the Psy Anvil to shape copper — and copper opens
 
 Shape copper parts and assemble the mixing vat. From here, recipes start dealing in fluids, not just items.
 
-> [TIP] Copper is your first real bottleneck. Spend it on the vat first.
+Copper also matters in rituals. If early hand work feels shaky, try a tobacco + copper formula in the Dormant Psy Mixer before you blame the machines.
+
+> [TIP] Copper is your first real bottleneck. Spend it on the vat first, then on comfort formulas and spare parts.
 
 > [GOAL] Build a mixing vat.
-
 ---
 # Fermentation
 
@@ -355,9 +427,10 @@ Bottle the fermented mash in a MyDrugs glass bottle and drink it for Fermented K
 
 Fermented Knowledge also awards a small starter supply of insulated wire. Save it; repeatable wire production comes later with Stimulant Knowledge.
 
+Fermentation is the hinge: it opens heavy iron, the post-cannabis hash route, and the path toward the Awakened Psy Mixer.
+
 > [GOAL] Unlock Fermented Knowledge and keep the first wires safe.
 ---
-
 # Heavy Iron
 
 SUPPORT
@@ -374,8 +447,9 @@ Fermented Knowledge unlocks heavy iron on the Psy Anvil — the metal that build
 
 Heavy iron becomes frames, casings, the stomp crafter, and the first real machines.
 
-> [GOAL] Forge enough heavy iron for the stomp crafter and a stock of machine parts.
+If you saved cannabis resin, this is where that patience starts paying off. Heavy iron lets you press resin into hash instead of treating hash like an early cannabis product.
 
+> [GOAL] Forge enough heavy iron for the stomp crafter and a stock of machine parts.
 ---
 # Hash and Steel
 
@@ -393,12 +467,15 @@ This is where your hoarded resin pays off.
 @item mydrugs:steel_blend
 @item mydrugs:steel_ingot
 @item mydrugs:steel_plate
+@item mydrugs:dull_attuned_shard
 
 Press saved resin in the stomp crafter into hash bricks, split bricks into pieces, and smoke a piece.
 
 Hash grants Steel Plating Knowledge. Then press iron and coal dust into steel blend, cook it in the advanced furnace, and shape steel plates on the Psy Anvil.
 
-> [WARN] Hash feels like a cannabis milestone, but it is physically a post-fermentation milestone because the stomp crafter needs heavy iron.
+Steel Plating also teaches the first deterministic resonance route. If amethyst geodes have not appeared, shape dull attuned shards instead of waiting for world luck.
+
+> [WARN] Hash feels like a cannabis milestone, but it is physically and mentally post-fermentation. Do not hunt it before heavy iron.
 
 > [GOAL] Unlock Steel Plating Knowledge and step into the machine era.
 ---
@@ -414,10 +491,13 @@ Steel means machines. From here you stop doing everything by hand.
 @item mydrugs:fluid_filterer
 @item mydrugs:evaporation_tray
 @item mydrugs:advanced_mixing_vat
+@item mydrugs:attuned_shard
 
 Build machines as JEI and the advancements call for them. Every machine GUI tells you why a recipe is stuck.
 
 Usual culprits: missing input, wrong fluid, wrong gas, no heat, no energy, output full, bad side config, missing knowledge.
+
+Steel starts the machine era. Stimulant later turns it into a circuit era. If a recipe asks for amethyst-like resonance before you have found geodes, use the attuned shard route after steel and stimulant instead of abandoning the run.
 
 > [TIP] A machine that “does nothing” is almost always telling you why. Read its screen first.
 
@@ -964,17 +1044,17 @@ See also: Knowledge Spine, Anvil and Sieve.
 
 ## Psy Mixer
 
-Era: Ritual / Integration Era.
+Era: Ritual / Integration Era, with an early Dormant stage.
 
-Purpose: Forms mixed-drug rituals from offerings, materials and performance rather than exact machine cycles.
+Purpose: Turns base drugs into useful task-focused mixes through ritual performance instead of exact machine cycles.
 
-Handles: Multiblock shape, offering, material, optional catalyst, optional stabilizer, optional vessel, ritual timing, output.
+Handles: Multiblock shape, mixer tier, offering, material, optional catalyst, optional stabilizer, optional vessel, ritual timing, output.
 
-Common blockers: Invalid structure, missing offering, missing material, missing knowledge, ritual already running, output blocked.
+Common blockers: Invalid structure, dormant mixer trying an awakened recipe, missing offering, missing material, missing knowledge, ritual already running, output blocked.
 
-Automation: Automation is intentionally limited; the server owns ritual timing and judgement.
+Automation: Automation is intentionally limited; the server owns ritual timing and judgement. Use Dormant recipes for early utility and Awakened recipes for named, deep or dangerous formulas.
 
-See also: Psy Mixer, Strong Mixes, Recovery Basics.
+See also: Early Psy Mixer, Psy Mixer, Starter Mixes, Strong Mixes, Recovery Basics.
 
 @item mydrugs:psychotrope_resonator
 ## Psychotrope Resonator
@@ -1088,9 +1168,13 @@ The boring stockpile that stops you mid-recipe later. Build a chest for it.
 @item mydrugs:fluid_filter
 @item mydrugs:refractory_brick
 @item mydrugs:distillation_coil
+@item mydrugs:dull_attuned_shard
+@item mydrugs:attuned_shard
 @item mydrugs:psychotrope_lens
 
 Keep biomass, coal dust, rubber, glass tubes, seals, filters, refractory brick, copper tube, steel plate and thick glass spare.
+
+Dull attuned shards and attuned shards are the modded fallback for amethyst-shard bottlenecks. Vanilla amethyst still works, but geode luck should not decide whether you can reach lysergic-era support materials.
 
 Later, the Psychotrope Distillery and Resonator also lean on distillation coils and psychotrope lenses. Treat them as late support materials, not decoration.
 
@@ -1143,14 +1227,13 @@ Route fluids and gases separately: configure a fluid filter with a bucket or flu
 > [TIP] Line stopped? Check, in order: output space, tank type, pipe direction, side config, filter, energy.
 
 ---
-
 # Coca
 
 MAIN QUEST — Chapter 8
 
 Pillars: Production · Risk
 
-The first hard drug. It needs a machine line and it does not forgive sloppy recovery.
+The first hard drug. It needs the steel machine line and it does not forgive sloppy recovery.
 
 @item mydrugs:coca_leaf
 @item mydrugs:dried_coca_leaf
@@ -1162,14 +1245,13 @@ The first hard drug. It needs a machine line and it does not forgive sloppy reco
 
 Dry coca, grind to paste, mix with absolute ethanol, centrifuge, evaporate, then grind the plate into powder.
 
-Cocaine powder grants Stimulant Knowledge.
+Cocaine powder grants Stimulant Knowledge only after Steel Plating is open. If it does not teach you, check the knowledge gate instead of taking another dose.
 
 > [WARN] Cocaine and crack spike addiction, bad-trip pressure and overdose risk hard. Have recovery built first.
 
-> [GOAL] Unlock Stimulant Knowledge.
+> [GOAL] Unlock Stimulant Knowledge after steel, not before.
 
 @link Alcohol Distillation|You need ethanol first
-
 ---
 # Alcohol Distillation
 
@@ -1232,12 +1314,15 @@ Pillars: Production
 @item mydrugs:heating_coil
 @item mydrugs:condenser_coil
 @item mydrugs:electrode_pair
+@item mydrugs:attuned_shard
 
 Fermented Knowledge gives a few starter wires, but Stimulant Knowledge unlocks repeatable insulated wire.
 
 Wire becomes control circuits and powered machine parts. If your machine route suddenly asks for motors, coils or electrodes, this is the page you were supposed to reach.
 
-> [GOAL] Build control circuits and start automating in earnest.
+Stimulant also energizes the resonance route: dull attuned shards become attuned shards, giving you a deterministic substitute for amethyst shard recipes that matter to the lysergic transition.
+
+> [GOAL] Build control circuits, activate attuned shards, and start automating in earnest.
 ---
 # Lab Chemistry
 
@@ -1423,8 +1508,16 @@ RITUAL
 
 Pillars: Production · Integration
 
-The Psy Mixer is the mod's sandbox. It blends a base drug with a material, a vessel and your knowledge into something new.
+The Psy Mixer is the mod's ritual sandbox. It blends a base drug with a material, a vessel and your knowledge into something new.
 
+It has two stages.
+
+Dormant Psy Mixer is early utility. Activate the built structure with the Psy Receptacle. Primitive formulas are short, readable, do not require naming, and should be useful enough to justify the ritual.
+
+Awakened Psy Mixer is full mastery. Awaken or upgrade it with an Ender Pearl or Unstable Pearl. This is where naming, stronger catalysts, deeper recipes and dangerous formulas belong.
+
+@item mydrugs:psy_receptacle
+@item mydrugs:unstable_pearl
 @item mydrugs:woven_vine_frame
 @item mydrugs:ritual_bark
 @item mydrugs:charcoal_glyph_block
@@ -1438,10 +1531,11 @@ The Psy Mixer is the mod's sandbox. It blends a base drug with a material, a ves
 
 The structure matters, the offerings matter, and the ritual performance matters. The common vessel is the painted clay bowl. Psychotropic pigment acts as catalyst. Ritual resin often stabilizes stronger mixes.
 
-Get the formula wrong and the ritual fails — leaving unstable residue behind. JEI has the exact requirements.
+Get a primitive formula wrong and the mixer teaches you gently. Get a deep formula wrong and unstable residue may be all that remains. JEI has the exact requirements.
 
-> [TIP] Rituals are not on the main spine. But they make your work, exploration and risk management dramatically stronger.
+> [TIP] Do not save the Psy Mixer for the endgame. Dormant coffee, tobacco and cannabis formulas make early work, mining, exploration and risk management dramatically stronger.
 
+@link Early Psy Mixer|First use
 @link Starter Mixes|Safe rituals to try first
 ---
 # Starter Mixes
@@ -1450,13 +1544,21 @@ RITUAL — gentle
 
 Pillars: Production · Risk
 
-Begin with the calm drugs. These themes are reliable:
+Starter mixes are the reason to build the Dormant Psy Mixer early. They should save more time and risk than the ritual costs.
 
-Coffee + sugar / redstone / cocoa / bitter nut → work speed, mining speed.
-Tobacco + aloe / quartz / copper → precision, less tremor.
-Weed + moss carpet / calming spores / glowstone / phantom membrane → stress relief, glow, stability.
-Hash + calming spores / ghast tear / phantom membrane → stronger calm and recovery pressure relief.
-Alcohol + ghast tear / broken courage / inner demon remains / iron → stress and damage resistance.
+Primitive formulas do not require naming. They create readable mixed drugs automatically.
+
+Coffee + sugar → comfortable workshop speed and travel.
+Coffee + redstone → mining speed and intense manual processing, with some stimulation pressure.
+Coffee + cocoa → safer daily work and a little stress relief.
+Tobacco + copper → steady hands for early machines and anvil work.
+Tobacco + aloe → precision with less tremor.
+Tobacco + quartz → ritual focus.
+Weed + moss carpet → calm and ritual stability.
+Weed + glowstone → cave visibility and exploration support.
+Weed + phantom membrane → vertical exploration, if the recipe is unlocked in your build.
+
+Hash mixes are not starter mixes anymore. Hash belongs after Fermented Knowledge, heavy iron and the stomp crafter.
 
 @item mydrugs:mixed_coffee_drug
 @item mydrugs:mixed_tobacco_drug
@@ -1464,7 +1566,7 @@ Alcohol + ghast tear / broken courage / inner demon remains / iron → stress an
 @item mydrugs:mixed_hash_drug
 @item mydrugs:defiant_spirit_bottle
 
-> [GOAL] Master tobacco, coffee, weed and hash mixes before touching the hard ones.
+> [GOAL] Use coffee mixes for work, tobacco mixes for control, and cannabis mixes for calm before you touch stronger routes.
 ---
 # Strong Mixes
 
@@ -1472,14 +1574,17 @@ RITUAL — high power, high cost
 
 Pillars: Production · Risk
 
-The stimulant and psychedelic mixes are where the real power is — and the real danger.
+Strong mixes belong to the Awakened Psy Mixer. This is where naming, deeper catalysts, higher ritual pressure and dangerous rewards make sense.
 
+Hash + calming spores / ghast tear / phantom membrane → stronger calm and recovery pressure relief.
+Alcohol + ghast tear / broken courage / inner demon remains / iron → stress and damage resistance.
 Cocaine + redstone / blaze powder / rabbit foot / charged sinew → speed, adrenaline, dash.
 Crack + gunpowder / echo shard / fractured impulse → burst windows, dash power.
 Meth + diamond / netherite scrap / charged core → mining, work speed and overdrive, but worse tremors.
 LSD + lapis / diamond / ender pearl / third eye petal → ore aura, fortune, multiblock vision.
-Mushrooms + amethyst / glow berries / dreamcap spores → ore aura, gamma, bad-trip resistance.
+Mushrooms + resonance shard / glow berries / dreamcap spores → ore aura, gamma, bad-trip resistance.
 
+@item mydrugs:mixed_hash_drug
 @item mydrugs:mixed_cocaine_drug
 @item mydrugs:mixed_crack_drug
 @item mydrugs:mixed_meth_drug
@@ -1487,6 +1592,8 @@ Mushrooms + amethyst / glow berries / dreamcap spores → ore aura, gamma, bad-t
 @item mydrugs:mixed_mushrooms_drug
 
 > [WARN] A strong mix is not a safe mix. Watch stress, symptoms, addiction and overdose the whole time.
+
+> [TIP] If the mixer says the formula needs awakening, upgrade the Dormant Mixer with an Ender Pearl or Unstable Pearl.
 ---
 # Psychotrope Resonator
 
@@ -1905,7 +2012,9 @@ It plots every knowledge you have unlocked and every milestone you have hit: fir
 
 Read the map as a constellation, not a checklist:
 
-Discovery → control → temptation → recovery → psychedelic opening → integration → Inner Dimension → boss → freedom.
+Discovery → coffee focus → tobacco steadiness → early ritual literacy → cannabis calm → fermentation → steel → stimulant temptation → psychedelic opening → integration → Inner Dimension → boss → freedom.
+
+The first Psy Mixer ritual belongs near the beginning of the map. Named formulas and deep ritual mastery belong later, once the mixer is awakened.
 
 > [TIP] If you ever feel lost in the mid game, open the diary first, then read the map as proof of what you have already lived through.
 ---
@@ -2059,9 +2168,9 @@ Lost a progression-critical item entirely? It can be rebuilt — do not start a 
 
 @title One Last Look
 
-Grass and ferns → crops → coffee kit → coffee → tobacco → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
+Grass and ferns → coffee and tobacco farm → early workshop → coffee → Psy Receptacle → tobacco → Dormant Psy Mixer → Psy Anvil → sieve → cannabis → copper → mixing vat → fermented mash → heavy iron → stomp crafter → hash → steel → machines → absolute ethanol → coca → circuits → gases and acids → LSD → advanced circuits → petroleum and late reagents → meth → mushrooms → Psy Current extracts → Psychotrope Resonator → recovery integration → Inner Dimension → somatic adaptation → boss → freedom.
 
-Running underneath it all: recovery early, JEI for ingredients, machine screens for problems, the diary for yourself, the Psy Mixer for power, and the Resonator for integration.
+Running underneath it all: recovery early, JEI for ingredients, machine screens for problems, the diary for yourself, the Dormant Psy Mixer for useful early tools, the Awakened Psy Mixer for ritual mastery, and the Resonator for integration.
 
 The final path is not “stronger drugs forever.” It is learning the difference between escape and integration.
 

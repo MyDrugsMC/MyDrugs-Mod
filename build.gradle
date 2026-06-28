@@ -65,6 +65,9 @@ tasks.register('resourceAuditManifest', JavaExec) {
     group = 'verification'
     description = 'Writes the deterministic resource contract report under build/reports.'
     dependsOn tasks.named('testClasses')
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'org.mydrugs.mydrugs.audit.ResourceAuditManifestWriter'
     args layout.buildDirectory.file('reports/mydrugs/resource_audit_manifest.json').get().asFile.absolutePath
@@ -74,6 +77,9 @@ tasks.register('updateResourceAuditManifest', JavaExec) {
     group = 'verification'
     description = 'Intentionally updates the committed resource audit and known texture debt snapshots.'
     dependsOn tasks.named('testClasses')
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'org.mydrugs.mydrugs.audit.ResourceAuditManifestWriter'
     args layout.buildDirectory.file('reports/mydrugs/resource_audit_manifest.json').get().asFile.absolutePath,

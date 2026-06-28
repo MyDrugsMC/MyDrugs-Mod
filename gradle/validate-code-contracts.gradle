@@ -97,8 +97,13 @@ tasks.register('validateCodeContracts') {
         }
 
         def gateText = text('src/main/java/org/mydrugs/mydrugs/progression/DrugProgressionGate.java')
-        if (!gateText.contains('case HASH -> new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID, PsyKnowledgeKey.STEEL_PLATING)')) {
-            errors.add('DrugProgressionGate must explicitly grant both CANNABINOID and STEEL_PLATING for HASH.')
+        if (!gateText.contains('case HASH -> new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.STEEL_PLATING)')) {
+            errors.add('DrugProgressionGate must keep HASH post-fermented and grant STEEL_PLATING.')
+        }
+        if (gateText.contains('case HASH -> new Rule(PsyKnowledgeKey.NICOTINIC')
+                || gateText.contains('case HASH -> new Rule(PsyKnowledgeKey.CANNABINOID')
+                || gateText.contains('case HASH -> new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.CANNABINOID')) {
+            errors.add('DrugProgressionGate must not treat HASH as an early cannabinoid unlock.')
         }
         if (!gateText.contains('evaluateKnownKnowledge')) {
             errors.add('DrugProgressionGate must expose evaluateKnownKnowledge for progression contract checks.')

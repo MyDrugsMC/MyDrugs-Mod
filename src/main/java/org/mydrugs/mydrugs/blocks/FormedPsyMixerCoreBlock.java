@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.mydrugs.mydrugs.blocks.entity.FormedPsyMixerCoreBlockEntity;
+import org.mydrugs.mydrugs.items.ModItemTags;
 
 import java.util.function.BiConsumer;
 
@@ -60,6 +61,17 @@ public final class FormedPsyMixerCoreBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (stack.is(ModItemTags.PSY_MIXER_AWAKENING_CORES)) {
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (player instanceof ServerPlayer serverPlayer
+                    && level.getBlockEntity(pos) instanceof FormedPsyMixerCoreBlockEntity core
+                    && core.tryAwaken(serverPlayer, stack)) {
+                return InteractionResult.CONSUME;
+            }
+            return InteractionResult.PASS;
+        }
         return openMenu(level, pos, player);
     }
 

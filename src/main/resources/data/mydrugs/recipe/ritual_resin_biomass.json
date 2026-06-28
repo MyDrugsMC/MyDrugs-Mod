@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mydrugs:resin",
+    "mydrugs:plant_biomass",
+    "minecraft:charcoal",
+    "minecraft:red_dye"
+  ],
+  "result": {
+    "id": "mydrugs:ritual_resin",
+    "count": 2
+  }
+}

@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualAction;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualLevel;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerTier;
 import org.mydrugs.mydrugs.core.drug.DrugId;
 import org.mydrugs.mydrugs.core.drug.DrugModel;
 import org.mydrugs.mydrugs.core.drug.DrugRegistry;
@@ -51,6 +52,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     private final PsyMixerRitualLevel ritualLevel;
     private final List<PsyMixerRitualAction> ritualActions;
     private final boolean requiresNaming;
+    private final PsyMixerTier requiredMixerTier;
+    private final Optional<String> autoDisplayNameKey;
     /**
      * Not the authoritative success output. Psy Mixer success creates dynamic mixed-drug stacks
      * from the recipe effects and the resolved base drug. This stack is only a legacy/fallback
@@ -92,6 +95,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             PsyMixerRitualLevel ritualLevel,
             List<PsyMixerRitualAction> ritualActions,
             boolean requiresNaming,
+            PsyMixerTier requiredMixerTier,
+            Optional<String> autoDisplayNameKey,
             ItemStack fallbackResult,
             int ritualTime,
             float baseInstability,
@@ -125,6 +130,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
         this.ritualLevel = ritualLevel == null ? PsyMixerRitualLevel.NONE : ritualLevel;
         this.ritualActions = List.copyOf(ritualActions);
         this.requiresNaming = requiresNaming;
+        this.requiredMixerTier = requiredMixerTier == null ? PsyMixerTier.AWAKENED : requiredMixerTier;
+        this.autoDisplayNameKey = autoDisplayNameKey;
         this.fallbackResult = fallbackResult.copy();
         this.ritualTime = Math.max(20, ritualTime);
         this.baseInstability = baseInstability;
@@ -159,6 +166,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     public PsyMixerRitualLevel ritualLevel() { return ritualLevel; }
     public List<PsyMixerRitualAction> ritualActions() { return ritualActions; }
     public boolean requiresNaming() { return requiresNaming; }
+    public PsyMixerTier requiredMixerTier() { return requiredMixerTier; }
+    public Optional<String> autoDisplayNameKey() { return autoDisplayNameKey; }
     public ItemStack fallbackResult() { return fallbackResult.copy(); }
     public int ritualTime() { return ritualTime; }
     public float baseInstability() { return baseInstability; }
@@ -238,7 +247,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
 
     public ItemStack dynamicPreviewResult() {
         return previewFormula()
-                .map(MixedDrugStackFactory::createPendingStack)
+                .map(formula -> autoDisplayNameKey
+                        .filter(ignored -> !requiresNaming)
+                        .map(key -> MixedDrugStackFactory.createAutoNamedStack(formula, key))
+                        .orElseGet(() -> MixedDrugStackFactory.createPendingStack(formula)))
                 .orElseGet(this::fallbackResult);
     }
 
@@ -292,7 +304,10 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
     @Override
     public ItemStack assemble(PsyMixerRecipeInput input, HolderLookup.Provider registries) {
         return buildFormula(input)
-                .map(MixedDrugStackFactory::createPendingStack)
+                .map(formula -> autoDisplayNameKey
+                        .filter(ignored -> !requiresNaming)
+                        .map(key -> MixedDrugStackFactory.createAutoNamedStack(formula, key))
+                        .orElseGet(() -> MixedDrugStackFactory.createPendingStack(formula)))
                 .orElseGet(this::fallbackResult);
     }
 
@@ -356,7 +371,9 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 formulaId,
                 ritualLevel,
                 Optional.of(ritualActions),
-                requiresNaming
+                requiresNaming,
+                requiredMixerTier,
+                autoDisplayNameKey
         );
     }
 
@@ -389,6 +406,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                 ritual.ritualLevel,
                 ritual.ritualActions.orElseGet(ritual.ritualLevel::defaultActions),
                 ritual.requiresNaming,
+                ritual.requiredMixerTier,
+                ritual.autoDisplayNameKey,
                 core.fallbackResult,
                 core.ritualTime,
                 core.baseInstability,
@@ -456,13 +475,17 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             Optional<ResourceLocation> formulaId,
             PsyMixerRitualLevel ritualLevel,
             Optional<List<PsyMixerRitualAction>> ritualActions,
-            boolean requiresNaming
+            boolean requiresNaming,
+            PsyMixerTier requiredMixerTier,
+            Optional<String> autoDisplayNameKey
     ) {
         private static final MapCodec<RitualCodecData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 ResourceLocation.CODEC.optionalFieldOf("formula_id").forGetter(RitualCodecData::formulaId),
                 PsyMixerRitualLevel.CODEC.optionalFieldOf("ritual_level", PsyMixerRitualLevel.NONE).forGetter(RitualCodecData::ritualLevel),
                 PsyMixerRitualAction.CODEC.listOf().optionalFieldOf("ritual_actions").forGetter(RitualCodecData::ritualActions),
-                Codec.BOOL.optionalFieldOf("requires_naming", true).forGetter(RitualCodecData::requiresNaming)
+                Codec.BOOL.optionalFieldOf("requires_naming", true).forGetter(RitualCodecData::requiresNaming),
+                PsyMixerTier.CODEC.optionalFieldOf("required_mixer_tier", PsyMixerTier.AWAKENED).forGetter(RitualCodecData::requiredMixerTier),
+                Codec.STRING.optionalFieldOf("auto_display_name_key").forGetter(RitualCodecData::autoDisplayNameKey)
         ).apply(instance, RitualCodecData::new));
     }
 
@@ -519,6 +542,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             buf.writeVarInt(recipe.ritualLevel.ordinal());
             PsyMixerRitualAction.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, recipe.ritualActions);
             buf.writeBoolean(recipe.requiresNaming);
+            PsyMixerTier.STREAM_CODEC.encode(buf, recipe.requiredMixerTier);
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).encode(buf, recipe.autoDisplayNameKey);
             ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.fallbackResult);
             buf.writeVarInt(recipe.ritualTime);
             buf.writeFloat(recipe.baseInstability);
@@ -557,6 +582,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
                     : PsyMixerRitualLevel.NONE;
             List<PsyMixerRitualAction> ritualActions = PsyMixerRitualAction.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             boolean requiresNaming = buf.readBoolean();
+            PsyMixerTier requiredMixerTier = PsyMixerTier.STREAM_CODEC.decode(buf);
+            Optional<String> autoDisplayNameKey = ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8).decode(buf);
             ItemStack fallbackResult = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
             int ritualTime = buf.readVarInt();
             float baseInstability = buf.readFloat();
@@ -580,7 +607,8 @@ public final class PsyMixerRecipe implements Recipe<PsyMixerRecipeInput> {
             float stabilizerInstabilityMultiplier = buf.readFloat();
             float missingStabilizerInstabilityMultiplier = buf.readFloat();
             return new PsyMixerRecipe(
-                    base, material, catalyst, stabilizer, vessel, effects, formulaId, ritualLevel, ritualActions, requiresNaming, fallbackResult,
+                    base, material, catalyst, stabilizer, vessel, effects, formulaId, ritualLevel, ritualActions,
+                    requiresNaming, requiredMixerTier, autoDisplayNameKey, fallbackResult,
                     ritualTime, baseInstability, requiredKnowledge, requiredDrug, requiredLifetimeDose,
                     requiredDrugCategory, requiredActiveEffect, requiredBadTripState, requiredIngredientSource,
                     failureSeverity, machineSpeedModifier, ritualStabilityModifier,

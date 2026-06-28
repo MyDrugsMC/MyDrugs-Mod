@@ -51,9 +51,9 @@ public final class DrugProgressionGate {
             case COFFEE -> new Rule(null, List.of(PsyKnowledgeKey.CAFFEINE), true, false);
             case TOBACCO -> new Rule(null, List.of(PsyKnowledgeKey.NICOTINIC), true, false);
             case WEED -> new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID), true, false);
-            case HASH -> new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID, PsyKnowledgeKey.STEEL_PLATING), true, false);
+            case HASH -> new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.STEEL_PLATING), true, false);
             case ALCOHOL -> new Rule(PsyKnowledgeKey.CANNABINOID, List.of(PsyKnowledgeKey.FERMENTED), true, false);
-            case COCAINE, CRACK -> new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.STIMULANT), true, false);
+            case COCAINE, CRACK -> new Rule(PsyKnowledgeKey.STEEL_PLATING, List.of(PsyKnowledgeKey.STIMULANT), true, false);
             case LSD -> new Rule(PsyKnowledgeKey.STIMULANT, List.of(PsyKnowledgeKey.LYSERGIC), true, false);
             case METH -> new Rule(PsyKnowledgeKey.LYSERGIC, List.of(PsyKnowledgeKey.OVERCLOCKED), true, false);
             case MUSHROOMS -> new Rule(PsyKnowledgeKey.OVERCLOCKED, List.of(PsyKnowledgeKey.MYCELIAL), false, true);
@@ -62,7 +62,7 @@ public final class DrugProgressionGate {
                     yield new Rule(PsyKnowledgeKey.NICOTINIC, List.of(PsyKnowledgeKey.CANNABINOID), true, false);
                 }
                 if (category == DrugCategory.STIMULANT) {
-                    yield new Rule(PsyKnowledgeKey.FERMENTED, List.of(PsyKnowledgeKey.STIMULANT), true, false);
+                    yield new Rule(PsyKnowledgeKey.STEEL_PLATING, List.of(PsyKnowledgeKey.STIMULANT), true, false);
                 }
                 yield null;
             }

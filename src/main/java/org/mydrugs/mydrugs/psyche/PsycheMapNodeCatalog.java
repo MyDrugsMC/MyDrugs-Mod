@@ -160,7 +160,7 @@ public final class PsycheMapNodeCatalog {
         String paper = "minecraft:paper";
         String psyIcon = item("psy_receptacle");
 
-        // Knowledge spine. IDs and layout are preserved for existing saves.
+        // Knowledge spine. IDs are preserved for existing saves.
         add(kCaf, titleKeyFor("knowledge/caffeine"), captionKeyFor("knowledge/caffeine"),
                 item("coffee_bean"), 0, -45, p(), false);
         add(kNic, titleKeyFor("knowledge/nicotinic"), captionKeyFor("knowledge/nicotinic"),
@@ -169,16 +169,16 @@ public final class PsycheMapNodeCatalog {
                 psyIcon, 190, -45, p(kNic), false);
         add(kFer, titleKeyFor("knowledge/fermented"), captionKeyFor("knowledge/fermented"),
                 item("insulated_wire"), 285, 45, p(kCan), false);
-        add(kSti, titleKeyFor("knowledge/stimulant"), captionKeyFor("knowledge/stimulant"),
-                psyIcon, 380, -45, p(kFer), false);
-        add(kLys, titleKeyFor("knowledge/lysergic"), captionKeyFor("knowledge/lysergic"),
-                item("lsd_drop"), 475, 45, p(kSti), false);
-        add(kOvc, titleKeyFor("knowledge/overclocked"), captionKeyFor("knowledge/overclocked"),
-                psyIcon, 570, -45, p(kLys), false);
-        add(kMyc, titleKeyFor("knowledge/mycelial"), captionKeyFor("knowledge/mycelial"),
-                item("magic_mushroom"), 665, 45, p(kOvc), false);
         add(kStl, titleKeyFor("knowledge/steel_plating"), captionKeyFor("knowledge/steel_plating"),
-                "minecraft:iron_ingot", 760, -45, p(kMyc), false);
+                "minecraft:iron_ingot", 380, -45, p(kFer), false);
+        add(kSti, titleKeyFor("knowledge/stimulant"), captionKeyFor("knowledge/stimulant"),
+                psyIcon, 475, -45, p(kStl), false);
+        add(kLys, titleKeyFor("knowledge/lysergic"), captionKeyFor("knowledge/lysergic"),
+                item("lsd_drop"), 570, 45, p(kSti), false);
+        add(kOvc, titleKeyFor("knowledge/overclocked"), captionKeyFor("knowledge/overclocked"),
+                psyIcon, 665, -45, p(kLys), false);
+        add(kMyc, titleKeyFor("knowledge/mycelial"), captionKeyFor("knowledge/mycelial"),
+                item("magic_mushroom"), 760, 45, p(kOvc), false);
 
         // Existing milestone branches.
         String diaryId = item("first_diary_entry");
@@ -207,13 +207,13 @@ public final class PsycheMapNodeCatalog {
         add(therapyId, titleKeyFor("first_therapist_visit"), captionKeyFor("first_therapist_visit"),
                 item("therapist_desk"), 190, 230, p(anchorId), false);
         add(ritualId, titleKeyFor("first_psy_mixer_ritual"), captionKeyFor("first_psy_mixer_ritual"),
-                psyIcon, 475, 155, p(kLys), false);
+                psyIcon, 190, 155, p(kCaf, kNic), false);
         add(ritualOkId, titleKeyFor("first_ritual_success"), captionKeyFor("first_ritual_success"),
-                paper, 570, 170, p(ritualId), false);
+                paper, 285, 170, p(ritualId), false);
         add(ritualFailId, titleKeyFor("first_ritual_failure"), captionKeyFor("first_ritual_failure"),
-                item("unstable_residue"), 665, 170, p(ritualId), false);
+                item("unstable_residue"), 380, 170, p(ritualId), false);
         add(formulaId, titleKeyFor("first_named_formula"), captionKeyFor("first_named_formula"),
-                paper, 760, 170, p(ritualOkId), false);
+                paper, 475, 170, p(ritualOkId, kFer), false);
         add(mutationId, titleKeyFor("first_mutation"), captionKeyFor("first_mutation"),
                 paper, 665, -150, p(kMyc), true);
         add(infectionId, titleKeyFor("first_infection"), captionKeyFor("first_infection"),
@@ -229,11 +229,11 @@ public final class PsycheMapNodeCatalog {
         addIntegration(DrugId.COFFEE, item("lucid_extract"), 0, -300, kCaf);
         addIntegration(DrugId.TOBACCO, item("bitter_residue"), 95, 330, kNic);
         addIntegration(DrugId.WEED, item("calming_resin"), 190, -300, kCan);
-        addIntegration(DrugId.HASH, item("pressed_calm"), 760, -300, kStl);
+        addIntegration(DrugId.HASH, item("pressed_calm"), 380, -300, kStl);
         addIntegration(DrugId.ALCOHOL, item("fermented_memory"), 285, 330, kFer);
-        addIntegration(DrugId.COCAINE, item("redline_fuel"), 380, -300, kSti);
-        addIntegration(DrugId.LSD, item("dream_residue"), 475, 330, kLys);
-        addIntegration(DrugId.METH, item("overdrive_fuel"), 570, -300, kOvc);
-        addIntegration(DrugId.MUSHROOMS, item("mycelial_insight"), 665, 330, kMyc);
+        addIntegration(DrugId.COCAINE, item("redline_fuel"), 475, -300, kSti);
+        addIntegration(DrugId.LSD, item("dream_residue"), 570, 330, kLys);
+        addIntegration(DrugId.METH, item("overdrive_fuel"), 665, -300, kOvc);
+        addIntegration(DrugId.MUSHROOMS, item("mycelial_insight"), 760, 330, kMyc);
     }
 }

@@ -136,6 +136,11 @@
       "client_item": true,
       "item_model": true
     },
+    "attuned_shard": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
     "autoclave": {
       "lang": true,
       "client_item": true,
@@ -676,6 +681,11 @@
       "client_item": true,
       "item_model": true
     },
+    "dull_attuned_shard": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
     "electric_motor": {
       "lang": true,
       "client_item": true,
@@ -1022,6 +1032,11 @@
       "item_model": false
     },
     "lucid_extract": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "lucid_lure": {
       "lang": true,
       "client_item": true,
       "item_model": true
@@ -1452,6 +1467,11 @@
       "item_model": true
     },
     "psy_receptacle": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "psy_watering_can": {
       "lang": true,
       "client_item": true,
       "item_model": true
@@ -2072,6 +2092,11 @@
       "item_model": true
     },
     "unstable_essence": {
+      "lang": true,
+      "client_item": true,
+      "item_model": true
+    },
+    "unstable_pearl": {
       "lang": true,
       "client_item": true,
       "item_model": true
@@ -3503,6 +3528,11 @@
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:attuned_shard": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:autoclave": {
       "type": "minecraft:crafting_shaped",
       "schema": "validated",
@@ -3803,6 +3833,11 @@
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:dull_attuned_shard": {
+      "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:electric_motor": {
       "type": "minecraft:crafting_shaped",
       "schema": "validated",
@@ -4068,6 +4103,11 @@
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:hanging_vine_bundle_threads": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:hash_piece": {
       "type": "minecraft:crafting_shapeless",
       "schema": "validated",
@@ -4155,6 +4195,11 @@
     },
     "mydrugs:iron_mesh": {
       "type": "mydrugs:psy_anvil",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:lucid_lure": {
+      "type": "minecraft:crafting_shapeless",
       "schema": "validated",
       "references": "validated"
     },
@@ -4340,11 +4385,6 @@
     },
     "mydrugs:nutrient_gel": {
       "type": "minecraft:crafting_shaped",
-      "schema": "validated",
-      "references": "validated"
-    },
-    "mydrugs:opium_poppy_seeds": {
-      "type": "minecraft:crafting_shapeless",
       "schema": "validated",
       "references": "validated"
     },
@@ -4608,17 +4648,17 @@
       "schema": "validated",
       "references": "validated"
     },
-    "mydrugs:psy_mixer/mushrooms_amethyst_shard": {
-      "type": "mydrugs:psy_mixer",
-      "schema": "validated",
-      "references": "validated"
-    },
     "mydrugs:psy_mixer/mushrooms_dreamcap_spores": {
       "type": "mydrugs:psy_mixer",
       "schema": "validated",
       "references": "validated"
     },
     "mydrugs:psy_mixer/mushrooms_glow_berries": {
+      "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_mixer/mushrooms_resonance_shards": {
       "type": "mydrugs:psy_mixer",
       "schema": "validated",
       "references": "validated"
@@ -4655,6 +4695,11 @@
     },
     "mydrugs:psy_mixer/weed_phantom_membrane": {
       "type": "mydrugs:psy_mixer",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:psy_watering_can": {
+      "type": "minecraft:crafting_shaped",
       "schema": "validated",
       "references": "validated"
     },
@@ -4783,6 +4828,11 @@
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:psychotropic_pigment_red_blue": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:pump_head": {
       "type": "minecraft:crafting_shaped",
       "schema": "validated",
@@ -4848,12 +4898,27 @@
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:ritual_bark_common_logs": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:ritual_resin": {
       "type": "minecraft:crafting_shapeless",
       "schema": "validated",
       "references": "validated"
     },
+    "mydrugs:ritual_resin_biomass": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
     "mydrugs:ritual_threads": {
+      "type": "minecraft:crafting_shapeless",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:ritual_threads_biomass": {
       "type": "minecraft:crafting_shapeless",
       "schema": "validated",
       "references": "validated"
@@ -5039,6 +5104,11 @@
       "references": "validated"
     },
     "mydrugs:woven_vine_frame": {
+      "type": "minecraft:crafting_shaped",
+      "schema": "validated",
+      "references": "validated"
+    },
+    "mydrugs:woven_vine_frame_fibers": {
       "type": "minecraft:crafting_shaped",
       "schema": "validated",
       "references": "validated"
@@ -5927,7 +5997,19 @@
       "icon": true,
       "lang": true
     },
+    "mydrugs:psy_anvil/shape_attuned_shard": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
     "mydrugs:psy_anvil/shape_copper_plate": {
+      "display": true,
+      "parent": true,
+      "icon": true,
+      "lang": true
+    },
+    "mydrugs:psy_anvil/shape_dull_attuned_shard": {
       "display": true,
       "parent": true,
       "icon": true,
@@ -6225,7 +6307,6 @@
     "assets/mydrugs/textures/block/catalytic_reformer_front.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
     "assets/mydrugs/textures/block/catalytic_reformer_side.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
     "assets/mydrugs/textures/block/catalytic_reformer_top.png \u003c- assets/mydrugs/models/block/catalytic_reformer.json",
-    "assets/mydrugs/textures/block/charcoal_glyph_block.png \u003c- assets/mydrugs/models/block/charcoal_glyph_block.json",
     "assets/mydrugs/textures/block/chemical_reactor_bottom.png \u003c- assets/mydrugs/models/block/chemical_reactor.json",
     "assets/mydrugs/textures/block/chemical_reactor_bottom.png \u003c- assets/mydrugs/models/block/chemical_reactor_on.json",
     "assets/mydrugs/textures/block/chemical_reactor_front.png \u003c- assets/mydrugs/models/block/chemical_reactor.json",
@@ -6276,7 +6357,6 @@
     "assets/mydrugs/textures/block/gene_extractor_front.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
     "assets/mydrugs/textures/block/gene_extractor_side.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
     "assets/mydrugs/textures/block/gene_extractor_top.png \u003c- assets/mydrugs/models/block/gene_extractor.json",
-    "assets/mydrugs/textures/block/hanging_vine_bundle.png \u003c- assets/mydrugs/models/block/hanging_vine_bundle.json",
     "assets/mydrugs/textures/block/hemogenic_infuser_bottom.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
     "assets/mydrugs/textures/block/hemogenic_infuser_front.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
     "assets/mydrugs/textures/block/hemogenic_infuser_side.png \u003c- assets/mydrugs/models/block/hemogenic_infuser.json",
@@ -6295,7 +6375,6 @@
     "assets/mydrugs/textures/block/manual_coffee_pulper_top.png \u003c- assets/mydrugs/models/block/manual_coffee_pulper.json",
     "assets/mydrugs/textures/block/mechanical_frame.png \u003c- assets/mydrugs/models/block/mechanical_frame.json",
     "assets/mydrugs/textures/block/mixing_vat.png \u003c- assets/mydrugs/models/block/mixing_vat.json",
-    "assets/mydrugs/textures/block/mycelial_padding.png \u003c- assets/mydrugs/models/block/mycelial_padding.json",
     "assets/mydrugs/textures/block/opium_poppy_stage0.png \u003c- assets/mydrugs/models/block/opium_poppy_stage0.json",
     "assets/mydrugs/textures/block/opium_poppy_stage1.png \u003c- assets/mydrugs/models/block/opium_poppy_stage1.json",
     "assets/mydrugs/textures/block/opium_poppy_stage2.png \u003c- assets/mydrugs/models/block/opium_poppy_stage2.json",
@@ -6304,9 +6383,6 @@
     "assets/mydrugs/textures/block/opium_poppy_stage5.png \u003c- assets/mydrugs/models/block/opium_poppy_stage5.json",
     "assets/mydrugs/textures/block/opium_poppy_stage6.png \u003c- assets/mydrugs/models/block/opium_poppy_stage6.json",
     "assets/mydrugs/textures/block/opium_poppy_stage7.png \u003c- assets/mydrugs/models/block/opium_poppy_stage7.json",
-    "assets/mydrugs/textures/block/painted_clay_bowl_bottom.png \u003c- assets/mydrugs/models/block/painted_clay_bowl.json",
-    "assets/mydrugs/textures/block/painted_clay_bowl_inside.png \u003c- assets/mydrugs/models/block/painted_clay_bowl.json",
-    "assets/mydrugs/textures/block/painted_clay_bowl_side.png \u003c- assets/mydrugs/models/block/painted_clay_bowl.json",
     "assets/mydrugs/textures/block/phosphate_ore.png \u003c- assets/mydrugs/models/block/phosphate_ore.json",
     "assets/mydrugs/textures/block/pipe/basic_fluid_pipe.png \u003c- assets/mydrugs/models/block/pipe/basic_fluid_pipe.json",
     "assets/mydrugs/textures/block/pipe/basic_gas_pipe.png \u003c- assets/mydrugs/models/block/pipe/basic_gas_pipe.json",
@@ -6338,7 +6414,6 @@
     "assets/mydrugs/textures/block/reduction_still_front.png \u003c- assets/mydrugs/models/block/reduction_still.json",
     "assets/mydrugs/textures/block/reduction_still_side.png \u003c- assets/mydrugs/models/block/reduction_still.json",
     "assets/mydrugs/textures/block/reduction_still_top.png \u003c- assets/mydrugs/models/block/reduction_still.json",
-    "assets/mydrugs/textures/block/ritual_bark.png \u003c- assets/mydrugs/models/block/ritual_bark.json",
     "assets/mydrugs/textures/block/rye.png \u003c- assets/mydrugs/models/block/rye.json",
     "assets/mydrugs/textures/block/salt_block.png \u003c- assets/mydrugs/models/block/salt_block.json",
     "assets/mydrugs/textures/block/steam_cracker_bottom.png \u003c- assets/mydrugs/models/block/steam_cracker.json",
@@ -6357,7 +6432,6 @@
     "assets/mydrugs/textures/block/valerian_stage6.png \u003c- assets/mydrugs/models/block/valerian_stage6.json",
     "assets/mydrugs/textures/block/valerian_stage7.png \u003c- assets/mydrugs/models/block/valerian_stage7.json",
     "assets/mydrugs/textures/block/vomit_splash.png \u003c- assets/mydrugs/models/block/vomit_splash.json",
-    "assets/mydrugs/textures/block/woven_vine_frame.png \u003c- assets/mydrugs/models/block/woven_vine_frame.json",
     "assets/mydrugs/textures/item/aloe_vera_seeds.png \u003c- assets/mydrugs/models/item/aloe_vera_seeds.json",
     "assets/mydrugs/textures/item/aluminium_boots.png \u003c- assets/mydrugs/models/item/aluminium_boots.json",
     "assets/mydrugs/textures/item/aluminium_chestplate.png \u003c- assets/mydrugs/models/item/aluminium_chestplate.json",
@@ -6418,15 +6492,12 @@
     "assets/mydrugs/textures/item/platinum_ingot.png \u003c- assets/mydrugs/models/item/platinum_ingot.json",
     "assets/mydrugs/textures/item/platinum_leggings.png \u003c- assets/mydrugs/models/item/platinum_leggings.json",
     "assets/mydrugs/textures/item/pressed_calm.png \u003c- assets/mydrugs/models/item/pressed_calm.json",
-    "assets/mydrugs/textures/item/psy_receptacle.png \u003c- assets/mydrugs/models/item/psy_receptacle.json",
-    "assets/mydrugs/textures/item/psychotropic_pigment.png \u003c- assets/mydrugs/models/item/psychotropic_pigment.json",
+    "assets/mydrugs/textures/item/psy_watering_can.png \u003c- assets/mydrugs/models/item/psy_watering_can.json",
     "assets/mydrugs/textures/item/raw_aluminium.png \u003c- assets/mydrugs/models/item/raw_aluminium.json",
     "assets/mydrugs/textures/item/raw_phosphorus.png \u003c- assets/mydrugs/models/item/raw_phosphorus.json",
     "assets/mydrugs/textures/item/raw_platinum.png \u003c- assets/mydrugs/models/item/raw_platinum.json",
     "assets/mydrugs/textures/item/reactive_phosphorus.png \u003c- assets/mydrugs/models/item/reactive_phosphorus.json",
     "assets/mydrugs/textures/item/redline_fuel.png \u003c- assets/mydrugs/models/item/redline_fuel.json",
-    "assets/mydrugs/textures/item/ritual_resin.png \u003c- assets/mydrugs/models/item/ritual_resin.json",
-    "assets/mydrugs/textures/item/ritual_threads.png \u003c- assets/mydrugs/models/item/ritual_threads.json",
     "assets/mydrugs/textures/item/shroom_harvester.png \u003c- assets/mydrugs/models/item/shroom_harvester.json",
     "assets/mydrugs/textures/item/space_overlays/space_enchanted_golden_apple.png \u003c- assets/mydrugs/models/item/space_enchanted_golden_apple.json",
     "assets/mydrugs/textures/item/spent_filter.png \u003c- assets/mydrugs/models/item/spent_filter.json",
@@ -6439,5 +6510,5 @@
     "assets/mydrugs/textures/item/valerian_seeds.png \u003c- assets/mydrugs/models/item/valerian_seeds.json",
     "assets/mydrugs/textures/item/wrench.png \u003c- assets/mydrugs/models/item/wrench.json"
   ],
-  "known_texture_debt_count": 255
+  "known_texture_debt_count": 244
 }

@@ -51,4 +51,26 @@ class PsycheMapNodeCatalogTest {
             assertEquals(knowledge.translationKey(), entry.knowledgeTranslationKey());
         }
     }
+
+    @Test
+    void knowledgeSpineKeepsSteelBeforeStimulantsAndLysergic() {
+        assertEquals(List.of(MyDrugs.MODID + ":fermented"),
+                PsycheMapNodeCatalog.byId(MyDrugs.MODID + ":steel_plating").parents);
+        assertEquals(List.of(MyDrugs.MODID + ":steel_plating"),
+                PsycheMapNodeCatalog.byId(MyDrugs.MODID + ":stimulant").parents);
+        assertEquals(List.of(MyDrugs.MODID + ":stimulant"),
+                PsycheMapNodeCatalog.byId(MyDrugs.MODID + ":lysergic").parents);
+    }
+
+    @Test
+    void psyMixerMilestonesAreEarlyButNamedFormulaWaitsForFermentation() {
+        PsycheMapNodeCatalog.Entry ritual = PsycheMapNodeCatalog.byId(MyDrugs.MODID + ":first_psy_mixer_ritual");
+        assertTrue(ritual.parents.contains(MyDrugs.MODID + ":caffeine"));
+        assertTrue(ritual.parents.contains(MyDrugs.MODID + ":nicotinic"));
+        assertFalse(ritual.parents.contains(MyDrugs.MODID + ":lysergic"));
+
+        PsycheMapNodeCatalog.Entry namedFormula = PsycheMapNodeCatalog.byId(MyDrugs.MODID + ":first_named_formula");
+        assertTrue(namedFormula.parents.contains(MyDrugs.MODID + ":first_ritual_success"));
+        assertTrue(namedFormula.parents.contains(MyDrugs.MODID + ":fermented"));
+    }
 }

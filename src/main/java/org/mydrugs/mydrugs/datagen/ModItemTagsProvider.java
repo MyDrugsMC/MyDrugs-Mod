@@ -6,10 +6,12 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import org.mydrugs.mydrugs.MyDrugs;
 import org.mydrugs.mydrugs.blocks.ModBlocks;
+import org.mydrugs.mydrugs.items.ModItemTags;
 import org.mydrugs.mydrugs.items.ModItems;
 
 import java.util.concurrent.CompletableFuture;
@@ -75,6 +77,20 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(common("storage_blocks/raw_platinum")).add(ModBlocks.RAW_PLATINUM_BLOCK_ITEM.get());
         tag(common("storage_blocks/aluminium")).add(ModBlocks.ALUMINIUM_BLOCK_ITEM.get());
         tag(common("storage_blocks/raw_aluminium")).add(ModBlocks.RAW_ALUMINIUM_BLOCK_ITEM.get());
+
+        tag(ModItemTags.PSY_ANVIL_CORES)
+                .add(Items.ENDER_PEARL)
+                .add(ModItems.UNSTABLE_PEARL.get());
+        tag(ModItemTags.PSY_MIXER_AWAKENING_CORES)
+                .add(Items.ENDER_PEARL)
+                .add(ModItems.UNSTABLE_PEARL.get());
+        tag(ModItemTags.RESONANCE_SHARDS)
+                .add(Items.AMETHYST_SHARD)
+                .add(ModItems.ATTUNED_SHARD.get());
+        tag(ModItemTags.RITUAL_FIBERS)
+                .add(Items.VINE)
+                .add(Items.STRING)
+                .add(ModItems.PLANT_BIOMASS.get());
     }
 
     @Override

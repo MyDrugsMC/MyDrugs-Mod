@@ -12,6 +12,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerTier;
+import org.mydrugs.mydrugs.events.PsyMixerActivationHandler;
+import org.mydrugs.mydrugs.items.ModItemTags;
+import org.mydrugs.mydrugs.items.ModItems;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -48,6 +52,29 @@ public final class PaintedClayBowlBlock extends Block {
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (stack.is(ModItems.PSY_RECEPTACLE.get())) {
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (player instanceof ServerPlayer serverPlayer) {
+                return PsyMixerActivationHandler.activate((net.minecraft.server.level.ServerLevel) level, pos, serverPlayer, PsyMixerTier.DORMANT)
+                        ? InteractionResult.CONSUME
+                        : InteractionResult.PASS;
+            }
+        }
+        if (stack.is(ModItemTags.PSY_MIXER_AWAKENING_CORES)) {
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (player instanceof ServerPlayer serverPlayer
+                    && PsyMixerActivationHandler.activate((net.minecraft.server.level.ServerLevel) level, pos, serverPlayer, PsyMixerTier.AWAKENED)) {
+                if (!serverPlayer.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                return InteractionResult.CONSUME;
+            }
+            return InteractionResult.PASS;
+        }
         return useWithoutItem(state, level, pos, player, hit);
     }
 }

@@ -44,7 +44,7 @@ public final class MyDrugsAdvancementGenerator {
                 recipes("personal_diary", "headphones"),
                 item("personal_diary"), item("headphones"), item("herbal_tea"), item("calming_mixture"));
         inventoryAny("onboarding/first_consumable", "onboarding/first_processing_station", item("joint"), recipes("roller", "bang", "glass_bottle"),
-                item("joint"), item("cigarette"), item("hash_piece"), item("cannabis_powder"), item("tobacco_handful"), item("magic_mushroom"));
+                item("joint"), item("cigarette"), item("cannabis_powder"), item("tobacco_handful"), item("magic_mushroom"));
     }
 
     private void agriculture() {
@@ -71,7 +71,7 @@ public final class MyDrugsAdvancementGenerator {
         inventory("processing/portable_grinder", "processing/grind_first_material", item("portable_grinder"), item("portable_grinder"));
         placedAny("processing/craft_sieve", "processing/grind_first_material", item("sieve"), recipes("sieve"), block("sieve"));
         machine("processing/sieve_first_material", "processing/craft_sieve", item("cannabis_resin"), "sieve");
-        placedAny("processing/craft_stomp_crafter", "processing/sieve_first_material", item("stomp_crafter"), recipes("stomp_crafter"), block("stomp_crafter"));
+        placedAny("processing/craft_stomp_crafter", "knowledge/fermented", item("stomp_crafter"), recipes("stomp_crafter"), block("stomp_crafter"));
         inventoryAny("processing/stomp_plate", "processing/craft_stomp_crafter", item("stomp_plate"), recipes("stomp_plate"), item("stomp_plate"));
         machine("processing/stomp_first_recipe", "processing/craft_stomp_crafter", item("hash_brick"), "stomp_crafter");
         placedAny("processing/craft_clay_vat", "processing/stomp_first_recipe", item("clay_vat"), recipes("clay_vat"), block("clay_vat"));
@@ -98,13 +98,13 @@ public final class MyDrugsAdvancementGenerator {
         drug("knowledge/first_psychedelic", "consumption/first_drug", item("magic_mushroom"), "first_psychedelic", null, "psychedelic", null, null, false);
         drug("knowledge/first_depressant", "consumption/first_drug", item("glass_bottle"), "first_depressant", null, "depressant", null, null, true);
         drug("knowledge/first_nicotinic", "consumption/first_drug", item("tobacco_handful"), "first_nicotinic", null, "nicotinic", null, null, false);
-        drug("knowledge/first_hash", "knowledge/cannabinoid", item("hash_piece"), "first_hash", null, null, null, null, false, "hash");
+        drug("knowledge/first_hash", "knowledge/fermented", item("hash_piece"), "first_hash", null, null, null, null, false, "hash");
         drug("knowledge/first_alcohol", "knowledge/first_depressant", item("glass_bottle"), "first_alcohol", null, null, null, null, true, "alcohol");
         psyKnowledge("knowledge/nicotinic", "knowledge/first_nicotinic", item("psy_receptacle"), "mydrugs:nicotinic", false);
         psyKnowledge("knowledge/cannabinoid", "knowledge/nicotinic", item("cannabis_powder"), "mydrugs:cannabinoid", false);
-        psyKnowledge("knowledge/steel_plating", "knowledge/first_hash", item("steel_plate"), "mydrugs:steel_plating", false);
         psyKnowledge("knowledge/fermented", "knowledge/cannabinoid", item("glass_bottle"), "mydrugs:fermented", false);
-        psyKnowledge("knowledge/stimulant", "knowledge/fermented", item("cocaine_powder"), "mydrugs:stimulant", false);
+        psyKnowledge("knowledge/steel_plating", "knowledge/first_hash", item("steel_plate"), "mydrugs:steel_plating", false);
+        psyKnowledge("knowledge/stimulant", "knowledge/steel_plating", item("cocaine_powder"), "mydrugs:stimulant", false);
         psyKnowledge("knowledge/lysergic", "knowledge/stimulant", item("lsd_drop"), "mydrugs:lysergic", false);
         psyKnowledge("knowledge/overclocked", "knowledge/lysergic", item("meth_shard"), "mydrugs:overclocked", false);
         psyKnowledge("knowledge/mycelial", "knowledge/overclocked", item("magic_mushroom"), "mydrugs:mycelial", false);
@@ -194,7 +194,9 @@ public final class MyDrugsAdvancementGenerator {
         placedAny("psy_anvil/craft_psy_anvil", "psy_anvil/obtain_receptacle", item("psy_anvil"), recipes("copper_plate", "heavy_iron", "heavy_iron_plate", "insulated_wire", "advanced_control_circuit", "mycelial_resonator"), block("psy_anvil"));
         psyAnvilCraft("psy_anvil/shape_copper_plate", "knowledge/cannabinoid", item("copper_plate"), "mydrugs:copper_plate");
         psyAnvilCraft("psy_anvil/shape_heavy_iron", "knowledge/fermented", item("heavy_iron"), "mydrugs:heavy_iron");
+        psyAnvilCraft("psy_anvil/shape_dull_attuned_shard", "knowledge/steel_plating", item("dull_attuned_shard"), "mydrugs:dull_attuned_shard");
         psyAnvilCraft("psy_anvil/shape_insulated_wire", "knowledge/stimulant", item("insulated_wire"), "mydrugs:insulated_wire");
+        psyAnvilCraft("psy_anvil/shape_attuned_shard", "knowledge/stimulant", item("attuned_shard"), "mydrugs:attuned_shard");
         psyAnvilCraft("psy_anvil/shape_advanced_control_circuit", "knowledge/lysergic", item("advanced_control_circuit"), "mydrugs:advanced_control_circuit");
         psyAnvilCraft("psy_anvil/build_resonator", "knowledge/overclocked", item("mycelial_resonator"), "mydrugs:mycelial_resonator");
         inventoryAny("psychotrope/psychotrope_lens", "materials/advanced_control_circuit", item("psychotrope_lens"),

@@ -129,6 +129,7 @@ public class ModSimpleClientItemProvider implements DataProvider {
                 "pressure_seal",
                 "psy_blueprint",
                 "psy_receptacle",
+                "psy_watering_can",
                 "psychotrope_lens",
                 "pump_head",
                 "raw_aluminium",
@@ -184,6 +185,10 @@ public class ModSimpleClientItemProvider implements DataProvider {
         futures.add(saveFlatItem(cachedOutput, "inner_demon_remains", "mydrugs:item/inner_demon_remains"));
         futures.add(saveFlatItem(cachedOutput, "progression_guide", "mydrugs:item/progression_guide"));
         futures.add(saveFlatItem(cachedOutput, "memory_compass", "mydrugs:item/vanilla_biome_finder"));
+        futures.add(saveFlatItem(cachedOutput, "unstable_pearl", "minecraft:item/ender_pearl"));
+        futures.add(saveFlatItem(cachedOutput, "lucid_lure", "mydrugs:item/resin"));
+        futures.add(saveFlatItem(cachedOutput, "dull_attuned_shard", "minecraft:item/amethyst_shard"));
+        futures.add(saveFlatItem(cachedOutput, "attuned_shard", "minecraft:item/amethyst_shard"));
         futures.add(saveFlatItem(cachedOutput, "dna_scraper", "mydrugs:item/dna_scraper"));
         futures.add(saveFlatItem(cachedOutput, "dna_scrap", "mydrugs:item/dna_scrap"));
         futures.add(saveFlatItem(cachedOutput, "dna_gene", "mydrugs:item/dna_gene"));

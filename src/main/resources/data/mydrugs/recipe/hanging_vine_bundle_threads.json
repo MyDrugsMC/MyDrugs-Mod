@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "TT",
+    "SS",
+    "BB"
+  ],
+  "key": {
+    "T": "mydrugs:ritual_threads",
+    "S": "minecraft:string",
+    "B": "mydrugs:plant_biomass"
+  },
+  "result": {
+    "id": "mydrugs:hanging_vine_bundle",
+    "count": 2
+  }
+}

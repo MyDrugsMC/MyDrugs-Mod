@@ -294,11 +294,24 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
         writer.shapeless("memory_compass",
                 new Object[]{
                         "minecraft:compass",
-                        "minecraft:amethyst_shard",
+                        "#mydrugs:resonance_shards",
                         "mydrugs:dream_residue",
                         "mydrugs:personal_diary"
                 },
                 "mydrugs:memory_compass",
+                1
+        );
+
+        writer.shapeless("lucid_lure",
+                new Object[]{
+                        "minecraft:paper",
+                        "minecraft:string",
+                        "mydrugs:resin",
+                        "mydrugs:coffee_bean",
+                        "mydrugs:tobacco_leaf",
+                        "minecraft:redstone"
+                },
+                "mydrugs:lucid_lure",
                 1
         );
 
@@ -394,7 +407,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "I", "minecraft:iron_ingot",
                         "R", "mydrugs:psy_receptacle",
                         "C", "minecraft:copper_ingot",
-                        "A", "minecraft:ender_pearl",
+                        "A", "#mydrugs:psy_anvil_cores",
                         "S", alt("minecraft:cobbled_deepslate", "minecraft:stone")
                 ),
                 "mydrugs:psy_anvil",
@@ -600,14 +613,6 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                 },
                 "mydrugs:cigarette_filter",
                 4
-        );
-
-        writer.shapeless("opium_poppy_seeds",
-                new Object[]{
-                        "minecraft:poppy"
-                },
-                "mydrugs:opium_poppy_seeds",
-                1
         );
 
         writer.shaped("fluid_filter",
@@ -915,7 +920,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "ABA"
                 },
                 key(
-                        "A", "minecraft:amethyst_shard",
+                        "A", "#mydrugs:resonance_shards",
                         "B", "minecraft:quartz",
                         "C", "mydrugs:thick_glass",
                         "D", "minecraft:diamond"
@@ -1514,7 +1519,7 @@ public class ModVanillaRecipeSnapshotProvider implements DataProvider {
                         "EFE"
                 },
                 key(
-                        "A", "minecraft:amethyst_shard",
+                        "A", "#mydrugs:resonance_shards",
                         "B", "mydrugs:dream_residue",
                         "C", "mydrugs:psychotrope_lens",
                         "D", "mydrugs:psy_receptacle",

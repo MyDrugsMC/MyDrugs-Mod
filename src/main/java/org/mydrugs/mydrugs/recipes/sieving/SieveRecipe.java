@@ -22,6 +22,7 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
     private final ItemStack result;
     private final Optional<ItemStack> bonusResult;
     private final float bonusChance;
+    private final boolean deterministicBonus;
     private final int sieveTime;
 
     private PlacementInfo placementInfo;
@@ -31,12 +32,14 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
             ItemStack result,
             Optional<ItemStack> bonusResult,
             float bonusChance,
+            boolean deterministicBonus,
             int sieveTime
     ) {
         this.input = input;
         this.result = result;
         this.bonusResult = bonusResult;
         this.bonusChance = bonusChance;
+        this.deterministicBonus = deterministicBonus;
         this.sieveTime = sieveTime;
     }
 
@@ -54,6 +57,10 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
 
     public float bonusChance() {
         return bonusChance;
+    }
+
+    public boolean deterministicBonus() {
+        return deterministicBonus;
     }
 
     public int sieveTime() {
@@ -113,6 +120,7 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
                 ItemStack.CODEC.fieldOf("result").forGetter(SieveRecipe::result),
                 ItemStack.CODEC.optionalFieldOf("bonus_result").forGetter(SieveRecipe::bonusResult),
                 Codec.FLOAT.optionalFieldOf("bonus_chance", 0.0F).forGetter(SieveRecipe::bonusChance),
+                Codec.BOOL.optionalFieldOf("deterministic_bonus", false).forGetter(SieveRecipe::deterministicBonus),
                 Codec.INT.optionalFieldOf("sieve_time", 200).forGetter(SieveRecipe::sieveTime)
         ).apply(instance, SieveRecipe::new));
 
@@ -121,6 +129,7 @@ public final class SieveRecipe implements Recipe<SingleRecipeInput> {
                 ItemStack.STREAM_CODEC, SieveRecipe::result,
                 ByteBufCodecs.optional(ItemStack.OPTIONAL_STREAM_CODEC), SieveRecipe::bonusResult,
                 ByteBufCodecs.FLOAT, SieveRecipe::bonusChance,
+                ByteBufCodecs.BOOL, SieveRecipe::deterministicBonus,
                 ByteBufCodecs.VAR_INT, SieveRecipe::sieveTime,
                 SieveRecipe::new
         );

@@ -19,6 +19,7 @@ import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualFocus;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualJudgement;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualMissReason;
 import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerRitualQuality;
+import org.mydrugs.mydrugs.blocks.entity.psy_mixer.PsyMixerTier;
 import org.mydrugs.mydrugs.menu.slot.OutputSlot;
 
 public final class PsyMixerMenu extends AbstractContainerMenu {
@@ -62,7 +63,8 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
     private static final int DATA_MAX_MISTAKES = 19;
     private static final int DATA_LAST_MISS_REASON = 20;
     private static final int DATA_ACTION_PROGRESS = 21;
-    private static final int DATA_COUNT = 22;
+    private static final int DATA_TIER = 22;
+    private static final int DATA_COUNT = 23;
     private static final int FLOAT_SCALE = 10_000;
 
     // Convenience constructor for client deserialization
@@ -130,6 +132,10 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
 
     public PsyMixerRitualAction getCurrentAction() {
         return PsyMixerRitualAction.byId(ritualData.get(DATA_CURRENT_ACTION));
+    }
+
+    public PsyMixerTier getTier() {
+        return PsyMixerTier.byId(ritualData.get(DATA_TIER));
     }
 
     public int getActionIndex() {
@@ -318,6 +324,7 @@ public final class PsyMixerMenu extends AbstractContainerMenu {
                 case DATA_MAX_MISTAKES -> core.getMaxMistakes();
                 case DATA_LAST_MISS_REASON -> core.getLastMissReason();
                 case DATA_ACTION_PROGRESS -> Math.round(core.getCurrentActionProgress() * FLOAT_SCALE);
+                case DATA_TIER -> core.getTier().id();
                 default -> 0;
             };
         }

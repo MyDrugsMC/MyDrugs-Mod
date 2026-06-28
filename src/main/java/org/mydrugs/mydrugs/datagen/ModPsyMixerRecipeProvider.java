@@ -35,36 +35,46 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cachedOutput) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
 
-        recipe(futures, cachedOutput, DrugId.WEED, "minecraft:glowstone_dust",
+        primitiveRecipe(futures, cachedOutput, DrugId.WEED, "minecraft:glowstone_dust",
+                "item.mydrugs.mixed_formula.weed_glowstone_dust",
                 effect(EffectType.GAMMA_BOOST, 120 * 20, 1.45F));
-        recipe(futures, cachedOutput, DrugId.WEED, "minecraft:moss_carpet",
+        primitiveRecipe(futures, cachedOutput, DrugId.WEED, "minecraft:moss_carpet",
+                "item.mydrugs.mixed_formula.weed_moss_carpet",
                 effect(EffectType.STRESS_RELIEF, 90 * 20, 0.20F),
                 effect(EffectType.RITUAL_STABILITY, 90 * 20, 0.10F));
         recipe(futures, cachedOutput, DrugId.WEED, "minecraft:phantom_membrane",
                 effect(EffectType.FALL_CONTROL, 75 * 20, 0.35F),
                 effect(EffectType.CAMERA_SWAY, 75 * 20, 0.08F));
 
-        recipe(futures, cachedOutput, DrugId.TOBACCO, "mydrugs:aloe_vera",
-                effect(EffectType.PRECISION, 120 * 20, 1.30F),
-                effect(EffectType.TREMOR_REDUCTION, 120 * 20, 0.40F));
-        recipe(futures, cachedOutput, DrugId.TOBACCO, "minecraft:quartz",
-                effect(EffectType.PRECISION, 90 * 20, 0.75F),
-                effect(EffectType.TREMOR_REDUCTION, 90 * 20, 0.20F));
-        recipe(futures, cachedOutput, DrugId.TOBACCO, "minecraft:copper_ingot",
-                effect(EffectType.MANUAL_WORK_SPEED, 90 * 20, 0.15F),
-                effect(EffectType.PRECISION, 90 * 20, 1.10F));
+        primitiveRecipe(futures, cachedOutput, DrugId.TOBACCO, "mydrugs:aloe_vera",
+                "item.mydrugs.mixed_formula.tobacco_aloe_vera",
+                effect(EffectType.PRECISION, 6 * 60 * 20, 1.35F),
+                effect(EffectType.TREMOR_REDUCTION, 6 * 60 * 20, 0.55F),
+                effect(EffectType.STRESS_RELIEF, 3 * 60 * 20, 0.10F));
+        primitiveRecipe(futures, cachedOutput, DrugId.TOBACCO, "minecraft:quartz",
+                "item.mydrugs.mixed_formula.tobacco_quartz",
+                effect(EffectType.RITUAL_FOCUS, 5 * 60 * 20, 0.50F),
+                effect(EffectType.PRECISION, 5 * 60 * 20, 0.80F),
+                effect(EffectType.TREMOR_REDUCTION, 5 * 60 * 20, 0.20F));
+        primitiveRecipe(futures, cachedOutput, DrugId.TOBACCO, "minecraft:copper_ingot",
+                "item.mydrugs.mixed_formula.tobacco_copper_ingot",
+                effect(EffectType.PRECISION, 5 * 60 * 20, 1.20F),
+                effect(EffectType.MANUAL_WORK_SPEED, 5 * 60 * 20, 0.18F));
 
-        recipe(futures, cachedOutput, DrugId.COFFEE, "minecraft:sugar",
-                effect(EffectType.MANUAL_WORK_SPEED, 90 * 20, 0.12F),
-                effect(EffectType.MOVEMENT_SPEED, 60 * 20, 0.04F));
-        recipe(futures, cachedOutput, DrugId.COFFEE, "minecraft:redstone",
-                effect(EffectType.MANUAL_WORK_SPEED, 120 * 20, 0.35F),
-                effect(EffectType.MINING_SPEED, 120 * 20, 0.35F),
-                effect(EffectType.HEARTBEAT, 90 * 20, 0.20F),
-                effect(EffectType.TREMOR, 60 * 20, 0.08F));
-        recipe(futures, cachedOutput, DrugId.COFFEE, "minecraft:cocoa_beans",
-                effect(EffectType.MANUAL_WORK_SPEED, 120 * 20, 0.15F),
-                effect(EffectType.STRESS_RELIEF, 60 * 20, 0.08F));
+        primitiveRecipe(futures, cachedOutput, DrugId.COFFEE, "minecraft:sugar",
+                "item.mydrugs.mixed_formula.coffee_sugar",
+                effect(EffectType.MANUAL_WORK_SPEED, 5 * 60 * 20, 0.20F),
+                effect(EffectType.MOVEMENT_SPEED, 4 * 60 * 20, 0.06F));
+        primitiveRecipe(futures, cachedOutput, DrugId.COFFEE, "minecraft:redstone",
+                "item.mydrugs.mixed_formula.coffee_redstone",
+                effect(EffectType.MANUAL_WORK_SPEED, 5 * 60 * 20, 0.45F),
+                effect(EffectType.MINING_SPEED, 5 * 60 * 20, 0.45F),
+                effect(EffectType.HEARTBEAT, 3 * 60 * 20, 0.20F),
+                effect(EffectType.TREMOR, 2 * 60 * 20, 0.08F));
+        primitiveRecipe(futures, cachedOutput, DrugId.COFFEE, "minecraft:cocoa_beans",
+                "item.mydrugs.mixed_formula.coffee_cocoa_beans",
+                effect(EffectType.MANUAL_WORK_SPEED, 5 * 60 * 20, 0.22F),
+                effect(EffectType.STRESS_RELIEF, 3 * 60 * 20, 0.12F));
 
         recipe(futures, cachedOutput, DrugId.COCAINE, "minecraft:redstone",
                 effect(EffectType.MOVEMENT_SPEED, 60 * 20, 0.18F),
@@ -124,7 +134,7 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
                 effect(EffectType.RITUAL_FOCUS, 60 * 20, 1.00F),
                 effect(EffectType.CAMERA_SWAY, 60 * 20, 0.12F));
 
-        recipe(futures, cachedOutput, DrugId.MUSHROOMS, "minecraft:amethyst_shard",
+        recipe(futures, cachedOutput, DrugId.MUSHROOMS, "#mydrugs:resonance_shards",
                 effect(EffectType.ORE_AURA, 120 * 20, 3.5F),
                 effect(EffectType.RITUAL_STABILITY, 120 * 20, 0.20F));
         recipe(futures, cachedOutput, DrugId.MUSHROOMS, "minecraft:glow_berries",
@@ -180,7 +190,22 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
     private void recipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, DrugId baseDrug, String material, RitualDrugEffectData... effects) {
         recipe(futures, cachedOutput, generatedName(baseDrug, material), baseDrug, material,
                 fallbackResult(baseDrug), 400, 0.25F, 0.0F,
-                null, null, false, 0.0F, 0.0F, effects);
+                null, null, false, 0.0F, 0.0F,
+                null, null, true, null, ritualActions(baseDrug), effects);
+    }
+
+    private void primitiveRecipe(
+            List<CompletableFuture<?>> futures,
+            CachedOutput cachedOutput,
+            DrugId baseDrug,
+            String material,
+            String autoDisplayNameKey,
+            RitualDrugEffectData... effects
+    ) {
+        recipe(futures, cachedOutput, generatedName(baseDrug, material), baseDrug, material,
+                fallbackResult(baseDrug), 200, 0.06F, 0.0F,
+                null, null, true, 0.0F, 0.0F,
+                "dormant", "primitive", false, autoDisplayNameKey, primitiveRitualActions(baseDrug), effects);
     }
 
     private void recipe(
@@ -198,6 +223,11 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
             boolean preserveVesselOnSuccess,
             float failureSeverity,
             float ritualStabilityModifier,
+            String requiredMixerTier,
+            String ritualLevel,
+            boolean requiresNaming,
+            String autoDisplayNameKey,
+            JsonArray ritualActions,
             RitualDrugEffectData... effects
     ) {
         JsonObject json = new JsonObject();
@@ -210,7 +240,20 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
         json.add("effects", effects(effects));
         json.add("fallback_result", stack(fallbackResult));
         json.addProperty("ritual_time", ritualTime);
-        json.add("ritual_actions", ritualActions(baseDrug));
+        json.addProperty("base_instability", baseInstability);
+        json.add("ritual_actions", ritualActions);
+        if (requiredMixerTier != null) {
+            json.addProperty("required_mixer_tier", requiredMixerTier);
+        }
+        if (ritualLevel != null) {
+            json.addProperty("ritual_level", ritualLevel);
+        }
+        if (!requiresNaming) {
+            json.addProperty("requires_naming", false);
+        }
+        if (autoDisplayNameKey != null) {
+            json.addProperty("auto_display_name_key", autoDisplayNameKey);
+        }
         json.addProperty("required_knowledge", requiredKnowledge(baseDrug));
         json.addProperty("required_drug", baseDrug.serializedName());
         if (requiredLifetimeDose > 0.0F) {
@@ -219,8 +262,23 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
         json.addProperty("show_if_locked", true);
         json.addProperty("preserve_vessel_on_success", preserveVesselOnSuccess);
         json.addProperty("preserve_vessel_on_failure", true);
+        if (failureSeverity > 0.0F) {
+            json.addProperty("failure_severity", failureSeverity);
+        }
+        if (ritualStabilityModifier != 0.0F) {
+            json.addProperty("ritual_stability_modifier", ritualStabilityModifier);
+        }
 
         saveRecipe(futures, cachedOutput, "psy_mixer/" + name, json);
+    }
+
+    private static JsonArray primitiveRitualActions(DrugId baseDrug) {
+        JsonArray array = new JsonArray();
+        array.add(PsyMixerRitualAction.TIMING_RING.serializedName());
+        if (baseDrug == DrugId.WEED || baseDrug == DrugId.HASH) {
+            array.add(PsyMixerRitualAction.SNEAK.serializedName());
+        }
+        return array;
     }
 
     private static JsonArray ritualActions(DrugId baseDrug) {
@@ -287,7 +345,8 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
 
     private static String requiredKnowledge(DrugId baseDrug) {
         return switch (baseDrug) {
-            case WEED, HASH -> "mydrugs:cannabinoid";
+            case WEED -> "mydrugs:cannabinoid";
+            case HASH -> "mydrugs:steel_plating";
             case TOBACCO -> "mydrugs:nicotinic";
             case COFFEE -> "mydrugs:caffeine";
             case COCAINE, CRACK -> "mydrugs:stimulant";
@@ -300,8 +359,9 @@ public final class ModPsyMixerRecipeProvider implements DataProvider {
     }
 
     private static String generatedName(DrugId baseDrug, String material) {
-        ResourceLocation id = ResourceLocation.parse(material);
-        return baseDrug.serializedName() + "_" + id.getPath();
+        String raw = material.startsWith("#") ? material.substring(1) : material;
+        ResourceLocation id = ResourceLocation.parse(raw);
+        return baseDrug.serializedName() + "_" + id.getPath().replace('/', '_');
     }
 
     private void saveRecipe(List<CompletableFuture<?>> futures, CachedOutput cachedOutput, String name, JsonObject json) {

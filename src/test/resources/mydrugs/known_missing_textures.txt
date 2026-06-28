@@ -42,7 +42,6 @@ assets/mydrugs/textures/block/catalytic_reformer_bottom.png <- assets/mydrugs/mo
 assets/mydrugs/textures/block/catalytic_reformer_front.png <- assets/mydrugs/models/block/catalytic_reformer.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/catalytic_reformer_side.png <- assets/mydrugs/models/block/catalytic_reformer.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/catalytic_reformer_top.png <- assets/mydrugs/models/block/catalytic_reformer.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/charcoal_glyph_block.png <- assets/mydrugs/models/block/charcoal_glyph_block.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/chemical_reactor_bottom.png <- assets/mydrugs/models/block/chemical_reactor.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/chemical_reactor_bottom.png <- assets/mydrugs/models/block/chemical_reactor_on.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/chemical_reactor_front.png <- assets/mydrugs/models/block/chemical_reactor.json | Existing art backlog tracked by docs/ASSET_TODO.md.
@@ -93,7 +92,6 @@ assets/mydrugs/textures/block/gene_extractor_bottom.png <- assets/mydrugs/models
 assets/mydrugs/textures/block/gene_extractor_front.png <- assets/mydrugs/models/block/gene_extractor.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/gene_extractor_side.png <- assets/mydrugs/models/block/gene_extractor.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/gene_extractor_top.png <- assets/mydrugs/models/block/gene_extractor.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/hanging_vine_bundle.png <- assets/mydrugs/models/block/hanging_vine_bundle.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/hemogenic_infuser_bottom.png <- assets/mydrugs/models/block/hemogenic_infuser.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/hemogenic_infuser_front.png <- assets/mydrugs/models/block/hemogenic_infuser.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/hemogenic_infuser_side.png <- assets/mydrugs/models/block/hemogenic_infuser.json | Existing art backlog tracked by docs/ASSET_TODO.md.
@@ -112,7 +110,6 @@ assets/mydrugs/textures/block/manual_coffee_pulper_side.png <- assets/mydrugs/mo
 assets/mydrugs/textures/block/manual_coffee_pulper_top.png <- assets/mydrugs/models/block/manual_coffee_pulper.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/mechanical_frame.png <- assets/mydrugs/models/block/mechanical_frame.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/mixing_vat.png <- assets/mydrugs/models/block/mixing_vat.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/mycelial_padding.png <- assets/mydrugs/models/block/mycelial_padding.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/opium_poppy_stage0.png <- assets/mydrugs/models/block/opium_poppy_stage0.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/opium_poppy_stage1.png <- assets/mydrugs/models/block/opium_poppy_stage1.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/opium_poppy_stage2.png <- assets/mydrugs/models/block/opium_poppy_stage2.json | Existing art backlog tracked by docs/ASSET_TODO.md.
@@ -121,9 +118,6 @@ assets/mydrugs/textures/block/opium_poppy_stage4.png <- assets/mydrugs/models/bl
 assets/mydrugs/textures/block/opium_poppy_stage5.png <- assets/mydrugs/models/block/opium_poppy_stage5.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/opium_poppy_stage6.png <- assets/mydrugs/models/block/opium_poppy_stage6.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/opium_poppy_stage7.png <- assets/mydrugs/models/block/opium_poppy_stage7.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/painted_clay_bowl_bottom.png <- assets/mydrugs/models/block/painted_clay_bowl.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/painted_clay_bowl_inside.png <- assets/mydrugs/models/block/painted_clay_bowl.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/painted_clay_bowl_side.png <- assets/mydrugs/models/block/painted_clay_bowl.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/phosphate_ore.png <- assets/mydrugs/models/block/phosphate_ore.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/pipe/basic_fluid_pipe.png <- assets/mydrugs/models/block/pipe/basic_fluid_pipe.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/pipe/basic_gas_pipe.png <- assets/mydrugs/models/block/pipe/basic_gas_pipe.json | Existing art backlog tracked by docs/ASSET_TODO.md.
@@ -155,7 +149,6 @@ assets/mydrugs/textures/block/reduction_still_bottom.png <- assets/mydrugs/model
 assets/mydrugs/textures/block/reduction_still_front.png <- assets/mydrugs/models/block/reduction_still.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/reduction_still_side.png <- assets/mydrugs/models/block/reduction_still.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/reduction_still_top.png <- assets/mydrugs/models/block/reduction_still.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/ritual_bark.png <- assets/mydrugs/models/block/ritual_bark.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/rye.png <- assets/mydrugs/models/block/rye.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/salt_block.png <- assets/mydrugs/models/block/salt_block.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/steam_cracker_bottom.png <- assets/mydrugs/models/block/steam_cracker.json | Existing art backlog tracked by docs/ASSET_TODO.md.
@@ -174,7 +167,6 @@ assets/mydrugs/textures/block/valerian_stage5.png <- assets/mydrugs/models/block
 assets/mydrugs/textures/block/valerian_stage6.png <- assets/mydrugs/models/block/valerian_stage6.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/valerian_stage7.png <- assets/mydrugs/models/block/valerian_stage7.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/block/vomit_splash.png <- assets/mydrugs/models/block/vomit_splash.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/block/woven_vine_frame.png <- assets/mydrugs/models/block/woven_vine_frame.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/aloe_vera_seeds.png <- assets/mydrugs/models/item/aloe_vera_seeds.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/aluminium_boots.png <- assets/mydrugs/models/item/aluminium_boots.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/aluminium_chestplate.png <- assets/mydrugs/models/item/aluminium_chestplate.json | Existing art backlog tracked by docs/ASSET_TODO.md.
@@ -235,15 +227,12 @@ assets/mydrugs/textures/item/platinum_helmet.png <- assets/mydrugs/models/item/p
 assets/mydrugs/textures/item/platinum_ingot.png <- assets/mydrugs/models/item/platinum_ingot.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/platinum_leggings.png <- assets/mydrugs/models/item/platinum_leggings.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/pressed_calm.png <- assets/mydrugs/models/item/pressed_calm.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/item/psy_receptacle.png <- assets/mydrugs/models/item/psy_receptacle.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/item/psychotropic_pigment.png <- assets/mydrugs/models/item/psychotropic_pigment.json | Existing art backlog tracked by docs/ASSET_TODO.md.
+assets/mydrugs/textures/item/psy_watering_can.png <- assets/mydrugs/models/item/psy_watering_can.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/raw_aluminium.png <- assets/mydrugs/models/item/raw_aluminium.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/raw_phosphorus.png <- assets/mydrugs/models/item/raw_phosphorus.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/raw_platinum.png <- assets/mydrugs/models/item/raw_platinum.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/reactive_phosphorus.png <- assets/mydrugs/models/item/reactive_phosphorus.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/redline_fuel.png <- assets/mydrugs/models/item/redline_fuel.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/item/ritual_resin.png <- assets/mydrugs/models/item/ritual_resin.json | Existing art backlog tracked by docs/ASSET_TODO.md.
-assets/mydrugs/textures/item/ritual_threads.png <- assets/mydrugs/models/item/ritual_threads.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/shroom_harvester.png <- assets/mydrugs/models/item/shroom_harvester.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/space_overlays/space_enchanted_golden_apple.png <- assets/mydrugs/models/item/space_enchanted_golden_apple.json | Existing art backlog tracked by docs/ASSET_TODO.md.
 assets/mydrugs/textures/item/spent_filter.png <- assets/mydrugs/models/item/spent_filter.json | Existing art backlog tracked by docs/ASSET_TODO.md.

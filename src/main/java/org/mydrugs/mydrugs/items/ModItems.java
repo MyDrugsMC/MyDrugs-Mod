@@ -330,6 +330,22 @@ public class ModItems {
             ITEMS.registerItem("psy_receptacle",
                     props -> new PsyTooltipItem(props, "tooltip.mydrugs.psy_receptacle"));
 
+    public static final DeferredItem<Item> UNSTABLE_PEARL =
+            ITEMS.registerItem("unstable_pearl",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.unstable_pearl"));
+
+    public static final DeferredItem<Item> LUCID_LURE =
+            ITEMS.registerItem("lucid_lure",
+                    props -> new LucidLureItem(props, "tooltip.mydrugs.lucid_lure"));
+
+    public static final DeferredItem<Item> DULL_ATTUNED_SHARD =
+            ITEMS.registerItem("dull_attuned_shard",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.dull_attuned_shard"));
+
+    public static final DeferredItem<Item> ATTUNED_SHARD =
+            ITEMS.registerItem("attuned_shard",
+                    props -> new PsyTooltipItem(props, "tooltip.mydrugs.attuned_shard"));
+
     public static final DeferredItem<Item> PSY_BLUEPRINT =
             ITEMS.registerItem("psy_blueprint", PsyBlueprintItem::new);
 
@@ -389,6 +405,10 @@ public class ModItems {
 
     public static final DeferredItem<Item> WATERING_CONNECTION =
             ITEMS.registerSimpleItem("watering_connection");
+
+    public static final DeferredItem<Item> PSY_WATERING_CAN =
+            ITEMS.registerItem("psy_watering_can",
+                    props -> new PsyWateringCanItem(props.stacksTo(1)));
 
     public static final DeferredItem<Item> STEEL_BLEND =
             ITEMS.registerSimpleItem("steel_blend");

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CBC",
+    "BLB",
+    "CPC"
+  ],
+  "key": {
+    "L": "#minecraft:logs",
+    "B": "mydrugs:plant_biomass",
+    "C": "minecraft:charcoal",
+    "P": "mydrugs:psychotropic_pigment"
+  },
+  "result": {
+    "id": "mydrugs:ritual_bark",
+    "count": 4
+  }
+}

@@ -54,6 +54,18 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
                 1
         );
 
+        psyAnvil(futures, cachedOutput, "dull_attuned_shard",
+                "mydrugs:steel_plating",
+                ingredients(
+                        ingredient("minecraft:quartz", 1),
+                        ingredient("mydrugs:copper_plate", 1),
+                        ingredient("minecraft:redstone", 1),
+                        ingredient("mydrugs:cannabis_resin", 1)
+                ),
+                "mydrugs:dull_attuned_shard",
+                2
+        );
+
         psyAnvil(futures, cachedOutput, "heavy_iron",
                 "mydrugs:fermented",
                 ingredients(
@@ -82,6 +94,17 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
                 6
         );
 
+        psyAnvil(futures, cachedOutput, "attuned_shard",
+                "mydrugs:stimulant",
+                ingredients(
+                        ingredient("mydrugs:dull_attuned_shard", 1),
+                        ingredient("minecraft:glowstone_dust", 1),
+                        ingredient("mydrugs:cocaine_powder", 1)
+                ),
+                "mydrugs:attuned_shard",
+                2
+        );
+
         psyAnvil(futures, cachedOutput, "advanced_control_circuit",
                 "mydrugs:lysergic",
                 ingredients(
@@ -98,7 +121,7 @@ public final class ModPsyAnvilRecipeProvider implements DataProvider {
         psyAnvil(futures, cachedOutput, "mycelial_resonator",
                 "mydrugs:overclocked",
                 ingredients(
-                        ingredient("minecraft:amethyst_shard", 4),
+                        ingredient("#mydrugs:resonance_shards", 4),
                         ingredient("mydrugs:magic_mushroom_powder", 2),
                         ingredient("minecraft:redstone", 2),
                         ingredient("mydrugs:advanced_control_circuit", 1)

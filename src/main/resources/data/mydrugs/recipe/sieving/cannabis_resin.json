@@ -10,5 +10,6 @@
     "count": 1
   },
   "bonus_chance": 0.2,
+  "deterministic_bonus": true,
   "sieve_time": 160
 }

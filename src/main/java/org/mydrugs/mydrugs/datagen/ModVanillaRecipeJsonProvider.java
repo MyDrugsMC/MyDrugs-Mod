@@ -112,7 +112,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                 List.of(" IA", "CRG", " I "),
                 Map.of(
                         "I", itemId(Items.IRON_INGOT),
-                        "A", itemId(Items.AMETHYST_SHARD),
+                        "A", "#mydrugs:resonance_shards",
                         "C", itemId(Items.COPPER_INGOT),
                         "R", itemId(Items.REDSTONE),
                         "G", itemId(Items.GLASS_PANE)
@@ -122,7 +122,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                 List.of("GAG", "CRC", "IPI"),
                 Map.of(
                         "G", itemId(Items.GLASS),
-                        "A", itemId(Items.AMETHYST_SHARD),
+                        "A", "#mydrugs:resonance_shards",
                         "C", itemId(Items.COPPER_INGOT),
                         "R", itemId(Items.REDSTONE_BLOCK),
                         "I", itemId(Items.IRON_INGOT),
@@ -152,7 +152,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                 List.of("GAG", "CSC", "RPR"),
                 Map.of(
                         "G", itemId(Items.GLASS),
-                        "A", itemId(Items.AMETHYST_SHARD),
+                        "A", "#mydrugs:resonance_shards",
                         "C", itemId(Items.COPPER_INGOT),
                         "S", itemId(Items.SLIME_BALL),
                         "R", itemId(Items.REDSTONE),
@@ -163,7 +163,7 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                 List.of("GAG", "CBC", "RIR"),
                 Map.of(
                         "G", itemId(Items.GLASS),
-                        "A", itemId(Items.AMETHYST_SHARD),
+                        "A", "#mydrugs:resonance_shards",
                         "C", itemId(Items.COPPER_INGOT),
                         "B", itemId(ModBlocks.BACTERIAL_INCUBATOR.get()),
                         "R", itemId(Items.REDSTONE_BLOCK),
@@ -180,6 +180,13 @@ public class ModVanillaRecipeJsonProvider implements DataProvider {
                         "P", itemId(ModItems.PSYCHOTROPE_LENS.get())
                 ),
                 itemId(ModBlocks.AUTOCLAVE.get()), 1);
+        saveShaped(futures, cachedOutput, "psy_watering_can",
+                List.of("I I", "ISI", " I "),
+                Map.of(
+                        "I", itemId(Items.IRON_INGOT),
+                        "S", "#mydrugs:resonance_shards"
+                ),
+                itemId(ModItems.PSY_WATERING_CAN.get()), 1);
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }

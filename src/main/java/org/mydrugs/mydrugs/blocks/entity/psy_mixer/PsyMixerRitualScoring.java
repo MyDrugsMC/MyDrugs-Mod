@@ -28,12 +28,12 @@ public final class PsyMixerRitualScoring {
     ) {
         DrugId baseDrug = RitualBaseDrugResolver.resolve(input.base()).orElse(null);
         int actionCount = java.util.Optional.ofNullable(baseDrug)
-                .map(PsyMixerRitualScoring::baseDrugActionCount)
+                .map(drug -> baseDrugActionCount(drug, recipe.ritualLevel()))
                 .orElse(0);
-        if (recipe.hasValidVessel(input.vessel())) {
+        if (recipe.ritualLevel() != PsyMixerRitualLevel.PRIMITIVE && recipe.hasValidVessel(input.vessel())) {
             actionCount += 2;
         }
-        if (recipe.hasValidStabilizer(input.stabilizer())) {
+        if (recipe.ritualLevel() != PsyMixerRitualLevel.PRIMITIVE && recipe.hasValidStabilizer(input.stabilizer())) {
             actionCount += 2;
         }
         actionCount = Math.max(actionCount > 0 ? 1 : 0, actionCount - mastery.getRemovedActionCount(formulaMasteryId));
@@ -121,7 +121,14 @@ public final class PsyMixerRitualScoring {
         return qualityForScore(actions, finalScore * finalScoreMultiplier, mistakes, maxMistakes);
     }
 
-    private static int baseDrugActionCount(DrugId drugId) {
+    private static int baseDrugActionCount(DrugId drugId, PsyMixerRitualLevel ritualLevel) {
+        if (ritualLevel == PsyMixerRitualLevel.PRIMITIVE) {
+            return switch (drugId) {
+                case COFFEE, TOBACCO -> 1;
+                case WEED, HASH -> 2;
+                default -> 1;
+            };
+        }
         return switch (drugId) {
             case COFFEE, TOBACCO, WEED, HASH -> 1;
             case ALCOHOL, COCAINE, CRACK -> 2;

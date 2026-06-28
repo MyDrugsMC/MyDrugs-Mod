@@ -25,6 +25,14 @@ public final class MixedDrugStackFactory {
         return createStack(MixedDrugData.pending(formula, quality));
     }
 
+    public static ItemStack createAutoNamedStack(RitualDrugFormula formula, String displayNameKey) {
+        return createAutoNamedStack(formula, PsyMixerRitualQuality.BASE, displayNameKey);
+    }
+
+    public static ItemStack createAutoNamedStack(RitualDrugFormula formula, PsyMixerRitualQuality quality, String displayNameKey) {
+        return createStack(MixedDrugData.pending(formula, quality).withDisplayName(displayNameKey));
+    }
+
     private static Item itemFor(DrugId baseDrug) {
         return switch (baseDrug) {
             case WEED -> ModItems.MIXED_WEED_DRUG.get();

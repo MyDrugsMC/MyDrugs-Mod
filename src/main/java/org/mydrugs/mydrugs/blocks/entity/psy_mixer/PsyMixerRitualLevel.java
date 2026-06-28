@@ -7,6 +7,7 @@ import java.util.Locale;
 
 public enum PsyMixerRitualLevel {
     NONE("none", List.of()),
+    PRIMITIVE("primitive", List.of(PsyMixerRitualAction.TIMING_RING)),
     SIMPLE("simple", List.of(PsyMixerRitualAction.TIMING_RING)),
     FOCUSED("focused", List.of(PsyMixerRitualAction.LOOK_AT_CORE, PsyMixerRitualAction.TIMING_RING, PsyMixerRitualAction.SNEAK)),
     GREAT("great", List.of(PsyMixerRitualAction.JUMP, PsyMixerRitualAction.WALK_RING, PsyMixerRitualAction.LOOK_AT_CORE, PsyMixerRitualAction.TIMING_RING, PsyMixerRitualAction.SNEAK)),

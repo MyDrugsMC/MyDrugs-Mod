@@ -64,6 +64,10 @@ public final class LogStrippingEvents {
             return;
         }
 
+        if (!player.isShiftKeyDown()) {
+            return;
+        }
+
         BlockPos pos = context.getClickedPos();
         BlockState currentState = level.getBlockState(pos);
 
@@ -105,10 +109,6 @@ public final class LogStrippingEvents {
 
         int newStep = oldProgress.step() + 1;
 
-        // Drop one resin per axe step.
-        // If you want only ONE resin total, move this line into the final-step branch below.
-        dropResin(level, pos);
-
         level.playSound(
                 null,
                 pos,
@@ -123,6 +123,7 @@ public final class LogStrippingEvents {
 
         if (newStep >= REQUIRED_STEPS) {
             map.remove(immutablePos);
+            dropResin(level, pos);
 
             // Clear crack overlay.
             level.destroyBlockProgress(breakerId(pos), pos, -1);

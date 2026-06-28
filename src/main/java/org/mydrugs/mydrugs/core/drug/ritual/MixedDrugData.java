@@ -99,6 +99,20 @@ public record MixedDrugData(
         );
     }
 
+    public MixedDrugData withDisplayName(String displayName) {
+        return new MixedDrugData(
+                formulaId,
+                displayName,
+                authorUuid,
+                authorName,
+                baseDrug,
+                baseEffectsSnapshot,
+                addedEffects,
+                canonicalSignature,
+                quality
+        );
+    }
+
     private static void encode(ByteBuf buf, MixedDrugData data) {
         ComponentCodecs.boundedStringStream(MAX_ID_LENGTH).encode(buf, data.formulaId);
         ComponentCodecs.boundedStringStream(MAX_NAME_LENGTH).encode(buf, data.displayName);

@@ -92,6 +92,10 @@ public final class ClientSoundsHandler {
             if (sound == null || entry.remainingTicks() <= 0 || entry.effectiveIntensity() <= 0.0F) {
                 continue;
             }
+            if (isHeartbeatSound(sound) && !Config.CLIENT.enableHeartbeatSounds.get()) {
+                stopSound(mc, sound);
+                continue;
+            }
             synced.add(sound);
             SYNC_OWNED.add(sound);
             setToStart(sound, entry.remainingTicks(), entry.fadeTicksRemaining(), entry.fadeDurationTicks());
@@ -99,12 +103,7 @@ public final class ClientSoundsHandler {
 
         for (SoundEvent sound : new HashSet<>(SYNC_OWNED)) {
             if (!synced.contains(sound)) {
-                SoundInstance instance = ACTIVE.remove(sound);
-                if (instance != null) {
-                    mc.getSoundManager().stop(instance);
-                }
-                TO_START.remove(sound);
-                SYNC_OWNED.remove(sound);
+                stopSound(mc, sound);
             }
         }
     }
@@ -163,12 +162,28 @@ public final class ClientSoundsHandler {
         SYNC_OWNED.clear();
     }
 
+    private static void stopSound(Minecraft mc, SoundEvent soundEvent) {
+        SoundInstance instance = ACTIVE.remove(soundEvent);
+        if (instance != null) {
+            mc.getSoundManager().stop(instance);
+        }
+        TO_START.remove(soundEvent);
+        SYNC_OWNED.remove(soundEvent);
+    }
+
     private static float volumeFor(SoundEvent soundEvent) {
         float volume = 1.0F;
-        if (soundEvent == ModSounds.HEARTBEAT.get() || soundEvent == ModSounds.SINGLE_HEARTBEAT.get()) {
+        if (isHeartbeatSound(soundEvent)) {
+            if (!Config.CLIENT.enableHeartbeatSounds.get()) {
+                return 0.0F;
+            }
             volume *= Config.CLIENT.heartbeatVolume.get().floatValue();
         }
         return Config.CLIENT.suddenSoundCap(volume);
+    }
+
+    private static boolean isHeartbeatSound(SoundEvent soundEvent) {
+        return soundEvent == ModSounds.HEARTBEAT.get() || soundEvent == ModSounds.SINGLE_HEARTBEAT.get();
     }
 
     private record PendingSound(int durationTicks, int fadeTicksRemaining, int fadeDurationTicks, float volume) {
